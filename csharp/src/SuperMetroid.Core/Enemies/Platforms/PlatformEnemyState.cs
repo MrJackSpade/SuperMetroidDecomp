@@ -11,11 +11,11 @@ public sealed class PlatformEnemyState
     internal AnimationPlayback<PlatformSegment> Playback { get; set; }
 
     /// <summary>
-    /// The height a depressed platform rises back to, one pixel below its population position; only Y is meaningful.
-    /// Rising stops once the platform's whole Y lies above it, measured as the wrapped signed difference, so a height
-    /// that wrapped past the room's top edge stops the platform as the game does.
+    /// The room Y a depressed platform rises back to, one pixel below its population position. Rising stops once the
+    /// platform's whole Y lies above it, measured as the wrapped signed difference, so a height that wrapped past the
+    /// room's top edge stops the platform as the game does.
     /// </summary>
-    public Position16<RoomPixels> RestingHeight { get; internal set; }
+    public int RestingY { get; internal set; }
 
     /// <summary>The patrol speed in pixels per update, the spawn settings' speed: added patrolling right and negated patrolling left.</summary>
     public SignedSixteenSixteen Speed { get; internal set; }

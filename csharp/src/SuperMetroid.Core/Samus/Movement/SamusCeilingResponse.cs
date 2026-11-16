@@ -6,6 +6,6 @@ internal enum SamusCeilingResponse
     /// <summary>The mover responds at once.</summary>
     Immediate,
 
-    /// <summary>The caller responds after its own handling.</summary>
+    /// <summary>The movement responds after its own handling.</summary>
     Deferred,
 }

@@ -87,7 +87,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// explicit preserves the same ownership boundary.
     /// </param>
     /// <param name="carryover">The room-main value the following room inherits, which receives every turn.</param>
-    [IndependentFlag("independent room facts the caller reads from data: the elevator door's state and whether departure is allowed")]
+    [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState? samus,
         bool elevatorDoorDestroyed,

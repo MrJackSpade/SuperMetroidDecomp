@@ -82,7 +82,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             BodyState: body?.RequireSpeciesState<EvirEnemyState>(),
             Spit: isArms ? null : _slotTable.ListedAfter(slot, 2),
             FollowUpRecipients: FollowUpAfterStruckPart.Recipients(distance => _slotTable.ListedAfter(slot, distance), reach: 2)));
-        var state = new EvirEnemyState();
+        var state = new EvirEnemyState(EvirAction.HandleBodyOrArms);
         slot.SetSpeciesState(state);
 
         if (isArms)
@@ -98,48 +98,27 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // The body bobs down at its speed and up at the same speed.
             SignedSixteenSixteen speed = slot.SpawnSettings<EvirSpawnSettings>().Speed;
             state.BobbingSpeed = speed;
-            state.MovementTimer = ReadFirstHalfCycle(speed);
+            state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(speed, _slotTable.Slots, SlotLender.Instance);
         }
 
         state.MovingDown = false;
         state.InstalledAnimation = null;
-        state.Action = EvirAction.HandleBodyOrArms;
     }
 
-    /// <summary>
-    /// The body's first bobbing half-cycle. Instead of half its own direction-change period, the body takes half the
-    /// upper eight bits of a value of the enemy its room lists at a place fixed by its bobbing speed
-    /// (<see cref="EvirBorrowedFirstHalfCycle"/>, <see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is
-    /// read as it stands while the population loads: for the second Evir of either retail room the third enemy is the
-    /// first Evir's spit, whose colour selection the game reads as the count, so the first half-cycle is not zero
-    /// (<see cref="EvirInitDefinitions.SpitColoursHalfCycle"/>).
-    /// </summary>
-    private int ReadFirstHalfCycle(SignedSixteenSixteen speed)
+    /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
+    private sealed class SlotLender : IEvirHalfCycleLender<RoomEnemySlot>
     {
-        foreach (EvirFirstHalfCycleSource source in EvirInitDefinitions.FirstHalfCycleSources)
-        {
-            if (source.Speed != speed)
-                continue;
-            RoomEnemySlot enemy = EvirBorrowedFirstHalfCycle.Lender(_slotTable.Slots, source.LenderPlace);
-            return source.Field switch
-            {
-                // An enemy whose population entry has not loaded yet is still empty, read as zero.
-                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.IsFree
-                    ? 0
-                    : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
-                // The game reads the enemy's colour selection as the count: an empty place's is zero, an Evir spit's
-                // gives the retail rooms' half-cycle.
-                EvirHalfCycleSourceField.SpitColours => enemy.IsFree
-                    ? 0
-                    : enemy.DefinitionId == EnemyDefinitionId.EvirProjectile
-                        ? EvirInitDefinitions.SpitColoursHalfCycle
-                        : throw new InvalidDataException(
-                            $"An Evir body reads the colours of {enemy.DefinitionId}, which no retail room places where it reads."),
-                _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
-            };
-        }
-        throw new InvalidDataException(
-            $"An Evir bobbing at {speed.WholePixels} pixels and {speed.Fraction} 65536ths per update takes its first half-cycle from a value no retail Evir reads.");
+        /// <summary>The one reader every body uses.</summary>
+        internal static SlotLender Instance { get; } = new();
+
+        /// <inheritdoc/>
+        public bool IsEmpty(RoomEnemySlot enemy) => Ensure.NotNull(enemy).IsFree;
+
+        /// <inheritdoc/>
+        public int DirectionChangePeriod(RoomEnemySlot enemy) => Ensure.NotNull(enemy).SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod;
+
+        /// <inheritdoc/>
+        public bool IsEvirSpit(RoomEnemySlot enemy) => Ensure.NotNull(enemy).DefinitionId == EnemyDefinitionId.EvirProjectile;
     }
 
     /// <summary>Initializes the Evir Projectile.</summary>
@@ -147,13 +126,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The room lists each Evir's spit two places after its body, behind the arms.
         RoomEnemySlot spitBody = RequireEvirPart(slot, _slotTable.ListedBefore(slot, 2), EnemyDefinitionId.Evir, "projectile body", initializing: true);
-        var state = new EvirEnemyState
+        var state = new EvirEnemyState(EvirAction.ProjectileIdle)
         {
             RequestedAnimation = EvirSegment.ProjectileNormal,
             InstalledAnimation = null,
             Regenerating = false,
             InFlight = false,
-            Action = EvirAction.ProjectileIdle,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         _partners.Place(slot, new EvirPartners(
@@ -213,7 +191,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Dispatches idle attachment, aimed flight, or regeneration after selecting its animation.</summary>
+    /// <summary>Runs idle attachment, aimed flight or regeneration after selecting its animation.</summary>
     private void RunEvirProjectileMain(
         RoomEnemySlot slot,
         EvirEnemyState state,
@@ -266,8 +244,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Evir facing AI requires the active Samus actor.");
+        SamusState activeSamus = samus;
         state.Facing = CoordinateAxis.Difference(activeSamus.Position.X.Whole, body.Position.X.Whole) < 0
             ? EvirFacing.Left
             : EvirFacing.Right;
@@ -309,8 +286,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         SamusState samus)
     {
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Evir projectile aiming requires the active Samus actor.");
+        SamusState activeSamus = samus;
         RoomEnemySlot body = RequireSpitBody(projectile);
         if (!EnemyMath.IsWithinStrictModularDistance(
                 activeSamus.Position.X.Whole,
@@ -357,12 +333,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirEnemyState state,
         Position16<RoomPixels> camera)
     {
-        bool farOffscreen =
-            CoordinateAxis.Precedes(projectile.Position.X.Whole + EvirFarOffscreenDistance, camera.X) ||
-            CoordinateAxis.Precedes(camera.X + 256 + EvirFarOffscreenDistance, projectile.Position.X.Whole) ||
-            CoordinateAxis.Precedes(projectile.Position.Y.Whole + EvirFarOffscreenDistance, camera.Y) ||
-            CoordinateAxis.Precedes(camera.Y + 256 + EvirFarOffscreenDistance, projectile.Position.Y.Whole);
-        if (!farOffscreen)
+        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirFarOffscreenDistance))
             return;
 
         RoomEnemySlot body = RequireSpitBody(projectile);
@@ -579,8 +550,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
     {
         // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
-        // does not. Both body and arms therefore dispatch the shared tail and its intentionally physical next-slot follow-up
-        // aliases.
+        // does not. Both body and arms therefore run the shared tail, whose follow-up deliberately reaches the enemy after
+        // them in the room's list.
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };
 

@@ -30,13 +30,10 @@ internal sealed class DraygonSwoops
     /// <summary>Starts a swoop to the right: plans its path of heights and aims it at Samus.</summary>
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        if (samus is null)
-            throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
-
         BuildDraygonSwoopYPositions(state, samus);
         state.Phase = DraygonPhase.SwoopRightDescending;
         _parts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
@@ -81,7 +78,7 @@ internal sealed class DraygonSwoops
     /// <summary>Runs the descending half of the swoop, right and left.</summary>
     internal void DescendDraygonSwoop(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter,
         DraygonBehavior.DraygonSwoopSide side)
     {
@@ -105,7 +102,7 @@ internal sealed class DraygonSwoops
     /// <summary>Runs the velocity recalculation at the bottom of the swoop.</summary>
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
@@ -123,7 +120,7 @@ internal sealed class DraygonSwoops
     /// </summary>
     internal void AscendDraygonSwoop(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter,
         DraygonBehavior.DraygonSwoopSide side)
     {
@@ -171,12 +168,10 @@ internal sealed class DraygonSwoops
     /// <summary>Runs the mirrored left-swoop setup.</summary>
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        if (samus is null)
-            throw new InvalidOperationException("Draygon cannot aim a swoop without Samus.");
         int frameCount = PathOf(state).EntryCount;
 
         int distance = CoordinateAxis.Distance(
@@ -191,7 +186,7 @@ internal sealed class DraygonSwoops
     /// <summary>Aims the leftward climb at the left-side reset point, the wrapped distance back from Draygon's X.</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
@@ -217,7 +212,7 @@ internal sealed class DraygonSwoops
     /// <summary>Runs the four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);

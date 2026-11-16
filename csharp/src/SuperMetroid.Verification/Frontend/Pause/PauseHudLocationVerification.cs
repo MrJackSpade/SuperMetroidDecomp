@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
@@ -26,7 +27,8 @@ internal static class PauseHudLocationVerification
             // A runtime belongs to the one session that runs it, as every runtime a session builds does (its audio
             // requests reach that session's queues alone), so each phase's new game adopts a runtime of its own.
             var random = new SharedRandom();
-            var runtime = CreateRetailRuntimeFixture(random: random);
+            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+            var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
@@ -44,7 +46,6 @@ internal static class PauseHudLocationVerification
             // A BG3 cell's palette selects four of the first CGRAM inks; the pause screen loads them from $B6:F000.
             int inks = ((center >> 10) & 7) * 4;
             RgbColor[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => RgbColor.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
-            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
             game.GameState = SuperMetroidGameState.Paused;

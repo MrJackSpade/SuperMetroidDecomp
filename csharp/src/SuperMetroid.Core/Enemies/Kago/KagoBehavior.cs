@@ -56,13 +56,14 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Kago-owned tail of the Kago's shot reaction. The caller has
+    /// Runs the Kago-owned tail of the Kago's shot reaction. The shot has
     /// already executed common normal-enemy shot AI, exactly matching the leading call in
     /// the game's reaction.
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 16);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground),
+            KagoDefinitions.ShotQuakeDuration);
 
         if (!state.UsesFastAnimation)
         {
@@ -73,8 +74,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (--state.HitCounter < 0)
         {
-            // Common shot AI can theoretically kill the 1600-health shell first with a
-            // debug-edited projectile. Do not count the same death request twice.
+            // Common shot AI can in principle kill the 1600-health shell first. Do not
+            // count the same death twice.
             if (!slot.Presence.HasAny(EnemyPresence.Deleted))
             {
                 slot.Presence = slot.Presence.With(EnemyPresence.Deleted);
@@ -331,7 +332,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.State = new KagoBugState(source)
         {
             IdleFrames = initialIdleFrames,
-            SoundDelay = initialIdleFrames + 4,
+            SoundDelay = initialIdleFrames + KagoDefinitions.FirstSoundDelayPastWait,
         };
         projectile.StartMotion(KagoBugMotion.Waiting);
         projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));

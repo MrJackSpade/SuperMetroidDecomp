@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -117,8 +118,8 @@ internal static class ProjectileCompositionsVerification
         foreach (ushort type in new ushort[] { 0, 0x10, 0x100, 0x200, 0x300, 0x500, 0x700, 0x800 })
         {
             SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
-            var bombs = new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             var shot = shots.Shots[0];
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = id;
             shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
@@ -185,14 +186,14 @@ internal static class ProjectileCompositionsVerification
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentation maps)
     {
         var random = new SharedRandom();
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.SpriteSheets = sheets;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = sheets });
         string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));

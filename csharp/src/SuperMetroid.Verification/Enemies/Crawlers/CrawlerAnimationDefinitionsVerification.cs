@@ -21,7 +21,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             new InitialTable(CrawlerAnimationFamily.Viola, 0xa3b667),
             new InitialTable(CrawlerAnimationFamily.Sciser, 0xa396db),
             new InitialTable(CrawlerAnimationFamily.Zero, 0xa3992b),
-            new InitialTable(CrawlerAnimationFamily.HZoomer, 0xa3e03b),
+            new InitialTable(CrawlerAnimationFamily.OrangeZoomer, 0xa3e03b),
         ];
         CrawlerSurfaceOrientation[] orientations =
         [
@@ -57,7 +57,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
+            slot.Bind(family == CrawlerAnimationFamily.OrangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
             AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))),
@@ -71,9 +71,9 @@ internal static class CrawlerAnimationDefinitionsVerification
                 slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             }
             slot.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
-            if (family == CrawlerAnimationFamily.HZoomer)
+            if (family == CrawlerAnimationFamily.OrangeZoomer)
             {
-                new Action<RoomEnemySlot>(CrawlersBehavior.InitializeHZoomer)(slot);
+                new Action<RoomEnemySlot>(CrawlersBehavior.InitializeOrangeZoomer)(slot);
             }
             else
             {
@@ -92,7 +92,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            var state = new CrawlerEnemyState { SurfaceFamily = surfaceFamily };
+            var state = new CrawlerEnemyState(CrawlerAction.Settling) { SurfaceFamily = surfaceFamily };
 
             state.Velocity = state.Velocity.WithX(new SignedEightEight(0xffff));
             setHorizontal(slot, state);

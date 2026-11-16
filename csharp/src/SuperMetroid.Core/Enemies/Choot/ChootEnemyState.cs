@@ -8,11 +8,14 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 public sealed class ChootEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal ChootEnemyState(ChootAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ChootSegment> Playback { get; set; }
 
     /// <summary>The behaviour selected by Choot's main AI step.</summary>
-    public ChootAction? Action { get; internal set; }
+    public ChootAction Action { get; internal set; }
 
     /// <summary>
     /// The ascent's whole-mark place along the quadratic speed curve, moving back two marks per jumping update; the update

@@ -45,7 +45,7 @@ internal static class EscapeRoomEffectsVerification
         for (int frame = 0; frame < 80; frame++)
         {
             runtime.StepFrame(0);
-            if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive)) explosionFrames++;
+            if (runtime.Enemies.RoomEffectActors.Any(s => s.IsActive)) explosionFrames++;
             var shake = runtime.Enemies.Earthquake.LastRoomShake;
             offsets.Add(new OctantVector(shake.Foreground.X, shake.Foreground.Y));
             if (frame % 10 == 9)
@@ -58,7 +58,7 @@ internal static class EscapeRoomEffectsVerification
                     layer.BackgroundLineScrolls);
                 // The HUD is its own layer after the room (#1466); both renders keep it.
                 var baseline = DisplayRendering.Render(new LayeredScene(capture.Paint, [noObjects, capture.Layers[1]], capture.Brightness));
-                foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
+                foreach (var sprite in runtime.Enemies.RoomEffectActors.Where(s => s.IsActive))
                 {
                     int x = sprite.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
                     if (Math.Abs(sprite.Position.X.Whole - runtime.Player.IntroducedSamus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.IntroducedSamus.Position.Y.Whole) < 40) continue;

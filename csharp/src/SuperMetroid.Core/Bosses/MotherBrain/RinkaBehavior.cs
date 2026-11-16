@@ -172,7 +172,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunRinkaMain(
         RoomEnemySlot slot,
         RinkaEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         if (_deferredRinkaSpawnSlots.Count != 0)
             throw new InvalidOperationException(
@@ -194,9 +194,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             case RinkaAction.AimDelay:
                 if (--state.DelayTimer >= 0)
                     return;
-                if (samus is null)
-                    throw new InvalidOperationException("Rinka homing requires the active Samus actor.");
-
                 state.Action = RinkaAction.Flying;
 
                 // Special and ordinary branches have different source masks in code,

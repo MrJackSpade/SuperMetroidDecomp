@@ -180,7 +180,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Allocates a pickup projectile using an ordinary enemy definition. The
-    /// allocation search, slot-zero failure, random selection, and no-drop tail follow
+    /// search for a free place, failure at the first place, random selection, and no-drop tail follow
     /// the enemy-projectile spawn and then the pickup's initializer.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromDefinition(
@@ -233,8 +233,8 @@ internal sealed class EnemyDeathsAndDrops
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
 
-        // Unlike a finished death explosion, a direct drop becomes a pickup in any projectile
-        // slot, slot zero included. The roll reads the drop's definition straight back from
+        // Unlike a finished death explosion, a direct drop becomes a pickup in any place for
+        // an enemy projectile, the first included. The roll reads the drop's definition straight back from
         // the pickup that holds it.
         pickup.StartAnimation(new EnemyDeathProjectileAnimation(kind == EnemyPickupKind.NoDrop
             ? ConfigureDormantPickup(pickup)
@@ -603,7 +603,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin32:
                 _projectiles.SpawnRandomEnemyDeathSprite(
                     projectile,
-                    cue.SpriteObject,
+                    cue.EffectActor,
                     EnemyDeathExplosionDefinitions.WideSpriteHorizontalScatter,
                     EnemyDeathExplosionDefinitions.WideSpriteVerticalScatter,
                     center: 32);
@@ -611,7 +611,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyDeathProjectileCueKind.SpawnSpriteWithin16:
                 _projectiles.SpawnRandomEnemyDeathSprite(
                     projectile,
-                    cue.SpriteObject,
+                    cue.EffectActor,
                     EnemyDeathExplosionDefinitions.NarrowSpriteHorizontalScatter,
                     EnemyDeathExplosionDefinitions.NarrowSpriteVerticalScatter,
                     center: 16);

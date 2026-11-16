@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -152,12 +153,12 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             state.SwoopAngle = RotationAngle.FromSteps(angle);
             state.AnimationChangeAngle = RotationAngle.FromSteps(swoopLeft ? 240 : 144);
             state.SwoopAnimationChanged = false;
-            state.SwoopTarget = body.Position.Whole;
-            state.SwoopOrigin = body.Position.Whole;
+            state.SwoopTargetX = body.Position.X.Whole;
+            state.SwoopOriginY = body.Position.Y.Whole;
             state.SwoopRadius = new Extent16<RoomPixels>(16, 16);
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             var frame = new ClockedEnemyAiFrame(
-                RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) } },
+                RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) } },
                 new FrameCounters(0));
 
             ushort velocityWhole = 0;

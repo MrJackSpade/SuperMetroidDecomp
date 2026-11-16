@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's collision with solid enemies: which solid or frozen enemy stops a move, and how far she may still travel.
 /// </summary>
 /// <remarks>
-/// This is a probe, not an enemy simulation. The caller supplies the current interactive-enemy list in slot order, and
+/// This is a probe, not an enemy simulation. It reads the current interactive enemies in the room's order, and
 /// that order matters: the first enemy that stops the move is returned, not the geometrically nearest one. Room
 /// coordinates wrap past either end of the room's space (<see cref="CoordinateAxis"/>), so an enemy that lies just past
 /// the room's edge from Samus is still close to her, and the gaps are read as signed distances across that space.
@@ -91,7 +91,7 @@ public static class SamusSolidEnemyCollision
                 state.Position = state.Position.WithFractionY(0);
             }
 
-            // Success publishes the whole gap and the enemy met; the caller records it for its direction.
+            // Success publishes the whole gap and the enemy met; the move records it for its direction.
             return new SolidEnemyCollisionResult(
                 Collided: true,
                 Distance: gap,

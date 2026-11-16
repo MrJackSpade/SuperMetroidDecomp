@@ -45,19 +45,18 @@ public sealed class KraidEnemyState
         KraidPart.LintMiddle => MiddleLintState,
         KraidPart.LintBottom => BottomLintState,
         KraidPart.Foot => FootState,
-        KraidPart.Nail => FirstNailState,
-        KraidPart.NailBad => SecondNailState,
+        KraidPart.FirstNail => FirstNailState,
+        KraidPart.SecondNail => SecondNailState,
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidPart)} {part}."),
     };
 
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }
     /// <summary>
-    /// Gets the room position whose Y is the highest Samus may be pushed to when Kraid's body ejects her: Y 324 for the
-    /// small form and 164 once growth raises the clamp. Only the Y axis is meaningful; Samus's position is compared with
-    /// it by the wrapped spatial difference on Y.
+    /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: 324 for the small form and 164 once
+    /// growth raises the clamp. Samus's Y is compared with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> EjectionLimit { get; internal set; }
+    public int EjectionLimitY { get; internal set; }
     /// <summary>Gets the mouth's shot latches: a charged hit this pass, an armed reopen and a pending reopen.</summary>
     public KraidMouthFlags MouthFlags { get; internal set; }
     /// <summary>
@@ -78,10 +77,10 @@ public sealed class KraidEnemyState
     /// <summary>Half of Kraid's initial health, as four eighths: below it, his arm slows (#1890).</summary>
     internal int HalfHealth => HealthEighths(4);
     /// <summary>
-    /// Gets the room position the second-phase body walks to: X from 208 to 384. Only the X axis is meaningful; the
-    /// body's position is compared with it by the wrapped spatial difference on X.
+    /// Gets the room X the second-phase body walks to, from 208 to 384. The body's X is compared with it by the wrapped
+    /// difference.
     /// </summary>
-    public Position16<RoomPixels> WalkTarget { get; internal set; }
+    public int WalkTargetX { get; internal set; }
     /// <summary>Gets the hurt-flash phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
     public int HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-flash phases, normally reloaded to two and reused by background fades during death.</summary>
@@ -95,16 +94,16 @@ public sealed class KraidEnemyState
     /// </summary>
     internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
 
-    /// <summary>Moves the hurt-flash phase one step toward zero; the caller has established the phase is running.</summary>
+    /// <summary>Moves the hurt-flash phase one step toward zero; Kraid's hurt flash steps it only while the phase is running.</summary>
     internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0
         ? HurtFrame - 1
-        : throw new InvalidOperationException($"Stepping Kraid's hurt phase {HurtFrame} breaks its caller's running-phase guard.");
+        : throw new InvalidOperationException($"Kraid's hurt phase {HurtFrame} stepped while it was not running.");
 
     /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
     internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
 
     /// <summary>
-    /// Removes one pending mouth reopen (#1627). Every caller reaches here only while the mouth's reopen is pending, which a
+    /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
     /// mouth hit marks only after arming three, and the removal that leaves none clears the mouth, so a reopen is always
     /// pending here: the game's wrap of its count from zero is never reached, and removing from none breaks that
     /// order.
@@ -156,12 +155,6 @@ public sealed class KraidEnemyState
         BodyAppearance = KraidBodyAppearance.BehindSprites;
         ShowsBodyLayer = true;
     }
-
-    /// <summary>
-    /// Where Kraid's body lies in the room (#1617): the room pixel his body's parts' area's top-left corner lies on, which his
-    /// AI sets from his body's position. It is set at AI time and latched with the frame.
-    /// </summary>
-    public Position16<RoomPixels> BodyOrigin { get; internal set; }
 
     /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>
     public int DeathSoundTimer { get; internal set; }

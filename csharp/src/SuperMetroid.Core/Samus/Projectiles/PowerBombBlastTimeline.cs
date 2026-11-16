@@ -263,7 +263,7 @@ public sealed class PowerBombBlastTimeline
 
     /// <summary>
     /// Grows a radius by the shared speed unless the growth would reach 256 pixels (<see cref="PowerBombGrowthHold"/>);
-    /// the test runs before either value changes, so a held update leaves the radius (and the caller's speed change) as
+    /// the test runs before either value changes, so a held update leaves the radius (and the blast's speed change) as
     /// they were.
     /// </summary>
     /// <returns>True with the grown radius when the radius grows.</returns>

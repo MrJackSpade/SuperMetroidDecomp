@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Which spawned-object sheet a projectile or sprite object takes its pictures from, and how they are shaded (#1464,
+/// Which spawned-object sheet a projectile or effect actor takes its pictures from, and how they are shaded (#1464,
 /// #1512, #1513): what an enemy hands the objects it spawns so they draw its objects' pictures in its colours. The
 /// default value is <see cref="SharedStandard"/>: the room's shared sheet in the pictures' standard colours.
 /// </summary>
@@ -31,7 +31,7 @@ public readonly record struct SpriteGraphics
         init => shading = Ensure.NotNull(value);
     }
 
-    /// <summary>The room's shared sheet in its pictures' standard colours: what a projectile or sprite object draws with until its spawner gives it other graphics.</summary>
+    /// <summary>The room's shared sheet in its pictures' standard colours: what a projectile or effect actor draws with until its spawner gives it other graphics.</summary>
     internal static SpriteGraphics SharedStandard => default;
 
     /// <summary>The room's shared sheet under <paramref name="shading"/>.</summary>

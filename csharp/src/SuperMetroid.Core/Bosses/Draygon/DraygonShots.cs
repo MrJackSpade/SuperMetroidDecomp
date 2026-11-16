@@ -106,19 +106,13 @@ internal sealed class DraygonShots
         /// <summary>Advances airborne goop, including the power bomb freeing its place and Samus contact setup.</summary>
         private void RunFlyingDraygonGoop(
             EnemyProjectile goop,
-            SamusState? samus)
+            SamusState samus)
         {
             // A power-bombed goop frees its place but its update still moves it and
             // tests Samus. Contact is tested before the room boundary, so a goop that touches
             // Samus outside the boundary still plays its touch animation instead of being deleted.
             FreePlaceIfPowerBombed(goop, samus);
             MoveDraygonProjectile(goop);
-            if (samus is null)
-            {
-                DeleteDraygonProjectileOutsideRoom(goop);
-                return;
-            }
-
             int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, goop.Position.X.Whole);
             int yDistance = CoordinateAxis.Distance(samus.Position.Y.Whole, goop.Position.Y.Whole);
             if (xDistance < 16 && yDistance < 20)
@@ -132,12 +126,10 @@ internal sealed class DraygonShots
         /// <summary>Attaches goop to Samus, increasing her X-speed divisor until it expires.</summary>
         private void AttachDraygonGoopToSamus(
             EnemyProjectile goop,
-            SamusState? samus)
+            SamusState samus)
         {
             // The goop's attach step runs the power-bomb catch first, then attaches regardless.
             FreePlaceIfPowerBombed(goop, samus);
-            if (samus is null)
-                return;
             int nextDivisor = samus.XSpeedDivisor + 1;
             if (nextDivisor >= 6)
                 return;
@@ -155,12 +147,10 @@ internal sealed class DraygonShots
         /// <summary>Follows Samus with attached goop and counts down its removal timer.</summary>
         internal void RunAttachedDraygonGoop(
             EnemyProjectile goop,
-            SamusState? samus)
+            SamusState samus)
         {
             // The power-bomb catch does not end this frame behaviour.
             FreePlaceIfPowerBombed(goop, samus);
-            if (samus is null)
-                return;
             if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
             {
                 RemoveAttachedDraygonGoop(goop, samus);
@@ -179,7 +169,7 @@ internal sealed class DraygonShots
         /// slowdown. Inside the explosion's ellipse the shot finishes its update
         /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): the calling update goes on with it.
         /// </summary>
-        private void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState? samus)
+        private void FreePlaceIfPowerBombed(EnemyProjectile projectile, SamusState samus)
         {
             // A projectile pass no enemy pass has preceded has seen no explosion, which is the radius-zero case.
             if (frameContext.PowerBombExplosion is not { } powerBomb)
@@ -194,8 +184,7 @@ internal sealed class DraygonShots
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 return;
             PowerBombedDraygonShotFinishesItsUpdate.Catch(projectile, static shot => shot.FreePlace());
-            if (samus is not null)
-                samus.XSpeedDivisor = 0;
+            samus.XSpeedDivisor = 0;
         }
     }
     /// <summary>Moves a Draygon projectile in 1/65536-pixel space by its angle and speed.</summary>

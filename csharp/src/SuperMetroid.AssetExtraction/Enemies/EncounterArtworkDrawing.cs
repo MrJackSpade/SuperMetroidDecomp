@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// Frames an encounter draws in some of its looks (#1513, #1538): the enemy frames, projectile frames and the frames of the
-/// room sprite objects listed, drawn in the looks listed. A sheet holds a frame's finished picture of each look it is drawn
+/// room effect actors listed, drawn in the looks listed. A sheet holds a frame's finished picture of each look it is drawn
 /// in; a frame drawn in one look, or alike in every look it is drawn in, has one picture.
 /// </summary>
 /// <param name="Encounter">The encounter.</param>
@@ -19,8 +19,8 @@ internal sealed record EncounterArtworkDrawing(ComposedEncounter Encounter, IRea
     /// <summary>The projectile frames drawn.</summary>
     internal IReadOnlyList<EnemyProjectileFrameId> Projectiles { get; init; } = [];
 
-    /// <summary>The room sprite objects whose frames are drawn.</summary>
-    internal IReadOnlyList<RoomSpriteObjectKind> SpriteObjects { get; init; } = [];
+    /// <summary>The room effect actors whose frames are drawn.</summary>
+    internal IReadOnlyList<RoomEffectActorKind> EffectActors { get; init; } = [];
 
     /// <summary>
     /// Whether the listed frames' artwork is what their one look copies (#1513): such a frame is whole once that look has

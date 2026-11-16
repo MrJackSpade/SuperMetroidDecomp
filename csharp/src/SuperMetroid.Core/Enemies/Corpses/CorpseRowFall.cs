@@ -13,10 +13,10 @@ internal sealed class CorpseRowFall
         DelayCalls = delayCalls;
     }
 
-    /// <summary>The corpse pixel row, from the top, the row moves next; it falls two rows each call once its delay is over.</summary>
+    /// <summary>The corpse pixel row, from the top, the row moves next; it falls two rows each rot step once its delay is over.</summary>
     public int PixelRow { get; internal set; }
 
-    /// <summary>The rot calls the row still waits before it starts falling.</summary>
+    /// <summary>The rot steps the row still waits before it starts falling.</summary>
     public int DelayCalls { get; internal set; }
 
     /// <summary>

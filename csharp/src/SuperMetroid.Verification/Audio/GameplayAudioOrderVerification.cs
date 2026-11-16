@@ -132,13 +132,28 @@ internal static class GameplayAudioOrderVerification
     }
 
     /// <summary>
+    /// A runtime built outside a session (the tooling factory given no queues) runs over queues of its own (#2057): every
+    /// request it makes is tested against them and joins them, so each answers with what its queue did, the first finding
+    /// the queue empty and the next finding the first waiting; no request reaches no queue.
+    /// </summary>
+    internal static void VerifyRuntimeOutsideASessionAnswersFromItsOwnQueues()
+    {
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
+        AssertEqual(SoundQueueAdmission.Admitted(0), runtime.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal),
+            "a runtime outside a session answers its first request from its own empty queue");
+        AssertEqual(SoundQueueAdmission.Admitted(1), runtime.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal),
+            "its next request finds the first waiting in its own queue");
+    }
+
+    /// <summary>
     /// The Crateria Ki Hunter room with Samus standing free to move and fire, run by a game whose session queues receive
     /// the runtime's requests.
     /// </summary>
     private static (SuperMetroidRuntime Runtime, AudioQueues Audio) KiHunterRoomWithSessionAudio()
     {
         var random = new SharedRandom();
-        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
+        SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -150,7 +165,6 @@ internal static class GameplayAudioOrderVerification
         runtime.Player.GroundedSamusMovementEnabled = true;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        SuperMetroidGame game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         return (runtime, game.AudioForVerification);

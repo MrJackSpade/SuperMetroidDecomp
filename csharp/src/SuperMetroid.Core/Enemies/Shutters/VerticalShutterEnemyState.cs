@@ -7,13 +7,16 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal VerticalShutterEnemyState(VerticalShutterAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
 
     /// <summary>
     /// The current behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform.
     /// </summary>
-    public VerticalShutterAction? Action { get; internal set; }
+    public VerticalShutterAction Action { get; internal set; }
 
     /// <summary>
     /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes once

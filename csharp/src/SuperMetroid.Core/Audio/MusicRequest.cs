@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// One request the game puts on its music queue (#1410): play a song of the loaded data set or its area theme (#1748),
-/// stop the music, or change the music data set. The queue holds each with its delay and dispatches it when the delay expires.
+/// stop the music, or change the music data set. The queue holds each with its delay and carries it out when the delay expires.
 /// </summary>
 public abstract record MusicRequest
 {

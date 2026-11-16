@@ -44,7 +44,7 @@ internal static class BoyonSpeedDefinitionsVerification
         AssertEqual(48, initialized, "the six selectors up to 128 pixels initialize with each of the eight multipliers");
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8), "Boyon import rejects the multiplier past its table");
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900), "Boyon import rejects the height past its table");
-        Func<BoyonEnemyState, int> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
+        Func<BoyonEnemyState, UnsignedSixteenSixteen> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
         var curve = new BoyonEnemyState();
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
@@ -55,7 +55,7 @@ internal static class BoyonSpeedDefinitionsVerification
             {
                 // Exercise every multiplier the multiply takes.
                 curve.SpeedMultiplier = multiplier;
-                AssertEqual((ushort)(sample * multiplier), multiply(curve), "Boyon real byte-width multiply without bus");
+                AssertEqual(UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel((ushort)(sample * multiplier)), multiply(curve), "Boyon real byte-width multiply without bus");
             }
         }
         AssertThrows<InvalidOperationException>(() => BoyonBounceCurve.Sample(BoyonCurvePlace.PastTheTop), "no sample is read past the top of the arc");

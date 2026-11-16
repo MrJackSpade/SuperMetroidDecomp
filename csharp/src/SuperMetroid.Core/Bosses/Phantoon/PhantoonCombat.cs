@@ -488,7 +488,7 @@ internal sealed class PhantoonCombat
                 : PhantoonPhase.DyingFadeInOut;
         state.FigureEight.Reversed = false;
         state.BodyFade.Complete = false;
-        state.BodyWave.InitializeDeathScroll(state.BodyOrigin.X);
+        state.BodyWave.InitializeDeathScroll();
         state.Translucent = true;
     }
 

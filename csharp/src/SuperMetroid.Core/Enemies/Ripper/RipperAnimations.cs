@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// The GRipper, Ripper II and Ripper flying loops (#641). Each
+/// The grapple Ripper, jet Ripper and Ripper flying loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
 internal static class RipperAnimations
@@ -14,19 +14,19 @@ internal static class RipperAnimations
     internal static AnimationSegments<RipperSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<RipperSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.GRipperMovingLeft] =
+        [P.GrappleRipperMovingLeft] =
         [
-            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.GRipperMovingLeftSecond, 7),
-            Show(EnemyFrameId.GRipperMovingLeftFirst, 8),
-            Show(EnemyFrameId.GRipperMovingLeftThird, 7),
+            Show(EnemyFrameId.GrappleRipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.GrappleRipperMovingLeftSecond, 7),
+            Show(EnemyFrameId.GrappleRipperMovingLeftFirst, 8),
+            Show(EnemyFrameId.GrappleRipperMovingLeftThird, 7),
         ],
-        [P.GRipperMovingRight] =
+        [P.GrappleRipperMovingRight] =
         [
-            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
-            Show(EnemyFrameId.GRipperMovingRightSecond, 7),
-            Show(EnemyFrameId.GRipperMovingRightFirst, 8),
-            Show(EnemyFrameId.GRipperMovingRightThird, 7),
+            Show(EnemyFrameId.GrappleRipperMovingRightFirst, 8),
+            Show(EnemyFrameId.GrappleRipperMovingRightSecond, 7),
+            Show(EnemyFrameId.GrappleRipperMovingRightFirst, 8),
+            Show(EnemyFrameId.GrappleRipperMovingRightThird, 7),
         ],
         [P.RipperMovingRight] =
         [
@@ -47,8 +47,8 @@ internal static class RipperAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<RipperSegment, Animation<RipperSegment>> StartingAt { get; } = new Dictionary<RipperSegment, Animation<RipperSegment>>
     {
-        [P.GRipperMovingLeft] = new([new(P.GRipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.GRipperMovingRight] = new([new(P.GRipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GrappleRipperMovingLeft] = new([new(P.GrappleRipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.GrappleRipperMovingRight] = new([new(P.GrappleRipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RipperMovingRight] = new([new(P.RipperMovingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RipperMovingLeft] = new([new(P.RipperMovingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };

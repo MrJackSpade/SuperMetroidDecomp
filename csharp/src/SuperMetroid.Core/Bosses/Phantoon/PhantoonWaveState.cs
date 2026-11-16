@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public sealed class PhantoonWaveState
 {
     /// <summary>
-    /// The wave's length, which the wave reads every update; null ends the wave and lets his body's area follow his body
-    /// again. The wave's setup sets it.
+    /// The wave's length, which the wave reads every update; null ends the wave.
+    /// The wave's setup sets it.
     /// </summary>
     public PhantoonWaveLength? Length { get; internal set; }
 

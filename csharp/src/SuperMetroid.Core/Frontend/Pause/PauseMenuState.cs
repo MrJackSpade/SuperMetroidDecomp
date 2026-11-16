@@ -158,10 +158,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public PauseScreenMode ScreenMode { get; private set; }
 
     /// <summary>
-    /// Runs the pause menu's input after the caller has latched the update's input and applied the
-    /// delayed-held filter. Returns true when Start requests unpausing.
+    /// Runs the pause menu's input once the update's input is latched and the
+    /// delayed-held filter applied. Returns true when Start requests unpausing.
     /// The runtime supplies its short frame counter for the colour animation's phase;
-    /// standalone diagnostic callers may leave that phase at zero. <paramref name="bombs"/> are Samus's bomb slots frozen
+    /// a standalone diagnostic run may leave that phase at zero. <paramref name="bombs"/> are Samus's bomb slots frozen
     /// under the pause, which a same-frame toggle into the first reserve row repaints (#1505).
     /// </summary>
     public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCycle = 0,

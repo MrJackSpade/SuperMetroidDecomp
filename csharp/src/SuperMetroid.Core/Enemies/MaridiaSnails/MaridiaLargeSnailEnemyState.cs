@@ -1,9 +1,16 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
-/// <summary>The state of Oum, with its ten own values.</summary>
+/// <summary>The state of Oum.</summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
+    /// <summary>Starts the snail in <paramref name="action"/>, its bounce in <paramref name="bouncePhase"/>.</summary>
+    internal MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction action, MaridiaLargeSnailBouncePhase bouncePhase)
+    {
+        Action = action;
+        BouncePhase = bouncePhase;
+    }
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MaridiaLargeSnailSegment> Playback { get; set; }
 
@@ -24,14 +31,14 @@ public sealed class MaridiaLargeSnailEnemyState
 
     /// <summary>
     /// Set only during the rolling frames where Oum may turn into its next
-    /// attack. The name is "attack allowing rotation flag"; it is not a hitbox flag.
+    /// attack; it says nothing of Oum's hitboxes.
     /// </summary>
     public bool AttackAllowsRotation { get; internal set; }
 
     /// <summary>Samus is within the strict 24-by-32 proximity window.</summary>
     public bool SamusInPushingRange { get; internal set; }
 
-    /// <summary>One when Samus is to the left, zero when to the right.</summary>
+    /// <summary>Whether Samus is to Oum's left rather than its right.</summary>
     public bool SamusIsLeft { get; internal set; }
 
     /// <summary>Whole-pixel position captured before this frame's AI.</summary>
@@ -45,7 +52,7 @@ public sealed class MaridiaLargeSnailEnemyState
     public bool StopMovementNextFrame { get; internal set; }
 
     /// <summary>The outer action.</summary>
-    public MaridiaLargeSnailAction? Action { get; internal set; }
+    public MaridiaLargeSnailAction Action { get; internal set; }
 
     /// <summary>
     /// The bounce arc's place along the quadratic speed curve, stepped by a mark and a half per update. Falling caps it
@@ -65,5 +72,5 @@ public sealed class MaridiaLargeSnailEnemyState
     public int RemainingBounces { get; internal set; }
 
     /// <summary>Falling/rising half of the quadratic bounce.</summary>
-    public MaridiaLargeSnailBouncePhase? BouncePhase { get; internal set; }
+    public MaridiaLargeSnailBouncePhase BouncePhase { get; internal set; }
 }

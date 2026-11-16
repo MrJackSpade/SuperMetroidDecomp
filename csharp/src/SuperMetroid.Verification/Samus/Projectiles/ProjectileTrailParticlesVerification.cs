@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -17,7 +18,7 @@ internal static class ProjectileTrailParticlesVerification
     /// </summary>
     internal static void VerifyProjectileTrailParticles()
     {
-        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         // A charged power shot, part way through its animation, in the first direction that names a placement list.
         SamusProjectile shot = Enum.GetValues<SamusProjectileDirection>()
             .Select(direction => new SamusProjectile(0)

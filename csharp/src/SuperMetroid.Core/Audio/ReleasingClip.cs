@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// A cut clip fading out over one key-off release (#1305): the clip, its loop, its frame zero and
+/// A cut clip fading out over its release (#1305): the clip, its loop, its frame zero and
 /// how many release frames remain.
 /// </summary>
 /// <param name="Clip">The clip file.</param>

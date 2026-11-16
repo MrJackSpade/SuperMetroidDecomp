@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
@@ -48,13 +48,13 @@ internal static class DraygonBurialEvirDefinitionsVerification
         for (int entry = 5; entry >= 0; entry--)
         {
             // The cartridge spawns its last three entries as the left-facing intro Evir and its first three facing right.
-            RoomSpriteObjectKind kind = entry >= 3
-                ? RoomSpriteObjectKind.DraygonIntroEvir
-                : RoomSpriteObjectKind.DraygonDeathEvirFacingRight;
+            RoomEffectActorKind kind = entry >= 3
+                ? RoomEffectActorKind.DraygonIntroEvir
+                : RoomEffectActorKind.DraygonDeathEvirFacingRight;
             DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
             enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, definition);
             // The n-th Evir spawned is the n-th live sprite object.
-            RoomSpriteObject sprite = enemies.RoomSpriteObjects[5 - entry];
+            RoomEffectActor sprite = enemies.RoomEffectActors[5 - entry];
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
             AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
             AssertEqual(definition.Initial.X, sprite.Position.X.Whole,
@@ -72,7 +72,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
         for (int entry = 5; entry >= 0; entry--)
         {
             // The n-th Evir spawned is the n-th live sprite object.
-            RoomSpriteObject sprite = enemies.RoomSpriteObjects[5 - entry];
+            RoomEffectActor sprite = enemies.RoomEffectActors[5 - entry];
             DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(
                 definition.Initial.X,

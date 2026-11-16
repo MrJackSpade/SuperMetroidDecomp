@@ -67,7 +67,7 @@ internal static class CeresRidleyPicturesVerification
             for (int x = 0; x < CharacterPixels; x++)
             {
                 SuperMetroid.Verification.Rooms.Artwork.RoomBlockPicturesVerification.AssertPaintsTile(
-                    $"The warning's word {index} at pixel ({x}, {y})", page, word, x, y, picture.Picture,
+                    () => $"The warning's word {index} at pixel ({x}, {y})", page, word, x, y, picture.Picture,
                     new Position16<ImagePixels>(picture.Corner.X + x, picture.Corner.Y + y));
             }
         }

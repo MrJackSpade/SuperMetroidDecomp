@@ -63,7 +63,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MorphBallDefault), [
-            new(EnemyDefinitionId.Eye),
+            new(EnemyDefinitionId.MorphBallEye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.WarehouseZeela), [
@@ -110,7 +110,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.RedBrinstarSave), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.BlueBrinstarETankDefault), [
-            new(EnemyDefinitionId.Eye),
+            new(EnemyDefinitionId.MorphBallEye),
             new(EnemyDefinitionId.FaceBlock),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarFirefleas), [
@@ -139,7 +139,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.GreenBrinstarMainShaft), [
             new(EnemyDefinitionId.Etecoon),
             new(EnemyDefinitionId.Zeela),
-            new(EnemyDefinitionId.RipperII),
+            new(EnemyDefinitionId.JetRipper),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawnSuper), [
             new(EnemyDefinitionId.Zeb),

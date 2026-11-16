@@ -13,8 +13,7 @@ internal static class ChootPatternDefinitions
     /// <summary>
     /// The vertical distance, in pixels, each falling path's loop origin advances per loop. Slow variants repeat
     /// normal-path plateau frames and use the same vertical advance. The advances are not the paths' final offsets
-    /// (31/29/32 against 30/28/32), so they stay authored inputs of each drawn trajectory (see the residual scalar
-    /// inputs review).
+    /// (31/29/32 against 30/28/32), so they stay authored inputs of each drawn trajectory.
     /// </summary>
     internal static readonly Dictionary<ChootFallingPath, int> LoopYDistances = new()
     {

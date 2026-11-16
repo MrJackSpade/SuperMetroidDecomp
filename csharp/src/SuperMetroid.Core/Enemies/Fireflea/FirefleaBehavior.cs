@@ -55,10 +55,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(FirefleaFlight)} {settings.Flight}.");
         }
 
-        var spawnY = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        var reach = new Offset16<RoomPixels>(0, state.Radius);
-        state.MinimumYExtent = spawnY - reach;
-        state.MaximumYExtent = spawnY + reach;
+        int spawnY = slot.Position.Y.Whole;
+        state.MinimumY = CoordinateAxis.Wrap(spawnY - state.Radius);
+        state.MaximumY = CoordinateAxis.Wrap(spawnY + state.Radius);
     }
 
     /// <summary>Runs the Fireflea's main AI, advancing circular angle or wrapped vertical travel.</summary>
@@ -68,7 +67,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToTrigonometryAngle(), state.Radius));
 
-            state.Angle += state.AngularSpeed;
+            state.Angle = state.Angle.TurnedBy(state.AngularSpeed);
             return;
         }
 
@@ -77,8 +76,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // The bounds compare by whether the wrapped subtraction is negative, not by ordinary
         // bounds comparisons. The actor is intentionally allowed to overshoot before its
         // speed reverses.
-        bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
-        bool reachedMaximum = (slot.Position.Whole - state.MaximumYExtent).Y >= 0;
+        bool crossedMinimum = CoordinateAxis.Precedes(slot.Position.Y.Whole, state.MinimumY);
+        bool reachedMaximum = !CoordinateAxis.Precedes(slot.Position.Y.Whole, state.MaximumY);
         if (crossedMinimum || reachedMaximum)
             state.SpeedSign = Reversed(state.SpeedSign);
     }

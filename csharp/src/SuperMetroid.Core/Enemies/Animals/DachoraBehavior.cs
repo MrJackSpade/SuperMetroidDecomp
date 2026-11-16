@@ -89,7 +89,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeDachora(RoomEnemySlot slot)
     {
         DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
-        var state = new DachoraEnemyState
+        var state = new DachoraEnemyState(settings.Role == DachoraRole.SpeedBoostEcho ? DachoraAction.Echo : DachoraAction.WaitingForSamus)
         {
             FacingRight = settings.Facing == HorizontalDirection.Right || settings.Role == DachoraRole.SpeedBoostEcho,
         };
@@ -107,7 +107,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
                 ? DachoraSegment.EchoRight
                 : DachoraSegment.EchoLeft), AnimationPlace.StartOfAnimation);
-            state.Action = DachoraAction.Echo;
             return;
         }
 
@@ -115,7 +114,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(DachoraAnimations.StartingWith(settings.Facing == HorizontalDirection.Right
             ? DachoraSegment.IdleRight
             : DachoraSegment.IdleLeft), AnimationPlace.StartOfAnimation);
-        state.Action = DachoraAction.WaitingForSamus;
     }
 
     /// <summary>Runs the Dachora's current action.</summary>
@@ -127,18 +125,16 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         int frameCycle)
     {
         // Echo AI needs only the frame counter's parity. Every body state needs both the active
-        // Samus gravity values and authentic room collision, so fail loudly if a caller
-        // attempts to run the family without the state that code reads globally.
+        // Samus gravity values and authentic room collision, so fail loudly if the family
+        // runs without the state that code reads globally.
         if (state.Action == DachoraAction.Echo)
         {
             RunDachoraEcho(slot, state, frameCycle);
             return;
         }
 
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Dachora body AI requires the active Samus actor.");
-        RoomLevelData activeLevel = level ?? throw new InvalidOperationException(
-            "Dachora body AI requires active room collision data.");
+        SamusState activeSamus = samus;
+        RoomLevelData activeLevel = level;
         switch (state.Action)
         {
             case DachoraAction.WaitingForSamus:
@@ -165,7 +161,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             case DachoraAction.Echo:
             default:
                 throw new InvalidDataException(
-                    $"Dachora has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Dachora has no behaviour for action {state.Action}.");
         }
     }
 
@@ -421,7 +417,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed = SignedSixteenSixteen.Zero;
     }
 
-    /// <summary>Runs the four-slot, first-free echo pipeline.</summary>
+    /// <summary>Moves the Dachora's four echoes, each new echo taking the first free one.</summary>
     private void UpdateDachoraEchoPositions(RoomEnemySlot body)
     {
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);
@@ -538,10 +534,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Distance(actor, samus) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>
-    private static SignedSixteenSixteen SamusGravity(SamusState samus) =>
-        SignedSixteenSixteen.FromParts(
-            samus.Kinematics.YAcceleration.Whole,
-            samus.Kinematics.YAcceleration.Fraction);
+    private static SignedSixteenSixteen SamusGravity(SamusState samus) => samus.Kinematics.YAcceleration.AsDisplacement();
 
     /// <summary>Advances Dachora's typed animation.</summary>
     internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>

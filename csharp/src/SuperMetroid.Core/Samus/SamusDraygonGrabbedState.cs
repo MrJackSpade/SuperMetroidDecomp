@@ -91,9 +91,9 @@ public sealed class SamusDraygonGrabbedState
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
         PreviousDpadInput = 0;
         ReleasePublishedToOwner = false;
-        // Forced grab owns its history shift; no ordinary input slot is consumed.
+        // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();
-        // Empties every prospective-pose slot. The super-special one is Samus's;
+        // Clears every prospective pose. The super-special one is Samus's;
         // the runtime clears the others after the enemy update (EnemyRoomStatus publishes the grab).
         samus.PendingTransitionalPose = null;
     }

@@ -12,7 +12,7 @@ internal static class CrawlersPartDefinitions
         [EnemyDefinitionId.Zeela] = CrawlersPart.Zeela,
         [EnemyDefinitionId.Sova] = CrawlersPart.Sova,
         [EnemyDefinitionId.Zoomer] = CrawlersPart.Zoomer,
-        [EnemyDefinitionId.MZoomer] = CrawlersPart.MZoomer,
-        [EnemyDefinitionId.HZoomer] = CrawlersPart.HZoomer,
+        [EnemyDefinitionId.ArmoredZoomer] = CrawlersPart.ArmoredZoomer,
+        [EnemyDefinitionId.OrangeZoomer] = CrawlersPart.OrangeZoomer,
     };
 }

@@ -59,7 +59,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Initializes the Oum.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
-        var state = new MaridiaLargeSnailEnemyState
+        var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
         {
             RequestedAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
             InstalledAnimation = MaridiaLargeSnailSegment.FacingRightIdle,
@@ -69,12 +69,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             SamusIsLeft = false,
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
-            Action = MaridiaLargeSnailAction.Idle,
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             AttackCooldown = MaridiaLargeSnailInitialAttackCooldown,
             MovingLeft = false,
             RemainingBounces = MaridiaLargeSnailInitialBounceCount,
-            BouncePhase = MaridiaLargeSnailBouncePhase.Falling,
         };
         slot.SetSpeciesState(state);
 
@@ -110,7 +108,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Maridia Large Snail has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Maridia Large Snail has no behaviour for action {state.Action}.");
         }
 
         CarrySamusWithMaridiaLargeSnail(slot, state, samus);
@@ -264,7 +262,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             default:
                 throw new InvalidDataException(
                     $"Maridia Large Snail has no behaviour for bounce phase " +
-                    $"{state.BouncePhase?.ToString() ?? "none"}.");
+                    $"{state.BouncePhase}.");
         }
     }
 
@@ -282,10 +280,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)
         {
-            // Temporarily extends the whole-pixel move sixteen pixels toward Samus,
+            // Temporarily extends the whole-pixel move toward Samus by the push's reach,
             // performs collision, then retracts the center. Net velocity remains one
             // pixel per frame while wall clipping naturally passes the lost distance to Samus.
-            speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft ? -16 : 16));
+            speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft
+                ? -MaridiaLargeSnailMotionDefinitions.PushReach
+                : MaridiaLargeSnailMotionDefinitions.PushReach));
         }
 
         SignedSixteenSixteen displacement = speed;
@@ -297,7 +297,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (temporarilyReachTowardSamus)
         {
             slot.Position = slot.Position.WithWrappedWholeX(
-                slot.Position.X.Whole + (state.MovingLeft ? 16 : -16));
+                slot.Position.X.Whole + (state.MovingLeft
+                    ? MaridiaLargeSnailMotionDefinitions.PushReach
+                    : -MaridiaLargeSnailMotionDefinitions.PushReach));
         }
 
         if (!collided)
@@ -408,7 +410,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!centerWithinSamusRadius && remainingX >= slot.Radius.X)
             return false;
 
-        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3);
+        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + MaridiaLargeSnailMotionDefinitions.SamusTouchBias);
         if (CoordinateAxis.Difference(biasedSamusY, slot.Position.Y.Whole) >= 0)
             return false;
 
@@ -464,8 +466,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         int shove = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
-            ? -4
-            : 4;
+            ? -MaridiaLargeSnailMotionDefinitions.ShoveDistance
+            : MaridiaLargeSnailMotionDefinitions.ShoveDistance;
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(shove, 0);
     }
 
@@ -529,7 +531,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
     };
 
-    /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
+    /// <summary>Reacts to Samus touching a damaging or non-damaging Oum hitbox, each with its own push.</summary>
     internal void ReactToMaridiaLargeSnailTouch(EnemyTouchContext context)
     {
         if (!context.UsesFrameHitboxes)

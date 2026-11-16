@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -27,8 +27,8 @@ internal sealed record DraygonBehaviorDependencies
     /// <summary>Audio.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjects SpriteObjects { get; init; }
+    /// <summary>Effect actors.</summary>
+    public required RoomEffectActors EffectActors { get; init; }
 
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }

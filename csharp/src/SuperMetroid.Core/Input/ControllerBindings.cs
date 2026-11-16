@@ -26,7 +26,7 @@ public readonly record struct ControllerBindings(
 
     /// <summary>The literal bindings a new save file installs.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: the new-save bindings are
+    /// The new-save bindings are
     /// Shoot=X, Jump=A, Dash=B,
     /// ItemSelect=Select, ItemCancel=Y, AimUp=R, and
     /// AimDown=L. These are named action-to-button cases; the constructor and the
@@ -46,7 +46,7 @@ public readonly record struct ControllerBindings(
     /// list. Only these seven can be assigned in an ordinary retail options menu.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165: the options menu's button list holds nine
+    /// The options menu's button list holds nine
     /// buttons: X, A, B, Select, Y, L, R, Left, Right. The managed seven-button prefix
     /// matches exactly; the final two follow the list, not assignable actions. Setting a
     /// binding starts at the seventh choice and scans backward to the first; saving the
@@ -157,7 +157,7 @@ public readonly record struct ControllerBindings(
     /// <remarks>
     /// A valid save checksum proves only that the slot was written consistently; it does
     /// not make malformed button bindings safe. Replacing a corrupt permutation with defaults
-    /// used to hide both bad save data and decoding bugs. The caller now gets the exact
+    /// used to hide both bad save data and decoding bugs. The save's loader now gets the exact
     /// seven bindings in the exception and can decide whether to delete or repair the save.
     /// </remarks>
     public ControllerBindings RequireRetailPermutation()

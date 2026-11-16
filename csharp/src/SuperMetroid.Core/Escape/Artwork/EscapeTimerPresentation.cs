@@ -32,7 +32,7 @@ public sealed class EscapeTimerPresentation
     /// <param name="timer">Live timer supplying its readout and the integer pixel origin of its moving position.</param>
     /// <param name="sprites">Frame receiving the TIME label and then the tens and ones digit of each pair, after any sprites already emitted.</param>
     /// <param name="sheet">The installed timer sheet, one frame per glyph.</param>
-    /// <remarks>The caller controls visibility. This method neither checks whether the timer is active nor advances its countdown.</remarks>
+    /// <remarks>Whether the timer shows is decided elsewhere. This method neither checks whether the timer is active nor advances its countdown.</remarks>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
     public void Draw(EscapeTimer timer, SpriteFrameBuffer sprites, SpriteSheet sheet)
     {

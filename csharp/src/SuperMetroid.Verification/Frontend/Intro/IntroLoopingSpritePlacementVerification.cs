@@ -52,6 +52,6 @@ internal static class IntroLoopingSpritePlacementVerification
         internal Offset16<ScreenPixels>? Origin { get; private set; }
 
         /// <inheritdoc/>
-        public void Draw(CinematicSpritePose pose, ScreenSprites objects, Offset16<ScreenPixels> place, PictureShade drawn) => Origin = place;
+        public void Draw(CinematicSpritePose pose, ScreenSprites screenSprites, Offset16<ScreenPixels> place, PictureShade drawn) => Origin = place;
     }
 }

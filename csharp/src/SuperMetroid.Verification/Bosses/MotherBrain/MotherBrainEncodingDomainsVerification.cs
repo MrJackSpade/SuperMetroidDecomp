@@ -213,23 +213,23 @@ internal static class MotherBrainEncodingDomainsVerification
     /// </summary>
     private static void VerifySnapshotPlacesBodyArea()
     {
-        AssertEqual(MotherBrainBodyAreaPlacement.Unplaced,
-            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.Glass, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
+        AssertEqual(MotherBrainBodyPlacement.Unplaced,
+            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.Glass, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
             "her glass form leaves her body's area unplaced");
-        AssertEqual(MotherBrainBodyAreaPlacement.Unplaced,
-            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
+        AssertEqual(MotherBrainBodyPlacement.Unplaced,
+            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentContinuePausing),
             "the pause before her rise leaves her body's area unplaced");
-        AssertEqual(MotherBrainBodyAreaPlacement.FollowsBody,
-            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain),
+        AssertEqual(MotherBrainBodyPlacement.FollowsBody,
+            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.FakeDeath, MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain),
             "her rise places her body's area with her");
-        AssertEqual(MotherBrainBodyAreaPlacement.FollowsBody,
-            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.SecondPhase, MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck),
+        AssertEqual(MotherBrainBodyPlacement.FollowsBody,
+            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.SecondPhase, MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck),
             "a mid-phase-two snapshot places her body's area with her");
-        AssertEqual(MotherBrainBodyAreaPlacement.FollowsBody,
-            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathStartEscape),
+        AssertEqual(MotherBrainBodyPlacement.FollowsBody,
+            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathStartEscape),
             "her body's area stays with her until her escape's start shows the warning");
-        AssertEqual(MotherBrainBodyAreaPlacement.AtRoomCorner,
-            NativeSnapshotMotherBrainImport.BodyAreaOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText),
+        AssertEqual(MotherBrainBodyPlacement.AtRoomCorner,
+            NativeSnapshotMotherBrainImport.BodyPlacementOf(MotherBrainForm.ThirdPhase, MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText),
             "the escape warning's typing lies at the room's corner");
     }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Gameplay;
@@ -94,19 +95,21 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        var kraid = new KraidEnemyState { ShowsBodyLayer = true, BodyOrigin = new Position16<RoomPixels>(320, 88) };
+        var kraid = new KraidEnemyState { ShowsBodyLayer = true };
+        RoomEnemySlot kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
+        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
         // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
         AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.LayerPixelAtScreenTop(
-            BossBodyPlacement.Shown(kraid.BodyOrigin, runtime.Display.Latched.Scrolls.ForegroundPosition)), "Kraid's body on the background");
+            BossBodyPlacement.Shown(kraidBody.Position.Whole, runtime.Display.Latched.Scrolls.ForegroundPosition)), "Kraid's body on the background");
         runtime.Enemies.KraidBehavior.Access.Kraid = null;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { BodyArea = MotherBrainBodyAreaPlacement.FollowsBody, DeathHidesBodyLayer = true };
+        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
@@ -145,9 +148,7 @@ internal static class GameplayDisplayFrameTestsVerification
         // Fireflea darkness: the effect and the shade it publishes. From the first flash shade (level zero), a step at darkness
         // offset six shades level eighteen and one at offset two level six.
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
-        FirefleaFxState fireflea = runtime.RoomFx.Fireflea;
-        runtime.RoomFxOverlay.Type = RoomFxType.Fireflea;
-        fireflea.Initialize();
+        FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
         fireflea.Step(frozen: false, darknessStep: 3);
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
@@ -160,8 +161,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(6, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
             "the next accepted frame publishes the chosen shade");
-        runtime.RoomFxOverlay.Type = originalFx;
-        fireflea.Initialize();
+        runtime.RoomFxOverlay.EndFirefleaDarknessForCheck(originalFx);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual<RgbColor?>(null, runtime.PublishDisplayFrame().Latched.Tints.Fireflea,
             "a room whose effect is not Fireflea darkness publishes no Fireflea shade");

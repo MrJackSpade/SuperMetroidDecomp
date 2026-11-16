@@ -48,7 +48,7 @@ internal sealed class EyeDoorBehavior
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
-            return; // Spawning fails when all eighteen projectile slots are live.
+            return; // Spawning fails when the room has no place left for an enemy projectile.
 
         Position16<RoomBlocks> block = request.RoomObjectBlock;
         switch (request.Definition)
@@ -120,7 +120,7 @@ internal sealed class EyeDoorBehavior
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, EyeDoorProjectileCue cue) =>
-            ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue);
+            ApplyEyeDoorProjectileCue(context.Projectile, context.Samus.RoomView, cue);
     }
 
     /// <summary>
@@ -160,17 +160,16 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Starts smoke showing <paramref name="animation"/> scattered by misc-dust placement <paramref name="placementIndex"/>:
-    /// uses one shared random sample for both smoke offsets, then advances the seed.
+    /// Starts smoke showing <paramref name="animation"/> scattered across <paramref name="placement"/>: uses one shared
+    /// random sample for both smoke offsets, then advances the seed.
     /// </summary>
     internal void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
         MiscDustAnimation animation,
-        int placementIndex,
+        MiscDustPlacementDefinition placement,
         Position16<RoomBlocks> block)
     {
         MiscDustProjectileSegment segment = MiscDustProjectiles.Animation(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(placementIndex);
 
         int random = _room.Random.Read();
         // Stores only the animation, keeping the definition's one-update timer.
@@ -242,12 +241,12 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Carries out one cue of the eye-door shot's animations.</summary>
-    private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, IRoomSamus? samus, EyeDoorProjectileCue cue)
+    private static void ApplyEyeDoorProjectileCue(EnemyProjectile projectile, IRoomSamus samus, EyeDoorProjectileCue cue)
     {
         switch (cue.Kind)
         {
             case EyeDoorProjectileCueKind.AimAtSamus:
-                AimEyeDoorProjectileAtSamus(projectile, samus ?? throw new InvalidOperationException("The eye-door shot's aim requires Samus."));
+                AimEyeDoorProjectileAtSamus(projectile, samus);
                 break;
             case EyeDoorProjectileCueKind.StartFlight:
                 projectile.StartMotion(EyeDoorProjectileMotion.ShotFlying);

@@ -1,6 +1,8 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -20,11 +22,17 @@ internal static class EnemyEffectMechanicsVerification
     private static readonly Position16<RoomPixels> RoomCamera = Position16<RoomPixels>.Zero;
 
     /// <summary>
+    /// How far above him the cartridge's body area lay (#1802, #2031): its rows are his body's rows reckoned from his position
+    /// less this.
+    /// </summary>
+    private static int AreaTop => BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Crocomire].Y;
+
+    /// <summary>
     /// The cartridge's vertical placement of his body layer, the row of his body's area its room's camera row shows (#1802),
-    /// which its melt scroll table holds.
+    /// which its melt scroll table holds: his area lay 67 pixels above him.
     /// </summary>
     private static ushort NativePlacement(CrocomireEffectFixture fixture) =>
-        unchecked((ushort)(RoomCamera.Y - fixture.Enemies.CrocomireBehavior.BodyLayer.BodyOrigin.Y));
+        unchecked((ushort)(RoomCamera.Y - (fixture.Actor.Body.Position.Y.Whole + AreaTop)));
 
     /// <summary>
     /// Rebuilds the cartridge's melt scroll table, as its loop builds it line by line, into <paramref name="scrolls"/> from the fixture's state after a
@@ -75,12 +83,12 @@ internal static class EnemyEffectMechanicsVerification
             // The cartridge's BG2 vertical-scroll table, from the first gameplay line, levelled as the melt starts.
             var nativeScrolls = new ushort[256];
             Array.Fill(nativeScrolls, NativePlacement(fixture));
-            AssertEqual(CrocomireMeltDistortion.Level(fixture.Enemies.CrocomireBehavior.BodyLayer.BodyOrigin.Y), fixture.Effect.MeltDistortion,
-                "the melt starts levelled where his body lies");
+            AssertEqual(CrocomireMeltDistortion.Level(fixture.Actor.Body.Position.Y.Whole), fixture.Effect.MeltDistortion,
+                "the melt starts levelled where he lies");
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
             int calls = (20480 - 256 + 383) / 384 + 1;
-            int initialSmokeObjects = fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive);
+            int initialSmokeObjects = fixture.Enemies.RoomEffectActors.Count(slot => slot.IsActive);
             for (int call = 1; call <= calls; call++)
             {
                 fixture.Dissolve();
@@ -88,16 +96,16 @@ internal static class EnemyEffectMechanicsVerification
                 if (call < calls)
                 {
                     // The described stretch gives every gameplay line the row the screen's top shows under the camera row the
-                    // cartridge's table gives it (#1468, #1514).
+                    // cartridge's table gives it (#1468, #1514), his body's rows reckoned from his position (#2031).
                     BuildNativeMeltScrolls(nativeScrolls, fixture);
                     for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
-                        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(nativeScrolls[line]), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
+                        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(unchecked((ushort)(nativeScrolls[line] + AreaTop))), (int)ScrollShapeLines.StretchScroll(BossLineScrolls.Of(fixture.Effect.MeltDistortion, RoomCamera), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
                 AssertEqual(call == calls ? phase.Next() : phase, fixture.Actor.DeathPhase, "exact dissolve phase handoff");
                 AssertEqual(Math.Min(call, CrocomireMeltingDefinitions.ColumnCount), fixture.Effect.MeltColumnsErased, "fixed erase-column cadence");
                 AssertEqual(initialSmokeObjects + (call + 5) / 6,
-                    fixture.Enemies.RoomSpriteObjects.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
+                    fixture.Enemies.RoomEffectActors.Count(slot => slot.IsActive), "fixed acid-smoke cadence");
                 if (call <= CrocomireMeltingDefinitions.ColumnCount)
                     AssertEqual(call, fixture.MeltBandStep((call - 1) % bands), "each step shows the next band");
                 // His body shows the melt image, stored once, hiding what the steps its bands last showed have erased (#1652).

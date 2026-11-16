@@ -25,7 +25,7 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
             [
                 new Beat.Event(OldTourianWallExplosionCue.Scatter),
                 new Beat.Event(OldTourianWallExplosionCue.ExplosionSound),
-                .. Enumerable.Range(0, D.Frames.Count).Select(place => new Beat.Frame(D.Frames[place], D.FrameDurations[place])),
+                .. D.Beats.Select(beat => new Beat.Frame(beat.Frame, beat.Duration)),
                 new Beat.Event(OldTourianWallExplosionCue.Delete),
             ],
         });
@@ -40,8 +40,8 @@ internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionSe
             [OldTourianWallExplosionSegment.Start] = new(
             [
                 new(OldTourianWallExplosionSegment.Start, 0, 1, 1),
-                new(OldTourianWallExplosionSegment.Burst, 0, 2 + D.FrameDurations.Length, D.BurstCount),
-                new(OldTourianWallExplosionSegment.Burst, 2 + D.FrameDurations.Length, 1, 1),
+                new(OldTourianWallExplosionSegment.Burst, 0, 2 + D.Beats.Count, D.BurstCount),
+                new(OldTourianWallExplosionSegment.Burst, 2 + D.Beats.Count, 1, 1),
             ], AnimationEnd.Holds),
         };
 

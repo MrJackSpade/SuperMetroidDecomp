@@ -18,8 +18,8 @@ public sealed class FirefleaEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FirefleaSegment> Playback { get; set; }
 
-    /// <summary>The turn a circling Fireflea makes each update, from its spawn settings.</summary>
-    public RotationAngle AngularSpeed { get; internal set; }
+    /// <summary>How far, and which way, a circling Fireflea turns around its circle each update, from its spawn settings.</summary>
+    public AngularSpeed AngularSpeed { get; internal set; }
 
     /// <summary>The movement radius in pixels, 8 through 64, from its spawn settings.</summary>
     public int Radius { get; internal set; }
@@ -34,11 +34,11 @@ public sealed class FirefleaEnemyState
     /// </summary>
     public Position16<RoomPixels> Center { get; internal set; }
 
-    /// <summary>Upper extent of vertical motion, the spawn Y minus the radius with room-coordinate wraparound; only its Y is meaningful. Passing above it, by the wrapped spatial difference, reverses speed after movement.</summary>
-    public Position16<RoomPixels> MinimumYExtent { get; internal set; }
+    /// <summary>Upper extent of vertical motion, the spawn Y minus the radius with room-coordinate wraparound. Passing above it, by the wrapped difference, reverses speed after movement.</summary>
+    public int MinimumY { get; internal set; }
 
-    /// <summary>Lower extent of vertical motion, the spawn Y plus the radius with room-coordinate wraparound; only its Y is meaningful. Reaching or passing it, by the wrapped spatial difference, reverses speed without clamping.</summary>
-    public Position16<RoomPixels> MaximumYExtent { get; internal set; }
+    /// <summary>Lower extent of vertical motion, the spawn Y plus the radius with room-coordinate wraparound. Reaching or passing it, by the wrapped difference, reverses speed without clamping.</summary>
+    public int MaximumY { get; internal set; }
 
     /// <summary>The speed a bobbing Fireflea moves at, from its spawn settings, toward increasing coordinates.</summary>
     public SignedSixteenSixteen Speed { get; internal set; }

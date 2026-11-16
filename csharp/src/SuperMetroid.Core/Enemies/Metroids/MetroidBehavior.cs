@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
@@ -27,20 +27,20 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Queues Metroid-specific animation, ice, and recoil sounds.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Owns the two sprite objects composited over the Metroid body.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Owns the two effect actors composited over the Metroid body.</summary>
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Supplies the current frame's Samus and room context to registered AI.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Creates death animations and randomized item drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Binds Metroid AI to the room, body layers, audio, frame context, and death owner.</summary>
-    internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomSpriteObjects spriteObjects, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
+    internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomEffectActors effectActors, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
         _terrain = terrain;
         _audio = audio;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _frameContext = frameContext;
         _deathsAndDrops = deathsAndDrops;
     }
@@ -77,13 +77,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMetroid(RoomEnemySlot slot)
     {
         SpriteGraphics graphics = SpriteGraphics.SpawnedBy(slot);
-        RoomSpriteObject electricity = _spriteObjects.SpawnRoomSpriteObject(
+        RoomEffectActor electricity = _effectActors.SpawnRoomEffectActor(
             slot.Position.Whole,
-            RoomSpriteObjectKind.MetroidElectricity,
+            RoomEffectActorKind.MetroidElectricity,
             graphics);
-        RoomSpriteObject shell = _spriteObjects.SpawnRoomSpriteObject(
+        RoomEffectActor shell = _effectActors.SpawnRoomEffectActor(
             slot.Position.Whole,
-            RoomSpriteObjectKind.MetroidShell,
+            RoomEffectActorKind.MetroidShell,
             graphics);
 
         var state = new MetroidEnemyState(electricity, shell)
@@ -96,11 +96,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs a Metroid's per-frame behaviour and its four-entry movement dispatch.</summary>
+    /// <summary>Runs a Metroid's per-frame behaviour and whichever of its four movements it is in.</summary>
     private void RunMetroidMain(RoomEnemySlot slot, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
+        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus);
         switch (state.Movement)
         {
             case MetroidMovement.Homing:
@@ -120,8 +120,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Metroid movement {state.Movement} is not one of its four movements.");
         }
 
-        // The ordinary body supplies the central map. Both outer objects are
-        // repositioned and re-enabled every non-frozen main call, exactly after movement.
+        // The ordinary body shows the central picture. Both outer objects are
+        // repositioned and re-enabled every update the Metroid is not frozen, right after it moves.
         PositionMetroidOuterBody(state.Electricity, slot, SpriteGraphics.SpawnedBy(slot));
         PositionMetroidOuterBody(state.Shell, slot, SpriteGraphics.SpawnedBy(slot));
     }
@@ -173,9 +173,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Chooses a closing Metroid's speed on one axis from its distance to its target.</summary>
     private static int CalculateMetroidClosingVelocity(int target, int current)
     {
-        // The closing speed is 32 times the distance the Metroid reckons (MetroidClosingDistance), clamped.
+        // The closing speed is a multiple of the distance the Metroid reckons (MetroidClosingDistance), clamped.
         return Math.Clamp(
-            32 * MetroidClosingDistance.Between(target, current),
+            MetroidBehaviorDefinitions.ClosingSpeedPerDistance * MetroidClosingDistance.Between(target, current),
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }
@@ -213,7 +213,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.EscapeTimer != 0)
         {
             state.EscapeTimer--;
-            slot.FlashTimer = 2;
+            slot.FlashTimer = MetroidBehaviorDefinitions.EscapeFlashDuration;
         }
 
         FreezeMetroidOuterBody(state.Electricity, MetroidOuterBodyDefinitions.ElectricityFrozenAnimation);
@@ -242,7 +242,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
+        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus);
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)
@@ -262,7 +262,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Movement != MetroidMovement.PowerBombEscape)
         {
-            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= 30)
+            if (MetroidCadenceDefinitions.DrainSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter) && samus.Health >= MetroidBehaviorDefinitions.DrainSoundLeastHealth)
                 _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
             DrainSamusWithMetroid(state, samus);
         }
@@ -317,8 +317,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the current
-        // collision slot. The stores encode delta/8 as a signed value in 1/65536 pixels.
+        // The Metroid's shot reaction recoils from the first projectile (MetroidRecoilOrigin), not the shot that
+        // hit it now. Each velocity is an eighth of the distance, signed, in 1/65536 pixels.
         StoreMetroidXVelocity(
             state,
             SignedSixteenSixteen.FromSixteenthsOfPixel(2 * CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X)));
@@ -330,7 +330,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (collisionProjectileType.BeamCombination.HasIce)
         {
-            slot.FlashTimer = 4;
+            slot.FlashTimer = MetroidBehaviorDefinitions.IceFlashDuration;
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
@@ -353,8 +353,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EscapeTimer = MetroidEscapeDuration;
         state.Movement = MetroidMovement.PowerBombEscape;
         SetMetroidAnimation(slot, state, MetroidSegment.ChasingSamus);
-        if (samus is not null)
-            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
+        samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
@@ -364,8 +363,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithWholeX(0);
         state.Electricity.End();
         state.Shell.End();
-        if (samus is not null)
-            samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
+        samus.MetroidAttachmentShade = SamusMetroidAttachmentShade.Inactive;
     }
 
     /// <summary>
@@ -377,7 +375,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
-            // Each axis adds a five-bit random selection minus sixteen: -16..+15 pixels.
+            // Each axis adds a random 0 to 31 minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
                 EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
@@ -398,7 +396,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves an outer-body sprite to the Metroid's position and enables its selected graphics.</summary>
     private static void PositionMetroidOuterBody(
-        RoomSpriteObject outerBody,
+        RoomEffectActor outerBody,
         RoomEnemySlot metroid,
         SpriteGraphics graphics)
     {
@@ -409,8 +407,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Switches an outer-body sprite to frozen art, starting its frozen animation from its first frame.</summary>
     private static void FreezeMetroidOuterBody(
-        RoomSpriteObject outerBody,
-        RoomSpriteObjectSegment frozenSegment)
+        RoomEffectActor outerBody,
+        RoomEffectActorSegment frozenSegment)
     {
         outerBody.Graphics = outerBody.Graphics.In(EnemyShades.FrozenLook);
         outerBody.UpdatesDisabled = true;
@@ -484,7 +482,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int frozenDamage = frozenVulnerability.DamageFrom(c.ProjectileDamage);
             if (!frozenVulnerability.FreezesWithoutDamage && frozenDamage != 0)
             {
-                enemy.FlashTimer = enemy.HurtFlashFrames + 8;
+                enemy.FlashTimer = enemy.HurtFlashFrames + MetroidBehaviorDefinitions.FrozenHurtFlashExtension;
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0

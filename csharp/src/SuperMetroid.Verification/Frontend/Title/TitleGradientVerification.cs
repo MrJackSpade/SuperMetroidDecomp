@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
@@ -269,10 +270,10 @@ internal static class TitleGradientVerification
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
         var native = new ColourEffectSystem(nativeSession);
-        native.BindAudioRequests(new GameplayAudioRequests());
+        native.BindAudioRequests(GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
         var installed = new ColourEffectSystem(installedSession);
-        installed.BindAudioRequests(new GameplayAudioRequests());
+        installed.BindAudioRequests(GameplayAudioRequests.Standalone());
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {

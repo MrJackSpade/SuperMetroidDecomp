@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
@@ -32,7 +32,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Allocates Botwoon's thirteen body actors and spit projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns the wall-phase explosion sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Runs common touch behavior before Botwoon's special death tail.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the chance table.</summary>
@@ -48,7 +48,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
-        _spriteObjects = dependencies.SpriteObjects;
+        _effectActors = dependencies.EffectActors;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _audio = dependencies.Audio;
@@ -135,11 +135,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     }
 
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
-    private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState? samus)
+    private void RunBotwoonMain(RoomEnemySlot head, BotwoonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Botwoon main AI requires the active Samus actor.");
-
         // A fatal hit does not delete Botwoon. He keeps following his current path until
         // the tail has crossed the next hole, then the synchronized head/body death begins.
         if (state.PendingDeath && state.ExitTransitionComplete)
@@ -727,9 +724,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
             if (--state.LargeExplosionTimer < 0)
             {
                 state.LargeExplosionTimer = 12;
-                _spriteObjects.SpawnRoomSpriteObject(
+                _effectActors.SpawnRoomEffectActor(
                     new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + 232, state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - 8),
-                    RoomSpriteObjectKind.BotwoonLargeExplosion,
+                    RoomEffectActorKind.BotwoonLargeExplosion,
                     graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
@@ -739,9 +736,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 state.SmallExplosionTimer = 4;
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
-                    _spriteObjects.SpawnRoomSpriteObject(
+                    _effectActors.SpawnRoomEffectActor(
                         new(_room.Random.Next(BotwoonDeathDefinitions.SmallExplosionX) + 224, state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - 8),
-                        RoomSpriteObjectKind.BotwoonSmallExplosion,
+                        RoomEffectActorKind.BotwoonSmallExplosion,
                         graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
                 }
             }
@@ -1030,13 +1027,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     {
         spit.StateOf<AngledFlightState>().Advance(spit);
 
-        if (CoordinateAxis.Difference(spit.Position.X.Whole, camera.X) < 0 ||
-            CoordinateAxis.AsSigned(camera.X + 256 - spit.Position.X.Whole) < 0 ||
-            CoordinateAxis.Difference(spit.Position.Y.Whole, camera.Y) < 0 ||
-            CoordinateAxis.AsSigned(camera.Y + 256 - spit.Position.Y.Whole) < 0)
-        {
-            spit.Delete();
-        }
+        EnemyView.DeleteOutside(spit, camera);
     }
 
     /// <summary>Queues one of Botwoon's sounds as Botwoon makes it, after the update's earlier requests.</summary>

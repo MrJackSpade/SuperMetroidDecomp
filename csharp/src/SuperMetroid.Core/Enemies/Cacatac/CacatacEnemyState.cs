@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 public sealed class CacatacEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal CacatacEnemyState(CacatacAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CacatacSegment> Playback { get; set; }
 
@@ -19,20 +22,20 @@ public sealed class CacatacEnemyState
     public CacatacDirection Direction { get; internal set; }
 
     /// <summary>The current behaviour.</summary>
-    public CacatacAction? Action { get; internal set; }
+    public CacatacAction Action { get; internal set; }
 
     /// <summary>
-    /// Left patrol limit; only X is meaningful. Leftward patrol turns right once the whole X position lies strictly
-    /// left of it, measured as the wrapped signed difference, so a limit that wrapped past the room's left edge still
-    /// turns the enemy as the game does.
+    /// Left patrol limit's room X. Leftward patrol turns right once the whole X position lies strictly left of it,
+    /// measured as the wrapped signed difference, so a limit that wrapped past the room's left edge still turns the
+    /// enemy as the game does.
     /// </summary>
-    public Position16<RoomPixels> LeftPatrolLimit { get; internal set; }
+    public int LeftPatrolX { get; internal set; }
 
     /// <summary>
-    /// Right patrol limit; only X is meaningful. Rightward patrol turns left once the whole X position reaches or
-    /// passes it, measured as the wrapped signed difference.
+    /// Right patrol limit's room X. Rightward patrol turns left once the whole X position reaches or passes it,
+    /// measured as the wrapped signed difference.
     /// </summary>
-    public Position16<RoomPixels> RightPatrolLimit { get; internal set; }
+    public int RightPatrolX { get; internal set; }
 
     /// <summary>
     /// Whether it hangs from a ceiling or stands on a floor, as its spawn mounting names. The game tests only zero versus nonzero, so this is a

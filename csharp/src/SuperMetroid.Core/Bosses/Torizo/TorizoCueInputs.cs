@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal readonly record struct TorizoCueInputs
 {
     /// <summary>Samus.</summary>
-    public required SamusState? Samus { get; init; }
+    public required SamusState Samus { get; init; }
 
     /// <summary>Level.</summary>
-    public required RoomLevelData? Level { get; init; }
+    public required RoomLevelData Level { get; init; }
 
     /// <summary>Controller input.</summary>
     public required GameplayAction ControllerInput { get; init; }

@@ -7,7 +7,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
-/// Whole frames for enemy-format spritemaps (enemies, enemy projectiles, room sprite objects and the Ceres elevator)
+/// Whole frames for enemy-format spritemaps (enemies, enemy projectiles, room effect actors and the Ceres elevator)
 /// over the gameplay OBJ character page, as the import pipeline composes the enemy sheets. Each part's attribute word
 /// is formed exactly as the cartridge's enemy spritemap writer forms it: the packed tile base is added to the whole
 /// word and the palette bits are ORed in. Frames are shared per composition, tile base and palette, so a steady

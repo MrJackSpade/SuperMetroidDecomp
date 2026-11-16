@@ -57,7 +57,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             BounceMovement = BoyonBounceMovement.Rising,
             SpeedMultiplier = settings.SpeedMultiplier,
-            JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(settings.JumpHeight),
+            JumpHeight = SignedSixteenSixteen.FromWholePixels(settings.JumpHeight),
             ArcDistance = SignedSixteenSixteen.Zero,
             CurvePlace = BoyonCurvePlace.Top,
             Bouncing = false,
@@ -152,7 +152,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Taking the product's whole pixels discards its fraction. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's whole pixels.
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + state.Speed.Whole);
         if (state.CurvePlace < state.BaselineCurvePlace)
             return;
 
@@ -165,17 +165,17 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
-        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - state.Speed.Whole);
         if (state.RiseOneEntry())
             state.BounceMovement = BoyonBounceMovement.Falling;
     }
 
     /// <summary>
-    /// The curve sample at the Boyon's place scaled by its multiplier. Entries after the stored curve use the explicit
-    /// saturated sample rather than reading past it.
+    /// The Boyon's speed at its place: the curve sample there scaled by its multiplier, in 256ths of a pixel an update.
+    /// Entries after the stored curve use the explicit saturated sample rather than reading past it.
     /// </summary>
-    internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
-        BoyonBounceCurve.Multiply(state.CurvePlace, state.SpeedMultiplier);
+    internal static UnsignedSixteenSixteen MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
+        UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(BoyonBounceCurve.Multiply(state.CurvePlace, state.SpeedMultiplier));
 
     /// <summary>Whether Samus lies within Boyon's authored horizontal reach, in pixel columns, of the enemy.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(RoomEnemySlot slot, SamusState samus)

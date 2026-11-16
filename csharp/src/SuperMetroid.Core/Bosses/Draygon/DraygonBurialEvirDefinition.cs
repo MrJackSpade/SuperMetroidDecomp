@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -11,4 +11,4 @@ internal readonly record struct DraygonBurialEvirDefinition(
     FixedVector<RoomPixels> SubspeedMagnitude,
     Position16<RoomPixels> Initial,
     TrigonometryAngle Angle,
-    RoomSpriteObjectKind Kind);
+    RoomEffectActorKind Kind);

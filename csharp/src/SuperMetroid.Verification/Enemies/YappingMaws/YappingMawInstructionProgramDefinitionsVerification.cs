@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
@@ -103,7 +104,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 $"Yapping Maw {name} initializer program");
             AssertEqual(4, state.BodyProjectiles.Count(projectile => projectile is not null),
                 $"Yapping Maw {name} initializer body links");
-            AssertTrue(state.RootSpriteObject is not null,
+            AssertTrue(state.RootEffectActor is not null,
                 $"Yapping Maw {name} initializer root sprite object");
         }
     }
@@ -122,7 +123,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         foreach ((int activationDistance, bool attacks) in new[] { new VerifyYappingMawTargetingCase(301, true), new VerifyYappingMawTargetingCase(300, false), new VerifyYappingMawTargetingCase(40000, false) })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) = NewInitializedYappingMaw(activationDistance);
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
             enemies.YappingMawBehavior.RunYappingMawMainAi(slot, Frame(samus));
             string context = $"Yapping Maw activation distance {activationDistance}";

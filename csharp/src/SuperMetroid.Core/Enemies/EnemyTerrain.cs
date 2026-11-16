@@ -48,7 +48,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Shared body of the three horizontal enemy movers. The remaining
-    /// process-slopes mode will reuse this seam when its first retail caller is modelled.
+    /// process-slopes mode will reuse this seam when the first enemy that moves that way is modelled.
     /// </summary>
     private bool MoveEnemyHorizontally(
         RoomLevelData level,
@@ -521,7 +521,7 @@ internal sealed class EnemyTerrain
 
     /// <summary>
     /// Runs the same two probes as <see cref="AlignEnemyYWithNonSquareSlope"/> while reporting
-    /// whether the slope alignment moved the enemy. Yard is the first caller that
+    /// whether the slope alignment moved the enemy. Yard is the first enemy that
     /// uses that report to suppress corner-transition animation after a slope adjustment.
     /// </summary>
     internal static bool AlignEnemyYWithNonSquareSlopeAndReportAdjustment(

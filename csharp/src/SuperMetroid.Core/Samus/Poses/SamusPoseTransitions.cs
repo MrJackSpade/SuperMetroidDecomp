@@ -33,8 +33,8 @@ RoomLevelData level, SamusPoseId targetPose,
         SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
         if (!supportedSource || targetPose != expectedTarget)
         {
-            // The caller computes the target from this pose's metadata immediately
-            // before invoking us. A mismatch is an inconsistent request, not missing logic.
+            // The target comes from this pose's metadata immediately
+            // before this runs. A mismatch is an inconsistent request, not missing logic.
             throw new InvalidOperationException(
                 $"Walk-off transition {samus.Pose} -> {targetPose} does not match the pose's falling target {expectedTarget}.");
         }
@@ -247,8 +247,8 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
     }
 
     /// <summary>
-    /// Applies the landing table's directions four/five when radius-ten straight-down Samus lands.
-    /// Both entries select the ordinary normal landing; the 10 -> 21 expansion still runs the full
+    /// Applies the landing for her two straight-down aims when radius-ten straight-down Samus lands.
+    /// Both select the ordinary normal landing; the expansion from radius ten to 21 still runs the full
     /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
     public static bool TryApplyCompactAerialLanding(SamusState samus, 
@@ -417,7 +417,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         if (!verified)
         {
             // The list above is every pose a retail animation's pose-transition cue names.
-            // Anything else means the caller supplied a target that was not read from the
+            // Anything else means the request named a target that was not read from the
             // current pose's animation.
             throw new InvalidOperationException(
                 $"Animation transition {samus.Pose} -> {targetPose} is no retail animation's pose-transition cue.");
@@ -439,7 +439,7 @@ level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
         {
             // Moonwalk turn animations end in a transition to the spin jump. That pose still passes
             // through movement-type initialization, so equipment substitution occurs here
-            // just as it does for an input-table jump from ordinary running.
+            // just as it does for an input-transition jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump
                 ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, targetPose)
                 : targetPose;

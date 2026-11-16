@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -44,7 +45,7 @@ internal static class PhantoonSolidifyingCentreVerification
         var state = new PhantoonEnemyState(body) { Phase = PhantoonPhase.EyeTracksSamus, PhaseTimer = 60 };
         enemies.PhantoonBehavior.Combat.Phantoon = state;
 
-        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount))
         {
             Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
         };
@@ -58,7 +59,7 @@ internal static class PhantoonSolidifyingCentreVerification
         shot.FrameHold = WrappingCountdown.Start(1);
         shot.Behavior = SamusShotBehaviors.Beam;
 
-        int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(shots, new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors));
+        int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors));
         AssertEqual(2500, body.Health, "the centre point hurts no one");
         AssertEqual(hits == 1, shot.IsSpent, "only a beam that meets the centre is spent");
         return hits;

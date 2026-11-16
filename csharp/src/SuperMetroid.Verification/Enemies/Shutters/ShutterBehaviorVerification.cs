@@ -83,10 +83,7 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyVerticalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
         Func<VerticalShutterEnemyState, VerticalShutterAction> select = ShuttersBehavior.SelectInitialVerticalShutterAction;
-        var state = new VerticalShutterEnemyState()
-        {
-            Action = VerticalShutterAction.Initial,
-        };
+        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
         foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
             state.TriggerMode = mode;
@@ -137,7 +134,7 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyGrowingShutterActivationTimer()
     {
         var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-        var state = new GrowingShutterEnemyState(slot);
+        var state = new GrowingShutterEnemyState(slot, GrowingShutterAction.WaitToGrowUpForTimer);
         state.ActivationTimer = 2;
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
         AssertEqual(1, state.ActivationTimer, "the first call counts the wait down by one");
@@ -208,7 +205,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyVerticalShutterVelocityWords()
     {
-        var state = new VerticalShutterEnemyState();
+        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
         SignedSixteenSixteen down = SignedSixteenSixteen.FromParts(-2, 40000);
         SignedSixteenSixteen up = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.DownVelocity = down;

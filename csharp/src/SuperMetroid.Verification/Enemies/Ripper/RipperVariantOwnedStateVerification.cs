@@ -6,22 +6,22 @@ namespace SuperMetroid.Verification.Enemies.Ripper;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the GRipper and Ripper II state the variants own: the 16.16 velocity from the speed record.</summary>
+/// <summary>Checks the grapple Ripper and jet Ripper state the variants own: the 16.16 velocity from the speed record.</summary>
 internal static class RipperVariantOwnedStateVerification
 {
     /// <summary>
-    /// A Ripper II initialized toward negative speed holds its record's negative half as one 16.16 velocity, a reversal
+    /// A jet Ripper initialized toward negative speed holds its record's negative half as one 16.16 velocity, a reversal
     /// loads the positive half.
     /// </summary>
     internal static void VerifyRipperVariantOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.Bind(EnemyDefinitionId.RipperII, slot.Definition);
+        slot.Bind(EnemyDefinitionId.JetRipper, slot.Definition);
         const int speedRecord = 3;
-        slot.SetSpawnParameter1(EnemyDefinitionId.RipperII, speedRecord);
-        slot.SetSpawnParameter2(EnemyDefinitionId.RipperII, 0);
-        RipperBehavior.InitializeRipperII(slot);
+        slot.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
+        slot.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
+        RipperBehavior.InitializeJetRipper(slot);
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
@@ -29,7 +29,7 @@ internal static class RipperVariantOwnedStateVerification
         SignedSixteenSixteen negative = -positive;
         AssertEqual(new EnemyLinearSpeed(positive), state.Speeds, "the selected speed");
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
-        RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GRipperMovingRight, RipperSegment.GRipperMovingLeft);
+        RipperBehavior.ReverseRipperVariant(slot, RipperSegment.GrappleRipperMovingRight, RipperSegment.GrappleRipperMovingLeft);
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }

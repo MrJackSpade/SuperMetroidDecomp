@@ -16,7 +16,7 @@ internal static class HibashiNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<HibashiSegment>[] Entries =
     [
-        new NativeProgramEntry<HibashiSegment>(HibashiSegment.Graphics, 0x8d1b),
+        new NativeProgramEntry<HibashiSegment>(HibashiSegment.Flame, 0x8d1b),
         new NativeProgramEntry<HibashiSegment>(HibashiSegment.Hitbox, 0x8da9),
     ];
 

@@ -1,17 +1,16 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The state of an ordinary Metroid, with its three extra values: the two outer-body sprite objects it spawned and
-/// its energy drain.
+/// The state of an ordinary Metroid, among it the two outer-body effect actors it spawned and its energy drain.
 /// </summary>
 public sealed class MetroidEnemyState
 {
-    /// <summary>Connects the Metroid's common slot to its two live outer-body sprite objects.</summary>
-    internal MetroidEnemyState(RoomSpriteObject electricity,
-        RoomSpriteObject shell)
+    /// <summary>Connects the Metroid's common slot to its two live outer-body effect actors.</summary>
+    internal MetroidEnemyState(RoomEffectActor electricity,
+        RoomEffectActor shell)
     {
         Electricity = electricity;
         Shell = shell;
@@ -29,10 +28,10 @@ public sealed class MetroidEnemyState
     /// <summary>The step of the Metroid's movement it is in, one of four; not an AI behaviour.</summary>
     public MetroidMovement Movement { get; internal set; }
 
-    /// <summary>The electricity sprite object the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>
-    public RoomSpriteObject Electricity { get; }
-    /// <summary>The shell sprite object the Metroid spawned; distinct from both the electricity layer and the central body.</summary>
-    public RoomSpriteObject Shell { get; }
+    /// <summary>The electricity effect actor the Metroid spawned; its owner repositions, freezes and ends it alongside the central body.</summary>
+    public RoomEffectActor Electricity { get; }
+    /// <summary>The shell effect actor the Metroid spawned; distinct from both the electricity layer and the central body.</summary>
+    public RoomEffectActor Shell { get; }
 
     /// <summary>
     /// The Metroid's drain of Samus's energy, a fraction an update: it takes an energy whenever its suit's fraction is

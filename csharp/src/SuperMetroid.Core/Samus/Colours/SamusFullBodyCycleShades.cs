@@ -28,7 +28,7 @@ public static class SamusFullBodyCycleShades
     /// Reads the active Speed Booster glow at a cycle step. The step is shared with Screw Attack, so it can arrive at
     /// four or five, past the four-step list; such a step shows the list's last shade, the one the cycle holds once reached,
     /// so the suit shows only its own Speed Booster colours (#1736). Gameplay never reads the colours back, and the step
-    /// itself, which the caller advances and clamps, is unchanged.
+    /// itself, which the suit's colouring advances and clamps, is unchanged.
     /// </summary>
     /// <param name="suit">The suit Samus shows.</param>
     /// <param name="step">The cycle step, counted from the suit's first entry.</param>

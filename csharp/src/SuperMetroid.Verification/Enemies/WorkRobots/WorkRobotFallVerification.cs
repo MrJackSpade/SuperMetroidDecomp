@@ -29,7 +29,7 @@ internal static class WorkRobotFallVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.Bind(EnemyDefinitionId.RobotNoPower, slot.Definition);
+            slot.Bind(EnemyDefinitionId.UnpoweredWorkRobot, slot.Definition);
             slot.Radius = new(8, 8);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 32));
             var state = new WorkRobotEnemyState() { FallVelocity = SignedSixteenSixteen.FromParts(whole, fraction) };

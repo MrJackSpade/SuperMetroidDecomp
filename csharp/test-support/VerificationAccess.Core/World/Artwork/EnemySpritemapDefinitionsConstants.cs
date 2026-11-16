@@ -67,11 +67,11 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Yapping Maw's artwork.</summary>
     internal static int PreYappingMawFrameCount => FramesBefore(EnemyFrameId.YappingMawAttackingUpFirst);
     /// <summary>Frames the document lists before the room sprite-object compositions.</summary>
-    internal static int PreRoomSpriteObjectFrameCount => FramesBefore(EnemyFrameId.SpriteObjectEmpty);
+    internal static int PreRoomEffectActorFrameCount => FramesBefore(EnemyFrameId.EffectActorEmpty);
     /// <summary>Frames the document lists before Draygon's breath frames.</summary>
-    internal static int PreDraygonBreathFrameCount => FramesBefore(EnemyFrameId.SpriteObjectShortDraygonBreathBubblesFirst);
+    internal static int PreDraygonBreathFrameCount => FramesBefore(EnemyFrameId.EffectActorShortDraygonBreathBubblesFirst);
     /// <summary>Frames the document lists before Draygon's intro frames.</summary>
-    internal static int PreDraygonIntroFrameCount => FramesBefore(EnemyFrameId.SpriteObjectEvirFacingLeftFirst);
+    internal static int PreDraygonIntroFrameCount => FramesBefore(EnemyFrameId.EffectActorEvirFacingLeftFirst);
     /// <summary>Frames the document lists before the elevator's visual frames.</summary>
     internal static int PreElevatorFrameCount => FramesBefore(EnemyFrameId.ElevatorLoopFirst);
     /// <summary>Frames the document lists before the Kamer platform frames.</summary>
@@ -81,7 +81,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Sbug frames.</summary>
     internal static int PreSbugFrameCount => FramesBefore(EnemyFrameId.SbugRightFirst);
     /// <summary>Frames the document lists before the horizontal Zoomer frames.</summary>
-    internal static int PreHZoomerFrameCount => FramesBefore(EnemyFrameId.HZoomerUpsideRightLoopFirst);
+    internal static int PreOrangeZoomerFrameCount => FramesBefore(EnemyFrameId.OrangeZoomerUpsideRightLoopFirst);
     /// <summary>Frames the document lists before the Choot frames.</summary>
     internal static int PreChootFrameCount => FramesBefore(EnemyFrameId.ChootIdle);
     /// <summary>Frames the document lists before the hopper frames.</summary>

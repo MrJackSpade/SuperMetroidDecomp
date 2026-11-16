@@ -5,8 +5,8 @@ public static class ChozoCarry
 {
     /// <summary>The statue's velocity and Samus's place in its hand at <paramref name="step"/>.</summary>
     /// <remarks>
-    /// The velocity is the pose's walking speed toward the way the statue faces, in 256ths of a pixel an update. Samus's
-    /// place is the pose's hold mirrored to the statue's facing, added to the statue's position after it moves.
+    /// The velocity is the pose's walking speed toward the way the statue faces. Samus's place is the pose's hold
+    /// mirrored to the statue's facing, added to the statue's position after it moves.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException">The step names an undefined facing or pose.</exception>
     public static ChozoCarryStepDefinition Read(ChozoCarryStep step)
@@ -19,7 +19,7 @@ public static class ChozoCarry
         };
         if (!ChozoCarryPoseDefinitions.Poses.TryGetValue(step.Pose, out ChozoCarryPoseDefinition pose))
             throw new ArgumentOutOfRangeException(nameof(step), step, $"Undefined {nameof(ChozoCarryPose)}.");
-        return new(sign * pose.Speed.InTwoHundredFiftySixthsOfPixel,
+        return new(sign < 0 ? -pose.Speed : pose.Speed,
             new(CoordinateAxis.AsSigned(sign * pose.Hold.X), pose.Hold.Y));
     }
 }

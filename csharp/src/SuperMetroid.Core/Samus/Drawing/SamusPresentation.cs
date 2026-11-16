@@ -84,7 +84,7 @@ internal sealed class SamusPresentation
     /// </summary>
     /// <remarks>
     /// The behaviour also returns early while the animation-frame delay adjustment is negative. This model owns it as
-    /// <see cref="SamusState.AnimationFrameBuffer"/>, so callers must be paths where it is
+    /// <see cref="SamusState.AnimationFrameBuffer"/>, so it runs only where that is
     /// nonnegative, as it is at the intro's discovery setup and its demo's end.
     /// </remarks>
     internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
@@ -137,7 +137,7 @@ internal sealed class SamusPresentation
     /// </summary>
     /// <remarks>
     /// The liquid effect step publishes water/lava delay buffering, remembered medium,
-    /// atmospheric slots, sound requests, and periodic damage before the timer
+    /// atmospheric effects, sound requests, and periodic damage before the timer
     /// decrement.
     /// </remarks>
     public static void AnimateNoFx(SamusState samus, SamusAnimationStep step)
@@ -154,9 +154,9 @@ internal sealed class SamusPresentation
             step.BeginLiquidSoundRequestFrame,
             step.BossPresent);
 
-        // The animation keeps neutral-jump frame one alive in four-tick chunks while Samus is
+        // The animation keeps the neutral jump's second frame alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before the decrement and applies only when the
-        // timer is exactly one; release/apex changes YDirection to two and lets it expire.
+        // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
             samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&

@@ -91,7 +91,7 @@ internal sealed class TorizoColours
     internal void FadeToward(TorizoLook look)
     {
         if (target is { } running && running != look && Moved is not null)
-            throw new InvalidOperationException($"A Torizo's program names {look.Key} while its fade toward {running.Key} has moved the colours.");
+            throw new InvalidOperationException($"A Torizo's animation names {look.Key} while its fade toward {running.Key} has moved the colours.");
         if (Moved is null)
         {
             fade = null;
@@ -111,7 +111,7 @@ internal sealed class TorizoColours
     internal void Step(SharedFadeStepCount counter)
     {
         Ensure.NotNull(counter);
-        TorizoLook to = target ?? throw new InvalidOperationException("A Torizo's fade steps once its program names its colours.");
+        TorizoLook to = target ?? throw new InvalidOperationException("A Torizo's fade steps once its animation names its colours.");
         int value = counter.Step;
         if (value > TorizoShadeDefinitions.FadeDenominator + 1)
         {

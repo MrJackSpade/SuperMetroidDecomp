@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.Assertions;
@@ -58,7 +59,8 @@ internal static class NativeSnapshotImport
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SaveSlotStore saves = SaveRamCodec.Decode(saveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         var random = new SharedRandom();
-        var runtime = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.CreateRuntime(random: random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
+        var runtime = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.CreateRuntime(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
@@ -317,14 +319,14 @@ internal static class NativeSnapshotImport
             W(NativeSnapshotMemory.HdmaObjectFrameBehaviors + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         VerificationAssertions.AssertTrue(runtime.RoomFxOverlay.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomFxOverlay.MotionStart = SuperMetroid.Core.Compatibility.LiquidMotionStart.Begun;
-        runtime.RoomFxOverlay.LiquidMotionStopped = !lavaAcidObjectLive;
-        runtime.RoomFxOverlay.TidePhase = RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase));
-        runtime.RoomFxOverlay.TideOffset = SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction));
-        runtime.RoomFxOverlay.BaseY = (runtime.RoomFxOverlay.BaseY
-            ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
-        // The surface word is a signed line: one a tide carries above the room's top is negative.
-        runtime.RoomFxOverlay.Surface = CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface));
+        runtime.RoomFxOverlay.ImportLiquidMotion(
+            stopped: !lavaAcidObjectLive,
+            tidePhase: RotationAngle.FromRaw(W(NativeSnapshotMemory.TidePhase)),
+            tideOffset: SixteenSixteenWords.ToDisplacement(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)),
+            baseY: (runtime.RoomFxOverlay.BaseY
+                ?? throw new InvalidDataException("The imported acid room's effect names no surface.")).WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction)),
+            // The surface word is a signed line: one a tide carries above the room's top is negative.
+            surface: CoordinateAxis.AsSigned(W(NativeSnapshotMemory.AcidSurface)));
         samus.LiquidPhysics.ConfigureFor(runtime.RoomFxOverlay);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
@@ -381,7 +383,7 @@ internal static class NativeSnapshotImport
                 pipe.RespawnDelay = unchecked((short)words.D);
                 bool strong = runtime.Enemies.SlotTable.Slots[index].SpawnSettings<SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugSpawnSettings>().Kind
                     == SuperMetroid.Core.Enemies.PipeBugs.BrinstarPipeBugKind.Strong;
-                pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
+                pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
                 // The game keeps the requested animation beside the installed one and installs a request in the same AI
                 // update, so Core keeps the installed animation alone (#1810) and a record whose two differ fails.
                 ushort installed = W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
@@ -402,7 +404,6 @@ internal static class NativeSnapshotImport
             "The native checkpoint requires the installed HUD artwork.")).GameplayHud);
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.PlayerActions.Latch(GameplayActionWordCodec.FromJoypadWord(W(NativeSnapshotMemory.HeldInput), "native held input"));
-        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState));

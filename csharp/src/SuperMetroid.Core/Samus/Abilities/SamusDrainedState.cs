@@ -160,7 +160,7 @@ public sealed class SamusDrainedState
     /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
     public void HoldRainbowGlowLonger(int longestHold)
     {
-        // The hold never exceeds the caller's small maximum, so lengthening it cannot reach a wrap.
+        // The hold never exceeds the drained colouring's small maximum, so lengthening it cannot reach a wrap.
         int lengthened = SpecialColouringFrame + 1;
         SpecialColouringFrame = lengthened < longestHold ? lengthened : longestHold;
     }
@@ -356,7 +356,7 @@ public sealed class SamusDrainedState
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
-        // broad behavior instead of rejecting a caller that the game accepts.
+        // broad behavior instead of rejecting a pose that the game accepts.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;

@@ -127,7 +127,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Runs the admission tests and pose selection of the X-ray setup.
-    /// The caller represents the already selected/equipped HUD item; item ownership is
+    /// The X-ray scope is already the selected and equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this.
     /// </summary>
     public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, XrayActivation activation = XrayActivation.Immediate)
@@ -428,7 +428,7 @@ public sealed class SamusXrayState
                 }
 
                 // The adds carry the fractions into whole steps exactly as the game does: the widening
-                // speed gains the fixed fractional step per call, and the width grows by the speed until
+                // speed gains the fixed fractional step each update, and the width grows by the speed until
                 // its whole steps pass the widest half-width, where it is clamped.
                 AngularWideningSpeed += XrayScopeDefinitions.Window.WideningStep;
                 AngularHalfWidth += AngularWideningSpeed;
@@ -623,7 +623,7 @@ public sealed class SamusXrayState
         SamusPresentation.InitializeAnimation(samus);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct history shift, including the crouched-
-        // turn stand-up glitch. It does not consume an ordinary input slot.
+        // turn stand-up glitch. It does not consume an ordinary input transition.
         samus.CommitPoseHistory();
         if (radiusDifference >= 0)
             samus.Position -= new Offset16<RoomPixels>(0, radiusDifference);

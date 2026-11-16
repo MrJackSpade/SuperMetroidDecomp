@@ -29,9 +29,10 @@ internal static class RetailRuntimeFixtureVerification
         MapRevealMode mapRevealMode = MapRevealMode.None,
         bool preventEscapeTimeout = false,
         SuperMetroid.Core.Compatibility.SharedRandom? random = null,
-        SuperMetroid.Core.Gameplay.SavedEncounterReset? encounterResetOnLoad = null) =>
+        SuperMetroid.Core.Gameplay.SavedEncounterReset? encounterResetOnLoad = null,
+        SuperMetroid.Core.Audio.AudioQueues? audio = null) =>
         RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled,
-            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout, random, encounterResetOnLoad);
+            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout, random, encounterResetOnLoad, audio);
 
     /// <summary>Binds the shared installation's runtime catalogs to a restored or bare runtime.</summary>
     internal static void BindRetailRuntimeFixture(SuperMetroidRuntime runtime) =>

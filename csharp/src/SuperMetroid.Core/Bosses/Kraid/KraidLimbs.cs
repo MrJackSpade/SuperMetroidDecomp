@@ -387,12 +387,12 @@ internal sealed class KraidLimbs
         RoomEnemySlot foot,
         KraidFootState part)
     {
-        Position16<RoomPixels> target = _access.RequireKraidState(body).WalkTarget;
-        if (target.X != body.Position.X.Whole)
+        int targetX = _access.RequireKraidState(body).WalkTargetX;
+        if (targetX != body.Position.X.Whole)
         {
-            if ((target - body.Position.Whole).X >= 0)
+            if (!CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
                 return;
-            body.Position = body.Position.WithWholeX(target.X);
+            body.Position = body.Position.WithWholeX(targetX);
         }
         if (!FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
             return;
@@ -426,7 +426,7 @@ internal sealed class KraidLimbs
         int thinkTimer,
         bool rightward)
     {
-        _access.RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
+        _access.RequireKraidState(foot).WalkTargetX = targetX;
         part.ThinkTimer = thinkTimer;
         _access.Part(foot).Phase = rightward ? KraidPhase.FootSecondPhaseWalkingRight : KraidPhase.FootSecondPhaseWalkingLeft;
         _access.StartKraidPartAnimation(foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
@@ -435,12 +435,12 @@ internal sealed class KraidLimbs
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>
     private void RunKraidSecondPhaseWalkingRight(RoomEnemySlot body, RoomEnemySlot foot)
     {
-        Position16<RoomPixels> target = _access.RequireKraidState(body).WalkTarget;
-        if (target.X != body.Position.X.Whole)
+        int targetX = _access.RequireKraidState(body).WalkTargetX;
+        if (targetX != body.Position.X.Whole)
         {
-            if ((target - body.Position.Whole).X >= 0)
+            if (!CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
                 return;
-            body.Position = body.Position.WithWholeX(target.X);
+            body.Position = body.Position.WithWholeX(targetX);
         }
         if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
         {
@@ -452,8 +452,8 @@ internal sealed class KraidLimbs
     /// <summary>Moves the body and foot toward the selected leftward target.</summary>
     private void RunKraidSecondPhaseWalkingLeft(RoomEnemySlot body, RoomEnemySlot foot)
     {
-        Position16<RoomPixels> target = _access.RequireKraidState(body).WalkTarget;
-        if ((target - body.Position.Whole).X < 0)
+        int targetX = _access.RequireKraidState(body).WalkTargetX;
+        if (CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
         {
             if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingForward))
             {
@@ -461,7 +461,7 @@ internal sealed class KraidLimbs
             }
             return;
         }
-        body.Position = body.Position.WithWholeX(target.X);
+        body.Position = body.Position.WithWholeX(targetX);
         if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingForward))
         {
             _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;

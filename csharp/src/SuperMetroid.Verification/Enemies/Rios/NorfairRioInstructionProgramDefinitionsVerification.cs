@@ -45,7 +45,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             RunNorfairRioInstructionFrames(arguments,
                 slot,
                 calls);
-            AssertEqual(new Offset16<RoomPixels>(0, offset), state.FollowerOffset,
+            AssertEqual((int)offset, state.FollowerYOffset,
                 $"Norfair Rio {name} publishes its final follower offset");
             AssertEqual(signal, state.AnimationSignal,
                 $"Norfair Rio {name} animation signal");
@@ -94,7 +94,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
-        var state = new NorfairRioEnemyState { Playback = new(NorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
+        var state = new NorfairRioEnemyState(NorfairRioAction.WaitForAttackOpportunity) { Playback = new(NorfairRioAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         slot.SetSpeciesState(state);
         return new NewNorfairRioInstructionSystemResult(enemies, slot, state);
     }

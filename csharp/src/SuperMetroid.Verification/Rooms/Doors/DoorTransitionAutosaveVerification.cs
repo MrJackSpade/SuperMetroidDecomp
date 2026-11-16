@@ -45,11 +45,11 @@ internal static class DoorTransitionAutosaveVerification
         try
         {
             var random = new SharedRandom();
-            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
             // A host persists save RAM through an object that owns native handles, as the desktop window does (#1424).
             using var saveRamHost = new NativeHandleSaveRamHost();

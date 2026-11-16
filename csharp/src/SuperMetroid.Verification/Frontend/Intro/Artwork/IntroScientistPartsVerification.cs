@@ -55,7 +55,7 @@ internal static class IntroScientistPartsVerification
         json.Position = 0;
         var presentation = IntroCaretSpritePresentation.Load(json);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-        CinematicSheetFixtures.Drawer(presentation).Draw(caret.Pose, actual, new(120, 72), IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects));
+        CinematicSheetFixtures.Drawer(presentation).Draw(caret.Pose, actual, new(120, 72), IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
         actual.FinalizeFrame();
         AssertTrue(expected.ImageEquals(actual)
             && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

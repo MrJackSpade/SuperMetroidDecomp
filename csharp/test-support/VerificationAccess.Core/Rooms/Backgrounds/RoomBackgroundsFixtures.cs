@@ -195,7 +195,7 @@ internal static class RoomBackgroundsFixtures
         for (int y = 0; y < height; y += size.Y)
         for (int x = 0; x < width; x += size.X)
         {
-            var at = new Position16<BackgroundPixels>(corner.X + x, corner.Y + y);
+            var at = Offset16<RoomPixels>.Of(corner.X + x, corner.Y + y);
             var shown = new Extent16<BackgroundPixels>(Math.Min(size.X, width - x), Math.Min(size.Y, height - y));
             if (picture.Behind is { } behind)
                 parts.Add(new ShownBossBodyPart(behind, at, shown, BossBodyDepth.BehindSprites));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Collections.Immutable;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -139,7 +140,7 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
-            var objects = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone());
+            var objects = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone());
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {
@@ -477,7 +478,7 @@ internal static class LookupStream3Verification
             AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
         var additionalPointers = new SortedSet<ushort>();
         var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
-        foreach (ushort pointer in SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom))
+        foreach (ushort pointer in SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.SpritemapPointers(rom))
         {
             if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
         }
@@ -1041,7 +1042,7 @@ internal static class LookupStream3Verification
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, firstPage.EscapeColourEffectRequests.Count, "stream 3 escape palette effects wait for door graphics");
         var handoff = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });

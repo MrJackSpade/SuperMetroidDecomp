@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Compatibility;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -31,7 +33,7 @@ internal static class PaletteFxContractTests
         // step shows the flicker's first record in the engine's colours.
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
+        fx.BindAudioRequests(new GameplayAudioRequests(new NoSoundQueues()));
         fx.Start(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
         fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
@@ -66,5 +68,17 @@ internal static class PaletteFxContractTests
         if (expectedError is null ? errors.Length != 0 : errors.Length != 1 || errors[0].Id != expectedError)
             throw new InvalidOperationException(
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
+    }
+
+    /// <summary>The queues of a frontend screen's effects, which make no sound or music: a request fails the check (#2057).</summary>
+    private sealed class NoSoundQueues : IGameplayAudioQueues
+    {
+        /// <inheritdoc/>
+        public SoundQueueAdmission QueueSound(SoundRequest request) =>
+            throw new InvalidOperationException($"A frontend screen's colour effect requested {request}.");
+
+        /// <inheritdoc/>
+        public void QueueMusic(GameplayMusicRequest request) =>
+            throw new InvalidOperationException($"A frontend screen's colour effect requested {request}.");
     }
 }

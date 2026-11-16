@@ -122,7 +122,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 : new(EscapeTypewriterMessageId.Zebes);
             // The warning shows over the background from the room's top-left corner, where her locked arena's camera stays
             // (#1802).
-            state.BodyArea = MotherBrainBodyAreaPlacement.AtRoomCorner;
+            state.BodyPlacement = MotherBrainBodyPlacement.AtRoomCorner;
         }
         if (step.EscapeDoorExplosion is { } doorDust)
         {
@@ -310,7 +310,7 @@ internal sealed class MotherBrainRainbowAndDeath
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
-            // stops the same looping voice. Preserve the start or stop the sequence selected.
+            // stops the same looping sound. Preserve the start or stop the sequence selected.
             _motherBrainEncounter.RequestRainbowBeamSound(sequence.State.RainbowBeamSoundPlaying
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
                 : MotherBrainSoundDefinitions.StopRainbowDrain);

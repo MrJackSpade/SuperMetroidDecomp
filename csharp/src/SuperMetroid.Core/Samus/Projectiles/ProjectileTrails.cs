@@ -115,7 +115,7 @@ internal sealed class ProjectileTrails
             if (side.FrameHold == 0)
             {
                 ProjectileTrailCursor cursor = side.Cursor ?? throw new InvalidOperationException(
-                    "A trail side with a running timer has started a program.");
+                    "A trail side with a running timer has started an animation.");
                 while (true)
                 {
                     ProjectileTrailStep step = cursor.Current;

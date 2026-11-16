@@ -1,6 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonMovement
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonMovement(RoomSpriteObjects spriteObjects)
+    internal DraygonMovement(RoomEffectActors effectActors)
     {
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
     }
 
     /// <summary>Moves Draygon right or left by the current swoop speed without losing its fraction.</summary>
@@ -31,16 +31,16 @@ internal sealed class DraygonMovement
     {
         if (!DraygonCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(state.Body.FrameCounter))
             return;
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),
-            RoomSpriteObjectKind.DraygonBreathBubble,
+            RoomEffectActorKind.DraygonBreathBubble,
             graphics: default);
     }
 
     /// <summary>
     /// The distance one axis of an angled move covers: the unsigned sine sample <paramref name="phase"/> ahead of
     /// <paramref name="angle"/> times <paramref name="speed"/> whole pixels, a quarter turn ahead for the horizontal axis
-    /// and a half turn for the vertical, whose direction the caller takes from the angle.
+    /// and a half turn for the vertical, whose direction Draygon's movement takes from the angle.
     /// </summary>
     /// <param name="angle">The movement angle.</param>
     /// <param name="speed">The speed in whole pixels an update, never negative.</param>

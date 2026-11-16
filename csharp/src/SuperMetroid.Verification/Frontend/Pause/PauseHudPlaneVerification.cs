@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Hud;
@@ -26,7 +27,7 @@ internal static class PauseHudPlaneVerification
         ShownHud entered = Hud(1);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry
         {
-            Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria,
+            Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria,
             RoomMapPosition = new(28, 2), GameplayHud = entered,
         });
         AssertTrue(HudWords(pause).SequenceEqual(HudWords(entered)), "pause entry keeps the HUD's four rows");

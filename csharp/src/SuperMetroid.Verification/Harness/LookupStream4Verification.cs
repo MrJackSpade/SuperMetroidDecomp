@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -47,7 +48,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -115,7 +116,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         var cgram = new SnesCgram();
         fx.Start(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
@@ -209,7 +210,7 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fxSession = new ColourEffectSessionState();
             var fx = new ColourEffectSystem(fxSession);
-            fx.BindAudioRequests(new GameplayAudioRequests());
+            fx.BindAudioRequests(GameplayAudioRequests.Standalone());
             var cgram = new SnesCgram();
             fx.Start(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -245,7 +246,7 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
-        fx.BindAudioRequests(new GameplayAudioRequests());
+        fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
             fx.Start(program.DefinitionPointer, 0);
         for (int tick = 0; tick <= 80; tick++)
@@ -312,9 +313,9 @@ internal static class LookupStream4Verification
             var nativeBus = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
-            native.BindAudioRequests(new GameplayAudioRequests());
+            native.BindAudioRequests(GameplayAudioRequests.Standalone());
                                                                  var installed = new ColourEffectSystem(installedSession);
-                                                                 installed.BindAudioRequests(new GameplayAudioRequests());
+                                                                 installed.BindAudioRequests(GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -358,9 +359,9 @@ internal static class LookupStream4Verification
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var nativeSession = new ColourEffectSessionState();
             var native = new ColourEffectSystem(nativeSession); var installedSession = new ColourEffectSessionState();
-            native.BindAudioRequests(new GameplayAudioRequests());
+            native.BindAudioRequests(GameplayAudioRequests.Standalone());
                                                                  var installed = new ColourEffectSystem(installedSession);
-                                                                 installed.BindAudioRequests(new GameplayAudioRequests());
+                                                                 installed.BindAudioRequests(GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
             native.Start(definition.DefinitionPointer, 0);
             installed.Start(definition.DefinitionPointer, 0);
@@ -1031,11 +1032,11 @@ internal static class LookupStream4Verification
                 var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudStockCells.AutoReserveCellIndex(cell)],"All twelve stock AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)}, new GameplayAudioRequests());
+                hud.UpdateGameplayCounters(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)}, GameplayAudioRequests.Standalone());
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.TileWords(selected)[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
             // The HUD is drawn from its current values (#1555): manual reserves show the AUTO cells cleared.
-            hud.UpdateGameplayCounters(new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Manual,ReserveEnergy=1}, new GameplayAudioRequests());
+            hud.UpdateGameplayCounters(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()){Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Manual,ReserveEnergy=1}, GameplayAudioRequests.Standalone());
             for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank.PackedWord,hud.TileWords(selected)[GameplayHudStockCells.AutoReserveCellIndex(cell)],"Manual reserves clear AUTO");
         }
         Console.WriteLine("HUD AUTO:12native words,the document hash,actual state updates,manual clear/readguard/neighbors pass.");
@@ -1116,15 +1117,15 @@ internal static class LookupStream4Verification
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>
     internal static void VerifyRoomSpriteDispatch(CartridgeImportAddressSpace rom)
     {
-        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, SpriteGraphics, RoomSpriteObject> spriteSpawn =
-            (owner, position, kind, graphics) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphics);
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomEffectActorKind, SpriteGraphics, RoomEffectActor> spriteSpawn =
+            (owner, position, kind, graphics) => owner.EffectActors.SpawnRoomEffectActor(position, kind, graphics);
         int kinds = 0;
-        foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Distinct())
+        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>().Distinct())
         {
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
-            AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomEffectActorNativeWords.Kinds.Word(kind)));
+            AssertEqual(entry, RoomEffectActorDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomSpriteObject spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+            RoomEffectActor spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
@@ -1135,7 +1136,7 @@ internal static class LookupStream4Verification
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
+            AssertEqual(false, RoomEffectActorNativeWords.Kinds.TryDecode(invalid, out _),
                 "room sprite native kind domain rejects invalid selector");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
@@ -1219,14 +1220,14 @@ internal static class LookupStream4Verification
                 RidleyGrabs.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Func<SamusState?, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
+        Func<SamusState, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
         Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
             if (!SamusPoseNumbering.NamesPose(pose))
                 continue;
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
             var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequested = false, TailAction = RidleyTailAction.Pogo, IntangibilityTimer = 99 };
@@ -1236,7 +1237,6 @@ internal static class LookupStream4Verification
             AssertTrue(state.TailWhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.TailAction, "Actual release resets tail controller");
         }
-        AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
         var absentState = new RidleyEnemyState();
         release(absentState, null);
         AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
@@ -1283,7 +1283,7 @@ internal static class LookupStream4Verification
     /// <summary>Checks Ridley tail terrain response data against native table values.</summary>
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
-        Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
+        Func<RidleyEnemyState, RoomLevelData, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
         for (int solidRow = 0; solidRow < 2; solidRow++)
         {
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[2];
@@ -1308,7 +1308,6 @@ internal static class LookupStream4Verification
             }
             AssertTrue(!touches(new RidleyEnemyState(), level), "Incomplete tail keeps terrain gate");
         }
-        AssertTrue(!touches(new RidleyEnemyState(), null), "Missing terrain keeps tail gate");
     }
 
     /// <summary>Checks enemy notice-region bounds and their native coordinate ordering.</summary>
@@ -1754,10 +1753,10 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
                                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=5};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and clear/color targets");
                 }
             }
@@ -1806,10 +1805,10 @@ internal static class LookupStream4Verification
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
                 var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){Eye=enemies.SlotTable.Slots[1],Tail=enemies.SlotTable.Slots[2],Arms=enemies.SlotTable.Slots[3],HealthBand=3};
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=timer; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer=timer; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves targets and health overlay");
                 }
             }
@@ -1852,7 +1851,7 @@ internal static class LookupStream4Verification
                 RoomEnemySlot body = enemies.SlotTable.Slots[0];
                 var state = new DraygonEnemyState(body) { Eye = enemies.SlotTable.Slots[1], Tail = enemies.SlotTable.Slots[2], Arms = enemies.SlotTable.Slots[3] };
                 Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
-                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthBand = null;
@@ -1861,9 +1860,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");
                     PictureShading heldBand = DraygonRoomShading(state.Colours); update(state);
                     AssertEqual(heldBand, DraygonRoomShading(state.Colours), "Same health band keeps the shading it shows");
-                    body.FlashTimer = 2; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer = 2; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = 0; hurt(body,state,null); LayDraygonShading(cgram, selected, state.Colours);
+                    body.FlashTimer = 0; hurt(body,state,SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus()); LayDraygonShading(cgram, selected, state.Colours);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
@@ -1957,8 +1956,8 @@ internal static class LookupStream4Verification
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
-                var liquid = new RoomFxOverlayState(new RoomFxSession());
-                liquid.BindAudioRequests(new GameplayAudioRequests());
+                var liquid = new RoomFxOverlayState();
+                liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 enemies.RoomFx.BindRoomFx(liquid);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
@@ -2182,7 +2181,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < freeSlots; index++)
             {
                 RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyExplosion, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyBreakupPiece, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");

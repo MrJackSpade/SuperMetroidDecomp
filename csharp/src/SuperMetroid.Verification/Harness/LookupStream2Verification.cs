@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -146,8 +147,8 @@ internal static class LookupStream2Verification
         {
             AssertTrue(stock.TryGet(frame.Bank, frame.Pointer, out _), "Chozo stock frame exists");
         }
-        AssertEqual(ChozoCarry.Read(new(HorizontalDirection.Left, ChozoCarryPose.StrideLift)).Velocity, (short)-0x300, "Chozo carry mechanics velocity");
-        AssertEqual(ChozoCarry.Read(new(HorizontalDirection.Left, ChozoCarryPose.StrideSwing)).Velocity, (short)-0xe00, "Chozo late support displacement");
+        AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-0x300), ChozoCarry.Read(new(HorizontalDirection.Left, ChozoCarryPose.StrideLift)).Velocity, "Chozo carry mechanics velocity");
+        AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-0xe00), ChozoCarry.Read(new(HorizontalDirection.Left, ChozoCarryPose.StrideSwing)).Velocity, "Chozo late support displacement");
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
@@ -161,7 +162,7 @@ internal static class LookupStream2Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Shading = PictureShading.Standard;
-        var state = new WreckedShipGhostEnemyState { PhaseTimer = 2 };
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay) { PhaseTimer = 2 };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = WreckedShipGhostBehavior.StepWreckedShipGhostFadeTowardTarget;
         Dictionary<PictureShade, RgbColor[]> installedSteps = EnemySheetShades.GhostFadeSteps().ToDictionary(step => step.Shade, step => step.Colours);
@@ -252,7 +253,7 @@ internal static class LookupStream2Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
             var actual = new ColourEffectSystem(actualSession);
-            actual.BindAudioRequests(new GameplayAudioRequests());
+            actual.BindAudioRequests(GameplayAudioRequests.Standalone());
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
@@ -661,7 +662,7 @@ internal static class LookupStream2Verification
     {
         Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
-        var yard = new YardEnemyState();
+        var yard = new YardEnemyState(YardMovement.HoldingStill);
         SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
@@ -909,7 +910,7 @@ internal static class LookupStream2Verification
                 enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.AnimationClock.HoldFor((ushort)(member + 4));
             }
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
             for (int member = 0; member < 5; member++)
             {
@@ -963,7 +964,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var authoredSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             // The native interpreter's own trail, run beside the port's.
             var nativeTrail = new SamusProjectileTrail(SamusBeamCombination.Power);
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
@@ -1057,7 +1058,7 @@ internal static class LookupStream2Verification
         foreach (SamusProjectileType trailingType in trailing)
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var projectile = new SamusProjectile(0)
             {
                 Type = trailingType,
@@ -1177,7 +1178,7 @@ internal static class LookupStream2Verification
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var slot = enemies.SlotTable.Slots[0];
-        var part = new GunshipPartState();
+        var part = new GunshipState(GunshipPhase.ReadyTakeoffEngines);
         slot.SetSpeciesState(part);
         int enumerated = 0;
         foreach (var transfer in transfers)
@@ -1275,7 +1276,7 @@ internal static class LookupStream2Verification
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
         var slot = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).SlotTable.Slots[0];
-        var state = new WreckedShipGhostEnemyState();
+        var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay);
         SamusAxisMotion[] motions = [SamusAxisMotion.TowardSmaller, SamusAxisMotion.Still, SamusAxisMotion.TowardLarger];
         for (int index = 0; index < 9; index++)
         {
@@ -1467,7 +1468,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = stock } };
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
@@ -1491,7 +1492,7 @@ internal static class LookupStream2Verification
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = stock } };
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = stock } };
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
@@ -1504,7 +1505,7 @@ internal static class LookupStream2Verification
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
             var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
-            var bombs = new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = stock };
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = stock };
             _ = bombs.AdvanceProjectileAnimation(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;

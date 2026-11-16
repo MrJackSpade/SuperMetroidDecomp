@@ -160,25 +160,22 @@ public sealed class MotherBrainEnemyState
     /// <summary>True while the floor clips Mother Brain's body as she rises from the fake death.</summary>
     public bool RisingFloorClipActive { get; internal set; }
 
-    /// <summary>Where her body's area lies in the room (#1949): not yet, with her, or at the room's corner once she is gone.</summary>
-    public MotherBrainBodyAreaPlacement BodyArea { get; internal set; }
+    /// <summary>Where her body is placed in the room (#1949, #2031): not yet, with her, or at the room's corner once she is gone.</summary>
+    public MotherBrainBodyPlacement BodyPlacement { get; internal set; }
 
     /// <summary>
-    /// The room pixel her body's area's top-left corner lies on (#1617, #1802, #1949), or null before it is placed: while
-    /// it follows her, <see cref="MotherBrainBodyAreaDefinitions.OffsetFromBody"/> from her body, so it moves with her.
-    /// Her fake death's arena lock keeps the camera on the room's first screen, at its top-left corner, so the area lies in
-    /// the room where the screen shows it.
+    /// The room pixel her body's frames are placed from (#1949, #2031), or null before it is placed: her position while it
+    /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
+    /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    public Position16<RoomPixels>? BodyOrigin => BodyArea switch
+    public Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
     {
-        MotherBrainBodyAreaPlacement.FollowsBody => Body.Position.Whole + MotherBrainBodyAreaDefinitions.OffsetFromBody,
-        MotherBrainBodyAreaPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
-        MotherBrainBodyAreaPlacement.Unplaced => null,
-        _ => throw new InvalidOperationException($"Undefined body area placement {BodyArea}."),
+        MotherBrainBodyPlacement.FollowsBody => Body.Position.Whole,
+        MotherBrainBodyPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
+        MotherBrainBodyPlacement.Unplaced => null,
+        _ => throw new InvalidOperationException($"Undefined body placement {BodyPlacement}."),
     };
 
-    /// <summary>Whether her body's area is placed, which then shows in place of the room's background.</summary>
-    public bool PlacesBodyLayer => BodyArea != MotherBrainBodyAreaPlacement.Unplaced;
     /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
     /// <summary>One-shot latch for her death clearing her body.</summary>

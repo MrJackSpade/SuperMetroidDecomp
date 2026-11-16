@@ -64,7 +64,8 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
             // His room's acid, whose surface his acid smoke rises from.
-            var acid = new RoomFxOverlayState(new RoomFxSession()) { Type = RoomFxType.Acid, Surface = 224 };
+            RoomFxOverlayState acid = RoomFxOverlayState.ForDefinition(RoomFxDefinitions.AllRecords.First(record => record.Type == RoomFxType.Acid)
+                with { LiquidStartLevel = 224, LiquidTargetLevel = null, LiquidLevelSpeed = default }, randomNumber: 0);
             Enemies.RoomFx.BindRoomFx(acid);
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
@@ -87,7 +88,7 @@ internal static class EnemyEffectsFixtureVerification
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
         /// <summary>Advances the production melting behavior for the bound Crocomire actor.</summary>
-        internal void Dissolve() => new Action<CrocomireEnemyState, Position16<RoomPixels>>(Enemies.CrocomireBehavior.Melting.RunCrocomireMelting)(Actor, default);
+        internal void Dissolve() => Enemies.CrocomireBehavior.Melting.RunCrocomireMelting(Actor);
     }
 
     /// <summary>Compares actor, effect, slots, RAM, audio, and PLM requests after a melt operation.</summary>
@@ -99,9 +100,9 @@ internal static class EnemyEffectsFixtureVerification
         AssertAnimationValues(expected.Enemies, actual.Enemies, context);
         for (int slot = 0; slot < expected.Enemies.SlotTable.Slots.Count; slot++)
             AssertAnimationValues(expected.Enemies.SlotTable.Slots[slot], actual.Enemies.SlotTable.Slots[slot], context);
-        AssertEqual(expected.Enemies.RoomSpriteObjects.Count, actual.Enemies.RoomSpriteObjects.Count, context + " live sprite objects");
-        for (int spawned = 0; spawned < expected.Enemies.RoomSpriteObjects.Count; spawned++)
-            AssertAnimationValues(expected.Enemies.RoomSpriteObjects[spawned], actual.Enemies.RoomSpriteObjects[spawned], context);
+        AssertEqual(expected.Enemies.RoomEffectActors.Count, actual.Enemies.RoomEffectActors.Count, context + " live sprite objects");
+        for (int spawned = 0; spawned < expected.Enemies.RoomEffectActors.Count; spawned++)
+            AssertAnimationValues(expected.Enemies.RoomEffectActors[spawned], actual.Enemies.RoomEffectActors[spawned], context);
         for (int band = 0; band < CrocomireMeltingDefinitions.SecondPassBandCount; band++)
             AssertEqual(expected.MeltBandStep(band), actual.MeltBandStep(band), context + " band " + band + " step");
         AssertEqual(expected.Effect.MeltDistortion, actual.Effect.MeltDistortion, context + " melt stretch");

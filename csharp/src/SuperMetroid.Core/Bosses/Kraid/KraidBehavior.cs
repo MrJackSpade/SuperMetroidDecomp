@@ -58,14 +58,14 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.Presentation.Artwork;
         Parts = new KraidParts();
         Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio, Parts);
-        BodyLayer = new KraidBodyLayer(Access, _bossArtwork);
+        BodyLayer = new KraidBodyLayer(Access, _bossArtwork, Parts);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);
         Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
         Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.SpriteObjects, Parts, dependencies.Collision, Access);
+        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision, Access);
     }
 
     /// <summary>
@@ -83,27 +83,17 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void RunKraidBodyMain(
         RoomEnemySlot body,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera,
-        SamusProjectileSystem? samusProjectiles,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusProjectileSystem samusProjectiles,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         KraidEnemyState state = Access.RequireKraidState(body);
-        IReadOnlyList<KraidPassProjectile>? tested = samusProjectiles is not null && sharedProjectiles is not null
-            ? TestedByShotPasses(samusProjectiles, sharedProjectiles)
-            : null;
-        if (tested is not null)
-            Combat.ResolveKraidMouthProjectileHits(body, state, tested);
+        IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, sharedProjectiles);
+        Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
-        if (tested is not null)
-            Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        if (samus is not null)
-            Combat.ResolveKraidBodyContact(body, state, samus);
-        // His body follows Kraid (#1617): its area lies his X radius, the authored body's right-edge origin adjustment, left
-        // of him, and 152 pixels, the authored vertical anchor, above him.
-        state.BodyOrigin = new Position16<RoomPixels>(
-            CoordinateAxis.Wrap(body.Position.X.Whole - body.Radius.X),
-            CoordinateAxis.Wrap(body.Position.Y.Whole - 152));
+        Combat.ResolveKraidBodyProjectileHits(body, state, tested);
+        Combat.ResolveKraidBodyContact(body, state, samus);
         if (state.BodyState.Phase is { } phase && KraidPhaseGroups.Rising.Contains(phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);
@@ -136,7 +126,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Limbs.RunKraidFootMain(slot, frame.Camera.Y);
     }
 
-    /// <summary>Runs KraidNail's main AI.</summary>
+    /// <summary>Runs a fingernail's main AI, for either of Kraid's two.</summary>
     internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         Projectiles.RunKraidNailMain(slot, frame.Level);

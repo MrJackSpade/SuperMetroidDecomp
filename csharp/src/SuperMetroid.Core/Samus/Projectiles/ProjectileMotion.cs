@@ -211,7 +211,7 @@ internal sealed class ProjectileMotion
             _terrainCollision.KillMissile(shot, sharedProjectiles);
 
         // The missile direction step may create an explosion just
-        // beyond the retention boundary. Its caller still runs the offscreen
+        // beyond the retention boundary. The shot's flight still runs the offscreen
         // check on that same frame, after impact sound/cooldown side effects.
         DeleteIfOutsideMovementWindow(shot, cameraPosition);
     }
@@ -232,7 +232,7 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // The Super Missile trail begins with the producer's value four but reloads two after every
+        // The Super Missile trail first waits the four updates its firing sets, then two after every
         // expiry. Super Missiles therefore emit twice as frequently as ordinary missiles;
         // both families still select the same trail art.
         shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
@@ -495,7 +495,7 @@ internal sealed class ProjectileMotion
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
 
-        // Extension blocks return to the step's caller with a repeat result, causing the same
+        // Extension blocks end the step with a repeat result, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour
         // extension is transparent. Reuse the level resolver so missiles
         // and the broad Samus body scans cannot disagree about chained extensions.
@@ -545,7 +545,7 @@ internal sealed class ProjectileMotion
             RoomCollisionType.Slope =>
                 MissileSlopePointReaction(block, shot),
 
-            // The cases above cover every collision kind left after extension redispatch.
+            // The cases above cover every collision kind left after following the extensions.
             // Keep an explicit guard so a kind reaching here fails rather than silently
             // inventing a collision result.
             RoomCollisionType.ShootableAir or

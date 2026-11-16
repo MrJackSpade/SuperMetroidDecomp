@@ -98,7 +98,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
-    internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState? samus)
+    internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState samus)
     {
         // Before the glass room object finishes the nineteen missile increments and its 48-frame tail,
         // event two is clear and the first phase performs no phase change. Head-vs-Samus and
@@ -108,7 +108,7 @@ internal sealed class MotherBrainBody
         if (glassDestroyed)
         {
             state.BrainMainShakeTimer = _earthquake.RemainingFrames;
-            if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
+            if (samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit. The following
                 // step remains a phase of its own so the next frame
@@ -134,8 +134,7 @@ internal sealed class MotherBrainBody
         // The first phase always falls through to the encounter's custom rectangle walker,
         // including the frame that arms fake death. This collision is not represented by
         // either enemy definition's ordinary radius and must stay in the body's own phases.
-        if (samus is not null)
-            ResolveMotherBrainSamusCollision(state, samus);
+        ResolveMotherBrainSamusCollision(state, samus);
     }
 
     /// <summary>
@@ -143,7 +142,7 @@ internal sealed class MotherBrainBody
     /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation
     /// rests: the timer wraps from zero and the last frame stays.
     /// </summary>
-    internal void AdvanceMotherBrainSlotAnimation(RoomEnemySlot slot, SamusState? samus)
+    internal void AdvanceMotherBrainSlotAnimation(RoomEnemySlot slot, SamusState samus)
     {
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
@@ -163,7 +162,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>Carries out one cue of a body animation.</summary>
-    private void ApplyMotherBrainBodyCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainBodyCue cue)
+    private void ApplyMotherBrainBodyCue(MotherBrainEnemyState state, SamusState samus, MotherBrainBodyCue cue)
     {
         switch (cue)
         {
@@ -189,8 +188,7 @@ internal sealed class MotherBrainBody
                 return;
             case MotherBrainBodyCue.Signal { Kind: MotherBrainBodyCueKind.FireHandBeam }:
             {
-                SamusState target = samus ?? throw new InvalidOperationException(
-                    "Mother Brain hand-beam aiming requires the active Samus actor.");
+                SamusState target = samus;
                 _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.HandBeam);
                 SpawnMotherBrainHandBeamCharging(state, target);
                 return;
@@ -338,7 +336,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Body movement: moves her, and her body's area and pictures with her (#1949), keeping the large body art rigidly
+    /// Body movement: moves her, and her body's pictures with her (#1949, #2031), keeping the large body art rigidly
     /// attached to its small hitbox record.
     /// </summary>
     private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)

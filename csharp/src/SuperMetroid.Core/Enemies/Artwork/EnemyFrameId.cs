@@ -349,17 +349,17 @@ public enum EnemyFrameId
     /// <summary>Owtch: moving left loop, third frame.</summary>
     OwtchMovingLeftLoopThird,
     /// <summary>Gripper: moving left, first frame.</summary>
-    GRipperMovingLeftFirst,
+    GrappleRipperMovingLeftFirst,
     /// <summary>Gripper: moving left, second frame.</summary>
-    GRipperMovingLeftSecond,
+    GrappleRipperMovingLeftSecond,
     /// <summary>Gripper: moving left, third frame.</summary>
-    GRipperMovingLeftThird,
+    GrappleRipperMovingLeftThird,
     /// <summary>Gripper: moving right, first frame.</summary>
-    GRipperMovingRightFirst,
+    GrappleRipperMovingRightFirst,
     /// <summary>Gripper: moving right, second frame.</summary>
-    GRipperMovingRightSecond,
+    GrappleRipperMovingRightSecond,
     /// <summary>Gripper: moving right, third frame.</summary>
-    GRipperMovingRightThird,
+    GrappleRipperMovingRightThird,
     /// <summary>Ripper: shared frozen left.</summary>
     RipperSharedFrozenLeft,
     /// <summary>Ripper: shared frozen right.</summary>
@@ -763,45 +763,45 @@ public enum EnemyFrameId
     /// <summary>Choot: fall end.</summary>
     ChootFallEnd,
     /// <summary>The horizontal Zoomer: upside right loop, first frame.</summary>
-    HZoomerUpsideRightLoopFirst,
+    OrangeZoomerUpsideRightLoopFirst,
     /// <summary>The horizontal Zoomer: upside right loop, second frame.</summary>
-    HZoomerUpsideRightLoopSecond,
+    OrangeZoomerUpsideRightLoopSecond,
     /// <summary>The horizontal Zoomer: upside right loop, third frame.</summary>
-    HZoomerUpsideRightLoopThird,
+    OrangeZoomerUpsideRightLoopThird,
     /// <summary>The horizontal Zoomer: upside right loop, fourth frame.</summary>
-    HZoomerUpsideRightLoopFourth,
+    OrangeZoomerUpsideRightLoopFourth,
     /// <summary>The horizontal Zoomer: upside right loop, fifth frame.</summary>
-    HZoomerUpsideRightLoopFifth,
+    OrangeZoomerUpsideRightLoopFifth,
     /// <summary>The horizontal Zoomer: upside left loop, first frame.</summary>
-    HZoomerUpsideLeftLoopFirst,
+    OrangeZoomerUpsideLeftLoopFirst,
     /// <summary>The horizontal Zoomer: upside left loop, second frame.</summary>
-    HZoomerUpsideLeftLoopSecond,
+    OrangeZoomerUpsideLeftLoopSecond,
     /// <summary>The horizontal Zoomer: upside left loop, third frame.</summary>
-    HZoomerUpsideLeftLoopThird,
+    OrangeZoomerUpsideLeftLoopThird,
     /// <summary>The horizontal Zoomer: upside left loop, fourth frame.</summary>
-    HZoomerUpsideLeftLoopFourth,
+    OrangeZoomerUpsideLeftLoopFourth,
     /// <summary>The horizontal Zoomer: upside left loop, fifth frame.</summary>
-    HZoomerUpsideLeftLoopFifth,
+    OrangeZoomerUpsideLeftLoopFifth,
     /// <summary>The horizontal Zoomer: upside down loop, first frame.</summary>
-    HZoomerUpsideDownLoopFirst,
+    OrangeZoomerUpsideDownLoopFirst,
     /// <summary>The horizontal Zoomer: upside down loop, second frame.</summary>
-    HZoomerUpsideDownLoopSecond,
+    OrangeZoomerUpsideDownLoopSecond,
     /// <summary>The horizontal Zoomer: upside down loop, third frame.</summary>
-    HZoomerUpsideDownLoopThird,
+    OrangeZoomerUpsideDownLoopThird,
     /// <summary>The horizontal Zoomer: upside down loop, fourth frame.</summary>
-    HZoomerUpsideDownLoopFourth,
+    OrangeZoomerUpsideDownLoopFourth,
     /// <summary>The horizontal Zoomer: upside down loop, fifth frame.</summary>
-    HZoomerUpsideDownLoopFifth,
+    OrangeZoomerUpsideDownLoopFifth,
     /// <summary>The horizontal Zoomer: upside up loop, first frame.</summary>
-    HZoomerUpsideUpLoopFirst,
+    OrangeZoomerUpsideUpLoopFirst,
     /// <summary>The horizontal Zoomer: upside up loop, second frame.</summary>
-    HZoomerUpsideUpLoopSecond,
+    OrangeZoomerUpsideUpLoopSecond,
     /// <summary>The horizontal Zoomer: upside up loop, third frame.</summary>
-    HZoomerUpsideUpLoopThird,
+    OrangeZoomerUpsideUpLoopThird,
     /// <summary>The horizontal Zoomer: upside up loop, fourth frame.</summary>
-    HZoomerUpsideUpLoopFourth,
+    OrangeZoomerUpsideUpLoopFourth,
     /// <summary>The horizontal Zoomer: upside up loop, fifth frame.</summary>
-    HZoomerUpsideUpLoopFifth,
+    OrangeZoomerUpsideUpLoopFifth,
     /// <summary>Sbug: right, first frame.</summary>
     SbugRightFirst,
     /// <summary>Sbug: right, second frame.</summary>
@@ -906,252 +906,252 @@ public enum EnemyFrameId
     ElevatorLoopFirst,
     /// <summary>The elevator: loop, second frame.</summary>
     ElevatorLoopSecond,
-    /// <summary>A room sprite object: evir facing left, first frame.</summary>
-    SpriteObjectEvirFacingLeftFirst,
-    /// <summary>A room sprite object: evir facing left, second frame.</summary>
-    SpriteObjectEvirFacingLeftSecond,
-    /// <summary>A room sprite object: evir facing left, third frame.</summary>
-    SpriteObjectEvirFacingLeftThird,
-    /// <summary>A room sprite object: evir facing left, fourth frame.</summary>
-    SpriteObjectEvirFacingLeftFourth,
-    /// <summary>A room sprite object: short Draygon breath bubbles, first frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesFirst,
-    /// <summary>A room sprite object: short Draygon breath bubbles, second frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesSecond,
-    /// <summary>A room sprite object: short Draygon breath bubbles, third frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesThird,
-    /// <summary>A room sprite object: short Draygon breath bubbles, fourth frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesFourth,
-    /// <summary>A room sprite object: short Draygon breath bubbles, fifth frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesFifth,
-    /// <summary>A room sprite object: short Draygon breath bubbles, sixth frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesSixth,
-    /// <summary>A room sprite object: short Draygon breath bubbles, seventh frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesSeventh,
-    /// <summary>A room sprite object: short Draygon breath bubbles, eighth frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesEighth,
-    /// <summary>A room sprite object: short Draygon breath bubbles, ninth frame.</summary>
-    SpriteObjectShortDraygonBreathBubblesNinth,
-    /// <summary>A room sprite object: empty.</summary>
-    SpriteObjectEmpty,
-    /// <summary>A room sprite object: short big dust cloud, first frame.</summary>
-    SpriteObjectShortBigDustCloudFirst,
-    /// <summary>A room sprite object: short big dust cloud, second frame.</summary>
-    SpriteObjectShortBigDustCloudSecond,
-    /// <summary>A room sprite object: short big dust cloud, third frame.</summary>
-    SpriteObjectShortBigDustCloudThird,
-    /// <summary>A room sprite object: short big dust cloud, fourth frame.</summary>
-    SpriteObjectShortBigDustCloudFourth,
-    /// <summary>A room sprite object: big dust cloud, fifth frame.</summary>
-    SpriteObjectBigDustCloudFifth,
-    /// <summary>A room sprite object: big dust cloud, sixth frame.</summary>
-    SpriteObjectBigDustCloudSixth,
-    /// <summary>A room sprite object: big dust cloud, seventh frame.</summary>
-    SpriteObjectBigDustCloudSeventh,
-    /// <summary>A room sprite object: big dust cloud, eighth frame.</summary>
-    SpriteObjectBigDustCloudEighth,
-    /// <summary>A room sprite object: small explosion, first frame.</summary>
-    SpriteObjectSmallExplosionFirst,
-    /// <summary>A room sprite object: small explosion, second frame.</summary>
-    SpriteObjectSmallExplosionSecond,
-    /// <summary>A room sprite object: small explosion, third frame.</summary>
-    SpriteObjectSmallExplosionThird,
-    /// <summary>A room sprite object: small explosion, fourth frame.</summary>
-    SpriteObjectSmallExplosionFourth,
-    /// <summary>A room sprite object: small explosion, fifth frame.</summary>
-    SpriteObjectSmallExplosionFifth,
-    /// <summary>A room sprite object: small explosion, sixth frame.</summary>
-    SpriteObjectSmallExplosionSixth,
-    /// <summary>A room sprite object: dud shot, first frame.</summary>
-    SpriteObjectDudShotFirst,
-    /// <summary>A room sprite object: dud shot, second frame.</summary>
-    SpriteObjectDudShotSecond,
-    /// <summary>A room sprite object: dud shot, third frame.</summary>
-    SpriteObjectDudShotThird,
-    /// <summary>A room sprite object: dud shot, fourth frame.</summary>
-    SpriteObjectDudShotFourth,
-    /// <summary>A room sprite object: dud shot, fifth frame.</summary>
-    SpriteObjectDudShotFifth,
-    /// <summary>A room sprite object: dud shot, sixth frame.</summary>
-    SpriteObjectDudShotSixth,
-    /// <summary>A room sprite object: small dud shot, second frame.</summary>
-    SpriteObjectSmallDudShotSecond,
-    /// <summary>A room sprite object: small dud shot, third frame.</summary>
-    SpriteObjectSmallDudShotThird,
-    /// <summary>A room sprite object: small dud shot, fourth frame.</summary>
-    SpriteObjectSmallDudShotFourth,
-    /// <summary>A room sprite object: small dud shot, fifth frame.</summary>
-    SpriteObjectSmallDudShotFifth,
-    /// <summary>A room sprite object: small dud shot, first frame.</summary>
-    SpriteObjectSmallDudShotFirst,
-    /// <summary>A room sprite object: space pirate landing dust cloud, second frame.</summary>
-    SpriteObjectSpacePirateLandingDustCloudSecond,
-    /// <summary>A room sprite object: space pirate landing dust cloud, third frame.</summary>
-    SpriteObjectSpacePirateLandingDustCloudThird,
-    /// <summary>A room sprite object: space pirate landing dust cloud, fourth frame.</summary>
-    SpriteObjectSpacePirateLandingDustCloudFourth,
-    /// <summary>A room sprite object: smoke, first frame.</summary>
-    SpriteObjectSmokeFirst,
-    /// <summary>A room sprite object: smoke, second frame.</summary>
-    SpriteObjectSmokeSecond,
-    /// <summary>A room sprite object: smoke, third frame.</summary>
-    SpriteObjectSmokeThird,
-    /// <summary>A room sprite object: smoke, fourth frame.</summary>
-    SpriteObjectSmokeFourth,
-    /// <summary>A room sprite object: big explosion, first frame.</summary>
-    SpriteObjectBigExplosionFirst,
-    /// <summary>A room sprite object: big explosion, second frame.</summary>
-    SpriteObjectBigExplosionSecond,
-    /// <summary>A room sprite object: big explosion, third frame.</summary>
-    SpriteObjectBigExplosionThird,
-    /// <summary>A room sprite object: big explosion, fourth frame.</summary>
-    SpriteObjectBigExplosionFourth,
-    /// <summary>A room sprite object: big explosion, fifth frame.</summary>
-    SpriteObjectBigExplosionFifth,
-    /// <summary>A room sprite object: big explosion, sixth frame.</summary>
-    SpriteObjectBigExplosionSixth,
-    /// <summary>A room sprite object: puromi body, first frame.</summary>
-    SpriteObjectPuromiBodyFirst,
-    /// <summary>A room sprite object: puromi body, second frame.</summary>
-    SpriteObjectPuromiBodySecond,
-    /// <summary>A room sprite object: puromi body, fourth frame.</summary>
-    SpriteObjectPuromiBodyFourth,
-    /// <summary>A room sprite object: puromi body, fifth frame.</summary>
-    SpriteObjectPuromiBodyFifth,
-    /// <summary>A room sprite object: puromi body, third frame.</summary>
-    SpriteObjectPuromiBodyThird,
-    /// <summary>A room sprite object: puromi body, sixth frame.</summary>
-    SpriteObjectPuromiBodySixth,
-    /// <summary>A room sprite object: puromi body, seventh frame.</summary>
-    SpriteObjectPuromiBodySeventh,
-    /// <summary>A room sprite object: puromi body, eighth frame.</summary>
-    SpriteObjectPuromiBodyEighth,
-    /// <summary>A room sprite object: puromi right explosion, first frame.</summary>
-    SpriteObjectPuromiRightExplosionFirst,
-    /// <summary>A room sprite object: puromi right explosion, second frame.</summary>
-    SpriteObjectPuromiRightExplosionSecond,
-    /// <summary>A room sprite object: puromi right explosion, third frame.</summary>
-    SpriteObjectPuromiRightExplosionThird,
-    /// <summary>A room sprite object: puromi right explosion, fourth frame.</summary>
-    SpriteObjectPuromiRightExplosionFourth,
-    /// <summary>A room sprite object: puromi right explosion, fifth frame.</summary>
-    SpriteObjectPuromiRightExplosionFifth,
-    /// <summary>A room sprite object: puromi right explosion, sixth frame.</summary>
-    SpriteObjectPuromiRightExplosionSixth,
-    /// <summary>A room sprite object: puromi right explosion, seventh frame.</summary>
-    SpriteObjectPuromiRightExplosionSeventh,
-    /// <summary>A room sprite object: puromi left explosion, first frame.</summary>
-    SpriteObjectPuromiLeftExplosionFirst,
-    /// <summary>A room sprite object: puromi left explosion, second frame.</summary>
-    SpriteObjectPuromiLeftExplosionSecond,
-    /// <summary>A room sprite object: puromi left explosion, third frame.</summary>
-    SpriteObjectPuromiLeftExplosionThird,
-    /// <summary>A room sprite object: puromi left explosion, fourth frame.</summary>
-    SpriteObjectPuromiLeftExplosionFourth,
-    /// <summary>A room sprite object: puromi left explosion, fifth frame.</summary>
-    SpriteObjectPuromiLeftExplosionFifth,
-    /// <summary>A room sprite object: puromi left explosion, sixth frame.</summary>
-    SpriteObjectPuromiLeftExplosionSixth,
-    /// <summary>A room sprite object: puromi left explosion, seventh frame.</summary>
-    SpriteObjectPuromiLeftExplosionSeventh,
-    /// <summary>A room sprite object: puromi splash, first frame.</summary>
-    SpriteObjectPuromiSplashFirst,
-    /// <summary>A room sprite object: puromi splash, second frame.</summary>
-    SpriteObjectPuromiSplashSecond,
-    /// <summary>A room sprite object: puromi splash, third frame.</summary>
-    SpriteObjectPuromiSplashThird,
-    /// <summary>A room sprite object: puromi splash, fourth frame.</summary>
-    SpriteObjectPuromiSplashFourth,
-    /// <summary>A room sprite object: falling spark trail, first frame.</summary>
-    SpriteObjectFallingSparkTrailFirst,
-    /// <summary>A room sprite object: falling spark trail, second frame.</summary>
-    SpriteObjectFallingSparkTrailSecond,
-    /// <summary>A room sprite object: falling spark trail, third frame.</summary>
-    SpriteObjectFallingSparkTrailThird,
-    /// <summary>A room sprite object: falling spark trail, fourth frame.</summary>
-    SpriteObjectFallingSparkTrailFourth,
-    /// <summary>A room sprite object: Metroid shell, first frame.</summary>
-    SpriteObjectMetroidShellFirst,
-    /// <summary>A room sprite object: Metroid shell, third frame.</summary>
-    SpriteObjectMetroidShellThird,
-    /// <summary>A room sprite object: Metroid shell loop, third frame.</summary>
-    SpriteObjectMetroidShellLoopThird,
-    /// <summary>A room sprite object: Metroid electricity, first frame.</summary>
-    SpriteObjectMetroidElectricityFirst,
-    /// <summary>A room sprite object: Metroid electricity, second frame.</summary>
-    SpriteObjectMetroidElectricitySecond,
-    /// <summary>A room sprite object: Metroid electricity, third frame.</summary>
-    SpriteObjectMetroidElectricityThird,
-    /// <summary>A room sprite object: Metroid electricity, fifth frame.</summary>
-    SpriteObjectMetroidElectricityFifth,
-    /// <summary>A room sprite object: Metroid electricity, sixth frame.</summary>
-    SpriteObjectMetroidElectricitySixth,
-    /// <summary>A room sprite object: Metroid electricity, seventh frame.</summary>
-    SpriteObjectMetroidElectricitySeventh,
-    /// <summary>A room sprite object: Metroid electricity loop, first frame.</summary>
-    SpriteObjectMetroidElectricityLoopFirst,
-    /// <summary>A room sprite object: Metroid electricity loop, second frame.</summary>
-    SpriteObjectMetroidElectricityLoopSecond,
-    /// <summary>A room sprite object: Metroid electricity loop, third frame.</summary>
-    SpriteObjectMetroidElectricityLoopThird,
-    /// <summary>A room sprite object: Metroid electricity, eleventh frame.</summary>
-    SpriteObjectMetroidElectricityEleventh,
-    /// <summary>A room sprite object: Metroid electricity, twelfth frame.</summary>
-    SpriteObjectMetroidElectricityTwelfth,
-    /// <summary>A room sprite object: Metroid electricity, thirteenth frame.</summary>
-    SpriteObjectMetroidElectricityThirteenth,
-    /// <summary>A room sprite object: Metroid electricity, eighth frame.</summary>
-    SpriteObjectMetroidElectricityEighth,
-    /// <summary>A room sprite object: Metroid electricity, ninth frame.</summary>
-    SpriteObjectMetroidElectricityNinth,
-    /// <summary>A room sprite object: Metroid electricity, tenth frame.</summary>
-    SpriteObjectMetroidElectricityTenth,
-    /// <summary>A room sprite object: Metroid electricity, fourteenth frame.</summary>
-    SpriteObjectMetroidElectricityFourteenth,
-    /// <summary>A room sprite object: Metroid electricity, fifteenth frame.</summary>
-    SpriteObjectMetroidElectricityFifteenth,
-    /// <summary>A room sprite object: Metroid electricity, sixteenth frame.</summary>
-    SpriteObjectMetroidElectricitySixteenth,
-    /// <summary>A room sprite object: Metroid electricity, seventeenth frame.</summary>
-    SpriteObjectMetroidElectricitySeventeenth,
-    /// <summary>A room sprite object: Metroid electricity, eighteenth frame.</summary>
-    SpriteObjectMetroidElectricityEighteenth,
-    /// <summary>A room sprite object: Metroid electricity, nineteenth frame.</summary>
-    SpriteObjectMetroidElectricityNineteenth,
-    /// <summary>A room sprite object: Metroid electricity loop, fifth frame.</summary>
-    SpriteObjectMetroidElectricityLoopFifth,
-    /// <summary>A room sprite object: Metroid electricity loop, sixth frame.</summary>
-    SpriteObjectMetroidElectricityLoopSixth,
-    /// <summary>A room sprite object: Metroid electricity loop, seventh frame.</summary>
-    SpriteObjectMetroidElectricityLoopSeventh,
-    /// <summary>A room sprite object: yapping maw base facing down.</summary>
-    SpriteObjectYappingMawBaseFacingDown,
-    /// <summary>A room sprite object: yapping maw base facing up.</summary>
-    SpriteObjectYappingMawBaseFacingUp,
-    /// <summary>A room sprite object: evir facing right, first frame.</summary>
-    SpriteObjectEvirFacingRightFirst,
-    /// <summary>A room sprite object: evir facing right, second frame.</summary>
-    SpriteObjectEvirFacingRightSecond,
-    /// <summary>A room sprite object: evir facing right, third frame.</summary>
-    SpriteObjectEvirFacingRightThird,
-    /// <summary>A room sprite object: evir facing right, fourth frame.</summary>
-    SpriteObjectEvirFacingRightFourth,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, first frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthFirst,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, second frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthSecond,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, third frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthThird,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, fourth frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthFourth,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, fifth frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthFifth,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, sixth frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthSixth,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, seventh frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthSeventh,
-    /// <summary>A room sprite object: Draygon foaming at the mouth, eighth frame.</summary>
-    SpriteObjectDraygonFoamingAtTheMouthEighth,
+    /// <summary>A room effect actor: evir facing left, first frame.</summary>
+    EffectActorEvirFacingLeftFirst,
+    /// <summary>A room effect actor: evir facing left, second frame.</summary>
+    EffectActorEvirFacingLeftSecond,
+    /// <summary>A room effect actor: evir facing left, third frame.</summary>
+    EffectActorEvirFacingLeftThird,
+    /// <summary>A room effect actor: evir facing left, fourth frame.</summary>
+    EffectActorEvirFacingLeftFourth,
+    /// <summary>A room effect actor: short Draygon breath bubbles, first frame.</summary>
+    EffectActorShortDraygonBreathBubblesFirst,
+    /// <summary>A room effect actor: short Draygon breath bubbles, second frame.</summary>
+    EffectActorShortDraygonBreathBubblesSecond,
+    /// <summary>A room effect actor: short Draygon breath bubbles, third frame.</summary>
+    EffectActorShortDraygonBreathBubblesThird,
+    /// <summary>A room effect actor: short Draygon breath bubbles, fourth frame.</summary>
+    EffectActorShortDraygonBreathBubblesFourth,
+    /// <summary>A room effect actor: short Draygon breath bubbles, fifth frame.</summary>
+    EffectActorShortDraygonBreathBubblesFifth,
+    /// <summary>A room effect actor: short Draygon breath bubbles, sixth frame.</summary>
+    EffectActorShortDraygonBreathBubblesSixth,
+    /// <summary>A room effect actor: short Draygon breath bubbles, seventh frame.</summary>
+    EffectActorShortDraygonBreathBubblesSeventh,
+    /// <summary>A room effect actor: short Draygon breath bubbles, eighth frame.</summary>
+    EffectActorShortDraygonBreathBubblesEighth,
+    /// <summary>A room effect actor: short Draygon breath bubbles, ninth frame.</summary>
+    EffectActorShortDraygonBreathBubblesNinth,
+    /// <summary>A room effect actor: empty.</summary>
+    EffectActorEmpty,
+    /// <summary>A room effect actor: short big dust cloud, first frame.</summary>
+    EffectActorShortBigDustCloudFirst,
+    /// <summary>A room effect actor: short big dust cloud, second frame.</summary>
+    EffectActorShortBigDustCloudSecond,
+    /// <summary>A room effect actor: short big dust cloud, third frame.</summary>
+    EffectActorShortBigDustCloudThird,
+    /// <summary>A room effect actor: short big dust cloud, fourth frame.</summary>
+    EffectActorShortBigDustCloudFourth,
+    /// <summary>A room effect actor: big dust cloud, fifth frame.</summary>
+    EffectActorBigDustCloudFifth,
+    /// <summary>A room effect actor: big dust cloud, sixth frame.</summary>
+    EffectActorBigDustCloudSixth,
+    /// <summary>A room effect actor: big dust cloud, seventh frame.</summary>
+    EffectActorBigDustCloudSeventh,
+    /// <summary>A room effect actor: big dust cloud, eighth frame.</summary>
+    EffectActorBigDustCloudEighth,
+    /// <summary>A room effect actor: small explosion, first frame.</summary>
+    EffectActorSmallExplosionFirst,
+    /// <summary>A room effect actor: small explosion, second frame.</summary>
+    EffectActorSmallExplosionSecond,
+    /// <summary>A room effect actor: small explosion, third frame.</summary>
+    EffectActorSmallExplosionThird,
+    /// <summary>A room effect actor: small explosion, fourth frame.</summary>
+    EffectActorSmallExplosionFourth,
+    /// <summary>A room effect actor: small explosion, fifth frame.</summary>
+    EffectActorSmallExplosionFifth,
+    /// <summary>A room effect actor: small explosion, sixth frame.</summary>
+    EffectActorSmallExplosionSixth,
+    /// <summary>A room effect actor: dud shot, first frame.</summary>
+    EffectActorDudShotFirst,
+    /// <summary>A room effect actor: dud shot, second frame.</summary>
+    EffectActorDudShotSecond,
+    /// <summary>A room effect actor: dud shot, third frame.</summary>
+    EffectActorDudShotThird,
+    /// <summary>A room effect actor: dud shot, fourth frame.</summary>
+    EffectActorDudShotFourth,
+    /// <summary>A room effect actor: dud shot, fifth frame.</summary>
+    EffectActorDudShotFifth,
+    /// <summary>A room effect actor: dud shot, sixth frame.</summary>
+    EffectActorDudShotSixth,
+    /// <summary>A room effect actor: small dud shot, second frame.</summary>
+    EffectActorSmallDudShotSecond,
+    /// <summary>A room effect actor: small dud shot, third frame.</summary>
+    EffectActorSmallDudShotThird,
+    /// <summary>A room effect actor: small dud shot, fourth frame.</summary>
+    EffectActorSmallDudShotFourth,
+    /// <summary>A room effect actor: small dud shot, fifth frame.</summary>
+    EffectActorSmallDudShotFifth,
+    /// <summary>A room effect actor: small dud shot, first frame.</summary>
+    EffectActorSmallDudShotFirst,
+    /// <summary>A room effect actor: space pirate landing dust cloud, second frame.</summary>
+    EffectActorSpacePirateLandingDustCloudSecond,
+    /// <summary>A room effect actor: space pirate landing dust cloud, third frame.</summary>
+    EffectActorSpacePirateLandingDustCloudThird,
+    /// <summary>A room effect actor: space pirate landing dust cloud, fourth frame.</summary>
+    EffectActorSpacePirateLandingDustCloudFourth,
+    /// <summary>A room effect actor: smoke, first frame.</summary>
+    EffectActorSmokeFirst,
+    /// <summary>A room effect actor: smoke, second frame.</summary>
+    EffectActorSmokeSecond,
+    /// <summary>A room effect actor: smoke, third frame.</summary>
+    EffectActorSmokeThird,
+    /// <summary>A room effect actor: smoke, fourth frame.</summary>
+    EffectActorSmokeFourth,
+    /// <summary>A room effect actor: big explosion, first frame.</summary>
+    EffectActorBigExplosionFirst,
+    /// <summary>A room effect actor: big explosion, second frame.</summary>
+    EffectActorBigExplosionSecond,
+    /// <summary>A room effect actor: big explosion, third frame.</summary>
+    EffectActorBigExplosionThird,
+    /// <summary>A room effect actor: big explosion, fourth frame.</summary>
+    EffectActorBigExplosionFourth,
+    /// <summary>A room effect actor: big explosion, fifth frame.</summary>
+    EffectActorBigExplosionFifth,
+    /// <summary>A room effect actor: big explosion, sixth frame.</summary>
+    EffectActorBigExplosionSixth,
+    /// <summary>A room effect actor: puromi body, first frame.</summary>
+    EffectActorPuromiBodyFirst,
+    /// <summary>A room effect actor: puromi body, second frame.</summary>
+    EffectActorPuromiBodySecond,
+    /// <summary>A room effect actor: puromi body, fourth frame.</summary>
+    EffectActorPuromiBodyFourth,
+    /// <summary>A room effect actor: puromi body, fifth frame.</summary>
+    EffectActorPuromiBodyFifth,
+    /// <summary>A room effect actor: puromi body, third frame.</summary>
+    EffectActorPuromiBodyThird,
+    /// <summary>A room effect actor: puromi body, sixth frame.</summary>
+    EffectActorPuromiBodySixth,
+    /// <summary>A room effect actor: puromi body, seventh frame.</summary>
+    EffectActorPuromiBodySeventh,
+    /// <summary>A room effect actor: puromi body, eighth frame.</summary>
+    EffectActorPuromiBodyEighth,
+    /// <summary>A room effect actor: puromi right explosion, first frame.</summary>
+    EffectActorPuromiRightExplosionFirst,
+    /// <summary>A room effect actor: puromi right explosion, second frame.</summary>
+    EffectActorPuromiRightExplosionSecond,
+    /// <summary>A room effect actor: puromi right explosion, third frame.</summary>
+    EffectActorPuromiRightExplosionThird,
+    /// <summary>A room effect actor: puromi right explosion, fourth frame.</summary>
+    EffectActorPuromiRightExplosionFourth,
+    /// <summary>A room effect actor: puromi right explosion, fifth frame.</summary>
+    EffectActorPuromiRightExplosionFifth,
+    /// <summary>A room effect actor: puromi right explosion, sixth frame.</summary>
+    EffectActorPuromiRightExplosionSixth,
+    /// <summary>A room effect actor: puromi right explosion, seventh frame.</summary>
+    EffectActorPuromiRightExplosionSeventh,
+    /// <summary>A room effect actor: puromi left explosion, first frame.</summary>
+    EffectActorPuromiLeftExplosionFirst,
+    /// <summary>A room effect actor: puromi left explosion, second frame.</summary>
+    EffectActorPuromiLeftExplosionSecond,
+    /// <summary>A room effect actor: puromi left explosion, third frame.</summary>
+    EffectActorPuromiLeftExplosionThird,
+    /// <summary>A room effect actor: puromi left explosion, fourth frame.</summary>
+    EffectActorPuromiLeftExplosionFourth,
+    /// <summary>A room effect actor: puromi left explosion, fifth frame.</summary>
+    EffectActorPuromiLeftExplosionFifth,
+    /// <summary>A room effect actor: puromi left explosion, sixth frame.</summary>
+    EffectActorPuromiLeftExplosionSixth,
+    /// <summary>A room effect actor: puromi left explosion, seventh frame.</summary>
+    EffectActorPuromiLeftExplosionSeventh,
+    /// <summary>A room effect actor: puromi splash, first frame.</summary>
+    EffectActorPuromiSplashFirst,
+    /// <summary>A room effect actor: puromi splash, second frame.</summary>
+    EffectActorPuromiSplashSecond,
+    /// <summary>A room effect actor: puromi splash, third frame.</summary>
+    EffectActorPuromiSplashThird,
+    /// <summary>A room effect actor: puromi splash, fourth frame.</summary>
+    EffectActorPuromiSplashFourth,
+    /// <summary>A room effect actor: falling spark trail, first frame.</summary>
+    EffectActorFallingSparkTrailFirst,
+    /// <summary>A room effect actor: falling spark trail, second frame.</summary>
+    EffectActorFallingSparkTrailSecond,
+    /// <summary>A room effect actor: falling spark trail, third frame.</summary>
+    EffectActorFallingSparkTrailThird,
+    /// <summary>A room effect actor: falling spark trail, fourth frame.</summary>
+    EffectActorFallingSparkTrailFourth,
+    /// <summary>A room effect actor: Metroid shell, first frame.</summary>
+    EffectActorMetroidShellFirst,
+    /// <summary>A room effect actor: Metroid shell, third frame.</summary>
+    EffectActorMetroidShellThird,
+    /// <summary>A room effect actor: Metroid shell loop, third frame.</summary>
+    EffectActorMetroidShellLoopThird,
+    /// <summary>A room effect actor: Metroid electricity, first frame.</summary>
+    EffectActorMetroidElectricityFirst,
+    /// <summary>A room effect actor: Metroid electricity, second frame.</summary>
+    EffectActorMetroidElectricitySecond,
+    /// <summary>A room effect actor: Metroid electricity, third frame.</summary>
+    EffectActorMetroidElectricityThird,
+    /// <summary>A room effect actor: Metroid electricity, fifth frame.</summary>
+    EffectActorMetroidElectricityFifth,
+    /// <summary>A room effect actor: Metroid electricity, sixth frame.</summary>
+    EffectActorMetroidElectricitySixth,
+    /// <summary>A room effect actor: Metroid electricity, seventh frame.</summary>
+    EffectActorMetroidElectricitySeventh,
+    /// <summary>A room effect actor: Metroid electricity loop, first frame.</summary>
+    EffectActorMetroidElectricityLoopFirst,
+    /// <summary>A room effect actor: Metroid electricity loop, second frame.</summary>
+    EffectActorMetroidElectricityLoopSecond,
+    /// <summary>A room effect actor: Metroid electricity loop, third frame.</summary>
+    EffectActorMetroidElectricityLoopThird,
+    /// <summary>A room effect actor: Metroid electricity, eleventh frame.</summary>
+    EffectActorMetroidElectricityEleventh,
+    /// <summary>A room effect actor: Metroid electricity, twelfth frame.</summary>
+    EffectActorMetroidElectricityTwelfth,
+    /// <summary>A room effect actor: Metroid electricity, thirteenth frame.</summary>
+    EffectActorMetroidElectricityThirteenth,
+    /// <summary>A room effect actor: Metroid electricity, eighth frame.</summary>
+    EffectActorMetroidElectricityEighth,
+    /// <summary>A room effect actor: Metroid electricity, ninth frame.</summary>
+    EffectActorMetroidElectricityNinth,
+    /// <summary>A room effect actor: Metroid electricity, tenth frame.</summary>
+    EffectActorMetroidElectricityTenth,
+    /// <summary>A room effect actor: Metroid electricity, fourteenth frame.</summary>
+    EffectActorMetroidElectricityFourteenth,
+    /// <summary>A room effect actor: Metroid electricity, fifteenth frame.</summary>
+    EffectActorMetroidElectricityFifteenth,
+    /// <summary>A room effect actor: Metroid electricity, sixteenth frame.</summary>
+    EffectActorMetroidElectricitySixteenth,
+    /// <summary>A room effect actor: Metroid electricity, seventeenth frame.</summary>
+    EffectActorMetroidElectricitySeventeenth,
+    /// <summary>A room effect actor: Metroid electricity, eighteenth frame.</summary>
+    EffectActorMetroidElectricityEighteenth,
+    /// <summary>A room effect actor: Metroid electricity, nineteenth frame.</summary>
+    EffectActorMetroidElectricityNineteenth,
+    /// <summary>A room effect actor: Metroid electricity loop, fifth frame.</summary>
+    EffectActorMetroidElectricityLoopFifth,
+    /// <summary>A room effect actor: Metroid electricity loop, sixth frame.</summary>
+    EffectActorMetroidElectricityLoopSixth,
+    /// <summary>A room effect actor: Metroid electricity loop, seventh frame.</summary>
+    EffectActorMetroidElectricityLoopSeventh,
+    /// <summary>A room effect actor: yapping maw base facing down.</summary>
+    EffectActorYappingMawBaseFacingDown,
+    /// <summary>A room effect actor: yapping maw base facing up.</summary>
+    EffectActorYappingMawBaseFacingUp,
+    /// <summary>A room effect actor: evir facing right, first frame.</summary>
+    EffectActorEvirFacingRightFirst,
+    /// <summary>A room effect actor: evir facing right, second frame.</summary>
+    EffectActorEvirFacingRightSecond,
+    /// <summary>A room effect actor: evir facing right, third frame.</summary>
+    EffectActorEvirFacingRightThird,
+    /// <summary>A room effect actor: evir facing right, fourth frame.</summary>
+    EffectActorEvirFacingRightFourth,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, first frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthFirst,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, second frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthSecond,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, third frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthThird,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, fourth frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthFourth,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, fifth frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthFifth,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, sixth frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthSixth,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, seventh frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthSeventh,
+    /// <summary>A room effect actor: Draygon foaming at the mouth, eighth frame.</summary>
+    EffectActorDraygonFoamingAtTheMouthEighth,
     /// <summary>Yapping Maw: attacking up, first frame.</summary>
     YappingMawAttackingUpFirst,
     /// <summary>Yapping Maw: attacking up, second frame.</summary>

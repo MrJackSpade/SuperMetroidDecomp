@@ -59,19 +59,19 @@ internal static class FxOverlayPlacementIdentityVerification
     internal static void VerifyPublishedOverlayShowsThePageRows()
     {
         var pages = new PaintedTransfers(InstalledFixtures.ImportMaps.RoomFxPages);
-        var session = new RoomFxSession();
         var frames = new ArtworkFrameSelections();
+        var system = new SuperMetroid.Core.Progression.SharedGameState(new SuperMetroid.Core.Compatibility.SharedRandom());
         int lines = 0, cases = 0;
         foreach (RoomFxType type in new[] { RoomFxType.Water, RoomFxType.Lava, RoomFxType.Acid, RoomFxType.TourianEntranceStatue })
         {
             // A still surface at line 600, the camera swept so the surface lies from 300 lines above the screen's top to 300
             // below it.
             RoomEffectDefinition record = Still(RetailRecord(type)) with { LiquidStartLevel = 600 };
-            RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(session, record, 0);
+            RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, 0);
             for (int surfaceLine = -300; surfaceLine <= 300; surfaceLine++)
             {
                 var camera = new Position16<RoomPixels>(surfaceLine * 3 & 0x1ff, 600 - surfaceLine);
-                Step(fx, frames, camera);
+                Step(fx, system, frames, camera);
                 lines += Compare(fx, pages, camera.Y, $"{type} with its surface {surfaceLine} lines below the screen's top");
                 cases++;
             }
@@ -88,12 +88,12 @@ internal static class FxOverlayPlacementIdentityVerification
         {
             // The tide carries the surface through both extremes; a surface four lines below the room's top leaves the room.
             RoomEffectDefinition record = Still(RetailRecord(type)) with { LiquidStartLevel = baseLine, Liquid = liquid };
-            RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(session, record, 0);
+            RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, 0);
             var camera = new Position16<RoomPixels>(0, cameraY);
             int lowest = int.MaxValue, highest = int.MinValue;
             for (int frame = 0; frame < 700; frame++)
             {
-                Step(fx, frames, camera);
+                Step(fx, system, frames, camera);
                 if (fx.Surface is int surface)
                 {
                     lowest = Math.Min(lowest, surface);
@@ -106,19 +106,19 @@ internal static class FxOverlayPlacementIdentityVerification
         }
         foreach (RoomFxType type in new[] { RoomFxType.Rain, RoomFxType.Fog, RoomFxType.Spores })
         {
-            RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(session, RetailRecord(type), 0x1234);
+            RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(RetailRecord(type), 0x1234);
             for (int frame = 0; frame < 700; frame++)
             {
                 var camera = new Position16<RoomPixels>(frame * 5 & 0x7ff, frame * 7 & 0x7ff);
-                Step(fx, frames, camera);
+                Step(fx, system, frames, camera);
                 lines += Compare(fx, pages, camera.Y, $"{type}, frame {frame}");
                 cases++;
             }
         }
 
         // A liquid last placed while its surface lay above the room's top showed nothing, even once the surface returned.
-        RoomFxOverlayState placedAbove = RoomFxOverlayState.ForDefinition(session, Still(RetailRecord(RoomFxType.Water)) with { LiquidStartLevel = 100 }, 0);
-        Step(placedAbove, frames, new Position16<RoomPixels>(0, 0));
+        RoomFxOverlayState placedAbove = RoomFxOverlayState.ForDefinition(Still(RetailRecord(RoomFxType.Water)) with { LiquidStartLevel = 100 }, 0);
+        Step(placedAbove, system, frames, new Position16<RoomPixels>(0, 0));
         RoomFxOverlayRenderSnapshot returned = (placedAbove.CaptureForDisplay() ?? throw new InvalidOperationException("Water publishes its effect."))
             with { LiquidSurfaceLine = null };
         AssertTrue(Enumerable.Range(FirstLine, DisplayScreen.Height - FirstLine).All(y => OldRow(returned, pages.Pages, stepSurface: -1, cameraY: 0, y) is null),
@@ -195,13 +195,13 @@ internal static class FxOverlayPlacementIdentityVerification
     private static RoomEffectDefinition Still(RoomEffectDefinition record) =>
         record with { LiquidTargetLevel = null, LiquidLevelSpeed = default };
 
-    /// <summary>Runs one effect step of <paramref name="fx"/> under <paramref name="camera"/>.</summary>
-    private static void Step(RoomFxOverlayState fx, ArtworkFrameSelections frames, Position16<RoomPixels> camera) =>
-        fx.Step(frames, new RoomFxOverlayFrame
+    /// <summary>Runs one update of <paramref name="fx"/> under <paramref name="camera"/>: its liquid's motion pass, then its step.</summary>
+    private static void Step(RoomFxOverlayState fx, SuperMetroid.Core.Progression.SharedGameState system, ArtworkFrameSelections frames,
+        Position16<RoomPixels> camera) =>
+        fx.RunUpdate(system, frames, new RoomFxOverlayFrame
         {
             Camera = camera,
             TimeIsFrozen = false,
-            EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame,
         });
 
     /// <summary>Each effect's transfer words and the artwork it shows of them, cut as the import cuts them, painted once from blank characters.</summary>

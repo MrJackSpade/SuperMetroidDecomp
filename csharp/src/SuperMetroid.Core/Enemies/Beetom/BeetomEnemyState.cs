@@ -20,7 +20,12 @@ public sealed class BeetomEnemyState
     /// predecessor's way. Every other value setup writes itself.
     /// </remarks>
     /// <param name="previous">The slot's previous Beetom, or null for the slot's first in the room.</param>
-    internal BeetomEnemyState(BeetomEnemyState? previous) => FacingRight = previous?.FacingRight ?? false;
+    /// <param name="action">The action the Beetom starts in.</param>
+    internal BeetomEnemyState(BeetomEnemyState? previous, BeetomAction action)
+    {
+        FacingRight = previous?.FacingRight ?? false;
+        Action = action;
+    }
 
     /// <summary>
     /// The current arc's whole-mark place along the quadratic speed curve, from the curve's start to
@@ -29,7 +34,7 @@ public sealed class BeetomEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
     /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
-    public BeetomAction? Action { get; internal set; }
+    public BeetomAction Action { get; internal set; }
     /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
     public int ActionTimer { get; internal set; }
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>

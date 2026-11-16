@@ -58,7 +58,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[2];
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
-            body.SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
+            body.SetSpeciesState(new EvirEnemyState(EvirAction.HandleBodyOrArms) { InstalledAnimation = EvirSegment.BodyFacingLeft });
             // The spit finds its body as production places it, two places after the body.
             slot.Bind(EnemyDefinitionId.EvirProjectile, slot.Definition);
             enemies.EvirBehavior.InitializeEvirProjectile(slot);
@@ -69,7 +69,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             state.InFlight = true;
             state.Regenerating = true;
             state.Action = EvirAction.ProjectileRegenerating;
-            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledAnimation = EvirSegment.BodyFacingLeft });
+            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState(EvirAction.HandleBodyOrArms) { InstalledAnimation = EvirSegment.BodyFacingLeft });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
@@ -111,7 +111,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.AnimationClock.StepOnNextUpdate();
-        var state = new EvirEnemyState
+        var state = new EvirEnemyState(EvirAction.HandleBodyOrArms)
         {
             RequestedAnimation = program,
             InstalledAnimation = program,

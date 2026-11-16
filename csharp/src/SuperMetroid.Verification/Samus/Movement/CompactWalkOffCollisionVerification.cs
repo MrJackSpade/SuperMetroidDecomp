@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -22,7 +23,7 @@ internal static class CompactWalkOffCollisionVerification
             // Native soft-unmorph comparison: the neighboring ordinary landing's
             // grounding probe leaves a compact body near the floor. Falling expands
             // that body, so F404 must shift its center and clamp its fractional word.
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 240)),

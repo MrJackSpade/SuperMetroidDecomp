@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// Holds the spawned-object sheets' common art once (#1513, owner flags 20 and 28). Every graphics set's spawned-object
-/// sheets picture the explosions, drops, projectiles and sprite objects its spawners show, so the common ones were pictured
+/// sheets picture the explosions, drops, projectiles and effect actors its spawners show, so the common ones were pictured
 /// again on every set's sheet. Each laid-out sheet is painted and cut into its pictures; a picture is known by what a draw of
 /// it shows (<see cref="SheetPictureLook"/>, #1544): its pixels' colours and how each shows, and what each shade it can be
 /// drawn in shows of those colours, not the rows or palette bits they were composed from, as the installed image is only

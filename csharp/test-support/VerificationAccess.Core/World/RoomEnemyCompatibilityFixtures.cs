@@ -39,7 +39,7 @@ internal static class RoomEnemyCompatibilityFixtures
         BullInheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity),
         BeetomInheritance = new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity),
         PuyoCeilingTurn = new PuyoCeilingTurnFromLastDraw(),
-        SpriteObjectPlaces = new SpriteObjectPlaces(),
+        EffectActorPlaces = new EffectActorPlaces(),
         FadeStepCount = fadeStepCount,
         UnauthoredBoostCadence = unauthoredBoostCadence,
         KilledShaktoolSegment = new KilledShaktoolSegment<RoomEnemySlot, ShaktoolSegmentState>(),

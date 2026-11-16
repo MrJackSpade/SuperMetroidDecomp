@@ -35,11 +35,11 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
             case KraidPart.Foot:
                 species.Limbs.InitializeKraidFoot(Slot);
                 break;
-            case KraidPart.Nail:
+            case KraidPart.FirstNail:
                 species.Projectiles.RunKraidNailInitializationAi(Slot);
                 break;
-            case KraidPart.NailBad:
-                species.Projectiles.RunKraidNailBadInitializationAi(Slot);
+            case KraidPart.SecondNail:
+                species.Projectiles.RunKraidSecondNailInitializationAi(Slot);
                 break;
             default:
                 throw new InvalidOperationException($"Kraid entity bound to {Slot.DefinitionId}.");
@@ -63,7 +63,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
             case KraidPart.Foot:
                 species.RunKraidFootMainAi(Slot, frame);
                 break;
-            case KraidPart.Nail or KraidPart.NailBad:
+            case KraidPart.FirstNail or KraidPart.SecondNail:
                 species.RunKraidNailMainAi(Slot, frame);
                 break;
             default:
@@ -82,7 +82,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     {
         switch (Part)
         {
-            case KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.Nail or KraidPart.NailBad:
+            case KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.FirstNail or KraidPart.SecondNail:
                 species.Limbs.AdvanceKraidPartAnimation(Slot);
                 break;
             case KraidPart.Kraid:
@@ -101,7 +101,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// Whether the occupant's definition leaves Samus's touch to its part's own reaction: the arm's push, or a nail's
     /// touch. Kraid's body leaves its touch to the species too, but has no reaction to it.
     /// </summary>
-    private bool OwnsTouch => LeavesTouchToSpecies && (Part is KraidPart.Arm or KraidPart.Nail or KraidPart.NailBad);
+    private bool OwnsTouch => LeavesTouchToSpecies && (Part is KraidPart.Arm or KraidPart.FirstNail or KraidPart.SecondNail);
 
     /// <summary>Whether the part's own touch or a shared one applies.</summary>
     public override bool ReactsToTouch => OwnsTouch || base.ReactsToTouch;

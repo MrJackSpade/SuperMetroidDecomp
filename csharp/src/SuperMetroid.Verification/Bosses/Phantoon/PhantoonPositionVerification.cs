@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -28,7 +29,7 @@ internal static class PhantoonPositionVerification
         capEnemies.PhantoonBehavior.Combat.Phantoon = capState;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capState.Swoop.Velocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
-        PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
+        PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
         AssertEqual((ushort)0xf800, capState.Swoop.Velocity.X.RawValue, "Native NTSC negative swoop X cap");
         AssertEqual((ushort)0xfa00, capState.Swoop.Velocity.Y.RawValue, "Native NTSC negative swoop Y cap");
         AssertEqual((ushort)120, capBody.Position.X.Whole, "Native capped swoop X displacement");
@@ -63,29 +64,26 @@ internal static class PhantoonPositionVerification
         for (int frame = 0; frame < 1400; frame++)
         {
             var phantoon = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires the loaded Phantoon.");
-            Position16<RoomPixels> originBefore = phantoon.BodyOrigin;
-            Position16<BackgroundPixels> shown = BossBodyPlacement.Shown(originBefore, runtime.Room.LoadedCamera.PixelPosition);
+            Position16<RoomPixels> placementBefore = phantoon.Body.Position.Whole;
+            Position16<BackgroundPixels> shown = BossBodyPlacement.Shown(placementBefore, runtime.Room.LoadedCamera.PixelPosition);
             ushort displayedX = shown.X;
             ushort displayedY = shown.Y;
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual<Position16<RoomPixels>?>(originBefore, runtime.Display.Latched.Bosses.BodyOrigin,
-                $"the accepted frame publishes where Phantoon's body lay, frame {frame}");
+            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.Latched.Bosses.Placement,
+                $"the accepted frame publishes his body placed where Phantoon lay, frame {frame}");
             if (frame == 0) continue;
             var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
             AssertEqual(displayedX, layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");
             // The view shows the background row below his placement at the screen's top (#1514).
             AssertEqual(GameplaySceneView.LayerRowAtScreenTop(displayedY), layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
-            // $A7:CEA6 anchors the BG2 image's (40,40) origin to the body. Assert the
-            // rendered anchor against the physical body, not merely two copied fields.
-            if (phantoon.Wave.Length is null)
-            {
-                AssertEqual(displayedBodyX, unchecked((ushort)(40 - layer.View.BackgroundScroll.X)),
-                    "Phantoon displayed BG2 anchor shares the collision body's horizontal position");
-                AssertEqual(displayedBodyY, unchecked((ushort)(40 - (layer.View.BackgroundScroll.Y - ScreenGeometry.LayerRowsHiddenAboveScreen))),
-                    "Phantoon displayed BG2 anchor shares the collision body's vertical position");
-            }
+            // His body is placed at the body, each installed frame lying against it (#2031). Assert the rendered placement
+            // against the physical body, not merely two copied fields.
+            AssertEqual(displayedBodyX, unchecked((ushort)-layer.View.BackgroundScroll.X),
+                "Phantoon's displayed body placement shares the collision body's horizontal position");
+            AssertEqual(displayedBodyY, unchecked((ushort)-(layer.View.BackgroundScroll.Y - ScreenGeometry.LayerRowsHiddenAboveScreen)),
+                "Phantoon's displayed body placement shares the collision body's vertical position");
             positions.Add(new MotherBrainRinkaDoorSpawnExpected(phantoon.Body.Position.X.Whole, phantoon.Body.Position.Y.Whole));
         }
         AssertTrue(positions.Count > 20, "Phantoon test includes moving body positions, not only stationary introduction");

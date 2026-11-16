@@ -12,11 +12,11 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     {
         switch (RipperPartDefinitions.Parts[Slot.DefinitionId])
         {
-            case RipperPart.GRipper:
-                RipperBehavior.InitializeGRipper(Slot);
+            case RipperPart.GrappleRipper:
+                RipperBehavior.InitializeGrappleRipper(Slot);
                 break;
-            case RipperPart.RipperII:
-                RipperBehavior.InitializeRipperII(Slot);
+            case RipperPart.JetRipper:
+                RipperBehavior.InitializeJetRipper(Slot);
                 break;
             case RipperPart.Ripper:
                 RipperBehavior.InitializeRipper(Slot);
@@ -31,11 +31,11 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     {
         switch (RipperPartDefinitions.Parts[Slot.DefinitionId])
         {
-            case RipperPart.GRipper:
-                species.RunGRipperMainAi(Slot, frame);
+            case RipperPart.GrappleRipper:
+                species.RunGrappleRipperMainAi(Slot, frame);
                 break;
-            case RipperPart.RipperII:
-                species.RunRipperIIMainAi(Slot, frame);
+            case RipperPart.JetRipper:
+                species.RunJetRipperMainAi(Slot, frame);
                 break;
             case RipperPart.Ripper:
                 species.RunRipperMainAi(Slot, frame);
@@ -48,15 +48,15 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RipperBehavior.AdvanceRipperTypedAnimation(Slot, context);
 
-    /// <summary>The G-Ripper and Ripper II's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
+    /// <summary>The grapple Ripper and jet Ripper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? RipperBehavior.RipperShotReaction : base.ShotReaction;
 
-    /// <summary>The G-Ripper and Ripper II's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
+    /// <summary>The grapple Ripper and jet Ripper's own stages around common bomb damage for a bomb that selects its own shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
     public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot is null ? RipperBehavior.RipperBombReaction : base.CommonBombDamageReaction(context);
 
-    /// <summary>The G-Ripper and Ripper II's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
+    /// <summary>The grapple Ripper and jet Ripper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
 }

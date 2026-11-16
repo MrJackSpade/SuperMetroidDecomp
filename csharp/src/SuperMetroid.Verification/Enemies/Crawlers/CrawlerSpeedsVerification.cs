@@ -16,7 +16,7 @@ internal static class CrawlerSpeedsVerification
         var reset = new Func<CrawlerSurfaceOrientation, SignedEightEight?, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
             CrawlersBehavior.ResetCrawlerVelocities);
         var setYard = new Action<YardEnemyState, YardDirection>(YardEnemyBehavior.SetYardCrawlingVelocities);
-        var yard = new YardEnemyState();
+        var yard = new YardEnemyState(YardMovement.HoldingStill);
         SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {

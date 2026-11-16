@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>
 /// Every sound of the enemies' library (<see cref="SoundEffectLibrary.Enemies"/>): the enemies' and bosses' cries,
 /// shots and attacks, the drops they leave and the impacts and explosions that kill them, and the blocks, water, lava
-/// and stations around them. The library is its own voice queue: its sounds interrupt one another and never those of
+/// and stations around them. The library has its own queue: its sounds interrupt one another and never those of
 /// Samus's or the room's library.
 /// </summary>
 /// <remarks>

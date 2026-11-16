@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -30,32 +30,32 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         for (int index = 0; index < 8; index++)
         {
             ZebesEscapeExplosionDefinition definition = ZebesEscapeExplosionDefinitions.Drawn[index];
-            AssertEqual(rom.ReadCartridgeByte(SpriteTable + index), RoomSpriteObjectNativeWords.Kinds.Word(definition.SpriteKind),
+            AssertEqual(rom.ReadCartridgeByte(SpriteTable + index), RoomEffectActorNativeWords.Kinds.Word(definition.SpriteKind),
                 $"Zebes escape explosion sprite {index}");
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, rom.ReadCartridgeByte(SoundTable + index)), definition.SoundEffect,
                 $"Zebes escape explosion sound {index}");
         }
 
-        AssertEqual(rom.ReadCartridgeByte(SpriteTable), RoomSpriteObjectNativeWords.Kinds.Word(ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen),
+        AssertEqual(rom.ReadCartridgeByte(SpriteTable), RoomEffectActorNativeWords.Kinds.Word(ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen),
             "indoor kind left open");
         for (int column = 0; column < 64; column++)
         {
             AssertEqual(rom.ReadCartridgeByte(SpriteTable + ((2 * column) & 7)),
-                RoomSpriteObjectNativeWords.Kinds.Word(ZebesEscapeExplosions.OutdoorKindLeftOpen(Position16<RoomBlocks>.Of(column, column / 3))),
+                RoomEffectActorNativeWords.Kinds.Word(ZebesEscapeExplosions.OutdoorKindLeftOpen(Position16<RoomBlocks>.Of(column, column / 3))),
                 $"outdoor kind left open over column {column}");
         }
 
         var guarded = NewZebesEscapeExplosionReadGuard(rom);
-        RoomSpriteObjectKind[] kindsLeftOpen = [ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen, .. ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase];
+        RoomEffectActorKind[] kindsLeftOpen = [ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen, .. ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase];
         for (ushort random = 0; random < 16; random++)
-        foreach (RoomSpriteObjectKind kindLeftOpen in kindsLeftOpen)
+        foreach (RoomEffectActorKind kindLeftOpen in kindsLeftOpen)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(new(0x1234, 0x5678), random, kindLeftOpen);
 
             ZebesEscapeExplosionDefinition? drawn = random < 8 ? ZebesEscapeExplosionDefinitions.Drawn[random] : null;
             AssertEqual(drawn, ZebesEscapeExplosions.Drawn(random), $"draw {random}");
-            RoomSpriteObject sprite = enemies.RoomSpriteObjects.Single(slot => slot.IsActive);
+            RoomEffectActor sprite = enemies.RoomEffectActors.Single(slot => slot.IsActive);
             AssertEqual(drawn?.SpriteKind ?? kindLeftOpen, sprite.Kind,
                 $"production escape sprite draw {random}, kind left open {kindLeftOpen}");
             AssertEqual(0x1234, sprite.Position.X.Whole,

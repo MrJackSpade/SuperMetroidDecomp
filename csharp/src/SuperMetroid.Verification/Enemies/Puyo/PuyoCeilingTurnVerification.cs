@@ -28,22 +28,22 @@ internal static class PuyoCeilingTurnVerification
         AssertTrue(!turn.TurnsBack, "an enemy drawn after the HUD's redraw lets the Puyo keep its aim");
 
         turn.HudRedrawn();
-        turn.SpriteObjectDrawn(-17, 100);
-        turn.SpriteObjectDrawn(288 - 16, 100);
-        turn.SpriteObjectDrawn(100, -1);
-        turn.SpriteObjectDrawn(100, 272);
-        turn.SpriteObjectDrawn(short.MaxValue, 100);
+        turn.EffectActorDrawn(-17, 100);
+        turn.EffectActorDrawn(288 - 16, 100);
+        turn.EffectActorDrawn(100, -1);
+        turn.EffectActorDrawn(100, 272);
+        turn.EffectActorDrawn(short.MaxValue, 100);
         AssertTrue(turn.TurnsBack, "a sprite object outside the draw's window changes nothing");
-        turn.SpriteObjectDrawn(-16, 0);
+        turn.EffectActorDrawn(-16, 0);
         AssertTrue(!turn.TurnsBack, "a sprite object at the window's top left corner lets the Puyo keep its aim");
         turn.HudRedrawn();
-        turn.SpriteObjectDrawn(288 - 17, 271);
+        turn.EffectActorDrawn(288 - 17, 271);
         AssertTrue(!turn.TurnsBack, "a sprite object at the window's bottom right corner lets the Puyo keep its aim");
 
         turn.HudRedrawn();
         turn.ChargeFlareDrawn();
         turn.EnemyDrawn();
-        turn.SpriteObjectDrawn(0, 0);
+        turn.EffectActorDrawn(0, 0);
         AssertTrue(turn.TurnsBack, "the charge flare drawn since the HUD's redraw turns the Puyo back whatever is drawn after it");
         turn.HudRedrawn();
         turn.EnemyDrawn();

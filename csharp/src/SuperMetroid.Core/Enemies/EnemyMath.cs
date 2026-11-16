@@ -30,7 +30,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// Calculates the bearing of an offset. Zero points upward and the
-    /// result advances clockwise in 256 units per turn, matching enemy callers.
+    /// result advances clockwise in 256 units per turn, as every enemy's aim reads it.
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
     {
@@ -116,8 +116,8 @@ internal static class EnemyMath
     /// The sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>, in whole pixels and
     /// fraction: the coarse half-wave (<see cref="Trigonometry.CoarseHalfWave"/>), 0 through 255, times the radius the
     /// short circle product uses, in 256ths of a pixel, reversed in the turn's second half as
-    /// <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's motion; callers that only need
-    /// pixels use the helpers above.
+    /// <see cref="ShortCircleProduct"/> reverses it. Evir needs both parts for its spit's motion; an enemy that only needs
+    /// pixels uses the helpers above.
     /// </summary>
     internal static SignedSixteenSixteen CircleSine(
         TrigonometryAngle angle,
@@ -185,7 +185,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// The fastest whole speed, in pixels per update, a sine velocity is formed from (#1627): the game multiplies the
-    /// sine by the speed as a signed count of whole pixels, which goes no further, and every caller's speed lies within it,
+    /// sine by the speed as a signed count of whole pixels, which goes no further, and every enemy's speed lies within it,
     /// so a faster one is rejected rather than given a product the game never forms.
     /// </summary>
     private const int FastestSineSpeed = 127;

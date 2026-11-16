@@ -9,7 +9,7 @@ internal static class KraidPartsAccess
     private static readonly KraidPart[] RoomOrder =
     [
         KraidPart.Kraid, KraidPart.Arm, KraidPart.LintTop, KraidPart.LintMiddle, KraidPart.LintBottom, KraidPart.Foot,
-        KraidPart.Nail, KraidPart.NailBad,
+        KraidPart.FirstNail, KraidPart.SecondNail,
     ];
 
     /// <summary>Fixture joining of Kraid's parts.</summary>

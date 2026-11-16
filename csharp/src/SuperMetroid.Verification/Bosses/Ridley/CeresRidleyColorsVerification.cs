@@ -134,7 +134,7 @@ internal static class CeresRidleyColorsVerification
         activeRidley.Phase = RidleyPhase.CeresRetreatDelay;
         activeRidley.PhaseTimer = 0;
         activeRidley.MovementAnimationEnabled = false;
-        enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null);
+        enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyPhase.CeresPublishEscapeHandoff, activeRidley.Phase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,

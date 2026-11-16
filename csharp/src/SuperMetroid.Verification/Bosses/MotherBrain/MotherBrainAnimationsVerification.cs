@@ -137,7 +137,7 @@ internal static class MotherBrainAnimationsVerification
     private static void VerifyBodyMoves()
     {
         (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
+        state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;
         void Run(MotherBrainBodySegment program)
@@ -146,9 +146,9 @@ internal static class MotherBrainAnimationsVerification
             for (int update = 0; update < 256; update++)
             {
                 enemies.MotherBrainBehavior.Body.AdvanceMotherBrainSlotAnimation(state.Body, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-                // Every move carries her body's area with her (#1949): her posture changes no longer move it across.
-                AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole + new Offset16<RoomPixels>(-38, -63), state.BodyOrigin,
-                    $"{program}: her body's area stays 38 pixels left of and 63 above her");
+                // Every move carries her body with her (#1949, #2031): her posture changes no longer move it across.
+                AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, state.BodyPlacedAt,
+                    $"{program}: her body stays placed at her");
             }
         }
         Run(MotherBrainBodySegment.WalkForwardReallyFast);

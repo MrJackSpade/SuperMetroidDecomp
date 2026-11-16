@@ -12,7 +12,7 @@ internal static class FirefleaShades
     /// Returns the triangular flashing shade level at flash phase <paramref name="phase"/>, 0 through 11: six less the
     /// phase's distance from six.
     /// </summary>
-    /// <remarks>The six-frame timer and phase wrap are caller-owned; this exact integer wave requires no sampled
+    /// <remarks>The six-frame timer and the phase's wrap are the Fireflea room's own; this exact integer wave requires no sampled
     /// floating-point construction.</remarks>
     internal static int FlashingShade(int phase)
     {

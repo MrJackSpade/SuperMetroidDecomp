@@ -87,7 +87,7 @@ internal sealed class TorizoEntity(TorizoBehavior species, RoomEnemySlot slot, E
         return true;
     }
 
-    /// <summary>The Torizo shot reactions, which normal bombs dispatch like the common one; only Golden Torizo owns its own.</summary>
+    /// <summary>The Torizo shot reactions, which a normal bomb triggers as it does the common one; only Golden Torizo owns its own.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
     public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
         reaction == TorizoReactions.Shot || reaction == TorizoReactions.StandUpSitDownShot ||

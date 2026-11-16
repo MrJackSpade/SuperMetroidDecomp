@@ -90,7 +90,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
         state.HealthBand = 1;
-        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
+        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
             RgbColor expected = color is >= 9 and <= 12
@@ -104,7 +104,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorDefinitions.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
         body.FlashTimer = 2;
-        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
+        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertBand(DraygonColorDestinations.BackgroundDestination,
             DraygonColorDefinitions.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt background CGRAM");
@@ -113,7 +113,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             "white hurt sprite CGRAM");
         // His white flash covers his band while it shows (#1597), so the bands are checked once the flash has ended.
         body.FlashTimer = 0;
-        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, null);
+        enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
             state.HealthBand = band;

@@ -44,11 +44,14 @@ internal static class EnemyQuadraticSpeedsVerification
             AssertEqual(SixteenSixteenWords.ToCoordinate(expected), rock.Position.Y, "Polyp real split-word carry/wrap");
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, QuadraticSpeedCurvePlace.FromMarks(QuadraticSpeedCurveDefinitions.MarkCount), EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
-        var beetom = new Func<int, int, QuadraticSpeedCurvePlace>(BeetomBehavior.CalculateInitialBeetomYSpeedCurvePlace);
-        var hopper = new Func<int, int, QuadraticSpeedCurvePlace>(HoppersBehavior.CalculateInitialHopperYSpeedCurvePlace);
+        // The Beetom's and the hoppers' climbs (#2026): for every height up to the largest climb, at one, two and four
+        // marks a pass, the climb starts at the mark the original's sixteen-bit sum, compared with the height by the sign
+        // of their difference, settles on; a height above the largest climb or below nothing is refused.
+        QuadraticSpeedCurvePlace Climb(int height, int marks) => new QuadraticCurveClimb(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height), marks).StartPlace;
+        int largestClimb = QuadraticSpeedCurveDefinitions.LargestClimbHeight * 256;
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
-        for (int height = 0; height <= ushort.MaxValue; height++)
+        for (int height = 0; height <= largestClimb; height++)
         {
             ushort accumulated = 0;
             for (int index = delta; index < QuadraticSpeedCurveDefinitions.MarkCount; index += delta)
@@ -56,27 +59,28 @@ internal static class EnemyQuadraticSpeedsVerification
                 accumulated = unchecked((ushort)(accumulated + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, EnemySpeedSign.Positive)));
                 if (unchecked((short)(accumulated - height)) < 0)
                     continue;
-                AssertEqual(QuadraticSpeedCurvePlace.FromMarks(index), beetom((ushort)height, delta), "Beetom coarse-speed hop integration");
-                AssertEqual(QuadraticSpeedCurvePlace.FromMarks(index), hopper((ushort)height, delta), "Hopper coarse-speed hop integration");
+                AssertEqual(QuadraticSpeedCurvePlace.FromMarks(index), Climb(height, delta), "Beetom and hopper coarse-speed climb");
                 initialIndexCases++;
                 break;
             }
         }
-        // Only report inputs that the native loop resolves inside the authored
-        // table. Out-of-table instruction-byte reads are not a fabricated math API.
-        AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
+        // At four marks a pass the curve's coarse speeds sum to more than the largest climb, so every height settles.
+        AssertEqual(3 * (largestClimb + 1), initialIndexCases, "every climb height up to the largest settles inside the curve");
+        AssertThrows<ArgumentOutOfRangeException>(() => Climb(largestClimb + 1, 1), "a climb above the largest is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => Climb(-1, 1), "a climb below nothing is refused");
         // #1627: the climb is bounded by the table's rows, not a pass count. Fifty rows at a time, a climb row fifty settles
         // is taken there; one 256th taller runs on past the table's last row and is rejected; a delta of zero settles on
         // its first pass or never.
         int fiftiethRow = EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, 50, EnemySpeedSign.Positive);
-        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(50), beetom(fiftiethRow, 50), "Beetom's climb settled by row fifty ends there");
-        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(50), hopper(fiftiethRow, 50), "Hopper's climb settled by row fifty ends there");
-        AssertThrows<InvalidDataException>(() => beetom(fiftiethRow + 1, 50), "Beetom's climb past the table's last row is rejected");
-        AssertThrows<InvalidDataException>(() => hopper(fiftiethRow + 1, 50), "Hopper's climb past the table's last row is rejected");
-        AssertEqual(QuadraticSpeedCurvePlace.Start, beetom(0, 0), "Beetom's climb of no height with no delta settles on the first row");
-        AssertEqual(QuadraticSpeedCurvePlace.Start, hopper(0, 0), "Hopper's climb of no height with no delta settles on the first row");
-        AssertThrows<InvalidDataException>(() => beetom(1, 0), "Beetom's climb with no delta never reaches a height");
-        AssertThrows<InvalidDataException>(() => hopper(1, 0), "Hopper's climb with no delta never reaches a height");
+        AssertEqual(QuadraticSpeedCurvePlace.FromMarks(50), Climb(fiftiethRow, 50), "a climb settled by row fifty ends there");
+        AssertThrows<InvalidDataException>(() => Climb(fiftiethRow + 1, 50), "a climb past the table's last row is rejected");
+        AssertEqual(QuadraticSpeedCurvePlace.Start, Climb(0, 0), "a climb of no height with no delta settles on the first row");
+        AssertThrows<InvalidDataException>(() => Climb(1, 0), "a climb with no delta never reaches a height");
+        AssertEqual(Climb(48 * 256, 4), BeetomLeapDefinitions.ShortLeap.StartPlace, "the Beetom's short leap climbs 48 pixels at four marks a pass");
+        AssertEqual(Climb(64 * 256, 5), BeetomLeapDefinitions.LongLeap.StartPlace, "the Beetom's long leap climbs 64 pixels at five marks a pass");
+        AssertEqual(Climb(48 * 256, 3), BeetomLeapDefinitions.Lunge.StartPlace, "the Beetom's lunge climbs 48 pixels at three marks a pass");
+        AssertEqual(Climb(16 * 256, 3), HopperHopDefinitions.SmallHop.StartPlace, "a hopper's small hop climbs 16 pixels at three marks a pass");
+        AssertEqual(Climb(48 * 256, 4), HopperHopDefinitions.BigHop.StartPlace, "a hopper's big hop climbs 48 pixels at four marks a pass");
 
         var wings = new Func<QuadraticSpeedCurvePlace, EnemySpeedSign, int>(KiHunterBehavior.DetachedWingCoarseSpeed);
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)

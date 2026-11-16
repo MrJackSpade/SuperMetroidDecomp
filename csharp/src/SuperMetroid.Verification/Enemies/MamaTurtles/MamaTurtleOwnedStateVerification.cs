@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -15,7 +16,7 @@ internal static class MamaTurtleOwnedStateVerification
     /// </summary>
     internal static void VerifyMamaTurtleOwnedState()
     {
-        var state = new MamaTurtleEnemyState
+        var state = new MamaTurtleEnemyState(MamaTurtleAction.Initial)
         {
             Velocity = new(SignedSixteenSixteen.FromParts(2, 0xf800), SignedSixteenSixteen.FromParts(1, 0x2000)),
             XAcceleration = SignedSixteenSixteen.FromParts(0, 0x1000),
@@ -46,7 +47,7 @@ internal static class MamaTurtleOwnedStateVerification
         RoomEnemySlot mama = enemies.SlotTable.Slots[1];
         mama.Bind(EnemyDefinitionId.MamaTurtle, mama.Definition);
         enemies.MamaTurtleBehavior.InitializeMamaTurtle(mama);
-        var samus = new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.MamaTurtleBehavior.RunMamaTurtleMainAi(mama, new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(16, 16)), 0) with { Samus = samus },
             new FrameCounters(0)));

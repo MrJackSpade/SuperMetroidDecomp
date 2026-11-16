@@ -101,7 +101,7 @@ internal static class YardTurnDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));
             slot.Radius = new(8, 8);
-            var state = new YardEnemyState()
+            var state = new YardEnemyState(YardMovement.HoldingStill)
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),

@@ -107,7 +107,7 @@ internal static class HibashiDefinitionsVerification
             EnemyInstructionRunner.Process(twinHitboxArguments);
         }
         AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitionsTooling.Spritemaps()), "the Hibashi shows every authored pose");
-        AssertEqual(HibashiAnimationsTooling.Spritemaps(HibashiSegment.Graphics).Last(), programGraphics.SpritemapPointer,
+        AssertEqual(HibashiAnimationsTooling.Spritemaps(HibashiSegment.Flame).Last(), programGraphics.SpritemapPointer,
             "Hibashi finish retains the last graphics sprite");
         // $A6:8DAF queues per geyser: the contributed lowc movie's two geysers queue two (update 118,130).
         SoundEffectId eruption = HibashiDefinitions.EruptionSoundEffect;
@@ -124,14 +124,14 @@ internal static class HibashiDefinitionsVerification
         AssertTrue(programHitbox.Contact.HasAny(EnemyContact.IgnoresSamus),
             "Hibashi finished program disables collision actor");
         HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
-        HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
+        HibashiCollisionPartState hitboxState = programSystem.HibashiCollisionPartStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
         AnimationPlayback<HibashiSegment> graphicsAsleep = graphicsState.Playback;
         AnimationPlayback<HibashiSegment> hitboxAsleep = hitboxState.Playback;
         EnemyInstructionRunner.Process(graphicsArguments);
         EnemyInstructionRunner.Process(hitboxArguments);
         AssertEqual(graphicsAsleep, graphicsState.Playback, "Hibashi graphics program sleeps after finishing");
         AssertEqual(hitboxAsleep, hitboxState.Playback, "Hibashi hitbox program sleeps on its one pose");
-        AssertEqual(HibashiSegment.Graphics, graphicsState.Playback.Animation.Phases[graphicsState.Playback.Place.Phase].Segment, "Hibashi graphics part runs the eruption");
+        AssertEqual(HibashiSegment.Flame, graphicsState.Playback.Animation.Phases[graphicsState.Playback.Place.Phase].Segment, "Hibashi graphics part runs the eruption");
         AssertEqual(HibashiSegment.Hitbox, hitboxState.Playback.Animation.Phases[hitboxState.Playback.Place.Phase].Segment, "Hibashi hitbox part runs the collision-part animation");
         Suite(nameof(HibashiAnimationsVerification.VerifyHibashiAnimations), () => HibashiAnimationsVerification.VerifyHibashiAnimations(rom));
 

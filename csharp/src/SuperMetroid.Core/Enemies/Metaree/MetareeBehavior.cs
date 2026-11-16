@@ -44,10 +44,9 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the idle animation directly and initializes the slot's dive, burrow, and animation-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
     {
-        var state = new MetareeEnemyState
+        var state = new MetareeEnemyState(MetareeAction.Idling)
         {
             BurrowTimer = 0,
-            Action = MetareeAction.Idling,
             InstalledAnimation = SkreeMetareeSegment.MetareeIdling,
             AttackReady = false,
             YVelocity = 0,
@@ -59,7 +58,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
+    /// <summary>Runs the idle, attack preparation, airborne dive or burrow phase with required Samus and room data.</summary>
     private void RunMetareeMain(
         RoomEnemySlot slot,
         MetareeEnemyState state,
@@ -86,7 +85,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Metaree has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Metaree has no behaviour for action {state.Action}.");
         }
     }
 

@@ -24,8 +24,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// loads or any shot is fired. The session's first room finds nothing left and starts everything at rest.
 /// Evidence: the original game's room load resets its shots without clearing their sub-pixel positions, and deletes enemy
 /// projectiles without clearing their whole positions or velocities. The 100% movie diverges in enemy damage at update
-/// 23200 without the shots' fractions (ef4b79943a), and the 13%, 100%, lowc and Ridley movies diverge in enemy
-/// projectiles without the enemy projectiles' values (db3aa8b3bb). A shot's vertical sub-pixel position and its Spazer
+/// 23200 without the shots' fractions, and the 13%, 100%, lowc and Ridley movies diverge in enemy
+/// projectiles without the enemy projectiles' values. A shot's vertical sub-pixel position and its Spazer
 /// special-attack phase also survived the original reset, but every shot that reads either writes it first, so neither
 /// is handed over.
 /// </remarks>

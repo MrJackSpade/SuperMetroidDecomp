@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Enemies.Skree;
 /// <summary>The state of a Skree.</summary>
 public sealed class SkreeEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal SkreeEnemyState(SkreeAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SkreeMetareeSegment> Playback { get; set; }
 
@@ -11,7 +14,7 @@ public sealed class SkreeEnemyState
     public int BurrowTimer { get; internal set; }
 
     /// <summary>The current action.</summary>
-    public SkreeAction? Action { get; internal set; }
+    public SkreeAction Action { get; internal set; }
 
     /// <summary>
     /// The animation the AI last started: idling, preparing to attack or diving. Asking for it again leaves it playing.

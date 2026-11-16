@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -19,7 +20,7 @@ internal static class WreckedShipGhostBobbingVerification
     internal static void VerifyWreckedShipGhostBobbing()
     {
         var frame = new ClockedEnemyAiFrame(
-            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
+            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
             new FrameCounters(0));
         foreach ((string context, ushort y, ushort originY, short whole, ushort expectedY, int expectedVelocity) in
                  new VerifyWreckedShipGhostBobbingCase[]
@@ -33,11 +34,11 @@ internal static class WreckedShipGhostBobbingVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Coven, slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
-            var state = new WreckedShipGhostEnemyState
+            var state = new WreckedShipGhostEnemyState(WreckedShipGhostAction.InitialInvisibleDelay)
             {
                 Action = WreckedShipGhostAction.BobbingWhileVisible,
                 PhaseTimer = 120,
-                BobbingOrigin = new(0, originY),
+                BobbingOriginY = originY,
                 VerticalVelocity = SignedSixteenSixteen.FromParts(whole, 0),
             };
             slot.SetSpeciesState(state);

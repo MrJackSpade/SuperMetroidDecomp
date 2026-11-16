@@ -52,7 +52,7 @@ internal static class MagdolliteApexThresholdVerification
         {
             const int onePixel = 65536;
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            Action<RoomEnemySlot, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[part];
@@ -62,29 +62,29 @@ internal static class MagdolliteApexThresholdVerification
                 member.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
                 enemies.MagdolliteBehavior.InitializeMagdollite(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
-            MagdolliteEnemyState head = enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Magdollite head has no state.");
+            var head = enemies.MagdolliteStates[0] as MagdolliteHeadState ?? throw new InvalidOperationException("Magdollite head has no state.");
             head.Speed = SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
             RoomEnemySlot body = enemies.SlotTable.Slots[1];
-            MagdolliteEnemyState state = enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Magdollite arm has no state.");
-            state.Action = MagdolliteAction.BodyRising;
-            state.BodyPhase = 1;
-            state.RiseDisplacement = Offset16<RoomPixels>.Zero;
+            var state = enemies.MagdolliteStates[1] as MagdolliteBodyState ?? throw new InvalidOperationException("Magdollite arm has no state.");
+            state.Action = MagdolliteBodyAction.Rising;
+            state.BodyPhase = MagdolliteRiseStage.FirstPillar;
+            state.RiseDisplacementY = 0;
             body.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
 
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(new FixedCoordinate(670, onePixel / 2), body.Position.Y, "Magdollite arm's first rise leaves half a pixel");
-            AssertEqual(new Offset16<RoomPixels>(0, -2), state.RiseDisplacement, "Magdollite arm's first rise is two whole pixels");
+            AssertEqual(-2, state.RiseDisplacementY, "Magdollite arm's first rise is two whole pixels");
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(new FixedCoordinate(669, 0), body.Position.Y, "Magdollite arm's second rise carries the half pixel");
-            AssertEqual(new Offset16<RoomPixels>(0, -3), state.RiseDisplacement, "Magdollite arm's rise displacement counts whole-pixel moves");
-            AssertEqual(1, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
+            AssertEqual(-3, state.RiseDisplacementY, "Magdollite arm's rise displacement counts whole-pixel moves");
+            AssertEqual(MagdolliteRiseStage.FirstPillar, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
         }
 
         static void VerifyApex(int headSlot, bool grows)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
-            Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+            Action<RoomEnemySlot, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[headSlot + part];
@@ -94,19 +94,19 @@ internal static class MagdolliteApexThresholdVerification
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }
-            MagdolliteEnemyState head = (enemies.MagdolliteStates[headSlot] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot]."));
-            (head ?? throw new InvalidOperationException("Verification requires head.")).Speed = SignedSixteenSixteen.Zero;
+            var head = enemies.MagdolliteStates[headSlot] as MagdolliteHeadState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot].");
+            head.Speed = SignedSixteenSixteen.Zero;
             RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
-            MagdolliteEnemyState state = (enemies.MagdolliteStates[headSlot + 1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1]."));
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Action = MagdolliteAction.BodyRising;
-            state.BodyPhase = 7;
+            var state = enemies.MagdolliteStates[headSlot + 1] as MagdolliteBodyState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[headSlot + 1].");
+            state.Action = MagdolliteBodyAction.Rising;
+            state.BodyPhase = MagdolliteRiseStage.At(7);
             body.Position = body.Position.WithWholeY(0x02a0);
-            state.RiseDisplacement = new(0, -MagdollitePhaseDefinitions.MaximumRise);
+            state.RiseDisplacementY = -MagdollitePhaseDefinitions.MaximumRise;
 
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             string context = $"Magdollite body in slot {body.SlotIndex}";
-            AssertEqual(MagdolliteAction.HoldingAtApex, state.Action, $"{context} reaches its apex");
-            AssertEqual(grows ? 8 : 7, state.BodyPhase, $"{context} apex phase");
+            AssertEqual(MagdolliteBodyAction.HoldingAtApex, state.Action, $"{context} reaches its apex");
+            AssertEqual(MagdolliteRiseStage.At(grows ? 8 : 7), state.BodyPhase, $"{context} apex phase");
             AssertEqual((ushort)(grows ? 0x02a8 : 0x02a0), body.Position.Y.Whole, $"{context} apex Y");
         }
     }

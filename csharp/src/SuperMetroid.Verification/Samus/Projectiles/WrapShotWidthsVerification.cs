@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
@@ -53,7 +54,7 @@ internal static class WrapShotWidthsVerification
             words[target] = DoorCap; bts[target] = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right));
             for (int row = 1; row < 4; row++) { words[target + row * width] = DoorCapExtension; bts[target + row * width] = OneBlockUp; }
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = beam == 0 ? SamusBeamFlags.None : beam == 1 ? SamusBeamFlags.Wave
                     : left ? SamusBeamFlags.Wave | SamusBeamFlags.Spazer : SamusBeamFlags.Wave | SamusBeamFlags.Plasma };

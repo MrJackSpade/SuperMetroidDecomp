@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
@@ -18,23 +18,23 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Allocates visual body links and turn overlays.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Captures the enemy projectiles and sprite objects used for body links.</summary>
-    internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, EnemyAudioQueue audio)
+    /// <summary>Captures the enemy projectiles and effect actors used for body links.</summary>
+    internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomEffectActors effectActors, EnemyAudioQueue audio)
     {
         _audio = audio;
         _projectiles = projectiles;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
     }
 
     /// <summary>Initializes the Nuclear Waffle.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
-        var state = new NuclearWaffleEnemyState();
+        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting);
         slot.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(slot, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
@@ -43,7 +43,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrbitRadius = settings.OrbitRadius;
         state.WaitingTimerReset = settings.WaitTime;
         state.WaitingTimer = state.WaitingTimerReset;
-        state.Action = NuclearWaffleAction.Waiting;
 
         NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
         state.SweepsForward = settings.Direction == NuclearWaffleSweepDirection.Forward;
@@ -82,7 +81,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Nuclear Waffle has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Nuclear Waffle has no behaviour for action {state.Action}.");
         }
     }
 
@@ -111,7 +110,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             state.CurrentAngle);
         if (headOrientation.State != state.HeadOrientationState)
         {
-            SpawnNuclearWaffleTurnObjects(
+            SpawnNuclearWaffleTurnEffects(
                 slot.Position.Whole,
                 state.Graphics,
                 headOrientation);
@@ -171,9 +170,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int segmentIndex = 0; segmentIndex < state.SpriteSegments.Length; segmentIndex++)
         {
-            state.SpriteSegments[segmentIndex] = _spriteObjects.SpawnRoomSpriteObject(
+            state.SpriteSegments[segmentIndex] = _effectActors.SpawnRoomEffectActor(
                 slot.Position.Whole,
-                RoomSpriteObjectKind.NuclearWaffleBody,
+                RoomEffectActorKind.NuclearWaffleBody,
                 state.Graphics);
         }
     }
@@ -191,7 +190,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
             if (orientation.State != state.ProjectileOrientationStates[index])
             {
-                SpawnNuclearWaffleTurnObjects(
+                SpawnNuclearWaffleTurnEffects(
                     segment.Position.Whole,
                     state.Graphics,
                     orientation);
@@ -209,19 +208,19 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return finished;
     }
 
-    /// <summary>Runs the sprite-object-link loop.</summary>
+    /// <summary>Runs the effect-actor-link loop.</summary>
     private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state)
     {
         NuclearWaffleSweepAngle angle = state.CurrentAngle;
         for (int index = 0; index < state.SpriteSegments.Length; index++)
         {
             angle = angle.TurnedBySteps(-state.SegmentSpacing);
-            RoomSpriteObject segment = state.SpriteSegments[index]
-                ?? throw new InvalidOperationException("Nuclear Waffle sprite-object link was not allocated.");
+            RoomEffectActor segment = state.SpriteSegments[index]
+                ?? throw new InvalidOperationException("Nuclear Waffle effect-actor link was not allocated.");
             NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
             if (orientation.State != state.SpriteOrientationStates[index])
             {
-                SpawnNuclearWaffleTurnObjects(
+                SpawnNuclearWaffleTurnEffects(
                     segment.Position.Whole,
                     state.Graphics,
                     orientation);
@@ -281,21 +280,21 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Emits a turn overlay and direction sprite, queuing sound on the rising turn.</summary>
-    private void SpawnNuclearWaffleTurnObjects(
+    private void SpawnNuclearWaffleTurnEffects(
         Position16<RoomPixels> position,
-        SpriteGraphics graphicsAttributes,
+        SpriteGraphics graphics,
         NuclearWaffleOrientation orientation)
     {
-        _ = _spriteObjects.SpawnRoomSpriteObject(
+        _ = _effectActors.SpawnRoomEffectActor(
             position,
-            RoomSpriteObjectKind.NuclearWaffleTurnOverlay,
-            graphicsAttributes);
-        _ = _spriteObjects.SpawnRoomSpriteObject(
+            RoomEffectActorKind.NuclearWaffleTurnOverlay,
+            graphics);
+        _ = _effectActors.SpawnRoomEffectActor(
             position,
             orientation.Turn == RotationDirection.Counterclockwise
-                ? RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise
-                : RoomSpriteObjectKind.NuclearWaffleTurnClockwise,
-            graphicsAttributes);
+                ? RoomEffectActorKind.NuclearWaffleTurnCounterClockwise
+                : RoomEffectActorKind.NuclearWaffleTurnClockwise,
+            graphics);
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.
         if (orientation.State != NuclearWaffleTurnState.PastFallingThreshold)

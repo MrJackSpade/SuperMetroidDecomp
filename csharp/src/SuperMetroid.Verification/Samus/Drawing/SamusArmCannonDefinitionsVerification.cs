@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus;
@@ -26,7 +27,7 @@ internal static class SamusArmCannonDefinitionsVerification
                 SamusArmCannonOpening.Opens(selectedHudItem),
                 $"arm-cannon HUD item {selectedHudItem} matches cartridge table");
 
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
@@ -57,7 +58,7 @@ internal static class SamusArmCannonDefinitionsVerification
 
         // The cartridge stores at most two (INC, then 2 once it reaches 3), so a stable selection holds the count there and
         // the closed Beam selection starts no transition.
-        var holding = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
         holding.Artwork.ArmCannon = artwork;
         holding.ArmCannon.StableSelectionUpdates = 2;
         holding.ArmCannon.Update(holding);

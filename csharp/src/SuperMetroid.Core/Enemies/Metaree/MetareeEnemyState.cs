@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// <summary>The state of one Metaree.</summary>
 public sealed class MetareeEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal MetareeEnemyState(MetareeAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<SkreeMetareeSegment> Playback { get; set; }
 
@@ -13,7 +16,7 @@ public sealed class MetareeEnemyState
     public int BurrowTimer { get; internal set; }
 
     /// <summary>The idle, preparing, diving or burrowing behaviour.</summary>
-    public MetareeAction? Action { get; internal set; }
+    public MetareeAction Action { get; internal set; }
 
     /// <summary>
     /// The animation the AI last started: idling, preparing to attack or diving. Asking for it again leaves it playing.

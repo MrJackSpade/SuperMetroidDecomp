@@ -8,6 +8,8 @@ using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Bosses;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 
@@ -59,8 +61,10 @@ internal static class DraygonPrebattleXrayVerification
         var math = (GameplayBlendLayer)scene.Layers[0];
         var r = math.Gameplay.View;
         AssertTrue(!math.RevealBlocks, "native boss exclusion preserves the original BG2 artwork");
-        AssertEqual(32, r.BackgroundFirstLine, "native offscreen TM table begins below HUD");
-        AssertEqual(32, r.BackgroundEndLine, "native offscreen TM table hides all Draygon BG2 lines");
+        // His body is drawn whole, on every gameplay line, rather than on the original's band of lines (#1873): what keeps the
+        // pre-battle body off the screen is where it is placed, which the checks below confirm.
+        AssertEqual(ScreenLineBand.Gameplay, new ScreenLineBand(r.BackgroundFirstLine, r.BackgroundEndLine),
+            "Draygon's body layer shows on every gameplay line");
         var pixels = DisplayRendering.Render(scene);
         var hidden = RenderWithRegisters(r with { ShownLayers = r.ShownLayers & ~ScreenLayers.Background });
         var unmasked = RenderWithRegisters(r with { BackgroundFirstLine = 32, BackgroundEndLine = 224 });
@@ -94,10 +98,11 @@ internal static class DraygonPrebattleXrayVerification
                 combat.Layers[1] }, combat.Brightness);
         RgbaPixel[] withBody = DisplayRendering.Render(combat), withoutBody = DisplayRendering.Render(combatWithoutBg2);
         int[] shown = [.. Enumerable.Range(0, withBody.Length).Where(index => withBody[index] != withoutBody[index])];
-        // #1680: his body's pictures lie once in the room at his parts' area, whose top-left corner is the published origin;
-        // the screen shows them there against the room pixel at its top-left corner, starting at the area's corner.
-        DraygonBodyPlacement placement = runtime.Display.Latched.Bosses.DraygonBody ?? throw new InvalidOperationException("Draygon publishes his body placement.");
-        Offset16<ScreenPixels> corner = placement.BodyOrigin.RelativeToCamera(ordinary.View.ForegroundScroll);
+        // #1680, #2031: his body's pictures lie once in the room against his published placement, his parts' area's top-left
+        // corner 62 left of and 64 above it, where the cartridge's layer put it; the screen shows them there against the room
+        // pixel at its top-left corner, starting at the area's corner.
+        Position16<RoomPixels> placement = runtime.Display.Latched.Bosses.Placement ?? throw new InvalidOperationException("Draygon publishes his body placement.");
+        Offset16<ScreenPixels> corner = (placement + BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon]).RelativeToCamera(ordinary.View.ForegroundScroll);
         Console.WriteLine($"Battle-start Draygon body: {shown.Length} visible pixels; body={boss.Body.Position.X.Whole}/{boss.Body.Position.Y.Whole}, " +
             $"its area's corner on screen {corner.X}/{corner.Y}.");
         AssertTrue(shown.Length > 0, "battle start still displays Draygon's body");

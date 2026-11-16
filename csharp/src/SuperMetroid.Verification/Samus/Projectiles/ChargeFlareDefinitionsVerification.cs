@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
@@ -58,7 +59,7 @@ internal static class ChargeFlareDefinitionsVerification
         AssertEqual(ChargeFlareAnimationDefinitions.MainFlareLoopStart, ChargeFlareAnimations.MainFlareLoop().Phase,
             "The grapple's flare restarts at the main flare's loop");
 
-        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
         int[] phases = system.Charge.FlarePhases;
         WrappingCountdown[] holds = system.Charge.FlareHolds;
         int ticks = 0, boundaries = 0;
@@ -115,8 +116,8 @@ internal static class ChargeFlareDefinitionsVerification
                      (new[] { 2, 1, 0 }, new ushort[] { 0, 0xffff, 0x8000 }),
                  })
         {
-            var hyper = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
-            var samus = new SuperMetroid.Core.Samus.SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+            var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge, artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { HyperBeamEnabled = true };
             hyper.Charge.StartHyperBeamFlare();
             ushort[] expectedPhases = [.. startPhases.Select(phase => (ushort)phase)], expectedHolds = [.. startHolds];

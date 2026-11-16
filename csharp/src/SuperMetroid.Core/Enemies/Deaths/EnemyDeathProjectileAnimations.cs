@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using K = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCueKind;
 using P = SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileSegment;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -27,8 +27,8 @@ internal static class EnemyDeathProjectileAnimations
         ],
         [P.BigExplosionLoop] =
         [
-            Cue(new(K.SpawnSpriteWithin16, SpriteObject: RoomSpriteObjectKind.SmallExplosion)),
-            Cue(new(K.SpawnSpriteWithin16, SpriteObject: RoomSpriteObjectKind.Smoke)),
+            Cue(new(K.SpawnSpriteWithin16, EffectActor: RoomEffectActorKind.SmallExplosion)),
+            Cue(new(K.SpawnSpriteWithin16, EffectActor: RoomEffectActorKind.Smoke)),
             Show(EnemyProjectileFrameId.EnemyDeathBigExplosion, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),
@@ -38,9 +38,9 @@ internal static class EnemyDeathProjectileAnimations
         ],
         [P.MiniKraidExplosionLoop] =
         [
-            Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.SmallExplosion)),
-            Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.Smoke)),
-            Cue(new(K.SpawnSpriteWithin32, SpriteObject: RoomSpriteObjectKind.DustCloud)),
+            Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.SmallExplosion)),
+            Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.Smoke)),
+            Cue(new(K.SpawnSpriteWithin32, EffectActor: RoomEffectActorKind.DustCloud)),
             Show(EnemyProjectileFrameId.EnemyDeathMiniKraidExplosion, 8),
             Cue(new(K.PlaySmallExplosionSound)),
             Cue(new(K.BecomePickup)),

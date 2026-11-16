@@ -1,15 +1,36 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
 /// What the import reads boss body frames from (#1466, #1515): the tile Phantoon, Draygon, Crocomire and Mother Brain clear
 /// their body layer with, where Crocomire's death writes his melt images, how the cartridge's body layer cells lie on a
-/// body's area, and the frames the cartridge writes only in part over the frame its part showed before.
+/// body's area, where each boss's area lay against the boss, and the frames the cartridge writes only in part over the
+/// frame its part showed before.
 /// </summary>
 internal static class BossBodySourceDefinitions
 {
+    /// <summary>
+    /// Where the top-left corner of each boss's body area lay against the boss as the cartridge scrolled its layer (#1617,
+    /// #1802, #1858, #1949, #2031), which the import folds into each installed frame's anchor so the game places a body at
+    /// its boss's position: Kraid's his X radius, his body's right-edge adjustment, left of him and 152 pixels, his body's
+    /// vertical anchor, above him; Phantoon's 40 left of and 40 above him; Draygon's 62 left of and 64 above him, the place
+    /// on the layer's repeat the cartridge placed 450 to the right and 192 below; Crocomire's 51 left of and 67 above him;
+    /// Mother Brain's 38 left of and 63 above her.
+    /// </summary>
+    internal static IReadOnlyDictionary<BossBodyOwner, Offset16<RoomPixels>> AreaFromBoss { get; } = new Dictionary<BossBodyOwner, Offset16<RoomPixels>>
+    {
+        [BossBodyOwner.Kraid] = new(-RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Kraid).Radius.X, -152),
+        [BossBodyOwner.Phantoon] = new(-40, -40),
+        [BossBodyOwner.Draygon] = new(-62, -64),
+        [BossBodyOwner.Crocomire] = new(-51, -67),
+        [BossBodyOwner.MotherBrain] = new(-38, -63),
+    };
+
     /// <summary>The blank tile, 824 under colour variant zero, unmirrored, behind sprites, that clears the shared body layer.</summary>
     internal static BackgroundTile BlankTile { get; } = new(824, 0, highPriority: false);
 

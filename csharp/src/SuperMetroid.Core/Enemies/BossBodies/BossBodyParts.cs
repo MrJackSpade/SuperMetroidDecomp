@@ -19,7 +19,7 @@ internal sealed class BossBodyParts
     /// <summary>The frame each part shows, by its place in <see cref="parts"/>, or null before it shows one.</summary>
     private readonly BossBodyFrame?[] frames;
 
-    /// <summary>The body row above which alone the body shows, or null when the whole body shows.</summary>
+    /// <summary>The row, reckoned from the body's placement, above which alone the body shows, or null when the whole body shows.</summary>
     private int? shownAbove;
 
     /// <summary>The body as it stands, until a part shows another frame or the body is cleared or cut.</summary>
@@ -72,7 +72,7 @@ internal sealed class BossBodyParts
     }
 
     /// <summary>
-    /// Shows the body only above body row <paramref name="top"/> until a part next shows a frame, each part's picture cut
+    /// Shows the body only above row <paramref name="top"/>, reckoned from its placement, until a part next shows a frame, each part's picture cut
     /// there, as the acid hides Crocomire's sinking body; a lower row shows no more than shows already.
     /// </summary>
     public void ShowAbove(int top)

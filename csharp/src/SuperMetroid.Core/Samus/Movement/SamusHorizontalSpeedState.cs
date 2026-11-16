@@ -269,8 +269,7 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
     /// <param name="requestEchoSound">
     /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
-    /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown; or none when no
-    /// queue answered (a Samus outside a session), when the stage just stored picks them.
+    /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         UnauthoredBoostCadence unauthoredBoostCadence,
@@ -279,7 +278,7 @@ public sealed class SamusHorizontalSpeedState
         int animationFrameBuffer,
         ref int animationFrame,
         out int animationFrameTimer,
-        Func<SoundQueueAdmission?> requestEchoSound)
+        Func<SoundQueueAdmission> requestEchoSound)
     {
         Ensure.NotNull(requestEchoSound);
         animationFrameTimer = 0;
@@ -304,8 +303,7 @@ public sealed class SamusHorizontalSpeedState
                 EchoSoundPlaying = true;
                 // What the echo's queue request found, not the stage just stored, picks
                 // both the restart countdown and the first frame's cadence.
-                if (requestEchoSound() is { } admission)
-                    cadenceAfterEcho = SamusRunningCadences.CadenceAfterEcho(_boostRestart, admission);
+                cadenceAfterEcho = SamusRunningCadences.CadenceAfterEcho(_boostRestart, requestEchoSound());
             }
         }
 
@@ -352,7 +350,7 @@ public sealed class SamusHorizontalSpeedState
         // return at once when submerged: the current colours, common
         // timer, and cycle shade step all remain untouched. Gravity Suit bypasses this
         // gate and continues into the ordinary Screw Attack / Speed Booster logic even
-        // though the raw room-FX comparison still says the body is underwater. The caller
+        // though the raw room-FX comparison still says the body is underwater. Her movement
         // supplies the raw boundary result so this state owner does not invent a second,
         // subtly different reading of the room's FX values.
         bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
@@ -526,7 +524,7 @@ public sealed class SamusHorizontalSpeedState
             SuitShadeRestoreRequested = true;
         }
 
-        // This block is intentionally outside the momentum test. Every caller can
+        // This block is intentionally outside the momentum test. Every movement can
         // enter echo-departure mode even when the momentum flag was already clear. Repeated calls while
         // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)

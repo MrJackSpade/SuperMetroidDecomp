@@ -144,7 +144,7 @@ internal static class EnemySheetOwnFramesVerification
         AssertTrue(placements.Length > 0, $"a room places {definition}");
         bool[] both = [false, true];
         return both.SelectMany(active => both.Select(right =>
-            FuneNamiheBehavior.SelectFuneNamiheAnimation(new FuneNamiheEnemyState { IsNamihe = definition == EnemyDefinitionId.Namihe, ShowsActiveAnimation = active, FacingRight = right })));
+            FuneNamiheBehavior.SelectFuneNamiheAnimation(new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { IsNamihe = definition == EnemyDefinitionId.Namihe, ShowsActiveAnimation = active, FacingRight = right })));
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ internal static class EnemySheetOwnFramesVerification
         });
 
     /// <summary>
-    /// Each Ripper runs its own pair of moving programs; only the GRipper's and Ripper II's shot and bomb reactions pin
+    /// Each Ripper runs its own pair of moving programs; only the grapple Ripper's and jet Ripper's shot and bomb reactions pin
     /// their shared frozen frames.
     /// </summary>
     private static EnemySheetOwnFrameFamily RippersFamily()
@@ -210,10 +210,10 @@ internal static class EnemySheetOwnFramesVerification
         return new("Ripper", RipperAnimations.Segments.Frames.ToHashSet().Union(frozen).ToHashSet(),
             new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
             {
-                [EnemyDefinitionId.GRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
-                    [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
-                [EnemyDefinitionId.RipperII] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
-                    [RipperSegment.GRipperMovingLeft, RipperSegment.GRipperMovingRight]), frozen),
+                [EnemyDefinitionId.GrappleRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
+                    [RipperSegment.GrappleRipperMovingLeft, RipperSegment.GrappleRipperMovingRight]), frozen),
+                [EnemyDefinitionId.JetRipper] = With(Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
+                    [RipperSegment.GrappleRipperMovingLeft, RipperSegment.GrappleRipperMovingRight]), frozen),
                 [EnemyDefinitionId.Ripper] = Reach(RipperAnimations.Segments, RipperAnimations.StartingAt,
                     [RipperSegment.RipperMovingLeft, RipperSegment.RipperMovingRight]),
             });
@@ -243,9 +243,9 @@ internal static class EnemySheetOwnFramesVerification
     private static EnemySheetOwnFrameFamily WorkRobotsFamily() => new("work robot", WorkRobotAnimations.Segments.Frames.ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
-            [EnemyDefinitionId.RobotNoPower] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
+            [EnemyDefinitionId.UnpoweredWorkRobot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
                 [WorkRobotSegment.NoPowerNeutral, WorkRobotSegment.NoPowerLeaningLeft, WorkRobotSegment.NoPowerLeaningRight]),
-            [EnemyDefinitionId.Robot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
+            [EnemyDefinitionId.WorkRobot] = Reach(WorkRobotAnimations.Segments, WorkRobotAnimations.StartingAt,
                 Enum.GetValues<WorkRobotSegment>()),
         });
 
@@ -309,7 +309,7 @@ internal static class EnemySheetOwnFramesVerification
                 RidleyBodySegment.Initial, RidleyBodySegment.OpeningRoar, RidleyBodySegment.TransitionToFlying, RidleyBodySegment.CeresLunge,
                 RidleyBodySegment.RetrieveBabyMetroid, RidleyBodySegment.Fireballing,
             ], RidleyCueTargets),
-            [EnemyDefinitionId.RidleyExplosion] = new HashSet<EnemyFrameId>(),
+            [EnemyDefinitionId.RidleyBreakupPiece] = new HashSet<EnemyFrameId>(),
         });
 
     /// <summary>The body segment whose animation a Ridley cue redirects to.</summary>

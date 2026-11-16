@@ -8,18 +8,16 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public sealed class DeadTorizoEnemyState
 {
-    /// <summary>Captures the corpse's own rot schedule.</summary>
-    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRotSchedule rot)
+    /// <summary>Captures the corpse's own rot schedule and its first phase.</summary>
+    internal DeadTorizoEnemyState(CorpseRotSchedule rot, DeadTorizoPhase phase)
     {
-        Slot = slot;
+        Phase = phase;
         Rot = Ensure.NotNull(rot);
     }
 
     /// <summary>The corpse's typed pose and where it stands in it (#641, #1600).</summary>
     internal AnimationPlayback<DeadTorizoSegment> Playback { get; set; }
 
-    /// <summary>The enemy slot owning this corpse's position, collision properties and animation timing.</summary>
-    public RoomEnemySlot Slot { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its ninety-six pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
 
@@ -28,10 +26,10 @@ public sealed class DeadTorizoEnemyState
     /// <summary>Contact-delay calls counted before rotting, 0..16: the sixteenth enters rotting and the corpse never returns to the delay. Direct shot or touch triggering bypasses it.</summary>
     public int PreRotDelayCounter { get; internal set; }
     /// <summary>Count of the corpse's rot calls since initialization, including the call that completes its final entry; its sand heap forms by it.</summary>
-    public uint ProcessCallCount { get; internal set; }
+    public int ProcessCallCount { get; internal set; }
 
     /// <summary>The corpse phase.</summary>
-    internal DeadTorizoPhase? Phase { get; set; }
+    internal DeadTorizoPhase Phase { get; set; }
 
     /// <summary>Signed 1/256-pixel velocity per update: X, and Y, which rotting increases by one 256th each update.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

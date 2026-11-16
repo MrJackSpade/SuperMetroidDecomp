@@ -333,7 +333,7 @@ A network step is retried before it fails the run (owner ruling, 2026-11-12). Th
 when a transient network or system failure stops them: a dropped connection, or a DNS thread that failed to start.
 Each such step is tried up to 4 times in all, the first attempt and three retries, with a 30-second pause before each
 retry (`Invoke-NetworkGit` in `common.ps1`). Each failed attempt is logged with git's output. A rejected push is an
-outcome, not a failure, and is never retried (see below).
+outcome, not a failure; it is answered by a merge, not a retry (see below).
 
 ## Conflicts with the developer
 
@@ -348,10 +348,14 @@ so main's first-parent history stays the developer's and every conflicting line 
 output is regenerated, never hand-merged: a line the developer also changed is cleaned again by the next run. It
 refuses to run over uncommitted changes, then prints the status.
 
-If the developer pushes while a run is in progress, the run's push is rejected. The service then discards its commit,
-resets to the new tip and runs again from the top: the cleanup is regenerated, never merged. It does this only when
-the branch really moved; a rejection with the branch unmoved fails the run. After 10 consecutive rejections the
-service stops and notifies (a count, not a time limit); the next push starts it again.
+If the developer pushes while a run is in progress, the run's push is rejected. The run never discards its work (owner,
+2026-11-15): a run takes long enough that the developer usually pushes during it, and discarding meant no cleanup ever
+landed. `run.ps1` fetches the new tip and merges its commit onto it (`git merge --no-ff -X ours`, the new tip as first
+parent, so main's first-parent history stays the developer's and every conflicting line keeps the developer's side; a
+file one side deleted and the other changed keeps the developer's version, or stays deleted). It commits the merge
+without rebuilding, as "Cleanup: ... (merged onto <tip>)", and pushes it, repeating while the developer keeps pushing.
+The owner would rather the cleanup commit broken code, which the next pull shows and the developer fixes, than lose
+its work. A rejection with the branch unmoved fails the run.
 
 ## The Discord tracker
 
@@ -369,8 +373,9 @@ git config --unset cleanup.directory            # disable: the hook does nothing
 `install.ps1` verifies that the main checkout's `core.hooksPath` is its own absolute `.githooks`, clones `origin` into
 `<dir>\repo` (or reuses the clone), points the clone's hooks at its own `.githooks`, writes `config.json`, copies
 `common.ps1`, `notify.ps1`, `trigger.ps1` and `service.ps1` into `<dir>\bin`, and sets `cleanup.directory` and
-`cleanup.branch` in the main checkout's git configuration. A change to any of those four scripts on `main` makes the
-next run fail until `install.ps1` is run again, so a stale service never runs silently. To uninstall, unset
+`cleanup.branch` in the main checkout's git configuration. A change to any of those four scripts on `main` installs
+itself: before each run the service copies the tree's version of every changed one into `<dir>in` and logs it, and
+the copies take effect from the next service start. To uninstall, unset
 `cleanup.directory` and delete `<dir>`.
 
 Inside the worker every process carries `SUPERMETROID_CLEANUP_WORKER=1`: the clone's own `reference-transaction` does

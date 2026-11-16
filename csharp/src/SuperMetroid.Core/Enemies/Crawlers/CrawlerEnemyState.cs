@@ -6,6 +6,13 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 public sealed class CrawlerEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal CrawlerEnemyState(CrawlerAction action)
+    {
+        Action = action;
+        NonFallingAction = action;
+    }
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<CrawlerSegment> Playback { get; set; }
 
@@ -18,7 +25,7 @@ public sealed class CrawlerEnemyState
     /// <summary>
     /// The current settling, crawling or falling behaviour; the surface the crawler shows sets which way it crawls.
     /// </summary>
-    public CrawlerAction? Action { get; internal set; }
+    public CrawlerAction Action { get; internal set; }
 
     /// <summary>The surface the crawler clings to, which its animation shows and its crawl follows.</summary>
     internal CrawlerSurfaceOrientation Surface { get; set; }
@@ -51,7 +58,7 @@ public sealed class CrawlerEnemyState
             FallingYVelocity += SignedSixteenSixteen.FromParts(0, 32768);
     }
     /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>
-    public CrawlerAction? NonFallingAction { get; internal set; }
+    public CrawlerAction NonFallingAction { get; internal set; }
     /// <summary>The number of successive missed surface probes at which the crawler stops turning and falls.</summary>
     internal const int MissedProbesBeforeFalling = 4;
 

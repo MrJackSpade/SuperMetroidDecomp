@@ -40,7 +40,7 @@ internal sealed class ChozoStatueObjects : IChozoStatueHand
         _places = places;
     }
 
-    /// <summary>Runs the one-shot special-block setup; the caller still clips to solid.</summary>
+    /// <summary>Runs the one-shot special-block setup; Samus's collision still clips her to the solid block.</summary>
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
         Position16<RoomBlocks> block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {

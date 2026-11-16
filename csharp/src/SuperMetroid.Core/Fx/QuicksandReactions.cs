@@ -7,13 +7,10 @@ namespace SuperMetroid.Core.Fx;
 public static class QuicksandReactions
 {
     /// <summary>
-    /// The suit-indexed moving displacement, stationary
-    /// displacement, and upward-speed-limit values used by the surface reaction.
-    /// Gravity equipment selects one of two named scalar cases. Moving displacement is
-    /// 2 pixels per frame for either suit, stationary displacement is 1.125/1, and the
-    /// upward cap is 2.5/3.5 pixels per frame without/with Gravity. The game
-    /// stores them as unsigned 1/256-pixel values; they are held here as the 1/65536-pixel values its
-    /// consumers widen them to.
+    /// The surface's sinking while Samus moves and while she stands still, and the upward speed limit, by suit: the
+    /// Gravity Suit selects one of two cases. She sinks 2 pixels per frame while moving in either suit, 1.125 pixels
+    /// (1 with the Gravity Suit) while standing, and rises at most 2.5 pixels per frame (3.5 with the Gravity Suit). Each
+    /// is held in 1/65536 pixels, the precision her movement adds them at.
     /// </summary>
     public static QuicksandSurfacePhysics SurfacePhysics(bool gravitySuit) =>
         gravitySuit ? QuicksandDefinitions.WithGravitySuit : QuicksandDefinitions.WithoutGravitySuit;

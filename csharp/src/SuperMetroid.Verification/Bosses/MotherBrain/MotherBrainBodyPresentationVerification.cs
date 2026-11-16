@@ -11,6 +11,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -68,11 +69,13 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.BodyPositions.Distinct().Count() > 1, "production body animations actually move her body");
-        // Each pose's picture lies where the import places it on her body's area, which follows her (#1949): the fixture
-        // writes every frame from the area's corner, so a frame's corner is how far right the import places it.
+        // Each pose's picture lies where the import places it against her (#1949, #2031): the fixture writes every frame from
+        // her body area's corner, 38 pixels left of and 63 above her, so a frame lies there, as far right as the import shifts it.
+        Offset16<RoomPixels> area = BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.MotherBrain];
+        AssertEqual(new Offset16<RoomPixels>(-38, -63), area, "her body's area lay 38 pixels left of and 63 above her");
         foreach (EnemyFrameId pose in MotherBrainBodyVisualDefinitions.BodyPictureFrames)
-            AssertEqual(new Position16<BackgroundPixels>(MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(pose), 0),
-                baseline.MotherBrainSheet.Frame(pose).Corner, $"{pose} lies where the import places it against her");
+            AssertEqual(Offset16<RoomPixels>.Of(area.X + MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(pose), area.Y),
+                baseline.MotherBrainSheet.Frame(pose).Anchor, $"{pose} lies where the import places it against her");
         // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
         // boss artwork is composed, so the enemy artwork is not read again for it.
         AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(new BossSourceArtwork { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),

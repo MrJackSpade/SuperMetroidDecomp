@@ -10,7 +10,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>Checks that freezing during an empty Metroid shell frame immediately selects visible frozen artwork.</summary>
 internal static class FrozenMetroidShellVerification
@@ -32,18 +32,18 @@ internal static class FrozenMetroidShellVerification
         // The shell is read by its own draws, apart from the electrical overlay.
         var shell = (state ?? throw new InvalidOperationException("Verification requires state.")).Shell;
         // The shell segment's second beat, the native alternating empty shell frame.
-        var shellBeats = RoomSpriteObjectAnimations.Segments.Beats(RoomSpriteObjectSegment.MetroidShell);
+        var shellBeats = RoomEffectActorAnimations.Segments.Beats(RoomEffectActorSegment.MetroidShell);
         // The shell plays its first beat out, which brings it onto the second with that beat's whole duration.
-        var first = AssertIs<AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame>(shellBeats[0], "first shell beat");
+        var first = AssertIs<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame>(shellBeats[0], "first shell beat");
         for (int update = 0; update < first.Duration; update++)
             shell.Step();
-        var shown = AssertIs<AnimationBeat<RoomSpriteObjectPicture, NoAnimationCue>.Frame>(shellBeats[1], "second shell beat");
+        var shown = AssertIs<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame>(shellBeats[1], "second shell beat");
         Require(shell.Frame == shown.Shown && shell.Timer == shown.Duration, "The shell must reach its second record with that record's whole duration.");
         Require(shell.InstructionPointer == 0xc4ba, "The reproduction must run the native empty shell record.");
         OamBuffer actual = ShellOam();
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
-        ushort expectedPointer = RoomSpriteObjectVisualDefinitionsConstants.Spritemap(first.Shown);
+        ushort expectedPointer = RoomEffectActorVisualDefinitionsConstants.Spritemap(first.Shown);
         Require((InstalledFixtures.EnemyTiles.Spritemaps ?? throw new InvalidOperationException("Verification requires the installed enemy compositions.")).TryGetDisplay(0xb4, expectedPointer, out var parts),
             "Installed frozen shell artwork must exist.");
         var expected = new OamBuffer();
@@ -54,7 +54,7 @@ internal static class FrozenMetroidShellVerification
         for (int frame = 0; frame < 3; frame++)
         {
             MetroidBehavior.RunMetroidFrozen(slot);
-            enemies.SpriteObjects.StepRoomSpriteObjects();
+            enemies.EffectActors.StepRoomEffectActors();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
             Require(shell.Timer == first.Duration && shell.DisableFlags == 1,
@@ -72,20 +72,20 @@ internal static class FrozenMetroidShellVerification
         {
             var drawn = new SpriteFrameBuffer();
             drawn.BeginFrame();
-            enemies.SpriteObjects.DrawRoomSpriteObjects(drawn, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
+            enemies.EffectActors.DrawRoomEffectActors(drawn, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
             drawn.FinalizeFrame();
             // The shell's draw is the room sprite object showing the shell's picture at its place; the electrical overlay
             // lies at the same place and shows its own pictures. A shell picture that shows nothing draws nothing.
             Offset16<ScreenPixels> place = shell.Position.Whole.RelativeToCamera(Position16<RoomPixels>.Zero);
             SpawnedObjectSheet sheet = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetLoading(EnemyDefinitionId.Metroid), shell.Graphics.Owner);
-            string picture = EnemySheetDefinitions.SpriteObjectFrameName(shell.Frame.RequireEnemyFrame());
+            string picture = EnemySheetDefinitions.EffectActorFrameName(shell.Frame.RequireEnemyFrame());
             SpriteSheetFrame? shown = sheet.ShowsNothing(picture) ? null : sheet.Frame(picture);
             var oam = new OamBuffer();
             oam.BeginFrame();
             oam.AppendDrawn(frame =>
             {
                 foreach (SpriteDraw draw in drawn.Draws)
-                    if (draw is ImageSpriteDraw image && image.Source.Kind == SpriteSourceKind.RoomSpriteObject && image.Origin == place &&
+                    if (draw is ImageSpriteDraw image && image.Source.Kind == SpriteSourceKind.RoomEffectActor && image.Origin == place &&
                         ReferenceEquals(image.Image, shown))
                         frame.Add(draw);
             });

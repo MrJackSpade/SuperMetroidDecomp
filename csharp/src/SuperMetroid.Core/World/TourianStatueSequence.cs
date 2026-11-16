@@ -96,7 +96,7 @@ public sealed class TourianStatueSequence
     /// The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in each update and so the
     /// order in which a waiting statue can claim the one release that plays at a time.
     /// </summary>
-    internal readonly List<StatueBlockAnimation> objects = [];
+    internal readonly List<StatueBlockAnimation> statues = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
     /// <summary>Calls left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
@@ -126,7 +126,7 @@ public sealed class TourianStatueSequence
     /// <param name="roomObjects">The room's room-object system.</param>
     internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
-        objects.Clear();
+        statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
         _holdCalls = 0;
         Descent = SignedSixteenSixteen.Zero;
@@ -143,7 +143,7 @@ public sealed class TourianStatueSequence
     {
         Enabled = _room.ActiveRoom?.State.SetupBehavior == RoomSetupBehavior.RunStatueUnlockingAnimations;
         if (!Enabled) return;
-        SpawnAnimatedObjects();
+        SpawnStatueAnimations();
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
             Descent = SignedSixteenSixteen.FromWholePixels(TourianStatueSequenceDefinitions.DescentDistance);
@@ -161,7 +161,7 @@ public sealed class TourianStatueSequence
     /// Spawns the four statue animations in order. They run in the order they were spawned, so the spawn order also
     /// decides which waiting statue claims the one release that plays at a time.
     /// </summary>
-    internal void SpawnAnimatedObjects()
+    internal void SpawnStatueAnimations()
     {
         Spawn(TourianGreyStatues.Kraid);
         Spawn(TourianGreyStatues.Phantoon);
@@ -174,7 +174,7 @@ public sealed class TourianStatueSequence
             if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
                 throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
 
-            objects.Add(new(definition));
+            statues.Add(new(definition));
         }
     }
 
@@ -186,7 +186,7 @@ public sealed class TourianStatueSequence
     {
         if (!Enabled) return;
         if (_assists.Current.TourianStatuesOpen) return;
-        foreach (StatueBlockAnimation statueAnimation in objects)
+        foreach (StatueBlockAnimation statueAnimation in statues)
         {
             if (!statueAnimation.CountDown() || statueAnimation.Playback is not { } playback) continue;
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;

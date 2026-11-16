@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <para>
 /// Built once for each axis an enemy projectile moves on during the enemy projectile pass, by the shared axis move and
 /// by the eye door's projectiles; each tested block is then resolved through its extension links and classified by the
-/// caller. A span whose last pixel lies before its first block's start, as a zero radius on a block boundary gives, counts
+/// projectile's collision. A span whose last pixel lies before its first block's start, as a zero radius on a block boundary gives, counts
 /// on past 65535 to 4095 more blocks.
 /// </para>
 /// <para>

@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// <summary>The state of the Wrecked Ship ghost, with its extra values.</summary>
 public sealed class WreckedShipGhostEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal WreckedShipGhostEnemyState(WreckedShipGhostAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WreckedShipGhostSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public WreckedShipGhostAction? Action { get; internal set; }
+    public WreckedShipGhostAction Action { get; internal set; }
 
     /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Action"/>.</summary>
     public int PhaseTimer { get; internal set; }
@@ -25,14 +28,13 @@ public sealed class WreckedShipGhostEnemyState
     }
 
     /// <summary>
-    /// The position about which the visible ghost oscillates; only its Y is meaningful. Positions
-    /// compare with it by the wrapped spatial difference.
+    /// The room Y about which the visible ghost oscillates. Positions compare with it by the wrapped difference.
     /// </summary>
-    public Position16<RoomPixels> BobbingOrigin { get; internal set; }
+    public int BobbingOriginY { get; internal set; }
 
     /// <summary>
     /// The visible ghost's signed 1/65536-pixel vertical speed in pixels
-    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the fraction's overflow and wraparound.
+    /// per update, accelerating toward <see cref="BobbingOriginY"/> with the fraction's overflow and wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 

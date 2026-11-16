@@ -35,7 +35,7 @@ internal static class ZoaSpeedDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
-        var state = new ZoaEnemyState();
+        var state = new ZoaEnemyState(ZoaAction.WaitForSamus);
         for (int stage = 0; stage < speeds.Length; stage++)
         {
             int magnitude = Record(stage);

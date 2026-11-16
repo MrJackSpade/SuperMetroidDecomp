@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -42,7 +43,8 @@ internal static class ReserveAutoFrontendVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var runtime = CreateRetailRuntimeFixture(random: random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -53,7 +55,6 @@ internal static class ReserveAutoFrontendVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         var recovery = game.Session.reserveRecovery;
         // Enter through actual state-eight routing, not by calling recovery.Begin:
@@ -173,7 +174,7 @@ internal static class ReserveAutoFrontendVerification
         samus = runtime.Player.Samus;
         AssertTrue(runtime.Player.Samus?.Control.Mode.Movement != SamusMovementMode.Gunship, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.SlotTable.Slots[0];
-        GunshipPartState shipPart = GunshipPartState.Of(ship);
+        GunshipState shipPart = GunshipState.Of(ship);
         shipPart.Phase = GunshipPhase.WaitForEntranceToOpen;
         shipPart.PhaseTimer = 100;
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, runtime.AudioRequests);

@@ -137,7 +137,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Phantoon's encounter phase for one update.</summary>
     private void RunPhantoonMain(
         RoomEnemySlot body,
-        SamusState? samus)
+        SamusState samus)
     {
         PhantoonEnemyState state = RequireCompletePhantoonState(body);
         PhantoonPhase? phase = state.Phase;
@@ -163,19 +163,19 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Patterns.RunPhantoonFirstRoundFigureEight(body, state);
                 break;
             case PhantoonPhase.EyeTracksSamus:
-                PhantoonPatterns.RunPhantoonEyeTracking(body, state, RequirePhantoonSamus(samus));
+                PhantoonPatterns.RunPhantoonEyeTracking(body, state, samus);
                 break;
             case PhantoonPhase.BecomeSolidAndSwoop:
-                PhantoonPatterns.BeginPhantoonVulnerableSwoop(body, state, RequirePhantoonSamus(samus));
+                PhantoonPatterns.BeginPhantoonVulnerableSwoop(body, state, samus);
                 break;
             case PhantoonPhase.Swooping:
-                PhantoonPatterns.RunPhantoonSwoop(body, state, RequirePhantoonSamus(samus));
+                PhantoonPatterns.RunPhantoonSwoop(body, state, samus);
                 break;
             case PhantoonPhase.FadeOutWhileSwooping:
                 Patterns.RunPhantoonFadeOutWhileSwooping(
                     body,
                     state,
-                    RequirePhantoonSamus(samus));
+                    samus);
                 break;
             case PhantoonPhase.WaitAfterFadeOut:
                 PhantoonPatterns.RunPhantoonHiddenWait(state);
@@ -220,7 +220,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Patterns.RunPhantoonRageFadeOut(state);
                 break;
             case PhantoonPhase.FinishFatalSwoop:
-                PhantoonDeath.RunPhantoonFatalSwoop(body, state, RequirePhantoonSamus(samus));
+                PhantoonDeath.RunPhantoonFatalSwoop(body, state, samus);
                 break;
             case PhantoonPhase.DyingFadeInOut:
                 Death.RunPhantoonDyingFadeCycles(body, state);
@@ -248,7 +248,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // This synchronization runs only for the body's invocation, then copies the updated point into the three
-        // drawing parts. The almost-dead phase skips the part sync and his body's placement entirely on that frame.
+        // drawing parts. The almost-dead phase skips the part sync entirely on that frame.
         if (phase == PhantoonPhase.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
@@ -257,21 +257,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
-        if (state.Wave.Length is null)
-        {
-            state.BodyOrigin = new(
-                CoordinateAxis.Wrap(body.Position.X.Whole - PhantoonBodyAreaDefinitions.LeftOfBody),
-                CoordinateAxis.Wrap(body.Position.Y.Whole - PhantoonBodyAreaDefinitions.AboveBody));
-        }
     }
 
     /// <summary>Requires the body's encounter state; each part property requires its attached slot when read.</summary>
     internal PhantoonEnemyState RequireCompletePhantoonState(RoomEnemySlot body) => Combat.RequirePhantoonState(body);
-
-    /// <summary>Requires a live Samus state for Phantoon movement and eye targeting.</summary>
-    private static SamusState RequirePhantoonSamus(SamusState? samus) =>
-        samus ?? throw new InvalidOperationException(
-            "Phantoon's eye and swoop require the active Samus.");
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed class LayeredScene
 {
-    /// <summary>The scene's own copy of the layer order, unchanged by later edits to the caller's.</summary>
+    /// <summary>The scene's own copy of the layer order, unchanged by later edits to the order it was given.</summary>
     internal readonly DisplayLayer[] layers;
     /// <summary>The frame's backdrop, shading and the sprite draws its gameplay layer composes, retained by reference, not copied again.</summary>
     public FramePaint Paint { get; }

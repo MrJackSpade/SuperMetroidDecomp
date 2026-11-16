@@ -21,7 +21,7 @@ internal static class MiscDustProjectileNativeListAddresses
         new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.DudShot, 0xe17e),
         new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.SmallDustCloud, 0xe1b0),
         new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.CorpseDustCloud, 0xe1c6),
-        new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.EyeDoorSweatDrop, 0xe1d8),
+        new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.EyeDoorSmokePuff, 0xe1d8),
         new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.Smoke, 0xe1ea),
         new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.BigExplosion, 0xe208),
         new NativeProgramEntry<MiscDustProjectileSegment>(MiscDustProjectileSegment.RockParticles, 0xe266),

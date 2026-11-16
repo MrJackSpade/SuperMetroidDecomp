@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// How a room block collides. The kinds are the game's sixteen collision families, named whether or not a particular
-/// caller handles them. The values are arbitrary: compare kinds by name, and ask families through
+/// collision reacts to them. The values are arbitrary: compare kinds by name, and ask families through
 /// <see cref="RoomCollisionTypeExtensions"/>, never by ordering.
 /// </summary>
 public enum RoomCollisionType

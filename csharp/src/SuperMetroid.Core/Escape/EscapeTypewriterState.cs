@@ -35,7 +35,7 @@ public sealed class EscapeTypewriterState
     public int GlyphsWritten { get; private set; }
     /// <summary>True after an eligible typing call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
     public bool Completed { get; private set; }
-    /// <summary>One-call sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the caller selects the Ceres or Zebes click sound.</summary>
+    /// <summary>One-call sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the Ceres or Zebes escape picks which click sound plays.</summary>
     public bool ClickRequested { get; private set; }
     /// <summary>Saved Ceres or Zebes message identity used to validate content rebinding; the message the state was created for.</summary>
     public EscapeTypewriterMessageId MessageId { get; private set; }

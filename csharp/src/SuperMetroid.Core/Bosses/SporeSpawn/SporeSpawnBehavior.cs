@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
@@ -29,7 +29,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates stalks, spore emitters, spores, and hardening dust effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Spawns visual dust and dying explosions.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Exposes the enemy-frame counter and process-all-enemies override.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Resolves core-hitbox touch damage through shared enemy collision.</summary>
@@ -47,7 +47,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
-        _spriteObjects = dependencies.SpriteObjects;
+        _effectActors = dependencies.EffectActors;
         _frameContext = dependencies.FrameContext;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
@@ -251,9 +251,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SporeSpawnCadenceDefinitions.IdleDustEverySixteenthUpdate.IsDue(_frameContext.FrameCounter))
         {
             int random = _room.Random.Generate();
-            _ = _spriteObjects.SpawnRoomSpriteObject(
+            _ = _effectActors.SpawnRoomEffectActor(
                 new(SporeSpawnRandomDefinitions.IdleDustX.Of(random) + 96, SporeSpawnRandomDefinitions.IdleDustY.Of(random) + 480),
-                RoomSpriteObjectKind.DustCloud,
+                RoomEffectActorKind.DustCloud,
                 graphics: default);
         }
     }
@@ -702,9 +702,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SpawnSporeSpawnDyingExplosion(SporeSpawnEnemyState state)
     {
         int random = _room.Random.Generate();
-        _ = _spriteObjects.SpawnRoomSpriteObject(
+        _ = _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - 32)),
-            RoomSpriteObjectKind.SporeSpawnDyingExplosion,
+            RoomEffectActorKind.SporeSpawnDyingExplosion,
             graphics: default);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }

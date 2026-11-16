@@ -305,7 +305,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     private static EnemyDefinitionId ExtendedFrameShower(EnemyFrameId? frame) =>
         EnemyDefinitionFrameDefinitions.Frames
             .Where(entry => frame is { } shown && entry.Value.Contains(shown) && SpawnedObjectFixtures.Drawn(entry.Key) &&
-                entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion))
+                entry.Key is not (EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyBreakupPiece))
             .Select(entry => entry.Key).Order()
             .Cast<EnemyDefinitionId?>().FirstOrDefault() ?? EnemyDefinitionId.Ridley;
 

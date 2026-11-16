@@ -2,7 +2,7 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -16,8 +16,8 @@ internal sealed record SporeSpawnBehaviorDependencies
     /// <summary>Projectiles.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Sprite objects.</summary>
-    public required RoomSpriteObjects SpriteObjects { get; init; }
+    /// <summary>Effect actors.</summary>
+    public required RoomEffectActors EffectActors { get; init; }
 
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }

@@ -49,23 +49,22 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Hibashi.</summary>
     internal void InitializeHibashi(RoomEnemySlot slot)
     {
-        var state = new HibashiEnemyState
-        {
-            InactiveTimerReset = slot.SpawnSettings<HibashiSpawnSettings>().InactiveTime,
-            IsCollisionPart = slot.SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart,
-        };
-        slot.SetSpeciesState(state);
+        HibashiSpawnSettings settings = slot.SpawnSettings<HibashiSpawnSettings>();
 
-        // Every part starts with the one-frame hitbox map. Only part zero replaces it with
+        // Every part starts with the one-frame hitbox map. Only the flame replaces it with
         // the eruption animation and initializes the state-machine values below.
-        state.Playback = EnemyAnimationPlayback.Start(slot, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
-        if (state.IsCollisionPart)
+        AnimationPlayback<HibashiSegment> hitboxMap = EnemyAnimationPlayback.Start(slot, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
+        if (settings.Part == HibashiPart.CollisionPart)
+        {
+            slot.SetSpeciesState(new HibashiCollisionPartState { Playback = hitboxMap });
             return;
+        }
 
+        var state = new HibashiEnemyState(HibashiAction.Inactive) { InactiveTimerReset = settings.InactiveTime };
+        slot.SetSpeciesState(state);
         _hitboxes.Place(slot, _slotTable.ListedAfter(slot, 1));
-        state.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Graphics), AnimationPlace.StartOfAnimation);
-        state.Action = HibashiAction.Inactive;
-        state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
+        state.Playback = new(HibashiAnimations.StartingWith(HibashiSegment.Flame), AnimationPlace.StartOfAnimation);
+        state.SpawnY = slot.Position.Y.Whole;
 
         // The visible part must never participate through its definition's radius.
         // Its following part receives the dynamic radius from animation cues.
@@ -75,9 +74,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Hibashi's main AI.</summary>
     private void RunHibashiMain(RoomEnemySlot slot, HibashiEnemyState state)
     {
-        if (state.IsCollisionPart)
-            return;
-
         switch (state.Action)
         {
             case HibashiAction.Inactive:
@@ -90,38 +86,38 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Hibashi has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Hibashi has no behaviour for action {state.Action}.");
         }
     }
 
     /// <summary>Runs the inactive Hibashi.</summary>
-    private void RunHibashiInactive(RoomEnemySlot graphics, HibashiEnemyState state)
+    private void RunHibashiInactive(RoomEnemySlot flame, HibashiEnemyState state)
     {
         // The countdown expires through zero, so timer zero deliberately becomes -1 and erupts immediately. A
         // reset value N later produces N+1 inactive actor frames because zero is nonnegative.
         if (--state.InactiveTimer >= 0)
             return;
 
-        RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
+        RoomEnemySlot hitbox = GetFollowingHibashiPart(flame);
         state.Action = HibashiAction.Active;
         state.ActivityFinished = false;
-        state.Playback = EnemyAnimationPlayback.Start(graphics, HibashiAnimations.StartingWith(HibashiSegment.Graphics));
+        state.Playback = EnemyAnimationPlayback.Start(flame, HibashiAnimations.StartingWith(HibashiSegment.Flame));
 
         // The invisibility property controls rendering only. The intangibility property controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
         // entire eruption while becoming a live collision body here.
-        graphics.Presence = graphics.Presence.Without(EnemyPresence.Hidden);
+        flame.Presence = flame.Presence.Without(EnemyPresence.Hidden);
         hitbox.Contact = hitbox.Contact.Without(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>Runs the active Hibashi.</summary>
-    private static void RunHibashiActive(RoomEnemySlot graphics, HibashiEnemyState state)
+    private static void RunHibashiActive(RoomEnemySlot flame, HibashiEnemyState state)
     {
         if (!state.ActivityFinished)
             return;
 
         state.InactiveTimer = state.InactiveTimerReset;
-        graphics.Presence = graphics.Presence.With(EnemyPresence.Hidden);
+        flame.Presence = flame.Presence.With(EnemyPresence.Hidden);
         state.Action = HibashiAction.Inactive;
     }
 
@@ -136,44 +132,60 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Runs a rising cue: moves the collision part to the step's height above the spawn and gives it the step's
     /// half-height, and the first step its eight-pixel half-width.
     /// </summary>
-    internal void ApplyHibashiEruptionStep(RoomEnemySlot graphics, HibashiEruptionStep step)
+    internal void ApplyHibashiEruptionStep(RoomEnemySlot flame, HibashiEruptionStep step)
     {
-        HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
-        RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
+        HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
+        RoomEnemySlot hitbox = GetFollowingHibashiPart(flame);
         hitbox.Position = hitbox.Position.WithWrappedWholeY(
-            state.SpawnHeight.Y - step.YOffset);
+            state.SpawnY - step.YOffset);
         hitbox.Radius = hitbox.Radius.WithY(step.YRadius);
         if (step.Width == HibashiStepWidth.Restored)
             hitbox.Radius = hitbox.Radius.WithX(8);
     }
 
     /// <summary>Animation cue: finishes the activity.</summary>
-    private void FinishHibashiActivity(RoomEnemySlot graphics)
+    private void FinishHibashiActivity(RoomEnemySlot flame)
     {
-        HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
-        RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
+        HibashiEnemyState state = flame.RequireSpeciesState<HibashiEnemyState>();
+        RoomEnemySlot hitbox = GetFollowingHibashiPart(flame);
 
         state.ActivityFinished = true;
         hitbox.Radius = new(0, 0);
-        graphics.Position = graphics.Position.WithWholeY(state.SpawnHeight.Y);
-        graphics.Presence = graphics.Presence.With(EnemyPresence.Hidden);
+        flame.Position = flame.Position.WithWholeY(state.SpawnY);
+        flame.Presence = flame.Presence.With(EnemyPresence.Hidden);
         hitbox.Contact = hitbox.Contact.With(EnemyContact.IgnoresSamus);
     }
 
     /// <summary>The hitbox part the visible geyser found when it was placed; retail populations always list one right after it.</summary>
-    private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot graphics) => _hitboxes.Of(graphics);
+    private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs Hibashi's main AI.</summary>
     internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
+        // The collision part takes no action of its own; its graphics part moves it.
+        if (IsCollisionPart(slot))
+            return;
         RunHibashiMain(slot, slot.RequireSpeciesState<HibashiEnemyState>());
     }
 
-    /// <summary>Advances Hibashi's typed animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _) =>
+    /// <summary>Whether <paramref name="slot"/>'s placement makes it a Hibashi's collision part.</summary>
+    private static bool IsCollisionPart(RoomEnemySlot slot) =>
+        slot.SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart;
+
+    /// <summary>Advances Hibashi's typed animation: the graphics part's eruption, or the collision part's hitbox hold.</summary>
+    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyAnimationCueContext _)
+    {
+        if (IsCollisionPart(slot))
+        {
+            EnemyAnimationPlayback.Advance(slot, HibashiAnimations.Segments,
+                static (HibashiCollisionPartState state) => state.Playback, static (state, playback) => state.Playback = playback,
+                static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
+            return;
+        }
         EnemyAnimationPlayback.Advance(slot, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyHibashiCue(slot, cue) is { } target
                 ? new AnimationContinuation<HibashiSegment>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
+    }
 }

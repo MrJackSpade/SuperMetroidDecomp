@@ -26,12 +26,12 @@ internal static class EyeDoorEffectDefinitions
     /// <summary>The dust animation of the opening's scattered smoke puffs.</summary>
     internal const MiscDustAnimation ScatteredSmokeAnimation = MiscDustAnimation.CorpseDustCloud;
 
-    /// <summary>The scattered puffs land anywhere in a centred 16x32-pixel box (misc-dust placement three).</summary>
-    internal const int ScatteredSmokePlacement = 3;
+    /// <summary>The scattered puffs land anywhere in a centred box 16 pixels wide and 32 tall.</summary>
+    internal static MiscDustPlacementDefinition ScatteredSmokePlacement => MiscDustSmokePlacements.CentredSixteenByThirtyTwoBox;
 
     /// <summary>The dust animation of the smoke puff centred on the eye.</summary>
-    internal const MiscDustAnimation CenteredSmokeAnimation = MiscDustAnimation.EyeDoorSweatDrop;
+    internal const MiscDustAnimation CenteredSmokeAnimation = MiscDustAnimation.EyeDoorSmokePuff;
 
-    /// <summary>The centred puff appears at a single point (misc-dust placement zero).</summary>
-    internal const int CenteredSmokePlacement = 0;
+    /// <summary>The centred puff appears at a single point.</summary>
+    internal static MiscDustPlacementDefinition CenteredSmokePlacement => MiscDustSmokePlacements.Point;
 }

@@ -30,7 +30,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     public RotationAngle RainbowBeamAngle { get; set; }
 
     /// <summary>
-    /// Moves Samus toward the wall: right at 16 pixels per call and, until the
+    /// Moves Samus toward the wall: right at 16 pixels per update and, until the
     /// hardcoded wall is reached, derive the vertical component from the live beam angle.
     /// </summary>
     /// <param name="samus">Samus, pinned by the beam.</param>

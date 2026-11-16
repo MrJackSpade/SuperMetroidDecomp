@@ -8,8 +8,7 @@ internal static class GrappleFiring
 {
     /// <summary>Returns exact launch components and angle for a firing direction.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against every original value of the Japanese and North American v1.0 game
-    /// and BeginFiring. Directions progress clockwise from up,
+    /// Directions progress clockwise from up,
     /// facing right (0), through down, facing right (4), duplicated down (5), to up (9).
     /// Fixed cardinal/diagonal cases avoid runtime trigonometry. Quantization precedes
     /// scaling: 255 and 181 times twelve, not a rounded radius-3072 circle.
@@ -54,8 +53,8 @@ internal static class GrappleFiring
 
     /// <summary>X and Y hand anchors selected by firing pose.
     /// Up/down facings remain distinct; down-left X is -4 versus down-right +3.
-    /// Running raises only horizontal anchors by four pixels. All authored values
-    /// independently match; subsequent graphics/pose corrections stay with callers.</summary>
+    /// Running raises only horizontal anchors by four pixels. Every authored value matches;
+    /// later graphics and pose corrections belong to the firing.</summary>
     internal static Offset16<RoomPixels> Origin(SamusProjectileDirection aim, bool running)
     {
         int x = aim switch

@@ -19,7 +19,7 @@ internal static class MagdollitePhaseDefinitionsVerification
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
-            MagdollitePhaseDefinition phase = MagdolliteRise.Phase(phaseIndex);
+            MagdollitePhaseDefinition phase = MagdolliteRiseStage.At(phaseIndex).Phase;
             AssertEqual(ReadMagdolliteWord(rom, thresholdTable + phaseIndex * 2),
                 phase.DistanceThreshold, $"Magdollite threshold {phaseIndex}");
             AssertEqual(ReadMagdolliteWord(rom, instructionTable + phaseIndex * 2),
@@ -30,9 +30,9 @@ internal static class MagdollitePhaseDefinitionsVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
-        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
-        Action<RoomEnemySlot, MagdolliteEnemyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
-        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
+        Action<RoomEnemySlot, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+        Action<RoomEnemySlot, MagdolliteBodyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
+        Action<RoomEnemySlot, MagdolliteOverlayState, SamusState> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
 
         for (int index = 0; index < 3; index++)
         {
@@ -47,28 +47,28 @@ internal static class MagdollitePhaseDefinitionsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         RoomEnemySlot body = enemies.SlotTable.Slots[1];
         RoomEnemySlot overlay = enemies.SlotTable.Slots[2];
-        MagdolliteEnemyState headState = (enemies.MagdolliteStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[0]."));
-        MagdolliteEnemyState bodyState = (enemies.MagdolliteStates[1] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1]."));
-        MagdolliteEnemyState overlayState = (enemies.MagdolliteStates[2] ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2]."));
+        var headState = enemies.MagdolliteStates[0] as MagdolliteHeadState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[0].");
+        var bodyState = enemies.MagdolliteStates[1] as MagdolliteBodyState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[1].");
+        var overlayState = enemies.MagdolliteStates[2] as MagdolliteOverlayState ?? throw new InvalidOperationException("Verification requires enemies.MagdolliteStates[2].");
         headState.Speed = SignedSixteenSixteen.Zero;
 
-        AssertEqual(MagdolliteRise.Phase(0).BodyAnimation,
+        AssertEqual(MagdolliteRiseStage.Setup.Phase.BodyAnimation,
             bodyState.DesiredAnimation, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
-            MagdollitePhaseDefinition phase = MagdolliteRise.Phase(phaseIndex);
+            MagdollitePhaseDefinition phase = MagdolliteRiseStage.At(phaseIndex).Phase;
             bodyState.BodyReachedApex = false;
-            bodyState.BodyPhase = phaseIndex;
+            bodyState.BodyPhase = MagdolliteRiseStage.At(phaseIndex);
             body.Position = body.Position.WithWholeY(0x0300);
             trackRise(overlay, (overlayState), RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(unchecked((ushort)(0x0300 - phase.OverlayYOffset)), overlay.Position.Y.Whole,
                 $"Magdollite production overlay Y {phaseIndex}");
 
-            bodyState.Action = MagdolliteAction.BodyRising;
+            bodyState.Action = MagdolliteBodyAction.Rising;
             bodyState.BodyReachedApex = false;
-            bodyState.BodyPhase = phaseIndex;
-            bodyState.RiseDisplacement = new(0, phaseIndex < 8
+            bodyState.BodyPhase = MagdolliteRiseStage.At(phaseIndex);
+            bodyState.RiseDisplacementY = (phaseIndex < 8
                 ? checked((short)-phase.DistanceThreshold)
                 : (short)0);
             body.Position = body.Position.WithWholeY(0x0300);
@@ -77,41 +77,41 @@ internal static class MagdollitePhaseDefinitionsVerification
             {
                 // Reaching the maximum rise compares against the slot-one overread $20AF
                 // instead (see --magdollite-apex-threshold), which holds this phase.
-                AssertEqual(phaseIndex, bodyState.BodyPhase,
+                AssertEqual(MagdolliteRiseStage.At(phaseIndex), bodyState.BodyPhase,
                     $"Magdollite production apex phase {phaseIndex}");
             }
             else if (phaseIndex < 8)
             {
-                MagdollitePhaseDefinition next = MagdolliteRise.Phase(phaseIndex + 1);
-                AssertEqual(phaseIndex + 1, bodyState.BodyPhase,
+                MagdollitePhaseDefinition next = MagdolliteRiseStage.At(phaseIndex + 1).Phase;
+                AssertEqual(MagdolliteRiseStage.At(phaseIndex + 1), bodyState.BodyPhase,
                     $"Magdollite production rise phase {phaseIndex}");
                 AssertEqual(next.BodyAnimation, bodyState.DesiredAnimation,
                     $"Magdollite production rise list {phaseIndex}");
             }
             else
             {
-                AssertEqual(8, bodyState.BodyPhase,
+                AssertEqual(MagdolliteRiseStage.At(8), bodyState.BodyPhase,
                     "Magdollite terminal phase remains bounded");
             }
         }
 
         for (int priorPhase = 1; priorPhase < 8; priorPhase++)
         {
-            bodyState.Action = MagdolliteAction.BodyFalling;
-            bodyState.BodyPhase = priorPhase + 1;
-            bodyState.RiseDisplacement = new(0, -1);
+            bodyState.Action = MagdolliteBodyAction.Falling;
+            bodyState.BodyPhase = MagdolliteRiseStage.At(priorPhase + 1);
+            bodyState.RiseDisplacementY = -1;
             body.Position = body.Position.WithWholeY(0x0300);
             fall(body, bodyState);
-            AssertEqual(priorPhase, bodyState.BodyPhase,
+            AssertEqual(MagdolliteRiseStage.At(priorPhase), bodyState.BodyPhase,
                 $"Magdollite production fall phase {priorPhase}");
-            AssertEqual(MagdolliteRise.Phase(priorPhase).BodyAnimation,
+            AssertEqual(MagdolliteRiseStage.At(priorPhase).Phase.BodyAnimation,
                 bodyState.DesiredAnimation,
                 $"Magdollite production fall list {priorPhase}");
         }
 
-        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1),
+        AssertThrows<InvalidDataException>(() => _ = MagdolliteRiseStage.Setup.Lower,
             "Magdollite negative phase");
-        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(9),
+        AssertThrows<InvalidDataException>(() => _ = MagdolliteRiseStage.At(8).Higher,
             "Magdollite phase beyond authored table");
 
         Console.WriteLine(

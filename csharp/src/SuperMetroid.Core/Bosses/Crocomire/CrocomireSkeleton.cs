@@ -59,9 +59,9 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>Waits with the skeleton behind the wall before its rumble and picture-load sequence.</summary>
-    internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState? samus)
+    internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState samus)
     {
-        if (samus is null || CoordinateAxis.Difference(samus.Position.X.Whole, 640) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, 640) >= 0)
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle), MusicQueueDelay.Shortest);
@@ -280,7 +280,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>
     /// Spawns the wall's eight pieces, bottom piece first, and runs the spike-wall piece initializer on each. Each piece
     /// carries its place in the wall, zero for the top piece, and stands at 56 + 16 times its place, so the spawn order
-    /// runs Y=168 up to 56. The caller empties the projectile pool just before, so every piece is spawned.
+    /// runs Y=168 up to 56. The melt empties the enemy projectiles just before, so every piece is spawned.
     /// </summary>
     internal void SpawnCrocomireSpikeWallPieces()
     {

@@ -11,7 +11,7 @@ public enum SamusBeamChargeGlowAction
     PseudoScrewCycle,
     /// <summary>Applies the ordinary white charged-shot glow.</summary>
     OrdinaryWhite,
-    /// <summary>Applies the next Hyper Beam shade entry.</summary>
+    /// <summary>Applies the next Hyper Beam shade.</summary>
     HyperShade,
     /// <summary>Holds the current Hyper Beam shade.</summary>
     HyperHold,

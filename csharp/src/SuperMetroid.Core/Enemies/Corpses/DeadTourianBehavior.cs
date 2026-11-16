@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianCorpseSpeciesDefinitions.Species.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadTourianEntity(this, slot, common);
@@ -37,45 +37,40 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Recognizes the three Tourian corpse enemy definitions handled by this owner.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionId) =>
-        definitionId is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
+        DeadTourianCorpseSpeciesDefinitions.Species.ContainsKey(definitionId);
 
-    /// <summary>Selects the species-specific reactions and art layout for a corpse definition.</summary>
-    internal static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionId) =>
-        DeadTourianPartDefinitions.Parts[definitionId] switch
-        {
-            DeadTourianPart.CorpseZoomer => DeadTourianCorpseProfileDefinitions.DeadZoomerProfile,
-            DeadTourianPart.CorpseRipper => DeadTourianCorpseProfileDefinitions.DeadRipperProfile,
-            DeadTourianPart.CorpseSkree => DeadTourianCorpseProfileDefinitions.DeadSkreeProfile,
-            _ => throw new ArgumentOutOfRangeException(nameof(definitionId)),
-        };
+    /// <summary>The species whose corpse <paramref name="definitionId"/> places.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not a Tourian corpse.</exception>
+    internal static DeadTourianCorpseSpecies SpeciesOf(EnemyDefinitionId definitionId) =>
+        DeadTourianCorpseSpeciesDefinitions.Species.TryGetValue(definitionId, out DeadTourianCorpseSpecies species)
+            ? species
+            : throw new ArgumentOutOfRangeException(nameof(definitionId));
 
     /// <summary>Initializes a Tourian corpse, checking its corpse is one of its species' before registering state and starting its rot.</summary>
     internal static void InitializeDeadTourianCorpse(RoomEnemySlot slot)
     {
-        DeadTourianCorpseProfile profile =
-            ProfileForDeadTourianCorpse(slot.DefinitionId);
+        DeadTourianCorpseSpecies species = SpeciesOf(slot.DefinitionId);
         DeadTourianCorpseDefinition definition = slot.SpawnSettings<CorpseSpawnSettings>().Corpse;
-        if (definition.Species != profile.Species)
+        if (definition.Species != species)
         {
             throw new InvalidDataException(
-                $"Dead {profile.Species} placement names a corpse that is not one of its species'.");
+                $"Dead {species} placement names a corpse that is not one of its species'.");
         }
-        var state = new DeadTourianCorpseEnemyState(slot, profile, new CorpseRotSchedule(definition.RowCount));
+        var state = new DeadTourianCorpseEnemyState(species, new CorpseRotSchedule(definition.RowCount), DeadTourianCorpsePhase.Waiting);
         slot.SetSpeciesState(state);
 
         slot.Shading = TourianCorpseShades.InDrainedColours;
-        state.Phase = DeadTourianCorpsePhase.Waiting;
         state.Playback = DeadSidehopperBehavior.StartDeadTourianAnimation(slot, definition.InitialAnimation);
     }
 
     /// <summary>Runs the shared corpse behaviour: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
     private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState samus)
     {
-        DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
+        DeadTourianCorpseEnemyState state = slot.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         switch (state.Phase)
         {
             case DeadTourianCorpsePhase.Waiting:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
+                if (samus.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Phase = DeadTourianCorpsePhase.PreRotDelay;
                 return;
             case DeadTourianCorpsePhase.PreRotDelay:
@@ -93,14 +88,14 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Dead {state.Profile.Species} has no behaviour for phase {state.Phase?.ToString() ?? "none"}.");
+                    $"Dead {state.Species} has no behaviour for phase {state.Phase}.");
         }
     }
 
     /// <summary>Touch and shot reactions for these three corpse-only actors are identical.</summary>
     internal static void TriggerDeadTourianCorpseRotting(RoomEnemySlot slot)
     {
-        DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
+        DeadTourianCorpseEnemyState state = slot.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         state.Phase = DeadTourianCorpsePhase.Rotting;
         slot.Processing = slot.Processing.With(EnemyProcessing.OffScreen);
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
@@ -109,7 +104,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Power-bomb reactions reject actors whose decomposition already made them intangible.</summary>
     private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemySlot slot)
     {
-        RequireDeadTourianCorpseState(slot);
+        slot.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTourianCorpseRotting(slot);
     }
@@ -129,26 +124,11 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The rows <paramref name="slot"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemySlot slot) => RequireDeadTourianCorpseState(slot).Rows.Shown;
+    internal static CorpseRotRows ShownDeadTourianRows(RoomEnemySlot slot) => slot.RequireSpeciesState<DeadTourianCorpseEnemyState>().Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(RoomEnemySlot slot) =>
         _rowDust.Spawn(slot, _room.Random.Read(), _projectiles, _frameContext.RandomEnemyCounter);
-
-    /// <summary>Rejects uninitialized slots and slots whose corpse state belongs to another enemy.</summary>
-    private static DeadTourianCorpseEnemyState RequireDeadTourianCorpseState(RoomEnemySlot slot)
-    {
-        DeadTourianCorpseEnemyState state = slot.SpeciesState<DeadTourianCorpseEnemyState>() ??
-            throw new InvalidDataException(
-                $"Enemy slot {slot.SlotIndex} has no dead Tourian corpse state.");
-        if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("Dead Tourian corpse state belongs to another slot.");
-        return state;
-    }
-
-    /// <summary>One corpse definition's profile: the species whose corpse it is.</summary>
-    /// <param name="Species">The corpse species.</param>
-    internal sealed record DeadTourianCorpseProfile(DeadTourianCorpseSpecies Species);
 
     /// <summary>Routes bomb hits through the shared shot reaction, which begins decomposition.</summary>
     internal static void ReplaceDeadTourianBombDamage(EnemyBombContext c) =>
@@ -159,7 +139,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!slot.AnimationClock.Expire())
             return;
-        DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
+        DeadTourianCorpseEnemyState state = slot.RequireSpeciesState<DeadTourianCorpseEnemyState>();
         AnimationPlayback<DeadTourianSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(slot, DeadTourianAnimations.Segments, ref playback,
             cue => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));

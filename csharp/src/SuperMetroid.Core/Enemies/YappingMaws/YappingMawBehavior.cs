@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Drawing;
 
@@ -16,9 +16,6 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 [RoomLifetime]
 internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The 256ths of a pixel in a whole pixel, the fraction a link's product is counted in.</summary>
-    private const int FractionsPerPixel = 256;
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
 
@@ -27,20 +24,20 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Owns the root sprite object accompanying the body links.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Owns the root effect actor accompanying the body links.</summary>
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Caps camera movement while Samus is held at the Maw's mouth.</summary>
     private readonly SamusScrollCap _scrollCap;
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects Maw AI to room, body-link, sprite-object, and Samus camera services.</summary>
-    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjects spriteObjects, SamusScrollCap scrollCap, EnemyAudioQueue audio)
+    /// <summary>Connects Maw AI to room, body-link, effect-actor, and Samus camera services.</summary>
+    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomEffectActors effectActors, SamusScrollCap scrollCap, EnemyAudioQueue audio)
     {
         _audio = audio;
         _projectiles = projectiles;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _scrollCap = scrollCap;
     }
 
@@ -127,15 +124,15 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The root's kind follows the Maw's attack direction; the Maw holds the root it spawned.
-        state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
+        state.RootEffectActor = _effectActors.SpawnRoomEffectActor(
             new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
             slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
-                ? RoomSpriteObjectKind.YappingMawRootFacingDown
-                : RoomSpriteObjectKind.YappingMawRootFacingUp,
+                ? RoomEffectActorKind.YappingMawRootFacingDown
+                : RoomEffectActorKind.YappingMawRootFacingUp,
             SpriteGraphics.SpawnedBy(slot));
     }
 
-    /// <summary>Runs the Maw's main behaviour and the four post-dispatch link-position writers.</summary>
+    /// <summary>Runs the Maw's main behaviour, then places its four links.</summary>
     private void RunYappingMawMain(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
@@ -408,7 +405,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs after common shot AI on the Maw the hit struck. Ice releases a living Maw's captive; death additionally
-    /// destroys all four body-link projectiles and the root sprite object, which the killed Maw's state still names.
+    /// destroys all four body-link projectiles and the root effect actor, which the killed Maw's state still names.
     /// </summary>
     private static void ResolveYappingMawShotAfterCommon(
         RoomEnemySlot slot,
@@ -426,7 +423,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         foreach (EnemyProjectile? body in state.BodyProjectiles)
             body?.Delete();
-        state.RootSpriteObject?.End();
+        state.RootEffectActor?.End();
         ReleaseSamusFromYappingMaw(state, samus);
     }
 
@@ -435,7 +432,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        if (samus is not null && !samus.DeathSequence.IsActive)
+        if (!samus.DeathSequence.IsActive)
             samus.Control.Unlock();
         state.HasGrabbedSamus = false;
     }
@@ -454,8 +451,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.Graphics = body.Graphics.In(shading);
         }
 
-        if (state.RootSpriteObject is not null)
-            state.RootSpriteObject.Graphics = state.RootSpriteObject.Graphics.In(shading);
+        if (state.RootEffectActor is not null)
+            state.RootEffectActor.Graphics = state.RootEffectActor.Graphics.In(shading);
     }
 
     /// <summary>Flashes the frozen colours against the Maw's own colours during the last 89 ticks.</summary>
@@ -504,14 +501,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>
         state.Origin + state.SegmentOffsets[segment];
 
-    /// <summary>Checks the Maw against the camera's 256-pixel horizontal and vertical spans.</summary>
+    /// <summary>Whether the Maw lies outside the view (<see cref="EnemyView.Contains"/>).</summary>
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) < 0 ||
-        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) < 0 ||
-        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) < 0 ||
-        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) < 0;
+        !EnemyView.Contains(slot.Position.Whole, camera);
 
     /// <summary>
     /// The axis distance, in pixels, from which the Maw's target distance is that axis's distance alone, kept exact
@@ -569,13 +563,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // The game samples the angle reflected below zero, whose sine is this angle's sine reversed.
         int signedSample = -Trigonometry.FineSignedSine(angle);
         int sampleWhole = UnsignedEightEight.Whole(Math.Abs(signedSample));
-        int product = sampleWhole * ShortCircleProduct.RadiusInUse(length);
-        return 2 * WholePixelsRoundedDown(signedSample < 0 ? -product : product);
+        // The product of a sine's whole part below 128 and a radius below 256 stays below 128 pixels either way.
+        SignedEightEight offset = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(sampleWhole * ShortCircleProduct.RadiusInUse(length));
+        return 2 * (signedSample < 0 ? -offset : offset).WholePixels;
     }
-
-    /// <summary>The whole pixels of <paramref name="fractions"/> 256ths of a pixel, rounded down: a negative fraction reaches the next whole pixel below.</summary>
-    private static int WholePixelsRoundedDown(int fractions) =>
-        fractions >= 0 ? fractions / FractionsPerPixel : -((-fractions + FractionsPerPixel - 1) / FractionsPerPixel);
 
     /// <summary>Routes bomb hits through the Maw's shared shot reaction.</summary>
     internal static EnemyBombReaction YappingMawBombReaction { get; } = new()

@@ -71,10 +71,6 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Owner of the flash, damaging radius, and armed flag.</summary>
     public SamusPowerBombExplosionState PowerBombExplosion { get; }
 
-    /// <summary>Starts a room's bomb system, whose Power Bomb blasts glow in <paramref name="powerBombGlowColors"/> (#2049).</summary>
-    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours.</param>
-    public SamusBombProjectileSystem(SuperMetroid.Core.Samus.Artwork.InstalledPowerBombGlowColors powerBombGlowColors) =>
-        PowerBombExplosion = new SamusPowerBombExplosionState(powerBombGlowColors);
 
     /// <summary>
     /// How many bombs Samus has out by the placing count, 0 through the bomb places' count (#1627); kept separately from the
@@ -113,13 +109,20 @@ public sealed class SamusBombProjectileSystem
     internal void SetSharedBombCounter(int value) => BombCounter = value;
 
     /// <summary>
-    /// The update's audio requests the bombs' sounds join as they are made: the runtime's, once it points the room's
-    /// systems at it; the bombs' own record before that.
+    /// Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057) and whose Power Bomb blasts glow
+    /// in <paramref name="powerBombGlowColors"/> (#2049).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+    /// <param name="audioRequests">The update's audio requests the bombs' sounds join: the runtime's, or a cinematic's.</param>
+    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours.</param>
+    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests,
+        SuperMetroid.Core.Samus.Artwork.InstalledPowerBombGlowColors powerBombGlowColors)
+    {
+        AudioRequests = Ensure.NotNull(audioRequests);
+        PowerBombExplosion = new SamusPowerBombExplosionState(powerBombGlowColors);
+    }
 
-    /// <summary>Points the bombs' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
+    /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// Advances the Power Bomb explosion's shape independently of Samus's input phase.
@@ -699,8 +702,7 @@ public sealed class SamusBombProjectileSystem
         SamusKinematicsState samus)
     {
         // Gravity adds with the fraction carrying into the whole pixels.
-        bomb.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
-            samus.YAcceleration.Whole, samus.YAcceleration.Fraction);
+        bomb.BombSpreadVerticalVelocity += samus.YAcceleration.AsDisplacement();
 
         int previousY = bomb.Position.Y.Whole;
         int previousYSub = bomb.Position.Y.Fraction;
@@ -832,7 +834,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // The bomb collision first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An
-                // out-of-range cross member therefore identifies malformed room/caller
+                // out-of-range cross member therefore identifies malformed room or bomb
                 // state rather than another bomb reaction.
                 throw new InvalidDataException(
                     $"Bomb explosion cross reaches outside room storage at block ({x},{y}).");
@@ -894,7 +896,7 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The shot-block table's entries 40..43 route the four ordinary blue-door cap orientations to
+        // The four ordinary blue-door cap orientations lead to
         // the blue door setup regardless of whether the collision came from the shot or bomb
         // step. Normal bombs use the bomb projectile family and are accepted; the Power
         // Bomb family is rejected inside the shared setup. Treating these
@@ -940,8 +942,8 @@ public sealed class SamusBombProjectileSystem
                     $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");
             }
-            // Spawn is synchronous: accepted behaviour 0..7 applies the reaction's temporary solid-block
-            // or air collision before the caller proceeds to its next border/cross member.
+            // Spawn is synchronous: an accepted bomb-block reaction applies its temporary solid-block
+            // or air collision before the bomb proceeds to its next border/cross member.
             roomObjects.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.At,

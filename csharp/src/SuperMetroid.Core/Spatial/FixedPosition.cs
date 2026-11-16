@@ -71,6 +71,10 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     /// <summary>Moves only the Y axis by a signed 1/65536-pixel delta, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
     public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(delta.AddTo(Y.Whole, Y.Fraction));
 
+    /// <summary>Moves each axis by its signed 1/256-pixel velocity, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
+    public FixedPosition<TSpace> MovedBy(EightEightVector<TSpace> velocity) =>
+        WithX(X.MovedBy(velocity.X)).WithY(Y.MovedBy(velocity.Y));
+
     /// <summary>Applies a displacement on each axis, the fraction's overflow passing on, wrapping in 1/65536 pixels.</summary>
     public FixedPosition<TSpace> Advance(FixedVector<TSpace> displacement) =>
         new(displacement.X.AddTo(X.Whole, X.Fraction), displacement.Y.AddTo(Y.Whole, Y.Fraction));

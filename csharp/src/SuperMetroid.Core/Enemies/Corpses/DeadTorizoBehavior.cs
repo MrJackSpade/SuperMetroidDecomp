@@ -53,10 +53,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Processing = slot.Processing.With(EnemyProcessing.Animates);
         AnimationPlayback<DeadTorizoSegment> playback = EnemyAnimationPlayback.Start(slot, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
 
-        slot.SetSpeciesState(new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
+        slot.SetSpeciesState(new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Wait)
         {
             Playback = playback,
-            Phase = DeadTorizoPhase.Wait,
             Velocity = new(default, SignedEightEight.FromParts(0, 8)),
         });
     }
@@ -64,21 +63,20 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the dead Torizo's main AI.</summary>
     internal void RunDeadTorizoMain(RoomEnemySlot slot, SamusState samus)
     {
-        DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
+        DeadTorizoEnemyState state = slot.RequireSpeciesState<DeadTorizoEnemyState>();
 
         // The custom detector remains enabled while the intact corpse is solid. Rotting
         // disables interaction separately, after publishing Samus's external displacement.
         if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus) &&
-            samus is not null &&
             DeadTorizoCustomHitboxOverlaps(slot, samus))
         {
             TriggerDeadTorizoRotting(slot);
         }
 
-        switch (state.Phase ?? throw new InvalidDataException("Dead Torizo has no corpse phase."))
+        switch (state.Phase)
         {
             case DeadTorizoPhase.Wait:
-                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot) == true)
+                if (samus.Kinematics.DidCollideWithSolidEnemy(slot) == true)
                     state.Phase = DeadTorizoPhase.PreRot;
                 break;
 
@@ -112,7 +110,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoRotGravity);
-        MoveWithEightEightVelocity(slot, state.Velocity);
+        slot.Position = slot.Position.MovedBy(state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
@@ -122,7 +120,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shot/touch tail.</summary>
     internal static void TriggerDeadTorizoRotting(RoomEnemySlot slot)
     {
-        DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
+        DeadTorizoEnemyState state = slot.RequireSpeciesState<DeadTorizoEnemyState>();
         slot.Contact = slot.Contact.With(EnemyContact.IgnoresSamus);
         state.Phase = DeadTorizoPhase.Rotting;
     }
@@ -130,7 +128,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Power-bomb entry.</summary>
     internal static void TriggerDeadTorizoPowerBomb(RoomEnemySlot slot)
     {
-        RequireDeadTorizoState(slot);
+        slot.RequireSpeciesState<DeadTorizoEnemyState>();
         if (!slot.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTorizoRotting(slot);
     }
@@ -193,28 +191,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Read();
         _projectiles.SpawnDustOrExplosion(
-            new(CorpseDustDefinitions.TorizoSpread.Of(random) + 272, 188),
+            new(CorpseDustDefinitions.TorizoSpread.Of(random) + DeadTorizoCorpseDefinitions.DustOrigin.X, DeadTorizoCorpseDefinitions.DustOrigin.Y),
             MiscDustAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>
-    /// Applies shared signed 1/256-pixel enemy velocity pair. Dead Torizo and Shitroid
-    /// both call the same shared helper; retaining one implementation also makes explicit that
-    /// the step moves the subposition only in 256ths of a pixel.
-    /// </summary>
-    internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
-    {
-        FixedCoordinate x = slot.Position.X.MovedBy(velocity.X);
-        slot.Position = slot.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
-
-        FixedCoordinate y = slot.Position.Y.MovedBy(velocity.Y);
-        slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
-    }
-
     /// <summary>The body rows the dead Torizo in <paramref name="slot"/> shows: its own, as its rot calls have left them (#1539).</summary>
-    internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemySlot slot) => RequireDeadTorizoState(slot).Rows.Shown;
+    internal static CorpseRotRows ShownDeadTorizoRows(RoomEnemySlot slot) => slot.RequireSpeciesState<DeadTorizoEnemyState>().Rows.Shown;
 
     /// <summary>
     /// The sand rows <paramref name="state"/>'s sand heap shows (#1539): only the rows its heap has formed into, as the corpse's
@@ -224,7 +208,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {
         int lines = Math.Min(DeadTorizoCorpseDefinitions.SandLines,
-            checked((int)state.ProcessCallCount) / DeadTorizoCorpseDefinitions.RotCallsPerSandLine);
+            state.ProcessCallCount / DeadTorizoCorpseDefinitions.RotCallsPerSandLine);
         return CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => row >= DeadTorizoCorpseDefinitions.SandRowCount - lines);
     }
 
@@ -245,16 +229,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Requires the corpse state <paramref name="slot"/>'s initialization installed and rejects state of another slot.</summary>
-    private static DeadTorizoEnemyState RequireDeadTorizoState(RoomEnemySlot slot)
-    {
-        DeadTorizoEnemyState state = slot.SpeciesState<DeadTorizoEnemyState>() ??
-            throw new InvalidDataException($"Enemy slot {slot.SlotIndex} has no initialized dead Torizo state.");
-        if (!ReferenceEquals(state.Slot, slot))
-            throw new InvalidDataException("Dead Torizo state belongs to a different slot.");
-        return state;
-    }
-
     /// <summary>Routes corpse bomb contact to rotting once the check for an ignoring reaction has passed.</summary>
     internal static void ReplaceDeadTorizoBombDamage(EnemyBombContext c) =>
         // Corpse shot reactions run directly after the collision mark. They do not consult bomb
@@ -266,7 +240,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!slot.AnimationClock.Expire())
             return;
-        DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
+        DeadTorizoEnemyState state = slot.RequireSpeciesState<DeadTorizoEnemyState>();
         AnimationPlayback<DeadTorizoSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(slot, DeadTorizoAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free dead Torizo animation raised {cue}."));

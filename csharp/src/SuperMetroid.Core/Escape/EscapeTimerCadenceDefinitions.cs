@@ -10,13 +10,13 @@ internal static class EscapeTimerCadenceDefinitions
     /// centiseconds the frame removes (#1619): the counter's lowest seven bits, so the schedule repeats every 128 frames.
     /// </summary>
     internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
-    /// <summary>Decimal timer time unit: one second contains100 centiseconds.</summary>
+    /// <summary>Decimal timer time unit: one second contains 100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;
     /// <summary>The game's nominal sixty updates per second, used to quantize the countdown rate; this is a time-unit parameter, not a host clock dependency.</summary>
     internal const int NominalFramesPerSecond = 60;
-    /// <summary>Round one128-frame period to the nearest integer centisecond; result213 (43 one-unit and85 two-unit corrections).</summary>
+    /// <summary>One 128-frame period rounded to the nearest whole centisecond: 213 (43 one-unit and 85 two-unit corrections).</summary>
     internal const int PeriodCentiseconds = (PeriodFrames * CentisecondsPerSecond + NominalFramesPerSecond / 2) / NominalFramesPerSecond;
-    /// <summary>The period partitions into four32-frame budgets53,53,53,54; an exact quantizer subdivision.</summary>
+    /// <summary>The period divides into four 32-frame budgets of 53, 53, 53 and 54 centiseconds; an exact subdivision.</summary>
     internal const int QuarterCount = 4;
     /// <summary>Each quarter divides into two 16-frame halves, front-loading an odd budget's extra unit; the exact budget ordering.</summary>
     internal const int HalvesPerQuarter = 2;

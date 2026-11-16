@@ -69,24 +69,21 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Beetom.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState samus, GameplayAction controllerInput)
     {
-        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
+        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous, BeetomAction.DecideAction));
         slot.SetSpeciesState(state);
 
         state.ActionTimer = 0;
-        state.Action = null;
         state.Falling = false;
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMashCount;
         state.PreviousController1Input = controllerInput;
 
-        // Every Beetom initializer writes the global seed, even when several Beetoms share
-        // a room. This is observable game behavior, not a per-actor random sequence.
-        Action<int> setRandomNumber = _room.Random.Seed;
-        setRandomNumber(23);
+        // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
+        _room.Random.Seed(BeetomRandomDefinitions.Seed);
 
-        state.InitialShortLeapYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(12288, 4);
-        state.InitialLongLeapYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(16384, 5);
-        state.InitialLungeYSpeedCurvePlace = CalculateInitialBeetomYSpeedCurvePlace(12288, 3);
+        state.InitialShortLeapYSpeedCurvePlace = BeetomLeapDefinitions.ShortLeap.StartPlace;
+        state.InitialLongLeapYSpeedCurvePlace = BeetomLeapDefinitions.LongLeap.StartPlace;
+        state.InitialLungeYSpeedCurvePlace = BeetomLeapDefinitions.Lunge.StartPlace;
 
         // Samus's side picks the facing: a negative Samus-minus-enemy delta
         // selects the left-facing animation; nonnegative selects the right-facing animation.
@@ -96,7 +93,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
                 ? BeetomSegment.CrawlingLeft
                 : BeetomSegment.CrawlingRight);
-        state.Action = BeetomAction.DecideAction;
     }
 
     /// <summary>Runs a Beetom's per-frame behaviour through all of its actions.</summary>
@@ -196,7 +192,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
-                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                throw new InvalidDataException($"Beetom has no behaviour for action {state.Action}.");
         }
     }
 
@@ -437,26 +433,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BeetomAction.StartDropping;
     }
 
-    /// <summary>Sums the quadratic speed curve's coarse speeds until a jump height is reached.</summary>
-    internal static QuadraticSpeedCurvePlace CalculateInitialBeetomYSpeedCurvePlace(int targetHeight, int curvePlaceStep)
-    {
-        QuadraticSpeedCurvePlace curvePlace = QuadraticSpeedCurvePlace.Start;
-        int accumulatedHeight = 0;
-        // Each pass moves the place on by the delta, so the height is reached within the curve's marks or never: past them
-        // reading the speed rejects the climb before the place could grow further, and a delta of zero sums the start's
-        // speed of zero only (#1627).
-        for (int iteration = 0; iteration < QuadraticSpeedCurveDefinitions.MarkCount; iteration++)
-        {
-            curvePlace += QuadraticSpeedCurvePlace.FromMarks(curvePlaceStep);
-            // The height sums each mark's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
-            accumulatedHeight = WrappingCounter.AddCount(accumulatedHeight,
-                curvePlace.Speed.CoarseToward(EnemySpeedSign.Positive));
-            if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
-                return curvePlace;
-        }
-        throw new InvalidDataException("Beetom initial-speed calculation did not reach its authored target height.");
-    }
-
     /// <summary>Runs Beetom's own touch response.</summary>
     private void ResolveBeetomTouch(
         RoomEnemySlot slot,
@@ -521,8 +497,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    /// <remarks>Common damage can kill the Beetom before this private tail runs, so the identity is matched before
-    /// dispatch.</remarks>
+    /// <remarks>Common damage can kill the Beetom before this private tail runs, so the identity is matched before the
+    /// reaction runs.</remarks>
     internal static EnemyBombReaction BeetomBombReaction { get; } = new()
     {
         AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy),

@@ -131,93 +131,93 @@ internal static class CrawlerAnimations
             Show(EnemyFrameId.ViolaNormalThird, 10),
             Show(EnemyFrameId.ViolaNormalSecond, 10),
         ],
-        [P.HZoomerUpsideRight] =
+        [P.OrangeZoomerUpsideRight] =
         [
         ],
-        [P.HZoomerUpsideRightLoop] =
+        [P.OrangeZoomerUpsideRightLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideRightLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopFifth, 3),
         ],
-        [P.HZoomerUpsideLeft] =
-        [
-        ],
-        [P.HZoomerUpsideLeftLoop] =
-        [
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopFifth, 3),
-        ],
-        [P.HZoomerUpsideDown] =
+        [P.OrangeZoomerUpsideLeft] =
         [
         ],
-        [P.HZoomerUpsideDownLoop] =
+        [P.OrangeZoomerUpsideLeftLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideDownLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopFifth, 3),
         ],
-        [P.HZoomerUpsideUp] =
+        [P.OrangeZoomerUpsideDown] =
         [
         ],
-        [P.HZoomerUpsideUpLoop] =
+        [P.OrangeZoomerUpsideDownLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideUpLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopFifth, 3),
+        ],
+        [P.OrangeZoomerUpsideUp] =
+        [
+        ],
+        [P.OrangeZoomerUpsideUpLoop] =
+        [
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopFifth, 3),
         ],
         [P.SharedUpsideRight] =
         [
         ],
         [P.SharedUpsideRightLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideRightLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideRightLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideRightLoopFifth, 3),
         ],
         [P.SharedUpsideLeft] =
         [
         ],
         [P.SharedUpsideLeftLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideLeftLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideLeftLoopFifth, 3),
         ],
         [P.SharedUpsideDown] =
         [
         ],
         [P.SharedUpsideDownLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideDownLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideDownLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideDownLoopFifth, 3),
         ],
         [P.SharedUpsideUp] =
         [
         ],
         [P.SharedUpsideUpLoop] =
         [
-            Show(EnemyFrameId.HZoomerUpsideUpLoopFirst, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopSecond, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopThird, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopFourth, 3),
-            Show(EnemyFrameId.HZoomerUpsideUpLoopFifth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopFirst, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopSecond, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopThird, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopFourth, 3),
+            Show(EnemyFrameId.OrangeZoomerUpsideUpLoopFifth, 3),
         ],
     });
 
@@ -245,14 +245,14 @@ internal static class CrawlerAnimations
         [P.ViolaUpsideRight] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ViolaUpsideLeft] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ViolaNormal] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideRight] = new([new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideRightLoop] = new([new(P.HZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideLeft] = new([new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideLeftLoop] = new([new(P.HZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideDown] = new([new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideDownLoop] = new([new(P.HZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideUp] = new([new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HZoomerUpsideUpLoop] = new([new(P.HZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideRight] = new([new(P.OrangeZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideRightLoop] = new([new(P.OrangeZoomerUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideLeft] = new([new(P.OrangeZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideLeftLoop] = new([new(P.OrangeZoomerUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideDown] = new([new(P.OrangeZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideDownLoop] = new([new(P.OrangeZoomerUpsideDownLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideUp] = new([new(P.OrangeZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.OrangeZoomerUpsideUpLoop] = new([new(P.OrangeZoomerUpsideUpLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideRight] = new([new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideRightLoop] = new([new(P.SharedUpsideRightLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SharedUpsideLeft] = new([new(P.SharedUpsideLeftLoop, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),

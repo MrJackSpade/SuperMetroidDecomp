@@ -31,9 +31,9 @@ internal static class WorkRobotInitialSelectionVerification
                 $"Work Robot original selection {parameter}");
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            slot.SetSpawnParameter1(EnemyDefinitionId.Robot, parameter);
+            slot.SetSpawnParameter1(EnemyDefinitionId.WorkRobot, parameter);
             var state = new WorkRobotEnemyState();
-            system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, state);
+            system.WorkRobotBehavior.InitializeWorkUnpoweredWorkRobot(slot, state);
             AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Work Robot production selection {parameter} without cartridge access");
         }

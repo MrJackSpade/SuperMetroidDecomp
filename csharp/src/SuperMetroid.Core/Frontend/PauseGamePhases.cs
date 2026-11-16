@@ -20,7 +20,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // The pause hook returns directly into the pause setup, which sends the three
         // sound-library stop sequences before any pause graphics are initialized.
         // Letting gameplay SFX continue under frozen gameplay causes stale echo,
-        // charge, beam, or environmental voices to pulse throughout the menu.
+        // charge, beam, or environmental sounds to pulse throughout the menu.
         session.audio.QueueCancelSoundEffects();
         SelectedRoom pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(

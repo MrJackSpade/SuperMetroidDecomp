@@ -4,11 +4,14 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <summary>The state of the Mama Turtle.</summary>
 public sealed class MamaTurtleEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal MamaTurtleEnemyState(MamaTurtleAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<MamaTurtleSegment> Playback { get; set; }
 
     /// <summary>The current Mama Turtle behaviour.</summary>
-    public MamaTurtleAction? Action { get; internal set; }
+    public MamaTurtleAction Action { get; internal set; }
 
     /// <summary>Signed 1/65536-pixel velocity per AI update.</summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }

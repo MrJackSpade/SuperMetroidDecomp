@@ -48,7 +48,7 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Reconstructs the one side effect still owned by the door-transition caller.
+    /// Reconstructs the one side effect the door transition still owns.
     /// Gameplay resumes immediately after loading the destination, so the arriving
     /// downward actor can cross its pseudo-door while the arrival statuses are visible to
     /// main gameplay. Retain its moving movement mode, but permit its door block's reaction to
@@ -70,22 +70,10 @@ internal sealed class RoomMainRoutines
     {
         if (_player.Samus?.Xray.AreBlockAnimationsSuspended == true)
             return;
-        room.SandBlockAnimations.Step(room.ArtworkFrames);
-        room.SpikeBlockAnimations.Step(room.ArtworkFrames);
-        if (_room.ActiveRoom is not null)
-            room.TreadmillBlockAnimations.Step(_system.HasDefeatedAnyOf(_room.ActiveRoom.Area, DefeatedBosses.AreaBoss), room.ArtworkFrames);
+        // The treadmills, the effect's and the one a Wrecked Ship entrance door starts, show a frame a pass only after
+        // Phantoon is defeated.
+        room.BlockAnimations.Step(_system.HasDefeatedAnyOf(_room.LoadedRoom.Area, DefeatedBosses.AreaBoss), room.ArtworkFrames);
         room.TourianStatues.StepBlockAnimations();
-
-        // The Wrecked Ship treadmill door code creates an ordinary block animation. Its
-        // step shows one treadmill frame a pass only after Phantoon is defeated.
-        if (room.WreckedShipTreadmill.IsActive)
-        {
-            AreaId area = _room.ActiveRoom?.Area ?? throw new InvalidOperationException(
-                "A live Wrecked Ship treadmill animation has no active room.");
-            room.WreckedShipTreadmill.Step(
-                _system.HasDefeatedAnyOf(area, DefeatedBosses.AreaBoss),
-                room.ArtworkFrames);
-        }
     }
 
     /// <summary>

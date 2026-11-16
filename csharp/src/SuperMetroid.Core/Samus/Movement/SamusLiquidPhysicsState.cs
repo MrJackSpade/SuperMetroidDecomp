@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Super Metroid does not have one universal "underwater" flag. Different checks
 /// compare either Samus's top, bottom, or bottom-minus-one boundary against the live
 /// surface, and the remembered medium records the medium selected by the animation/room-load pass.
-/// Keeping each surface here lets each caller reproduce its own
+/// Keeping each surface here lets each liquid check reproduce its own
 /// comparison instead of sharing a convenient but incorrect single boolean.
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
@@ -70,8 +70,10 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     /// <param name="effectWaits">The waits her breath bubbles and lava spray keep for the effects that shared their places.</param>
     /// <param name="particles">The splashes, bubbles, spray and dust her presentation shows.</param>
-    public SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles)
+    /// <param name="audioRequests">Samus's audio requests, which her movement, liquid, landing and footstep sounds join.</param>
+    internal SamusLiquidPhysicsState(BreathBubbleAndLavaSprayWaits effectWaits, SamusParticles particles, GameplayAudioRequests audioRequests)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         EffectWaits = Ensure.NotNull(effectWaits);
         _particles = Ensure.NotNull(particles);
     }
@@ -92,10 +94,9 @@ public sealed class SamusLiquidPhysicsState
     public BreathBubbleAndLavaSprayWaits EffectWaits { get; }
 
     /// <summary>
-    /// The update's audio requests her movement, liquid, landing and footstep sounds join as they are made: Samus's, which
-    /// her runtime points at its own.
+    /// The update's audio requests her movement, liquid, landing and footstep sounds join as they are made: Samus's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// Exclusive liquid effect identity: lava, acid,
@@ -138,9 +139,6 @@ public sealed class SamusLiquidPhysicsState
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
     public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
-
-    /// <summary>Points her sounds at <paramref name="requests"/>, Samus's audio requests.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests) => AudioRequests = Ensure.NotNull(requests);
 
     /// <summary>
     /// Queues a sound selected by a movement behaviour now, beside those of liquid entry, footsteps and landing impact.
@@ -238,7 +236,7 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>
     /// True when the spin's top-boundary test finds Samus
-    /// fully under water/lava. The caller performs the Gravity Suit's exemption.
+    /// fully under water/lava. The spin applies the Gravity Suit's exemption itself.
     /// </summary>
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
@@ -255,7 +253,7 @@ public sealed class SamusLiquidPhysicsState
     /// It deliberately differs from
     /// <see cref="DetermineMovementMedium"/>: the suit colouring checks for the Gravity
     /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
-    /// decisions separate lets the caller reproduce both the submerged Power/Varia early
+    /// decisions separate lets the colouring reproduce both the submerged Power/Varia early
     /// return and Gravity Suit's unconditional colour-animation bypass. Water whose surface
     /// Samus ignores still reads as dry, while a room with no water surface falls through to the
     /// independent lava/acid surface exactly as the game does.
@@ -472,7 +470,7 @@ public sealed class SamusLiquidPhysicsState
         HandleLandingGraphics(samus);
     }
 
-    /// <summary>Selects landing dust or splash by area and room while leaving impact sound policy to the caller.</summary>
+    /// <summary>Selects landing dust or splash by area and room; the landing chooses its impact sound itself.</summary>
     private void HandleLandingGraphics(SamusState samus)
     {
         // Each area has its own landing graphics. An undefined area has none;
@@ -513,7 +511,7 @@ public sealed class SamusLiquidPhysicsState
     private void HandleCrateriaLandingGraphics(SamusState samus)
     {
         // Crateria's cinematic path shows no landing effect, ending the bubbles' landing wait, before consulting room
-        // data. This is distinct from the sound suppression already applied by the caller.
+        // data. This is distinct from the landing's own sound suppression, already applied.
         if (CinematicActive)
         {
             EndLandingEffectWait();
@@ -528,11 +526,9 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        // The game duplicates this room policy for running footsteps and landing
-        // effects. Preserve its flag priority even though retail rows contain one flag each.
-        CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffects.ForCrateriaRoom(Room);
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
+        // The game duplicates this room policy for running footsteps and landing effects.
+        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(Room);
+        if (roomEffect == CrateriaAtmosphericEffect.LandingSite)
         {
             // Landing Site creates splashes only while it rains; its normal scrolling-sky
             // effect deletes the pair. This exact comparison is not a generic water test.
@@ -543,7 +539,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
+        if (roomEffect == CrateriaAtmosphericEffect.WreckedShipEntrance)
         {
             // Above the waterline the entrance is dry and deletes; at and below it, use wet splashes.
             if (samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY)
@@ -553,7 +549,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if ((roomFlags & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
+        if (roomEffect == CrateriaAtmosphericEffect.WetFootsteps)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.SurfaceSplash);
             return;
@@ -738,16 +734,15 @@ public sealed class SamusLiquidPhysicsState
             }
             else
             {
-                CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffects.ForCrateriaRoom(Room);
-                // The three flag tests have strict priority. Retail records contain one
-                // flag apiece, but retaining priority also reproduces corrupted/debug data.
-                if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = FxType == RoomFxType.Rain;
-                else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY;
-                else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != CrateriaAtmosphericEffectFlags.None)
-                    useWetFootsteps = true;
+                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(Room) switch
+                {
+                    CrateriaAtmosphericEffect.LandingSite => FxType == RoomFxType.Rain,
+                    CrateriaAtmosphericEffect.WreckedShipEntrance =>
+                        samus.Position.Y.Whole >= SamusAtmosphericEffectDefinitions.WreckedShipEntranceWaterlineY,
+                    CrateriaAtmosphericEffect.WetFootsteps => true,
+                    null => false,
+                    _ => throw new InvalidOperationException("Undefined Crateria atmospheric effect."),
+                };
             }
         }
 

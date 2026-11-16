@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Steam];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresSteam];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresSteamEntity(this, slot, common);
@@ -92,14 +92,13 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
         // Each vent waits a random 1 to 32 updates before its first plume, counted down by its animation's wait, so the
         // vents puff out of step.
-        var state = new CeresSteamEnemyState
+        var state = new CeresSteamEnemyState(initialization.Action)
         {
             ActivationDelay = WrappingCountdown.Start(_room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1),
             Playback = new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
         };
         slot.SetSpeciesState(state);
 
-        state.Action = initialization.Action;
     }
 
     /// <summary>Runs the Ceres steam's main AI.</summary>
@@ -110,9 +109,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
         switch (state.Action)
         {
-            // The up, left, down and right vents have no action. Their base world position is also their draw
+            // The up, left, down and right vents hold their place. Their base world position is also their draw
             // position, so no drawing offset is changed.
-            case null:
+            case CeresSteamAction.HoldsItsPlace:
                 return;
 
             // The rotating-elevator vents sit inside the rotating elevator shaft.

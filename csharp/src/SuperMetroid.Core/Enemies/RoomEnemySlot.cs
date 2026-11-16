@@ -74,7 +74,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
-    /// here, at the statement that changes the definition, because the game re-reads the definition each dispatch.
+    /// here, at the statement that changes the definition, because the game re-reads the definition each time the enemy runs.
     /// </summary>
     /// <param name="definitionId">The occupant's definition.</param>
     /// <param name="definition">The occupant's resolved definition.</param>
@@ -133,7 +133,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
     /// The enemies' draw pass also reaches such an occupant wherever it is, not only when its radius puts it on screen.
     /// </summary>
     public bool CollidesByFrameHitboxes { get; internal set; }
-    /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update dispatches to.</summary>
+    /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update runs.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>
     public int Health { get; internal set; }
@@ -157,7 +157,7 @@ public sealed class RoomEnemySlot : ISolidEnemy
         get;
         internal set => field = Ensure.NotNull(value);
     } = PictureShading.Standard;
-    /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends hurt dispatch.</summary>
+    /// <summary>The hurt flash's remaining updates; the flash alternates the enemy's colours and its end ends the hurt behaviour.</summary>
     [IntegerQuantity("updates of hurt flash left; Phantoon restores his colours on the eighth")]
     public int FlashTimer { get; internal set; }
     /// <summary>How long the enemy stays frozen; its frozen blinking and thaw read it.</summary>

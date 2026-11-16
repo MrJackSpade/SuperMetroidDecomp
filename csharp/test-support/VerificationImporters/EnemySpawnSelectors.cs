@@ -44,10 +44,12 @@ internal static class EnemySpawnSelectors
 
     /// <summary>
     /// The turn a circling Fireflea makes each update at linear speed <paramref name="speed"/>: each pixel of the speed
-    /// turns it one step, each 256th of a pixel a 256th of a step, the speed's finer fraction dropped. A speed toward
-    /// decreasing coordinates turns it back, its 256ths continued around the circle.
+    /// turns it one step, each 256th of a pixel a 256th of a step, the speed's finer fraction dropped. The game adds the
+    /// reading to the circle's angle around the whole turn, so a reading of half a turn or more either way turns it as
+    /// the speed the same place round the turn does: the reading is kept within half a turn each way.
     /// </summary>
-    public static RotationAngle FirefleaTurnPerUpdate(SignedSixteenSixteen speed) => RotationAngle.NormalizeRaw(speed.InTwoFiftySixths);
+    public static AngularSpeed FirefleaTurnPerUpdate(SignedSixteenSixteen speed) =>
+        AngularSpeed.FromFractionsOfStep(unchecked((short)speed.InTwoFiftySixths));
 
     /// <summary>The linear-speed row whose positive speed is <paramref name="speed"/>.</summary>
     /// <exception cref="ArgumentException">No row moves at the speed.</exception>
@@ -75,7 +77,7 @@ internal static class EnemySpawnSelectors
 
     /// <summary>The crawl speed an orange Zoomer's speed selector gives; its initializer has no use for the selector that keeps a velocity.</summary>
     /// <exception cref="InvalidDataException"><paramref name="selector"/> keeps the velocity or lies past the authored records.</exception>
-    public static SignedEightEight? HZoomerCrawlSpeed(int selector) => CrawlSpeed(selector) ??
+    public static SignedEightEight? OrangeZoomerCrawlSpeed(int selector) => CrawlSpeed(selector) ??
         throw new InvalidDataException("Population words give an orange Zoomer the selector that keeps its velocity, which its initializer has no speed for.");
 
     /// <summary>

@@ -42,7 +42,7 @@ internal sealed class EndingStage
 
     /// <summary>
     /// The turning floor's zoom, initially its own size. Every scene starts it at an authored zoom and moves it by a few
-    /// 256ths per call toward a bound it stops at, so it stays positive and small.
+    /// 256ths an update toward a bound it stops at, so it stays positive and small.
     /// </summary>
     internal FloorZoom FloorZoom { get; set; } = FloorZoom.OwnSize;
 

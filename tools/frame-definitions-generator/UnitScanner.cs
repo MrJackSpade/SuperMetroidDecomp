@@ -10,12 +10,12 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// <param name="Callee">The method called.</param>
 /// <param name="Graphics">The graphics expression, as written, for the self-check's report.</param>
 /// <param name="Copied">Whether the graphics are read from a settable instance member: another object's graphics, copied.</param>
-/// <param name="OpenSpriteObjectKind">
-/// Whether the call spawns a room sprite object whose kind its argument names without a constant: a kind other code
+/// <param name="OpenEffectActorKind">
+/// Whether the call spawns a room effect actor whose kind its argument names without a constant: a kind other code
 /// chose, such as one a cue or frame table carries.
 /// </param>
 internal sealed record SpawnCall(IReadOnlyList<SpawnTarget> Targets, IReadOnlySet<IFieldSymbol> Arguments, IMethodSymbol Callee, string Graphics, bool Copied,
-    bool OpenSpriteObjectKind);
+    bool OpenEffectActorKind);
 
 /// <summary>What one unit's code references: the units it may run and the enum members it names.</summary>
 internal sealed class UnitScan
@@ -400,7 +400,7 @@ internal sealed class UnitScanner(CoreModel model)
                     RecordSheetDraw(scan, semantic, creation, constructor);
                 // An object constructed with graphics holds them as its own (a room-drawn object's), so the creation hands
                 // them on as a spawn call does, to the constructor parameter that receives them. A spawn primitive building
-                // the object from the kind and graphics its own callers handed it (the sprite-object list's spawn) spawns
+                // the object from the kind and graphics its own callers handed it (the effect-actor list's spawn) spawns
                 // what those callers' calls name, and each of those calls records its own kind and graphics.
                 if (node is BaseObjectCreationExpressionSyntax { ArgumentList: { } constructed } && info.Symbol is IMethodSymbol made
                     && made.Parameters.Any(p => SymbolEqualityComparer.Default.Equals(p.Type.OriginalDefinition, model.SpriteGraphics))
@@ -571,7 +571,7 @@ internal sealed class UnitScanner(CoreModel model)
 
     /// <summary>
     /// Whether the construction <paramref name="arguments"/> pass to <paramref name="constructor"/> builds the object from
-    /// the graphics and sprite-object kind the enclosing method was itself handed: both arguments are that method's
+    /// the graphics and effect-actor kind the enclosing method was itself handed: both arguments are that method's
     /// parameters.
     /// </summary>
     private bool BuildsFromHandedSpawn(SemanticModel semantic, ArgumentListSyntax arguments, IMethodSymbol constructor)
@@ -586,7 +586,7 @@ internal sealed class UnitScanner(CoreModel model)
             bool handed = semantic.GetSymbolInfo(argument.Expression).Symbol is IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not MethodKind.AnonymousFunction } };
             if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type.OriginalDefinition, model.SpriteGraphics))
                 graphicsHanded = handed;
-            else if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomSpriteObjectKind))
+            else if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomEffectActorKind))
                 kindHanded = handed;
         }
         return graphicsHanded && kindHanded;
@@ -599,7 +599,7 @@ internal sealed class UnitScanner(CoreModel model)
     private void RecordSpawnCall(UnitScan scan, SemanticModel semantic, ArgumentListSyntax arguments, IMethodSymbol method)
     {
         ExpressionSyntax? graphics = null;
-        bool openSpriteObjectKind = false;
+        bool openEffectActorKind = false;
         var others = new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default);
         for (int index = 0; index < arguments.Arguments.Count; index++)
         {
@@ -612,11 +612,11 @@ internal sealed class UnitScanner(CoreModel model)
                 graphics = argument.Expression;
                 continue;
             }
-            if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomSpriteObjectKind)
+            if (parameter is not null && SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomEffectActorKind)
                 && !argument.Expression.DescendantNodesAndSelf().Any(part => part is ExpressionSyntax value
                     && semantic.GetSymbolInfo(value).Symbol is IFieldSymbol named
-                    && SymbolEqualityComparer.Default.Equals(named.ContainingType, model.RoomSpriteObjectKind)))
-                openSpriteObjectKind = true;
+                    && SymbolEqualityComparer.Default.Equals(named.ContainingType, model.RoomEffectActorKind)))
+                openEffectActorKind = true;
             foreach (SyntaxNode part in argument.Expression.DescendantNodesAndSelf())
             {
                 if (part is ExpressionSyntax value && semantic.GetSymbolInfo(value).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member)
@@ -628,7 +628,7 @@ internal sealed class UnitScanner(CoreModel model)
         bool copied = semantic.GetSymbolInfo(graphics).Symbol is IPropertySymbol { IsStatic: false, SetMethod: not null }
             or IFieldSymbol { IsStatic: false, IsReadOnly: false, IsConst: false };
         scan.SpawnCalls.Add(new SpawnCall(new GraphicsClassifier(model).Classify(semantic, graphics), others, method.OriginalDefinition,
-            graphics.ToString(), copied, openSpriteObjectKind));
+            graphics.ToString(), copied, openEffectActorKind));
     }
 
     /// <summary>Records one referenced symbol as an enum member or as the units it reaches.</summary>

@@ -82,7 +82,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Reads the current pose's no-input fallback: what is selected when no actions are held and the
-    /// transition table therefore is not consulted.
+    /// input transitions therefore are not consulted.
     /// </summary>
     public static SamusNoInputFallback ReadNoInputFallback(SamusState samus)
     {
@@ -145,7 +145,7 @@ internal static class SamusPoseMetadata
     /// Applies the pose part of the setup for the Zebes start:
     /// the suit's front-view pose and its initialization. Unlike
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
-    /// Samus nor clears motion. Callers own the suit's colours and the special frame.
+    /// Samus nor clears motion. The suit's colours and the special frame are set separately.
     /// </summary>
     public static void ApplyZebesStartPoseSetup(SamusState samus)
     {
@@ -180,7 +180,7 @@ internal static class SamusPoseMetadata
     /// not live in this state object. This method deliberately covers only the state it can
     /// own exactly: equipment-selected pose, its animation, the radius-dependent lift and
     /// all motion values cleared by the setup. It does not write the collision radius;
-    /// the next input phase's radius update does. Runtime/debug callers remain responsible for
+    /// the next input phase's radius update does. The runtime or a debug tool remains responsible for
     /// input lock, colouring and grapple before their first displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
@@ -225,7 +225,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// True for the six ordinary-play bodies whose names explicitly say “gun extended.”
     /// The firing landings are kept separate because they are short transition art,
-    /// not stable horizontal-fire bodies selected directly by an input table.
+    /// not stable horizontal-fire bodies selected directly by an input transition.
     /// </summary>
     public static bool IsGunExtendedPose(SamusPoseId pose) => pose is
         SamusPoseId.MovingRightGunExtendedPose or SamusPoseId.MovingLeftGunExtendedPose or
@@ -276,9 +276,9 @@ internal static class SamusPoseMetadata
         if (!leftFamily && !rightFamily)
         {
             // The left-facing table contains only the left-facing grabbed poses; the right-facing one only the right-facing.
-            // Neither controller-input table can cross facing families. Draygon's owner AI
+            // Neither set of controller input transitions can cross facing families. Draygon's owner AI
             // performs facing changes by re-entering its grabbed controller directly, so a
-            // cross-family request to this table-transition API is a caller contract error,
+            // cross-family request to this input transition is a broken contract,
             // not an omitted input transition.
             throw new InvalidOperationException(
                 $"Draygon-grabbed input transition {samus.Pose} -> {targetPose} crosses owner-controlled facing families.");
@@ -306,10 +306,10 @@ internal static class SamusPoseMetadata
         SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
         SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
 
-    /// <summary>True for the moonwalk turn-jump family whose transition tables lead to left.</summary>
+    /// <summary>True for the moonwalk turn-jump family whose input transitions lead to left.</summary>
     public static bool IsMoonwalkTurnJumpLeftPose(SamusPoseId pose) => IsMoonwalkTurnJumpRightPose(SamusPoseMirror.Of(pose));
 
-    /// <summary>True for the moonwalk turn-jump family whose transition tables lead to right.</summary>
+    /// <summary>True for the moonwalk turn-jump family whose input transitions lead to right.</summary>
     public static bool IsMoonwalkTurnJumpRightPose(SamusPoseId pose) => pose is
         SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
         SamusPoseId.MoonwalkTurnJumpAimDownRightPose;
@@ -358,7 +358,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the complete right-facing landing set that shares the ordinary standing
-    /// transition table: normal, spin, aimed up, diagonally up and diagonally down, and firing.
+    /// input transitions: normal, spin, aimed up, diagonally up and diagonally down, and firing.
     /// Centralizing this prevents a newly modelled landing from silently losing crouch,
     /// turn, run, or wall-probe exits in one of the several pose-change seams.
     /// </summary>
@@ -377,7 +377,7 @@ internal static class SamusPoseMetadata
     /// with any same-facing normal-jump transition, neutral or aimed.
     /// </summary>
     /// <remarks>
-    /// Every landing pose above points at the ordinary standing input table. That includes
+    /// Every landing pose above points at the ordinary standing input transitions. That includes
     /// the aimed and firing landing poses, not merely the older
     /// normal/spin subset. That standing table can preserve Up, diagonal-up, or
     /// diagonal-down shoulder input on the fresh Jump edge, so restricting the target to
@@ -400,7 +400,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the complete right-facing <see cref="SamusMovementType.Crouching"/> family. All four
-    /// poses use radius 16 and the shared transition table.
+    /// poses use radius 16 and the shared input transitions.
     /// </summary>
     public static bool IsRightFacingCrouchingPose(SamusPoseId pose) => pose is
         SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingAimUpRightPose or
@@ -420,8 +420,8 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for admitted grounded turning poses that began facing right and turn left.
-    /// Their definition direction is already four (the destination facing), so callers
-    /// must use this semantic grouping when preserving old rightward momentum.
+    /// Their definition direction is already four (the destination facing), so preserving old
+    /// rightward momentum must use this grouping.
     /// </summary>
     public static bool IsRightToLeftGroundTurnPose(SamusPoseId pose) => pose is
         SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningRightToLeftAimUpPose or
@@ -438,7 +438,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     /// <remarks>
     /// All eight turning-on-ground standing turn poses consult the same
-    /// transition table while their art is active. Holding the completed facing selects
+    /// input transitions while their art is active. Holding the completed facing selects
     /// the spin jump; releasing it on the Jump edge selects the neutral jump transition. Crouched turns are
     /// deliberately excluded because their radius expansion requires the room-aware
     /// crouch-jump collision path rather than the direct ordinary initializer.
@@ -518,7 +518,7 @@ internal static class SamusPoseMetadata
     public static bool IsWallJumpPose(SamusPoseId pose) => pose is SamusPoseId.WallJumpRightPose or SamusPoseId.WallJumpLeftPose;
 
     /// <summary>
-    /// True for all six stable spin-jumping bodies. The transition tables use
+    /// True for all six stable spin-jumping bodies. The input transitions use
     /// the ordinary spin jump as generic outputs; the spin-jump initializer can then substitute Space Jump or Screw
     /// Attack without changing the movement step.
     /// </summary>
@@ -727,8 +727,7 @@ internal static class SamusPoseMetadata
                 return false;
 
             default:
-                // The retail pose table never exceeds the special movement type; this is corrupt metadata,
-                // analogous to indexing beyond the end of a movement-type table into unrelated data.
+                // No retail pose has a movement type past the special one; this is corrupt metadata.
                 throw new InvalidDataException(
                     $"Bomb-jump setup cannot run invalid movement type {movementType} for pose {samus.Pose}.");
         }
@@ -803,7 +802,7 @@ internal static class SamusPoseMetadata
     /// aim, horizontal-fire, or moving-forward transition seam.
     /// </summary>
     /// <remarks>
-    /// Deliberately share one input table among the neutral jump, the forward
+    /// Deliberately share one set of input transitions among the neutral jump, the forward
     /// jump, and the non-compact aimed jump bodies. In particular, holding Jump after
     /// releasing Right/Left turns the forward jump into the neutral jump. Both endpoints must therefore
     /// participate in this classification. The previous target-only forward-jump check admitted

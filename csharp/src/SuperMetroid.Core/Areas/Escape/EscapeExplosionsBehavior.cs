@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Areas.Escape;
 
@@ -11,29 +11,29 @@ internal sealed class EscapeExplosionsBehavior
 {
     /// <summary>Shared queue that applies enemy sound limits to each explosion sound.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>The room's sprite objects, which the explosions join.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>The room's effect actors, which the explosions join.</summary>
+    private readonly RoomEffectActors _effectActors;
 
     /// <summary>Connects the escape explosion publisher to the room's shared sound and sprite owners.</summary>
-    internal EscapeExplosionsBehavior(EnemyAudioQueue audio, RoomSpriteObjects spriteObjects)
+    internal EscapeExplosionsBehavior(EnemyAudioQueue audio, RoomEffectActors effectActors)
     {
         _audio = audio;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
     }
 
-    /// <summary>Spawns an escape explosion's sprite object and requests its sound.</summary>
+    /// <summary>Spawns an escape explosion's effect actor and requests its sound.</summary>
     /// <param name="position">Where the explosion goes off.</param>
     /// <param name="random">The random sample that draws the explosion.</param>
     /// <param name="kindLeftOpen">The kind the explosion's place gives it when the draw names no explosion; such an explosion makes no sound.</param>
-    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomSpriteObjectKind kindLeftOpen)
+    public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, RoomEffectActorKind kindLeftOpen)
     {
-        RoomSpriteObjectKind kind = kindLeftOpen;
+        RoomEffectActorKind kind = kindLeftOpen;
         if (ZebesEscapeExplosions.Drawn(random) is { } drawn)
         {
             kind = drawn.SpriteKind;
             if (drawn.SoundEffect is SoundEffectId sound)
                 _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
         }
-        _spriteObjects.SpawnRoomSpriteObject(position, kind, default);
+        _effectActors.SpawnRoomEffectActor(position, kind, default);
     }
 }

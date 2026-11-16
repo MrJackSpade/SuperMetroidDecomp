@@ -64,25 +64,22 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
         FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
-        FuneNamiheEnemyState state = new()
+        bool isNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe;
+        FuneNamiheEnemyState state = new(isNamihe ? FuneNamiheAction.NamiheWaitForSamus : FuneNamiheAction.FuneWaitForCooldown)
         {
             ShowsActiveAnimation = false,
-            Action = FuneNamiheAction.FuneWaitForCooldown,
-            IsNamihe = slot.DefinitionId == EnemyDefinitionId.Namihe,
+            IsNamihe = isNamihe,
             YProximity = settings.YProximity,
             CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
             FacingRight = settings.Facing == HorizontalDirection.Right,
         };
 
-        if (state.IsNamihe)
-            state.Action = FuneNamiheAction.NamiheWaitForSamus;
-
         slot.SetSpeciesState(state);
         StartFuneNamiheAnimation(slot, state);
     }
 
-    /// <summary>Starts Fune's activity after a wrapping cooldown or Namihe's after strict modular Y proximity; active animations own the return to idle.</summary>
+    /// <summary>Starts Fune's activity after its cooldown or Namihe's after strict modular Y proximity; active animations own the return to idle.</summary>
     internal static void RunFuneNamiheMain(
         RoomEnemySlot slot,
         FuneNamiheEnemyState state,
@@ -91,11 +88,9 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case FuneNamiheAction.FuneWaitForCooldown:
-                // The counter steps before the comparison. The comparison checks whether the difference is negative rather
-                // than comparing unsigned; ordinary room parameters are small,
-                // but the distinction remains visible at the 32768 wrap boundary.
-                state.CooldownTimer = WrappingCounter.IncrementCount(state.CooldownTimer);
-                if (WrappingCounter.IsBehind(state.CooldownTimer, state.CooldownTime))
+                // The count steps before the comparison; a cooldown of nothing spits on the first waiting update.
+                state.CooldownTimer++;
+                if (state.CooldownTimer < state.CooldownTime)
                     return;
 
                 state.ShowsActiveAnimation = true;
@@ -127,7 +122,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Fune/Namihe has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Fune/Namihe has no behaviour for action {state.Action}.");
         }
     }
 
@@ -221,9 +216,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-
-        // The shared cull treats both camera edges as inclusive: an origin exactly
-        // at camera+256 survives this frame and is deleted only after crossing beyond it.
-        CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
+        EnemyView.DeleteOutside(projectile, camera);
     }
 }

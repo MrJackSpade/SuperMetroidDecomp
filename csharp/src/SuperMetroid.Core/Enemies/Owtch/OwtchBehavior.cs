@@ -49,8 +49,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = settings.InitialBehavior,
             BurialDepth = 0,
             UndergroundTimer = settings.UndergroundWait,
-            MinimumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.TravelDistance), 0),
-            MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance), 0),
+            MinimumX = CoordinateAxis.Wrap(slot.Position.X.Whole - settings.TravelDistance),
+            MaximumX = CoordinateAxis.Wrap(slot.Position.X.Whole + settings.TravelDistance),
         };
         slot.SetSpeciesState(state);
         SetOwtchAnimation(slot, state, InitialAnimation(settings.InitialBehavior));
@@ -145,7 +145,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (direction != HorizontalDirection.Right)
         {
-            if ((slot.Position.Whole - state.MinimumPosition).X >= 0)
+            if (!CoordinateAxis.Precedes(slot.Position.X.Whole, state.MinimumX))
                 return;
 
             // Unlike the right bound, the left bound does not turn Owtch at once: it spends the next update turning.
@@ -153,7 +153,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if ((slot.Position.Whole - state.MaximumPosition).X >= 0)
+        if (!CoordinateAxis.Precedes(slot.Position.X.Whole, state.MaximumX))
             state.Behavior = OwtchBehaviorState.MovingLeft;
     }
 

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Hud;
 /// <summary>The stage a <see cref="GameplayMessageBoxState"/> is in.</summary>
 public enum GameplayMessageBoxPhase
 {
-    /// <summary>No message owns gameplay or the message window; after restoration, any completed save-confirmation result remains available for consumption by the suspended caller.</summary>
+    /// <summary>No message owns gameplay or the message window; after restoration, any completed save-confirmation result remains available to the save station that asked for it.</summary>
     Inactive,
     /// <summary>The window opens: its radius grows from zero through 24 pixels in two-pixel steps while gameplay remains suspended.</summary>
     Opening,

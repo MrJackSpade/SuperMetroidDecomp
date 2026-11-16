@@ -13,12 +13,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// So a strike in an ordinary gameplay update always turns the Puyo back: the HUD redraws after every gameplay update's
 /// draw pass, before the next update's enemies run, and nothing between clears the value. A strike during the source
 /// room's door waits and fades, which draw without redrawing the HUD, turns it back only when the update before drew no
-/// enemy and no sprite object in the window, or drew the charge flare since the HUD's last redraw. From the room's load
+/// enemy and no effect actor in the window, or drew the charge flare since the HUD's last redraw. From the room's load
 /// to the HUD's first redraw in the destination (the fade in and the first gameplay update) the strike turns it back.
 /// </para>
 /// <para>
 /// Told of the HUD's redraw after each gameplay update's draw pass (<see cref="HudRedrawn"/>), of each enemy the draw
-/// pass draws (<see cref="EnemyDrawn"/>), of each sprite object it draws (<see cref="SpriteObjectDrawn"/>) and of the
+/// pass draws (<see cref="EnemyDrawn"/>), of each effect actor it draws (<see cref="EffectActorDrawn"/>) and of the
 /// charge flare's draw (<see cref="ChargeFlareDrawn"/>); created with the room's enemy system at the room's load, which
 /// loads the beams' colours and leaves both parts set; consulted by a rising Puyo's ceiling strike
 /// (<see cref="TurnsBack"/>).
@@ -43,18 +43,18 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a Puyo that strikes a ceiling while rising turns back unless the room's last draw left the shared value clear")]
 public sealed class PuyoCeilingTurnFromLastDraw
 {
-    /// <summary>How far left of the view the sprite-object draw's window begins, in pixels.</summary>
-    private const int SpriteObjectWindowLeftMargin = 16;
+    /// <summary>How far left of the view the effect-actor draw's window begins, in pixels.</summary>
+    private const int EffectActorWindowLeftMargin = 16;
 
-    /// <summary>How wide the sprite-object draw's window is, in pixels, from its left edge.</summary>
-    private const int SpriteObjectWindowWidth = 288;
+    /// <summary>How wide the effect-actor draw's window is, in pixels, from its left edge.</summary>
+    private const int EffectActorWindowWidth = 288;
 
-    /// <summary>How tall the sprite-object draw's window is, in pixels, from the top of the view.</summary>
-    private const int SpriteObjectWindowHeight = 272;
+    /// <summary>How tall the effect-actor draw's window is, in pixels, from the top of the view.</summary>
+    private const int EffectActorWindowHeight = 272;
 
     /// <summary>
     /// Whether the value's first part was last written by the HUD's redraw or the room's load, naming a table, rather than
-    /// by an enemy's or sprite object's draw, which leaves it clear.
+    /// by an enemy's or effect actor's draw, which leaves it clear.
     /// </summary>
     private bool _firstPartNamesTable = true;
 
@@ -75,15 +75,15 @@ public sealed class PuyoCeilingTurnFromLastDraw
     public void EnemyDrawn() => _firstPartNamesTable = false;
 
     /// <summary>
-    /// The draw pass reached a sprite object at the given place relative to the view's top left corner; one inside the
+    /// The draw pass reached an effect actor at the given place relative to the view's top left corner; one inside the
     /// draw's window leaves the first part clear, and one outside it writes nothing.
     /// </summary>
     /// <param name="fromViewLeft">How far right of the view's left edge the object lies, in pixels; negative to its left.</param>
     /// <param name="fromViewTop">How far below the view's top edge the object lies, in pixels; negative above it.</param>
-    public void SpriteObjectDrawn(int fromViewLeft, int fromViewTop)
+    public void EffectActorDrawn(int fromViewLeft, int fromViewTop)
     {
-        int fromWindowLeft = fromViewLeft + SpriteObjectWindowLeftMargin;
-        if (fromWindowLeft is >= 0 and < SpriteObjectWindowWidth && fromViewTop is >= 0 and < SpriteObjectWindowHeight)
+        int fromWindowLeft = fromViewLeft + EffectActorWindowLeftMargin;
+        if (fromWindowLeft is >= 0 and < EffectActorWindowWidth && fromViewTop is >= 0 and < EffectActorWindowHeight)
             _firstPartNamesTable = false;
     }
 

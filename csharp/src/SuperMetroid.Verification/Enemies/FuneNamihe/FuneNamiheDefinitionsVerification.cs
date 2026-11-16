@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Animation;
@@ -37,7 +38,7 @@ internal static class FuneNamiheDefinitionsVerification
             AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(slot, (state), namihe ? new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : RoomEnemyFrameFixtures.StandaloneSamus());
+            runMain(slot, (state), namihe ? new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : RoomEnemyFrameFixtures.StandaloneSamus());
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
             AssertEqual(new AnimationPlayback<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Fune/Namihe production active list {variant}");
@@ -58,7 +59,7 @@ internal static class FuneNamiheDefinitionsVerification
         {
             ushort native = LittleEndianBytes.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)));
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
-            var state = new FuneNamiheEnemyState { IsNamihe = namihe, ShowsActiveAnimation = active, FacingRight = right };
+            var state = new FuneNamiheEnemyState(FuneNamiheAction.FuneWaitForCooldown) { IsNamihe = namihe, ShowsActiveAnimation = active, FacingRight = right };
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheAnimation(state)),
                 "Fune/Namihe production species/activity/facing selection matches native pointer");
         }

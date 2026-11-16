@@ -18,8 +18,7 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     internal const int BurstCount = 1;
 
     /// <summary>
-    /// The random scatter's fields, zero to seven pixels across (three bits) and zero to fifteen down (four bits), each
-    /// centred on zero.
+    /// The random scatter, zero to seven pixels across and zero to fifteen down, each centred on zero.
     /// </summary>
     internal static EnemyProjectileScatter Scatter => new(XRange: new(0, 3), YRange: new(0, 4), Center: new(0, 0));
 
@@ -28,17 +27,14 @@ internal static class OldTourianEscapeShaftWallExplosionAnimationDefinitions
     /// <summary>The priority of each burst's explosion sound.</summary>
     internal static readonly SoundRequestPriority ExplosionSoundPriority = SoundRequestPriority.Normal;
 
-    /// <summary>The six small-explosion frames the burst shows, in order (#1817).</summary>
-    internal static IReadOnlyList<EnemyProjectileFrameId> Frames { get; } =
+    /// <summary>The six small-explosion frames the burst shows, in order (#1817), each with how long it holds (#2044).</summary>
+    internal static IReadOnlyList<OldTourianWallExplosionBeat> Beats { get; } =
     [
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth,
-        EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth,
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFirst, 4),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionSecond, 6),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionThird, 5),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFourth, 5),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionFifth, 5),
+        new(EnemyProjectileFrameId.OldTourianEscapeWallExplosionSixth, 6),
     ];
-
-    /// <summary>How long each of <see cref="Frames"/> holds: 4, 6, 5, 5, 5 and 6 updates.</summary>
-    internal static ReadOnlySpan<int> FrameDurations => [4, 6, 5, 5, 5, 6];
 }

@@ -10,8 +10,9 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
 /// Paints one boss's body frames over the characters its room shows (#1466, #1515, #1540): each frame as one whole picture
-/// over the characters its room shows while the frame is shown, placed where its cells lie on the body's area. No piece of
-/// a frame is pictured apart from it (#1513). The cartridge's layer cells are read here, once, and nowhere else.
+/// over the characters its room shows while the frame is shown, placed where its cells lie against its boss: where they lie
+/// on the body's area, from where the area lay against the boss (#2031). No piece of a frame is pictured apart from it
+/// (#1513). The cartridge's layer cells and where it placed the area are read here, once, and nowhere else.
 /// </summary>
 /// <param name="owner">The boss.</param>
 /// <param name="room">What the boss's room shows at its characters.</param>
@@ -59,9 +60,12 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         bool shows = ShowsAnything(frame);
         string? picture = shows ? AddPicture(frame) : null;
         BossBodyDepth? depth = shows ? DepthOf(frame) : null;
-        // A frame lying away from its cells on the body's area carries that shift in where its picture lies (#1802, #1949).
+        // A frame lying away from its cells on the body's area carries that shift in where its picture lies (#1802, #1949),
+        // and where the area lay against the boss places the picture against the boss (#2031).
         Position16<BackgroundPixels> corner = CornerOf(frame.Cells) + frame.PictureShift;
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, corner, depth) { Dissolving = frame.Dissolving }))
+        Offset16<RoomPixels> area = BossBodySourceDefinitions.AreaFromBoss[owner];
+        var anchor = Offset16<RoomPixels>.Of(corner.X + area.X, corner.Y + area.Y);
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, anchor, depth) { Dissolving = frame.Dissolving }))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 

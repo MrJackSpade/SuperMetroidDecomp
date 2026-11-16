@@ -77,7 +77,7 @@ internal sealed class GameplayActorDrawing
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
             _room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, _room.Camera.PixelPosition);
-            // A hit burst among the sprite objects is one of Samus's weapon effects: it shows the sheet of the beams she
+            // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
                 _sprites,
@@ -370,18 +370,6 @@ internal sealed class GameplayActorDrawing
             room.Enemies.Projectiles.DrawEnemyProjectilesBehindSamus(
                 _sprites,
                 _room.Camera.PixelPosition, _freeze.TimeIsFrozen);
-        }
-
-        if (!deathOwnsSamus && room.Enemies.DisplaySources.Draygon is { } draygon)
-        {
-            // Draygon's body draw runs AFTER drawing enemies. Camera scrolling has already
-            // run, so the body must use the same final camera as the appendage sprites above.
-            // Placing it during enemy AI instead detaches the torso whenever scrolling
-            // changes the camera between AI and drawing (especially during a grab). The
-            // placement is Draygon's own published body position (#1354), not the background's scroll.
-            draygon.BodyOrigin = new Position16<RoomPixels>(
-                CoordinateAxis.Wrap(draygon.Body.Position.X.Whole + DraygonBackgroundData.HorizontalOrigin + draygon.BodyPictureShift.X),
-                CoordinateAxis.Wrap(draygon.Body.Position.Y.Whole + DraygonBackgroundData.VerticalOrigin + draygon.BodyPictureShift.Y));
         }
 
         if (!deathOwnsSamus)

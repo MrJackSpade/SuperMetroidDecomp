@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -194,7 +195,7 @@ internal static class SpecialAttackParticlesVerification
                 SamusProjectile echo = projectiles.Pool.Occupy(place);
                 Fly(echo, place, fraction);
                 echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
-                BeamCombos.InitializeComboData(echo, BeamComboData.Echo);
+                BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
                 echo.Behavior = SamusShotBehaviors.ShinesparkEcho;
                 echo.EchoAngle = new TrigonometryAngle(32);
                 echo.EchoRadius = 24;
@@ -461,10 +462,10 @@ internal static class SpecialAttackParticlesVerification
     private static (SamusProjectileSystem Projectiles, SamusBombProjectileSystem Shared, SamusState Samus) NewPool(
         SamusBeamFlags beam, Position16<RoomPixels> samusAt)
     {
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads,
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
-        var shared = new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
+        var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.FacingRightNormalPose,

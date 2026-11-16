@@ -40,7 +40,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
                 $"escape Etecoon role {role} instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
-                initialization.Velocity.X.RawValue,
+                initialization.Velocity.RawValue,
                 $"escape Etecoon role {role} speed");
         }
 
@@ -191,7 +191,6 @@ internal static class EscapeEtecoonDefinitionsVerification
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
-        AssertTrue(state.Action is not null, "an initialized escape Etecoon has an action");
         Console.WriteLine("  Escape Etecoon owned state: an initialized escape Etecoon has a pre-instruction.");
     }
 

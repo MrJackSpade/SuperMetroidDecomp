@@ -9,6 +9,6 @@ internal enum RidleyPart
     Ridley,
     /// <summary>The <see cref="EnemyDefinitionId.RidleyCeres"/> occupant.</summary>
     Ceres,
-    /// <summary>The <see cref="EnemyDefinitionId.RidleyExplosion"/> occupant.</summary>
-    Explosion,
+    /// <summary>The <see cref="EnemyDefinitionId.RidleyBreakupPiece"/> occupant.</summary>
+    BreakupPiece,
 }

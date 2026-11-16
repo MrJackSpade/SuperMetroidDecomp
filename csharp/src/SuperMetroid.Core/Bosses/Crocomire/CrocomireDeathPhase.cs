@@ -90,12 +90,8 @@ public enum CrocomireDeathPhase
     WaitBeforeRecordingDefeat,
     /// <summary>Records the mini-boss's defeat and restores boss music.</summary>
     PublishDefeatAndRestoreMusic,
-    /// <summary>Final live-room corpse state; intentionally inert.</summary>
+    /// <summary>The corpse, inert: the live room's once his defeat is recorded, and the already-defeated room's from its setup.</summary>
     InertCorpse,
-    /// <summary>In the already-defeated room, waits one update after setup before pinning his body layer's placement.</summary>
-    WaitBeforePinningDefeatedBodyLayer,
-    /// <summary>Pins his body layer's placement at zero in the already-defeated room.</summary>
-    PinDefeatedRoomBodyLayerPlacement,
     /// <summary>River detour sequenced between the final sink and wall wait.</summary>
     RiverSkeletonDetour,
 }

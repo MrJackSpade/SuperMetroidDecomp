@@ -117,7 +117,7 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>
-    /// Runs one update of readying her standing body, one per call, and reports whether it was the last of
+    /// Runs one update of readying her standing body and reports whether it was the last of
     /// <see cref="MotherBrainReadyingDefinitions.StandingBodyDuration"/>: the last completes in the same call and starts
     /// the count over.
     /// </summary>
@@ -141,8 +141,8 @@ internal sealed class MotherBrainAscent
             return;
 
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
-        // From here her body's area follows her (#1949).
-        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
+        // From here her body is placed at her (#1949, #2031).
+        state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake;
     }
@@ -154,7 +154,7 @@ internal sealed class MotherBrainAscent
         state.Head.AnimationClock.StepOnNextUpdate();
         state.Body.Presence = state.Body.Presence.Without(EnemyPresence.Hidden);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
-        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
+        state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MusicTrack.MotherBrainBattle), MusicQueueDelay.Shortest);
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground), 256);
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
@@ -174,7 +174,7 @@ internal sealed class MotherBrainAscent
 
         SpawnMotherBrainAscentDust(state);
         state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole - 2);
-        state.BodyArea = MotherBrainBodyAreaPlacement.FollowsBody;
+        state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         if (state.Body.Position.Y.Whole >= 189)
             return;
 

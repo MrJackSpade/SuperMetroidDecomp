@@ -79,9 +79,7 @@ internal static class RoomFxLayer3TilemapsVerification
             ?? throw new InvalidDataException($"No compiled default room-FX record selects {type}.");
         var memory = new TestAddressSpace();
         guarded = NewForbiddenRoomFxTilemapBus(memory);
-        var stateSession = new RoomFxSession{
-        };
-        RoomFxOverlayState state = RoomFxOverlayState.ForDefinition(stateSession, record, randomNumber: 0);
+        RoomFxOverlayState state = RoomFxOverlayState.ForDefinition(record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         AssertEqual<RoomFxType?>(type, state.EffectPlane.Effect, "the room's BG3 plane shows the selected FX type's page");
         return state.EffectPlane.WordsIn(catalog);

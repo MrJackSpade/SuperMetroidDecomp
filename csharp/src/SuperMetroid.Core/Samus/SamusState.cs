@@ -177,18 +177,10 @@ public sealed class SamusState
     public SamusShinesparkState Shinespark { get; }
 
     /// <summary>
-    /// The update's audio requests every sound of hers joins as it is made: her own record until a runtime points her at
-    /// its own (<see cref="BindAudioRequests"/>).
+    /// The update's audio requests every sound of hers, her movement's and her spark's among them, joins as it is made: her
+    /// runtime's, or a cinematic's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
-
-    /// <summary>Points every sound of hers, her movement's and her spark's among them, at <paramref name="requests"/>.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests)
-    {
-        AudioRequests = Ensure.NotNull(requests);
-        LiquidPhysics.BindAudioRequests(requests);
-        Shinespark.BindAudioRequests(requests);
-    }
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>
     /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
@@ -217,7 +209,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Mother Brain/Baby Metroid drain poses, the drain's operations, and the drained
-    /// fall. Enemy AI remains the separate caller of these drain operations.
+    /// fall. Enemy AI still runs these drain operations itself.
     /// </summary>
     public SamusDrainedState Drained { get; } = new();
 
@@ -298,7 +290,7 @@ public sealed class SamusState
     /// <summary>Maximum reserve energy.</summary>
     public int MaxReserveEnergy { get; set; }
 
-    /// <summary>Reserve-tank mode: zero off, one auto, two manual.</summary>
+    /// <summary>Reserve-tank mode: off, automatic or manual.</summary>
     public ReserveTankMode ReserveTankMode { get; set; }
 
     /// <summary>Current missiles.</summary>
@@ -559,14 +551,17 @@ public sealed class SamusState
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction reads no game data and does not initialize room position, pose-dependent radii or animation data; gameplay setup supplies those separately.</remarks>
+    /// <param name="audioRequests">The update's audio requests of whoever runs her, which every sound of hers joins (#2057).</param>
     /// <param name="framesBeyondAnimation">What an animation frame past her pose's animation reads, the session's installed service.</param>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
     /// <param name="compatibility">The compatibility services she owns, created with her by whoever builds her.</param>
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
     /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
-    internal SamusState(FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation, UnauthoredBoostCadence unauthoredBoostCadence,
-        SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge, SamusArtworkBinding artwork)
+    internal SamusState(GameplayAudioRequests audioRequests, FramesBeyondAnimation<SamusPoseId, SamusPoseAnimationStep> framesBeyondAnimation,
+        UnauthoredBoostCadence unauthoredBoostCadence, SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge,
+        SamusArtworkBinding artwork)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         BeamCharge = Ensure.NotNull(beamCharge);
         Artwork = Ensure.NotNull(artwork);
         Grapple = new SamusGrappleState(artwork);
@@ -579,15 +574,14 @@ public sealed class SamusState
         SparkCarryover = compatibility.SparkCarryover;
         EscapeAndDrainCount = compatibility.EscapeAndDrainCount;
         HurtFlash = compatibility.HurtFlash;
-        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel, SpecialColouring);
+        Shinespark = new SamusShinesparkState(compatibility.SparkCarryover, compatibility.CrashOrbitTravel, SpecialColouring, AudioRequests);
         CrystalFlash = new SamusCrystalFlashState(compatibility.EscapeAndDrainCount, SpecialColouring);
         Xray = new SamusXrayState(SpecialColouring);
         DraygonGrabbed = new SamusDraygonGrabbedState(compatibility.EscapeAndDrainCount);
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation(artwork);
-        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles);
+        LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests);
         Kinematics = new SamusKinematicsState();
-        BindAudioRequests(AudioRequests);
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
         Kinematics.CollisionPose = Pose;
@@ -964,7 +958,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
     public SamusPoseHistoryState PoseHistory { get; } = new();
 
     /// <summary>
-    /// Commits current pose metadata through the four-entry history shift.
+    /// Commits current pose metadata, shifting her last four poses' history.
     /// Transition owners must call this after their final pose/metadata selection,
     /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
     /// </summary>

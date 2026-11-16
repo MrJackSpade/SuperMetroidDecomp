@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -21,7 +22,7 @@ internal static class HopperHopArcVerification
     {
         RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
         var frame = new ClockedEnemyAiFrame(
-            RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
+            RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
             new FrameCounters(0));
         foreach ((bool falling, int start, int step, int expected, bool expectedFalling) in new VerifyHopperHopArcRecordCase[]
                  {
@@ -37,7 +38,7 @@ internal static class HopperHopArcVerification
             slot.Bind(EnemyDefinitionId.Sidehopper, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(64, 48));
             slot.Radius = new(8, 8);
-            var state = new HopperEnemyState
+            var state = new HopperEnemyState(HopperAction.ChooseHopSize)
             {
                 Action = HopperAction.Jumping,
                 Falling = falling,

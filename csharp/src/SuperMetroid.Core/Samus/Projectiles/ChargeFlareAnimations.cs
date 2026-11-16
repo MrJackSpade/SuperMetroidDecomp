@@ -52,7 +52,7 @@ internal static class ChargeFlareAnimations
     private static ChargeFlareStep After(ChargeFlareComponent component, int phase)
     {
         if (!IsPicture(component, phase))
-            throw new InvalidOperationException($"Charge-flare {component} picture {phase} is outside its program.");
+            throw new InvalidOperationException($"Charge-flare {component} picture {phase} is outside its animation.");
         AnimationPlace shown = AnimationSegments<ChargeFlareComponent, ChargeFlarePicture, NoAnimationCue>.PlaceOf(ChargeFlareAnimationDefinitions.Animations[component], component, phase);
         AnimationPlace place = shown with { Beat = shown.Beat + 1 };
         return Play(component, ref place);
@@ -67,6 +67,6 @@ internal static class ChargeFlareAnimations
         // The play stands just past the beat it showed, whose place in the component's beats is the place shown.
         return shown is AnimationShown<ChargeFlareComponent, ChargeFlarePicture>.Frame frame
             ? new(animation.Phases[place.Phase].FirstBeat + place.Beat - 1, WrappingCountdown.Start(frame.Duration - 1))
-            : throw new InvalidOperationException($"Charge-flare {component}'s program shows no next picture.");
+            : throw new InvalidOperationException($"Charge-flare {component}'s animation shows no next picture.");
     }
 }

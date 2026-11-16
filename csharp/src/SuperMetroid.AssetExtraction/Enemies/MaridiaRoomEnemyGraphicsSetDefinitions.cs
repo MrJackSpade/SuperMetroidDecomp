@@ -70,7 +70,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpaceJump), [
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Pants), [
-            new(EnemyDefinitionId.Menu),
+            new(EnemyDefinitionId.MaridiaFly),
             new(EnemyDefinitionId.Puyo),
             new(EnemyDefinitionId.Tripper),
         ]),
@@ -93,7 +93,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.NWestMaridiaBug), [
             new(EnemyDefinitionId.Owtch),
-            new(EnemyDefinitionId.Menu),
+            new(EnemyDefinitionId.MaridiaFly),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PseudoPlasmaSpark), [
             new(EnemyDefinitionId.Owtch),
@@ -105,7 +105,7 @@ internal static class MaridiaRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.PlasmaTutorial), [
             new(EnemyDefinitionId.Puyo),
-            new(EnemyDefinitionId.MZoomer),
+            new(EnemyDefinitionId.ArmoredZoomer),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.ThreadTheNeedle), [
             new(EnemyDefinitionId.Puyo),

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileProgramOracleVerification;
@@ -29,7 +30,7 @@ internal static class MiscDustProjectileBehaviorVerification
     internal static void VerifyMiscDustProjectileBehavior(CartridgeImportAddressSpace rom)
     {
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
         foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
@@ -52,7 +53,7 @@ internal static class MiscDustProjectileBehaviorVerification
         // Since #1414 the eye door's two smoke puffs are typed definitions rather than packed operands: each starts its
         // misc-dust program and plays to deletion with native frame durations.
         VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.ScatteredSmoke, MiscDustAnimation.CorpseDustCloud);
-        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, MiscDustAnimation.EyeDoorSweatDrop);
+        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, MiscDustAnimation.EyeDoorSmokePuff);
 
         void VerifyEyeDoorSmoke(EyeDoorProjectileDefinition puff, MiscDustAnimation animation)
         {

@@ -56,7 +56,6 @@ internal static class PhantoonBodyPublicationVerification
             write.Words.CopyTo(expected.AsSpan(write.FirstCell));
 
         // Wavy fade-in: the intro wave set up and built once.
-        state.BodyOrigin = new Position16<RoomPixels>(40, 0);
         state.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         state.Wave.PhaseStep = 8;
         state.BodyWave.Begin(PhantoonWaveDefinitions.IntroLength);
@@ -65,8 +64,11 @@ internal static class PhantoonBodyPublicationVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingIn = runtime.Display.Latched.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
-        AssertEqual(new PhantoonWave(40, 3072, new TrigonometryAngle((byte)(state.BodyWave.Phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
-            fadingIn.Wave, "the wavy fade-in publishes the wave's body column, amplitude, phase's angle and its mode's period");
+        AssertEqual(new PhantoonWave(3072, new TrigonometryAngle((byte)(state.BodyWave.Phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
+            fadingIn.Wave, "the wavy fade-in publishes the wave's amplitude, phase's angle and its mode's period");
+        // His body, which the wave ripples, is placed at his position (#2031).
+        AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, runtime.Display.Latched.Bosses.Placement,
+            "his body is placed at his position");
         BossBodyLayer image = runtime.Display.Latched.Bosses.Body
             ?? throw new InvalidOperationException("Phantoon publishes his body layer.");
         AssertTrue(BossBodyWords.Of(image, BossBodyOwner.Phantoon, bosses).AsSpan().SequenceEqual(expected),

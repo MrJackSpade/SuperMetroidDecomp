@@ -30,8 +30,8 @@ internal sealed class IntroEggParticle
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         CinematicActorDefinition definition = IntroEggParticleActors.Particle(fragment);
         this.fragment = fragment;
-        // The compiled start of each fragment is independently checked against all
-        // twelve authored values so this physical spawn does not read game data.
+        // The compiled start of each fragment matches all twelve authored values,
+        // so this spawn does not read game data.
         sprite = new IntroDiscoverySprite(
             IntroEggMotion.FragmentInitialPosition(fragment),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
@@ -61,9 +61,9 @@ internal sealed class IntroEggParticle
     }
 
     /// <summary>Draws the fragment's current cinematic pose using installed art when supplied.</summary>
-    public void Draw(ScreenSprites objects,
+    public void Draw(ScreenSprites screenSprites,
         IIntroCinematicSpritePresentation? installedArt = null) =>
-        sprite.Draw(objects, installedArt: installedArt);
+        sprite.Draw(screenSprites, installedArt: installedArt);
 
     /// <summary>Adds a compiled signed whole/fraction velocity to one axis without changing the other coordinate.</summary>
     private static void AddSixteenSixteenVelocity(

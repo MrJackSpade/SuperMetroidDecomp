@@ -120,13 +120,13 @@ internal static class GenericSpriteArtworkVerification
         intro.BindProjectileFrames(projectiles.FrameBindings);
         intro.BindSpriteSheets(InstalledFixtures.SpriteSheets);
         intro.SetupFirstIllustratedPage();
-        var caret = intro.CurrentObjects;
+        var caret = intro.CurrentNarration;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
         PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites().Draws);
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
-            Position16<ScreenPixels>.Zero + caret.Caret, SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeObjects)), 0).PaletteBits);
+            Position16<ScreenPixels>.Zero + caret.Caret, SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors)), 0).PaletteBits);
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 

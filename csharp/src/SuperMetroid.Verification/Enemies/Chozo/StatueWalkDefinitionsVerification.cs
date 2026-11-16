@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -25,20 +26,20 @@ internal static class StatueWalkDefinitionsVerification
     internal static void VerifyCompiledStatueWalking(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.TorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
+        Func<RoomEnemySlot, TorizoEnemyState, SamusState, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.TorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
         Action<RoomEnemySlot, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(true);
         slot.SetSpeciesState(torizo);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         for (int step = 0; step < GoldenWalkSteps; step++)
         {
             int offset = step * 2;
             short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset));
             slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
-            AnimationContinuation<TorizoAnimation>? next = walk(slot, torizo, null, level, velocity);
+            AnimationContinuation<TorizoAnimation>? next = walk(slot, torizo, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level, velocity);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(GoldenWalkTable + offset), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + velocity)), slot.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
@@ -56,7 +57,7 @@ internal static class StatueWalkDefinitionsVerification
             short velocity = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae630 + offset)));
             short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae670 + offset)));
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae6b0 + offset)));
-            AssertEqual(velocity, data.Velocity, "Chozo native movement velocity");
+            AssertEqual((int)velocity, data.Velocity.InTwoHundredFiftySixthsOfPixel, "Chozo native movement velocity");
             AssertEqual(xOffset, data.SamusOffset.X, "Chozo native hand X");
             AssertEqual(yOffset, data.SamusOffset.Y, "Chozo native hand Y");
             slot.Position = new(new(256, 0x8123), new(256, 0x8123));

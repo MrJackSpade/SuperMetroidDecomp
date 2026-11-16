@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -16,7 +16,7 @@ internal sealed class DraygonGrab
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Restricts camera scrolling while Draygon controls the arena.</summary>
     private readonly SamusScrollCap _scrollCap;
     /// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
@@ -25,11 +25,11 @@ internal sealed class DraygonGrab
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomSpriteObjects spriteObjects, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
+    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomEffectActors effectActors, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
     {
         _frameResults = frameResults;
         _room = room;
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _scrollCap = scrollCap;
         _parts = parts;
         _turrets = turrets;
@@ -42,13 +42,10 @@ internal sealed class DraygonGrab
     /// </summary>
     internal void ChaseAndTryToGrabSamus(
         DraygonEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounter);
-        if (samus is null)
-            throw new InvalidOperationException("Draygon chase AI requires the active Samus actor.");
-
         // Attached goop actors own this divisor. Once the final actor disappears, retail
         // abandons the chase immediately and exits through the same upward flight used
         // after a completed grab.
@@ -98,11 +95,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>Runs the one-frame grapple rejection.</summary>
-    internal static void RepelDraygonWithGrapple(DraygonEnemyState state, SamusState? samus)
+    internal static void RepelDraygonWithGrapple(DraygonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Draygon grapple rejection requires Samus state.");
-
         samus.Grapple.Phase = GrapplePhase.Dropped;
         state.Phase = DraygonPhase.ReleaseSamus;
     }
@@ -111,9 +105,9 @@ internal sealed class DraygonGrab
     /// Flies the grabbed pair toward the authored spiral center, then
     /// install the facing-specific roar before the expanding orbit begins.
     /// </summary>
-    internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState? samus)
+    internal void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {
-        SamusState activeSamus = RequireDraygonGrabbedSamus(samus);
+        SamusState activeSamus = samus;
         if (IsDraygonGrappleConnected(activeSamus))
         {
             MarkDraygonGrappleShock(state);
@@ -144,9 +138,9 @@ internal sealed class DraygonGrab
     /// Runs the expanding, rising spiral. Radius growth, angular
     /// deceleration, and center lift stay separate fixed-point values.
     /// </summary>
-    internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState? samus)
+    internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState samus)
     {
-        SamusState activeSamus = RequireDraygonGrabbedSamus(samus);
+        SamusState activeSamus = samus;
         if (IsDraygonGrappleConnected(activeSamus))
         {
             MarkDraygonGrappleShock(state);
@@ -173,9 +167,9 @@ internal sealed class DraygonGrab
 
         if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
         {
-            _spriteObjects.SpawnRoomSpriteObject(
+            _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + new Offset16<RoomPixels>(state.FacingRight ? 32 : -32, -16),
-                RoomSpriteObjectKind.DraygonSpiralFoam,
+                RoomEffectActorKind.DraygonSpiralFoam,
                 graphics: default);
         }
 
@@ -200,9 +194,9 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>Runs the incidental 64-frame tail-whip pause.</summary>
-    internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
+    internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState samus)
     {
-        MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
+        MoveSamusWithDraygon(state, samus);
         if (--state.TailWhipTimer == 0)
         {
             state.Phase = DraygonPhase.FlailWithSamus;
@@ -220,9 +214,9 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>Starts the four-repeat finishing whip animation.</summary>
-    internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
+    internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState samus)
     {
-        MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
+        MoveSamusWithDraygon(state, samus);
         _parts.StartDraygonAnimation(
             state.Tail,
             state.FacingRight
@@ -235,15 +229,12 @@ internal sealed class DraygonGrab
     /// Waits for the final tail whips. The tail's animation owns the duration and eventually
     /// executes its release step, which changes the body phase to release Samus.
     /// </summary>
-    internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
-        MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
+    internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState samus) =>
+        MoveSamusWithDraygon(state, samus);
 
     /// <summary>Releases Samus, restores ordinary contact, and starts the tail flail.</summary>
-    internal void ReleaseSamusFromDraygon(DraygonEnemyState state, SamusState? samus)
+    internal void ReleaseSamusFromDraygon(DraygonEnemyState state, SamusState samus)
     {
-        if (samus is null)
-            throw new InvalidOperationException("Draygon release requires the active Samus actor.");
-
         // Grapple rejection reaches this phase without ever installing a grabbed pose.
         // The normal route does own one, so invoke the release only in that case.
         if (samus.DraygonGrabbed.IsActive)
@@ -326,13 +317,5 @@ internal sealed class DraygonGrab
     {
         samus.DraygonGrabbed.Release(samus);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
-    }
-
-    /// <summary>Requires the active Samus actor for Draygon's carry and release phases.</summary>
-    private static SamusState RequireDraygonGrabbedSamus(SamusState? samus)
-    {
-        if (samus is null)
-            throw new InvalidOperationException("Draygon carry AI requires the active Samus actor.");
-        return samus;
     }
 }

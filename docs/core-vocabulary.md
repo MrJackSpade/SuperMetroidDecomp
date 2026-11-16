@@ -103,13 +103,13 @@ word is the game's own (`Metroids2Default`). An area followed by a lone capital 
 letter, since `MaridiaBBrownWall` and `BrinstarETank`, an energy tank, have one shape; such a name is found by review.
 
 Matching is by whole camel-case word, ignoring case, with plural and verb endings (`Banks`, `Addresses`, `Banked`,
-`Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
+`Addressing`). `Object` is not `Obj` (the hardware's object is read as a phrase, below), `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word
 (`OAMBuffer` is `OAM` + `Buffer`), and a digit stays with the word before it (`Mode7`).
 
 A name that says `Tile` or `Metatile` names the hardware's tile and is reported too (#1726,
 `CoreVocabularyAnalyzer.TileWords`): the eight-pixel picture the machine drew its backgrounds and sprites from, and the
 block named as four of them. Core names what it means instead: a block animation (`BlockAnimation`,
-`RoomSandBlockAnimationsState`, `TourianStatueBlockPicture`), a picture (`PictureFlip`, `BindScreenPictures`), a
+`RoomBlockAnimations`, `TourianStatueBlockPicture`), a picture (`PictureFlip`, `BindScreenPictures`), a
 block (`XrayRoomOverlayBlocks`, `TankBlock`), the part of a layer drawn behind or in front of the actors
 (`ActorDepth.BehindFrontParts`, `GameplayLayer.BackgroundFrontPart`) or the eight-pixel cell
 (`BackgroundCellSizePixels`). The game's own tiles keep the word (`CoreVocabularyAnalyzer.GameTilePhrases`), each tile
@@ -155,6 +155,16 @@ they ran each frame as a pointer their animations installed and cleared. Core na
 `FlyKraidRock`, `DropMotherBrainDrool`, `UnauthoredBeamShotBehaviors`; an animation's cue names the event that begins
 it (`YardCueKind.BeginTurn`, `YardCue.BeginCrawling`). A delegate keeps no allowance. Each word alone stays the game's
 own: a frame, a behaviour.
+
+A name that says the hardware's object is reported too (#2004, #1977, `CoreVocabularyAnalyzer.HardwareObjectPhrases`):
+`SpriteObject`, `ObjectSprite`, `CinematicObject` or `AnimatedObject`, with the plural ending (`RoomSpriteObjectKind`,
+`_spriteObjects`, `objectSprites`, `IntroCinematicObjectSystem`, `SpawnAnimatedObjects`). The machine called its sprites
+objects, and the cartridge named its sprite-object subsystem, its cinematic sprite objects and its animated tile objects
+by that word. Core names what they are: the room's effect actors (`RoomEffectActor`, `RoomEffectActorKind`,
+`EffectActorPlaces`), the opening's actors (`IntroNarrationActors`), the screen's sprites (`screenSprites`) and the block
+animations (`SpawnStatueAnimations`). `Object` alone stays the game's own: the room's objects, which its object system
+places, sets up and runs (`RoomObject`, `BlueDoorCapObject`, `DeleteObject`), and an object in plain English
+(`SpaceObjects`, `SpawnedObjectOwner`).
 
 SME6454 also reads the original's numbering of the game (#1769). In every type it reports a numbered routine or variable
 label (`Func126`, `Func139–142`, `var4`). Outside hardware owners it reports a game state, load station or area by
@@ -245,6 +255,32 @@ and its streams (`the head stream`, `a cue stream`, `a delay stream`). Core's an
 are hidden (`CrocomireTongueSegment.Hidden`), a dormant enemy is dormant, and a cue or frame says what it does. An event,
 audio, sound, file, data, level, random, input, output or memory stream and streaming in, into, through, from or out stay
 English.
+
+SME6454 also reads the review trail in every type (#1971, #1998, #2018): a review, check, verification, audit or
+investigation cited by its ticket (`Reviewed for #1165`, `#1165 independently confirms`, `the #1165 research`,
+`Issue #1039:`), anything independently reviewed, checked, verified or confirmed, a pair of ticket citations
+(`#625 / #643`), an investigation in any word form, a proof, data pinned for reference (`the pinned retail data`, `the
+pinned cartridge's sine words`), a release pinned by its version (`v1.0`) and a commit hash (`db3aa8b3bb`). How a value
+was reviewed and which commit fixed it are the repository's history, not the game's. A ticket cited for the change it
+names (`(#1989)`), a thing pinned in the game (Samus pinned by the beam) and a decimal stay English.
+
+Outside hardware owners it reads the original's numbering of its tables, entries, slots, parameters and programs
+(#1971): a table or list by its count of entries or rows (`the 16-entry shot-block table`, `the eight-entry list`, `a
+two-row table`), an entry by number (`entry 23`, `entries 40..43`), a pool by its count of slots (`the eighteen-slot
+pool`, `all eighteen projectile slots`), a slot or a parameter by number (`random slots 0 and 3`, `animation parameter
+nine`) and a program (`a Torizo program`, `animation programs`). Core names the choice, the step, the place or the
+animation. A number that counts the noun after it, a save slot by number, the rows of a screen, menu or panel (`the
+two-row Yes/No prompt`), a slot or entry alone and a program joined into a name or key (`sound-program-heading`) stay
+English. It reads the original's call structure (#1998, #2018): a caller in any form (`the caller reads first`,
+`caller-owned`), a pace per call (`4.5 pixels per call`) and dispatch in any word form (`Boulder's main AI dispatches`,
+`Dispatches the body's main behaviours`, `before dispatch`, `redispatch`), so a dispatch alone is read now; Core says
+what runs, when and how often in the game (per update, per frame) and who owns a value. Sending a request, a sound, music,
+a message, an event or audio (`the queue dispatches the request`, `audio dispatch`) stays English. It reads the sound
+chip's voices and key-off (#2018): a voice, the noun (`a voice queue`, `the looping voice`) and a key-off (`a key-off
+release`); Core names the sound library, the looping sound and the clip's fade, and the verb before its object (`the
+particle voices the attack's sound`) stays English. In comments it reads a word run on to a number (#2018: `counter16`,
+`hold3`, `contains100`), a garbled numeral or a label of the original; a file extension (`.ps1`) and a name Core's code
+spells stay legal.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

@@ -591,7 +591,7 @@ public static class SamusAerialMovement
         return horizontal;
     }
 
-    /// <summary>Runs the shared Y mover and reduces its collision scan to landing and ceiling signals for the caller.</summary>
+    /// <summary>Runs the shared Y mover and reduces its collision scan to the landing and ceiling signals her movement reads.</summary>
     private static AerialMovementResult FinishVerticalMovement(
 
         RoomLevelData level,
@@ -666,7 +666,7 @@ public static class SamusAerialMovement
         if (hitCeiling && ceilingResponse != SamusCeilingResponse.Deferred)
         {
             // Ordinary movements consume the ceiling collision as a jump stop. A turn
-            // instead clears that pending result, so its caller defers these writes.
+            // instead clears that pending result, so the turn defers these writes.
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
         }

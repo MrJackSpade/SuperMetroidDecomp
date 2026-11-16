@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <summary>One spawned-object sheet of a room graphics set (#1392, #1513).</summary>
 /// <param name="Owner">Whose spawned objects it pictures, which names it to the game.</param>
 /// <param name="ProjectileCharacters">The character index its projectiles' parts count from.</param>
-/// <param name="ObjectCharacters">The character index its sprite objects' and encounter frames' parts count from.</param>
+/// <param name="ObjectCharacters">The character index its effect actors' and encounter frames' parts count from.</param>
 /// <param name="Palette">The palette row its frames are coloured in: its spawner's, or the common row at character zero.</param>
 /// <param name="Spawners">The enemies whose own-graphics spawns, or encounter frames, it holds, and whose shades colour it.</param>
 /// <param name="SharedSpawners">

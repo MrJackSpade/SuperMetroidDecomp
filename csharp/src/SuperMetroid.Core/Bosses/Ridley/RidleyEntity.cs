@@ -29,7 +29,7 @@ internal sealed class RidleyEntity(
             case RidleyPart.Ceres:
                 ceres.Flight.InitializeCeresRidley(Slot);
                 break;
-            case RidleyPart.Explosion:
+            case RidleyPart.BreakupPiece:
                 ridley.Death.RunRidleyExplosionInitializationAi(Slot);
                 break;
             default:
@@ -48,7 +48,7 @@ internal sealed class RidleyEntity(
             case RidleyPart.Ceres:
                 ceres.RunCeresRidleyMainAi(Slot, frame);
                 break;
-            case RidleyPart.Explosion:
+            case RidleyPart.BreakupPiece:
                 ridley.Death.RunNorfairRidleyExplosionMain(Slot);
                 break;
             default:
@@ -64,7 +64,7 @@ internal sealed class RidleyEntity(
             case RidleyPart.Ridley or RidleyPart.Ceres:
                 ridley.Animation.AdvanceRidleyBodyTypedAnimation(Slot, context);
                 break;
-            case RidleyPart.Explosion:
+            case RidleyPart.BreakupPiece:
                 RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Slot);
                 break;
             default:

@@ -316,7 +316,7 @@ internal sealed class EnemySheetShades
                 }
                 break;
             }
-            case EnemyDefinitionId.Robot:
+            case EnemyDefinitionId.WorkRobot:
             {
                 WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
                 for (int record = 0; record < WorkRobotGlowDefinitions.StepCount; record++)
@@ -349,11 +349,11 @@ internal sealed class EnemySheetShades
                 break;
             case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
                 or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
-                or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad:
+                or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidFirstNail or EnemyDefinitionId.KraidSecondNail:
                 // The bosses' own effects over the row they draw in (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));
                 break;
-            case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyExplosion or EnemyDefinitionId.CeresDoor
+            case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyBreakupPiece or EnemyDefinitionId.CeresDoor
                 or EnemyDefinitionId.CeresRidleyRoomDoor or EnemyDefinitionId.CeresElevatorDoor or EnemyDefinitionId.CeresElevatorRoomWall
                 or EnemyDefinitionId.CeresGetawayChamberWall:
                 // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
@@ -389,9 +389,9 @@ internal sealed class EnemySheetShades
             case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
                 or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
                 or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
-                or EnemyDefinitionId.Menu or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
+                or EnemyDefinitionId.MaridiaFly or EnemyDefinitionId.Multiviola or EnemyDefinitionId.LavaRocks or EnemyDefinitionId.Rinka
                 or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
-                or EnemyDefinitionId.Choot or EnemyDefinitionId.GRipper or EnemyDefinitionId.RipperII or EnemyDefinitionId.Ripper
+                or EnemyDefinitionId.Choot or EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.JetRipper or EnemyDefinitionId.Ripper
                 or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
                 or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
                 or EnemyDefinitionId.Fireflea or EnemyDefinitionId.Skultera or EnemyDefinitionId.Elevator or EnemyDefinitionId.Sciser
@@ -399,14 +399,14 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
                 or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
                 or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Skree
-                or EnemyDefinitionId.Yard or EnemyDefinitionId.HZoomer or EnemyDefinitionId.Zeela
-                or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer or EnemyDefinitionId.Metroid
+                or EnemyDefinitionId.Yard or EnemyDefinitionId.OrangeZoomer or EnemyDefinitionId.Zeela
+                or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer or EnemyDefinitionId.Metroid
                 or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
-                or EnemyDefinitionId.Hibashi or EnemyDefinitionId.Puromi or EnemyDefinitionId.MiniKraid or EnemyDefinitionId.Steam
+                or EnemyDefinitionId.Hibashi or EnemyDefinitionId.Puromi or EnemyDefinitionId.MiniKraid or EnemyDefinitionId.CeresSteam
                 or EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
                 or EnemyDefinitionId.PhantoonMouth or EnemyDefinitionId.Etecoon or EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile
-                or EnemyDefinitionId.Eye or EnemyDefinitionId.Fune or EnemyDefinitionId.Namihe or EnemyDefinitionId.YappingMaw
-                or EnemyDefinitionId.Kago or EnemyDefinitionId.Beetom or EnemyDefinitionId.Powamp or EnemyDefinitionId.RobotNoPower
+                or EnemyDefinitionId.MorphBallEye or EnemyDefinitionId.Fune or EnemyDefinitionId.Namihe or EnemyDefinitionId.YappingMaw
+                or EnemyDefinitionId.Kago or EnemyDefinitionId.Beetom or EnemyDefinitionId.Powamp or EnemyDefinitionId.UnpoweredWorkRobot
                 or EnemyDefinitionId.Bull or EnemyDefinitionId.Alcoon or EnemyDefinitionId.Atomic or EnemyDefinitionId.Spark
                 or EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellow
                 or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterRedWings
@@ -447,7 +447,7 @@ internal sealed class EnemySheetShades
             inks.Add(SheetShade.Run(ChozoAndTubeShades.LowerNorfairStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
                 Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.LowerNorfair, colour))));
         }
-        if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianPartDefinitions.Parts.ContainsKey(enemy))
+        if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
         {
             ShitroidColorCatalog shitroid = inputs.Bosses.ShitroidColors ?? throw Missing("drained corpse colours");
             rows.Add(new(TourianCorpseShades.Drained, EnemySheetRowDefinitions.DrainedCorpses, colours.With(EnemySheetRowDefinitions.DrainedCorpses, 0,
@@ -477,7 +477,7 @@ internal sealed class EnemySheetShades
         IEnumerable<SheetShade> inks = SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses, enemy);
         if (enemy == EnemyDefinitionId.TourianStatue)
             inks = inks.Concat(TourianStatueScene());
-        if (enemy is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyExplosion)
+        if (enemy is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyBreakupPiece)
             inks = inks.Concat(RidleySprites());
         if (enemy is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
             or EnemyDefinitionId.BabyMetroidCutscene)

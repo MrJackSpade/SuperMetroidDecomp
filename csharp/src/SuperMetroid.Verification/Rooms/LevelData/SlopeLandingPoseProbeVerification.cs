@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -34,7 +35,7 @@ internal static class SlopeLandingPoseProbeVerification
 
         SamusState Falling(ushort y, ushort ySubposition)
         {
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ySubposition);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             return samus;

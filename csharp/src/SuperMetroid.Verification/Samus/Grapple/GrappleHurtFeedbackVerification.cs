@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -81,7 +82,7 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Checks pending health-loss history survives current saves, and that an older capture layout is rejected (#1270).</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
-        var state = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 77, PreviousHealthForHurtCheck = 99 };
+        var state = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 77, PreviousHealthForHurtCheck = 99 };
         using var current = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(current, state);
         current.Position = 0;

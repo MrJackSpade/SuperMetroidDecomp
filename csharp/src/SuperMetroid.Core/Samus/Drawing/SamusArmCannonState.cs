@@ -77,8 +77,8 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>
-    /// Draws the direction-specific small sprite showing its selected cover frame. The caller chooses
-    /// before/after-body order from <see cref="DrawOrder"/>.
+    /// Draws the direction-specific small sprite showing its selected cover frame. Samus's drawing places it
+    /// before or after her body by <see cref="DrawOrder"/>.
     /// </summary>
     public void Draw(
         SpriteFrameBuffer sprites,

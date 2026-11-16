@@ -467,7 +467,7 @@ Alcoon's eighteen left/right walking, firing, and airborne compositions, plus
 Beetom's twenty-two crawling, hopping, and draining compositions, and the
 Sidehopper/Dessgeega family's twenty-four floor/ceiling compositions (including
 the large and Tourian Sidehopper variants), plus Choot's four idle/jump/fall
-compositions, plus twenty surface-orientation poses shared by HZoomer, Zeela,
+compositions, plus twenty surface-orientation poses shared by OrangeZoomer, Zeela,
 Sova, Zoomer, and Stone Zoomer. It also contains all 276 distinct bank-$B4
 sprite-object frames selected by the 62 compiled room-object programs. Four
 Draygon opening Evir and nine breath-bubble frames have descriptive names;

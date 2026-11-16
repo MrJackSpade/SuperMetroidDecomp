@@ -84,15 +84,16 @@ public static class GameplayDisplayCapture
 
         GameplayRenderSnapshot scrolls = latched.Scrolls;
         GameplayLatchedScene scene = latched.Scene;
-        GameplayLatchedBossBackgrounds bosses = latched.Bosses;
+        GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         Position16<RoomPixels> foregroundScroll = scrolls.ForegroundScroll + shake.Foreground;
-        // A boss's body (Kraid's, Phantoon's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where it lies in
-        // the room against the frame's camera (#1617, #1802, #1858): the background shows its body's area from there, moved by the room's
-        // shake as any background is. Only a room without a placed body shows the background where its own scroll puts it.
+        // A boss's body (Kraid's, Phantoon's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where its boss places
+        // it in the room against the frame's camera (#2031): the background shows the body from its placement, each frame
+        // where it lies against it, moved by the room's shake as any background is. Only a room without a placed body shows
+        // the background where its own scroll puts it.
         Position16<RoomPixels> camera = scrolls.ForegroundPosition;
-        Position16<RoomPixels>? bodyOrigin = bosses.BodyOrigin;
-        Position16<BackgroundPixels> backgroundScroll = (bodyOrigin is { } origin ? BossBodyPlacement.Shown(origin, camera) : scrolls.BackgroundScroll)
+        Position16<RoomPixels>? bodyPlacement = bosses.Placement;
+        Position16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : scrolls.BackgroundScroll)
             + shake.Background;
         if (live.TourianStatuesEnabled)
             // The statues' descent supplies the background's vertical scroll per line after the
@@ -109,27 +110,27 @@ public static class GameplayDisplayCapture
             ? GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(lava, backgroundScroll) : null;
         SampledScrollWave? lavaY = fx is { } vertical
             ? GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(vertical, backgroundScroll.Y) : null;
-        // Draygon's body shows whole where it lies (#1873); once he is deleted his body layer shows nothing.
-        ScreenLayers displayedLayers = bosses.DraygonBody is { Deleted: true }
+        // A boss's body shows whole where it lies (#1873); while it is hidden, once Draygon is deleted or while Mother Brain's
+        // death flicker hides hers, the background shows nothing.
+        ScreenLayers displayedLayers = bosses.Hidden
             ? latched.ShownLayers & ~ScreenLayers.Background
             : latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514): the layers show one row
         // below their cameras, so the backend draws the view with no offset of its own. A sky room's background shows the
         // sky's rows down the screen.
         var view = new GameplaySceneView(GameplaySceneView.LayerPixelAtScreenTop(foregroundScroll),
-            GameplaySceneView.LayerPixelAtScreenTop(bodyOrigin is null && sky is { } latchedSky
+            GameplaySceneView.LayerPixelAtScreenTop(bodyPlacement is null && sky is { } latchedSky
                 ? backgroundScroll.WithY(Add(latchedSky.CameraRow, shake.Background.Y)) : backgroundScroll),
-            live.DoorTransitionShownLayers ??
-                (bosses.MotherBrainBody is { Hidden: true }
-                    ? ScreenLayers.Foreground | ScreenLayers.Sprites
-                    : displayedLayers),
+            live.DoorTransitionShownLayers ?? displayedLayers,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default);
         // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
-        LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave, camera) : lavaX ?? waterX ?? (LineScroll?)skyX;
+        LineScroll? backgroundHorizontal = latched.Phantoon?.Wave is { } wave
+            ? BossLineScrolls.Of(wave, camera, bodyPlacement ?? throw new InvalidOperationException("Phantoon's wave ripples a body he does not place."))
+            : lavaX ?? waterX ?? (LineScroll?)skyX;
         // Crocomire's melt owns the background's vertical scroll while it sags his body; otherwise lava's does.
         LineScroll? backgroundVertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : lavaY;
         // A sky room shows the sky's rows on the background (#1347); a boss shows its body layer there while it owns it (#1352,
-        // #1353), its pictures placed where they show on the body's area (#1466, #1514).
+        // #1353), its pictures placed where they show against its placement (#1466, #1514, #2031).
         RoomBackgrounds rooms = (latched.Rooms
             ?? throw new InvalidOperationException("Ordinary gameplay capture has no room backgrounds.")) with
             {

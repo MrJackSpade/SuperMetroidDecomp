@@ -49,7 +49,7 @@ internal static class IntroNarrationPresentationVerification
             // The installed page runs to completion with every narration ROM read forbidden;
             // extraction copied its text from the cartridge.
             var installedText = PagesText();
-            var installed = new IntroCinematicObjectSystem(
+            var installed = new IntroNarrationActors(
                 installedText, new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
                 narrationPresentation: presentation);
             StartPage(installed, page);
@@ -64,7 +64,7 @@ internal static class IntroNarrationPresentationVerification
                 $"installed opening narration {page} shows its text");
         }
 
-        var saved = new IntroCinematicObjectSystem(
+        var saved = new IntroNarrationActors(
             PagesText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(),
             narrationPresentation: presentation);
         saved.StartEnglishPageSix();
@@ -108,7 +108,7 @@ internal static class IntroNarrationPresentationVerification
     }
 
     /// <summary>Calls the cinematic entry point for one of its six English story pages.</summary>
-    private static void StartPage(IntroCinematicObjectSystem state, IntroNarrationPageId page)
+    private static void StartPage(IntroNarrationActors state, IntroNarrationPageId page)
     {
         switch (page)
         {
@@ -124,7 +124,7 @@ internal static class IntroNarrationPresentationVerification
 
     /// <summary>Recognizes the page-specific wait or finish state after all typewriter characters display.</summary>
     private static bool IsPageComplete(
-        IntroCinematicObjectSystem state,
+        IntroNarrationActors state,
         IntroNarrationPageId page) => page switch
     {
         IntroNarrationPageId.Page1 => state.PageOneAwaitingInput,

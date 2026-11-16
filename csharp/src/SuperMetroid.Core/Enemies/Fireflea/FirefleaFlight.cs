@@ -14,6 +14,6 @@ internal abstract record FirefleaFlight
     internal sealed record Bobbing(SignedSixteenSixteen Speed, EnemySpeedSign StartSign) : FirefleaFlight;
 
     /// <summary>Circles about where it starts.</summary>
-    /// <param name="TurnPerUpdate">The turn it makes around its circle each update.</param>
-    internal sealed record Circling(RotationAngle TurnPerUpdate) : FirefleaFlight;
+    /// <param name="TurnPerUpdate">How far, and which way, it turns around its circle each update.</param>
+    internal sealed record Circling(AngularSpeed TurnPerUpdate) : FirefleaFlight;
 }

@@ -16,7 +16,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new LowerNorfairRioEntity(this, slot, common);
 
-    /// <summary>Supplies the shared random draw consumed before every parent and follower AI dispatch.</summary>
+    /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves wall and floor collisions during Rio dives and returns.</summary>
     private readonly EnemyTerrain _terrain;
@@ -45,11 +45,12 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Initializes the Lower Norfair Rio.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
     {
-        var state = new LowerNorfairRioEnemyState
+        bool isFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
+        var state = new LowerNorfairRioEnemyState(isFollower ? LowerNorfairRioAction.FollowParent : LowerNorfairRioAction.WaitForAttackOpportunity)
         {
             AnimationSignal = false,
             FollowerVisible = false,
-            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower,
+            IsFollower = isFollower,
         };
         slot.SetSpeciesState(state);
 
@@ -59,18 +60,16 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             ValidateLowerNorfairRioParent(slot);
             state.InstalledAnimation = LowerNorfairRioSegment.Flames;
             state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Flames), AnimationPlace.StartOfAnimation);
-            state.Action = LowerNorfairRioAction.FollowParent;
             return;
         }
 
         state.InstalledAnimation = LowerNorfairRioSegment.Idle;
         state.Playback = new(LowerNorfairRioAnimations.StartingWith(LowerNorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
-        state.Action = LowerNorfairRioAction.WaitForAttackOpportunity;
     }
 
     /// <summary>
-    /// Runs the Lower Norfair Rio's main AI and each action it dispatches.
-    /// The shared RNG advances before every parent and follower dispatch, exactly as retail.
+    /// Runs the Lower Norfair Rio's main AI and each action it runs.
+    /// The shared RNG advances before every parent and follower acts, exactly as retail.
     /// </summary>
     private void RunLowerNorfairRioMain(
         RoomEnemySlot slot,
@@ -182,7 +181,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Lower Norfair Rio has no behaviour for action {state.Action}.");
         }
     }
 

@@ -9,6 +9,9 @@ internal static class MagdollitePhaseDefinitions
     /// </summary>
     internal const int MaximumRise = 108;
 
+    /// <summary>How far the arm's body moves down as it grows a phase, and back up as it loses one, in pixels.</summary>
+    internal const int BodyShiftPerPhase = 8;
+
     /// <summary>
     /// The distance thresholds, body animations, and body-to-overlay Y offsets for the
     /// nine authored phases; the body shows the narrow pillars and the three- to eight-segment stacks in rise order. The zero-distance setup repeats the first visible pillar. Each following sixteen-pixel rise

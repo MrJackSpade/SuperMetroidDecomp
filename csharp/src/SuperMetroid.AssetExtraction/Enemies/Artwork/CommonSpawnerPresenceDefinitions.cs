@@ -49,7 +49,7 @@ internal static class CommonSpawnerPresenceDefinitions
     ];
 
     /// <summary>Both Ridleys.</summary>
-    private static readonly EnemyDefinitionId[] Ridleys = [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyExplosion];
+    private static readonly EnemyDefinitionId[] Ridleys = [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyBreakupPiece];
 
     /// <summary>The enemies whose code raises the room-graphics dust and explosions.</summary>
     private static readonly EnemyDefinitionId[] DustRaisers =

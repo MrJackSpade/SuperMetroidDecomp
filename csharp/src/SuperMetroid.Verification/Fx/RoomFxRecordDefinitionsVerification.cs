@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -56,16 +57,14 @@ internal static class RoomFxRecordDefinitionsVerification
         SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, station.Room.Pointer);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
-        var nativeFxSession = new RoomFxSession();
         RoomFxOverlayState nativeFx;
-        var compiledFxSession = new RoomFxSession();
         RoomFxOverlayState compiledFx;
-        nativeFx = RoomFxOverlayState.ForRoom(nativeFxSession, room.State.Fx,
+        nativeFx = RoomFxOverlayState.ForRoom(room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        nativeFx.BindAudioRequests(new GameplayAudioRequests());
-        compiledFx = RoomFxOverlayState.ForRoom(compiledFxSession, room.State.Fx,
+        nativeFx.BindAudioRequests(GameplayAudioRequests.Standalone());
+        compiledFx = RoomFxOverlayState.ForRoom(room.State.Fx,
             station.Door, randomNumber: 0, room.Definition);
-        compiledFx.BindAudioRequests(new GameplayAudioRequests());
+        compiledFx.BindAudioRequests(GameplayAudioRequests.Standalone());
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseY?.Whole, compiledFx.BaseY?.Whole, "Ceres compiled FX base Y");
         AssertEqual(nativeFx.TargetSurface, compiledFx.TargetSurface, "Ceres compiled FX target Y");
@@ -90,15 +89,10 @@ internal static class RoomFxRecordDefinitionsVerification
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
-        var nativeSand = new RoomSandBlockAnimationsState(room.State.Fx, station.Door);
-        var compiledSand = new RoomSandBlockAnimationsState(room.State.Fx, station.Door);
-        AssertEqual(nativeSand.Count, compiledSand.Count,
-            "Ceres compiled sand animation count");
-
-        var nativeTreadmills = new RoomTreadmillBlockAnimationsState(room.State.Fx, station.Door);
-        var compiledTreadmills = new RoomTreadmillBlockAnimationsState(room.State.Fx, station.Door);
-        AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
-            "Ceres compiled treadmill animation count");
+        var nativeAnimations = new RoomBlockAnimations(room.State.Fx, station.Door);
+        var compiledAnimations = new RoomBlockAnimations(room.State.Fx, station.Door);
+        AssertTrue(nativeAnimations.EffectAnimations.SequenceEqual(compiledAnimations.EffectAnimations),
+            "Ceres compiled block animations");
     }
 
     /// <summary>Runs the room FX catalog comparison through the verification command dispatcher.</summary>

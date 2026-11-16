@@ -27,12 +27,8 @@ internal static class SamusComboMechanics
 
     /// <summary>
     /// The special beam attacks' cost in Power Bombs: one Power Bomb for Wave, Ice,
-    /// Spazer, and Plasma alone; zero for the eight non-combo beam indexes.
+    /// Spazer, and Plasma alone; zero for every other beam combination.
     /// </summary>
-    /// <remarks>Independently reviewed for #1165 against the Japanese and North American v1.0 release:
-    /// the four single-beam rows cost one and the other eight cost zero.
-    /// The game keeps the equipped beams' lowest four bits as the row.
-    /// Rows 12..15 are outside the table.</remarks>
     internal static int GetPowerBombCost(SamusBeamCombination beam) =>
         ComboKind(beam) is null ? 0 : 1;
 
@@ -41,13 +37,11 @@ internal static class SamusComboMechanics
     /// particles. The game negates the truncated positive magnitude, so this deliberately
     /// truncates toward zero in all quadrants.
     /// </summary>
-    /// <remarks>Independently reviewed for #1165 against the combos' sine and cosine and all
-    /// original positive sine values. The positive sample times the amplitude, divided by 256
+    /// <remarks>The positive sample times the amplitude, divided by 256
     /// and truncated, gives the magnitude; the sign is restored afterward, including at the exact 256 peak.
-    /// Ice, Plasma and Spazer callers supply angles of 256 steps; Y turns back a quarter turn
-    /// with the same wrap. The amplitude is 0 through 255.
-    /// This is a consumer view of the reviewed signed sine mapping, with no stored
-    /// lookup of its own; preserve this existing algorithm.</remarks>
+    /// The Ice, Plasma and Spazer attacks give angles in 256ths of a turn; Y turns back a quarter turn
+    /// with the same wrap. The amplitude is 0 through 255. It reads the game's signed sine and keeps no
+    /// values of its own.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(TrigonometryAngle angle, int amplitude)
     {
         Ensure.BetweenInclusive(0, ComboRingCollapse.LargestRadius, amplitude);

@@ -272,7 +272,7 @@ internal sealed class StationObjects
             level.SetBehavior(block, written);
     }
 
-    /// <summary>The station collision notice room collision dispatch sends with the block's behaviour.</summary>
+    /// <summary>The station collision notice room collision sends with the block's behaviour.</summary>
     /// <param name="level">The room's level, through whose blocks the step from the access block to its station runs.</param>
     /// <param name="accessBlock">The access block Samus collided with.</param>
     /// <param name="behavior">The access block's behaviour.</param>

@@ -25,7 +25,7 @@ internal static class EndingLogoDefinitions
     public static Offset16<ScreenPixels> Camera => new(256, 256);
     /// <summary>The S halves start with a motion step of eight.</summary>
     public const int InitialSpeed = 8;
-    /// <summary>The approaching S halves accelerate by two pixels per call.</summary>
+    /// <summary>The approaching S halves accelerate by two pixels an update.</summary>
     public const int Acceleration = 2;
     /// <summary>The upper S half stops at world (394,367).</summary>
     public static Offset16<ScreenPixels> TopLanding => new(394, 367);

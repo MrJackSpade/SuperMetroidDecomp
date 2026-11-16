@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 
 /// <summary>Confirms four crawler species share the same compiled animation
-/// selectors and installed HZoomer spritemap artwork.</summary>
+/// selectors and installed orange Zoomer spritemap artwork.</summary>
 internal static class SharedCrawlerArtworkVerification
 {
     /// <summary>Confirms every pose the shared crawler loops show has installed artwork.</summary>
@@ -16,7 +16,7 @@ internal static class SharedCrawlerArtworkVerification
         foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(CrawlerSegment.SharedUpsideRightLoop, CrawlerSegment.SharedUpsideLeftLoop,
                      CrawlerSegment.SharedUpsideDownLoop, CrawlerSegment.SharedUpsideUpLoop))
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(
-                    EnemySpritemapDefinitions.HZoomerBank, pose, out _),
-                $"Shared crawler pose ${pose:X4} uses installed HZoomer artwork");
+                    EnemySpritemapDefinitions.OrangeZoomerBank, pose, out _),
+                $"Shared crawler pose ${pose:X4} uses installed OrangeZoomer artwork");
     }
 }

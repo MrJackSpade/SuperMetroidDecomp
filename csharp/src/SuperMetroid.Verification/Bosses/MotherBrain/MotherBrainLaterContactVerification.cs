@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -29,19 +30,19 @@ internal static class MotherBrainLaterContactVerification
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
         enemies.MotherBrainEncounter.MotherBrain = state;
-        Action<RoomEnemySlot, SamusState?, SamusBombProjectileSystem?> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
+        Action<RoomEnemySlot, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
             state.Phase = MotherBrainBodyPhase.FakeDeathAscentContinuePausing;
             state.PhaseTimer = contact == "post-dispatch position" ? 0 : 100;
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
             samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;
             if (contact == "neck") { samus.Position = samus.Position.WithWhole(new(250, 80)); expectedX = 16; }
             if (contact == "no-damage side") { samus.Position = samus.Position.WithWholeX(152); expectedX = 26; }
             if (contact == "post-dispatch position") { samus.Position = samus.Position.WithWhole(new(89, 279)); }
-            main(body, samus, null);
+            main(body, samus, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem());
             AssertEqual((ushort)(contact == "no-damage side" ? 500 : 500 - body.Definition.Damage),
                 samus.Health, $"Later-phase {contact} applies native contact damage");
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
@@ -59,19 +60,19 @@ internal static class MotherBrainLaterContactVerification
         interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             var shot = shots.Shots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.FrameHold = WrappingCountdown.Start(1);
             shot.Behavior = type.Family == SamusProjectileFamily.Missile ? SamusShotBehaviors.Missile : SamusShotBehaviors.Beam;
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), SuperMetroid.Core.Progression.AreaId.Crateria, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), SuperMetroid.Core.Progression.AreaId.Crateria, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
                 "Mother Brain body accepts the projectile collision callback");
             AssertEqual(1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");
             AssertEqual((SoundEffectId?)SamusSound.DudShot, enemies.Audio.LatestSound, "Body emits native dud sound");
         }
-        AssertEqual(2, enemies.RoomSpriteObjects.Count(slot => slot.Kind == RoomSpriteObjectKind.EnemyProjectileDud),
+        AssertEqual(2, enemies.RoomEffectActors.Count(slot => slot.Kind == RoomEffectActorKind.EnemyProjectileDud),
             "Both beam and missile callbacks create their dud sprite");
         Console.WriteLine("Mother Brain later contact: body/neck damage, side condition, post-dispatch position and projectile duds passed.");
         return 0;

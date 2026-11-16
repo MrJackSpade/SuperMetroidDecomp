@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Negative">The same speed toward decreasing coordinates, leftward or upward.</param>
 /// <remarks>
 /// Several jump and orbit calculations read a mark's speed at a coarser precision: <see cref="CoarseToward"/> is the
-/// speed in 256ths of a pixel, its finest 256ths of that dropped. Those calculations (Beetom's and the hoppers' jump
-/// heights, Puyo's hop estimate, and Ki-Hunter wing orbits) choose their place along the curve by summing coarse speeds,
+/// speed in 256ths of a pixel, its finest 256ths of that dropped. Those calculations (Beetom's and the hoppers' climbs,
+/// <see cref="QuadraticCurveClimb"/>, Puyo's hop estimate, and Ki-Hunter wing orbits) choose their place along the curve by summing coarse speeds,
 /// so the coarse value is the authored rule they follow, not an approximation of the full speed.
 /// </remarks>
 public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Positive, SignedSixteenSixteen Negative)

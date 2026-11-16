@@ -74,7 +74,7 @@ internal static class BossSheetShades
     private static readonly HashSet<EnemyDefinitionId> KraidParts =
     [
         EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidLintMiddle,
-        EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad,
+        EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidFirstNail, EnemyDefinitionId.KraidSecondNail,
     ];
 
     /// <summary>

@@ -8,11 +8,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal WalkingSpacePirateEnemyState(WalkingSpacePirateAction action) => Action = action;
+
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<WalkingSpacePirateSegment> Playback { get; set; }
 
     /// <summary>The current behaviour.</summary>
-    public WalkingSpacePirateAction? Action { get; internal set; }
+    public WalkingSpacePirateAction Action { get; internal set; }
 
     /// <summary>
     /// Left patrol post. Only the X axis is stored and meaningful (Y reads zero): a leftward walk turns back once the

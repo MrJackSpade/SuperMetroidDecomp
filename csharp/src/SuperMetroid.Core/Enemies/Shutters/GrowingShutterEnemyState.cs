@@ -19,8 +19,12 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Each growth section's stored origin row, indexed by growth level; the column is always the shutter's own.</summary>
     private readonly Position16<RoomPixels>[] _sectionOrigins = new Position16<RoomPixels>[SectionCount];
 
-    /// <summary>Creates the state for a room-owned shutter slot.</summary>
-    internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
+    /// <summary>Creates the state for a room-owned shutter slot, starting in <paramref name="action"/>.</summary>
+    internal GrowingShutterEnemyState(RoomEnemySlot slot, GrowingShutterAction action)
+    {
+        _slot = slot;
+        Action = action;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ShutterSegment> Playback { get; set; }
@@ -29,7 +33,7 @@ public sealed class GrowingShutterEnemyState
     /// The current behaviour; initialization selects a wait action and activation replaces it with a growth
     /// action.
     /// </summary>
-    public GrowingShutterAction? Action { get; internal set; }
+    public GrowingShutterAction Action { get; internal set; }
 
     /// <summary>
     /// The timer-mode activation wait: tested for expiry before each decrement, so a wait of N activates on call N + 1

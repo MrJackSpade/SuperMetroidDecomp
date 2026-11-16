@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
@@ -17,7 +17,7 @@ public sealed class YappingMawEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YappingMawSegment> Playback { get; set; }
 
-    /// <summary>The listed enemy representing the moving mouth, distinct from the four body projectiles and the stationary root sprite object.</summary>
+    /// <summary>The listed enemy representing the moving mouth, distinct from the four body projectiles and the stationary root effect actor.</summary>
     public RoomEnemySlot Owner { get; }
     /// <summary>The behaviour main AI runs, initialized to neutral and advanced by targeting, curl completion, and cooldown expiration.</summary>
     public YappingMawAction Action { get; internal set; }
@@ -121,5 +121,5 @@ public sealed class YappingMawEnemyState
         new EnemyProjectile?[4];
 
     /// <summary>The root/base object its attack direction selects.</summary>
-    public RoomSpriteObject? RootSpriteObject { get; internal set; }
+    public RoomEffectActor? RootEffectActor { get; internal set; }
 }

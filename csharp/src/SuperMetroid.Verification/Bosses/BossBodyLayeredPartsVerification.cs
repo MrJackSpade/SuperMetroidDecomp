@@ -57,7 +57,7 @@ internal static class BossBodyLayeredPartsVerification
         int compared = 0;
         void Compare(string when)
         {
-            AssertLayered(enemies.Presentation.RequireBossBody().Publish(), sources, area, $"Crocomire {when}");
+            AssertLayered(enemies.Presentation.RequireBossBody().Publish(), BossBodyOwner.Crocomire, sources, area, $"Crocomire {when}");
             compared++;
         }
 
@@ -79,10 +79,12 @@ internal static class BossBodyLayeredPartsVerification
                 Compare($"after his {pass} melt's dissolve erases {erased} columns");
             }
         }
+        // The acid hides his body from a room row, which his body reckons from where he lies (#2031).
+        int areaTop = BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Crocomire].Y;
         foreach (int row in new[] { 64, 40, 8 })
         {
-            enemies.CrocomireBehavior.BodyLayer.HideCrocomireBodyFrom(row);
-            AssertEqual<int?>(row, enemies.Presentation.RequireBossBody().Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
+            enemies.CrocomireBehavior.BodyLayer.HideCrocomireBodyBelow(state, state.Body.Position.Y.Whole + areaTop + row);
+            AssertEqual<int?>(areaTop + row, enemies.Presentation.RequireBossBody().Publish().ShownAbove, $"the acid hides Crocomire's body from row {row}");
             Compare($"hidden from row {row}");
         }
         return compared;
@@ -113,7 +115,7 @@ internal static class BossBodyLayeredPartsVerification
                 BossBodyLayer layer = enemies.KraidBehavior.BodyLayer.CaptureBodyLayer()
                     ?? throw new InvalidOperationException("Kraid showing his body layer draws his body.");
                 AssertEqual(2, layer.Frames.Length, $"Kraid's {appearance} body shows his body and one head");
-                AssertLayered(layer, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}",
+                AssertLayered(layer, BossBodyOwner.Kraid, sources, KraidCanvas, $"Kraid's {appearance} body with head {head?.MouthStage.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "risen with it"}",
                     appearance == KraidBodyAppearance.InFrontOfSprites ? [KraidBodyFrameNames.Body, KraidBodyFrameNames.RestingHead] : []);
                 compared++;
             }
@@ -142,7 +144,7 @@ internal static class BossBodyLayeredPartsVerification
                 parts.Show(EnemyDefinitionId.PhantoonEye, sheet.Frame(eye));
                 parts.Show(EnemyDefinitionId.PhantoonTentacles, sheet.Frame(EnemyFrameId.PhantoonTentaclesFirst));
                 parts.Show(EnemyDefinitionId.PhantoonMouth, sheet.Frame(EnemyFrameId.PhantoonMouthInitial));
-                AssertLayered(parts.Publish(), sources, SideBySideCanvas, $"Phantoon's {body} with his {eye}");
+                AssertLayered(parts.Publish(), BossBodyOwner.Phantoon, sources, SideBySideCanvas, $"Phantoon's {body} with his {eye}");
                 compared++;
             }
         }
@@ -153,11 +155,11 @@ internal static class BossBodyLayeredPartsVerification
     private static void CheckPartShowingNothing(BossBodySheet sheet)
     {
         BossBodyFrame body = sheet.Frame(EnemyFrameId.CrocomireBodyChargingFirst);
-        var nothing = new BossBodyFrame("Nothing", picture: null, body.Corner, depth: null);
+        var nothing = new BossBodyFrame("Nothing", picture: null, body.Anchor, depth: null);
         ShownBossBody shown = new BossBodyLayer([body, nothing]).Show();
         SpriteSheetFrame picture = body.Picture ?? throw new InvalidOperationException("Crocomire's body frame has a picture.");
         BossBodyDepth depth = body.Depth ?? throw new InvalidOperationException("Crocomire's body frame has a depth.");
-        AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Corner, new Extent16<BackgroundPixels>(picture.Size.X, picture.Size.Y), depth),
+        AssertTrue(shown.Parts.Length == 1 && shown.Parts[0] == new ShownBossBodyPart(picture, body.Anchor, new Extent16<BackgroundPixels>(picture.Size.X, picture.Size.Y), depth),
             "a part showing nothing is not drawn, and the body beneath it shows whole at its depth");
     }
 
@@ -170,13 +172,15 @@ internal static class BossBodyLayeredPartsVerification
     /// <summary>
     /// Fails unless <paramref name="layer"/>'s parts, layered on <paramref name="area"/>, show at every pixel what its frames
     /// composed there, at the depth the word composing it draws it at; the frames named in <paramref name="raised"/> are
-    /// written with every word in the upper tier, as Kraid's growth writes his body.
+    /// written with every word in the upper tier, as Kraid's growth writes his body. Each part lies against
+    /// <paramref name="owner"/>, from whom his body's area lay where the import read it (#2031).
     /// </summary>
-    private static void AssertLayered(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area, string context,
-        string[]? raised = null)
+    private static void AssertLayered(BossBodyLayer layer, BossBodyOwner owner, Dictionary<string, BossBodyFrameSource> sources,
+        Extent16<BackgroundPixels> area, string context, string[]? raised = null)
     {
-        ShownPixel?[] composed = Composed(layer, sources, area, raised ?? []);
-        ShownPixel?[] layered = Layered(layer.Show(), area);
+        Offset16<RoomPixels> areaFromBoss = BossBodySourceDefinitions.AreaFromBoss[owner];
+        ShownPixel?[] composed = Composed(layer, areaFromBoss, sources, area, raised ?? []);
+        ShownPixel?[] layered = Layered(layer.Show(), areaFromBoss, area);
         int differing = 0, first = -1;
         for (int pixel = 0; pixel < composed.Length; pixel++)
         {
@@ -195,10 +199,11 @@ internal static class BossBodyLayeredPartsVerification
     /// What <paramref name="layer"/>'s frames compose on <paramref name="area"/>: each pixel shows the colour key of the frame whose
     /// cells last reach it, a later frame's over an earlier's, at the depth its cell's word draws it at, in front of the
     /// sprites where the word is in the upper tier or the frame is one of <paramref name="raised"/>; nothing where that frame
-    /// paints nothing, at or below the row the body shows above, or where no frame reaches.
+    /// paints nothing, at or below the row the body shows above, or where no frame reaches. A frame's anchor and the row the
+    /// body shows above are reckoned from its boss, from whom the area lies <paramref name="areaFromBoss"/>.
     /// </summary>
-    private static ShownPixel?[] Composed(BossBodyLayer layer, Dictionary<string, BossBodyFrameSource> sources, Extent16<BackgroundPixels> area,
-        string[] raised)
+    private static ShownPixel?[] Composed(BossBodyLayer layer, Offset16<RoomPixels> areaFromBoss, Dictionary<string, BossBodyFrameSource> sources,
+        Extent16<BackgroundPixels> area, string[] raised)
     {
         var owners = new BossBodyFrame?[area.X * area.Y];
         var depths = new BossBodyDepth[owners.Length];
@@ -224,8 +229,8 @@ internal static class BossBodyLayeredPartsVerification
         for (int pixel = 0; pixel < owners.Length; pixel++)
         {
             int x = pixel % area.X, y = pixel / area.X;
-            if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove)
-                && KeyAt(picture, x - frame.Corner.X, y - frame.Corner.Y) is { } key)
+            if (owners[pixel] is { Picture: { } picture } frame && (layer.ShownAbove is not { } shownAbove || y < shownAbove - areaFromBoss.Y)
+                && KeyAt(picture, x - (frame.Anchor.X - areaFromBoss.X), y - (frame.Anchor.Y - areaFromBoss.Y)) is { } key)
                 shown[pixel] = new ShownPixel(key, depths[pixel]);
         }
         return shown;
@@ -235,19 +240,20 @@ internal static class BossBodyLayeredPartsVerification
     /// What <paramref name="shown"/>'s parts show on <paramref name="area"/>: each pixel the colour key of the frontmost part painting
     /// it, at that part's depth.
     /// </summary>
-    private static ShownPixel?[] Layered(ShownBossBody shown, Extent16<BackgroundPixels> area)
+    private static ShownPixel?[] Layered(ShownBossBody shown, Offset16<RoomPixels> areaFromBoss, Extent16<BackgroundPixels> area)
     {
         var pixels = new ShownPixel?[area.X * area.Y];
         foreach (ShownBossBodyPart part in shown.Parts)
         {
+            int left = part.Anchor.X - areaFromBoss.X, top = part.Anchor.Y - areaFromBoss.Y;
             for (int y = 0; y < part.Size.Y; y++)
             for (int x = 0; x < part.Size.X; x++)
             {
                 if (KeyAt(part.Picture, x, y) is { } key)
                 {
                     // A part reaching past the canvas shows nothing there to compare.
-                    if (part.Corner.X + x < area.X && part.Corner.Y + y < area.Y)
-                        pixels[(part.Corner.Y + y) * area.X + part.Corner.X + x] = new ShownPixel(key, part.Depth);
+                    if (left + x < area.X && top + y < area.Y)
+                        pixels[(top + y) * area.X + left + x] = new ShownPixel(key, part.Depth);
                 }
             }
         }

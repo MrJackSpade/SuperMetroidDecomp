@@ -35,15 +35,15 @@ internal static class SandAnimatedTilesVerification
             }
         }
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        var sand = new RoomSandBlockAnimationsState(RoomFxDefinitions.Suffix(sandFxRecord), null);
-        AssertEqual(2, sand.Count, "both FX sand bits start animations");
+        var sand = new RoomBlockAnimations(RoomFxDefinitions.Suffix(sandFxRecord), null);
+        AssertEqual(2, sand.EffectAnimations.Count(definitions.Contains), "both FX sand bits start animations");
         var frames = new ArtworkFrameSelections();
         for (int tick = 0; tick < 31; tick++)
         {
             var before = new ArtworkFrame?[2];
             for (int slot = 0; slot < 2; slot++)
                 before[slot] = frames.TryShown(BlockAnimationFrames.Of(definitions[slot]), out ArtworkFrame previous) ? previous : null;
-            sand.Step(frames);
+            sand.Step(areaBossDefeated: false, frames);
             for (int slot = 0; slot < 2; slot++)
             {
                 var animation = definitions[slot];
@@ -55,10 +55,10 @@ internal static class SandAnimatedTilesVerification
                     "sand frames change only on the updates their durations end");
             }
         }
-        sand = new RoomSandBlockAnimationsState(null, null);
-        AssertEqual(0, sand.Count, "next room without FX clears sand owners");
+        sand = new RoomBlockAnimations(null, null);
+        AssertEqual(0, sand.EffectAnimations.Count, "next room without FX clears sand owners");
         var departed = new ArtworkFrameSelections();
-        sand.Step(departed);
+        sand.Step(areaBossDefeated: false, departed);
         for (int slot = 0; slot < 2; slot++)
             AssertTrue(!departed.TryShown(BlockAnimationFrames.Of(definitions[slot]), out _),
                 "departed room cannot continue showing sand frames");

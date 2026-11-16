@@ -48,7 +48,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _projectiles = dependencies.Projectiles;
     }
 
-    /// <summary>Allocates the Baby in the first free slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
+    /// <summary>Places the Baby in the first free place of the room's enemies, runs its initializer, and leaves it undrawn until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
         if (state.BabyMetroidSlot is not null)
@@ -74,9 +74,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _lifecycle.InitializeSlotFromDefinition(babySlot, population, definition);
         _lifecycle.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
 
-        // SpawnEnemy installs the canonical empty map after init when the Baby's hide-drawing property is set.
-        // The actor's animation is still live and produces its first visible map on its first
-        // scheduled turn; the active-index array was frozen before this allocation.
+        // Spawning leaves the Baby undrawn after its initializer when its hide-drawing property is set.
+        // Its animation is still live and shows its first visible frame on its first
+        // scheduled turn; this update's list of running enemies was fixed before the Baby was placed.
         babySlot.Frame = babySlot.Processing.HasAny(EnemyProcessing.Animates)
             ? EnemyFrameId.Empty
             : null;
@@ -110,14 +110,14 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         ShowBabyMetroidArrival();
     }
 
-    /// <summary>Lays the Baby's start colours, which leave the transparent entry untouched.</summary>
+    /// <summary>Lays the Baby's start colours, which leave the transparent colour untouched.</summary>
     internal void ShowBabyMetroidArrival() =>
         _motherBrainEncounter.Colours.ShowBabyArrived();
 
     /// <summary>Advances the later Baby slot, publishes cries/healing, and writes body and Baby animation changes for their next ordered enemy turns.</summary>
     internal void RunMotherBrainBabyMetroidMain(
         RoomEnemySlot slot,
-        SamusState? samus,
+        SamusState samus,
         Position16<RoomPixels> camera)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
@@ -133,8 +133,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
             throw new InvalidOperationException("The cutscene Baby lost the rainbow sequence.");
-        SamusState target = samus ?? throw new InvalidOperationException(
-            "The cutscene Baby requires the live Samus actor.");
+        SamusState target = samus;
 
         slot.ShakeTimer = 0;
         if (state.PendingBabyCryCount != 0 &&
@@ -160,10 +159,10 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
-        // The Baby's drain step writes the body enemy's animation from this later Baby slot.
+        // The Baby's drain step sets the body's animation from the Baby, which runs after the body.
         // The reusable sequence retains the requested animation, but the physical body already
         // completed its AI and animation pass earlier this frame; start the animation here so it
-        // begins on the next increasing-slot enemy pass exactly like the cross-actor write.
+        // begins on the next enemy pass, as it does in the game.
         if (step.BodyStumbleRequested)
         {
             MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(

@@ -87,8 +87,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
     {
-        // The collected items, not the equipped ones, gate both the glow and waking. A null Samus owner means the caller
-        // has not supplied her, so leaving the block dormant is the only non-invented behaviour until a gameplay update does.
+        // The collected items, not the equipped ones, gate both the glow and waking. A null Samus owner means no Samus has
+        // been supplied, so leaving the block dormant is the only non-invented behaviour until a gameplay update does.
         if (!HasCollectedMorphBall(samus))
             return;
 
@@ -120,7 +120,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
     private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState samus) =>
-        samus is not null &&
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>
@@ -155,7 +154,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         }
     }
 
-    /// <summary>Rejects AI dispatch for a face-block slot that was not initialized on room load.</summary>
+    /// <summary>Rejects running the AI of a face block that was not initialized on room load.</summary>
     internal static BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
         RoomEnemySlot slot) =>
         slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() ?? throw new InvalidOperationException(

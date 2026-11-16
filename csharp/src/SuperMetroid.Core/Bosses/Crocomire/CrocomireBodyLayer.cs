@@ -2,17 +2,17 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's body layer: where it is placed, what his body shows on it, the tongue placed with it and the acid smoke drawn with it.</summary>
+/// <summary>Crocomire's body: what it shows, the rows of it the acid hides, the melt's stretch of it, the tongue placed with it and the acid smoke drawn with it.</summary>
 [RoomLifetime]
 internal sealed class CrocomireBodyLayer
 {
-    /// <summary>Allocates arena debris and cinematic sprite objects.</summary>
-    private readonly RoomSpriteObjects _spriteObjects;
+    /// <summary>Allocates arena debris and cinematic effect actors.</summary>
+    private readonly RoomEffectActors _effectActors;
     /// <summary>Draws Crocomire's body, skeleton and melt, and holds the colours and background pictures they show.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Crocomire's state lookups, body animation start, room objects, dust and random numbers, and the sound and music it last requested.</summary>
@@ -21,19 +21,13 @@ internal sealed class CrocomireBodyLayer
     private readonly EnemyRoomFx _roomFx;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireBodyLayer(RoomSpriteObjects spriteObjects, EnemyPresentation presentation, CrocomireEncounterAccess access, EnemyRoomFx roomFx)
+    internal CrocomireBodyLayer(RoomEffectActors effectActors, EnemyPresentation presentation, CrocomireEncounterAccess access, EnemyRoomFx roomFx)
     {
-        _spriteObjects = spriteObjects;
+        _effectActors = effectActors;
         _presentation = presentation;
         _access = access;
         _roomFx = roomFx;
     }
-
-    /// <summary>
-    /// Where Crocomire's body lies in the room (#1617, #1802): the room pixel his body's parts' area's top-left corner lies on,
-    /// which follows him. His sinking, hiding and melt reckon his body's rows from it.
-    /// </summary>
-    public Position16<RoomPixels> BodyOrigin { get; private set; }
 
     /// <summary>Starts the tongue's <paramref name="segment"/> from its first step after <paramref name="updates"/> updates.</summary>
     internal static void StartCrocomireTongueAnimation(CrocomireEnemyState state, CrocomireTongueSegment segment, int updates)
@@ -55,68 +49,29 @@ internal sealed class CrocomireBodyLayer
     internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();
 
     /// <summary>
-    /// Hides his body from body row <paramref name="top"/> down, until a frame is shown on it again (#1515): his body's
-    /// picture shows only above that row (#1540).
+    /// Hides his body from room row <paramref name="roomRow"/> down, until a frame is shown on it again (#1515, #2031): his
+    /// body's picture shows only above that row, reckoned from where he lies.
     /// </summary>
-    internal void HideCrocomireBodyFrom(int top) => _presentation.RequireBossBody().ShowAbove(top);
+    internal void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
+        _presentation.RequireBossBody().ShowAbove(roomRow - state.Body.Position.Y.Whole);
 
-    /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802).</summary>
-    internal void LevelCrocomireMeltDistortion() =>
-        _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(BodyOrigin.Y);
-
-    /// <summary>The row of his body's area that lies on room row <paramref name="roomRow"/>, wrapping as the area's rows do.</summary>
-    internal int BodyRowAt(int roomRow) => CoordinateAxis.Wrap(roomRow - BodyOrigin.Y);
+    /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>
+    internal void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>
+        _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
 
     /// <summary>
-    /// Places his body's area vertically at the body, then falls through into the horizontal placement. His room is one
-    /// screen tall and every screen of it keeps the camera at the room's top row, so his body's area lies as far above him in
-    /// the room as it lies above him on the screen. The frames some poses show lower on the area carry those rows
-    /// themselves, as the import placed them (#1802).
+    /// Places the tongue at the body: a normal second enemy, it lies at its body-relative X offset, and every placement of
+    /// his body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
     /// </summary>
-    internal void PlaceCrocomireBodyLayer(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    internal static void PlaceCrocomireTongue(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        BodyOrigin = BodyOrigin.WithY(CoordinateAxis.Wrap(body.Position.Y.Whole - CrocomireBodyAreaDefinitions.AboveBody));
-        PlaceCrocomireTongueAndBodyLayerHorizontally(state, camera);
-    }
-
-    /// <summary>
-    /// Places the tongue and his body layer horizontally at the body; whether his body shows reads <paramref name="camera"/>,
-    /// the camera his main update runs with.
-    /// </summary>
-    internal void PlaceCrocomireTongueAndBodyLayerHorizontally(CrocomireEnemyState state, Position16<RoomPixels> camera)
-    {
-        RoomEnemySlot body = state.Body;
-
-        // The tongue is a normal second enemy actor placed at its body-relative X offset.
-        // The horizontal placement updates it even while the body's bulk is shown on his body layer.
         if (state.Tongue is { } tongue)
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()
                 ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
             tongue.Position = tongue.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + offset), body.Position.Y.Whole));
         }
-
-        // His body's area lies 51 pixels left of him (#1802); it shows only while he is near the screen, within 128 pixels of
-        // either edge and 284 of the screen's left edge plus 51; farther away it shows nothing (#1617).
-        bool onScreen = CoordinateAxis.Difference(body.Position.X.Whole, camera.X) >= 0
-            ? CoordinateAxis.Difference(body.Position.X.Whole - 128, (camera.X + 256)) < 0
-            : CoordinateAxis.AsSigned(body.Position.X.Whole + 128 - camera.X) >= 0;
-        BodyOrigin = BodyOrigin.WithX(CoordinateAxis.Wrap(body.Position.X.Whole - CrocomireBodyAreaDefinitions.LeftOfBody));
-        ShowsBody = onScreen && CoordinateAxis.Distance(camera.X + CrocomireBodyAreaDefinitions.LeftOfBody, body.Position.X.Whole) < 284;
-    }
-
-    /// <summary>Whether his body shows: only while he is near the screen (#1617); farther away it shows nothing.</summary>
-    public bool ShowsBody { get; private set; } = true;
-
-    /// <summary>
-    /// Pins his body's area's top-left corner to the screen's top-left, where the defeated room shows it: the room pixel the
-    /// <paramref name="camera"/> his main update runs with shows there (#1802).
-    /// </summary>
-    internal void PinToScreen(Position16<RoomPixels> camera)
-    {
-        BodyOrigin = camera;
-        ShowsBody = true;
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
@@ -139,9 +94,9 @@ internal sealed class CrocomireBodyLayer
         int acidY = roomFx.Type is RoomFxType.Lava or RoomFxType.Acid && roomFx.Surface is int surface and >= 0
             ? surface
             : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
-        _spriteObjects.SpawnRoomSpriteObject(
+        _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
-            RoomSpriteObjectKind.CrocomireAcidSmoke,
+            RoomEffectActorKind.CrocomireAcidSmoke,
             graphics: default);
     }
 }

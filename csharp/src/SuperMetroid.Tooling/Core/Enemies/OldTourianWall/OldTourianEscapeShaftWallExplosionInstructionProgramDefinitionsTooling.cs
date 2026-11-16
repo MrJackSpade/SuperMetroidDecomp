@@ -35,7 +35,7 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
         new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.YRange, OldTourianEscapeShaftWallExplosionAnimationDefinitions.Scatter.Center.Y)),
         new(0xb44f, (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6),
         .. FrameOperands.Select((operand, frame) => new InstructionMechanicsWord(
-            (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionAnimationDefinitions.FrameDurations[frame])),
+            (ushort)(operand - 2), (ushort)OldTourianEscapeShaftWallExplosionAnimationDefinitions.Beats[frame].Duration)),
         new(0xb46a, (ushort)EnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero),
         new(0xb46c, OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop),
         new(0xb46e, (ushort)EnemyProjectileInstruction.Delete),

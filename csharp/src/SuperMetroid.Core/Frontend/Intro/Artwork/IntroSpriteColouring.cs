@@ -10,7 +10,7 @@ public enum IntroSpriteColouring
     MotherBrain,
 
     /// <summary>The narration caret and the delivered and examined baby.</summary>
-    CrossFadeObjects,
+    CrossFadeActors,
 
     /// <summary>The discovery scene's egg, baby, Rinkas, slime and egg particles.</summary>
     DiscoveryActors,

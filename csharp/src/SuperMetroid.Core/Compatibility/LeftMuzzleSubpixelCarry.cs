@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <para>
 /// Evidence: the original fire routines write only the parts of a shot they set, the left muzzle check runs before
 /// the launch velocity clears the sub-pixel positions, deletion clears the sub-pixel position and the all-at-once
-/// clear does not; the 100% movie diverges in enemy damage at update 23200 without the carried fractions (ef4b79943a).
+/// clear does not; the 100% movie diverges in enemy damage at update 23200 without the carried fractions.
 /// </para>
 /// </remarks>
 [CompatibilityService("a beam fired to the left starts its muzzle check from the horizontal sub-pixel position its shot place kept from the projectile that held it when Samus's shots were last cleared")]

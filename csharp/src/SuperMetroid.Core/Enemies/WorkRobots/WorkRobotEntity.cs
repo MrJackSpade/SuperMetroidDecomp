@@ -15,11 +15,11 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     {
         switch (WorkRobotPartDefinitions.Parts[Slot.DefinitionId])
         {
-            case WorkRobotPart.Robot:
+            case WorkRobotPart.Powered:
                 species.RunWorkRobotMainAi(Slot, frame);
                 break;
             // The unpowered robot's main does nothing.
-            case WorkRobotPart.RobotNoPower:
+            case WorkRobotPart.Unpowered:
                 break;
             default:
                 throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}.");
@@ -31,7 +31,7 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
 
     /// <summary>The powered robot returns before common shot AI until Phantoon is defeated.</summary>
     public bool AdmitsShots() =>
-        Slot.DefinitionId != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
+        Slot.DefinitionId != EnemyDefinitionId.WorkRobot || species.IsAreaBossDefeated;
 
     /// <summary>Whether the Work Robot's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
     public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;

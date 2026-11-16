@@ -47,11 +47,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
-        var state = new NorfairRioEnemyState
+        bool isFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
+        var state = new NorfairRioEnemyState(isFollower ? NorfairRioAction.FollowParent : NorfairRioAction.WaitForAttackOpportunity)
         {
             AnimationSignal = false,
-            FollowerOffset = Offset16<RoomPixels>.Zero,
-            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower,
+            FollowerYOffset = 0,
+            IsFollower = isFollower,
         };
         slot.SetSpeciesState(state);
 
@@ -62,18 +63,16 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             _parentStates.Place(slot, GetPrecedingNorfairRioSlot(slot).RequireSpeciesState<NorfairRioEnemyState>());
             state.InstalledAnimation = NorfairRioSegment.FlamesAscending;
             state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.FlamesAscending), AnimationPlace.StartOfAnimation);
-            state.Action = NorfairRioAction.FollowParent;
             return;
         }
 
         state.InstalledAnimation = NorfairRioSegment.Idle;
         state.Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation);
-        state.Action = NorfairRioAction.WaitForAttackOpportunity;
     }
 
     /// <summary>
-    /// Runs the Norfair Rio's main AI and each action it dispatches.
-    /// Every parent and follower advances the shared enemy RNG before dispatch.
+    /// Runs the Norfair Rio's main AI and each action it runs.
+    /// Every parent and follower advances the shared enemy RNG before it acts.
     /// </summary>
     private void RunNorfairRioMain(
         RoomEnemySlot slot,
@@ -175,14 +174,14 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case NorfairRioAction.FinishLanding:
                 // Finishing the landing is intentionally a one-frame state: it changes only
-                // the dispatched action. The looping idle animation remains installed, which also keeps
+                // the action that runs. The looping idle animation remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
                 state.Action = NorfairRioAction.WaitForAttackOpportunity;
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair Rio has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Norfair Rio has no behaviour for action {state.Action}.");
         }
     }
 
@@ -195,7 +194,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AnimationSignal = true;
                 break;
             case NorfairRioCueKind.PlaceFlames:
-                state.FollowerOffset = new Offset16<RoomPixels>(0, cue.FlamesBelow);
+                state.FollowerYOffset = cue.FlamesBelow;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(NorfairRioCueKind)} {cue.Kind}.");
@@ -227,12 +226,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The follower's spawn reads the parent's own state: its installed animation and its signed
         // follower Y offset. Its drawing position follows the parent's live position.
-        NorfairRioSegment followerList = parentState.FollowerOffset.Y < 0
+        NorfairRioSegment followerList = parentState.FollowerYOffset < 0
             ? NorfairRioSegment.FlamesDescending
             : NorfairRioSegment.FlamesAscending;
         StartNorfairRioAnimation(follower, followerState, followerList);
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);
-        follower.Position = follower.Position.WithWhole(parent.Position.Whole + parentState.FollowerOffset);
+        follower.Position = follower.Position.WithWhole(parent.Position.Whole + new Offset16<RoomPixels>(0, parentState.FollowerYOffset));
     }
 
     /// <summary>Reverses vertical travel, installs the ascent animation, and enters the return state.</summary>

@@ -26,9 +26,6 @@ internal static class ShaktoolOrbitDefinitions
     /// <summary>Once the curl progress reaches 240 whole steps, the chain starts straightening.</summary>
     internal static RotationAngle StraighteningThreshold { get; } = RotationAngle.FromSteps(240);
 
-    /// <summary>The subpixels in one pixel.</summary>
-    private const int SubpixelsPerPixel = 65536;
-
     /// <summary>The fraction middle segments reset to on an endpoint swap: half a pixel.</summary>
-    internal const int SwapFraction = SubpixelsPerPixel / 2;
+    internal const int SwapFraction = FixedCoordinate.HalfPixelFraction;
 }

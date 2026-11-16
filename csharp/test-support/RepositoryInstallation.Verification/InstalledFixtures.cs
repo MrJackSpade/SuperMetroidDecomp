@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -364,14 +365,14 @@ internal static class InstalledFixtures
     /// </summary>
     internal static SamusProjectileSystem CreateProjectileSystem()
     {
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = Projectiles.FrameBindings } };
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), SamusOverreads, new SuperMetroid.Core.Compatibility.LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = Projectiles.FrameBindings } };
         projectiles.Earthquakes.BindRoomEarthquake(new RoomEarthquake());
         return projectiles;
     }
 
     /// <summary>Creates a bomb system with installed frame bindings and explosion colors.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
-        new(Maps.PowerBombGlowColors) { FrameBindings = Projectiles.FrameBindings };
+        new(GameplayAudioRequests.Standalone(), Maps.PowerBombGlowColors) { FrameBindings = Projectiles.FrameBindings };
 
     /// <summary>The arm cannon's cover characters, from the cartridge-derived extraction, as no installation holds them (#1636).</summary>
     internal static SamusArmCannonCoverCharacters SamusArmCannonCover => SamusBodySheetFixtures.Inputs.ArmCannonCover;
@@ -396,7 +397,7 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates Samus with installation suit, body, beam, visor, and grapple presentation.</summary>
-    internal static SamusState CreateSamus() => new SamusState(FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), SamusArtwork());
+    internal static SamusState CreateSamus() => new SamusState(GameplayAudioRequests.Standalone(), FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), SamusArtwork());
 
     /// <summary>
     /// Creates Ceres destruction with installed cinematic art and fixed colors, waiting on <paramref name="audio"/>'s music:

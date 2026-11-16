@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -41,7 +42,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWholeX(0x0200);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         enemies.BeetomBehavior.InitializeBeetom(slot, samus, 0);
         BeetomEnemyState state = enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BeetomStates[0].");
         object?[] processArguments = [slot, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
@@ -97,7 +98,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         Action<RoomEnemySlot, SamusState, GameplayAction> initialize = enemies.BeetomBehavior.InitializeBeetom;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        initialize(slot, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
+        initialize(slot, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), 0);
         Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
         return new CreateBeetomDistantSelectionFixtureResult(enemies, (enemies.BeetomStates[0] ?? throw new InvalidOperationException("Verification requires the initialized Beetom state.")), choose);
     }
@@ -118,7 +119,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AnimationPlayback<BeetomSegment> program = fixture.State.Playback;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
-            AssertEqual(expected, BeetomNativeWords.BeetomActions.Word(fixture.State.Action ?? throw new InvalidOperationException("Beetom chose no action.")), "Beetom distant action matches native pointer for every RNG word");
+            AssertEqual(expected, BeetomNativeWords.BeetomActions.Word(fixture.State.Action), "Beetom distant action matches native pointer for every RNG word");
             AssertEqual(0x1234, fixture.State.ActionTimer, "Beetom choice preserves timer until setup runs");
             AssertEqual(program, fixture.State.Playback, "Beetom choice preserves program until setup runs");
             AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");

@@ -61,7 +61,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     internal RgbColor Backdrop { get; private set; }
     /// <summary>The live actors' sprite entries, drawn from the scene's current sheet (#1358).</summary>
-    internal readonly ScreenSprites objects;
+    internal readonly ScreenSprites screenSprites;
     /// <summary>The installed backdrops and actor placements, bound when the game is bound to its installed content (#1616).</summary>
     internal IntroCinematicArtwork? Artwork { get; private set; }
     /// <summary>The installed sprite sheets the Ceres and Zebes actors draw from; artwork, never saved.</summary>
@@ -180,7 +180,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Artwork = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
         stationExplosion = new CeresStationBlast(glowColors);
-        objects = new ScreenSprites();
+        screenSprites = new ScreenSprites();
     }
 
     /// <summary>
@@ -414,7 +414,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         if (CeresDestructionPhaseGroups.CeresScene.Contains(Phase))
             StepCeresActors();
 
-        // The cinematic's game state runs the colour effects after cinematic objects, every update from the setup on,
+        // The cinematic's game state runs the colour effects after cinematic actors, every update from the setup on,
         // including the update which starts an effect. Their frames are shades the import pre-colours the scene's pictures
         // in (#1512); the scene names the frame each running effect shows (#1597). The scene binds no audio requests, so an
         // effect that made a sound would fail loudly (#2057).
@@ -815,7 +815,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        var sprites = new SpritesLayer(objects.Draws);
+        var sprites = new SpritesLayer(screenSprites.Draws);
         DisplayLayer[] layers;
         if (usesFloor && (shownLayers & ScreenLayers.Foreground) == ScreenLayers.None)
         {
@@ -894,13 +894,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// </summary>
     private void PrepareRenderSprites()
     {
-        objects.BeginFrame();
+        screenSprites.BeginFrame();
         // Same-priority sprite overlap is decided by drawing order.
         IEnumerable<IntroDiscoverySprite> drawActors = CeresDestructionPhaseGroups.CeresScene.Contains(Phase)
             ? actors.Where(actor => !ceresActorsDrawnLast.Contains(actor)).Concat(actors.Where(ceresActorsDrawnLast.Contains)) : actors;
         foreach (IntroDiscoverySprite actor in drawActors)
-            actor.Draw(objects, installedArt: Sprites);
-        objects.FinishFrame();
+            actor.Draw(screenSprites, installedArt: Sprites);
+        screenSprites.FinishFrame();
     }
 
 }

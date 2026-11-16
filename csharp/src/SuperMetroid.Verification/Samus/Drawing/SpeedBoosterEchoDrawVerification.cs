@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Drawing;
@@ -21,7 +22,7 @@ internal static class SpeedBoosterEchoDrawVerification
     {
         var bus = new TestAddressSpace();
         SeedPoseOneSamusData(bus);
-        var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.FacingRightNormalPose,

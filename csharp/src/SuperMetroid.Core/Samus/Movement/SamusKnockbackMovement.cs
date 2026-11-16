@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <remarks>
 /// This code follows the game's knockback check, knockback movement, jump launch and knockback initializer.
-/// Enemy damage calculation is deliberately not invented here: a caller supplies only the
+/// Enemy damage calculation is deliberately not invented here: the hit supplies only the
 /// collision result that enemy collision would have published, namely whether the source lies to
 /// Samus's left or right. Every pose, speed-table entry, timer value, and subsequent input
 /// transition is then taken from the game's definitions.
@@ -61,7 +61,7 @@ public static class SamusKnockbackMovement
     /// <param name="controllerInput">Held actions used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="poseCollision">
-    /// The room the hurt pose grows into, or null where the caller places Samus itself and no expansion collision runs:
+    /// The room the hurt pose grows into, or null where the scene places Samus itself and no expansion collision runs:
     /// the opening cinematic's flashback and a grapple-beam hurt.
     /// </param>
     /// <returns>
@@ -113,7 +113,7 @@ public static class SamusKnockbackMovement
         if (!morphed && !humanoid && !glitchBall && !suppressesKnockback)
         {
             // Every movement type is morphed, humanoid, the glitch ball or one that suppresses knockback.
-            // Any other cannot name another game behaviour; it means the caller supplied
+            // Any other cannot name another game behaviour; it means Samus carries
             // corrupt pose metadata rather than an unmodelled movement family.
             throw new InvalidDataException(
                 $"Movement type {sourceMovementType} has no knockback response.");
@@ -137,7 +137,7 @@ public static class SamusKnockbackMovement
                 : SamusPoseId.KnockbackRightPose;
             // Interrupted poses pass through the same expansion check as ordinary
             // input poses before the knockback start initializes knockback. Scripted cinematic
-            // callers without room terrain retain their explicitly positioned behavior.
+            // scenes without room terrain retain their explicitly positioned behavior.
             if (poseCollision is { } collision && !SamusGroundedPoseTransitions.TryResolveKnockbackPoseCollision(samus,
                     collision.Terrain.Level, targetPose, collision.FrameCounter, collision.Terrain.RoomObjects))
                 return false;
@@ -265,7 +265,7 @@ public static class SamusKnockbackMovement
     }
 
     /// <summary>
-    /// Applies the only cross-family transition in the knockback input tables: Jump plus the
+    /// Applies the only cross-family transition in the knockback input transitions: Jump plus the
     /// direction opposite the knockback pose enters a damage boost and restores normal movement.
     /// </summary>
     public static void ApplyDamageBoostTransition(

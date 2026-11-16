@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The game's 262 rooms.</summary>
 /// <remarks>Each entry holds a room's area, map position, size in screens, camera
 /// scroll offsets and whether its door transitions are isolated. The developer area-seven room is not compiled.</remarks>
-[NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position callers index.")]
+[NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position anything indexes.")]
 public static class RoomDefinitions
 {
     /// <summary>Retail rooms in their authored order.</summary>

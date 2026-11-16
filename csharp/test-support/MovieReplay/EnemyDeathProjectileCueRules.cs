@@ -2,7 +2,7 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.EffectActors;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -30,10 +30,10 @@ internal static class EnemyDeathProjectileCueRules
         {
             var command = Commands[(NativeEnemyProjectileInstruction)word];
             VerificationAssertions.AssertEqual(command.Kind, cue.Kind, $"{at}: cue");
-            RoomSpriteObjectKind spriteObject = command.OperandBytes == 2
-                ? RoomSpriteObjectNativeWords.Kinds.Decode(LittleEndianBytes.Word(operands[0], operands[1]), "death sprite object")
+            RoomEffectActorKind effectActor = command.OperandBytes == 2
+                ? RoomEffectActorNativeWords.Kinds.Decode(LittleEndianBytes.Word(operands[0], operands[1]), "death sprite object")
                 : default;
-            VerificationAssertions.AssertEqual(spriteObject, cue.SpriteObject, $"{at}: sprite object");
+            VerificationAssertions.AssertEqual(effectActor, cue.EffectActor, $"{at}: sprite object");
         },
         cue => cue.Kind is EnemyDeathProjectileCueKind.Delete or EnemyDeathProjectileCueKind.BecomePickup);
 }

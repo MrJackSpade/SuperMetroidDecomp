@@ -49,7 +49,7 @@ public sealed class FileSelectMapAnimations
     internal void BindHighlight(MapHighlightCycle? cycle) => highlight.Bind(cycle);
 
     /// <summary>Advances the highlight cycle; returns the room-library sound request at the cycle's loop terminator.</summary>
-    /// <returns>True when the cycle wraps and the caller should queue the map's highlight-loop sound; this method does not enqueue audio itself.</returns>
+    /// <returns>True when the cycle wraps and the map's highlight-loop sound should be queued; this method does not enqueue audio itself.</returns>
     public bool StepHighlight() => highlight.Step();
 
     /// <summary>The shading the file-select map's highlighted sprites show at the highlight cycle's current frame (#1512).</summary>

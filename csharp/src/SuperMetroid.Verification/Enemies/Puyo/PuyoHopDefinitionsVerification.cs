@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,7 +18,7 @@ internal static class PuyoHopDefinitionsVerification
     internal static void VerifyCompiledPuyoHops(CartridgeImportAddressSpace rom)
     {
         Action<PuyoEnemyState> calculate = PuyoBehavior.CalculateInitialPuyoHopSpeed;
-        var state = new PuyoEnemyState();
+        var state = new PuyoEnemyState(PuyoAction.Grounded);
         foreach (PuyoHopType hopType in Enum.GetValues<PuyoHopType>())
         {
             int index = PuyoNativeWords.HopRecordOffsets.Word(hopType);
@@ -79,7 +80,7 @@ internal static class PuyoHopDefinitionsVerification
                 {
                     Camera = Position16<RoomPixels>.Zero,
                     TimeIsFrozen = false,
-                    Samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(600, 128)) },
+                    Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(600, 128)) },
                 },
                 new FrameCounters(0)));
             AssertEqual(SixteenSixteenWords.ToCoordinate(checked((uint)(128 * onePixel + nativeDrop * 256))), slot.Position.Y,

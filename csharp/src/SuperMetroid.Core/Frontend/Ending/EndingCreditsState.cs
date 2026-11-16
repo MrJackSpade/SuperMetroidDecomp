@@ -390,7 +390,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ItemPercentageScrollDown:
-                // The item-percentage scroll moves the shown text down two pixels per call, eighty in all, before the final
+                // The item-percentage scroll moves the shown text down two pixels an update, eighty in all, before the final
                 // message starts above it.
                 InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerCall;
                 if (--Stage.PhaseTimer <= 0)

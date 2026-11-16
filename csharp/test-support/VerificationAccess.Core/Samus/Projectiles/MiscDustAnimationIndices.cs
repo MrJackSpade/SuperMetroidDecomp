@@ -21,7 +21,7 @@ internal static class MiscDustAnimationIndices
         [6] = MiscDustAnimation.DudShotTinyExplosion,
         [9] = MiscDustAnimation.SmallDustCloud,
         [10] = MiscDustAnimation.CorpseDustCloud,
-        [11] = MiscDustAnimation.EyeDoorSweatDrop,
+        [11] = MiscDustAnimation.EyeDoorSmokePuff,
         [12] = MiscDustAnimation.Smoke,
         [17] = MiscDustAnimation.RockParticles,
         [18] = MiscDustAnimation.ShortBigDustCloud,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Enemies.Kago;
@@ -225,7 +226,7 @@ using static SuperMetroid.Verification.Enemies.Ripper.RipperBehaviorVerification
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Fx.RoomShakeDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusArmCannonDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
@@ -536,7 +537,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEnemyDeathExplosionDefinitions), () => VerifyEnemyDeathExplosionDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyProjectileDefinitions), () => VerifyEnemyProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyRoomPaletteFxDefinitions), () => VerifyRoomPaletteFxDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyRoomSpriteObjectDefinitions), () => VerifyRoomSpriteObjectDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyRoomEffectActorDefinitions), () => VerifyRoomEffectActorDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamDefinitions), () => VerifyCeresSteamDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamAnimations), () => VerifyCeresSteamAnimations(LoadRepositoryRom())),
         new(nameof(SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability), () => SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability()),
@@ -747,18 +748,16 @@ internal static class EnemyTrigonometryVerification
         }
         Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks.");
         if (definitionsOnly) return;
-        var tideSession = new RoomFxSession();
-        var tide = new RoomFxOverlayState(tideSession);
-        tide.BindAudioRequests(new GameplayAudioRequests());
-        var step = new Action(tide.StepLiquidTide);
+        var tide = new RoomFxOverlayState();
+        tide.BindAudioRequests(GameplayAudioRequests.Standalone());
+        Action step = tide.StepTideForCheck;
         // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide.
         foreach (LiquidTide option in Enum.GetValues<LiquidTide>())
         {
-            tide.Liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
+            var liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
             {
-                tide.TidePhase = RotationAngle.FromRaw(phase);
-                tide.TideOffset = SignedSixteenSixteen.FromParts(0, 12345);
+                tide.SetTideForCheck(liquid, RotationAngle.FromRaw(phase), SignedSixteenSixteen.FromParts(0, 12345));
                 step();
                 short sample = Reference(RotationAngle.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
                 bool small = option == LiquidTide.Small;

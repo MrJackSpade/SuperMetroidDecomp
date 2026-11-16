@@ -2,7 +2,7 @@ namespace SuperMetroid.Core;
 
 /// <summary>
 /// Queries over a <see cref="ReadOnlySpan{T}"/> without copying it to an array first (#624). Scalar queries iterate the
-/// span directly and allocate nothing beyond the caller's delegate; they keep <see cref="Enumerable"/>'s ordering,
+/// span directly and allocate nothing beyond the given delegate; they keep <see cref="Enumerable"/>'s ordering,
 /// short-circuiting and exception behavior. Operations whose result owns storage say so in their names and allocate
 /// exactly that result.
 /// </summary>

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// heading's sine and its speed. Evidence: the original movement reverses a backward step with its own negation, whose
 /// path for a step with no fraction leaves it one 65536th of a pixel past a true negation; the compiled Bull movement
 /// check moves a Bull at every angle and every speed-word boundary class from two origins and compares each position with
-/// that negation over the pinned cartridge's sine words.
+/// that negation over the game's sines.
 /// </remarks>
 [CompatibilityService("a Bull's step up or left with no fraction lies one 65536th of a pixel further than its step down or right reversed")]
 public static class BullBackwardStep

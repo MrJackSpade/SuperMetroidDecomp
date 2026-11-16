@@ -32,14 +32,14 @@ internal static class DoorEntryShotBindingVerification
         foreach ((ControllerButton held, bool cancels) in new[] { new VerifyDoorEntryShotBindingCase(ControllerButton.X, true), new VerifyDoorEntryShotBindingCase(ControllerButton.Y, false) })
         {
             var random = new SharedRandom();
-            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
+            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Options.ControllerBindings = lowc;
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.LockOutPlayer();
-            var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
             game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;

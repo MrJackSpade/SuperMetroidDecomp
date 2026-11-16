@@ -41,11 +41,11 @@ internal static class CinematicSheetColouringsVerification
         [CinematicSpriteFamily.IntroDiscoveryActor] = IntroSpriteColouring.DiscoveryActors,
         [CinematicSpriteFamily.IntroEggEffect] = IntroSpriteColouring.DiscoveryActors,
         [CinematicSpriteFamily.IntroRinka] = IntroSpriteColouring.DiscoveryActors,
-        [CinematicSpriteFamily.IntroScientist] = IntroSpriteColouring.CrossFadeObjects,
+        [CinematicSpriteFamily.IntroScientist] = IntroSpriteColouring.CrossFadeActors,
         [CinematicSpriteFamily.IntroMotherBrain] = IntroSpriteColouring.MotherBrain,
         [CinematicSpriteFamily.IntroMotherBrainExplosion] = IntroSpriteColouring.Explosions,
-        [CinematicSpriteFamily.IntroCaret] = IntroSpriteColouring.CrossFadeObjects,
-        [CinematicSpriteFamily.IntroNextPageArrow] = IntroSpriteColouring.CrossFadeObjects,
+        [CinematicSpriteFamily.IntroCaret] = IntroSpriteColouring.CrossFadeActors,
+        [CinematicSpriteFamily.IntroNextPageArrow] = IntroSpriteColouring.CrossFadeActors,
     };
 
     /// <summary>Fails, naming each Ceres sheet frame no actor of its scene draws.</summary>

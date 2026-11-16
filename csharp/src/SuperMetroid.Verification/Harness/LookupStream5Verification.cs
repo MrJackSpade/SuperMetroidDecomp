@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
@@ -368,7 +369,7 @@ internal static class LookupStream5Verification
             AssertTrue(!body.Contact.HasAny(EnemyContact.IgnoresSamus), "Eye opening enables collision");
             state.Swoop.Requested = shot;
             state.Round.Damage = 37;
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state, samus); ticks++;
@@ -1073,7 +1074,7 @@ internal static class LookupStream5Verification
             var expected = new LookupStream5Expected2(unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
-            var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8000 | direction));
+            var mountSettings = (MorphBallEyeSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8000 | direction));
             var mount = MorphBallEyeGeometry.Mount(mountSettings.MountSide);
             AssertEqual(expected, new LookupStream5Expected2(mount.Offset.X, mount.Offset.Y, NativeEnemyAnimationOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Animation)),
                 "Native directional mount tuple");
@@ -1082,10 +1083,10 @@ internal static class LookupStream5Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
                 // The mount's beam follows the eye listed right after it (#1835).
                 var followed = enemies.SlotTable.Slots[1];
-                followed.Bind(EnemyDefinitionId.Eye, followed.Definition);
+                followed.Bind(EnemyDefinitionId.MorphBallEye, followed.Definition);
                 var slot = enemies.SlotTable.Slots[0];
-                slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
-                slot.SetSpawnParameter2(EnemyDefinitionId.Eye, (ushort)(0x8000 | direction));
+                slot.Bind(EnemyDefinitionId.MorphBallEye, slot.Definition);
+                slot.SetSpawnParameter2(EnemyDefinitionId.MorphBallEye, (ushort)(0x8000 | direction));
                 slot.Position = slot.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
@@ -1099,7 +1100,7 @@ internal static class LookupStream5Verification
         }
         var owner = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var body = owner.SlotTable.Slots[1];
-        body.Bind(EnemyDefinitionId.Eye, body.Definition);
+        body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
         body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
         new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
@@ -1118,7 +1119,7 @@ internal static class LookupStream5Verification
             AssertEqual(expected, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Color, "Actual beam colour, zero blue intensity included");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColourStep, "Actual cycling and wrap after the sixteenth colour");
         }
-        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Eye, PopulationWords.Parameters(0, 0x8004)),
+        AssertThrows<InvalidDataException>(() => EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.MorphBallEye, PopulationWords.Parameters(0, 0x8004)),
             "the import rejects a mount direction past the four sides");
         AssertThrows<ArgumentOutOfRangeException>(() => MorphBallEyeGeometry.BeamColor(16), "Beam phase bound");
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
@@ -1292,7 +1293,7 @@ internal static class LookupStream5Verification
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, CompassDirection direction, _) in eyeTargets)
         {
-            pointEye(eyeBody, eyeState, new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+            pointEye(eyeBody, eyeState, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.Position.X.Whole + x)), unchecked((ushort)(eyeBody.Position.Y.Whole + y)))),
             });
@@ -1491,9 +1492,12 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa6eff5 + 2 * variant), NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, actual.Animation), "Ceres steam original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f001 + 2 * variant), CeresNativeWords.SteamActionWord(actual.Action), "Ceres steam original function dispatch");
         }
+        MagdolliteRiseStage stage = MagdolliteRiseStage.Setup;
         for (int index = 0; index < 9; index++)
         {
-            var actual = MagdolliteRise.Phase(index);
+            if (index > 0)
+                stage = stage.Higher;
+            var actual = stage.Phase;
             AssertEqual(ReadVerificationWord(rom, 0xa8af55 + 2 * index), actual.DistanceThreshold, "Magdollite original rise threshold");
             AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyAnimationOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyAnimation), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
@@ -1502,8 +1506,8 @@ internal static class LookupStream5Verification
         AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoorHeaderPlacement(ushort.MaxValue), "Ceres door full-word rejection");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
-        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1), "Magdollite lower bound");
-        AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(9), "Magdollite upper bound");
+        AssertThrows<InvalidDataException>(() => _ = MagdolliteRiseStage.Setup.Lower, "Magdollite lower bound");
+        AssertThrows<InvalidDataException>(() => _ = stage.Higher, "Magdollite upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[-1]; }, "Ceres DMA list lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitions.All[19]; }, "Ceres DMA list upper bound");
         Console.WriteLine("Stream 5 initialization: all 53 native selector/phase words and rejected domains pass.");

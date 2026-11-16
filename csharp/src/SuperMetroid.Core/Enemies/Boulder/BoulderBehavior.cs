@@ -77,13 +77,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reads the spawn settings as direction, trigger windows and how it starts.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
-        var state = new BoulderEnemyState();
+        var state = new BoulderEnemyState(BoulderAction.WaitingForSamus);
         slot.SetSpeciesState(state);
 
         state.BounceSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.TravelSpeedAccumulator = QuadraticSpeedCurvePlace.Start;
         state.ImpactsSoFar = 0;
-        state.Action = BoulderAction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
@@ -125,10 +124,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
 
-        state.VerticalCompensation = new Offset16<RoomPixels>(0, RollingGroundReach);
+        state.VerticalCompensation = RollingGroundReach;
     }
 
-    /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>
+    /// <summary>Runs the wait, fall, rebound, roll or inert phase with required Samus and terrain state.</summary>
     private void RunBoulderMain(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus, RoomLevelData level)
     {
         switch (state.Action)
@@ -152,7 +151,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Boulder has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Boulder has no behaviour for action {state.Action}.");
         }
     }
 
@@ -260,9 +259,9 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen verticalDisplacement =
             state.TravelSpeedAccumulator.Speed.Positive +
-            SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation.Y);
+            SignedSixteenSixteen.FromWholePixels(state.VerticalCompensation);
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
-        slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
+        slot.Position = slot.Position.WithWhole(slot.Position.Whole - new Offset16<RoomPixels>(0, state.VerticalCompensation));
 
         SignedSixteenSixteen horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
@@ -284,7 +283,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
                 RollingTravelSpeedStep,
                 MaximumRollingTravelSpeed);
             if (slot.Position.Y == state.PreviousY)
-                state.VerticalCompensation = Offset16<RoomPixels>.Zero;
+                state.VerticalCompensation = 0;
         }
 
         state.PreviousY = slot.Position.Y;
@@ -306,8 +305,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances an acceleration clock and caps it. The game compares the sum with the cap by whether their
-    /// difference is negative; both stay within 0 through 24576 here, so that is the ordinary comparison.
+    /// Advances a place on the speed curve by <paramref name="increment"/>, holding it at <paramref name="maximum"/>.
     /// </summary>
     private static QuadraticSpeedCurvePlace AddAndCap(
         QuadraticSpeedCurvePlace value, QuadraticSpeedCurvePlace increment, QuadraticSpeedCurvePlace maximum) =>

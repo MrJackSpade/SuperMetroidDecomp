@@ -68,7 +68,7 @@ public sealed class SamusKinematicsState
     /// Current pose sampled by collision. Door collision is mostly geometric,
     /// but the elevator pseudo-door reactions admit only the forward-facing and standing poses
     /// before publishing the elevator flags. Keeping that pose beside the geometry lets every shared block
-    /// mover preserve the test without guessing which higher-level movement caller
+    /// mover preserve the test without guessing which higher-level movement
     /// happened to reach it.
     /// </summary>
     /// <remarks>Null until a pose is sampled, which no pose-gated reaction admits.</remarks>

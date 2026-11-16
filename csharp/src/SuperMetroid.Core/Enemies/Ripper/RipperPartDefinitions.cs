@@ -6,8 +6,8 @@ internal static class RipperPartDefinitions
     /// <summary>Each Ripper definition and its part.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, RipperPart> Parts { get; } = new Dictionary<EnemyDefinitionId, RipperPart>
     {
-        [EnemyDefinitionId.GRipper] = RipperPart.GRipper,
+        [EnemyDefinitionId.GrappleRipper] = RipperPart.GrappleRipper,
         [EnemyDefinitionId.Ripper] = RipperPart.Ripper,
-        [EnemyDefinitionId.RipperII] = RipperPart.RipperII,
+        [EnemyDefinitionId.JetRipper] = RipperPart.JetRipper,
     };
 }

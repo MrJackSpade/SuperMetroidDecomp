@@ -243,7 +243,7 @@ internal static class SamusAerialPoseTransitions
         }
 
         // Ordinary and wall-jump definition fallbacks publish the generic spin jump, whereas
-        // the dedicated Screw Attack and Space Jump input tables can publish their already-
+        // the dedicated Screw Attack and Space Jump input transitions can publish their already-
         // specialized opposite-facing pose directly. Reduce either form back to the
         // generic direction before applying the spin-jump initializer's live equipment priority. This is
         // observable when both bits are equipped: an authored right-to-left Screw Attack pose must remain
@@ -368,7 +368,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Commits the pose selected when the grapple beam drops Samus.
-    /// The caller supplies the exact transition-table target and this method runs the shared
+    /// The drop names its exact target pose and this method runs the shared
     /// block-only pose-expansion collision before clearing grapple fall momentum.
     /// </summary>
     /// <returns>
@@ -466,7 +466,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies the spin-jump initializer's equipment, liquid and start-sound selection
-    /// to a generic spin-jump transition-table target.
+    /// to a generic spin-jump input-transition target.
     /// </summary>
     internal static SamusPoseId SelectEquippedSpinPose(SamusState samus, SamusPoseId genericPose, SpinPoseStart start = SpinPoseStart.FirstFrame)
     {
@@ -787,7 +787,7 @@ internal static class SamusAerialPoseTransitions
 
 
     /// <summary>
-    /// Applies a shinespark windup's directional input-table match and installs its exact special
+    /// Applies a shinespark windup's directional input-transition match and installs its exact special
     /// movement owner. No ordinary jump velocity or grounded momentum step runs.
     /// </summary>
     public static void ApplyShinesparkDirectionTransition(SamusState samus, SamusPoseId targetPose)
@@ -841,7 +841,7 @@ internal static class SamusAerialPoseTransitions
             // transition still enters the ordinary spin-jump initializer. The turn pose has
             // already folded run momentum in the moonwalk turn; the spin-jump initializer now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
-            // Keeps consulting the turning pose's live input table. A fresh
+            // Keeps consulting the turning pose's live input transitions. A fresh
             // Jump with no horizontal direction selects the neutral jump transition;
             // holding the completed facing selects the spin jump. Both pairs enter the
             // same jump initializer and differ only in their authored body.
@@ -858,7 +858,7 @@ internal static class SamusAerialPoseTransitions
              SamusPoseId.NeutralJumpTransitionRightPose) or
             (SamusPoseId.RanIntoWallLeftPose or SamusPoseId.RanIntoWallAimUpLeftPose or SamusPoseId.RanIntoWallAimDownLeftPose,
              SamusPoseId.NeutralJumpTransitionLeftPose) ||
-            // Every landing body shares its facing's ordinary standing input table. The
+            // Every landing body shares its facing's ordinary standing input transitions. The
             // centralized predicate deliberately covers normal, spin, aimed, and firing
             // landings, while still rejecting a corrupt cross-facing neutral jump-transition target.
             SamusPoseMetadata.IsLandingToNormalJumpTransition(samus.Pose, targetPose);
@@ -937,7 +937,7 @@ internal static class SamusAerialPoseTransitions
         {
             // Compact poses change Samus's collision height. This overload intentionally
             // has no room data, so accepting the request would bypass the expansion
-            // collision probe; callers must select the collision-aware API explicitly.
+            // collision probe; a request with room data must use the collision-aware change explicitly.
             throw new InvalidOperationException(
                 "Radius-ten aerial transitions require TryApplyCompactAerialTransition and active room collision data.");
         }
@@ -958,7 +958,7 @@ internal static class SamusAerialPoseTransitions
         if (samus.Kinematics.Radius.Y != oldRadius)
         {
             // The admitted family deliberately excludes the compact straight-down jumping
-            // and falling poses; reaching a different radius proves a caller crossed that seam.
+            // and falling poses; reaching a different radius means a request crossed that seam.
             // Every retail member admitted above has the same collision radius. A mismatch
             // can only come from inconsistent/corrupt pose metadata, not an omitted route.
             throw new InvalidDataException(
@@ -1052,7 +1052,7 @@ internal static class SamusAerialPoseTransitions
     /// <summary>
     /// Kills Samus's run speed on a falling input-lookup failure. Cancel the
     /// dash component after movement, preserving the base speed and acceleration mode.
-    /// The caller admits only a still-falling body, so no new-fall Y reset is needed.
+    /// It is admitted only for a still-falling body, so no new-fall Y reset is needed.
     /// </summary>
     public static void ApplyFallingInputFallback(SamusState samus)
     {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Verification.Samus.Projectiles;
@@ -131,7 +132,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord),
             });
-            var samus = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Health = 99,
@@ -157,7 +158,7 @@ internal static class ShotCallbackDefinitionsVerification
             {
                 Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
             });
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             SamusProjectile projectile = projectiles.Shots[0];
             projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
             projectile.Damage = 20;
@@ -169,7 +170,7 @@ internal static class ShotCallbackDefinitionsVerification
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     projectiles,
-                    new SamusBombProjectileSystem(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
+                    new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors), SuperMetroid.Core.Progression.AreaId.Crateria, RoomEnemyFrameFixtures.StandaloneSamus()),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal shot no-op ${callback:X6} requires no executable read");

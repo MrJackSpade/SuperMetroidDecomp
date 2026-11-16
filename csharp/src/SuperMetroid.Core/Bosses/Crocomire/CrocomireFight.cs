@@ -72,7 +72,7 @@ internal sealed class CrocomireFight
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
             // mask and these radii/coordinates are literal writes.
             slot.Contact = slot.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
-            state.DeathPhase = CrocomireDeathPhase.WaitBeforePinningDefeatedBodyLayer;
+            state.DeathPhase = CrocomireDeathPhase.InertCorpse;
             CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.Dead);
             slot.Position = slot.Position.WithWhole(new(576, 144));
             slot.Radius = new(40, 28);
@@ -121,9 +121,9 @@ internal sealed class CrocomireFight
     internal void HandleCrocomireInvisibleWall(
         RoomEnemySlot body,
         CrocomireEnemyState state,
-        SamusState? samus)
+        SamusState samus)
     {
-        if (samus is null || state.DeathPhase != CrocomireDeathPhase.Fighting)
+        if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
         int leftEdge = CoordinateAxis.Wrap(
             body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X);
@@ -166,7 +166,7 @@ internal sealed class CrocomireFight
     /// update its timer would, and a newly shown frame raises the new-frame flag exactly as an
     /// authored timed frame does.
     /// </summary>
-    internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState? samus, RoomLevelData? level, int cameraX)
+    internal void AdvanceCrocomireBodyAnimation(RoomEnemySlot body, SamusState samus, RoomLevelData level, int cameraX)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
         if (!body.AnimationClock.Expire())
@@ -214,7 +214,7 @@ internal sealed class CrocomireFight
     /// the fight AI and the spike-wall move may start another animation, which plays on at once.
     /// </summary>
     /// <param name="state">The Crocomire encounter whose body runs the animation.</param>
-    /// <param name="samus">Samus, whom the fight AI measures against; null in fixtures without her.</param>
+    /// <param name="samus">Samus, whom the fight AI measures against.</param>
     /// <param name="level">The room's collision level, which the movement cues require.</param>
     /// <param name="cameraX">The camera's X, which the on-screen movement tests use.</param>
     /// <param name="cue">The cue to perform.</param>
@@ -222,8 +222,8 @@ internal sealed class CrocomireFight
     /// <returns>The segment whose animation starts, or null to continue after the cue.</returns>
     private CrocomireBodySegment? ApplyCrocomireBodyCue(
         CrocomireEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
+        SamusState samus,
+        RoomLevelData level,
         int cameraX,
         CrocomireBodyCue cue,
         CrocomireBodySegment continuation)
@@ -258,18 +258,15 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomireBodyCueKind.MoveLeft:
-                RequireCrocomireLevel(level);
                 if (!state.DamageReactionPending)
                     MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftWithDust:
                 SpawnCrocomireRandomFootDust(state);
-                RequireCrocomireLevel(level);
                 if (!state.DamageReactionPending)
                     MoveCrocomire(body, level, -4);
                 return null;
             case CrocomireBodyCueKind.MoveLeftTowardSpikeWall:
-                RequireCrocomireLevel(level);
                 if (MoveCrocomire(body, level, -4))
                 {
                     state.Phase = CrocomirePhase.BackingOffSpikeWall;
@@ -280,23 +277,19 @@ internal sealed class CrocomireFight
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
             case CrocomireBodyCueKind.MoveRightIfOnScreen:
-                RequireCrocomireLevel(level);
                 if (CrocomireBodyIsOnScreen(body, cameraX))
                     MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.MoveRight:
-                RequireCrocomireLevel(level);
                 MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.MoveRightIfOnScreenWithDust:
                 SpawnCrocomireRandomFootDust(state);
-                RequireCrocomireLevel(level);
                 if (CrocomireBodyIsOnScreen(body, cameraX))
                     MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.MoveRightWithDust:
                 SpawnCrocomireRandomFootDust(state);
-                RequireCrocomireLevel(level);
                 MoveCrocomire(body, level, 4);
                 return null;
             case CrocomireBodyCueKind.Dust:
@@ -319,7 +312,7 @@ internal sealed class CrocomireFight
     /// <summary>Runs Crocomire's fight AI for the phase his fight is in.</summary>
     private CrocomireBodySegment? RunCrocomireFightCue(
         CrocomireEnemyState state,
-        SamusState? samus,
+        SamusState samus,
         CrocomireBodySegment continuation)
     {
         switch (state.Phase)
@@ -328,7 +321,7 @@ internal sealed class CrocomireFight
                 throw new InvalidOperationException("Crocomire's fight cue fired with no fight under way.");
 
             case CrocomirePhase.Dormant:
-                if (samus is not null && CoordinateAxis.Distance(
+                if (CoordinateAxis.Distance(
                         state.Body.Position.X.Whole, samus.Position.X.Whole) < 224)
                 {
                     state.Phase = CrocomirePhase.WaitingForFirstDamage;
@@ -464,13 +457,6 @@ internal sealed class CrocomireFight
         if (BossRandomRolls.InHalfFrom(random, threshold: 4096))
             offset = -offset;
         _access.SpawnCrocomireDust(state, offset);
-    }
-
-    /// <summary>Rejects death and melting operations when the arena collision level is unavailable.</summary>
-    private static void RequireCrocomireLevel([NotNull] RoomLevelData? level)
-    {
-        if (level is null)
-            throw new InvalidOperationException("Crocomire movement requires room level data.");
     }
 
     /// <summary>Spawns one of Crocomire's fight projectiles, the volley's <paramref name="shot"/>.</summary>

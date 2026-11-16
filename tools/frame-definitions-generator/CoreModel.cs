@@ -82,7 +82,7 @@ internal sealed class CoreModel
         EnemySheetDraw = SingleType("EnemySheetDraw");
         SpriteGraphics = SingleType("SpriteGraphics");
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
-        RoomEnemySlot = SingleType("RoomEnemySlot");
+        RoomEnemyPlace = SingleType("RoomEnemyPlace");
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol typedAnimation = SingleType("EnemyProjectileTypedAnimation", arity: 3);
@@ -155,8 +155,8 @@ internal sealed class CoreModel
     /// <summary>Whose spawned-object sheet a spawned object draws from.</summary>
     public INamedTypeSymbol SpawnedObjectOwner { get; }
 
-    /// <summary>An enemy slot.</summary>
-    public INamedTypeSymbol RoomEnemySlot { get; }
+    /// <summary>A room enemy place.</summary>
+    public INamedTypeSymbol RoomEnemyPlace { get; }
 
     /// <summary>
     /// The base every projectile program family derives from (#1600), whose type arguments are its segment, frame and event

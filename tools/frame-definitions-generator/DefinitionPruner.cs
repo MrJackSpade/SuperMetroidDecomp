@@ -192,7 +192,7 @@ internal sealed class DefinitionPruner
             IParameterSymbol parameter => parameter.Type,
             _ => null,
         };
-        if (type is null || !SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemySlot))
+        if (type is null || !SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyPlace))
             return false;
         return symbol switch
         {

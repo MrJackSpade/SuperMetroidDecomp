@@ -53,11 +53,12 @@ internal static class AreaBlockAnimationDefinitionsVerification
         var fx = new RoomFxSelection($"$83:{fxRecord:X4} in {area}", [],
             RoomFxRecordCodec.Decode(area, native, $"room-FX record $83:{fxRecord:X4}"));
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
-        var sand = new RoomSandBlockAnimationsState(fx, door: null);
-        var treadmills = new RoomTreadmillBlockAnimationsState(fx, door: null);
+        IReadOnlyList<BlockAnimation> started = new RoomBlockAnimations(fx, door: null).EffectAnimations;
 
-        AssertEqual(expectedSand, sand.Count, $"{area} compiled sand selection");
-        AssertEqual(expectedTreadmills, treadmills.Count,
+        AssertEqual(expectedSand, started.Count(animation => animation is BlockAnimation.MaridiaSandCeiling or BlockAnimation.MaridiaSandFalling),
+            $"{area} compiled sand selection");
+        AssertEqual(expectedTreadmills, started.Count(animation =>
+                animation is BlockAnimation.WreckedShipTreadmillRightwards or BlockAnimation.WreckedShipTreadmillLeftwards),
             $"{area} compiled treadmill selection");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{area} selection performs no immutable table reads");

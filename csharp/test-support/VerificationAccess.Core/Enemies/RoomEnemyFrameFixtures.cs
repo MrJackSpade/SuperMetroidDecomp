@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -43,7 +44,7 @@ internal static class RoomEnemyFrameFixtures
     /// A new Samus, as the game creates her, for a check whose enemies run beside her without the check placing her
     /// (#2010): every enemy update has Samus.
     /// </summary>
-    internal static SamusState StandaloneSamus() => new(InstalledFixtures.FramesBeyondAnimation,
+    internal static SamusState StandaloneSamus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation,
         new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
 
     /// <summary>Builds the frame from one set of inputs.</summary>

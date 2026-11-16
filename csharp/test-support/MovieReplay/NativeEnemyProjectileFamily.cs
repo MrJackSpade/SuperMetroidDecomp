@@ -13,7 +13,8 @@ internal abstract class NativeEnemyProjectileFamily
     /// <summary>
     /// The family of typed animations <paramref name="startingAt"/> over <paramref name="segments"/> (#1600), whose native
     /// lists start at <paramref name="entries"/>; its owners start the counted lists of
-    /// <paramref name="startsWithClearedCounter"/> directly, with a cleared counter.
+    /// <paramref name="startsWithClearedCounter"/> directly, with a cleared counter, and the animations of
+    /// <paramref name="countedEntries"/> at native entries that only load the counter (#2044).
     /// </summary>
     internal static NativeEnemyProjectileAnimationFamily<TSegment, TFrame, TEvent> Of<TSegment, TFrame, TEvent>(
         NativeProgramEntry<TSegment>[] entries,
@@ -22,11 +23,12 @@ internal abstract class NativeEnemyProjectileFamily
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
         Func<TFrame, ushort?>? reflectedPresentationKey = null,
-        IReadOnlySet<TSegment>? startsWithClearedCounter = null)
+        IReadOnlySet<TSegment>? startsWithClearedCounter = null,
+        IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull =>
-        new(entries, segments, startingAt, presentationKey, rules, reflectedPresentationKey, startsWithClearedCounter);
+        new(entries, segments, startingAt, presentationKey, rules, reflectedPresentationKey, startsWithClearedCounter, countedEntries ?? []);
 
     /// <summary>Compares every program with its native list and returns the total step count.</summary>
     internal abstract int CompareAll(IImportCartridgeSource cartridge);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -50,9 +51,9 @@ internal static class RidleyAttackChoicesVerification
         actual.VerificationServices().NextRandom = () => { advances++; return random; };
         actual.VerificationServices().ReadRandom = () => { actualReads++; return random; };
         reference.VerificationServices().ReadRandom = () => { referenceReads++; return random; };
-        var standing = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
-        var low = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 352)) };
-        var spinning = new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
+        var standing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
+        var low = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 352)) };
+        var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
         // Explicit native branch cases, including spin priority over zero health,
         // health thresholds, and Y immediately before the pogo zone.
         RidleyAttackChoicesCase[] cases =
@@ -62,8 +63,26 @@ internal static class RidleyAttackChoicesVerification
             new RidleyAttackChoicesCase(14400, standing, 2), new RidleyAttackChoicesCase(18000, low, 3),
             new RidleyAttackChoicesCase(18000, spinning, 4),
         ];
-        foreach (var sample in cases)
+        // The selector draws its choice through the attack field, which reads exactly the native table's index, the sample
+        // modulo 8, on every one of the 65536 samples.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
+            AssertEqual(raw & 7, RidleyRandomDefinitions.AttackChoice.Of(raw), "The attack field reads the native choice index");
+        // The selection frame reads its sample only through these fields: the attack choice, and the wall sweep's time limit
+        // and fireball chance, which the spin-jumping situation's same-frame setup reads; every other chosen setup reads none.
+        // Two samples that agree on the fields' bits therefore select and set up alike, so every combination of those bits
+        // covers every sample, and each combination of the bits no field reads, paired with a different combination of the
+        // read bits, confirms that they change nothing.
+        int readBits = new[]
+        {
+            RidleyRandomDefinitions.AttackChoice,
+            RidleyRandomDefinitions.WallSweepTimer,
+            RidleyRandomDefinitions.WallSweepFireballs.Field,
+        }.Aggregate(0, (bits, field) => bits | (field.Outcomes - 1) << field.Shift);
+        int[] readCombinations = [.. Enumerable.Range(0, ushort.MaxValue + 1).Where(raw => (raw & ~readBits) == 0)];
+        int[] unreadCombinations = [.. Enumerable.Range(0, ushort.MaxValue + 1).Where(raw => raw != 0 && (raw & readBits) == 0)];
+        int[] samples = [.. readCombinations, .. unreadCombinations.Select((unread, index) => unread | readCombinations[index % readCombinations.Length])];
+        foreach (var sample in cases)
+        foreach (int raw in samples)
         {
             random = (ushort)raw;
             advances = actualReads = referenceReads = 0;
@@ -88,7 +107,8 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");
         }
-        Console.WriteLine("Ridley choices: the 40 reachable native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
+        Console.WriteLine($"Ridley choices: the 40 reachable native pointers, the attack field on all 65536 samples and {cases.Length * samples.Length} actual selections " +
+            $"over every combination of the selection frame's read bits pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
 }

@@ -17,9 +17,6 @@ public static class EnemySheetDefinitions
     /// <summary>The spawned-object sheet frame showing an enemy projectile frame.</summary>
     internal static string ProjectileFrameName(Projectiles.EnemyProjectileFrameId frame) => $"Projectile.{frame}";
 
-    /// <summary>
-    /// The spawned-object sheet frame showing a room effect-actor frame by the enemy frame it shows. The prefix is the
-    /// installed frame key, which keeps its spelling so that renaming the actors changes no installation (#2004).
-    /// </summary>
-    internal static string EffectActorFrameName(EnemyFrameId frame) => $"SpriteObject.{EnemyFrameSheetKeys.Of(frame)}";
+    /// <summary>The spawned-object sheet frame showing a room effect-actor frame by the enemy frame it shows (#2004).</summary>
+    internal static string EffectActorFrameName(EnemyFrameId frame) => $"EffectActor.{EnemyFrameSheetKeys.Of(frame)}";
 }

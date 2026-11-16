@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Fx;
 
+using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Verification access to <see cref="ColourEffectSystem"/> members production does not use.</summary>
@@ -17,7 +18,7 @@ internal static class RoomPaletteFxSystemAccess
         {
             Ensure.NotNull(definition);
             ColourEffectSystem system = ColourEffectSystem.ForEffect(session, null, null, SamusEquipmentWordCodec.FromEquipmentWord(equippedItems), areaMiniBossDefeated, (RoomEffectDefinition?)(definition));
-            system.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
+            system.BindAudioRequests(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             return system;
         }
     }

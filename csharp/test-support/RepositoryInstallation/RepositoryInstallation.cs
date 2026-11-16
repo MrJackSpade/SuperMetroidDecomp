@@ -76,10 +76,11 @@ internal static class RepositoryInstallation
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false,
-        SuperMetroid.Core.Compatibility.SharedRandom? random = null, SavedEncounterReset? encounterResetOnLoad = null)
+        SuperMetroid.Core.Compatibility.SharedRandom? random = null, SavedEncounterReset? encounterResetOnLoad = null,
+        SuperMetroid.Core.Audio.AudioQueues? audio = null)
     {
         var assists = new GameplayAssists { SamusCannotDie = playerInvincibilityEnabled, AmmoNeverRunsOut = infiniteAmmoEnabled, MapReveal = mapRevealMode, EscapeTimerHoldsAtOneSecond = preventEscapeTimeout, EncounterResetOnLoad = encounterResetOnLoad };
-        return SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork.Gameplay, random);
+        return SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork.Gameplay, random, audio);
     }
 
     /// <summary>Rebinds the host catalogs to a runtime restored from a debugger state, which omits them.</summary>

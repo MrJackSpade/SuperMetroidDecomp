@@ -56,9 +56,9 @@ internal static class RoomFxBlockAnimationArtworkVerification
         foreach (WreckedShipTreadmillDirection direction in
                  Enum.GetValues<WreckedShipTreadmillDirection>())
         {
-            var treadmill = new WreckedShipTreadmillBlockAnimationsState();
+            var treadmill = new RoomBlockAnimations(null, null);
             var waitFrames = new ArtworkFrameSelections();
-            treadmill.Start(direction);
+            treadmill.StartDoorTreadmill(direction);
             treadmill.Step(areaBossDefeated: false, waitFrames);
             BlockAnimation treadmillObject = BlockAnimationLoops.Of(BlockAnimationLoops.Treadmill(direction)).Animation;
             AssertTrue(!waitFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out _),

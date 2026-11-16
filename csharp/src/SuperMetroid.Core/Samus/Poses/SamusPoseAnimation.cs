@@ -28,7 +28,6 @@ internal sealed class SamusPoseAnimation
     /// <summary>The segments, in order.</summary>
     internal IReadOnlyList<SamusAnimationSegment> Segments => segments;
 
-
     /// <summary>Frame <paramref name="frame"/> of the segment named <paramref name="segment"/>.</summary>
     /// <exception cref="ArgumentException">The animation has no such segment, or the frame lies past a segment that is not its last.</exception>
     internal SamusAnimationFrame Frame(SamusAnimationSegmentName segment, int frame)

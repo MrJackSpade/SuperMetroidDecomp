@@ -74,9 +74,6 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The loaded room, which a load replaces with the room it builds.</summary>
     public required ActiveRoomState Room { get; init; }
 
-    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's effect overlay FX reads.</summary>
-    public required RoomFxSession RoomFx { get; init; }
-
     /// <summary>Whether the colour effects run, and the heat phases, which each room's colour effects read.</summary>
     public required ColourEffectSessionState ColourEffectSession { get; init; }
 

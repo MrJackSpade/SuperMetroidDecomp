@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core;
@@ -31,7 +32,7 @@ internal static class GunshipDustAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native gunship dust list at ${address:X6}.");
-            GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, GunshipDustDefinitions.LiftoffClouds[cloud], new SamusState(InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
+            GunshipLiftoffDust.SpawnCloud(enemies.Projectiles, GunshipDustDefinitions.LiftoffClouds[cloud], new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
             GunshipDustSegment program = GunshipDustDefinitions.LiftoffClouds[cloud].Animation;
             AssertTrue(dust.Animation is GunshipDustAnimation started && started.Playback == new AnimationPlayback<GunshipDustSegment>(GunshipDustAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),

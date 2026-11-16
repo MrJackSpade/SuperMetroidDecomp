@@ -346,9 +346,10 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // These are named places of the left-facing drained animations, which land on the right-facing ones where the import
-        // decoded them. In particular, the crouch's release frame is the value its held crouch's repeat
-        // carries rather than a frame of its own; the game intentionally holds it until the next animation step advances it.
+        // These are frames of the left-facing drained animations, which land where the game's layout of the asymmetrical
+        // drained animations puts them. In particular, the crouch's release frame is the value its held crouch's repeat
+        // carries rather than a frame of its own; the game intentionally draws it until the next animation decrement
+        // advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: 1);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)

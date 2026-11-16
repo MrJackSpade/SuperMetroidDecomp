@@ -33,7 +33,7 @@ internal static class WaterfallRoomsVerification
             if (runtime.RoomFxOverlay.Blend != RoomEffectBlendDefinitions.WaterfallDarkensBehind)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost its waterfall blend.");
             runtime.ScreenLayers.Choose(runtime.Room.LoadedScope);
-            runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+            runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false });
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites, runtime.ScreenLayers.Displayed, "waterfall shown layers");
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())

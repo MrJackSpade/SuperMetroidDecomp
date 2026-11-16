@@ -308,7 +308,7 @@ internal static class SpawnedObjectFrameDefinitions
     /// <summary>The projectile frames <c>Enemies/Kago/KagoBehavior.cs</c> spawns.</summary>
     private static readonly EnemyProjectileFrameId[] KagoProjectiles =
     [
-        EnemyProjectileFrameId.KraidRock,
+        EnemyProjectileFrameId.KagoBugWaiting,
         EnemyProjectileFrameId.KagoBugLandedFirst,
         EnemyProjectileFrameId.KagoBugLandedSecond,
         EnemyProjectileFrameId.KagoBugFalling,

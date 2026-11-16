@@ -86,14 +86,10 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The sound and music requests the current update makes, in the order its systems make them (#1620): every room
-    /// system and Samus queue theirs here as they run, and a session's go straight on into its queues.
+    /// system and Samus take it as they are built and queue theirs here as they run, and they go straight on into the
+    /// session's queues (#2057).
     /// </summary>
     internal GameplayAudioRequests AudioRequests { get; }
-
-    /// <summary>Sends the runtime's later audio requests straight on into <paramref name="audio"/>, the queues of the session running it.</summary>
-    /// <exception cref="InvalidOperationException">The runtime's requests already reach a session's queues.</exception>
-    internal void AttachSessionAudio(AudioQueues audio) =>
-        AudioRequests.AttachTo(new SessionGameplayAudioQueues(audio, AttractSession));
 
     /// <summary>What the gameplay display shows: the turning floor's and the elevator shaft's transforms and the latched scene.</summary>
     internal GameplayDisplayState Display { get; }
@@ -207,10 +203,9 @@ internal sealed class SuperMetroidRuntime
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
-        AudioRequests = new GameplayAudioRequests();
-        if (session.Audio is { } audio)
-            AttachSessionAudio(audio);
-        EnemySession = new EnemySession(artwork.EnemyOverreads, artwork.BossAndIntroOverreads, RainbowBeamCameraCheckpoint,
+        AudioRequests = new GameplayAudioRequests(new SessionGameplayAudioQueues(session.Audio, AttractSession));
+        EnemySession = new EnemySession(
+            AudioRequests,artwork.EnemyOverreads, artwork.BossAndIntroOverreads, RainbowBeamCameraCheckpoint,
             artwork.EnemySheets, artwork.EnemyFrameDisplays);
 
         BeamCharge = new BeamChargeState();
@@ -237,7 +232,7 @@ internal sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, RoomFx = RoomFx, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -428,9 +423,6 @@ internal sealed class SuperMetroidRuntime
     /// <remarks>Before the first room exists there is no explosion.</remarks>
     public bool PowerBombExplosionActive => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
 
-    /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork, which outlive each room's effect overlay FX.</summary>
-    public RoomFxSession RoomFx { get; } = new();
-
     /// <summary>The held beam charge, flare and charge colours, which survive room loads; each room's projectiles share it.</summary>
     internal BeamChargeState BeamCharge { get; }
 
@@ -539,8 +531,6 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        scope.BindAudioRequests(AudioRequests);
-        Player.Samus?.BindAudioRequests(AudioRequests);
         EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
     }
 
@@ -611,7 +601,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep, LiquidMotionAlreadyAdvanced = Room.LoadedScope.FxOverlay.MovesLiquidBeforeMainLoop });
+            Room.LoadedScope.FxOverlay.Step(Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, FirefleaDarknessStep = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessStep });
             // A lava or acid rise sustains the room's earthquake. Apply it before the ordinary earthquake step later in
             // this frame so its first displacement is visible immediately.
             if (Room.LoadedScope.FxOverlay.SustainedEarthquake is { } risingLiquidShake)

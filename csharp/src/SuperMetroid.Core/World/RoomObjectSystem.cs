@@ -124,14 +124,16 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// </param>
     /// <param name="places">The room's own room-object places, created with the system by its builder so each room starts with every place free.</param>
     /// <param name="shotCapClosing">Whether a blue cap a shot opened closes behind Samus, composed by the system's builder.</param>
+    /// <param name="audioRequests">The update's audio requests of the runtime, which the room objects' sounds and music join (#2057).</param>
     internal RoomObjectSystem(RoomObjectRoom room, RoomObjectServices services, RoomObjectVisuals visuals,
-        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing)
+        CollectibleBlockPairs collectibleBlockPairs, RoomObjectPlaces places, ShotOpenedCapClosing<LockedDoor> shotCapClosing,
+        GameplayAudioRequests audioRequests)
     {
         Ensure.NotNull(room);
         Ensure.NotNull(services);
         Events = services.Events;
         Places = new RoomObjectPlaceList(places);
-        Sounds = new RoomObjectSoundQueue();
+        Sounds = new RoomObjectSoundQueue(audioRequests);
         Drawing = new RoomObjectBlockDrawing(visuals);
         ProjectileTriggers = new ProjectileTriggerObjects(Places);
         BreakableTerrain = new EnemyBreakableTerrainObjects(Places);

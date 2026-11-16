@@ -140,7 +140,7 @@ internal static class RoomBlockPicturesVerification
                 {
                     var word = new SnesBgTilemapWord(sky.Tiles[row * SkyTilemap.Columns + x / CharacterPixels].PackedWord);
                     (LayeredPicture picture, Position16<ImagePixels> pixel) = PictureAt(shown.Image, x, y);
-                    AssertPaintsTile($"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
+                    AssertPaintsTile(() => $"{room.Name}'s sky at ({x}, {y})", vram, word, x % CharacterPixels, y % CharacterPixels, picture, pixel);
                 }
             }
         }
@@ -166,16 +166,16 @@ internal static class RoomBlockPicturesVerification
     /// and its standard colour. A whole picture, such as a boss body's, is drawn at one depth (#1634), so the tile's priority
     /// is not a property of its pixels.
     /// </summary>
-    internal static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
+    internal static void AssertPaintsTile(Func<string> context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
         SpriteSheetFrame picture, Position16<ImagePixels> pixel)
     {
         int colour = TileColour(vram, word, x, y);
         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
         SpriteImage sheet = picture.Sheet;
         int at = At(picture, pixel);
-        // The message is built only for a failing pixel, since every checked pixel comes through here.
+        // The message, its context included, is built only for a failing pixel, since every checked pixel comes through here.
         if (!(colour == 0 ? sheet.Pixels[at].A == 0 : ShowsIndex(sheet, at, expected)))
-            AssertTrue(false, $"{context}: the picture paints index {Painted(sheet, at)} where tile ${word.Raw:X4} paints {expected}");
+            AssertTrue(false, $"{context()}: the picture paints index {Painted(sheet, at)} where tile ${word.Raw:X4} paints {expected}");
     }
 
     /// <summary>
@@ -183,14 +183,14 @@ internal static class RoomBlockPicturesVerification
     /// characters paint it, is <paramref name="picture"/>'s pixel at <paramref name="pixel"/> in the part the tile's priority
     /// puts it in (#1634), with its palette index and its standard colour, and that the other part shows nothing there.
     /// </summary>
-    internal static void AssertPaintsTile(string context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
+    internal static void AssertPaintsTile(Func<string> context, ReadOnlySpan<byte> vram, SnesBgTilemapWord word, int x, int y,
         LayeredPicture picture, Position16<ImagePixels> pixel)
     {
         int colour = TileColour(vram, word, x, y);
         int expected = colour == 0 ? 0 : word.PaletteIndex * 16 + colour;
-        // The message is built only for a failing pixel, since every checked pixel comes through here.
+        // The message, its context included, is built only for a failing pixel, since every checked pixel comes through here.
         if (!PaintsInPart(picture, pixel, expected, word.HasPriority))
-            AssertTrue(false, $"{context}: the picture's parts paint {Describe(picture, pixel)} where tile ${word.Raw:X4} paints {expected} {PartOf(word)}");
+            AssertTrue(false, $"{context()}: the picture's parts paint {Describe(picture, pixel)} where tile ${word.Raw:X4} paints {expected} {PartOf(word)}");
     }
 
     /// <summary>
@@ -340,7 +340,7 @@ internal static class RoomBlockPicturesVerification
             for (int y = 0; y < CharacterPixels; y++)
             for (int x = 0; x < CharacterPixels; x++)
             {
-                AssertPaintsTile($"{sheet.Name} typed word {index} pixel ({x}, {y})", vram, word, x, y, picture.Picture,
+                AssertPaintsTile(() => $"{sheet.Name} typed word {index} pixel ({x}, {y})", vram, word, x, y, picture.Picture,
                     new Position16<ImagePixels>((ushort)(picture.Corner.X + x), (ushort)(picture.Corner.Y + y)));
             }
             glyphs++;
@@ -390,11 +390,11 @@ internal static class RoomBlockPicturesVerification
                     inks |= TileColour(vram, word, x, y) != 0;
                     // A frame that paints nothing has no picture: the tile it writes there paints nothing (#1513).
                     if (shown.Picture is { } picture)
-                        AssertPaintsTile($"{owner} {shown.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
+                        AssertPaintsTile(() => $"{owner} {shown.Name} cell {cell} pixel ({x}, {y})", vram, word, x, y, picture,
                             new Position16<ImagePixels>(at.X - cellsCorner.X + x, at.Y - cellsCorner.Y + y));
-                    else
-                        AssertTrue(TileColour(vram, word, x, y) == 0,
-                            $"{owner} {shown.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");
+                    // The message is built only for a failing pixel.
+                    else if (TileColour(vram, word, x, y) != 0)
+                        AssertTrue(false, $"{owner} {shown.Name} clears cell {cell}, where tile ${word.Raw:X4} paints pixel ({x}, {y})");
                 }
                 // The frame is drawn whole at the depth the tier of every word it paints with names (#1634): in front of the
                 // sprites for the upper tier, behind them for the lower.

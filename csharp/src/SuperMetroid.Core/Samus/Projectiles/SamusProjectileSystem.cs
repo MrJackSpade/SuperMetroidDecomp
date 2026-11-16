@@ -47,16 +47,9 @@ public sealed class SamusProjectileSystem
 
     /// <summary>
     /// The update's audio requests the projectiles' firing, combination and impact sounds join as they are made: the
-    /// runtime's, once it points the room's systems at it; the projectiles' own record before that.
+    /// runtime's, or a cinematic's (#2057).
     /// </summary>
-    internal GameplayAudioRequests AudioRequests { get; private set; } = new();
-
-    /// <summary>Points the projectiles' sounds at <paramref name="requests"/>, the update's audio requests of the runtime running them.</summary>
-    internal void BindAudioRequests(GameplayAudioRequests requests)
-    {
-        AudioRequests = Ensure.NotNull(requests);
-        ImpactAudio.BindAudioRequests(requests);
-    }
+    internal GameplayAudioRequests AudioRequests { get; }
 
     /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
@@ -92,14 +85,17 @@ public sealed class SamusProjectileSystem
     internal DrainedCrashEchoDepartures<SamusPoseId, ShinesparkDepartureAngles> DrainedCrashDepartures { get; }
 
     /// <summary>Creates one room's five projectile places, its trails and the owners that run them.</summary>
+    /// <param name="audioRequests">The update's audio requests the projectiles' sounds join.</param>
     /// <param name="charge">The held beam charge, flare and charge glow, which outlive each room's projectiles.</param>
     /// <param name="samusOverreads">The installed services reproducing Samus's glitch reads; the projectiles consult their own group of them.</param>
     /// <param name="muzzleCarry">
     /// What each of the room's shot places keeps for its next projectile's horizontal sub-pixel position, created by the
     /// room's builder with the room's shot pool.
     /// </param>
-    internal SamusProjectileSystem(BeamChargeState charge, SamusOverreadServices samusOverreads, LeftMuzzleSubpixelCarry muzzleCarry)
+    internal SamusProjectileSystem(GameplayAudioRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
+        LeftMuzzleSubpixelCarry muzzleCarry)
     {
+        AudioRequests = Ensure.NotNull(audioRequests);
         SamusProjectileOverreads overreads = Ensure.NotNull(samusOverreads).Projectiles;
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;

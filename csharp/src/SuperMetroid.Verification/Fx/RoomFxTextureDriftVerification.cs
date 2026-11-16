@@ -56,20 +56,19 @@ internal static class RoomFxTextureDriftVerification
         static ushort WholePixels(ushort accumulator) => unchecked((ushort)(sbyte)LittleEndianBytes.HighByte(accumulator));
 
         static RoomFxOverlayFrame Frame() =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false };
     }
 
     /// <summary>A room-FX owner loaded from a synthetic record of <paramref name="type"/>.</summary>
     private static RoomFxOverlayState Load(RoomFxType type, RoomEffectBlend blend, RoomLiquid? liquid,
         int randomNumber)
     {
-        var stateSession = new RoomFxSession();
         RoomFxOverlayState state;
         var record = new RoomEffectDefinition(LiquidStartLevel: 100, LiquidTargetLevel: 100,
             LiquidLevelSpeed: default, LiquidMoveDelay: 0, Type: type, VisorAnimation: RoomVisorAnimation.Steady, EffectBlend: blend,
             Liquid: liquid, ColourEffects: [], BlockAnimations: [],
             Tint: RoomEffectTint.None);
-        state = RoomFxOverlayState.ForDefinition(stateSession, record, checked((ushort)randomNumber));
+        state = RoomFxOverlayState.ForDefinition(record, checked((ushort)randomNumber));
         AssertEqual(type, state.Type, $"synthetic {type} record loads");
         return state;
     }

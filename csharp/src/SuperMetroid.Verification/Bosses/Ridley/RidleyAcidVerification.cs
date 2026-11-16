@@ -58,7 +58,7 @@ internal static class RidleyAcidVerification
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.LiquidLevelSpeed.RawValue, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.LiquidMoveDelay.RawValue, "native reveal writes rise delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        for (int frame = 0; frame < 400; frame++) fx.RunUpdate(runtime.System, runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false });
         AssertEqual((ushort)440, fx.NamedBaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
         state.Phase = RidleyPhase.NorfairDeathRoar;
@@ -67,7 +67,7 @@ internal static class RidleyAcidVerification
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.LiquidLevelSpeed.RawValue, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.LiquidMoveDelay.RawValue, "native death writes drain delay once");
-        for (int frame = 0; frame < 400; frame++) fx.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
+        for (int frame = 0; frame < 400; frame++) fx.RunUpdate(runtime.System, runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false });
         AssertEqual((ushort)528, fx.NamedBaseY.Whole, "acid drains below arena after death");
         AssertAcidVisible(false);
         Console.WriteLine("Ridley acid: retail reveal raises 528 -> 440; death roar drains 440 -> 528 through shared FX.");

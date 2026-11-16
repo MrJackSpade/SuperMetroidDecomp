@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Audio;
+using System.Reflection;
+
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Verification access to <see cref="RoomFxOverlayState"/> members production does not use.</summary>
@@ -10,10 +13,10 @@ internal static class RoomFxOverlayStateAccess
         /// Builds room FX from an explicit immutable FX definition through the normal room-load path, its sounds joining a
         /// check's own audio requests, as a runtime binds its update's (#2057).
         /// </summary>
-        internal static RoomFxOverlayState ForDefinition(RoomFxSession session, RoomEffectDefinition definition, ushort randomNumber)
+        internal static RoomFxOverlayState ForDefinition(RoomEffectDefinition definition, ushort randomNumber)
         {
             Ensure.NotNull(definition);
-            RoomFxOverlayState fx = RoomFxOverlayState.ForSource(session, new RoomFxLoadSource
+            RoomFxOverlayState fx = RoomFxOverlayState.ForSource(new RoomFxLoadSource
             {
                 Fx = null,
                 Door = null,
@@ -21,14 +24,85 @@ internal static class RoomFxOverlayStateAccess
                 Room = null,
                 SuppliedDefinition = definition,
             });
-            fx.BindAudioRequests(new SuperMetroid.Core.Audio.GameplayAudioRequests());
+            fx.BindAudioRequests(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             return fx;
         }
     }
 
-    /// <summary>The liquid lines a check requires the room's effect to name (#1546).</summary>
+    /// <summary>The liquid lines a check requires the room's effect to name (#1546), and one update of the effect as the runtime runs it.</summary>
     extension(RoomFxOverlayState self)
     {
+        /// <summary>
+        /// Runs one update of the effect as the runtime does (#2053): the liquid's motion pass before the update's random
+        /// draw, then the effect's step, which places the liquid where that pass left it.
+        /// </summary>
+        /// <param name="system">The shared game state the liquid's motion pass reads and, for lava and acid, swaps the random halves of.</param>
+        /// <param name="frames">The room's animation frame selections.</param>
+        /// <param name="frame">What the step reads of the update; its freeze also holds the motion pass.</param>
+        internal void RunUpdate(SuperMetroid.Core.Progression.SharedGameState system, SuperMetroid.Core.Assets.ArtworkFrameSelections frames,
+            RoomFxOverlayFrame frame)
+        {
+            Ensure.NotNull(frame);
+            self.AdvanceLiquidMotion(system, frame.TimeIsFrozen);
+            self.Step(frames, frame);
+        }
+
+        /// <summary>
+        /// Shows Fireflea darkness in the loaded room as a Fireflea room's load starts it, from its first flash, for a check
+        /// of how its shade reaches the screen; returns the darkness.
+        /// </summary>
+        internal FirefleaFxState StartFirefleaDarknessForCheck()
+        {
+            var darkness = new FirefleaFxState();
+            SetPrivate(self, nameof(RoomFxOverlayState.Type), RoomFxType.Fireflea);
+            SetPrivate(self, nameof(RoomFxOverlayState.Fireflea), darkness);
+            return darkness;
+        }
+
+        /// <summary>
+        /// Takes the liquid's motion from a native snapshot recorded mid-room (#2056): its motion has begun, whether an
+        /// enemy has stopped it, where its tide stands, its base surface and its surface line.
+        /// </summary>
+        /// <param name="stopped">Whether an enemy has ended the liquid's motion.</param>
+        /// <param name="tidePhase">How far round its rise and fall the tide is.</param>
+        /// <param name="tideOffset">How far the tide displaces the surface from its base line.</param>
+        /// <param name="baseY">The surface before the tide's displacement.</param>
+        /// <param name="surface">The surface's room line, negative once a tide carries it above the room's top.</param>
+        internal void ImportLiquidMotion(bool stopped, RotationAngle tidePhase, SignedSixteenSixteen tideOffset, FixedCoordinate baseY,
+            int surface)
+        {
+            SetPrivate(self, nameof(RoomFxOverlayState.MotionStart), SuperMetroid.Core.Compatibility.LiquidMotionStart.Begun);
+            SetPrivate(self, nameof(RoomFxOverlayState.LiquidMotionStopped), stopped);
+            SetPrivate(self, nameof(RoomFxOverlayState.TidePhase), tidePhase);
+            SetPrivate(self, nameof(RoomFxOverlayState.TideOffset), tideOffset);
+            SetPrivate(self, nameof(RoomFxOverlayState.BaseY), baseY);
+            SetPrivate(self, nameof(RoomFxOverlayState.Surface), surface);
+        }
+
+        /// <summary>Gives the liquid <paramref name="liquid"/>'s tide standing at <paramref name="phase"/> with <paramref name="offset"/>, for a check of one tide step.</summary>
+        internal void SetTideForCheck(RoomLiquid liquid, RotationAngle phase, SignedSixteenSixteen offset)
+        {
+            SetPrivate(self, nameof(RoomFxOverlayState.Liquid), liquid);
+            SetPrivate(self, nameof(RoomFxOverlayState.TidePhase), phase);
+            SetPrivate(self, nameof(RoomFxOverlayState.TideOffset), offset);
+        }
+
+        /// <summary>Runs one step of the liquid's tide alone, the step its motion pass takes after the rise.</summary>
+        internal void StepTideForCheck() =>
+            (typeof(RoomFxOverlayState).GetMethod("StepLiquidTide", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?? throw new InvalidOperationException($"{nameof(RoomFxOverlayState)} has no tide step.")).Invoke(self, null);
+
+        /// <summary>Places the quake sounds at <paramref name="position"/> in their rhythm, for a check of the sound each position plays.</summary>
+        internal void SetEarthquakeSoundRhythmPositionForCheck(int position) =>
+            SetPrivate(self, nameof(RoomFxOverlayState.EarthquakeSoundRhythmPosition), position);
+
+        /// <summary>Returns the loaded room to its own effect, <paramref name="type"/>, which has no Fireflea darkness.</summary>
+        internal void EndFirefleaDarknessForCheck(RoomFxType type)
+        {
+            SetPrivate(self, nameof(RoomFxOverlayState.Type), type);
+            SetPrivate(self, nameof(RoomFxOverlayState.Fireflea), null);
+        }
+
         /// <summary>The liquid's base surface, which the check requires the effect to name.</summary>
         /// <exception cref="InvalidOperationException">The effect names no surface.</exception>
         internal FixedCoordinate NamedBaseY => self.BaseY
@@ -44,6 +118,13 @@ internal static class RoomFxOverlayStateAccess
         internal int NamedSurface => self.Surface
             ?? throw new InvalidOperationException("The room effect has no liquid surface.");
     }
+
+    /// <summary>Writes <paramref name="property"/> of <paramref name="fx"/> through its private setter, as the room's load would.</summary>
+    /// <exception cref="InvalidOperationException">The property has no setter.</exception>
+    private static void SetPrivate(RoomFxOverlayState fx, string property, object? value) =>
+        (typeof(RoomFxOverlayState).GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.SetMethod
+            ?? throw new InvalidOperationException($"{nameof(RoomFxOverlayState)}.{property} has no setter."))
+            .Invoke(fx, [value]);
 
     /// <summary>The liquid lines a check requires a published effect to carry (#1546).</summary>
     extension(RoomFxOverlayRenderSnapshot self)

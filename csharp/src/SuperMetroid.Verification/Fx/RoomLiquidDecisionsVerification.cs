@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Drawing;
@@ -57,8 +58,8 @@ internal static class RoomLiquidDecisionsVerification
         bool vertical = Bit(RoomFxNativeSources.VerticalBg2WaveOption);
         bool bitTwo = Bit(RoomFxNativeSources.WaterPhysicsDisabledOrHorizontalHeatWaveOption);
 
-        RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(new RoomFxSession(), record, randomNumber: 0);
-        var samus = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SamusParticles());
+        RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, randomNumber: 0);
+        var samus = new SamusLiquidPhysicsState(new BreathBubbleAndLavaSprayWaits(), new SamusParticles(), GameplayAudioRequests.Standalone());
         samus.ConfigureFor(fx);
         AssertEqual(water && bitTwo, samus.IgnoresWaterSurface, $"{context} Samus ignores the water's surface");
 
@@ -77,8 +78,8 @@ internal static class RoomLiquidDecisionsVerification
         int scale = Bit(RoomFxNativeSources.SmallTideOption) ? LiquidTideDefinitions.SmallTideScale
             : Bit(RoomFxNativeSources.LargeTideOption) ? LiquidTideDefinitions.LargeTideScale
             : 0;
-        fx.TidePhase = RotationAngle.Zero;
-        fx.StepLiquidTide();
+        // A new effect's tide stands at its phase zero.
+        fx.StepTideForCheck();
         int sample = Trigonometry.SignedSine((RotationAngle.Zero - RotationAngle.QuarterTurn).ToTrigonometryAngle());
         AssertEqual(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * scale), fx.TideOffset, $"{context} tide reach");
     }

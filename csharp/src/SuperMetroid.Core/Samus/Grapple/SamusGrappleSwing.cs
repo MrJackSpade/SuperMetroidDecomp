@@ -504,7 +504,7 @@ public static class SamusGrappleSwing
                     return false;
 
                 case RoomCollisionType.SpikeAir:
-                    // The swing's spike reaction has a mostly-zero behaviour table: only spike-air behaviour two queues
+                    // Spike air is harmless to the swing except damaging spike air, which queues
                     // 16 damage. It never collides, but it still starts the common
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
                     // check must precede the behaviour lookup so a second radial probe in this
@@ -553,7 +553,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // The anchor validation calls the firing block check again at the stored endpoint and tests
-        // only whether the block stops the beam. A persistent grapple block of behaviour zero or three therefore stays connected; replacing
+        // only whether the block stops the beam. A persistent anchor, revealed or unrevealed by the X-ray scope, therefore stays connected; replacing
         // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
             terrain.Level,

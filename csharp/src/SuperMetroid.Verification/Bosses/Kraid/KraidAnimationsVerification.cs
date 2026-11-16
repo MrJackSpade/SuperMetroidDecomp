@@ -224,6 +224,8 @@ internal static class KraidAnimationsVerification
         // until its owner steps it again.
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
         lint.Bind(EnemyDefinitionId.KraidLintTop, lint.Definition);
+        // The lint binds after the encounter began, and joins it as its setup would.
+        enemies.KraidBehavior.Access.AttachKraidPart(lint, state);
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);

@@ -600,6 +600,9 @@ internal static class NativeEnemyFamilyStateImport
                 rinkaRecord.Action = MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             rinkaRecord.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
+            // A special Rinka holding a point was placed at it, which makes it the point it respawns at (#2256).
+            if (rinkaRecord.HeldSpawnPoint is { } heldPoint)
+                rinkaRecord.SpawnPoint = heldPoint;
             rinkaRecord.DelayTimer.Count = CoordinateAxis.AsSigned(words.F);
         }
         if (enemy.SpeciesState<EtecoonEnemyState>() is { } etecoonRecord)

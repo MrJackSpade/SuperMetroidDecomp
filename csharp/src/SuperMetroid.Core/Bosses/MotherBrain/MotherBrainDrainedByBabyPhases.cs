@@ -56,7 +56,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby taken aback body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTakenAback()
     {
@@ -74,7 +74,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby regain balance body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
@@ -94,7 +94,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby firing rainbow beam body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyFiringRainbowBeam(MotherBrainRainbowBeamStepRequests requests)
     {
@@ -126,7 +126,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby rainbow beam run out body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut()
     {
@@ -145,7 +145,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby move to back of room body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom()
     {
@@ -162,7 +162,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby go into low power mode body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode()
     {
@@ -183,7 +183,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby prepare transition to grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
     {
@@ -199,7 +199,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the second phase drained by baby transition to grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)
     {
@@ -226,7 +226,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
     /// <summary>
     /// Runs the body's current <see cref="MotherBrainDrainedPhase"/> phase. True when it moves to the next body phase and the game runs on
-    /// into it within the same call.
+    /// into it in the same update.
     /// </summary>
     internal bool Run(MotherBrainRainbowBeamStepRequests requests) => Encounter.DrainedPhase switch
     {

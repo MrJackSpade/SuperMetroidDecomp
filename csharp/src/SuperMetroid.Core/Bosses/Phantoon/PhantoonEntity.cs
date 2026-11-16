@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// One of Phantoon's occupants: his body (<see cref="PhantoonBodyEntity"/>), or his eye
 /// (<see cref="PhantoonEyeEntity"/>), tentacles (<see cref="PhantoonTentaclesEntity"/>) or mouth
 /// (<see cref="PhantoonMouthEntity"/>), drawing parts that play their own animations. Every part answers his
-/// engine-owned hitboxes and may show its frames on his boss body layer; the drawing parts take the shared reactions
+/// hitboxes and may show its frames on his boss body layer; the drawing parts take the shared reactions
 /// their definitions name.
 /// </summary>
 /// <param name="species">The Phantoon species owner.</param>

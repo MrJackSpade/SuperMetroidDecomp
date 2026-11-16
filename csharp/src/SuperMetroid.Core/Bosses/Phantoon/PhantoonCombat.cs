@@ -154,7 +154,7 @@ internal sealed class PhantoonCombat
             {
                 orbit.StartDelay--;
             }
-            // The orbit reads the frame counter that wraps at 65536.
+            // The orbit closes on every second update of the game's frame counter.
             else if (PhantoonCadenceDefinitions.OrbitClosesEverySecondUpdate.IsDue(frameCounter))
             {
                 orbit.Radius--;
@@ -200,8 +200,7 @@ internal sealed class PhantoonCombat
                 rain.FallDelay--;
                 if (rain.FallDelay != 0)
                     return;
-                // Expiry falls through to movement on this call, including a delay
-                // counted past zero. Keep each actor's queue call rather than a last-SFX latch.
+                // The flame queues its own falling sound as its delay runs out, and falls in that same update.
                 audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
             }
 
@@ -279,8 +278,7 @@ internal sealed class PhantoonCombat
             SamusProjectileType projectileType = projectile.Type;
             int projectileDamage = projectile.Damage;
             SamusProjectileFamily family = projectile.Type.Family;
-            // Phantoon's shot filter excludes bombs and every family at/above beam
-            // explosions. Lingering missile explosions must not reach shot AI.
+            // Bombs, Power Bombs and the explosions beams and missiles leave behind never hit Phantoon.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                 continue;
@@ -295,8 +293,8 @@ internal sealed class PhantoonCombat
                 continue;
             }
 
-            // The extended-hitbox walker applies this before running the selected part's reaction. A
-            // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
+            // A Super Missile that meets one of his hitboxes shakes the room before his reaction, so even a hit that
+            // does nothing else shakes it, and the shot is still marked as having struck.
             if (family == SamusProjectileFamily.SuperMissile)
             {
                 _earthquake.Start(SuperMissileDefinitions.EnemyHitEarthquake, SuperMissileDefinitions.EarthquakeDuration);
@@ -320,18 +318,17 @@ internal sealed class PhantoonCombat
                     $"Phantoon has no response to shot reaction {hitboxShot?.ToString() ?? "(unnamed)"}.");
             }
 
-            // The extended-hitbox walker marks the projectile before Phantoon's hitbox reaction.
-            // That reaction's damage helper does not convert it into an explosion:
-            // the projectile's own update owns the following-frame deletion, while
-            // penetrating Plasma retains its type, direction, and animation.
+            // The shot is marked as having struck before Phantoon's reaction, whose damage does not turn it into an
+            // explosion: the shot ends on its own next update, while a Plasma shot that passes through enemies keeps
+            // its type, direction and animation.
             projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(projectile,
                 body.Contact.HasAny(EnemyContact.BlocksPlasmaBeam) ||
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
             int healthBefore = body.Health;
             // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
-            // zero-damage shot's dud, and no death of its own; his own stage follows it. Special attack particles retain
-            // the charged bit; reading only the uncharged combination row made Wave Shield disappear without damaging him.
+            // zero-damage shot's dud, and no death of its own; his own stage follows it. A special attack's particles
+            // count as a charged beam, so the Wave Beam's shield attack damages him.
             _ = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area);
             int appliedDamage = healthBefore - body.Health;
             ResolvePhantoonShotReaction(
@@ -374,7 +371,7 @@ internal sealed class PhantoonCombat
 
         if (vulnerableWindow || swooping)
         {
-            // A single Super Missile (600 retail damage) skips ordinary round accumulation
+            // A single Super Missile (600 damage) skips ordinary round accumulation
             // and enters the eight-wave rage sequence immediately.
             if (damage >= PhantoonBehavior.PhantoonDamageThreshold &&
                 family == SamusProjectileFamily.SuperMissile)
@@ -481,7 +478,7 @@ internal sealed class PhantoonCombat
         flame.FrameHold = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - 8);
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromPixels(-3));
-        // The flame's drift reads the frame counter that wraps at 65536.
+        // The flame drifts left or right by the game's frame counter.
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
             PhantoonCadenceDefinitions.RisingFlameDriftsLeft.IsSetIn(frameCounter) ? -128 : 128));
     }
@@ -509,7 +506,7 @@ internal sealed class PhantoonCombat
             RestPhantoonCasualFlame(flame);
     }
 
-    /// <summary>Installs the resting phase after a flame's bounce ends.</summary>
+    /// <summary>Starts a flame's rest after its bounce ends.</summary>
     private static void RestPhantoonCasualFlame(EnemyProjectile flame)
     {
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.CasualResting));
@@ -531,13 +528,12 @@ internal sealed class PhantoonCombat
         flame.Position = flame.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(body.Position.Y.Whole + 16 + yOffset)));
     }
 
-    /// <summary>Unsigned half-wave multiplication followed by whole-result negation, as the flame orbit computes it.</summary>
+    /// <summary>One part of a flame's place on its orbit: the radius times the wave's size, negated over the second half turn.</summary>
     /// <param name="angle">The flame's orbit angle.</param>
     /// <param name="radius">The orbit radius, zero or more; the product uses its place within 256 (<see cref="ShortCircleProduct"/>).</param>
     internal static int ReadPhantoonFlameComponent(TrigonometryAngle angle, int radius)
     {
-        // The half-wave sample is an unsigned value in 256ths of at most one: its fraction and its whole part each multiply
-        // the radius.
+        // The wave's size is in 256ths, at most one whole: its fraction and its whole part each multiply the radius.
         int sample = Trigonometry.SignedSine(angle.InFirstHalfTurn());
         int orbit = ShortCircleProduct.RadiusInUse(radius);
         int magnitude = EightEight.Multiply(EightEight.FractionOf(sample), orbit) + EightEight.WholeOf(sample) * orbit;

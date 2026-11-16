@@ -84,7 +84,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new ZebetiteEnemyState(place.Spawn.Population);
         place.SetSpeciesState(state);
 
-        // One more processing property is unnamed; it keeps its loaded value, and only the animating property is set.
+        // A Zebetite animates and is solid to Samus.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();

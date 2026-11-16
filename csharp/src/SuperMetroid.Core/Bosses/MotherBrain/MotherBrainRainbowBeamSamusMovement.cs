@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 /// <remarks>
 /// This movement belongs to Mother Brain, not to Samus's own movement: while the beam locks her, her own movement does
-/// not move her, and Mother Brain's attack moves her instead. Keeping that ownership explicit prevents a future runtime
-/// from applying both her own and the forced movement.
+/// not move her, and Mother Brain's attack moves her instead.
 ///
 /// Each move adds its velocity to Samus's position in 256ths of a pixel only: the finer part of her position is
 /// untouched, a fraction past a whole pixel carries into the whole pixels, and her current and previous positions both
@@ -27,8 +26,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     public RotationAngle RainbowBeamAngle { get; set; }
 
     /// <summary>
-    /// Moves Samus toward the wall: right at 16 pixels per update and, until the
-    /// hardcoded wall is reached, derive the vertical component from the live beam angle.
+    /// Moves Samus toward the wall: right at 16 pixels per update and, until she reaches the arena's wall, up or down
+    /// along the beam's current angle.
     /// </summary>
     /// <param name="samus">Samus, pinned by the beam.</param>
     /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
@@ -44,8 +43,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         if (!reachedWall)
         {
-            // The sine multiply adds a quarter turn before taking the sine. Its multiplication returns
-            // product divided by 256, a signed 1/256-pixel component for the supplied 1/256-pixel speed.
+            // The vertical part is the push's speed times the cosine of the beam's angle, in 256ths of a pixel.
             MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: MotherBrainRainbowBeamPushDefinitions.PushSpeed, RainbowBeamAngle));
 
             // The wall step reports only whether Samus reached the wall; the vertical clamp
@@ -91,8 +89,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>
-    /// Steps Samus's fall: ease horizontal speed toward zero by 2/256, add
-    /// 24/256 vertical speed, then move through the two hardcoded arena clamps.
+    /// Steps Samus's fall: ease horizontal speed toward zero by 2/256, add 24/256 vertical speed, then move her within
+    /// the arena's bounds.
     /// </summary>
     /// <param name="samus">Samus, falling from the beam.</param>
     /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
@@ -126,8 +124,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         SignedEightEight speed,
         RotationAngle angle)
     {
-        // The sine multiply multiplies unsigned speed by the magnitude, divides the product by 256,
-        // then reapplies the sine's sign.
+        // The speed's size times the sine's size in 256ths, in the sine's direction.
         return Trigonometry.MultiplySignedSine(
             speed, (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle());
     }

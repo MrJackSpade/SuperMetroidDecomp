@@ -1,12 +1,11 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Fixed Phantoon rain placements and shot-response markers.</summary>
+/// <summary>Where Phantoon reappears for his flame rain, the rain's columns and where his eye looks.</summary>
 public static class PhantoonPatternDefinitions
 {
     /// <summary>
-    /// The figure-eight cursor and world X/Y of each of the eight
-    /// random buckets. Patterns zero and four share the same body
-    /// placement.
+    /// For each of the eight random picks, how far along the figure eight Phantoon reappears and where his body
+    /// stands. Picks zero and four are the same place.
     /// </summary>
     internal static readonly PhantoonRainPlacementDefinition[] RainPlacements =
     [

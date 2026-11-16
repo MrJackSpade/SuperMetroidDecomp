@@ -6,7 +6,7 @@ internal static class PhantoonRandomDefinitions
     /// <summary>Which of the eight vulnerable-window timers an opened eye tracks Samus for: the sample modulo 8.</summary>
     internal static readonly RandomSampleField VulnerableWindowChoice = new(0, 3);
 
-    /// <summary>Which of the eight shot patterns and eye markers a hit in the vulnerable window starts: the sample modulo 8.</summary>
+    /// <summary>The draw a hit in the vulnerable window makes, which nothing then reads: the sample modulo 8.</summary>
     internal static readonly RandomSampleField ShotPattern = new(0, 3);
 
     /// <summary>Whether the figure eight after the eye closes runs reversed: taken by an odd sample.</summary>

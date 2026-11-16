@@ -145,7 +145,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetPhantoonMouthControls(part.Phantoon);
     }
 
-    /// <summary>Copies body presentation state into a physical part and starts its chosen animation.</summary>
+    /// <summary>Gives a drawing part the body's colours and starts its chosen animation.</summary>
     private static void StartPhantoonPart(PhantoonPart part, PhantoonPartSegment segment)
     {
         RoomEnemyPlace place = part.Place;
@@ -278,8 +278,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Phantoon has no behaviour for phase {state.Phase}.");
         }
 
-        // This synchronization runs only for the body's invocation, then copies the updated point into the three
-        // drawing parts. The almost-dead phase skips the part sync entirely on that frame.
+        // The three drawing parts follow the body to its new place, except on the update the almost-dead phase runs.
         if (phase == PhantoonPhase.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);

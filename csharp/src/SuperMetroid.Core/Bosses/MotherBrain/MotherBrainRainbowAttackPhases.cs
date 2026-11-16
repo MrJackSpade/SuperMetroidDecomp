@@ -50,7 +50,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     public bool BeamActive { get; internal set; }
 
     /// <summary>
-    /// Starts, immediately after the power-bomb gate and charge countdown.
+    /// Starts the beam proper once its charge has run out with no Power Bomb going off: the beam takes hold of Samus.
     /// </summary>
     public void StartActiveBeam(SamusState samus)
     {
@@ -81,8 +81,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Resets the phase-two head animation and starts the 256-count neck extension before beam charging.</summary>
     internal void BeginExtendingNeckForAttack()
     {
-        // The rainbow setup resets the neutral phase-two head animation and selects the
-        // ordinary 2/4 neck geometry before beginning its first 256-count wait.
+        // The rainbow's setup shows the neutral head and bobs the neck slowly before its first wait of 256.
         _state.SetHeadAnimation(MotherBrainHeadSegment.NeutralPhase2);
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         Encounter.NeckMovementEnabled = true;
@@ -105,8 +104,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     }
 
     /// <summary>
-    /// Advances the held beam's sound countdown, alternating colour request, aim, width,
-    /// and explosion timer in the same call after the charge phase completes.
+    /// Advances the held beam's sound countdown, its colours, aim, width and explosion timer in one update once its
+    /// charge has completed.
     /// </summary>
     private void RunContinuingBeamEffects(
         SamusState samus,
@@ -120,7 +119,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests.SoundQueued = true;
         }
 
-        // Her rainbow colours' handler runs on every call; it steps them only on its phase of the body's update count.
+        // Her rainbow colours are asked to step on every update; they step only on their phase of the body's update count.
         requests.RainbowColours = true;
 
         if (growth == MotherBrainRainbowBeamGrowth.Widening)
@@ -133,9 +132,8 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Converts the angle from the offset brain origin to Samus into the rainbow beam's orientation.</summary>
     private void AimBeamAtSamus(SamusState samus)
     {
-        // The aim step aims from brain position (+16,+4) to Samus. The angle calculation consumes
-        // signed offsets; the aim step converts its clockwise-up angle to the
-        // rainbow beam's anti-clockwise-down convention with `-angle + half turn`.
+        // The beam aims from 16 pixels right of and 4 below the brain to Samus. Her bearing is measured clockwise
+        // from up; the beam's angle turns anti-clockwise from down, a half turn less the bearing.
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
             samus.Position.Whole - (_state.BrainPosition + new Offset16<RoomPixels>(16, 4)));
         _movement.RainbowBeamAngle = RotationAngle.HalfTurn - sourceAngle;
@@ -156,9 +154,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Drains one health with Varia or two without, clamping health below zero to zero.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
-        // The drain step starts from -2 in both branches; the Varia test then adds one back
-        // with Varia, producing -1 with Varia and -2 without it. The below-zero check then clamps
-        // wrapped/below-one health to zero.
+        // The beam takes one energy with Varia and two without; energy that would fall below one becomes zero.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 2;
         int candidate = samus.Health - damage;
         samus.Health = candidate >= 1 ? candidate : 0;
@@ -172,8 +168,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         SamusState samus,
         int mainEnemyExecutionCounter)
     {
-        // Missiles and supers are visited only every fourth main-enemy pass. Power bombs
-        // are visited every call, matching the branch layout rather than sharing the gate.
+        // Missiles and Super Missiles drain on every fourth enemy pass, Power Bombs on every update.
         if (MotherBrainCadenceDefinitions.RainbowMissileDrainEveryFourthEnemyPass.IsDue(mainEnemyExecutionCounter))
         {
             samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: HudItem.Missile);
@@ -196,11 +191,8 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (decremented >= 1)
             return decremented;
 
-        // The step briefly reloads the selected HUD item for the comparison, but both the
-        // matching and nonmatching branches converge on a step that first loads zero.
-        // Therefore the depleted count is always zero; only the selected-item
-        // store itself is conditional. Spell that convergence out to avoid the tempting but
-        // incorrect reading that the HUD item number leaks into the ammo count.
+        // An emptied count is zero whichever item is selected; only the selection changes, and only when the emptied
+        // weapon was selected.
         if (samus.SelectedHudItem == selectedItem)
             samus.SelectedHudItem = HudItem.Beam;
 
@@ -210,19 +202,18 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow extend neck body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeck()
     {
-        // The rainbow's restart only installs the setup; the setup executes on the next enemy
-        // AI call and deliberately does not fall through into its 256 timer.
+        // The rainbow's restart only sets the attack up; its wait of 256 takes its first step on the next update.
         BeginExtendingNeckForAttack();
         return false;
     }
 
     /// <summary>
     /// Runs the second phase rainbow start charging body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowStartCharging()
     {
@@ -237,7 +228,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow retract neck body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowRetractNeck()
     {
@@ -254,7 +245,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow wait for charge body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForCharge(MotherBrainRainbowBeamStepRequests requests)
     {
@@ -269,7 +260,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow extend neck down body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeckDown(MotherBrainRainbowBeamStepRequests requests)
     {
@@ -285,18 +276,16 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow start firing body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowStartFiring(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The widen-and-aim step widens/aims even while an active power bomb freezes the timer.
+        // The beam widens and aims even while a Power Bomb going off holds its timer.
         IncreaseWidthAndAim(samus);
         if (!frame.PowerBombActive)
         {
             if (Encounter.PhaseTimer.StepRunsOut())
             {
-                // The step rereads the power-bomb flag here. The
-                // parameter is one stable sample of the flag for this AI call.
                 // The beam clears Samus's cooldown before it captures her.
                 requests.SamusProjectileCooldown = MotherBrainBeamDefinitions.BeamStartedSamusCooldown;
                 StartActiveBeam(samus);
@@ -307,7 +296,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow move samus toward wall body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowMoveSamusTowardWall(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
@@ -326,7 +315,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow one frame delay body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowOneFrameDelay(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
@@ -336,7 +325,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
 
-        // The start-draining step's countdown of zero runs out on this very call.
+        // The start-draining step's countdown of zero runs out on this very update.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 8);
@@ -347,12 +336,11 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow start draining samus body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowStartDrainingSamus(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The drain start installs draining, seeds both its timer and the earthquake with 299, and falls
-        // through into the draining phase in the same enemy-processing call.
+        // The drain starts with both its timer and the earthquake at 299, and drains in this same update.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.DrainingSamus;
         Encounter.PhaseTimer.Count = 299;
         requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, 299);
@@ -361,7 +349,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow draining samus body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowDrainingSamus(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
@@ -380,7 +368,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow finish firing body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowFinishFiring(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
     {
@@ -410,12 +398,11 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow let samus fall body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowLetSamusFall(SamusState samus)
     {
-        // Controller zero changes the pose/radius, then the fall step installs the wait
-        // phase and falls straight through to its first custom movement call.
+        // Samus is let fall, and the wait for her landing moves her in this same update.
         samus.Drained.LetFall(samus);
         Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForSamusToLand;
         return true;
@@ -423,7 +410,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow wait for samus to land body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowWaitForSamusToLand(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
@@ -435,12 +422,11 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow lower head body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowLowerHead()
     {
-        // Neck positions are presentation/actor-animation state. This phase's movement-
-        // relevant effect is the exact phase/timer handoff to the lower-head step.
+        // Lowering the head waits 128 updates before Mother Brain decides what comes next.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.DecideNextAction;
         Encounter.PhaseTimer.Count = 128;
         return false;
@@ -448,7 +434,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the second phase rainbow decide next action body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// on into it in the same update.
     /// </summary>
     internal bool RunSecondPhaseRainbowDecideNextAction(SamusState samus)
     {
@@ -460,9 +446,8 @@ internal sealed class MotherBrainRainbowAttackPhases
             }
             else
             {
-                // The lower-head step performs this call before installing the later
-                // finish-off phase. It starts one complete really-slow forward
-                // body animation when Mother Brain is standing and left of 128.
+                // Before the finish-off begins, Mother Brain starts one really slow step forward when she is standing
+                // and left of 128.
                 RequestWalkForwardReallySlow(
                     CoordinateAxis.Wrap(_state.BodyPosition.X + 16));
                 _state.BabyArrivalReadyingElapsed = 0;
@@ -475,7 +460,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 
     /// <summary>
     /// Runs the body's current <see cref="MotherBrainRainbowPhase"/> phase. True when it moves to the next body phase and the game runs on
-    /// into it within the same call.
+    /// into it in the same update.
     /// </summary>
     internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.RainbowPhase switch
     {

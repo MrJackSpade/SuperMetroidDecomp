@@ -42,7 +42,7 @@ internal static class SaveSchemaTranslationVerification
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
         ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, JapaneseText = true }));
-        ram.SetGameCompleted(true);
+        ram.CompleteGame();
         ram.SelectSlot(SaveSlot.A);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));
         AssertTrue(!json.Contains("preservedUntranslatedSram", StringComparison.Ordinal) &&
@@ -240,6 +240,7 @@ internal static class SaveSchemaTranslationVerification
         ToSchemaFourProgression(legacy);
         ToSchemaTwoProgression(legacy);
         legacy.Remove("gameCompleted");
+        legacy.Remove("powerOnFoundNoValidSave");
         JsonObject slot = legacy.Required("slots").Required(0).AsObject();
         slot.Remove("japaneseText"); slot.Remove("loadedItemCount");
         slot.Required("resources").AsObject().Remove("reserveMissiles");
@@ -479,12 +480,12 @@ internal static class SaveSchemaTranslationVerification
         });
         // Boot fixes the demo playlist, so each marker state boots a session.
         ram.SelectSlot(SaveSlot.C);
-        ram.SetGameCompleted(false);
+        ram.RestoreHistory(SaveFileHistory.None);
         AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "incomplete save plays the ordinary demo sets");
-        ram.SetGameCompleted(true);
+        ram.CompleteGame();
         AssertEqual(StockAttractDemoScenes.CompletedGamePlaylist, new SuperMetroidGame(ram).Session.DemoPlaylist, "completed save unlocks the completion demo set");
         AssertEqual(SaveSlot.C, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
-        ram.SetGameCompleted(false);
+        ram.RestoreHistory(SaveFileHistory.None);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));

@@ -67,7 +67,7 @@ internal static class GameSaveJsonVerification
         // The former preservation-only word is the native reserve-missile accumulator.
         snapshot = snapshot with { ReserveMissiles = 165, JapaneseText = true };
         saveRam.SaveSlot(SaveSlot.B, snapshot);
-        saveRam.SetGameCompleted(true);
+        saveRam.CompleteGame();
         saveRam.SelectSlot(SaveSlot.B);
         byte[] expectedSram = SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
 
@@ -346,6 +346,42 @@ internal static class GameSaveJsonVerification
         Console.WriteLine($"  Used stations: all {LoadStationDefinitions.Usable.Count} usable stations round-trip alone; numbers naming no station are dropped by the upgrade and the table decoder.");
     }
 
+    /// <summary>
+    /// #2140: the save file's history keeps a power-on that found no valid save. A store whose boot found no valid save,
+    /// then saved a slot, writes that history to JSON and reads it back, so the next power-on still adds the rumble's frame
+    /// as the cartridge's kept marker does; a save holding both a completed game and that power-on is rejected; and a
+    /// schema-eleven save, which kept no such history, upgrades to none.
+    /// </summary>
+    internal static void VerifyPowerOnHistoryJsonRoundTrip()
+    {
+        AreaMapPresentation maps = RetailPresentationFixture();
+        var store = new SaveSlotStore(maps);
+        AssertTrue(!store.DetermineCompletionDemoSetUnlocked(), "a boot with no valid save leaves the completion demo set out");
+        AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "a boot with no valid save keeps it in the history");
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
+        store.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, new SharedGameState(new SharedRandom()),
+            new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.DraygonSave }));
+        AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "saving a slot leaves the history");
+
+        string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));
+        AssertTrue(json.Contains("\"gameCompleted\": false", StringComparison.Ordinal) &&
+            json.Contains("\"powerOnFoundNoValidSave\": true", StringComparison.Ordinal), "the JSON save names the history");
+        SaveSlotStore loaded = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), maps);
+        AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, loaded.History, "the history survives the JSON save");
+        AssertEqual(1, loaded.EarthquakeSoundDelayAtPowerOn().ExtraFrames,
+            "a valid save after a power-on that found none adds the rumble's frame at the next power-on");
+        AssertInvalidJsonSave(json.Replace("\"gameCompleted\": false", "\"gameCompleted\": true", StringComparison.Ordinal),
+            "powerOnFoundNoValidSave");
+
+        JsonObject schemaEleven = RequiredJson.Parse(json).AsObject();
+        schemaEleven["schemaVersion"] = 11;
+        schemaEleven.Remove("powerOnFoundNoValidSave");
+        GameSaveJsonDocument upgraded = LegacyGameSaveJson.Deserialize(schemaEleven.ToJsonString(), "game save", out bool migrated);
+        AssertTrue(migrated, "a schema-eleven save is upgraded");
+        AssertTrue(!upgraded.PowerOnFoundNoValidSave && !upgraded.GameCompleted, "a schema-eleven save upgrades to no history");
+        Console.WriteLine("  Save-file history: a power-on that found no valid save survives the JSON save; schema eleven upgrades to none.");
+    }
+
     /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>
     internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
@@ -371,6 +407,7 @@ internal static class GameSaveJsonVerification
         Suite(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode());
         Suite(nameof(VerifyWidenedSlotFieldsJsonRoundTrip), () => VerifyWidenedSlotFieldsJsonRoundTrip());
         Suite(nameof(VerifyUsedStationNumbersWithoutStation), () => VerifyUsedStationNumbersWithoutStation());
+        Suite(nameof(VerifyPowerOnHistoryJsonRoundTrip), () => VerifyPowerOnHistoryJsonRoundTrip());
         return 0;
     }
 

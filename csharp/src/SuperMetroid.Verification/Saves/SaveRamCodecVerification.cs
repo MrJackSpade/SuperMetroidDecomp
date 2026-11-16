@@ -94,12 +94,12 @@ internal static class SaveRamCodecVerification
         store.SelectSlot(SaveSlot.B);
         AssertEqual(SaveSlot.B, SaveRamCodec.Decode(SaveRamCodec.Encode(store, maps), maps).ReadSelectedSlot(), "the selection encodes with its complement");
         RoundTrips("selecting slot B");
-        store.SetGameCompleted(true);
+        store.CompleteGame();
         AssertEqual("supermetroid", Marker(), "completion writes the signature");
         AssertTrue(AddsRumbleFrame(store), "a completed save's boot carry is set");
         AssertTrue(store.DetermineCompletionDemoSetUnlocked(), "a completed save unlocks the completion demo set");
         RoundTrips("completing the game");
-        store.SetGameCompleted(false);
+        store.RestoreHistory(SaveFileHistory.None);
         AssertTrue(!AddsRumbleFrame(store), "a valid incomplete save's boot carry is clear");
         RoundTrips("clearing completion");
         Console.WriteLine("Save store: boot, save, copy, clear, select and completion have the cartridge's effect and round-trip through SRAM.");

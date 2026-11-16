@@ -8,18 +8,21 @@ using SuperMetroid.Verification.Harness;
 internal static class MainGameLoopCarryVerification
 {
     /// <summary>
-    /// Confirms each power-on case of <see cref="PowerOnEarthquakeSoundDelay"/> (no valid save, a valid save without the
-    /// completion mark, a completed game) and that the rumble's delay reload adds its frame, preserving the native rumble
-    /// cadence.
+    /// Confirms each power-on case of <see cref="PowerOnEarthquakeSoundDelay"/> (no valid save, a valid save after a
+    /// power-on that found none, a valid save without either, a completed game) and that the rumble's delay reload
+    /// adds its frame, preserving the native rumble cadence.
     /// </summary>
     internal static void VerifyMainGameLoopCarry()
     {
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         AssertEqual(1, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "no valid save: power-on adds a frame");
+        _ = saveRam.DetermineCompletionDemoSetUnlocked();
         saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot());
-        saveRam.SetGameCompleted(false);
-        AssertEqual(0, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "a valid save without the mark adds none");
-        saveRam.SetGameCompleted(true);
+        AssertEqual(1, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames,
+            "a valid save after a power-on that found none adds a frame, as the kept marker does (#2140)");
+        saveRam.RestoreHistory(SaveFileHistory.None);
+        AssertEqual(0, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "a valid save without either history adds none");
+        saveRam.CompleteGame();
         AssertEqual(1, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "a completed game adds a frame");
 
         foreach (PowerOnEarthquakeSoundDelay delay in new[] { PowerOnEarthquakeSoundDelay.OneFrame, PowerOnEarthquakeSoundDelay.None })

@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>
 /// The session's saves as owned state (#1322): the three slots A, B and C (an absent save is an empty or invalid slot),
-/// the menu's selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly by
-/// <see cref="SaveSlot"/>; a slot's number and the raw save image are only the save files' formats (#2083).
+/// the menu's selected slot and the save file's history of the game as a whole (<see cref="SaveFileHistory"/>).
+/// Gameplay, menus, checkpoints and JSON read and write it directly by <see cref="SaveSlot"/>; a slot's number and the
+/// raw save image are only the save files' formats (#2083, #2140).
 /// </summary>
 public sealed class SaveSlotStore
 {
@@ -15,43 +16,28 @@ public sealed class SaveSlotStore
     /// <summary>The file-select menu's persistent selection.</summary>
     private SaveSlot selectedSlot;
 
-    /// <summary>
-    /// The earthquake rumble delay the save image this store was imported from gives at power-on, which its host decided
-    /// from the image's raw completion mark; null once the mark is rewritten, or when the store was never imported.
-    /// Saving, copying or clearing a slot leaves the mark, as the game does.
-    /// </summary>
-    private PowerOnEarthquakeSoundDelay? importedEarthquakeDelay;
-
     /// <summary>Installed stock map rules that pack and unpack explored maps; the host binds them with its artwork.</summary>
     private IAreaMapSource? mapPresentation;
 
-    /// <summary>Creates an empty store: no saved slot, slot A selected, the game not completed.</summary>
+    /// <summary>Creates an empty store: no saved slot, slot A selected, no history.</summary>
     /// <param name="mapPresentation">Installed stock map rules; saving a slot requires them.</param>
     public SaveSlotStore(IAreaMapSource? mapPresentation = null) => this.mapPresentation = mapPresentation;
 
-    /// <summary>
-    /// A store imported from a save image a host decoded: its slots, the menu's selection, completion, whether the
-    /// completion mark held the corrupt-save signature, and the earthquake rumble delay the image's mark gives at power-on.
-    /// </summary>
+    /// <summary>A store imported from a save file a host decoded: its slots, the menu's selection and the file's history.</summary>
     /// <param name="saved">The slots holding a save, each in the slot it names; a slot not among them is empty or invalid.</param>
     /// <param name="selectedSlot">The menu's selected slot.</param>
-    /// <param name="gameCompleted">Whether the mark holds the completed-game signature.</param>
-    /// <param name="corruptMarkerWritten">Whether the mark holds the corrupt-save signature.</param>
-    /// <param name="earthquakeDelay">The rumble delay the image's mark gives at power-on while a slot is valid.</param>
+    /// <param name="history">The save file's history of the game as a whole.</param>
     /// <param name="maps">Installed stock map rules that saving a slot requires.</param>
     /// <exception cref="ArgumentException">Two saves name the same slot.</exception>
-    [IndependentFlag("Game completion and the corrupt marker are separate facts decoded from a save image.")]
-    public static SaveSlotStore Imported(IEnumerable<SuperMetroidSaveSlot> saved, SaveSlot selectedSlot, bool gameCompleted,
-        bool corruptMarkerWritten, PowerOnEarthquakeSoundDelay earthquakeDelay, IAreaMapSource maps)
+    public static SaveSlotStore Imported(IEnumerable<SuperMetroidSaveSlot> saved, SaveSlot selectedSlot, SaveFileHistory history,
+        IAreaMapSource maps)
     {
         Ensure.NotNull(saved);
         RequireSlot(selectedSlot);
         var store = new SaveSlotStore(maps)
         {
             selectedSlot = selectedSlot,
-            HasCompletedGame = gameCompleted,
-            CorruptMarkerWritten = corruptMarkerWritten,
-            importedEarthquakeDelay = Ensure.NotNull(earthquakeDelay),
+            History = RequireHistory(history),
         };
         foreach (SuperMetroidSaveSlot save in saved)
         {
@@ -62,8 +48,8 @@ public sealed class SaveSlotStore
         return store;
     }
 
-    /// <summary>Whether the marker field holds the corrupt-saves signature boot writes when every slot is invalid.</summary>
-    public bool CorruptMarkerWritten { get; private set; }
+    /// <summary>The save file's history of the game as a whole: a completed game, a power-on that found no valid save, or neither.</summary>
+    public SaveFileHistory History { get; private set; }
 
     /// <summary>Installs map rules when the host binds artwork.</summary>
     internal void BindMapPresentation(IAreaMapSource? maps) => mapPresentation = maps;
@@ -114,50 +100,39 @@ public sealed class SaveSlotStore
     /// <summary>The menu's selected slot.</summary>
     public SaveSlot ReadSelectedSlot() => selectedSlot;
 
-    /// <summary>True for the completed-game signature.</summary>
-    public bool HasCompletedGame { get; private set; }
+    /// <summary>Whether the save file's history holds a completed game, which unlocks the completion demo set.</summary>
+    public bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
 
-    /// <summary>Sets or clears the completed-game signature.</summary>
-    public void SetGameCompleted(bool completed)
-    {
-        HasCompletedGame = completed;
-        CorruptMarkerWritten = false;
-        MarkerRewritten();
-    }
+    /// <summary>The ending completes the game; the save file's history keeps it until a power-on finds no valid save.</summary>
+    public void CompleteGame() => History = SaveFileHistory.GameCompleted;
+
+    /// <summary>Restores the history a save file kept, as its host reads it back.</summary>
+    /// <param name="history">The save file's history of the game as a whole.</param>
+    public void RestoreHistory(SaveFileHistory history) => History = RequireHistory(history);
 
     /// <summary>
-    /// The frame this save file adds at power-on to every earthquake rumble's delay
-    /// (<see cref="PowerOnEarthquakeSoundDelay"/>): one when no slot is valid, the game is completed or the mark holds
-    /// the corrupt-save signature, none for a valid save without either mark. Until the mark is rewritten, a store
-    /// imported from a save image gives the delay its host decided from that image's raw mark.
+    /// The frame this save file adds at power-on to every earthquake rumble's delay, which
+    /// <see cref="PowerOnEarthquakeSoundDelay"/> derives from whether a slot is valid and from the file's history.
     /// </summary>
-    public PowerOnEarthquakeSoundDelay EarthquakeSoundDelayAtPowerOn()
-    {
-        if (!AnySlotValid)
-            return PowerOnEarthquakeSoundDelay.OneFrame;
-        if (importedEarthquakeDelay is { } imported)
-            return imported;
-        return HasCompletedGame || CorruptMarkerWritten ? PowerOnEarthquakeSoundDelay.OneFrame : PowerOnEarthquakeSoundDelay.None;
-    }
+    public PowerOnEarthquakeSoundDelay EarthquakeSoundDelayAtPowerOn() => PowerOnEarthquakeSoundDelay.FoundAtPowerOn(
+        AnySlotValid, gameCompleted: History == SaveFileHistory.GameCompleted,
+        powerOnFoundNoValidSave: History == SaveFileHistory.PowerOnFoundNoValidSave);
 
     /// <summary>
     /// Decides at boot, once, whether the title's attract demos include the completion set. When every save slot is
-    /// invalid it overwrites the completion marker with the corrupt-saves signature and leaves the completion set out;
-    /// otherwise the completion signature unlocks it. The game never decides again before reset.
+    /// invalid the file's history becomes a power-on that found no valid save, replacing a completed game, and the
+    /// completion set stays out; otherwise a completed game unlocks it. The game never decides again before reset.
     /// </summary>
     /// <returns>Whether the completion demo set plays for the session.</returns>
     public bool DetermineCompletionDemoSetUnlocked()
     {
         if (!AnySlotValid)
         {
-            HasCompletedGame = false;
-            CorruptMarkerWritten = true;
-            MarkerRewritten();
+            History = SaveFileHistory.PowerOnFoundNoValidSave;
             return false;
         }
         return HasCompletedGame;
     }
-
     /// <summary>Rejects a value that names none of the slots A, B and C.</summary>
     private static void RequireSlot(SaveSlot slot)
     {
@@ -168,8 +143,10 @@ public sealed class SaveSlotStore
     /// <summary>Whether any slot holds a save.</summary>
     private bool AnySlotValid => slots.Count > 0;
 
-    /// <summary>The completion marker has been rewritten, so it no longer holds what the imported save left in it.</summary>
-    private void MarkerRewritten() => importedEarthquakeDelay = null;
+    /// <summary>Rejects a value that names no save-file history.</summary>
+    private static SaveFileHistory RequireHistory(SaveFileHistory history) => Enum.IsDefined(history)
+        ? history
+        : throw new ArgumentOutOfRangeException(nameof(history), history, "Undefined save-file history.");
 
     /// <summary>A copy of <paramref name="saved"/> as slot <paramref name="slot"/>, sharing no array with it.</summary>
     private static SuperMetroidSaveSlot Detached(SuperMetroidSaveSlot saved, SaveSlot slot) => saved with

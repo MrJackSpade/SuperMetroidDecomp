@@ -28,7 +28,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadf13 + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.CollisionForSegment(index)),
+                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolSegmentDefinitions.Segments[index].CollisionAnimation),
                 $"Shaktool collision list {index}");
         }
 
@@ -59,14 +59,11 @@ internal static class ShaktoolInstructionDefinitionsVerification
         reverse(tail, (tailState), tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
-            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolAnimationChoices.CollisionForSegment(index)), AnimationPlace.StartOfAnimation),
+            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolSegmentDefinitions.Segments[index].CollisionAnimation), AnimationPlace.StartOfAnimation),
                 (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Playback,
                 $"Shaktool production collision list {index}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => ShaktoolAnimationChoices.CollisionForSegment(-1),
-            "negative Shaktool collision segment");
         Console.WriteLine(
             "Shaktool instruction definitions: 22 native selectors and all orientation and collision-reversal production handoffs pass with source tables forbidden.");
     }

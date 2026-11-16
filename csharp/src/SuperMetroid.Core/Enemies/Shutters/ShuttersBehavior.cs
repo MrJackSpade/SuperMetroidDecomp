@@ -109,7 +109,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             place,
             state,
             ShutterSegment.GrowingTenPixels,
-            yRadius: 8);
+            GrowthRadius(state.GrowthLevel));
     }
 
     /// <summary>Runs the growing shutter's main AI.</summary>
@@ -183,7 +183,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the four growth stages.</summary>
     private static void GrowShutterDown(RoomEnemyPlace place, GrowingShutterEnemyState state)
     {
-        if (state.GrowthLevel >= 4)
+        if (state.IsFullyGrown)
             return;
 
         place.Position = place.Position.AdvanceY(state.GrowthSpeed);
@@ -202,7 +202,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         GrowingShutterEnemyState state,
         SamusState samus)
     {
-        if (state.GrowthLevel >= 4)
+        if (state.IsFullyGrown)
             return;
 
         state.PreviousY = place.Position.Y.Whole;
@@ -251,7 +251,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY,
         VerticalDirection direction)
     {
-        bool finalSection = state.GrowthLevel == 3;
+        bool finalSection = state.GrowthLevel == GrowingShutterEnemyState.SectionCount - 1;
         int placedY = finalSection
             ? targetY
             : CoordinateAxis.Wrap(targetY + (direction == VerticalDirection.Up
@@ -271,9 +271,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
-        int radius = 8 + state.GrowthLevel * 8;
-        StartGrowingShutterAnimation(place, state, segment, radius);
+        StartGrowingShutterAnimation(place, state, segment, GrowthRadius(state.GrowthLevel));
     }
+
+    /// <summary>The vertical radius of a shutter grown <paramref name="level"/> sections past its first.</summary>
+    private static int GrowthRadius(int level) => GrowingShutterDefinitions.SectionRadius * (level + 1);
 
     /// <summary>Restarts the next growth pose and updates the shutter's vertical collision radius.</summary>
     private static void StartGrowingShutterAnimation(

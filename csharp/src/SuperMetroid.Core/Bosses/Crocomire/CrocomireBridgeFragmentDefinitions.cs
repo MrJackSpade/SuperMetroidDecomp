@@ -34,6 +34,12 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// <summary>The number of bridge fragments the collapse launches, one per authored column.</summary>
     internal const int FragmentCount = 11;
 
+    /// <summary>The row each fragment starts falling from (#2182).</summary>
+    internal const int Y = 187;
+
+    /// <summary>The slowest a fragment starts falling, in 256ths of a pixel an update, to which its random speed adds (#2182).</summary>
+    internal const int SlowestFallTwoFiftySixths = 64;
+
     /// <summary>Returns the authored X position of the <paramref name="fragment"/>th fragment the collapse launches.</summary>
     internal static int XPosition(int fragment) =>
         CoordinateAxis.Wrap(FirstColumnX + 16 * (AuthoredCrumbleColumnOrder[Ensure.BetweenInclusive(0, FragmentCount - 1, fragment)] - 1));

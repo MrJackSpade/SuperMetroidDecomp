@@ -26,4 +26,7 @@ internal static class WorkRobotLaserDefinitions
 
     /// <summary>How fast a WorkRobot's laser flies the way the robot faces, two pixels an update.</summary>
     internal static SignedEightEight Speed { get; } = SignedEightEight.FromPixels(2);
+
+    /// <summary>How fast a WorkRobot's diagonal laser climbs or falls, half a pixel an update (#2182).</summary>
+    internal static SignedEightEight DiagonalVerticalSpeed { get; } = SignedEightEight.FromParts(0, 128);
 }

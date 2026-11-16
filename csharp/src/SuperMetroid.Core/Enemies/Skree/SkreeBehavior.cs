@@ -105,7 +105,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.DiveStep);
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
-            (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -1 : 1));
+            (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -SkreeMotionDefinitions.DiveDrift : SkreeMotionDefinitions.DiveDrift));
     }
 
     /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the place at zero.</summary>
@@ -119,7 +119,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.BurrowTimer == SkreeMotionDefinitions.DebrisBurstAt)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeParticleDefinitions.Burst);
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
+        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + SkreeMotionDefinitions.BurrowSink);
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body, melting and skeleton animations, each named for what it shows (#1938). The fight AI asks which animation his body stands in, in the named
-/// groups of <see cref="CrocomireBodyAnimationGroups"/>, never how the animations are ordered (#1886).
+/// Crocomire's body, melting and skeleton animations, each named for what it shows (#1938). His fight and death start them
+/// by name and never ask where in an animation his body stands (#2180).
 /// </summary>
 public enum CrocomireBodySegment
 {

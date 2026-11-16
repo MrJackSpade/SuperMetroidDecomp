@@ -171,7 +171,7 @@ internal static class XrayGameplayTests
             // The blend plane's line scrolls are random described shapes (#1468): a sine wave across, a stretch down.
             var bg3Across = new ScrollWave(Word(), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(random.Next(65536)), new TrigonometryAngle((byte)random.Next(256)), 1 + random.Next(256), 32, 224);
             var bg3 = new OverlayBlendLayer(new AtmosphereOverlay(FxOverlayFixtures.Rows(seededOverlay.Picture, bg3FirstRow, bg3Rows),
-                    new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), random.Next(65536))), 32,
+                    new ScrollStretch(Word(), Word(), 32 + random.Next(64), 128 + random.Next(96), UnsignedSixteenSixteen.FromRaw((uint)random.Next(65536)))), 32,
                 BlendOperation.Add, bg3Across);
             bool bg2Subscreen = frame % 4 == 0;
             // Every fourth frame blends with the background lying behind; most others with the overlay; the rest with the colour.

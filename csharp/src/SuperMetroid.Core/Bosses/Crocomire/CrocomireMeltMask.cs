@@ -22,7 +22,7 @@ internal static class CrocomireMeltMask
             ?? throw new InvalidOperationException($"Crocomire's melt image {image.Name} shows no picture.");
         int columns = picture.Size.X / HiddenPictureColumns.CellPixels, rows = picture.Size.Y / HiddenPictureColumns.CellPixels;
         var cells = new CellColumns[columns * rows];
-        ReadOnlySpan<byte> order = CrocomireMeltDissolveDefinitions.ColumnOrder;
+        ReadOnlySpan<int> order = CrocomireMeltDissolveDefinitions.ColumnOrder;
         foreach (DissolvingCell cell in image.Dissolving)
         {
             if (cell.Band >= CrocomireMeltDissolveDefinitions.ErasedBands)

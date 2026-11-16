@@ -239,7 +239,8 @@ internal static class NativeEnemyAnimationOracle
     internal static HashSet<TSegment> RunsOnIntoNextAfterLastBeat<TSegment>(IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists)
         where TSegment : struct, Enum =>
         [.. Ensure.NotNull(lists).Where(pair => pair.Value.BeatAddresses.Length > 0
-                && pair.Value.Controls.FirstOrDefault(control => control.AfterBeat == pair.Value.BeatAddresses.Length) is { Kind: NativeEnemyControlKind.RunOnIntoNext })
+                && pair.Value.Controls.FirstOrDefault(control => control.AfterBeat == pair.Value.BeatAddresses.Length
+                    && control.Kind != NativeEnemyControlKind.PoseShownAgain) is { Kind: NativeEnemyControlKind.RunOnIntoNext })
             .Select(pair => pair.Key)];
 
     /// <summary>
@@ -331,7 +332,8 @@ internal static class NativeEnemyAnimationOracle
             // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
             foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
             {
-                if (after.First().Address == nativePointer && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart))
+                if (after.First().Address == nativePointer
+                    && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart or NativeEnemyControlKind.PoseShownAgain))
                     ends.Add(new(segment, after.Key));
             }
         }
@@ -444,6 +446,9 @@ internal static class NativeEnemyAnimationOracle
                         // The run before the beat a later goto returns to is its own phase; the loop plays on from here.
                         entered[(segment, control.AfterBeat)] = phases.Count;
                         continue;
+                    case NativeEnemyControlKind.PoseShownAgain:
+                        // A pose its owner may show again and the instruction that decides are a phase of their own.
+                        continue;
                     case NativeEnemyControlKind.Goto:
                     case NativeEnemyControlKind.RunOnIntoNext:
                         TSegment target = control.Target!.Value;
@@ -539,7 +544,7 @@ internal static class NativeEnemyAnimationOracle
         where TEvent : notnull
     {
         (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted,
-            Func<ushort, ushort?>? goesTo) = rules;
+            Func<ushort, ushort?>? goesTo, Func<ushort, bool>? showsPoseAgain) = rules;
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
         var continuedAt = new HashSet<ushort>();
@@ -629,6 +634,16 @@ internal static class NativeEnemyAnimationOracle
                     compareCue(word, operands, raised.Raised, at);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));
+                    if (showsPoseAgain?.Invoke(word) == true)
+                    {
+                        // An instruction that may show the pose before it again (#2180) makes the pose and itself a run of
+                        // their own: the list's run splits before the pose and after the instruction.
+                        VerificationAssertions.AssertTrue(beat > 0 && beats[beat - 1] is AnimationBeat<TFrame, TEvent>.Frame,
+                            $"{at}: an instruction showing the pose before it again follows a pose");
+                        controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= beat - 1) + 1,
+                            new(NativeEnemyControlKind.PoseShownAgain, beat - 1, null, null, addresses[beat - 1]));
+                        controls.Add(new(NativeEnemyControlKind.PoseShownAgain, beat + 1, null, null, cursor));
+                    }
                     if (endsList?.Invoke(raised.Raised) != true)
                         continue;
                     // A cue that always continues elsewhere ends its list: the animation holds there.
@@ -755,6 +770,12 @@ internal enum NativeEnemyControlKind
     /// plays on from, which splits the list's run there.
     /// </summary>
     LoopStart,
+
+    /// <summary>
+    /// Marks where the run of a pose and the instruction that may show it again starts or ends (#2180): no instruction, only
+    /// the place the list's run splits so that its owner can play that run again.
+    /// </summary>
+    PoseShownAgain,
 }
 
 /// <summary>One native control instruction of an enemy's list (#1600).</summary>

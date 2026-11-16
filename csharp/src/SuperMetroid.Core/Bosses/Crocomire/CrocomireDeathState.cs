@@ -20,14 +20,14 @@ public sealed class CrocomireDeathState
     /// <summary>Frames until the next acid damage sound, on a thirty-two-frame cadence; zero once the sounds stop.</summary>
     public int AcidSoundTimer { get; internal set; }
 
-    /// <summary>One-shot dust latch for the 1536 bridge approach threshold.</summary>
-    public bool BridgeDustAt1536Spawned { get; internal set; }
+    /// <summary>Whether his first stage onto the bridge has raised its dust (#2182).</summary>
+    public bool ApproachDustRaised { get; internal set; }
 
-    /// <summary>One-shot crumble latch for the bridge block at X 1568.</summary>
-    public bool BridgeBlockAt1568Crumbling { get; internal set; }
+    /// <summary>Whether his second stage onto the bridge has started its first block crumbling (#2182).</summary>
+    public bool FirstBridgeBlockCrumbling { get; internal set; }
 
-    /// <summary>One-shot crumble latch for the two bridge blocks from X 1584.</summary>
-    public bool BridgeBlocksAt1584Crumbling { get; internal set; }
+    /// <summary>Whether his third stage onto the bridge has started its next two blocks crumbling (#2182).</summary>
+    public bool NextBridgeBlocksCrumbling { get; internal set; }
 
     /// <summary>The melt pass in progress: which of the two melt images Crocomire's body shows and dissolves.</summary>
     public CrocomireMeltingIllustration MeltPass { get; internal set; }

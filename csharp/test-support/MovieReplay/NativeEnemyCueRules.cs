@@ -16,10 +16,15 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// The native entry an owner routine only goes on to (#2167): a routine that loads the instruction pointer with another
 /// list and returns, which the oracle reads as that goto; null for any other word, or when the owner has none.
 /// </param>
+/// <param name="ShowsPoseAgain">
+/// Whether an owner instruction may show the pose before it again (#2180), as the Yard's closed shell holds: the pose and
+/// the instruction are a run of their own, which the owner plays again; null when the owner has none.
+/// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,
     Action<ushort, ushort[], TCue, string> CompareCue,
     Func<TCue, bool>? EndsList = null,
     Func<ushort, bool>? Omitted = null,
-    Func<ushort, ushort?>? GoesTo = null)
+    Func<ushort, ushort?>? GoesTo = null,
+    Func<ushort, bool>? ShowsPoseAgain = null)
     where TCue : notnull;

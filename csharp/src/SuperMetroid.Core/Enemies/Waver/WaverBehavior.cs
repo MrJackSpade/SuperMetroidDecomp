@@ -95,9 +95,9 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // Once per half-wave, the phase's position within its half-turn equals 56. Waver temporarily swaps to
+        // Once per half-wave, the phase reaches the spin's place within its half-turn. Waver temporarily swaps to
         // the four-frame spin without changing its facing.
-        if (state.Angle.ToTrigonometryAngle().StepsIntoHalfTurn == 56)
+        if (state.Angle.ToTrigonometryAngle().StepsIntoHalfTurn == WaverMotionDefinitions.SpinStepsIntoHalfTurn)
         {
             SetWaverAnimation(place, state, WaverAnimationChoices.Spinning(state.Facing));
         }

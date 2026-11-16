@@ -54,7 +54,7 @@ internal static class ScrollShapeLines
     internal static ushort StretchScroll(ScrollStretch stretch, int line) =>
         line < stretch.FirstLine ? unchecked((ushort)stretch.ScrollAbove)
         : line >= stretch.EndLine ? unchecked((ushort)stretch.BaseScroll)
-        : unchecked((ushort)(stretch.BaseScroll - TimesSixteenSixteen(line - stretch.FirstLine, stretch.Slope)));
+        : unchecked((ushort)(stretch.BaseScroll - TimesSixteenSixteen(line - stretch.FirstLine, checked((int)stretch.Slope.RawValue))));
 
     /// <summary>
     /// The scroll <paramref name="wave"/> gives screen line <paramref name="line"/>: inside its band, the base moved by the

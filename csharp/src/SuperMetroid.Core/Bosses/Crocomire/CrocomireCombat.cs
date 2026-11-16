@@ -139,8 +139,8 @@ internal sealed class CrocomireCombat
         private void RunCrocomireSpikeWallPiece(EnemyProjectile projectile)
         {
             CrocomireSpikeWallPieceState piece = projectile.StateOf<CrocomireSpikeWallPieceState>();
-            int maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
-            int acceleration = piece.Acceleration;
+            SignedSixteenSixteen maximumAcceleration = CrocomireSpikeMotion.MaximumAcceleration(piece.Piece);
+            SignedSixteenSixteen acceleration = piece.Acceleration;
             if (acceleration != maximumAcceleration)
             {
                 acceleration += CrocomireSpikeMotion.AccelerationDelta(piece.Piece);
@@ -149,10 +149,10 @@ internal sealed class CrocomireCombat
             }
             piece.Acceleration = acceleration;
 
-            // The acceleration's whole part is added to the velocity in 256ths of a pixel: a fraction that passes a whole
-            // pixel raises the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The
-            // piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
-            SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(UnsignedEightEight.Whole(acceleration)))
+            // The velocity gains the acceleration's whole 256ths of a pixel: a fraction that passes a whole pixel raises
+            // the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The piece starts at
+            // rest and its whole velocity stays at or below its cap of at most six pixels.
+            SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.InTwoFiftySixths))
                 .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
             projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
@@ -166,7 +166,7 @@ internal sealed class CrocomireCombat
             piece.FallSpeed += SpikeWallPieceGravity;
             projectile.Position = projectile.Position.AdvanceY(piece.FallSpeed);
 
-            if (projectile.Position.Y.Whole < 168)
+            if (projectile.Position.Y.Whole < CrocomireSpikeMotionDefinitions.LandingY)
                 return;
 
             Position16<RoomPixels> impact = projectile.Position.Whole;
@@ -217,7 +217,7 @@ internal sealed class CrocomireCombat
         // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
         // reads that latch, so it is not kept.
         if (context.HitboxTouch == CrocomireReactions.ClawTouch)
-            context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(-4);
+            context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWholeX(CrocomireFightDefinitions.ClawPush);
     }
 
     /// <summary>
@@ -258,9 +258,9 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// The frames a mouth shot that starts a damage reaction adds to the hold of Crocomire's current animation frame,
-    /// whatever his fight is doing: the game keeps one value for the projectile attack and one for every other fight
-    /// phase, and both are this.
+    /// The frames a mouth shot holds Crocomire's current animation frame (#2182): an uncharged beam holds it this long, and a
+    /// shot that starts a damage reaction adds this to its hold, whatever his fight is doing: the game keeps one value for
+    /// the projectile attack and one for every other fight phase, and both are this.
     /// </summary>
     internal const int MouthShotReactionHoldFrames = 8;
 
@@ -281,7 +281,7 @@ internal sealed class CrocomireCombat
         // the pending-hit state. This wrapped signed comparison is the game's exact
         // `body left edge - (camera + 256)` test.
         bool bodyLeftEdgeIsOnScreen = CoordinateAxis.Difference(
-            body.Position.X.Whole - body.Radius.X - 256, camera.X) < 0;
+            body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach, camera.X) < 0;
         int stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
@@ -290,19 +290,19 @@ internal sealed class CrocomireCombat
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.AnimationClock.HoldFor(8);
+                    body.AnimationClock.HoldFor(MouthShotReactionHoldFrames);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
-                stepCount = 2;
+                stepCount = CrocomireFightDefinitions.ChargedBeamSteps;
             }
             else if (family == SamusProjectileFamily.Missile)
             {
-                stepCount = 1;
+                stepCount = CrocomireFightDefinitions.MissileSteps;
             }
             else if (family == SamusProjectileFamily.SuperMissile)
             {
-                stepCount = 3;
+                stepCount = CrocomireFightDefinitions.SuperMissileSteps;
             }
         }
 
@@ -316,7 +316,7 @@ internal sealed class CrocomireCombat
             state.DamageReactionPending = true;
         }
 
-        body.FlashTimer += 14;
+        body.FlashTimer += CrocomireFightDefinitions.MouthShotFlash;
         body.AiStates |= EnemyAiStates.Hurt;
     }
 
@@ -338,11 +338,11 @@ internal sealed class CrocomireCombat
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
 
-        state.StepCounter = 3;
+        state.StepCounter = CrocomireFightDefinitions.PowerBombSteps;
         if (state.Phase == CrocomirePhase.PowerBombCharge)
             return;
 
-        body.FlashTimer += 4;
+        body.FlashTimer += CrocomireFightDefinitions.PowerBombFlash;
         body.AiStates |= EnemyAiStates.Hurt;
         state.Phase = CrocomirePhase.PowerBombCharge;
 

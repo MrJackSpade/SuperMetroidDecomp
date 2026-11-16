@@ -71,6 +71,9 @@ public static class RoomGridConversions
     /// <summary>The last pixel of the 16-pixel block holding an unsigned room pixel coordinate.</summary>
     public static int BlockEnd(int pixel) => BlockStart(pixel) + BlockPixels - 1;
 
+    /// <summary>The first pixel of the block after <paramref name="pixel"/>'s (#2182).</summary>
+    public static int NextBlockStart(int pixel) => BlockStart(pixel) + BlockPixels;
+
     /// <summary>
     /// A room pixel coordinate's offset within its 16-pixel block, 0 through 15, measured from the block's far edge when
     /// <paramref name="mirrored"/>: how a flipped slope reads the coordinate it tests. The coordinate is read as

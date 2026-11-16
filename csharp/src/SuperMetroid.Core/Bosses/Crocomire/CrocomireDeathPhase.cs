@@ -84,7 +84,7 @@ public enum CrocomireDeathPhase
     WaitForSkeletonTerminalImage,
     /// <summary>Reopens the four left scroll cells and clears the wall.</summary>
     ClearWallAndOpenScrolls,
-    /// <summary>Waits for the stable skeleton frame.</summary>
+    /// <summary>Waits one update: his dead skeleton, laid down as its collapse ended, already rests.</summary>
     WaitForStableSkeleton,
     /// <summary>Waits one update after the skeleton settles before recording the mini-boss's defeat.</summary>
     WaitBeforeRecordingDefeat,

@@ -43,14 +43,32 @@ internal static class CrocomireMeltingDefinitions
     /// The height in the room from which down only the top row of Crocomire's melting body stands above the acid, so his
     /// melting pictures show that row alone: the height at which a sink into the acid ends.
     /// </summary>
-    public const int TopRowAboveAcidY = 280;
+    public const int TopRowAboveAcidY = CrocomireBridgeCollapseDefinitions.SunkenY;
 
     /// <summary>The height in the room from which down, above <see cref="TopRowAboveAcidY"/>, his melting pictures show his top two rows.</summary>
-    public const int TopTwoRowsAboveAcidY = 264;
+    public const int TopTwoRowsAboveAcidY = TopRowAboveAcidY - CrocomireBridgeCollapseDefinitions.MeltRowHeight;
 
     /// <summary>
     /// The height in the room from which down, above <see cref="TopTwoRowsAboveAcidY"/>, his melting pictures show his
     /// top three rows; higher than this they show his top four.
     /// </summary>
-    public const int TopThreeRowsAboveAcidY = 248;
+    public const int TopThreeRowsAboveAcidY = TopTwoRowsAboveAcidY - CrocomireBridgeCollapseDefinitions.MeltRowHeight;
+
+    /// <summary>How far below his body his melting tongue is placed, in pixels (#2182).</summary>
+    internal const int TongueBelowBody = 16;
+
+    /// <summary>How far right his melting body shakes, in pixels, on every other half of the shake's count.</summary>
+    internal const int ShakeOffset = 4;
+
+    /// <summary>The updates each half of his melting body's shake lasts.</summary>
+    internal const int ShakeHalfPeriod = 2;
+
+    /// <summary>How many rows the distortion's source row climbs each update it stretches.</summary>
+    internal const int DistortionSourceClimb = 3;
+
+    /// <summary>The highest source row the distortion climbs to; a climb that would pass it starts over here, or ends the stretch once it is steepest.</summary>
+    internal const int DistortionSourceTop = 16;
+
+    /// <summary>How far above his tongue, in pixels, the melt's band starts.</summary>
+    internal const int BandAboveTongue = 72;
 }

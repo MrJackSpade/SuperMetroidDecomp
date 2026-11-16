@@ -17,6 +17,12 @@ internal static class YardNativeListAddresses
     /// <summary>The operand a native list carries where it names no program (the $CF5F sentinel).</summary>
     internal const ushort NullTarget = 0xcf5f;
 
+    /// <summary>
+    /// The routine that ends an update of the Yard's closed shell (#2180), going back to show the closed shell again while
+    /// the Yard hides or on an odd random draw.
+    /// </summary>
+    internal const ushort ShellClosedUpdateEndsRoutine = 0xcc78;
+
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<YardSegment>[] Entries =
     [
@@ -65,6 +71,6 @@ internal static class YardNativeListAddresses
         [0xcc3f] = NativeCueShape<YardCue>.Of<YardCue.SetHidingAnimation>("N"),
         [0xcc48] = NativeCueShape<YardCue>.Of<YardCue.SetDirection>("D"),
         [0xcc5f] = NativeCueShape<YardCue>.Of<YardCue.MoveBy>("SY"),
-        [0xcc78] = NativeCueShape<YardCue>.Exactly(new YardCue.Signal(YardCueKind.RepeatPreviousPoseUnlessContinuing)),
+        [ShellClosedUpdateEndsRoutine] = NativeCueShape<YardCue>.Exactly(new YardCue.Signal(YardCueKind.ShellClosedUpdateEnds)),
     };
 }

@@ -86,7 +86,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 state.Action = SparkAction.IntermittentInactive;
                 StartSparkAnimation(place, state, SparkSegment.FlickerOut);
-                SetSparkActionTimer(state, additionalTime: 8);
+                SetSparkActionTimer(state, additionalTime: SparkTimingDefinitions.ExtraTimeOut);
                 return;
 
             case SparkAction.EmitFallingSparks:

@@ -30,7 +30,9 @@ internal static class YardAnimationsVerification
                         'E' => YardNativeWords.YardMovements.Word(YardCueMovements.Begun(cue) ?? throw new InvalidDataException($"{at}: cue {cue} begins no movement.")),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
-                }));
+                },
+                // The closed shell and the routine ending its update are a phase the Yard plays again (#2180).
+                ShowsPoseAgain: word => word == ShellClosedUpdateEndsRoutine));
         Console.WriteLine($"  Yard animations: {Entries.Length} segments ({beats} beats) and {YardAnimations.StartingAt.Count} animations match bank $A3.");
     }
 }

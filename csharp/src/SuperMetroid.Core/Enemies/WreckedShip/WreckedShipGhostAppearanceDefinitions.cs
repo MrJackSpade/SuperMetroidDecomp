@@ -65,6 +65,9 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// <summary>How long the ghost stays visible once its appearance starts bobbing, in updates.</summary>
     internal const int VisibleDuration = 120;
 
+    /// <summary>How long a ghost that has faded away stays hidden before it watches Samus again, in updates (#2182).</summary>
+    internal const int ReappearanceDelay = 120;
+
     /// <summary>How long Samus stays nearly still, within <see cref="StillMargin"/>, before the ghost appears, in updates.</summary>
     internal const int StillPositionDuration = 64;
 

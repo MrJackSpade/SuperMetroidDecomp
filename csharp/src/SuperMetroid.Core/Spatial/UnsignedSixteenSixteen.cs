@@ -134,4 +134,12 @@ public readonly record struct UnsignedSixteenSixteen
 
     /// <summary>This speed with its whole part replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
+
+    /// <summary>
+    /// How many whole steps of this size fit within <paramref name="wholePixels"/> pixels, the part of a step left over
+    /// dropped (#2181): the lines a band climbing this far each line takes to climb that far.
+    /// </summary>
+    /// <exception cref="DivideByZeroException">This step is zero.</exception>
+    public int WholeStepsWithin(int wholePixels) =>
+        checked((int)(((ulong)Ensure.AtLeastZero(wholePixels) << 16) / RawValue));
 }

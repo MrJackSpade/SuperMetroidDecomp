@@ -91,7 +91,7 @@ internal static class CrocomireStateQuantitiesVerification
         // Every sink starts from rest at the cartridge's starting acceleration word, whatever motion preceded it.
         (_, CrocomireEnemyState started) = NewCrocomire();
         started.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(300);
-        started.VerticalSubpixel = 77;
+        started.VerticalFraction = SignedEightEight.FromParts(0, 77);
         started.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
         AssertMotionWords(started, LittleEndianBytes.Word(0, 8), 0, 0, started.Body.Position.Y.Whole, "a started sink");
         CompareSink(LittleEndianBytes.Word(0, 8), 0, 0, 144, "resting sink");
@@ -122,8 +122,8 @@ internal static class CrocomireStateQuantitiesVerification
         state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
         state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
-        // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
-        state.VerticalSubpixel = LittleEndianBytes.HighByte(subposition);
+        // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
+        state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -149,8 +149,8 @@ internal static class CrocomireStateQuantitiesVerification
         state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
         state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
-        // The subposition word's high byte is the vertical subpixel; the low byte is the cartridge's alone.
-        state.VerticalSubpixel = LittleEndianBytes.HighByte(subposition);
+        // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
+        state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
         body.Position = body.Position.WithWholeY(y);
         for (int frame = 0; frame < 400; frame++)
         {
@@ -172,7 +172,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         AssertEqual(acceleration, state.VerticalAcceleration.InTwoHundredFiftySixthsOfPixel, $"{at}: acceleration in 256ths");
         AssertEqual(speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
-        AssertEqual(LittleEndianBytes.HighByte(subposition), state.VerticalSubpixel, $"{at}: subpixel");
+        AssertEqual(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)), state.VerticalFraction, $"{at}: carried fraction");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }
 

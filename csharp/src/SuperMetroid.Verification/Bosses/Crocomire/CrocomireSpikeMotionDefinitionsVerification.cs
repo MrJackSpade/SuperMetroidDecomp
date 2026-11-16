@@ -19,7 +19,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         {
             int address = 0x8691c3 + 2 * (TopPieceTableEntry + piece);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, CrocomireSpikeMotion.AccelerationDelta(piece),
+            AssertEqual(SignedSixteenSixteen.FromParts(0, expected), CrocomireSpikeMotion.AccelerationDelta(piece),
                 $"Crocomire spike acceleration increment, piece {piece}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.AccelerationDelta(-1), "negative increment piece");
@@ -33,7 +33,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         {
             int address = 0x8691e7 + 2 * (TopPieceTableEntry + piece);
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, CrocomireSpikeMotion.MaximumAcceleration(piece),
+            AssertEqual(SignedSixteenSixteen.FromParts(0, expected), CrocomireSpikeMotion.MaximumAcceleration(piece),
                 $"Crocomire spike acceleration limit, piece {piece}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSpikeMotion.MaximumAcceleration(-1), "negative acceleration limit piece");

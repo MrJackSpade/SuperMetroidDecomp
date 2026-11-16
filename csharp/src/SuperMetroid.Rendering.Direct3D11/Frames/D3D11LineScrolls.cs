@@ -72,7 +72,7 @@ internal static class D3D11LineScrolls
             case ScrollStretch stretch:
                 record[0] = Kind(D3D11LineScrollKind.Stretch, stretch.BaseScroll);
                 record[1] = Band(stretch.FirstLine, stretch.EndLine);
-                record[2] = Scale(stretch.Slope);
+                record[2] = Scale(checked((int)stretch.Slope.RawValue));
                 record[3] = unchecked((ushort)(stretch.ScrollAbove - stretch.BaseScroll));
                 break;
             case SampledScrollWave sampled:

@@ -248,6 +248,8 @@ internal static class NativeEnemyProjectileProgramOracle
                         plays = pending ?? 1;
                         pending = null;
                         break;
+                    case NativeEnemyControlKind.PoseShownAgain:
+                        throw new InvalidDataException($"{animation}'s native list shows no pose again (#2180): no projectile program reads such an instruction.");
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");
                 }

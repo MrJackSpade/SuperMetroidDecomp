@@ -1,0 +1,53 @@
+namespace SuperMetroid.Core.Bosses.Crocomire;
+
+/// <summary>How Crocomire wakes, steps, spits and reacts to his hits, and how he holds Samus back (#2182).</summary>
+internal static class CrocomireFightDefinitions
+{
+    /// <summary>How close Samus comes horizontally, exclusive, before his idle body wakes, in pixels.</summary>
+    internal const int WakeDistance = 224;
+
+    /// <summary>How far his invisible wall pushes Samus each update she presses it: four pixels back and one up.</summary>
+    internal static readonly Offset16<RoomPixels> WallPush = new(-4, -1);
+
+    /// <summary>How far each step toward the spike wall moves him, in pixels.</summary>
+    internal const int SpikeWallStep = -4;
+
+    /// <summary>How far either side of his body the dust of a step toward the spike wall rises before its spread, in pixels.</summary>
+    internal const int SpikeWallDustSide = 32;
+
+    /// <summary>How long a shaking step shakes the screen, in updates.</summary>
+    internal const int StepShakeDuration = 5;
+
+    /// <summary>How far past the camera's left, exclusive, his body's left edge lies while a step back counts as on screen.</summary>
+    internal const int StepBackScreenReach = 260;
+
+    /// <summary>How far past the camera's left, exclusive, his body's left edge lies while a mouth shot counts as on screen.</summary>
+    internal const int MouthShotScreenReach = 256;
+
+    /// <summary>The steps back a charged beam in his mouth queues.</summary>
+    internal const int ChargedBeamSteps = 2;
+
+    /// <summary>The steps back a missile in his mouth queues.</summary>
+    internal const int MissileSteps = 1;
+
+    /// <summary>The steps back a super missile in his mouth queues.</summary>
+    internal const int SuperMissileSteps = 3;
+
+    /// <summary>The steps a Power Bomb's charge queues.</summary>
+    internal const int PowerBombSteps = 3;
+
+    /// <summary>How long a shot in his mouth flashes him, in updates.</summary>
+    internal const int MouthShotFlash = 14;
+
+    /// <summary>How long a Power Bomb flashes him, in updates.</summary>
+    internal const int PowerBombFlash = 4;
+
+    /// <summary>How far a claw's touch pushes Samus back, in pixels.</summary>
+    internal const int ClawPush = -4;
+
+    /// <summary>Where his spit leaves his body: thirty-two pixels ahead of it and sixteen up.</summary>
+    internal static readonly Offset16<RoomPixels> SpitOffset = new(-32, -16);
+
+    /// <summary>The speed his spit leaves at: two pixels an update left and a 256th of a pixel down.</summary>
+    internal static readonly EightEightVector<RoomPixels> SpitVelocity = new(SignedEightEight.FromPixels(-2), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1));
+}

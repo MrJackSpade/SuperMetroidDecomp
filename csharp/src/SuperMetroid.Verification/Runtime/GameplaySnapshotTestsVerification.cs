@@ -33,7 +33,7 @@ internal static class GameplaySnapshotTestsVerification
         var scrolls = new BackgroundLineScrolls
         {
             Horizontal = new ScrollBands(65535, [new ScrollBand(32, 65528), new ScrollBand(120, 19)]),
-            Vertical = new ScrollStretch(0, 511, 64, 200, 32768),
+            Vertical = new ScrollStretch(0, 511, 64, 200, new UnsignedSixteenSixteen(0, 32768)),
         };
         AssertThrows<ArgumentException>(() => new ScrollBands(0, [new ScrollBand(64, 0), new ScrollBand(64, 1)]),
             "each band begins below the one before it");

@@ -82,7 +82,7 @@ internal sealed class CrocomireBodyLayer
         CrocomireDeathState death = state.Death;
         if (--death.AcidSmokeTimer != 0)
             return;
-        death.AcidSmokeTimer = 6;
+        death.AcidSmokeTimer = CrocomireBridgeCollapseDefinitions.AcidSmokeInterval;
 
         int random = _access.ReadCrocomireRandom();
         // Smoke on the left rises one pixel further from the body than its mirror on the right; the smoke's X keeps
@@ -96,7 +96,7 @@ internal sealed class CrocomireBodyLayer
             ? surface
             : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
         _effectActors.SpawnRoomEffectActor(
-            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
             RoomEffectActorKind.BigDustCloud,
             graphics: default);
     }

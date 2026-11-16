@@ -48,9 +48,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
         // The Japanese and North American release measures angles in 256ths of a turn. A slow jump takes 63 two-step frames; a fast
         // one takes 32 four-step frames with adjusted endpoints.
-        state.RightJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 190 : 192);
-        state.LeftJumpTargetAngle = RotationAngle.FromSteps(slowJump ? 66 : 64);
-        state.JumpAngleDelta = slowJump ? 2 : 4;
+        WallSpacePirateJump jump = slowJump ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
+        state.RightJumpTargetAngle = jump.RightTarget;
+        state.LeftJumpTargetAngle = jump.LeftTarget;
+        state.JumpAngleDelta = jump.StepsPerUpdate;
 
         SnapWallSpacePirateXToWallGrid(place);
     }
@@ -139,9 +140,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // The wall alignment deliberately has two alignment grids. Offsets 0..10 within a block round down to an
         // eight-pixel boundary; 11..15 round up to the next block's start.
         int x = place.Position.X.Whole;
-        place.Position = place.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < 11
+        place.Position = place.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < SpacePirateMotionDefinitions.WallSnapForwardFrom
             ? RoomGridConversions.HalfBlockStart(x)
-            : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(x) + 16));
+            : CoordinateAxis.Wrap(RoomGridConversions.NextBlockStart(x)));
     }
 
     /// <summary>Starts a selected wall-Pirate animation on its first frame.</summary>

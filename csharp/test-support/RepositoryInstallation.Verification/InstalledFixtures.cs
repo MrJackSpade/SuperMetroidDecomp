@@ -12,7 +12,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;

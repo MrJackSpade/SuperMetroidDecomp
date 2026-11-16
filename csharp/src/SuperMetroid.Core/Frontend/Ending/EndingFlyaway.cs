@@ -3,7 +3,6 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>

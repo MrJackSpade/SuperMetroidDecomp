@@ -180,8 +180,8 @@ internal sealed class EyeDoorBehavior
         projectile.InstallAnimation(new MiscDustProjectileAnimation(animation));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
-            CoordinateAxis.AsSigned(8 + placement.Base.X + placement.XScatter.Of(random)),
-            CoordinateAxis.AsSigned(8 + placement.Base.Y + placement.YScatter.Of(random))));
+            8 + placement.Base.X + placement.XScatter.Of(random),
+            8 + placement.Base.Y + placement.YScatter.Of(random)));
 
         // The spawn advances the global seed after sampling it for both coordinates.
         _room.Random.Generate();

@@ -224,18 +224,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int signedXDistance = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole);
         int absoluteXDistance = Math.Abs(signedXDistance);
-        int triggerDistance = KiHunterMotionDefinitions.SwoopTriggerDistance;
-        if (CoordinateAxis.Difference(absoluteXDistance, triggerDistance) >= 0 ||
-            CoordinateAxis.Difference(samus.Position.Y.Whole - body.Position.Y.Whole, 32) < 0)
-        {
+        int samusDepth = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
+        if (absoluteXDistance >= KiHunterMotionDefinitions.SwoopTriggerDistance || samusDepth < 32)
             return;
-        }
 
         state.AngularVelocity = AngularSpeed.Zero;
         state.SwoopAnimationChanged = false;
-        state.SwoopRadius = new Extent16<RoomPixels>(
-            absoluteXDistance,
-            CoordinateAxis.Wrap(samus.Position.Y.Whole - body.Position.Y.Whole));
+        state.SwoopRadius = new Extent16<RoomPixels>(absoluteXDistance, samusDepth);
         state.SwoopTargetX = samus.Position.X.Whole;
         state.SwoopOriginY = body.Position.Y.Whole;
         state.Action = KiHunterAction.Swooping;

@@ -197,8 +197,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (xDistance >= samus.Kinematics.Radius.X + place.Radius.X)
             return false;
 
-        int shiftedYDelta = CoordinateAxis.AsSigned(
-            CoordinateAxis.Wrap(samus.Position.Y.Whole + 5 - place.Position.Y.Whole));
+        int shiftedYDelta = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) + 5;
         if (shiftedYDelta >= 0)
             return false;
 

@@ -139,39 +139,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The game takes the magnitude of whichever signed edge faces Samus, so each edge
             // acts as a reach on its own side of the corpse origin.
-            int verticalDistance;
-            int verticalReach;
-            if (CoordinateAxis.Difference(kinematics.Position.Y.Whole, place.Position.Y.Whole) >= 0)
-            {
-                verticalDistance = CoordinateAxis.Wrap(kinematics.Position.Y.Whole - place.Position.Y.Whole);
-                verticalReach = Math.Abs(hitbox.Bottom);
-            }
-            else
-            {
-                verticalDistance = CoordinateAxis.Wrap(place.Position.Y.Whole - kinematics.Position.Y.Whole);
-                verticalReach = Math.Abs(hitbox.Top);
-            }
-
-            int verticalOverlap = CoordinateAxis.Wrap(
-                kinematics.Radius.Y + verticalReach - verticalDistance);
-            if (CoordinateAxis.AsSigned(verticalOverlap) < 0)
+            int verticalOffset = CoordinateAxis.Difference(kinematics.Position.Y.Whole, place.Position.Y.Whole);
+            int verticalReach = Math.Abs(verticalOffset >= 0 ? hitbox.Bottom : hitbox.Top);
+            if (kinematics.Radius.Y + verticalReach - Math.Abs(verticalOffset) < 0)
                 continue;
 
-            int horizontalDistance;
-            int horizontalReach;
-            if (CoordinateAxis.Difference(kinematics.Position.X.Whole, place.Position.X.Whole) >= 0)
-            {
-                horizontalDistance = CoordinateAxis.Wrap(kinematics.Position.X.Whole - place.Position.X.Whole);
-                horizontalReach = Math.Abs(hitbox.Right);
-            }
-            else
-            {
-                horizontalDistance = CoordinateAxis.Wrap(place.Position.X.Whole - kinematics.Position.X.Whole);
-                horizontalReach = Math.Abs(hitbox.Left);
-            }
-
-            int overlap = CoordinateAxis.AsSigned(
-                kinematics.Radius.X + horizontalReach - horizontalDistance);
+            int horizontalOffset = CoordinateAxis.Difference(kinematics.Position.X.Whole, place.Position.X.Whole);
+            int horizontalReach = Math.Abs(horizontalOffset >= 0 ? hitbox.Right : hitbox.Left);
+            int overlap = kinematics.Radius.X + horizontalReach - Math.Abs(horizontalOffset);
             if (overlap < 0)
                 continue;
             if (overlap < 4)

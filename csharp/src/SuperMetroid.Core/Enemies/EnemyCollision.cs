@@ -672,10 +672,8 @@ internal sealed class EnemyCollision
             return 0;
 
         int horizontalRadius = explosionRadius;
-        // The vertical radius keeps the remainder of the first halving through the addition. Expressing each
-        // step makes odd-radius rounding agree with the game rather than using 0.75f.
-        int halvingRemainder = horizontalRadius & 1;
-        int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + halvingRemainder) >> 1;
+        // The blast reaches three quarters as far vertically, rounded to the nearest pixel, a half pixel rounding down.
+        int verticalRadius = (3 * horizontalRadius + 1) / 4;
         int reactionCount = 0;
         _powerBombRadius.Forget();
 

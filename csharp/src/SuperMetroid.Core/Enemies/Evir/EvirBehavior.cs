@@ -355,7 +355,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private static void SetInitialEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? CoordinateAxis.AsSigned(-RegenerationStartDistance) : RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -RegenerationStartDistance : RegenerationStartDistance, 0);
 
     /// <summary>Animation cue: advances the regeneration offset.</summary>
     private static void AdvanceEvirRegenerationOffset(EvirSpitState state) =>

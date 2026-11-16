@@ -154,8 +154,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             curvePlace += ChootAscentStep;
             accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Speed.Positive);
-            int wholeDistance = accumulatedDistance.Whole;
-            if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
+            if (accumulatedDistance.Whole >= jumpHeight)
                 return curvePlace;
         }
 

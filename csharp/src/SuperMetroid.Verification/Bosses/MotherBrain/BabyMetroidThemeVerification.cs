@@ -14,18 +14,18 @@ internal static class BabyMetroidThemeVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
-        enemies.MotherBrainEncounter.MotherBrain = state;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Health = 0;
         var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        Action<BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
+        Action<BabyMetroidCutsceneStepResult> apply = step => enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         for (int frame = 0; frame <= 73; frame++)
         {
             begin();
-            var step = baby.Step(samus, sequence, HeadOf(sequence));
+            var step = baby.Step(samus, sequence, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
             apply(step);
             // #1410: the requests are asserted by kind and identity instead of by their queue words ($0000, $FF48, $0005).
             MusicRequest[] expected = frame switch

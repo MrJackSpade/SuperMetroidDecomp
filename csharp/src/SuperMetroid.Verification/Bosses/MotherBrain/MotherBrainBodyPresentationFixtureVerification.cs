@@ -41,7 +41,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             // palette row it gives her (#1459).
             SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
             State = new MotherBrainEnemyState(Body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = Inner.Enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.DrainedByBabyMetroid };
-            Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
+            Inner.Enemies.MotherBrainEncounter.BeginAsSetUp(State);
             // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
             // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.
             bodies = BossBodySheetFixtures.For(artwork.Bosses, BossBodyOwner.MotherBrain);

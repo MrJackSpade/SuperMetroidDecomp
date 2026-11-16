@@ -43,7 +43,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase };
-        enemies.MotherBrainEncounter.MotherBrain = state;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         bombs.SetSharedCooldown(20);
         enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainRainbowState(state, attack, neckLowered, samus, bombs);

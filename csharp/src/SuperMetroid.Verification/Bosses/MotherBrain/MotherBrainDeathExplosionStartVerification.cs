@@ -34,7 +34,7 @@ internal static class MotherBrainDeathExplosionStartVerification
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
-        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
+        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, runtime.BombProjectiles);
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence
             ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence.");
 

@@ -109,13 +109,14 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
-        runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
+        runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
             "Mother Brain's hidden background");
         AssertEqual(motherBrain.RainbowBeam.Color, runtime.PublishDisplayFrame().Latched.Tints.RainbowBeam,
             "rainbow beam COLDATA is latched with Mother Brain's registers");
-        runtime.Enemies.MotherBrainEncounter.MotherBrain = null;
+        motherBrain.DeathHidesBodyLayer = false;
+        motherBrain.BodyPlacement = MotherBrainBodyPlacement.Unplaced;
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }

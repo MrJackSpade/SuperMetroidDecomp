@@ -13,13 +13,15 @@ internal static class MotherBrainTubeDescentVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = enemies.Places.InUpdateOrder[1] };
-        enemies.MotherBrainEncounter.MotherBrain = state;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state, state.Head);
         var tube = enemies.Places.InUpdateOrder[2];
         tube.SetSpawnParameter1(EnemyDefinitionId.MotherBrainTubes, 8);
         tube.SetSpawnParameter2(EnemyDefinitionId.MotherBrainTubes, 0);
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
+        // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
+        tube.SetSpeciesState(state);
         MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
         Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SixteenSixteenWords.FromWhole(tube.Position.Y.Whole);

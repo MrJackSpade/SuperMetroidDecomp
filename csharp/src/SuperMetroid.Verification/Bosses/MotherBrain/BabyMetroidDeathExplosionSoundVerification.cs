@@ -35,7 +35,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             BabyFadeShade: null, RecoveryLightsFrame: null);
 
         runtime.Enemies.Audio.BeginFrame();
-        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(step);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);
         AssertSequenceEqual(
             new[] { new SoundRequest(MotherBrainSoundDefinitions.Explosion, SoundRequestPriority.Low) },
             runtime.Enemies.Audio.SoundRequests, "the explosion queues library-three $13 at low priority, and nothing else");

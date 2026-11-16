@@ -3,8 +3,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What one of Mother Brain's onion rings keeps: how long it stays at her mouth before it flies.</summary>
+/// <param name="motherBrain">The encounter whose mouth the ring leaves.</param>
 /// <param name="attachDelay">Updates the ring stays at the mouth.</param>
-internal sealed class MotherBrainOnionRingState(int attachDelay) : EnemyProjectileState
+internal sealed class MotherBrainOnionRingState(MotherBrainEnemyState motherBrain, int attachDelay)
+    : MotherBrainProjectileState(motherBrain)
 {
     /// <summary>Updates the ring stays pinned to the mouth; it flies once this has run out.</summary>
     internal int AttachDelay

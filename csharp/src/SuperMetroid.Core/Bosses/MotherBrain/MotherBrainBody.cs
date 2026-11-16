@@ -81,20 +81,22 @@ internal sealed class MotherBrainBody
         body.Shading = EnemyShades.HurtFlashLook;
 
         // The encounter's setup creates the walk credit and the burst cycle the encounter and its later sequence share.
-        _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
+        // The body begins the encounter, which it holds from here and her head joins (#2218).
+        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainAction = MotherBrainBrainAction.SetupBrainToBeDrawn,
             Phase = MotherBrainBodyPhase.FirstPhase,
-        };
+        });
+        body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
         _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
-        SpawnMotherBrainInitialTurrets();
+        SpawnMotherBrainInitialTurrets(state);
     }
 
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
@@ -142,9 +144,8 @@ internal sealed class MotherBrainBody
     /// expires on the update its timer would, and a newly shown frame raises the new-frame flag. A held animation
     /// rests: the timer wraps from zero and the last frame stays.
     /// </summary>
-    internal void AdvanceMotherBrainPlaceAnimation(RoomEnemyPlace place, SamusState samus)
+    internal void AdvanceMotherBrainPlaceAnimation(RoomEnemyPlace place, MotherBrainEnemyState state, SamusState samus)
     {
-        MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(place);
         bool body = ReferenceEquals(place, state.Body);
         if (!place.AnimationClock.Expire())
             return;
@@ -175,11 +176,11 @@ internal sealed class MotherBrainBody
             // addition. The animations keep the additions the walking steps perform; the posture
             // changes move her vertically only.
             case MotherBrainBodyCue.Move move:
-                MoveMotherBrainBody(move.Offset);
+                MoveMotherBrainBody(state, move.Offset);
                 return;
             case MotherBrainBodyCue.StepAndMove stepAndMove:
-                RunMotherBrainFootstep();
-                MoveMotherBrainBody(stepAndMove.Offset);
+                RunMotherBrainFootstep(state);
+                MoveMotherBrainBody(state, stepAndMove.Offset);
                 return;
             case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
                 _projectiles.SpawnDustOrExplosion(
@@ -332,6 +333,7 @@ internal sealed class MotherBrainBody
             EnemyMath.SineSpeed(HandBeamSpeed, angle),
             EnemyMath.SineSpeed(HandBeamSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
+        beam.State = new MotherBrainProjectileState(state);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }
 
@@ -339,21 +341,17 @@ internal sealed class MotherBrainBody
     /// Body movement: moves her, and her body's pictures with her (#1949, #2031), keeping the large body art rigidly
     /// attached to its small hitbox record.
     /// </summary>
-    private void MoveMotherBrainBody(Offset16<RoomPixels> displacement)
-    {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain's body animation ran without its multipart encounter state.");
+    private static void MoveMotherBrainBody(MotherBrainEnemyState state, Offset16<RoomPixels> displacement) =>
         state.Body.Position += displacement;
-    }
 
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>
-    private void RunMotherBrainFootstep()
+    private void RunMotherBrainFootstep(MotherBrainEnemyState state)
     {
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 4);
 
         // Form three additionally makes the footstep sound. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait cue complete.
-        if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
+        if (state.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }
 
@@ -362,14 +360,14 @@ internal sealed class MotherBrainBody
     /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first
     /// turret lands in place 17 and the last in place 6.
     /// </summary>
-    private void SpawnMotherBrainInitialTurrets()
+    private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
     {
         foreach (MotherBrainTurretDefinition turret in MotherBrainTurretDefinitions.Turrets)
-            SpawnMotherBrainTurret(turret);
+            SpawnMotherBrainTurret(state, turret);
     }
 
     /// <summary>Spawns one of Mother Brain's turrets, <paramref name="definition"/>.</summary>
-    internal void SpawnMotherBrainTurret(MotherBrainTurretDefinition definition)
+    internal void SpawnMotherBrainTurret(MotherBrainEnemyState state, MotherBrainTurretDefinition definition)
     {
         EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
         if (turret is null)
@@ -382,7 +380,7 @@ internal sealed class MotherBrainBody
             MotherBrainTurretDefinitions.Graphics);
 
         turret.Position = turret.Position.WithWhole(definition.Position);
-        turret.State = new MotherBrainTurretState(definition);
+        turret.State = new MotherBrainTurretState(state, definition);
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretSegment.TurretPose, definition.InitialDirection));
 
         // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo

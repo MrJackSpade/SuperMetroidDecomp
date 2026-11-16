@@ -28,8 +28,8 @@ internal static class MotherBrainLaterContactVerification
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
-        enemies.MotherBrainEncounter.MotherBrain = state;
-        Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state);
+        Action<RoomEnemyPlace, SamusState, SamusBombProjectileSystem> main = (body, samus, bombs) => enemies.MotherBrainBehavior.RunMotherBrainBodyMain(body, state, samus, bombs);
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));

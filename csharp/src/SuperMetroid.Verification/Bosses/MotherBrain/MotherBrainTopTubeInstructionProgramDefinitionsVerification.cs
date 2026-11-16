@@ -112,7 +112,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             // The tubes fall in Mother Brain's encounter, whose colours they take, as her body's initializer loads it.
-            enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+            enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()));
             return enemies;
         }
 

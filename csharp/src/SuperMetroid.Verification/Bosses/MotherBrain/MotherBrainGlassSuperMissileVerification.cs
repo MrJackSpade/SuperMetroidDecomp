@@ -33,7 +33,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.Frame = EnemyFrameId.MotherBrainBodyInitialDummy;
         head.Health = 3000;
         var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = head, Form = MotherBrainForm.Glass };
-        enemies.MotherBrainEncounter.MotherBrain = state;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
         ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shots = InstalledFixtures.CreateProjectileSystem();

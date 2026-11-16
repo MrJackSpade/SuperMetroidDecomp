@@ -10,11 +10,11 @@ internal sealed class BabyMetroidCutsceneEntity(BabyMetroidCutsceneBehavior spec
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize() => species.InitializeMotherBrainBabyMetroid(Place);
+    public void Initialize() => BabyMetroidCutsceneBehavior.InitializeMotherBrainBabyMetroid(Place);
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame) => species.RunBabyMetroidCutsceneMainAi(Place, frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceBabyMetroidCutsceneAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => BabyMetroidCutsceneBehavior.AdvanceBabyMetroidCutsceneAnimation(Place);
 }

@@ -42,7 +42,7 @@ internal static class MotherBrainRoomColorsVerification
 
         RoomEnemySystem enemies = CreateEnemy();
         MotherBrainEnemyState state = StagedState(enemies);
-        enemies.MotherBrainEncounter.MotherBrain = state;
+        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         state.RoomFlashFrame = 0;
         for (int frame = 0; frame < 48; frame++)
         {
@@ -56,7 +56,7 @@ internal static class MotherBrainRoomColorsVerification
         AssertEqual(null, state.RoomFlashFrame, "stopping the flash clears its frame");
         enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
         AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.OwnShading.Shades[^1], "the ascent loads the phase-two attack and rear-leg colours");
-        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(enemies, state));
+        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(state));
 
         MotherBrainRoomColorDocument document =
             JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
@@ -87,16 +87,16 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Checks the seven recovery-light steps the Baby's cutscene lays, and that a step past the seventh is refused.</summary>
-    private static void VerifyMotherBrainRecoveryLights(RoomEnemySystem enemies, MotherBrainEnemyState state)
+    private static void VerifyMotherBrainRecoveryLights(MotherBrainEnemyState state)
     {
         for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
         {
-            enemies.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(frame);
+            BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(state.Colours, frame);
             AssertEqual(MotherBrainShades.RecoveryLights(frame), state.Colours.RoomShading.Shades[^1],
                 $"Mother Brain recovery-light frame {frame} is laid over her room");
         }
         AssertThrows<InvalidDataException>(
-            () => enemies.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(MotherBrainRoomColorDefinitions.RecoveryLightsFrames),
+            () => BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(state.Colours, MotherBrainRoomColorDefinitions.RecoveryLightsFrames),
             "a Mother Brain recovery-light frame past the seventh is refused");
     }
 

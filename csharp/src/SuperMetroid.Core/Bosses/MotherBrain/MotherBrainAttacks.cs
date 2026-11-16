@@ -89,7 +89,7 @@ internal sealed class MotherBrainAttacks
     internal void RunMotherBrainSecondPhaseThinking(
         MotherBrainEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem? sharedProjectiles = null)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         if (state.Head.Health == 0)
         {
@@ -441,7 +441,8 @@ internal sealed class MotherBrainAttacks
     /// </summary>
     internal void FinishMotherBrainLaserAttack(
         MotherBrainEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        SamusBombProjectileSystem sharedProjectiles)
     {
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
@@ -449,7 +450,7 @@ internal sealed class MotherBrainAttacks
         state.LowerNeckMovement = MotherBrainNeckMovement.BobUp;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
-        RunMotherBrainSecondPhaseThinking(state, samus);
+        RunMotherBrainSecondPhaseThinking(state, samus, sharedProjectiles);
     }
 
     /// <summary>Advances the chosen walk direction, animation, and footstep cadence.</summary>
@@ -501,7 +502,7 @@ internal sealed class MotherBrainAttacks
     internal void StartLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
         MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);

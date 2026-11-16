@@ -65,7 +65,7 @@ internal sealed class MotherBrainRainbowAndDeath
     {
         foreach (var explosion in step.DeathExplosions)
         {
-            SpawnMotherBrainDeathExplosion(explosion);
+            SpawnMotherBrainDeathExplosion(state, explosion);
             _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }
         if (step.PhaseBefore == MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects &&
@@ -147,7 +147,7 @@ internal sealed class MotherBrainRainbowAndDeath
     }
 
     /// <summary>Places a death explosion with the requested position and visual phase.</summary>
-    internal void SpawnMotherBrainDeathExplosion(MotherBrainDeathExplosionRequest request)
+    internal void SpawnMotherBrainDeathExplosion(MotherBrainEnemyState state, MotherBrainDeathExplosionRequest request)
     {
         MiscDustAnimation animation = MotherBrainDeathExplosionDefinitions.Animations[request.Animation];
         var projectile = _projectiles.AllocateEnemyProjectile();
@@ -155,9 +155,9 @@ internal sealed class MotherBrainRainbowAndDeath
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
             _projectileAttacks.Projectile, graphics: default);
         projectile.StartAnimation(new MiscDustProjectileAnimation(animation));
-        projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
+        projectile.State = new MotherBrainBodyExplosionState(state, request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
-        _projectileAttacks.Projectile.RunMotherBrainDeathExplosion(projectile);
+        MotherBrainProjectiles.MotherBrainProjectileBehavior.RunMotherBrainDeathExplosion(projectile);
     }
 
     /// <summary>Spawns the falling door fragment <paramref name="definition"/>.</summary>
@@ -182,7 +182,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainEnemyState state,
         SamusState samus,
         int enemyFrameCounter,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
             throw new InvalidOperationException(
@@ -203,7 +203,7 @@ internal sealed class MotherBrainRainbowAndDeath
                 WriteZebesTypewriterGlyph(typed);
             if (text.ClickRequested) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.IsActive != false, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking, CameraCheckpoint = _room.Session.RainbowBeamCameraCheckpoint });
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles.PowerBombExplosion.IsActive, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, RoomEarthquakeStopped = !_earthquake.IsShaking, CameraCheckpoint = _room.Session.RainbowBeamCameraCheckpoint });
         _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
@@ -228,8 +228,9 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackSequence sequence,
         MotherBrainRainbowBeamAttackStepResult? step,
         SamusState samus,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
+        Ensure.NotNull(sharedProjectiles);
         RoomEnemyPlace head = state.Head;
 
         // The brain-animation request resets the physical animation's timer only when body AI requests a new animation.
@@ -329,7 +330,7 @@ internal sealed class MotherBrainRainbowAndDeath
 
         // The attack gives Samus's shared projectile cooldown as its neck lowers, as the beam starts and as it ends;
         // her next update's firing reads it.
-        if (sharedProjectiles is not null && current.SamusProjectileCooldown is int samusCooldown)
+        if (current.SamusProjectileCooldown is int samusCooldown)
             sharedProjectiles.SetSharedCooldown(samusCooldown);
 
         if (current.BabySpawnRequested)

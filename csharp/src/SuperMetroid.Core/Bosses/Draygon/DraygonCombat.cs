@@ -135,7 +135,7 @@ internal sealed class DraygonCombat
             state.FacingRight
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
-        (DraygonParts.RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
+        state.Eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an

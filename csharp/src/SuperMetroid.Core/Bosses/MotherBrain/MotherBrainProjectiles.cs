@@ -217,7 +217,7 @@ internal sealed class MotherBrainProjectiles
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired();
+                    SpawnMotherBrainHandBeamFired(context.Projectile.StateOf<MotherBrainProjectileState>().MotherBrain);
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     context.Projectile.Delete();
@@ -244,9 +244,7 @@ internal sealed class MotherBrainProjectiles
                     projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 12);
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.EndSmallPurpleBreath }:
-                    (dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
-                        "Mother Brain's small purple breath ran without its encounter state."))
-                        .SmallPurpleBreathActive = false;
+                    projectile.StateOf<MotherBrainProjectileState>().MotherBrain.SmallPurpleBreathActive = false;
                     break;
                 case MotherBrainEffectCue.Signal { Kind: MotherBrainEffectCueKind.ReleaseDrool }:
                     projectile.StartMotion(MotherBrainProjectileMotion.DroolFalling);
@@ -268,12 +266,11 @@ internal sealed class MotherBrainProjectiles
             SamusBombProjectileSystem samusBombs,
             SamusState samus)
         {
-            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
-                "Mother Brain bomb ran without its multipart encounter state.");
+            MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
+            MotherBrainEnemyState state = bombState.MotherBrain;
             if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs, samus))
                 return;
 
-            MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
             int acceleration;
             if (bombState.Bounces == 0)
             {
@@ -355,10 +352,10 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Advances a death explosion projectile through its installed animation.</summary>
-        internal void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
+        internal static void RunMotherBrainDeathExplosion(EnemyProjectile projectile)
         {
-            var body = dependencies.Encounter.MotherBrain?.Body ?? throw new InvalidOperationException("Body-relative death explosion has no Mother Brain owner.");
-            projectile.Position = projectile.Position.WithWhole(body.Position.Whole + projectile.StateOf<MotherBrainFollowingExplosionState>().Offset);
+            MotherBrainBodyExplosionState explosion = projectile.StateOf<MotherBrainBodyExplosionState>();
+            projectile.Position = projectile.Position.WithWhole(explosion.MotherBrain.Body.Position.Whole + explosion.Offset);
         }
 
         /// <summary>Updates a door fragment's fall and expiration after the room collapse.</summary>
@@ -450,10 +447,8 @@ internal sealed class MotherBrainProjectiles
         /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
         /// children turn into the game's large impact dust and earthquake.
         /// </summary>
-        private void SpawnMotherBrainHandBeamFired()
+        private void SpawnMotherBrainHandBeamFired(MotherBrainEnemyState state)
         {
-            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
-                "Mother Brain's hand-beam animation ran without its encounter state.");
             EnemyProjectile? beam = dependencies.Projectiles.AllocateEnemyProjectile();
             if (beam is null)
                 return;
@@ -492,17 +487,17 @@ internal sealed class MotherBrainProjectiles
             }
 
             beam.Velocity = EightEightVector<RoomPixels>.Zero;
+            beam.State = new MotherBrainProjectileState(state);
             beam.StartAnimation(new MotherBrainHandBeamAnimation());
         }
 
         /// <summary>Exact six-position mouth attachment table.</summary>
-        internal void HoldMotherBrainDroolAtMouth(
+        internal static void HoldMotherBrainDroolAtMouth(
             EnemyProjectile drool)
         {
-            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
-                "Mother Brain drool ran without its multipart encounter state.");
-            RoomEnemyPlace head = state.Head;
-            Offset16<RoomPixels> mouth = drool.StateOf<MotherBrainDroolState>().MouthPoint;
+            MotherBrainDroolState droolState = drool.StateOf<MotherBrainDroolState>();
+            RoomEnemyPlace head = droolState.MotherBrain.Head;
+            Offset16<RoomPixels> mouth = droolState.MouthPoint;
 
             drool.Position = drool.Position.WithWhole(head.Position.Whole + mouth);
             drool.Velocity = EightEightVector<RoomPixels>.Zero;
@@ -517,11 +512,9 @@ internal sealed class MotherBrainProjectiles
             SamusState samus,
             int cameraX)
         {
-            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
-                "Mother Brain onion ring ran without its multipart encounter state.");
-
             // The ring stays pinned to the mouth while its attach delay runs out.
             MotherBrainOnionRingState ringState = ring.StateOf<MotherBrainOnionRingState>();
+            MotherBrainEnemyState state = ringState.MotherBrain;
             if (ringState.AttachDelay != 0)
             {
                 ringState.AttachDelay--;
@@ -600,8 +593,7 @@ internal sealed class MotherBrainProjectiles
             EnemyProjectile turret,
             Position16<RoomPixels> camera)
         {
-            MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ??
-                throw new InvalidDataException("A Mother Brain turret has no owning encounter state.");
+            MotherBrainEnemyState state = turret.StateOf<MotherBrainTurretState>().MotherBrain;
             bool onScreen = MotherBrainTurretIsOnScreen(turret, camera);
 
             // Off-screen turrets deliberately freeze both timers until scrolled into view. Once
@@ -673,11 +665,10 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>Pins the charging effect to the head while the beam winds up.</summary>
-        internal void PinMotherBrainRainbowCharge(
+        internal static void PinMotherBrainRainbowCharge(
             EnemyProjectile projectile)
         {
-            RoomEnemyPlace head = dependencies.Encounter.MotherBrain?.Head ?? throw new InvalidOperationException(
-                "Mother Brain rainbow charge ran without the physical head place.");
+            RoomEnemyPlace head = projectile.StateOf<MotherBrainProjectileState>().MotherBrain.Head;
             projectile.Position = projectile.Position.WithWhole(head.Position.Whole);
         }
     }

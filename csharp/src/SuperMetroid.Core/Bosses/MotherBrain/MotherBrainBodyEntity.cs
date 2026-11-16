@@ -21,10 +21,10 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMotherBrainBodyMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMotherBrainBodyMain(Place, Encounter, frame.Samus, frame.SharedProjectiles);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceMotherBrainBodyTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainPlaceAnimation(Place, Encounter, context.Samus);
 
     /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesShot => MotherBrainReactions.BodyShot;

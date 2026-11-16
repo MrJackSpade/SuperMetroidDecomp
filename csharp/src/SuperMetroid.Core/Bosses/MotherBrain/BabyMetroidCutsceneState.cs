@@ -142,9 +142,9 @@ public sealed class BabyMetroidCutsceneState
     /// <param name="populationPresence">The population entry's presence.</param>
     public void Initialize(
         FixedPosition<RoomPixels> leftInPlace,
-        EnemyContact populationContact = EnemyContact.None,
-        EnemyProcessing populationProcessing = EnemyProcessing.Animates | EnemyProcessing.OffScreen,
-        EnemyPresence populationPresence = EnemyPresence.None)
+        EnemyContact populationContact,
+        EnemyProcessing populationProcessing,
+        EnemyPresence populationPresence)
     {
         Contact = populationContact.With(EnemyContact.BlocksPlasmaBeam);
         Processing = populationProcessing.With(EnemyProcessing.Animates);
@@ -182,9 +182,9 @@ public sealed class BabyMetroidCutsceneState
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         Position16<RoomPixels> head,
-        Position16<RoomPixels> cameraPosition = default,
-        int enemyFrameCounter = 0,
-        int randomNumber = 0)
+        Position16<RoomPixels> cameraPosition,
+        int enemyFrameCounter,
+        int randomNumber)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(motherBrain);

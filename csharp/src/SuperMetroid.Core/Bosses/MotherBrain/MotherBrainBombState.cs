@@ -6,9 +6,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What one of Mother Brain's bouncing bombs keeps: the sideways speed each bounce restores, how many bounces it has
 /// made, and how many afterburns its explosion chains.
 /// </summary>
+/// <param name="motherBrain">The encounter that spawned the bomb.</param>
 /// <param name="bounceSpeed">The sideways speed each floor bounce restores, without its direction.</param>
 /// <param name="afterburns">The afterburns the bomb's explosion chains when it expires, as its spawn set them.</param>
-internal sealed class MotherBrainBombState(SignedEightEight bounceSpeed, int afterburns) : EnemyProjectileState
+internal sealed class MotherBrainBombState(MotherBrainEnemyState motherBrain, SignedEightEight bounceSpeed, int afterburns)
+    : MotherBrainProjectileState(motherBrain)
 {
     /// <summary>The sideways speed each floor bounce restores, without its direction.</summary>
     internal SignedEightEight BounceSpeed { get; } = bounceSpeed;

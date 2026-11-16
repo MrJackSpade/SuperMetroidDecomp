@@ -204,16 +204,16 @@ internal sealed class DraygonParts
         {
             case DraygonCue.StartPartAnimations start:
                 state.StartAnimation(state.Body, start.Body);
-                state.StartAnimation(RequirePart(state.Eye), start.Eye);
-                state.StartAnimation(RequirePart(state.Tail), start.Tail);
-                state.StartAnimation(RequirePart(state.Arms), start.Arms);
+                state.StartAnimation(state.Eye, start.Eye);
+                state.StartAnimation(state.Tail, start.Tail);
+                state.StartAnimation(state.Arms, start.Arms);
                 state.Arms.AnimationClock.StepOnNextUpdate();
                 state.Tail.AnimationClock.StepOnNextUpdate();
                 state.Eye.AnimationClock.StepOnNextUpdate();
                 state.Body.AnimationClock.StepOnNextUpdate();
                 return;
             case DraygonCue.TrackWithEye track:
-                Track(RequirePart(state.Eye).RequireSpeciesState<DraygonEyeState>(), track.Facing);
+                Track(state.Eye.RequireSpeciesState<DraygonEyeState>(), track.Facing);
                 return;
             case DraygonCue.TrackWithOwnEye track:
                 Track(part.RequireSpeciesState<DraygonEyeState>(), track.Facing);
@@ -228,8 +228,8 @@ internal sealed class DraygonParts
                 SpawnRandomDyingDraygonEffect(state, dying.Kind);
                 return;
             case DraygonCue.ParalyseTailAndArms:
-                StartDraygonAnimation(RequirePart(state.Tail), DraygonSegment.Rest);
-                StartDraygonAnimation(RequirePart(state.Arms), DraygonSegment.Rest);
+                StartDraygonAnimation(state.Tail, DraygonSegment.Rest);
+                StartDraygonAnimation(state.Arms, DraygonSegment.Rest);
                 return;
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
@@ -247,10 +247,6 @@ internal sealed class DraygonParts
                 throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
         }
     }
-
-    /// <summary>A linked Draygon part, failing if the part never loaded.</summary>
-    internal static RoomEnemyPlace RequirePart(RoomEnemyPlace? part) =>
-        part ?? throw new InvalidDataException("A Draygon animation ran before all four parts loaded.");
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>

@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What one of the twelve wall turrets in Mother Brain's room keeps: which turret it is, which way it points, which way
 /// round it turns next, and its two waits.
 /// </summary>
+/// <param name="motherBrain">The encounter whose room the turret guards.</param>
 /// <param name="turret">The turret this is: its placement, the direction it starts facing and the arc it may turn through.</param>
-internal sealed class MotherBrainTurretState(MotherBrainTurretDefinition turret) : EnemyProjectileState
+internal sealed class MotherBrainTurretState(MotherBrainEnemyState motherBrain, MotherBrainTurretDefinition turret)
+    : MotherBrainProjectileState(motherBrain)
 {
     /// <summary>The turret this is: its placement and the arc of directions it may face.</summary>
     internal MotherBrainTurretDefinition Turret { get; } = turret;

@@ -20,17 +20,16 @@ internal sealed class MotherBrainCombat
     private readonly EnemyAudioQueue _audio;
     /// <summary>Resolves the head, body, projectile, and Samus contact bounds.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
+
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyCollision collision, MotherBrainEncounter motherBrainEncounter)
+    internal MotherBrainCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyCollision collision)
     {
         _room = room;
         _projectiles = projectiles;
         _audio = audio;
         _collision = collision;
-        _motherBrainEncounter = motherBrainEncounter;
     }
 
     /// <summary>Runs the head's reaction to a bomb that selects its shot reaction.</summary>
@@ -80,13 +79,7 @@ internal sealed class MotherBrainCombat
         SamusProjectileType projectileType,
         int projectileDamage)
     {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain head shot AI ran without its multipart encounter state.");
-        if (!ReferenceEquals(state.Head, head))
-        {
-            throw new InvalidOperationException(
-                "Mother Brain head shot AI ran for a place not linked to the loaded body.");
-        }
+        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
         SamusProjectileFamily family = projectileType.Family;
         if (state.Form != MotherBrainForm.Glass)
         {
@@ -239,13 +232,7 @@ internal sealed class MotherBrainCombat
         RoomEnemyPlace head,
         SamusBomb bomb)
     {
-        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
-            "Mother Brain head normal-bomb AI ran without its multipart encounter state.");
-        if (!ReferenceEquals(state.Head, head))
-        {
-            throw new InvalidOperationException(
-                "Mother Brain head normal-bomb AI ran for a place not linked to the loaded body.");
-        }
+        MotherBrainEnemyState state = MotherBrainEntity.EncounterOf(head);
 
         if (state.Form == MotherBrainForm.Glass)
             return;

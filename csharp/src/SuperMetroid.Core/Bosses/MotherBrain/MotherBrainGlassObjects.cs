@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainGlassObjects
 {
     /// <summary>The area's boss-defeat flags.</summary>
-    private readonly IAreaBossFlagReader? _bosses;
+    private readonly IAreaBossFlagReader _bosses;
     /// <summary>The game's event flags.</summary>
-    private readonly IGlobalEventFlags? _events;
+    private readonly IGlobalEventFlags _events;
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
     /// <summary>Binds the glass animation's handling to the room's room-object places, event services, and sound queue.</summary>
-    internal MotherBrainGlassObjects(IAreaBossFlagReader? bosses, IGlobalEventFlags? events, RoomObjectSoundQueue sounds)
+    internal MotherBrainGlassObjects(IAreaBossFlagReader bosses, IGlobalEventFlags events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;
         _events = events;
@@ -70,10 +70,10 @@ internal sealed class MotherBrainGlassObjects
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
-    internal bool IsBossDead() => _bosses?.IsDefeated(DefeatedBosses.AreaBoss) == true;
+    internal bool IsBossDead() => _bosses.IsDefeated(DefeatedBosses.AreaBoss);
 
     /// <summary>Whether the glass was destroyed on an earlier visit.</summary>
-    internal bool IsGlassDestroyed() => _events?.Has(StoryEvent.MotherBrainGlassDestroyed) == true;
+    internal bool IsGlassDestroyed() => _events.Has(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>
     /// Queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.

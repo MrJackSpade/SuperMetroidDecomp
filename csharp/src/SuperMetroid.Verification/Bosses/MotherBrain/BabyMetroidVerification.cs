@@ -79,7 +79,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
-    baby.Initialize(leftInPlace: FixedPosition<RoomPixels>.Zero);
+    baby.Initialize(FixedPosition<RoomPixels>.Zero, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Contact, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Processing, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Presence);
     // The population's animation and off-screen processing, plus initialization's Plasma Beam block (native $3800).
     AssertEqual(EnemyContact.BlocksPlasmaBeam, baby.Contact, "Baby population/init contact OR");
     AssertEqual(EnemyProcessing.Animates | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
@@ -101,13 +101,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
-        baby.Step(samus, motherBrain, HeadOf(motherBrain));
+        baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.PhaseTimer, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
-    baby.Step(samus, motherBrain, HeadOf(motherBrain));
+    baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(SuperMetroid.Core.Spatial.RotationAngleConstants.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
@@ -127,7 +127,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
            calls < 700)
     {
         SamusPoseId samusPoseBeforeStep = samus.Pose;
-        latch = baby.Step(samus, motherBrain, HeadOf(motherBrain));
+        latch = baby.Step(samus, motherBrain, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
         sawMotherBrainInterrupt |= motherBrain.State.Phase ==

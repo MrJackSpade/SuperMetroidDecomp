@@ -71,8 +71,8 @@ public sealed class YappingMawEnemyState
     public QuadraticSpeedCurvePlace SpeedCurvePlace { get; internal set; }
 
     /// <summary>
-    /// Which of the mark's two speeds the curl adds: the positive one while the tongue extends, the negative one after
-    /// the turn-around clamp.
+    /// Which way the curl adds the mark's speed: as it is while the tongue extends, negated after the turn-around
+    /// clamp.
     /// </summary>
     internal EnemySpeedSign QuadraticSpeedSign { get; set; }
 

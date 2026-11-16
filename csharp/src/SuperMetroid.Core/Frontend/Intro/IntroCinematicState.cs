@@ -1037,20 +1037,10 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackDemoInput.Disable();
     }
 
-    /// <summary>Builds the flashback's collision room: its terrain, with every block's behaviour cleared.</summary>
-    private static RoomLevelData CreateMotherBrainLevel()
-    {
-        const int width = IntroMotherBrainCollisionDefinitions.Columns;
-        const int height = IntroMotherBrainCollisionDefinitions.RoomRows;
-        RoomTerrainBlock[] foreground = IntroMotherBrainCollision.CreateForeground();
-        var behavior = new RoomBlockBehavior[width * height];
-        behavior.AsSpan().Fill(RoomBlockBehavior.None);
-
-        // The background plane is irrelevant to collision in this visual room; it exists
-        // only to satisfy the shared RoomLevelData ownership contract.
-        return new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(foreground, behavior, new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
-    }
+    /// <summary>Builds the flashback's room: collision only, which the flashback's own pictures show.</summary>
+    private static RoomLevelData CreateMotherBrainLevel() => RoomLevelData.CollisionOnly(
+        new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows),
+        IntroMotherBrainCollision.CreateCollision());
 
     /// <summary>The flashback Samus's starting colour state: her suit and beams in the opening's own colours (#1512).</summary>
     private static SamusColours IntroSamusColours()

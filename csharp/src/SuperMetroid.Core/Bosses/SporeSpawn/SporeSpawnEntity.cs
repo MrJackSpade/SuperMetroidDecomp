@@ -32,10 +32,7 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
-    {
-        reaction = null;
-        return SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe, out reaction);
-    }
+        => SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Place, probe, out reaction);
 
     /// <summary>Spore Spawn's touch reaction, which its definition leaves to it.</summary>
     public EnemyReaction? SpeciesTouch => SporeSpawnReactions.Touch;

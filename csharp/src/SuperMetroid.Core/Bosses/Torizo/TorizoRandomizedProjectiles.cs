@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class TorizoRandomizedProjectiles
 {
     /// <summary>Bomb Torizo's Chozo orb for its facing.</summary>
-    internal static TorizoRandomizedProjectileDefinition BombChozoOrb(bool facingRight) =>
-        facingRight ? BombChozoOrbRight : BombChozoOrbLeft;
+    internal static TorizoRandomizedProjectileDefinition BombChozoOrb(HorizontalDirection facing) =>
+        facing == HorizontalDirection.Right ? BombChozoOrbRight : BombChozoOrbLeft;
 
     /// <summary>Golden Torizo's Chozo orb for its facing.</summary>
-    internal static TorizoRandomizedProjectileDefinition GoldenChozoOrb(bool facingRight) =>
-        facingRight ? GoldenChozoOrbRight : GoldenChozoOrbLeft;
+    internal static TorizoRandomizedProjectileDefinition GoldenChozoOrb(HorizontalDirection facing) =>
+        facing == HorizontalDirection.Right ? GoldenChozoOrbRight : GoldenChozoOrbLeft;
 
     /// <summary>Golden Torizo's egg for its horizontal launch direction.</summary>
-    internal static TorizoRandomizedProjectileDefinition GoldenEgg(bool movingRight) =>
-        movingRight ? GoldenEggRight : GoldenEggLeft;
+    internal static TorizoRandomizedProjectileDefinition GoldenEgg(HorizontalDirection launch) =>
+        launch == HorizontalDirection.Right ? GoldenEggRight : GoldenEggLeft;
 }

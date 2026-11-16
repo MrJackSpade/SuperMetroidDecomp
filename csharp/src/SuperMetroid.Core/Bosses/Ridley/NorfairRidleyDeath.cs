@@ -232,12 +232,10 @@ internal sealed class NorfairRidleyDeath
         }
         else
         {
-            RidleyExplosionBodyPartDefinition bodyPart =
-                RidleyBreakup.SelectBodyPart(
-                    part,
-                    facingRight: state.Flight.FacingDirection != RidleyFacing.Left);
-            fragment.Position = fragment.Position.WithWhole(source.Body + bodyPart.Offset);
-            picture = bodyPart.Frame;
+            // Ridley turning to face the screen breaks up as though he faced right.
+            HorizontalDirection facing = state.Flight.FacingDirection == RidleyFacing.Left ? HorizontalDirection.Left : HorizontalDirection.Right;
+            fragment.Position = fragment.Position.WithWhole(source.Body + RidleyBreakup.BodyPartOffset(part, facing));
+            picture = RidleyBreakup.BodyPartFrame(part, facing);
         }
         fragment.SetSpeciesState(new RidleyExplosionFragmentState
         {

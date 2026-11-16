@@ -25,18 +25,28 @@ internal static class RidleyBreakup
     /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
     /// six segments.
     /// </summary>
-    public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart parameter, TrigonometryAngle tailTipDirection)
+    public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart part, TrigonometryAngle tailTipDirection)
     {
-        if (TailFrames.TryGetValue(parameter, out RidleyBreakupFrame frame))
+        if (TailFrames.TryGetValue(part, out RidleyBreakupFrame frame))
             return frame;
-        if (parameter == RidleyExplosionPart.TailTip)
+        if (part == RidleyExplosionPart.TailTip)
             return TailTipBreakupFrames.At(tailTipDirection);
-        throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Body fragments show no tail frame.");
+        throw new ArgumentOutOfRangeException(nameof(part), part, "Body fragments show no tail frame.");
     }
 
-    /// <summary>The body-relative position and pose a breakup fragment starts with, by the way Ridley faced.</summary>
-    public static RidleyExplosionBodyPartDefinition SelectBodyPart(RidleyExplosionPart parameter, bool facingRight) =>
-        BodyParts.TryGetValue(new RidleyExplosionPartFacing(parameter, facingRight), out RidleyExplosionBodyPartDefinition part)
-            ? part
-            : throw new ArgumentOutOfRangeException(nameof(parameter));
+    /// <summary>Where body fragment <paramref name="part"/> starts from Ridley's body, by the way he faced: facing right mirrors its left-facing place.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="part"/> is not a body fragment.</exception>
+    public static Offset16<RoomPixels> BodyPartOffset(RidleyExplosionPart part, HorizontalDirection facing) =>
+        facing == HorizontalDirection.Right ? BodyPart(part).FacingLeftOffset.MirroredX() : BodyPart(part).FacingLeftOffset;
+
+    /// <summary>The pose body fragment <paramref name="part"/> shows, by the way Ridley faced.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="part"/> is not a body fragment.</exception>
+    public static RidleyBreakupFrame BodyPartFrame(RidleyExplosionPart part, HorizontalDirection facing) =>
+        facing == HorizontalDirection.Right ? BodyPart(part).FacingRightFrame : BodyPart(part).FacingLeftFrame;
+
+    /// <summary>Body fragment <paramref name="part"/>'s place and poses.</summary>
+    private static RidleyExplosionBodyPartDefinition BodyPart(RidleyExplosionPart part) =>
+        BodyParts.TryGetValue(part, out RidleyExplosionBodyPartDefinition definition)
+            ? definition
+            : throw new ArgumentOutOfRangeException(nameof(part), part, "Tail fragments have no body place.");
 }

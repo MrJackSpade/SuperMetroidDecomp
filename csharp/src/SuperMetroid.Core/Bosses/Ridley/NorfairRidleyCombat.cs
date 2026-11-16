@@ -432,9 +432,9 @@ internal sealed class NorfairRidleyCombat
     private static int DecayRidleyGrabOffset(int offset)
     {
         if (offset > 0)
-            return CoordinateAxis.AsSigned(Math.Max(0, offset - NorfairRidleyMotionDefinitions.GrabOffsetDecay));
+            return Math.Max(0, offset - NorfairRidleyMotionDefinitions.GrabOffsetDecay);
         if (offset < 0)
-            return CoordinateAxis.AsSigned(Math.Min(0, offset + NorfairRidleyMotionDefinitions.GrabOffsetDecay));
+            return Math.Min(0, offset + NorfairRidleyMotionDefinitions.GrabOffsetDecay);
         return 0;
     }
 

@@ -81,21 +81,19 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int partIndex = 0; partIndex < bodyParameters.Length; partIndex++)
         for (int facingIndex = 0; facingIndex < 2; facingIndex++)
         {
-            RidleyExplosionBodyPartDefinition definition =
-                RidleyBreakup.SelectBodyPart(
-                    bodyParameters[partIndex],
-                    facingRight: facingIndex != 0);
+            HorizontalDirection facing = facingIndex != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;
+            Offset16<RoomPixels> offset = RidleyBreakup.BodyPartOffset(bodyParameters[partIndex], facing);
             AssertEqual(
                 unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((xTables[partIndex] + facingIndex * 2))),
-                definition.Offset.X,
+                offset.X,
                 $"Ridley body fragment {partIndex} facing {facingIndex} X offset");
             AssertEqual(
                 unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(yOperands[partIndex])),
-                definition.Offset.Y,
+                offset.Y,
                 $"Ridley body fragment {partIndex} Y offset");
             AssertEqual(
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTables[partIndex] + facingIndex * 2)),
-                RidleyNativeProgramOracle.BreakupList(definition.Frame),
+                RidleyNativeProgramOracle.BreakupList(RidleyBreakup.BodyPartFrame(bodyParameters[partIndex], facing)),
                 $"Ridley body fragment {partIndex} facing {facingIndex} instruction");
         }
 

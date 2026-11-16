@@ -175,7 +175,7 @@ internal sealed class TorizoAttacks
                     return null;
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Hatch }:
                     return TorizoProjectileAnimations.ContinueWith(
-                        projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft);
+                        projectile.StateOf<GoldenTorizoEggState>().Facing == HorizontalDirection.Right ? TorizoProjectileSegment.EggHatchedRight : TorizoProjectileSegment.EggHatchedLeft);
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled }:
                 {
                     TorizoEnemyState state = projectile.StateOf<TorizoOwnedProjectileState>().Owner.RequireSpeciesState<TorizoEnemyState>();
@@ -334,7 +334,7 @@ internal sealed class TorizoAttacks
         // one's spread about its facing's heading.
         TrigonometryAngle heading = TorizoFacing.Posture(torizo).IsTurning
             ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
-            : DroolHeading(TorizoFacing.FacesRight(torizo), TorizoRandomDefinitions.DroolFacingSpread.Of(random));
+            : DroolHeading(TorizoFacing.Posture(torizo).Facing, TorizoRandomDefinitions.DroolFacingSpread.Of(random));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
     }
 
@@ -342,16 +342,16 @@ internal sealed class TorizoAttacks
     /// A facing Torizo's drool heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
     /// the spread's centre, which keeps either facing's heading on the turn.
     /// </summary>
-    internal static TrigonometryAngle DroolHeading(bool facingRight, int spread) =>
-        (facingRight ? TorizoMotionDefinitions.DroolHeadingFacingRight : TorizoMotionDefinitions.DroolHeadingFacingLeft)
+    internal static TrigonometryAngle DroolHeading(HorizontalDirection facing, int spread) =>
+        (facing == HorizontalDirection.Right ? TorizoMotionDefinitions.DroolHeadingFacingRight : TorizoMotionDefinitions.DroolHeadingFacingLeft)
             .TurnedBySteps(spread - TorizoMotionDefinitions.DroolSpreadCentre);
 
     /// <summary>
     /// Golden Torizo's eye-beam heading: its facing's heading turned by <paramref name="spread"/>, 0 through 15 steps, less
     /// the spread's centre; the sum never leaves the turn.
     /// </summary>
-    internal static TrigonometryAngle EyeBeamHeading(bool facingRight, int spread) =>
-        (facingRight ? TorizoMotionDefinitions.EyeBeamHeadingFacingRight : TorizoMotionDefinitions.EyeBeamHeadingFacingLeft)
+    internal static TrigonometryAngle EyeBeamHeading(HorizontalDirection facing, int spread) =>
+        (facing == HorizontalDirection.Right ? TorizoMotionDefinitions.EyeBeamHeadingFacingRight : TorizoMotionDefinitions.EyeBeamHeadingFacingLeft)
             .TurnedBySteps(spread - TorizoMotionDefinitions.EyeBeamSpreadCentre);
 
     /// <summary>
@@ -394,7 +394,7 @@ internal sealed class TorizoAttacks
         Offset16<RoomPixels> placement =
             BombTorizoAttacks.LowHealthExplosion(
                 site,
-                facingRight: TorizoFacing.FacesRight(torizo));
+                facing: TorizoFacing.Posture(torizo).Facing);
 
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -441,7 +441,7 @@ internal sealed class TorizoAttacks
             projectile,
             torizo,
             TorizoRandomizedProjectiles.BombChozoOrb(
-                facingRight: TorizoFacing.FacesRight(torizo)));
+                facing: TorizoFacing.Posture(torizo).Facing));
     }
 
     /// <summary>Starts Bomb Torizo's sonic-boom animation at one of two randomized body heights.</summary>
@@ -503,7 +503,7 @@ internal sealed class TorizoAttacks
             projectile,
             torizo,
             TorizoRandomizedProjectiles.GoldenChozoOrb(
-                facingRight: TorizoFacing.FacesRight(torizo)));
+                facing: TorizoFacing.Posture(torizo).Facing));
     }
 
     /// <summary>Starts a Golden egg with the game's fixed hatch timer and randomized launch speed.</summary>
@@ -520,12 +520,12 @@ internal sealed class TorizoAttacks
             SpriteGraphics.SpawnedBy(torizo));
 
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
-        projectile.State = new GoldenTorizoEggState(facingRight: state.Posture.Facing == HorizontalDirection.Right);
+        projectile.State = new GoldenTorizoEggState(laidFacing: state.Posture.Facing);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
             TorizoRandomizedProjectiles.GoldenEgg(
-                movingRight: state.Posture.Facing == HorizontalDirection.Right));
+                launch: state.Posture.Facing));
     }
 
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>
@@ -560,17 +560,17 @@ internal sealed class TorizoAttacks
             TorizoProjectiles,
             SpriteGraphics.SpawnedBy(torizo));
         projectile.State = new TorizoOwnedProjectileState(torizo);
-        bool facingRight = TorizoFacing.FacesRight(torizo);
+        HorizontalDirection facing = TorizoFacing.Posture(torizo).Facing;
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeam));
         Offset16<RoomPixels> muzzle = TorizoProjectilePlacementDefinitions.EyeBeamMuzzle;
-        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facingRight ? muzzle : muzzle.MirroredX()));
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facing == HorizontalDirection.Right ? muzzle : muzzle.MirroredX()));
         // The beam's launch draws the two velocity jitters every randomized launch draws; its aimed heading then sets its
         // velocity, so the draws only advance the room's random numbers (#1945).
         _room.Random.Generate();
         _room.Random.Generate();
 
         // The beam's heading is its facing's spread by up to eight steps either way.
-        TrigonometryAngle heading = EyeBeamHeading(facingRight, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
+        TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.EyeBeamSpeed, heading);
     }
 
@@ -728,17 +728,17 @@ internal sealed class TorizoAttacks
         if (egg.HatchTimer.StepRunsOut())
         {
             // The rolling egg holds its picture until it hatches, showing the side it was laid facing.
-            projectile.StartAnimation(new TorizoProjectileAnimation(egg.LaidFacingRight
+            projectile.StartAnimation(new TorizoProjectileAnimation(egg.LaidFacing == HorizontalDirection.Right
                 ? TorizoProjectileSegment.EggHatchingRight
                 : TorizoProjectileSegment.EggHatchingLeft));
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.FacingRight ? 1 : -1));
+            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.Facing == HorizontalDirection.Right ? 1 : -1));
             return;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Velocity = projectile.Velocity.WithX(-projectile.Velocity.X);
-            egg.FacingRight = !egg.FacingRight;
+            egg.Facing = egg.Facing == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&
@@ -768,7 +768,7 @@ internal sealed class TorizoAttacks
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithX(projectile.StateOf<GoldenTorizoEggState>().FacingRight
+        projectile.Velocity = projectile.Velocity.WithX(projectile.StateOf<GoldenTorizoEggState>().Facing == HorizontalDirection.Right
             ? projectile.Velocity.X + TorizoMotionDefinitions.EggAcceleration
             : projectile.Velocity.X - TorizoMotionDefinitions.EggAcceleration);
     }
@@ -780,7 +780,7 @@ internal sealed class TorizoAttacks
     {
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
-            projectile.StartAnimation(new TorizoProjectileAnimation(projectile.StateOf<GoldenTorizoEggState>().FacingRight ? TorizoProjectileSegment.EggBreakRight : TorizoProjectileSegment.EggBreakLeft));
+            projectile.StartAnimation(new TorizoProjectileAnimation(projectile.StateOf<GoldenTorizoEggState>().Facing == HorizontalDirection.Right ? TorizoProjectileSegment.EggBreakRight : TorizoProjectileSegment.EggBreakLeft));
             return;
         }
 

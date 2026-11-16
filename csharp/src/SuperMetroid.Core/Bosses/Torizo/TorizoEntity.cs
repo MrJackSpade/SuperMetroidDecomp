@@ -31,10 +31,7 @@ internal abstract class TorizoEntity(TorizoBehavior species, RoomEnemyPlace plac
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
-    {
-        reaction = null;
-        return TorizoCombat.FindTorizoHitboxReaction(Place, probe, out reaction);
-    }
+        => TorizoCombat.FindTorizoHitboxReaction(Place, probe, out reaction);
 
     /// <summary>Both Torizos' contact and shots meet their own frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>

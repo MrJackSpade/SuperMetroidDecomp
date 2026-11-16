@@ -88,7 +88,7 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>Writes the selected button glyph into one controller action's two-row label area.</summary>
     internal void ApplyControllerLabel(Span<BackgroundTile> page, int action, ControllerButton button)
     {
-        if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount)
+        if ((uint)action >= GameOptionsLayout.ControllerActionRows.Length)
             throw new ArgumentOutOfRangeException(nameof(action));
         BackgroundTile[] cells = Ensure.Listed(controllerLabels, button);
         foreach (GameOptionsLabelCell cell in ControllerLabelCells(action))
@@ -141,7 +141,7 @@ public sealed class GameOptionsSourcePresentation
             ApplyLanguage(primary, japanese);
             yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(japanese), primary, width, LanguageCells());
         }
-        for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
+        for (int action = 0; action < GameOptionsLayout.ControllerActionRows.Length; action++)
         {
             int[] cells = [.. ControllerLabelCells(action).Select(cell => cell.PageCell)];
             foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
@@ -174,7 +174,7 @@ public sealed class GameOptionsSourcePresentation
             yield return GameOptionsNames.PageFrame(tilemap);
         foreach (bool japanese in new[] { false, true })
             yield return GameOptionsNames.LanguageFrame(japanese);
-        for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
+        for (int action = 0; action < GameOptionsLayout.ControllerActionRows.Length; action++)
             foreach (ControllerButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
                 yield return GameOptionsNames.ControllerLabelFrame(GameOptionsLayout.ControllerActionRows[action], button);
         foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
@@ -188,7 +188,7 @@ public sealed class GameOptionsSourcePresentation
     {
         GameOptionsScreen.Primary => LanguageCells(),
         GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese =>
-            Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
+            Enumerable.Range(0, GameOptionsLayout.ControllerActionRows.Length).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
         GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationFormat.Toggles.SelectMany(toggle =>
             ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled).Concat(ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled))),
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined options page."),
@@ -238,7 +238,7 @@ public sealed class GameOptionsSourcePresentation
         GameOptionsPresentation presentation = GameOptionsLayoutFile.Presentation(document.HeadingAnchors, document.CursorAnchors,
             document.CursorFrameDuration);
         if (document.ControllerLabelAnchors is null ||
-            document.ControllerLabelAnchors.Length != GameOptionsDefinitions.Rows.ControllerActionCount)
+            document.ControllerLabelAnchors.Length != GameOptionsLayout.ControllerActionRows.Length)
             throw new InvalidDataException("Options require seven controller-label anchors.");
         if (document.LanguageRegions is null || document.LanguageRegions.Length != GameOptionsPageDefinitions.LanguageRegions.RowCount)
             throw new InvalidDataException("Options require four primary-language highlight regions.");

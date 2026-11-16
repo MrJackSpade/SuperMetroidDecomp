@@ -586,9 +586,13 @@ internal static class LookupStream3Verification
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Controller, 0x82f31b, 9),
             new VerifyStream3OptionsBordersCase(GameOptionsPage.Special, 0x82f33f, 3),
         })
-            for (int row = 0; row < count; row++)
-                AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
-                    loaded.Presentation.CursorPosition(page, row), "native options cursor anchor");
+        {
+            IReadOnlyList<GameOptionsRow> rows = GameOptionsRow.OnPage(page);
+            AssertEqual(count, rows.Count, "native options cursor rows");
+            foreach (GameOptionsRow row in rows)
+                AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row.Place * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row.Place * 4 + 2))),
+                    loaded.Presentation.CursorPosition(row), "native options cursor anchor");
+        }
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
@@ -638,8 +642,10 @@ internal static class LookupStream3Verification
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
                 Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-                for (int row = 0; row < cursors.Length; row++)
-                    AssertEqual(cursors[row], presentation.Presentation.CursorPosition(page, row), "options stock cursor");
+                IReadOnlyList<GameOptionsRow> rows = GameOptionsRow.OnPage(page);
+                AssertEqual(cursors.Length, rows.Count, "options stock cursor rows");
+                foreach (GameOptionsRow row in rows)
+                    AssertEqual(cursors[row.Place], presentation.Presentation.CursorPosition(row), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
@@ -655,7 +661,7 @@ internal static class LookupStream3Verification
                     "options stock heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, SuperMetroid.Core.Input.ControllerButton.X), "options invalid action");
-            AssertThrows<ArgumentOutOfRangeException>(() => presentation.Presentation.CursorPosition((GameOptionsPage)byte.MaxValue, 0), "options invalid page");
+            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRow.OnPage((GameOptionsPage)byte.MaxValue), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {

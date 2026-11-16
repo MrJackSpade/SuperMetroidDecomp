@@ -10,6 +10,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public static class FileSelectMapDefinitions
 {
+    /// <summary>Where the area map's title is drawn, centred above the areas' labels.</summary>
+    internal static Offset16<ScreenPixels> WorldTitlePosition => new(128, 16);
+
     /// <summary>The width and height of one map square, in map pixels: each of a room's screens fills one square.</summary>
     public const int MapSquarePixels = 8;
 
@@ -24,6 +27,9 @@ public static class FileSelectMapDefinitions
 
     /// <summary>Updates the load prelude takes before the screen fades.</summary>
     public const int LoadPreludeFrames = 2;
+
+    /// <summary>Updates the load's fade to black takes from full brightness: one brightness step each update.</summary>
+    public const int LoadFadeFrames = 15;
 
     /// <summary>Black updates the load waits after the fade before gameplay setup begins.</summary>
     public const int LoadBlackFrames = 32;

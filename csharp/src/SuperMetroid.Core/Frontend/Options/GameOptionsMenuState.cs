@@ -39,6 +39,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
     /// <summary>The screen's brightness, which the page fades and final exits step one level an update.</summary>
     private readonly ScreenFade fade = new(0);
+    /// <summary>The primary page's selected row, which its cursor shows while the primary page does.</summary>
+    private GameOptionsPrimaryRow primaryRow = GameOptionsLayout.PrimaryRows[0];
+    /// <summary>The controller page's selected row, which its cursor shows while the controller page does.</summary>
+    private GameOptionsControllerRow controllerRow = GameOptionsLayout.ControllerRows[0];
+    /// <summary>The special page's selected row, which its cursor shows while the special page does.</summary>
+    private GameOptionsSpecialRow specialRow = GameOptionsLayout.SpecialRows[0];
     /// <summary>The page's vertical scroll, which exposes the lower controller rows.</summary>
     private int pageVerticalScroll;
     /// <summary>The selection missile's frame cycle.</summary>
@@ -86,9 +92,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         LoadVisiblePage();
     }
 
-    /// <summary>Current menu row within the active page.</summary>
-    [IntegerQuantity("cursor row position on the current page; each page decodes it into its own row type")]
-    public int SelectedItem { get; private set; }
+    /// <summary>The row the cursor is on: the selected row of the page the menu shows (#2206).</summary>
+    public GameOptionsRow SelectedRow => page switch
+    {
+        GameOptionsPage.Primary => new GameOptionsRow.OnPrimaryPage(primaryRow),
+        GameOptionsPage.Controller => new GameOptionsRow.OnControllerPage(controllerRow),
+        GameOptionsPage.Special => new GameOptionsRow.OnSpecialPage(specialRow),
+        _ => throw new InvalidOperationException($"Unknown options page {page}."),
+    };
 
     /// <summary>
     /// The selected save's loading game state, loaded from the save by file select.
@@ -102,10 +113,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The seven live button assignments committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
 
-    /// <summary>The automatic item-cancel option, toggled by special-settings row zero.</summary>
+    /// <summary>The automatic item-cancel option, toggled by the special page's Icon Cancel row.</summary>
     public bool IconCancelEnabled { get; private set; }
 
-    /// <summary>The moonwalk option, toggled by special-settings row one.</summary>
+    /// <summary>The moonwalk option, toggled by the special page's Moonwalk row.</summary>
     public bool MoonwalkEnabled { get; private set; }
 
     /// <summary>Gets the current options-menu coroutine phase.</summary>
@@ -154,7 +165,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 if (fade.Darken())
                 {
                     page = dissolveDestination;
-                    SelectedItem = 0;
+                    SelectFirstRow(page);
                     pageVerticalScroll = 0;
                     LoadVisiblePage();
                     Phase = GameOptionsPhase.DissolveIn;
@@ -233,9 +244,14 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             "Options cursor requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOptions);
         content.GameOptions.DrawHeading(sprites, sheet, page, pageVerticalScroll);
-        // Transitions show no cursor: only a page phase places it, at its selected row.
+        // Transitions show no cursor: only a page phase places it, at the selected row of the page it shows.
         if (GameOptionsCursorPolicy.Select(Phase) is { } cursorPage)
-            GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame, content.GameOptions.CursorPosition(cursorPage, SelectedItem));
+        {
+            GameOptionsRow selected = SelectedRow;
+            if (selected.Page != cursorPage)
+                throw new InvalidOperationException($"Options phase {Phase} shows the {cursorPage} page's cursor on {selected}.");
+            GameOptionsPresentation.DrawCursor(sprites, sheet, missile.Frame, content.GameOptions.CursorPosition(selected));
+        }
         sprites.FinishFrame();
     }
 
@@ -244,16 +260,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
-            SelectedItem = SelectedItem == 0
-                ? GameOptionsDefinitions.Rows.PrimaryCount - 1
-                : SelectedItem - 1;
+            primaryRow = RowAbove(GameOptionsLayout.PrimaryRows, primaryRow, out _);
             QueueMoveSound();
         }
         else if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
-            SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.PrimaryCount - 1
-                ? 0
-                : SelectedItem + 1;
+            primaryRow = RowBelow(GameOptionsLayout.PrimaryRows, primaryRow, out _);
             QueueMoveSound();
         }
 
@@ -266,9 +278,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
 
         QueueSelectSound();
-        GameOptionsPrimaryRow row = GameOptionsPositions.PrimaryRowAt(SelectedItem)
-            ?? throw new InvalidOperationException($"Primary options row {SelectedItem} is outside the five-row page.");
-        switch (row)
+        switch (primaryRow)
         {
             case GameOptionsPrimaryRow.StartGame:
                 // Starting: a save that resumes ordinary gameplay starts at once;
@@ -280,7 +290,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPrimaryRow.EnglishText:
             case GameOptionsPrimaryRow.JapaneseText:
                 JapaneseText = !JapaneseText;
-                SelectedItem = 0;
+                SelectFirstRow(GameOptionsPage.Primary);
                 LoadVisiblePage();
                 break;
             case GameOptionsPrimaryRow.ControllerSettings:
@@ -290,41 +300,33 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 BeginDissolveTo(GameOptionsPage.Special);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined GameOptionsPrimaryRow {row}.");
+                throw new InvalidOperationException($"Undefined GameOptionsPrimaryRow {primaryRow}.");
         }
     }
 
     /// <summary>Handles button swaps, reset and exit rows, and upper/lower page scrolling.</summary>
     private void StepController(ControllerButton pressed)
     {
+        // The page scrolls down to show Exit and Reset as the cursor reaches them, and back up to show the action rows.
         if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
             QueueMoveSound();
-            SelectedItem--;
-            if (SelectedItem < 0)
-            {
-                SelectedItem = GameOptionsDefinitions.Rows.ControllerReset;
+            GameOptionsControllerRow above = RowAbove(GameOptionsLayout.ControllerRows, controllerRow, out bool wrapped);
+            if (wrapped)
                 Phase = GameOptionsPhase.ScrollControllerDown;
-            }
-            else if (SelectedItem == GameOptionsDefinitions.Rows.ControllerActionCount - 1)
-            {
+            else if (controllerRow is GameOptionsControllerRow.Exit && above is GameOptionsControllerRow.AssignsAction)
                 Phase = GameOptionsPhase.ScrollControllerUp;
-            }
+            controllerRow = above;
             return;
         }
         if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
             QueueMoveSound();
-            SelectedItem++;
-            if (SelectedItem == GameOptionsDefinitions.Rows.ControllerCount)
-            {
-                SelectedItem = 0;
+            controllerRow = RowBelow(GameOptionsLayout.ControllerRows, controllerRow, out bool wrapped);
+            if (wrapped)
                 Phase = GameOptionsPhase.ScrollControllerUp;
-            }
-            else if (GameOptionsPositions.ControllerRowKind(SelectedItem) == GameOptionsControllerRowKind.Exit)
-            {
+            else if (controllerRow is GameOptionsControllerRow.Exit)
                 Phase = GameOptionsPhase.ScrollControllerDown;
-            }
             return;
         }
         if (pressed == ControllerButton.None)
@@ -333,11 +335,8 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // The game queues the confirmation sound for any newly pressed button on this page,
         // even when an action row cannot find an assignable button among them.
         QueueSelectSound();
-        GameOptionsControllerRowKind kind = GameOptionsPositions.ControllerRowKind(SelectedItem);
-        if (kind == GameOptionsControllerRowKind.Action)
+        if (controllerRow is GameOptionsControllerRow.AssignsAction { Action: var action })
         {
-            ControllerAction action = GameOptionsPositions.ControllerActionAt(SelectedItem)
-                ?? throw new InvalidOperationException($"Controller row {SelectedItem} binds no action.");
             for (int button = Input.ControllerBindings.AssignableButtons.Length - 1; button >= 0; button--)
             {
                 ControllerButton physicalButton = Input.ControllerBindings.AssignableButtons[button];
@@ -352,19 +351,19 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
-        switch (kind)
+        switch (controllerRow)
         {
-            case GameOptionsControllerRowKind.Exit:
+            case GameOptionsControllerRow.Exit:
                 BeginDissolveTo(GameOptionsPage.Primary);
                 break;
-            case GameOptionsControllerRowKind.Reset:
+            case GameOptionsControllerRow.Reset:
                 ControllerBindings = Input.ControllerBindings.Default;
                 LoadVisiblePage();
                 break;
-            case GameOptionsControllerRowKind.Action:
+            case GameOptionsControllerRow.AssignsAction:
                 throw new InvalidOperationException("Controller action rows are handled before navigation rows.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRowKind)} {kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(GameOptionsControllerRow)} {controllerRow}.");
         }
     }
 
@@ -373,16 +372,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         if ((pressed & ControllerButton.Up) != ControllerButton.None)
         {
-            SelectedItem = SelectedItem == 0
-                ? GameOptionsDefinitions.Rows.SpecialCount - 1
-                : SelectedItem - 1;
+            specialRow = RowAbove(GameOptionsLayout.SpecialRows, specialRow, out _);
             QueueMoveSound();
         }
         else if ((pressed & ControllerButton.Down) != ControllerButton.None)
         {
-            SelectedItem = SelectedItem == GameOptionsDefinitions.Rows.SpecialCount - 1
-                ? 0
-                : SelectedItem + 1;
+            specialRow = RowBelow(GameOptionsLayout.SpecialRows, specialRow, out _);
             QueueMoveSound();
         }
 
@@ -396,9 +391,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             return;
 
         QueueSelectSound();
-        GameOptionsSpecialRow row = GameOptionsPositions.SpecialRowAt(SelectedItem)
-            ?? throw new InvalidOperationException($"Special options row {SelectedItem} is outside the three-row page.");
-        switch (row)
+        switch (specialRow)
         {
             case GameOptionsSpecialRow.IconCancel:
                 IconCancelEnabled = !IconCancelEnabled;
@@ -410,9 +403,58 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 BeginDissolveTo(GameOptionsPage.Primary);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {row}.");
+                throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {specialRow}.");
         }
         LoadVisiblePage();
+    }
+
+    /// <summary>Selects <paramref name="shown"/>'s top row, as every page load and language change does.</summary>
+    private void SelectFirstRow(GameOptionsPage shown)
+    {
+        switch (shown)
+        {
+            case GameOptionsPage.Primary:
+                primaryRow = GameOptionsLayout.PrimaryRows[0];
+                break;
+            case GameOptionsPage.Controller:
+                controllerRow = GameOptionsLayout.ControllerRows[0];
+                break;
+            case GameOptionsPage.Special:
+                specialRow = GameOptionsLayout.SpecialRows[0];
+                break;
+            default:
+                throw new InvalidOperationException($"Unknown options page {shown}.");
+        }
+    }
+
+    /// <summary>
+    /// The row above <paramref name="row"/> among <paramref name="rows"/>, or from the top row the bottom one, which
+    /// <paramref name="wrapped"/> reports.
+    /// </summary>
+    private static TRow RowAbove<TRow>(TRow[] rows, TRow row, out bool wrapped)
+    {
+        int place = PlaceOf(rows, row);
+        wrapped = place == 0;
+        return rows[wrapped ? rows.Length - 1 : place - 1];
+    }
+
+    /// <summary>
+    /// The row below <paramref name="row"/> among <paramref name="rows"/>, or from the bottom row the top one, which
+    /// <paramref name="wrapped"/> reports.
+    /// </summary>
+    private static TRow RowBelow<TRow>(TRow[] rows, TRow row, out bool wrapped)
+    {
+        int place = PlaceOf(rows, row);
+        wrapped = place == rows.Length - 1;
+        return rows[wrapped ? 0 : place + 1];
+    }
+
+    /// <summary>How many of <paramref name="rows"/> stand above <paramref name="row"/>.</summary>
+    /// <exception cref="InvalidOperationException">The row is not one of the page's rows.</exception>
+    private static int PlaceOf<TRow>(TRow[] rows, TRow row)
+    {
+        int place = Array.IndexOf(rows, row);
+        return place >= 0 ? place : throw new InvalidOperationException($"Options row {row} is not on its page.");
     }
 
     /// <summary>Records the destination before starting the page fade-out.</summary>

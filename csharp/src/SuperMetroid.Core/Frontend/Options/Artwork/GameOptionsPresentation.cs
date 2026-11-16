@@ -28,15 +28,16 @@ public sealed class GameOptionsPresentation
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, at least one.</summary>
     public int CursorFrameDuration { get; }
 
-    /// <summary>Gets the cursor origin for an authored page and selection row.</summary>
-    internal Offset16<ScreenPixels> CursorPosition(GameOptionsPage page, int selectedItem)
+    /// <summary>The cursor origin on <paramref name="row"/>: its page's installed anchor for the row (#2206).</summary>
+    /// <exception cref="InvalidDataException">The installation authors no anchor for the row.</exception>
+    internal Offset16<ScreenPixels> CursorPosition(GameOptionsRow row)
     {
-        if (!Enum.IsDefined(page))
-            throw new ArgumentOutOfRangeException(nameof(page), page, "Options cursors exist only for the three menu pages.");
-        Offset16<ScreenPixels>[] points = cursorAnchors[page];
-        return (uint)selectedItem < points.Length
-            ? points[selectedItem]
-            : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
+        Ensure.NotNull(row);
+        Offset16<ScreenPixels>[] points = cursorAnchors[row.Page];
+        int place = row.Place;
+        return place < points.Length
+            ? points[place]
+            : throw new InvalidDataException($"Options cursor anchor of {row} is not authored.");
     }
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
     internal void DrawHeading(ScreenSprites sprites, SpriteSheet sheet, GameOptionsPage page, int verticalScroll)

@@ -105,7 +105,7 @@ public sealed class FileSelectAreaMapGraphics
         entries.BeginFrame();
         if (labels is null || mapSheet is null)
             throw new InvalidOperationException("World-map labels require installed layout and sprite assets.");
-        Draw(MapSpriteId.WorldTitle, new(128, 16), MapSpriteColouring.Labels);
+        Draw(MapSpriteId.WorldTitle, FileSelectMapDefinitions.WorldTitlePosition, MapSpriteColouring.Labels);
         foreach (AreaId area in FileSelectMapAreaOrder.Labels)
         {
             if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations))

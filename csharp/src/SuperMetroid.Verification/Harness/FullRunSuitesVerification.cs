@@ -615,6 +615,8 @@ internal static class FullRunSuitesVerification
             SuperMetroid.Verification.Areas.Escape.EscapeCounterPhasesVerification.VerifyEscapeCounterPhases),
         new(nameof(SuperMetroid.Verification.Frontend.Title.TitleCounterPhasesVerification.VerifyTitleCounterPhases),
             SuperMetroid.Verification.Frontend.Title.TitleCounterPhasesVerification.VerifyTitleCounterPhases),
+        new(nameof(SuperMetroid.Verification.Frontend.FileSelect.FileSelectEnergyTankLayoutVerification.VerifyFileSelectEnergyTankLayout),
+            SuperMetroid.Verification.Frontend.FileSelect.FileSelectEnergyTankLayoutVerification.VerifyFileSelectEnergyTankLayout),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoAttackPhaseVerification.VerifyTorizoAttackPhase),
             SuperMetroid.Verification.Bosses.Torizo.TorizoAttackPhaseVerification.VerifyTorizoAttackPhase),
         new(nameof(SuperMetroid.Verification.Bosses.Torizo.TorizoOwnershipVerification.VerifyTorizoOwnership),

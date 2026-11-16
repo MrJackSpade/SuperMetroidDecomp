@@ -190,7 +190,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                     _ = fade.Darken();
                     break;
                 }
-                LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + DisplayBrightness.Full + FileSelectMapDefinitions.LoadBlackFrames;
+                LoadRequested = pendingFrames >= FileSelectMapDefinitions.LoadPreludeFrames + FileSelectMapDefinitions.LoadFadeFrames + FileSelectMapDefinitions.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
             case FileSelectMapNavigationPhase.Area:

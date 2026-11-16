@@ -111,6 +111,12 @@ internal static class CeresDestructionSceneDefinitions
         internal static FloorZoomStep SlowZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(16);
         /// <summary>The fast per-update zoom change, in 256ths of a floor pixel per screen pixel.</summary>
         internal static FloorZoomStep FastZoomStep { get; } = FloorZoomStep.FromTwoHundredFiftySixths(32);
+        /// <summary>How far the floor scrolls right each update as the gunship flies away from the exploding station.</summary>
+        internal static SignedSixteenSixteen FlyAwayScroll { get; } = SignedSixteenSixteen.FromWholePixels(2);
+        /// <summary>How far the floor turns each update as the gunship flies away from the station, in steps: one step clockwise.</summary>
+        internal const int FlyAwayTurnSteps = -1;
+        /// <summary>How far the floor turns each update as the gunship turns toward Zebes, in steps: one step clockwise.</summary>
+        internal const int TowardZebesTurnSteps = -1;
         /// <summary>One eighth of a pixel per update.</summary>
         internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
         /// <summary>Minus one half pixel per update.</summary>

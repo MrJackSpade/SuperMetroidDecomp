@@ -317,7 +317,7 @@ internal sealed class IntroCeresFlightState
 
         // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
         // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
-        background = background.WithX(background.X - SignedSixteenSixteen.FromSixteenthsOfPixel(2));
+        background = background.WithX(background.X - CeresFlightRenderDefinitions.RearViewDrift);
         if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
             zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
         else if (zoom < CeresFlightRenderDefinitions.RearFastWideningLimit)

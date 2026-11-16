@@ -426,7 +426,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         // The floor turns during both fades as well as the fully visible interval.
         if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(Flyaway.CinematicFrame))
-            Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(-1);
+            Stage.FloorAngle = Stage.FloorAngle.TurnedBySteps(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.FloorZoom = Stage.FloorZoom.Widened(zoomStep);
     }
 

@@ -65,24 +65,16 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableDiction
         yield return new PlacedFrame(FileSelectParts.DigitFrame(health % FileSelectFieldDefinitions.DigitBase), Right(layout.HealthAnchor, 1));
         int filled = save.Health / FileSelectEnergyTankDefinitions.EnergyPerTank;
         int tanks = save.MaxHealth / FileSelectEnergyTankDefinitions.EnergyPerTank;
-        // Tanks fill the row below ENERGY left to right, then each later row starts one tank higher, back where the row
-        // before it started, as the file-select energy draw walks the page.
-        const int step = FileSelectEnergyTankDefinitions.TankPixels;
-        int x = layout.EnergyAnchor.X + FileSelectEnergyTankDefinitions.ColumnOffset * step;
-        int y = layout.EnergyAnchor.Y + FileSelectEnergyTankDefinitions.RowOffset * step;
-        int rowRemaining = FileSelectEnergyTankDefinitions.FirstRowCount;
+        // Tanks fill rows of seven left to right, the first row below ENERGY and each later row one tank above the last.
         for (int tank = 0; tank < tanks; tank++)
         {
+            int column = FileSelectEnergyTankDefinitions.ColumnOffset + tank % FileSelectEnergyTankDefinitions.TanksPerRow;
+            int row = FileSelectEnergyTankDefinitions.RowOffset - tank / FileSelectEnergyTankDefinitions.TanksPerRow;
+            int x = layout.EnergyAnchor.X + column * FileSelectEnergyTankDefinitions.TankPixels;
+            int y = layout.EnergyAnchor.Y + row * FileSelectEnergyTankDefinitions.TankPixels;
             if ((uint)x >= FileSelectPresentationDefinitions.PageWidthPixels || (uint)y >= FileSelectPresentationDefinitions.PageHeightPixels)
                 throw new InvalidDataException("File-select energy tanks escaped the menu page.");
             yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(x, y));
-            x += step;
-            if (--rowRemaining == 0)
-            {
-                x -= FileSelectEnergyTankDefinitions.RowRewindColumns * step;
-                y -= step;
-                rowRemaining = FileSelectEnergyTankDefinitions.WrappedRowCount;
-            }
         }
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours / FileSelectFieldDefinitions.DigitBase), layout.TimeValueAnchor);
         yield return new PlacedFrame(FileSelectParts.DigitFrame(save.Hours % FileSelectFieldDefinitions.DigitBase), Right(layout.TimeValueAnchor, 1));

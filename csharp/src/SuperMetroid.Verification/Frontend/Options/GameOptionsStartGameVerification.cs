@@ -28,7 +28,7 @@ internal static class GameOptionsStartGameVerification
             for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Main; frame++)
                 options.Step(ControllerButton.None);
             AssertEqual(GameOptionsPhase.Main, options.Phase, $"{route} save reaches the primary options page");
-            AssertEqual(0, options.SelectedItem, "the cursor starts on START GAME");
+            AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.StartGame), options.SelectedRow, "the cursor starts on START GAME");
             options.Step(ControllerButton.A);
             AssertEqual(afterPress, options.Phase, $"START GAME with a {route} save");
             if (route == SaveLoadingGameState.MainGame)

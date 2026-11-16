@@ -49,7 +49,7 @@ public static class GameOptionsPresentationExtractor
                     GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
-        Position16<CharacterCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount)
+        Position16<CharacterCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsLayout.ControllerActionRows.Length)
             .Select(GameOptionsPageCells.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
@@ -93,9 +93,9 @@ public static class GameOptionsPresentationExtractor
         };
         var cursors = new Dictionary<string, Offset16<ScreenPixels>[]>(StringComparer.Ordinal)
         {
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Cursor(GameOptionsPage.Primary, GameOptionsDefinitions.Rows.PrimaryCount),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Cursor(GameOptionsPage.Controller, GameOptionsDefinitions.Rows.ControllerCount),
-            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Cursor(GameOptionsPage.Special, GameOptionsDefinitions.Rows.SpecialCount),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Primary)] = Cursor(GameOptionsPage.Primary, GameOptionsLayout.PrimaryRows.Length),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Controller)] = Cursor(GameOptionsPage.Controller, GameOptionsLayout.ControllerRows.Length),
+            [GameOptionsPresentationFormat.MenuName(GameOptionsPage.Special)] = Cursor(GameOptionsPage.Special, GameOptionsLayout.SpecialRows.Length),
         };
 
         using var output = new MemoryStream();

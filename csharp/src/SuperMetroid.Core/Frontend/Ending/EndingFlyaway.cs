@@ -77,7 +77,7 @@ internal sealed class EndingFlyaway
     {
         StepFlyawayFade();
         if (_stage.FloorAngle != EndingMotionDefinitions.PlanetSlowTargetAngle)
-            _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(-1);
+            _stage.FloorAngle = _stage.FloorAngle.TurnedBySteps(EndingMotionDefinitions.PlanetSlowTurnSteps);
         ShakeShip();
         _stage.FloorZoom = _stage.FloorZoom.Narrowed(EndingMotionDefinitions.PlanetSlowZoomStep);
         if (_stage.FloorZoom < EndingMotionDefinitions.PlanetSlowEndZoom)

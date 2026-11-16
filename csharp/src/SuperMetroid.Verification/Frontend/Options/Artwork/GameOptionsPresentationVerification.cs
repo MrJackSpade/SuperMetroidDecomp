@@ -85,7 +85,7 @@ internal static class GameOptionsPresentationVerification
         {
             AssertEqual(native.Phase, installed.Phase,
                 $"installed options phase matches cartridge frame {comparedFrames}");
-            AssertEqual(native.SelectedItem, installed.SelectedItem,
+            AssertEqual(native.SelectedRow, installed.SelectedRow,
                 $"installed options selection matches cartridge frame {comparedFrames}");
             if (native.Phase is GameOptionsPhase.DissolveOut or GameOptionsPhase.DissolveIn)
             {

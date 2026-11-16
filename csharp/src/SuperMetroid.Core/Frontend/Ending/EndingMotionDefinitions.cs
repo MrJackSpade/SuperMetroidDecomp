@@ -56,6 +56,15 @@ public static class EndingMotionDefinitions
     /// <summary>The space view's floor angle as the gunship's emergence starts.</summary>
     public static RotationAngle PlanetEscapeInitialAngle => RotationAngle.WrappedSteps(-112);
 
+    /// <summary>How far the cloud escapes turn the floor on each of their turning updates, in steps: one step clockwise.</summary>
+    public const int AtmosphereTurnSteps = -1;
+
+    /// <summary>
+    /// How far the slow emergence turns the floor each update until it reaches
+    /// <see cref="PlanetSlowTargetAngle"/>, in steps: one step clockwise.
+    /// </summary>
+    public const int PlanetSlowTurnSteps = -1;
+
     /// <summary>How far the fast emergence turns the floor each update, in steps: four steps clockwise.</summary>
     public const int PlanetFastTurnSteps = -4;
 

@@ -16,7 +16,7 @@ public static class GameOptionsPageCells
     /// <exception cref="ArgumentOutOfRangeException">The action is outside the seven assignable rows.</exception>
     public static Position16<CharacterCells> ControllerLabelAnchor(int action)
     {
-        if ((uint)action >= GameOptionsDefinitions.Rows.ControllerActionCount) throw new ArgumentOutOfRangeException(nameof(action));
+        if ((uint)action >= GameOptionsLayout.ControllerActionRows.Length) throw new ArgumentOutOfRangeException(nameof(action));
         return new(ControllerLabels.AnchorColumn, checked((ushort)(ControllerLabels.FirstAnchorRow + ControllerLabels.AnchorRowSpacing * action)));
     }
 

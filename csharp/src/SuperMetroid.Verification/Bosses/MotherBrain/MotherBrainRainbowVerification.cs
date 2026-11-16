@@ -265,8 +265,8 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkForwardReallySlow, attack.Encounter.BodyPlayback?.PlayingSegment,
         "low-health decision immediately requests the native forward body walk");
     SuperMetroid.Core.Animation.AnimationPlayback<MotherBrainHeadSegment>? headBeforeFinishThreshold = attack.Encounter.BrainPlayback;
-    MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
-    AssertEqual(MotherBrainFinishOffPhase.GetSamusToLowEnergy, attack.Encounter.FinishOffPhase,
+        _ = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        AssertEqual(MotherBrainFinishOffPhase.GetSamusToLowEnergy, attack.Encounter.FinishOffPhase,
         "399 energy remains above no-suit finish threshold 340");
     AssertTrue(headBeforeFinishThreshold == attack.Encounter.BrainPlayback,
         "RNG zero takes finish-off no-attack branch");
@@ -289,8 +289,8 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
         "energy 699 selects command $18 unable handler");
     lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 1 });
     lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
-    MotherBrainRainbowBeamAttackStepResult firstDrain = lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
-    AssertEqual(MotherBrainRainbowPhase.DrainingSamus, lowAttack.Encounter.RainbowPhase,
+        _ = lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        AssertEqual(MotherBrainRainbowPhase.DrainingSamus, lowAttack.Encounter.RainbowPhase,
         "drain initializer falls through into first resource tick");
     AssertEqual(0, low.Missiles,
         "depleted missiles clear even when a different HUD item is selected");

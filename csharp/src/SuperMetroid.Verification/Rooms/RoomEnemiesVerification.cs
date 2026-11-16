@@ -1065,12 +1065,12 @@ internal static void VerifyCeresRidleyRoomEntry()
         // This focused hit-counter test used to patch the cartridge cooldown to one.
         // Wait through the real shared projectile owner instead; do not bypass admission
         // or speed up the separately stepped enemy phase/timer fixture.
-        for (int cooldownFrame = 0; cooldownFrame < 15 && !sharedProjectiles.CooldownTimer.IsZero; cooldownFrame++)
+        for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
         {
             sharedProjectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
             projectiles.StepFrame(new SamusTerrain { Level = openRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), sharedProjectiles);
         }
-        AssertEqual((ushort)0, sharedProjectiles.CooldownTimer.RawValue, "Native cooldown expires before the next Ceres shot");
+        AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
         enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }

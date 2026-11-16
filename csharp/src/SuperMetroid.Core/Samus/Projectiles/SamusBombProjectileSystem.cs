@@ -83,11 +83,15 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>
-    /// The cooldown shared by every Samus projectile, 0 through <see cref="SamusProjectileCooldownDefinitions.LongestCooldown"/>
-    /// frames: every shot, bomb and boss sets it no longer, and it only counts down from there or steps from zero to one, so
-    /// whether it has run out gates another shot and, while a bomb is out, another bomb.
+    /// The updates left on the cooldown shared by every Samus projectile, zero or more: every shot, bomb and boss sets it,
+    /// a bomb's reservation lengthens it by one, and it counts down to zero and stops there, so whether it has run out
+    /// gates another shot and, while a bomb is out, another bomb.
     /// </summary>
-    public WrappingCountdown CooldownTimer { get; private set; }
+    public int CooldownTimer
+    {
+        get;
+        private set => field = Ensure.AtLeastZero(value);
+    }
 
     /// <summary>
     /// Replaces the shared projectile cooldown from another Samus-projectile producer.
@@ -96,9 +100,8 @@ public sealed class SamusBombProjectileSystem
     /// Beams, missiles, power bombs and normal bombs do not own separate cooldowns; they all read and write the same
     /// one. Ordinary projectiles live in a separate class, but that boundary must not create a second clock.
     /// </remarks>
-    /// <param name="value">The cooldown's frames, 0 through <see cref="SamusProjectileCooldownDefinitions.LongestCooldown"/>.</param>
-    internal void SetSharedCooldown(int value) =>
-        CooldownTimer = WrappingCountdown.Start(Ensure.BetweenInclusive(0, SamusProjectileCooldownDefinitions.LongestCooldown, value));
+    /// <param name="value">The cooldown's updates, zero or more.</param>
+    internal void SetSharedCooldown(int value) => CooldownTimer = value;
 
     /// <summary>
     /// Replaces the bomb count from an enemy-owned Samus interaction. Shitroid writes
@@ -335,7 +338,7 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBomb bomb in _bombs)
             bomb.End();
         BombCounter = 0;
-        CooldownTimer = WrappingCountdown.Start(0);
+        CooldownTimer = 0;
         PowerBombExplosion.Reset();
     }
 
@@ -369,25 +372,13 @@ public sealed class SamusBombProjectileSystem
         // down, so the first shot after X-ray waits out the full delay.
         if (timeIsFrozen)
         {
-            CooldownTimer = WrappingCountdown.Start(SamusProjectileCooldownDefinitions.FrozenTime);
+            CooldownTimer = SamusProjectileCooldownDefinitions.FrozenTime;
             return;
         }
 
-        if (CooldownTimer.IsZero)
-            return;
-
-        // The cooldown also clamps already-negative/crossed-negative values to zero. Normal
-        // bomb cooldowns are small positive values, but retaining the signed edge keeps an
-        // out-of-range cooldown from producing a permanently locked firing state.
-        if (CooldownTimer.IsNegative)
-        {
-            CooldownTimer = WrappingCountdown.Start(0);
-            return;
-        }
-
-        CooldownTimer = CooldownTimer.Decrement().Remaining;
-        if (CooldownTimer.IsNegative)
-            CooldownTimer = WrappingCountdown.Start(0);
+        // Every cooldown set is a few dozen updates at most, so the count only ever runs down to zero and stops.
+        if (CooldownTimer > 0)
+            CooldownTimer--;
     }
 
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in the lowest free bomb place.</summary>
@@ -432,6 +423,8 @@ public sealed class SamusBombProjectileSystem
 
         if (placingPowerBomb)
         {
+            // A count Crystal Flash drained below zero still places Power Bombs, each taking it further below; only the
+            // 32768th from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
             samus.PowerBombs = CountsRunBelowZero.DecrementWrapping(samus.PowerBombs);
             PowerBombExplosion.Arm();
         }
@@ -443,9 +436,9 @@ public sealed class SamusBombProjectileSystem
         bomb.Position = bomb.Position.WithWhole(samus.Position.Whole);
         bomb.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(bomb);
-        CooldownTimer = WrappingCountdown.Start(placingPowerBomb
+        CooldownTimer = placingPowerBomb
             ? MorphBallBombDefinitions.PowerBombCooldown
-            : MorphBallBombDefinitions.NormalBombCooldown);
+            : MorphBallBombDefinitions.NormalBombCooldown;
 
         if (placingPowerBomb)
         {
@@ -527,7 +520,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         BombCounter = PlaceCount;
-        CooldownTimer = WrappingCountdown.Start(MorphBallBombDefinitions.NormalBombCooldown);
+        CooldownTimer = MorphBallBombDefinitions.NormalBombCooldown;
         samus.BombSpreadChargeTimeoutCounter = 0;
         samus.BeamCharge.ClearCount();
     }
@@ -541,7 +534,7 @@ public sealed class SamusBombProjectileSystem
         // The first bomb is allowed regardless of cooldown. With any active bomb,
         // five bombs out or a running cooldown reject the edge.
         if (BombCounter != 0 &&
-            (BombCounter >= PlaceCount || !CooldownTimer.IsZero))
+            (BombCounter >= PlaceCount || CooldownTimer != 0))
         {
             return false;
         }
@@ -549,7 +542,7 @@ public sealed class SamusBombProjectileSystem
         // Reserving a bomb counts it and lengthens the cooldown by one update before a free
         // place is chosen; once the bomb starts, placement replaces the cooldown with the
         // bomb's own.
-        CooldownTimer = CooldownTimer.AddFrames(1);
+        CooldownTimer++;
         BombCounter++;
 
         return true;

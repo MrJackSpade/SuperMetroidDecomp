@@ -543,7 +543,7 @@ internal sealed class ProjectileTerrainCollision
 
         // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary
         // wall impact does not extend or replace its remaining fire delay.
-        if (sharedProjectiles.CooldownTimer.IsAtLeast(21))
+        if (sharedProjectiles.CooldownTimer >= 21)
             sharedProjectiles.SetSharedCooldown(20);
     }
     /// <summary>

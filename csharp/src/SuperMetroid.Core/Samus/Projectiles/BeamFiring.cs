@@ -231,7 +231,7 @@ internal sealed class BeamFiring
         // frame and the beam cooldown supplies the rate limit; charged releases reach
         // the same gate once.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
-            !sharedProjectiles.CooldownTimer.IsZero)
+            sharedProjectiles.CooldownTimer != 0)
         {
             return new BeamShot(null, null);
         }
@@ -338,7 +338,7 @@ internal sealed class BeamFiring
         // Allocation is shared with normal beams: five counted shots and a running cooldown reject firing before any
         // projectile is created.
         if (_pool.ShotCount.Count >= SamusProjectileSystem.PlaceCount ||
-            !sharedProjectiles.CooldownTimer.IsZero)
+            sharedProjectiles.CooldownTimer != 0)
         {
             return new BeamShot(null, null);
         }
@@ -425,7 +425,7 @@ internal sealed class BeamFiring
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SuperMissileDefinitions.AdmissionLimit : SamusProjectileSystem.PlaceCount;
         if (_pool.ShotCount.Count >= admissionLimit ||
-            !sharedProjectiles.CooldownTimer.IsZero)
+            sharedProjectiles.CooldownTimer != 0)
         {
             return new BeamShot(null, null);
         }
@@ -445,6 +445,8 @@ internal sealed class BeamFiring
         InitializePosition(samus, projectile);
         _pool.ShotCount.CountShot();
         ProjectileInvincibilityTimer = ProjectileTimingDefinitions.MissileInteractionImmunity;
+        // A count Crystal Flash drained below zero still fires, each shot taking it further below; only the 32768th shot
+        // from below zero wraps it to the largest count (CountsRunBelowZero), a wrap play can reach.
         if (isSuperMissile)
             samus.SuperMissiles = CountsRunBelowZero.DecrementWrapping(samus.SuperMissiles);
         else

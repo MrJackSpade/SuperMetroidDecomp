@@ -47,7 +47,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         bombs.SetSharedCooldown(20);
         enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainRainbowState(state, attack, neckLowered, samus, bombs);
-        AssertEqual((ushort)MotherBrainBeamDefinitions.NeckLoweredSamusCooldown, bombs.CooldownTimer.RawValue,
+        AssertEqual((ushort)MotherBrainBeamDefinitions.NeckLoweredSamusCooldown, bombs.CooldownTimer,
             "the encounter replaces Samus's longer cooldown with the beam's");
 
         MotherBrainRainbowBeamAttackStepResult? started = null;

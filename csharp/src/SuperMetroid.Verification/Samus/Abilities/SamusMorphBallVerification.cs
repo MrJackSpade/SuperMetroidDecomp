@@ -614,7 +614,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     AssertTrue(bombs.Bombs[0].IsActive && bombs.Bombs.Skip(1).All(slot => !slot.IsActive),
         "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
-    AssertEqual(0x0010, bombs.CooldownTimer.RawValue, "normal bomb loads cooldown table entry five");
+    AssertEqual(0x0010, bombs.CooldownTimer, "normal bomb loads cooldown table entry five");
     AssertEqual(59, bombs.Bombs[0].BombTimer.RawValue, "placement frame immediately decrements timer 60 to 59");
     AssertEqual(0x001e, bombs.Bombs[0].Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Bombs[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
@@ -747,7 +747,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
         "bomb spread occupies all five physical bomb slots");
-    AssertEqual(0x0010, spreadBombs.CooldownTimer.RawValue,
+    AssertEqual(0x0010, spreadBombs.CooldownTimer,
         "bomb spread selects non-beam cooldown entry five");
     AssertEqual(0, spreadSamus.BeamCharge.FlareCounter,
         "bomb spread clears mirrored flare counter");
@@ -871,7 +871,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         "power-bomb placement decrements ammo exactly once");
     AssertEqual(HudItem.PowerBomb, powerBombSamus.SelectedHudItem,
         "remaining power-bomb ammo retains HUD selection");
-    AssertEqual(0x0028, powerBombs.CooldownTimer.RawValue,
+    AssertEqual(0x0028, powerBombs.CooldownTimer,
         "power bomb loads non-beam cooldown table entry three");
     AssertEqual(SamusBombProjectileSystem.PowerBombType, powerBombs.Bombs[0].Type,
         "the placed projectile is a Power Bomb");

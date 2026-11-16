@@ -939,9 +939,10 @@ cartridge lookup still determines whether a block is revealed, how many
 blocks are copied, extension traversal, and Brinstar-only behavior.
 Its `extensionExitBlock` is the metatile an extension chain shows when its next
 step leaves the room backward.
-The same file contains four `tanks` (the Energy, Missile, Super Missile
-and Power Bomb tanks' reveal blocks; every other item is revealed as the first
-of its own pictures) and `rooms` with special reveal tiles.
+The same file contains `tanks`, each tank's reveal block keyed by its kind
+(`EnergyTank`, `MissileTank`, `SuperMissileTank`, `PowerBombTank`; every other
+item is revealed as the first of its own pictures) (#2115), and `rooms` with
+special reveal tiles.
 Each room tile's `x`, `y`, and `word` are visual-only: the first two are block
 coordinates, and the word's low ten bits select a metatile while bit 11 selects
 the cartridge's vertical row swap. Keep each room's `overlay` name and the

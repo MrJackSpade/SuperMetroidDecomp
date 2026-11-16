@@ -409,12 +409,11 @@ public sealed class PowerBombBlastTimeline
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
-    /// <summary>Fades Crystal Flash for its compiled lifetime, then clears the blast.</summary>
+    /// <summary>Fades Crystal Flash's afterglow for its authored length, then clears the blast.</summary>
     private bool StepCrystalFlashAfterglow()
     {
-        // Crystal Flash's afterglow wakes once the stock components reach zero, fading a step every update as the
-        // ordinary afterglow does. The compiled count tracks the same number of steps; editable colors only affect
-        // the fade displayed inside the retained final window.
+        // Crystal Flash's afterglow fades a step every update, as the ordinary afterglow does, for the length its
+        // explosion set (PowerBombExplosionAfterglow); the installed colours only change what each step shows.
         if (_crystalFlashAfterglowStepsRemaining != 0)
         {
             _crystalFlashAfterglowStepsRemaining--;

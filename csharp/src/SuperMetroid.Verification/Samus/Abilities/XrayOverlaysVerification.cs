@@ -24,7 +24,11 @@ internal static class XrayOverlaysVerification
     {
         var bus = new TestAddressSpace();
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(
-            Enumerable.Range(5, InstalledXrayOverlays.TankCount).Select(value => RoomBlockAppearance.Of(value)),
+            new Dictionary<InWorldCollectibleKind, RoomBlockAppearance>
+            {
+                [InWorldCollectibleKind.EnergyTank] = RoomBlockAppearance.Of(5), [InWorldCollectibleKind.MissileTank] = RoomBlockAppearance.Of(6),
+                [InWorldCollectibleKind.SuperMissileTank] = RoomBlockAppearance.Of(7), [InWorldCollectibleKind.PowerBombTank] = RoomBlockAppearance.Of(8),
+            },
             new XrayRoomOverlayBlocks[]
             {
                 new(SpecialRoom, new XrayRoomOverlayVisual[]
@@ -64,6 +68,14 @@ internal static class XrayOverlaysVerification
         system.SetCollectedItemBit(2);
         XrayRevealOverlays.Apply(map, items, system, null, new(16, 16), visuals);
         AssertTrue(map.All(block => block is null), "negative item arguments and collected items leave the reveal unchanged");
+        // The tanks' reveals are keyed by tank kind (#2115): a missing tank or another kind of item is rejected.
+        AssertThrows<InvalidDataException>(() => InstalledXrayOverlays.FromOverlaysForVerification(
+                new Dictionary<InWorldCollectibleKind, RoomBlockAppearance> { [InWorldCollectibleKind.EnergyTank] = RoomBlockAppearance.Of(5) }, []),
+            "the tanks' reveals name every tank kind");
+        AssertThrows<InvalidDataException>(() => InstalledXrayOverlays.FromOverlaysForVerification(
+                InstalledXrayOverlays.TankKinds.Where(tank => tank != InWorldCollectibleKind.PowerBombTank)
+                    .Append(InWorldCollectibleKind.Bombs).ToDictionary(kind => kind, _ => RoomBlockAppearance.Of(5)), []),
+            "the tanks' reveals name only tank kinds");
         Console.WriteLine("  X-ray overlays: item pictures, tank blocks, collection gates, item order, room override, vertical flip and viewport bounds agree.");
     }
 

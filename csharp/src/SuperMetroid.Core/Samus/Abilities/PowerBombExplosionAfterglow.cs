@@ -7,16 +7,18 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class PowerBombExplosionAfterglow
 {
     /// <summary>
-    /// Compiled afterglow wake criterion for a stock Crystal Flash: the maximum
-    /// component is 14+step for the four reachable explosion colour steps. Keeping
-    /// this criterion independent of editable RGB preserves the fade count,
-    /// signed-timer cadence and cleanup frame without storing presentation colors.
+    /// The updates Crystal Flash's afterglow fades for before the blast ends, one fade step on each:
+    /// <see cref="PowerBombExplosionDefinitions.CrystalFlashShortestAfterglowUpdates"/>, and one more for each glow band
+    /// (<see cref="PowerBombRadius.GlowColorBand"/>) the explosion had reached when it stopped. The shown colours never
+    /// change how long it lasts.
     /// </summary>
+    /// <param name="consumedRadius">The radius the explosion had reached when it stopped, below Crystal Flash's limit.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The radius is not below Crystal Flash's limit.</exception>
     public static int CrystalFlashAfterglowSteps(PowerBombRadius consumedRadius)
     {
         if (!(consumedRadius < CrystalFlashRadiusLimit))
             throw new ArgumentOutOfRangeException(nameof(consumedRadius),
                 "Crystal Flash consumes a radius below its compiled expansion limit.");
-        return CrystalFlashInitialFadeSteps + consumedRadius.GlowColorBand;
+        return CrystalFlashShortestAfterglowUpdates + consumedRadius.GlowColorBand;
     }
 }

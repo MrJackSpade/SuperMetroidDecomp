@@ -77,7 +77,7 @@ internal static class RoomRevealPresentationContractChecks
                 entries.Add(new(type, reaction, XrayRevealVisualBlocks.ForShape(command,
                     [.. new[] { 1, 2, 3, 4 }.Take(XrayRevealVisualBlocks.CountFor(command))])));
         // The overlays are required with the reveals (#1596); every required room overlay shows one block.
-        var overlays = new InstalledXrayOverlays(Enumerable.Repeat(RoomBlockAppearance.Of(0), InstalledXrayOverlays.TankCount),
+        var overlays = new InstalledXrayOverlays(InstalledXrayOverlays.TankKinds.ToDictionary(tank => tank, _ => RoomBlockAppearance.Of(0)),
             XrayRoomOverlayDefinitions.All.Select(overlay => new XrayRoomOverlayBlocks(overlay,
                 [new XrayRoomOverlayVisual(Position16<RoomBlocks>.Of(0, 0), RoomBlockAppearance.Of(0))])));
         var catalog = new InstalledXrayReveals(entries, overlays);

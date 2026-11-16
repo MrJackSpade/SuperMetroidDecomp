@@ -85,9 +85,6 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         RunInitializationAi(place, surroundings);
 
     /// <inheritdoc/>
-    RoomEnemyPlace? IEnemyLifecycle.SpawnEnemy(RoomEnemyPlacement population) => Spawn(population, static _ => { });
-
-    /// <inheritdoc/>
     RoomEnemyPlace? IEnemyLifecycle.SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) =>
         Spawn(population, place => place.SetSpeciesState(Ensure.NotNull(encounter)));
 

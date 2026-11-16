@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collaborators a <see cref="NorfairRidleyBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "The composition seam for Lower Norfair Ridley's two parts (combat, death), each built from a different subset of these collaborators, with the shared body parts both Ridleys run.")]
 [RoomLifetime]
 internal sealed record NorfairRidleyBehaviorDependencies
 {

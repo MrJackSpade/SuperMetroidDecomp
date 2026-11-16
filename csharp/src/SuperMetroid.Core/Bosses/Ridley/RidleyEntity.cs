@@ -24,14 +24,6 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
     /// <exception cref="InvalidOperationException">The body has begun no encounter.</exception>
     internal abstract RidleyEncounterState Encounter { get; }
 
-    /// <summary>The encounter <paramref name="body"/> holds, from its initialization.</summary>
-    /// <param name="body">A place holding one of Ridley's bodies.</param>
-    /// <exception cref="InvalidOperationException">The place holds no Ridley body that has begun an encounter.</exception>
-    internal static RidleyEncounterState EncounterOf(RoomEnemyPlace body) =>
-        Ensure.NotNull(body).Entity is RidleyEntity entity
-            ? entity.Encounter
-            : throw new InvalidOperationException($"Enemy place {body.Ordinal} holds no Ridley body.");
-
     /// <inheritdoc/>
     public abstract void Initialize();
 

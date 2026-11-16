@@ -26,12 +26,12 @@ internal static class SporeSpawnProjectileAnimations
         ],
         [P.SpawnerRelease] =
         [
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosedTwin, 1),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosed, 1),
             Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpening, 6),
             Cue(C.SpawnSpore),
             Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpen, 16),
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpeningTwin, 6),
-            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosedTwinB, 1),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerOpening, 6),
+            Show(EnemyProjectileFrameId.SporeSpawnSpawnerClosed, 1),
         ],
         [P.Spore] =
         [
@@ -47,7 +47,7 @@ internal static class SporeSpawnProjectileAnimations
         [
             Show(EnemyProjectileFrameId.SporeSpawnSporeBurstSpark, 1),
             Cue(C.SetImpactProperties),
-            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstSparkTwin, 3),
+            Show(EnemyProjectileFrameId.SporeSpawnSporeBurstSpark, 3),
             Show(EnemyProjectileFrameId.SporeSpawnSporeBurstFireballSmall, 6),
             Show(EnemyProjectileFrameId.SporeSpawnSporeBurstFireballLarge, 5),
             Cue(C.QueueKilledSound),

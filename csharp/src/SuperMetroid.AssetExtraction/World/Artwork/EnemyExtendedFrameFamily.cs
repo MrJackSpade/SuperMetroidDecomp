@@ -34,8 +34,8 @@ internal enum EnemyExtendedFrameFamily
     KraidArm,
     /// <summary>The Torizos' backward jumps.</summary>
     TorizoJumpBack,
-    /// <summary>The Torizos' fall facing left.</summary>
-    TorizoFallingLeft,
+    /// <summary>The Torizos' springing pose facing left, which their leaps and falls show.</summary>
+    TorizoFacingLeftSpringing,
     /// <summary>The Torizos' further combat poses.</summary>
     TorizoCombat,
     /// <summary>Mother Brain's body.</summary>

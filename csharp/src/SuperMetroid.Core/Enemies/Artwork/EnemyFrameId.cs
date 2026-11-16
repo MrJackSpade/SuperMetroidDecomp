@@ -2486,14 +2486,14 @@ public enum EnemyFrameId
     RidleyBreakupLegsLeft,
     /// <summary>Ridley: breakup legs right.</summary>
     RidleyBreakupLegsRight,
-    /// <summary>Ridley: breakup torso left.</summary>
+    /// <summary>Ridley: breakup open head and neck, facing left.</summary>
+    RidleyBreakupOpenHeadAndNeckLeft,
+    /// <summary>Ridley: breakup open head and neck, facing right.</summary>
+    RidleyBreakupOpenHeadAndNeckRight,
+    /// <summary>Ridley: breakup torso, facing left.</summary>
     RidleyBreakupTorsoLeft,
-    /// <summary>Ridley: breakup torso right.</summary>
+    /// <summary>Ridley: breakup torso, facing right.</summary>
     RidleyBreakupTorsoRight,
-    /// <summary>Ridley: breakup head left.</summary>
-    RidleyBreakupHeadLeft,
-    /// <summary>Ridley: breakup head right.</summary>
-    RidleyBreakupHeadRight,
     /// <summary>Ridley: breakup claw left.</summary>
     RidleyBreakupClawLeft,
     /// <summary>Ridley: breakup claw right.</summary>
@@ -2878,30 +2878,28 @@ public enum EnemyFrameId
     DraygonTailFacingRightWhipCurling,
     /// <summary>Draygon: its tail facing right, recoiling.</summary>
     DraygonTailFacingRightWhipRecoiling,
-    /// <summary>Spore Spawn: its shell shut: the picture of SporeSpawnShut, as a frame of its own.</summary>
-    SporeSpawnShutTwin,
+    /// <summary>Spore Spawn: hardened to a husk, the picture of SporeSpawnShut, which Samus's touch passes through.</summary>
+    SporeSpawnHusk,
     /// <summary>Spore Spawn: its shell shut.</summary>
     SporeSpawnShut,
-    /// <summary>Spore Spawn: its shell parted 8 pixels round its core.</summary>
-    SporeSpawnParted8,
-    /// <summary>Spore Spawn: its shell parted 16 pixels round its core.</summary>
-    SporeSpawnParted16,
-    /// <summary>Spore Spawn: its shell parted 24 pixels round its core.</summary>
-    SporeSpawnParted24,
-    /// <summary>Spore Spawn: its shell parted 32 pixels round its core.</summary>
-    SporeSpawnParted32,
-    /// <summary>Spore Spawn: its shell parted 40 pixels round its core.</summary>
-    SporeSpawnParted40,
-    /// <summary>Spore Spawn: its shell parted 44 pixels round its core.</summary>
-    SporeSpawnParted44,
-    /// <summary>Spore Spawn: its shell parted 48 pixels round its core.</summary>
-    SporeSpawnParted48,
-    /// <summary>Spore Spawn: its shell parted 48 pixels, its core glowing.</summary>
-    SporeSpawnParted48CoreGlowing,
-    /// <summary>Spore Spawn: its shell parted 48 pixels, its core bright.</summary>
-    SporeSpawnParted48CoreBright,
-    /// <summary>Spore Spawn: its shell parted 48 pixels round its core: the picture of SporeSpawnParted48, as a frame of its own.</summary>
-    SporeSpawnParted48Twin,
+    /// <summary>Spore Spawn: its shell cracked, parted 8 pixels round its core.</summary>
+    SporeSpawnCracked,
+    /// <summary>Spore Spawn: its shell ajar, parted 16 pixels round its core.</summary>
+    SporeSpawnAjar,
+    /// <summary>Spore Spawn: its shell parting, 24 pixels round its core.</summary>
+    SporeSpawnParting,
+    /// <summary>Spore Spawn: its shell half open, parted 32 pixels round its core.</summary>
+    SporeSpawnHalfOpen,
+    /// <summary>Spore Spawn: its shell opening wide, parted 40 pixels round its core.</summary>
+    SporeSpawnWideOpening,
+    /// <summary>Spore Spawn: its shell nearly open, parted 44 pixels round its core.</summary>
+    SporeSpawnNearlyOpen,
+    /// <summary>Spore Spawn: its shell fully open, parted 48 pixels round its core.</summary>
+    SporeSpawnOpen,
+    /// <summary>Spore Spawn: its shell fully open, its core glowing.</summary>
+    SporeSpawnOpenCoreGlowing,
+    /// <summary>Spore Spawn: its shell fully open, its core bright.</summary>
+    SporeSpawnOpenCoreBright,
     /// <summary>Ceres steam: up.</summary>
     CeresSteamUp,
     /// <summary>Ceres steam: a jet of steam up, 22 pixels long.</summary>
@@ -3278,8 +3276,8 @@ public enum EnemyFrameId
     TorizoFacingRightRightFootForwardFarArmRaised,
     /// <summary>Torizo: facing right, right foot forward, its far arm straight overhead.</summary>
     TorizoFacingRightRightFootForwardFarArmOverhead,
-    /// <summary>Torizo: falling left.</summary>
-    TorizoFallingLeft,
+    /// <summary>Torizo: facing left, springing up, as it leaps and as it falls.</summary>
+    TorizoFacingLeftSpringing,
     /// <summary>Torizo: facing right, left foot forward, spewing orbs, head raised, its eye glowing.</summary>
     TorizoFacingRightLeftFootForwardSpewingHeadRaised,
     /// <summary>Torizo: facing right, left foot forward, spewing orbs, mouth opening.</summary>

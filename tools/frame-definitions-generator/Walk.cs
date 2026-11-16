@@ -150,7 +150,7 @@ internal sealed class Walk
     [
         "Blank", "EnemyDeathBlank", "EnemyDeathBlankTwin", "EnemyDeathBlankTwinB", "FallingSparkBlank", "FallingSparkBlankTwin",
         "FallingSparkBlankTwinB", "FallingSparkBlankTwinC", "FallingSparkBlankTwinD", "PhantoonFlameBlank",
-        "TorizoDroolBlank", "TorizoDroolBlankTwin", "GoldenTorizoEyeBeamBlank", "TourianStatueEyeGlowBlank", "BotwoonBlank",
+        "TorizoDroolBlank", "GoldenTorizoEyeBeamBlank", "TourianStatueEyeGlowBlank", "BotwoonBlank",
     ];
 
     /// <summary>

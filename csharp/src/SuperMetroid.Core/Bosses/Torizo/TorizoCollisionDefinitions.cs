@@ -163,7 +163,7 @@ internal static class TorizoCollisionDefinitions
         [EnemyFrameId.TorizoFacingRightUprightStepping] = UprightSteppingBodyRight,
         [EnemyFrameId.TorizoFacingRightUprightWideStance] = UprightWideStanceBodyRight,
         [EnemyFrameId.TorizoFacingLeftJumpCrouch] = JumpBackBody,
-        [EnemyFrameId.TorizoFallingLeft] = JumpBackBody,
+        [EnemyFrameId.TorizoFacingLeftSpringing] = JumpBackBody,
         [EnemyFrameId.TorizoFacingLeftLeaping] = JumpBackBody,
         [EnemyFrameId.TorizoFacingRightJumpCrouch] = JumpBackBodyRight,
         [EnemyFrameId.TorizoFacingRightSpringing] = JumpBackBodyRight,

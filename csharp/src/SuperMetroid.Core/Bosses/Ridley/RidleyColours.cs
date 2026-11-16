@@ -30,8 +30,8 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>The shade his body's fade in has reached, or null before it starts.</summary>
     private int? bodyFade;
 
-    /// <summary>The health band his own colours show, or null before any.</summary>
-    private int? healthBand;
+    /// <summary>The health colouring his own colours show, or null before any.</summary>
+    private RidleyHealthShade? healthShade;
 
     /// <summary>Whether the Ceres retreat has recoloured his room.</summary>
     private bool retreated;
@@ -83,8 +83,8 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>Shows shade <paramref name="shade"/> of his body's fade in.</summary>
     internal void ShowBodyFade(int shade) => bodyFade = shade;
 
-    /// <summary>Shows health band <paramref name="band"/> over his own colours.</summary>
-    internal void ShowHealth(int band) => healthBand = band;
+    /// <summary>Shows health colouring <paramref name="shade"/> over his own colours.</summary>
+    internal void ShowHealth(RidleyHealthShade shade) => healthShade = Ensure.NotNull(shade);
 
     /// <summary>Shows the colours his Ceres retreat gives his room.</summary>
     internal void ShowRetreat() => retreated = true;
@@ -110,8 +110,8 @@ internal sealed class RidleyColours : IGameplayShadingSource
             shading = shading.With(RidleyShades.EyeFade(eyes));
         if (bodyFade is { } body)
             shading = shading.With(RidleyShades.BodyFade(body));
-        if (healthBand is { } band)
-            shading = shading.With(RidleyShades.Health(band));
+        if (healthShade is { } health)
+            shading = shading.With(RidleyShades.Health(health));
         return flashing ? shading.With(EnemyShades.HurtFlash) : shading;
     }
 

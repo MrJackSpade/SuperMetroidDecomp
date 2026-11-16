@@ -7,6 +7,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -45,7 +46,7 @@ internal static class EnemySystemFixtures
             Definitions = definitions ?? CompiledRoomEnemyDefinitions.Instance,
             Services = services ?? new VerificationRoomEnemyServices(null),
             Area = area,
-            BossArtwork = new BossArtworkBinding(),
+            BossArtwork = new BossArtworkBinding(InstalledFixtures.Maps.CeresRidleyGetawayBoostDelays, InstalledFixtures.Maps.EscapeTypewriter),
             BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? new RoomFxOverlayState(),

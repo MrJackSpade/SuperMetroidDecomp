@@ -25,6 +25,11 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// routine that returned at once, or a switch to the room's graphics before frames that are room pictures, which carry their
 /// sheet and colours themselves (#2260). The oracle reads past it without a beat; null when the family omits none.
 /// </param>
+/// <param name="PicturedAt">
+/// The operand an installed frame is read from, for an operand the cartridge stores a frame's picture at again (#2234): a
+/// list showing a pose again from an operand of its own shows that pose's one frame; null when every operand is its frame's
+/// own.
+/// </param>
 internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<ushort, int?> OperandBytes,
     Action<ushort, byte[], TCue, string> CompareCue,
@@ -32,5 +37,10 @@ internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<ushort, bool>? ShowsFrame = null,
     Func<ushort, bool>? EndsAt = null,
     Func<TCue, bool>? Replays = null,
-    Func<ushort, bool>? Omitted = null)
-    where TCue : notnull;
+    Func<ushort, bool>? Omitted = null,
+    Func<ushort, ushort>? PicturedAt = null)
+    where TCue : notnull
+{
+    /// <summary>The operand the installed frame shown from <paramref name="operand"/> is read from.</summary>
+    internal ushort FrameOperand(ushort operand) => PicturedAt?.Invoke(operand) ?? operand;
+}

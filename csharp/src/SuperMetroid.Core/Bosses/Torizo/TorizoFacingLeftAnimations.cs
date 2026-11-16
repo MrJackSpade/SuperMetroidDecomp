@@ -203,7 +203,7 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.StartLeaping)),
             Cue(new TorizoCue.LandIn(Landing: A.FacingLeftFalling)),
             Show(EnemyFrameId.TorizoFacingLeftJumpCrouch, 5),
-            Show(EnemyFrameId.TorizoFallingLeft, 5),
+            Show(EnemyFrameId.TorizoFacingLeftSpringing, 5),
         ],
         [A.FacingLeftFalling] =
         [
@@ -221,7 +221,7 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.StartLeaping)),
             Cue(new TorizoCue.LandIn(Landing: A.FacingLeftFallingBackwardToLeftFoot)),
             Show(EnemyFrameId.TorizoFacingLeftJumpCrouch, 5),
-            Show(EnemyFrameId.TorizoFallingLeft, 5),
+            Show(EnemyFrameId.TorizoFacingLeftSpringing, 5),
         ],
         [A.FacingLeftFallingBackwardToLeftFoot] =
         [
@@ -240,7 +240,7 @@ internal static class TorizoFacingLeftAnimations
             Cue(new TorizoCue.Signal(K.StartLeaping)),
             Cue(new TorizoCue.LandIn(Landing: A.FacingLeftFallingBackwardToRightFoot)),
             Show(EnemyFrameId.TorizoFacingLeftJumpCrouch, 5),
-            Show(EnemyFrameId.TorizoFallingLeft, 5),
+            Show(EnemyFrameId.TorizoFacingLeftSpringing, 5),
         ],
         [A.FacingLeftFallingBackwardToRightFoot] =
         [
@@ -351,7 +351,7 @@ internal static class TorizoFacingLeftAnimations
         ],
         [A.FacingLeftFallingPose] =
         [
-            Show(EnemyFrameId.TorizoFallingLeft, 5),
+            Show(EnemyFrameId.TorizoFacingLeftSpringing, 5),
         ],
         [A.BombChozoOrbBurst] =
         [

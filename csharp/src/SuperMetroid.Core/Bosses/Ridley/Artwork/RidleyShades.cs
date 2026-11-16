@@ -23,8 +23,8 @@ public static class RidleyShades
     /// <summary>Ceres Ridley's body at fade shade <paramref name="shade"/>, zero through fifteen.</summary>
     public static PictureShade BodyFade(int shade) => new("ridley-body-fade", shade);
 
-    /// <summary>Ceres Ridley's colours in health band <paramref name="band"/>, zero through two.</summary>
-    public static PictureShade Health(int band) => new("ridley-health", band);
+    /// <summary>Ridley's own colours in health colouring <paramref name="shade"/> (#2242), which both encounters show.</summary>
+    public static PictureShade Health(RidleyHealthShade shade) => new($"ridley-health-{Ensure.NotNull(shade).Key}", 0);
 
     /// <summary>The colours his retreat gives the room's scenery that shares them.</summary>
     public static PictureShade RetreatShared { get; } = new("ridley-retreat-shared", 0);

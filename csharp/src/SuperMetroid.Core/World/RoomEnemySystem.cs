@@ -467,21 +467,16 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host installs
     /// it (as when a saved game state is restored).
     /// </summary>
-    /// <param name="value">The installed escape-warning text, or null when none is installed.</param>
-    internal void RebindEscapeTypewriters(EscapeTypewriterPresentation? value)
+    /// <param name="value">The installed escape-warning text.</param>
+    internal void RebindEscapeTypewriters(EscapeTypewriterPresentation value)
     {
+        Ensure.NotNull(value);
         EscapeTypewriterState? active = BossEncounters.MotherBrain?.EscapeTypewriter;
         if (active?.MessageId == EscapeTypewriterMessageId.Zebes)
-        {
-            if (value is null) active.UnbindMessage();
-            else active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
-        }
+            active.BindMessage(value.Get(EscapeTypewriterMessageId.Zebes));
         EscapeTypewriterState? ceres = CeresEscape.Warning.Typewriter;
         if (ceres?.MessageId == EscapeTypewriterMessageId.Ceres)
-        {
-            if (value is null) ceres.UnbindMessage();
-            else ceres.BindMessage(value.Get(EscapeTypewriterMessageId.Ceres));
-        }
+            ceres.BindMessage(value.Get(EscapeTypewriterMessageId.Ceres));
     }
 
     /// <summary>Species owners visited during room load and each enemy frame.</summary>

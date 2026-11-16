@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -43,7 +44,7 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
-        AssertEqual(RidleyBreakupFrame.TailTipPointingDownDownLeft, fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Picture,
+        AssertEqual(EnemyFrameId.RidleyTailTipPointingToward157, fragments[0].RequireSpeciesState<RidleyExplosionFragmentState>().Picture,
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {
@@ -56,7 +57,7 @@ internal static class RidleyBreakupProgramsVerification
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
         var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
         // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
-        foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
+        foreach (EnemyFrameId frame in RidleyNativeListAddresses.BreakupEntries.Select(entry => entry.Frame))
         {
             ushort operand = (ushort)(RidleyNativeProgramOracle.BreakupList(frame) + 2);
             ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);

@@ -1250,10 +1250,10 @@ internal static class EnemySpritemapDocumentOrder
         EnemyFrameId.PolypRock,
         EnemyFrameId.RidleyBreakupLegsLeft,
         EnemyFrameId.RidleyBreakupLegsRight,
+        EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft,
+        EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight,
         EnemyFrameId.RidleyBreakupTorsoLeft,
         EnemyFrameId.RidleyBreakupTorsoRight,
-        EnemyFrameId.RidleyBreakupHeadLeft,
-        EnemyFrameId.RidleyBreakupHeadRight,
         EnemyFrameId.RidleyBreakupClawLeft,
         EnemyFrameId.RidleyBreakupClawRight,
     ];

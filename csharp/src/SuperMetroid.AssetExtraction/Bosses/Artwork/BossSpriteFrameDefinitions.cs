@@ -8,5 +8,5 @@ internal static class BossSpriteFrameDefinitions
     /// <summary>Draygon's sprite frames, separate from its background-only poses.</summary>
     internal const int DraygonSpriteFrameCount = 48;
     /// <summary>Spore Spawn's sprite frames, selected by its animations.</summary>
-    internal const int SporeSpawnSpriteFrameCount = 12;
+    internal const int SporeSpawnSpriteFrameCount = 11;
 }

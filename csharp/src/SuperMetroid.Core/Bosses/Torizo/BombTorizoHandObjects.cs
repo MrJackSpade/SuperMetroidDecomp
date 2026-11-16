@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class BombTorizoHandObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
-    private readonly IRoomSamusAccess? _samus;
+    private readonly IRoomSamusAccess _samus;
 
     /// <summary>The room's statue hand, from its setup on; null in a room without one or whose Torizo is defeated.</summary>
     private BombTorizoHandObject? _hand;
@@ -21,7 +21,7 @@ internal sealed class BombTorizoHandObjects
     private RoomObjectPlace? _handPlace;
 
     /// <summary>Connects the statue hand to Samus and to the room objects' audio requests.</summary>
-    internal BombTorizoHandObjects(IRoomSamusAccess? samus, RoomObjectSoundQueue sounds)
+    internal BombTorizoHandObjects(IRoomSamusAccess samus, RoomObjectSoundQueue sounds)
     {
         _samus = samus;
         _sounds = Ensure.NotNull(sounds);
@@ -70,7 +70,7 @@ internal sealed class BombTorizoHandObjects
 
     /// <summary>Whether Samus has Bombs, which wakes the resting hand.</summary>
     internal bool SamusHasBombs() =>
-        (_samus?.Current ?? throw new InvalidOperationException(
+        (_samus.Current ?? throw new InvalidOperationException(
             "A live Bomb Torizo hand has no active Samus inventory owner.")).CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
     /// <summary>Spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
     internal void SpawnFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment) =>

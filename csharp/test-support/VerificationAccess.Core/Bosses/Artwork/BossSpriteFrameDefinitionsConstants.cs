@@ -24,7 +24,7 @@ internal static class BossSpriteFrameDefinitionsConstants
     internal const ushort SporeSpawnStart = 0xee65;
     /// <summary>$A5:EE79, first of seven selected two-component opening/closing roots.</summary>
     internal const ushort SporeSpawnOpening = 0xee79;
-    /// <summary>$A5:EF3D, first of three fully-open roots after seven unused records.</summary>
+    /// <summary>$A5:EF3D, first of the open pulse's three roots after seven unused records; the third repeats the last opening root (#2234).</summary>
     internal const ushort SporeSpawnOpen = 0xef3d;
     /// <summary>Calculates one selected Ridley root from the fixed-size four-component record run.</summary>
     internal static ushort RidleyPointer(int index)
@@ -50,7 +50,7 @@ internal static class BossSpriteFrameDefinitionsConstants
         return (ushort)(compositeStart + 7 * 18 + 26 * growth + 4 * growth * (growth - 1));
     }
     /// <summary>Two one-component roots, seven two-component opening/closing
-    /// roots, then three fully-open roots. The unused middle run is not selected.</summary>
+    /// roots, then the open pulse's two roots of its own. The unused middle run is not selected.</summary>
     internal static ushort SporeSpawnPointer(int index)
     {
         if ((uint)index >= BossSpriteFrameDefinitions.SporeSpawnSpriteFrameCount) throw new ArgumentOutOfRangeException(nameof(index));

@@ -1253,10 +1253,10 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.PolypRock] = new(0xa2, 0xb5fb),
         [EnemyFrameId.RidleyBreakupLegsLeft] = new(0xa6, 0xed29),
         [EnemyFrameId.RidleyBreakupLegsRight] = new(0xa6, 0xef25),
-        [EnemyFrameId.RidleyBreakupTorsoLeft] = new(0xa6, 0xecdc),
-        [EnemyFrameId.RidleyBreakupTorsoRight] = new(0xa6, 0xeed8),
-        [EnemyFrameId.RidleyBreakupHeadLeft] = new(0xa6, 0xed95),
-        [EnemyFrameId.RidleyBreakupHeadRight] = new(0xa6, 0xef91),
+        [EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft] = new(0xa6, 0xecdc),
+        [EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight] = new(0xa6, 0xeed8),
+        [EnemyFrameId.RidleyBreakupTorsoLeft] = new(0xa6, 0xed95),
+        [EnemyFrameId.RidleyBreakupTorsoRight] = new(0xa6, 0xef91),
         [EnemyFrameId.RidleyBreakupClawLeft] = new(0xa6, 0xed8e),
         [EnemyFrameId.RidleyBreakupClawRight] = new(0xa6, 0xef8a),
         [EnemyFrameId.WalkingPirateFlinchLeft] = new(0xb2, 0x8f92),
@@ -1449,18 +1449,17 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DraygonTailFacingRightWhipLashedOut] = new(0xa5, 0xa88f),
         [EnemyFrameId.DraygonTailFacingRightWhipCurling] = new(0xa5, 0xa8c9),
         [EnemyFrameId.DraygonTailFacingRightWhipRecoiling] = new(0xa5, 0xa90b),
-        [EnemyFrameId.SporeSpawnShutTwin] = new(0xa5, 0xee65),
+        [EnemyFrameId.SporeSpawnHusk] = new(0xa5, 0xee65),
         [EnemyFrameId.SporeSpawnShut] = new(0xa5, 0xee6f),
-        [EnemyFrameId.SporeSpawnParted8] = new(0xa5, 0xee79),
-        [EnemyFrameId.SporeSpawnParted16] = new(0xa5, 0xee8b),
-        [EnemyFrameId.SporeSpawnParted24] = new(0xa5, 0xee9d),
-        [EnemyFrameId.SporeSpawnParted32] = new(0xa5, 0xeeaf),
-        [EnemyFrameId.SporeSpawnParted40] = new(0xa5, 0xeec1),
-        [EnemyFrameId.SporeSpawnParted44] = new(0xa5, 0xeed3),
-        [EnemyFrameId.SporeSpawnParted48] = new(0xa5, 0xeee5),
-        [EnemyFrameId.SporeSpawnParted48CoreGlowing] = new(0xa5, 0xef3d),
-        [EnemyFrameId.SporeSpawnParted48CoreBright] = new(0xa5, 0xef4f),
-        [EnemyFrameId.SporeSpawnParted48Twin] = new(0xa5, 0xef61),
+        [EnemyFrameId.SporeSpawnCracked] = new(0xa5, 0xee79),
+        [EnemyFrameId.SporeSpawnAjar] = new(0xa5, 0xee8b),
+        [EnemyFrameId.SporeSpawnParting] = new(0xa5, 0xee9d),
+        [EnemyFrameId.SporeSpawnHalfOpen] = new(0xa5, 0xeeaf),
+        [EnemyFrameId.SporeSpawnWideOpening] = new(0xa5, 0xeec1),
+        [EnemyFrameId.SporeSpawnNearlyOpen] = new(0xa5, 0xeed3),
+        [EnemyFrameId.SporeSpawnOpen] = new(0xa5, 0xeee5),
+        [EnemyFrameId.SporeSpawnOpenCoreGlowing] = new(0xa5, 0xef3d),
+        [EnemyFrameId.SporeSpawnOpenCoreBright] = new(0xa5, 0xef4f),
         [EnemyFrameId.CeresSteamUp] = new(0xa6, 0xf142),
         [EnemyFrameId.CeresSteamUpJet22] = new(0xa6, 0xf14c),
         [EnemyFrameId.CeresSteamUpJet31] = new(0xa6, 0xf156),
@@ -1654,7 +1653,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.TorizoFacingRightRightFootForwardFarArmLevel] = new(0xaa, 0xaf36),
         [EnemyFrameId.TorizoFacingRightRightFootForwardFarArmRaised] = new(0xaa, 0xaf58),
         [EnemyFrameId.TorizoFacingRightRightFootForwardFarArmOverhead] = new(0xaa, 0xaf7a),
-        [EnemyFrameId.TorizoFallingLeft] = new(0xaa, 0xb014),
+        [EnemyFrameId.TorizoFacingLeftSpringing] = new(0xaa, 0xb014),
         [EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingHeadRaised] = new(0xaa, 0xac06),
         [EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingMouthOpening] = new(0xaa, 0xac20),
         [EnemyFrameId.TorizoFacingRightLeftFootForwardSpewingArmThrust] = new(0xaa, 0xac3a),
@@ -1808,11 +1807,12 @@ internal static class EnemyFrameCartridgeLocationDefinitions
     };
 
     /// <summary>
-    /// The records that store an installed frame's picture again (#2210, #2249), with the frame each shows: the arm's swing
+    /// The records that store an installed frame's picture again (#2210, #2234, #2249), with the frame each shows: the arm's swing
     /// while Kraid rises or sinks, whose records draw the normal swing's pictures behind the room's front tiles; Kraid's foot
     /// at rest before his rise ends and at each step of his walk, whose records draw one of its five pictures at a placement;
-    /// and Phantoon's eye, whose lists show his closed eye from two identical records and his open eye looking ahead from a
-    /// whole record and from one that writes only the eyeball's cells over it.
+    /// Phantoon's eye, whose lists show his closed eye from two identical records and his open eye looking ahead from a
+    /// whole record and from one that writes only the eyeball's cells over it; and Spore Spawn's open pulse, whose last pose
+    /// is a byte-identical copy of his fully open record (#2234).
     /// The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
     /// </summary>
     internal static IReadOnlyDictionary<SnesAddress, EnemyFrameId> AlsoStoredAt { get; } = new Dictionary<SnesAddress, EnemyFrameId>
@@ -1859,5 +1859,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [new(0xa7, 0x8f23)] = EnemyFrameId.KraidFootPlanted,
         [new(0xa7, 0x8f47)] = EnemyFrameId.KraidFootPlanted,
         [new(0xa7, 0xa565)] = EnemyFrameId.KraidFootPlanted,
+        [new(0xa5, 0xef61)] = EnemyFrameId.SporeSpawnOpen,
     };
 }

@@ -24,18 +24,17 @@ internal static class SporeSpawnFrameDefinitionsConstants
     /// <summary>Each frame by the cartridge frame it shows.</summary>
     private static readonly Dictionary<EnemyFrameId, ushort> Spritemaps = new()
     {
-        [EnemyFrameId.SporeSpawnShutTwin] = Dead,
+        [EnemyFrameId.SporeSpawnHusk] = Dead,
         [EnemyFrameId.SporeSpawnShut] = Closed,
-        [EnemyFrameId.SporeSpawnParted8] = Opening(0),
-        [EnemyFrameId.SporeSpawnParted16] = Opening(1),
-        [EnemyFrameId.SporeSpawnParted24] = Opening(2),
-        [EnemyFrameId.SporeSpawnParted32] = Opening(3),
-        [EnemyFrameId.SporeSpawnParted40] = Opening(4),
-        [EnemyFrameId.SporeSpawnParted44] = Opening(5),
-        [EnemyFrameId.SporeSpawnParted48] = Opening(6),
-        [EnemyFrameId.SporeSpawnParted48CoreGlowing] = Open(0),
-        [EnemyFrameId.SporeSpawnParted48CoreBright] = Open(1),
-        [EnemyFrameId.SporeSpawnParted48Twin] = Open(2),
+        [EnemyFrameId.SporeSpawnCracked] = Opening(0),
+        [EnemyFrameId.SporeSpawnAjar] = Opening(1),
+        [EnemyFrameId.SporeSpawnParting] = Opening(2),
+        [EnemyFrameId.SporeSpawnHalfOpen] = Opening(3),
+        [EnemyFrameId.SporeSpawnWideOpening] = Opening(4),
+        [EnemyFrameId.SporeSpawnNearlyOpen] = Opening(5),
+        [EnemyFrameId.SporeSpawnOpen] = Opening(6),
+        [EnemyFrameId.SporeSpawnOpenCoreGlowing] = Open(0),
+        [EnemyFrameId.SporeSpawnOpenCoreBright] = Open(1),
     };
 
     /// <summary>The opening pose stored <paramref name="pose"/> roots into the opening run.</summary>

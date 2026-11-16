@@ -211,7 +211,7 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
             {
                 content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
-                content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorDefinitions.HealthStageCount)
+                content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorFormat.HealthFrameCount)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveHealth(frame, color)).ToArray()).ToArray());
                 content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorFormat.DeathSpriteFrameCount)

@@ -8,10 +8,6 @@ public sealed class EscapeTypewriterState
     /// <summary>The installed warning text the typewriter types.</summary>
     private EscapeTypewriterMessage? installedMessage;
 
-    /// <summary>Creates an unbound warning-text state for <paramref name="messageId"/>; attach host text with <see cref="BindMessage"/> before typing it.</summary>
-    /// <param name="messageId">The warning message the state will show.</param>
-    public EscapeTypewriterState(EscapeTypewriterMessageId messageId) => MessageId = messageId;
-
     /// <summary>Creates a warning-text state with its host message bound and its saved identity initialized from that message.</summary>
     /// <param name="message">Installed Ceres or Zebes warning lines and their source identity.</param>
     /// <exception cref="ArgumentNullException"><paramref name="message"/> is null.</exception>
@@ -43,7 +39,7 @@ public sealed class EscapeTypewriterState
     public int MessageLineIndex { get; private set; }
     /// <summary>Zero-based next-character cursor within the current line, including spaces; resets to zero when the typewriter advances to another line.</summary>
     public int MessageCharacterIndex { get; private set; }
-    /// <summary>Whether the first eligible installed-message call has initialized the character delay; retained across host-content unbinding and restoration.</summary>
+    /// <summary>Whether the first eligible installed-message call has initialized the character delay; retained when the host rebinds its text or a saved state is restored.</summary>
     public bool MessageStarted { get; private set; }
 
     /// <summary>Reattaches the installed typewriter text when a saved game state is restored.</summary>
@@ -56,9 +52,6 @@ public sealed class EscapeTypewriterState
         MessageId = message.Id;
         installedMessage = message;
     }
-
-    /// <summary>Removes host content while retaining the saved message identity and cursor.</summary>
-    public void UnbindMessage() => installedMessage = null;
 
     /// <summary>Advances the warning by one gameplay call, typing at most one glyph or consuming one space when the delay has expired.</summary>
     /// <param name="glyph">Receives the glyph typed this call, for the owner to write over its background; null otherwise.</param>

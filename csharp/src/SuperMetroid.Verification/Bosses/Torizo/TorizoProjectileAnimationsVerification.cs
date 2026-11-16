@@ -119,7 +119,10 @@ internal static class TorizoProjectileAnimationsVerification
         EndsList: cue => cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.Delete or TorizoProjectileCueKind.Hatch },
         Replays: cue => cue is TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ReplayWhileEyeBeamExplosionsDisabled },
         // The sonic boom's wall impact calls a routine that returned at once before its deletion: it has no event (#1870).
-        Omitted: word => (NativeEnemyProjectileInstruction)word == NativeEnemyProjectileInstruction.RTS_8681DE);
+        Omitted: word => (NativeEnemyProjectileInstruction)word == NativeEnemyProjectileInstruction.RTS_8681DE,
+        // The drool, statue fragments, orb, hatchlings, Super Missile and eye beam show poses again from operands of their
+        // own, each the pose's one installed frame (#2234).
+        PicturedAt: EnemyProjectileProgramFrameOperands.OwnOperand);
 
     /// <summary>Every projectile animation matches the native lists it plays, and every native list is played by some animation.</summary>
     internal static void VerifyTorizoProjectileAnimations(CartridgeImportAddressSpace rom)

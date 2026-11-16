@@ -2405,7 +2405,7 @@ internal static class LookupStream4Verification
             IReadOnlyList<SheetShade> shades = RidleySheetShades.CeresSprites(stock);
             for (int row = 0; row < 3; row++)
             {
-                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), shades, RidleyShades.Health(row), BossShadeColours.Sprites);
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), shades, RidleyShades.Health(SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst[row]), BossShadeColours.Sprites);
                 for (int color = 0; color < 256; color++)
                 {
                     ushort expected = color is >= 241 and < 255 ? Native(row, color - 241) : (ushort)0x1234;

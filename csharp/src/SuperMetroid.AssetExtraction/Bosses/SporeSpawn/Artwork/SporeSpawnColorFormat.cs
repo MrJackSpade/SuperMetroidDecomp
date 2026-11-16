@@ -11,6 +11,9 @@ public static class SporeSpawnColorFormat
     /// <summary>The colours in each Spore Spawn colour image, including the transparent first colour.</summary>
     public const int ColorsPerFrame = 16;
 
+    /// <summary>The body images of his health bands, one per <see cref="SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBand"/>, highest first.</summary>
+    public const int HealthFrameCount = 4;
+
     /// <summary>The body images of the death sequence.</summary>
     public const int DeathSpriteFrameCount = 8;
 

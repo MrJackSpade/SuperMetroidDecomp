@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Enemies.Corpses;
 
@@ -20,11 +21,11 @@ internal static class RidleyExplosionDefinitions
     /// The tail tip's breakup pose for each sixteenth of the turn its direction can point into, in turn order: each pose's
     /// sixteenth is centred on it, so the first opens half a pose before straight down.
     /// </summary>
-    internal static readonly TurnArcs<RidleyBreakupFrame> TailTipBreakupFrames = new(TrigonometryAngle.Wrapped(-8),
-        RidleyBreakupFrame.TailTipPointingDown, RidleyBreakupFrame.TailTipPointingDownDownLeft, RidleyBreakupFrame.TailTipPointingDownLeft, RidleyBreakupFrame.TailTipPointingLeftDownLeft,
-        RidleyBreakupFrame.TailTipPointingLeft, RidleyBreakupFrame.TailTipPointingLeftUpLeft, RidleyBreakupFrame.TailTipPointingUpLeft, RidleyBreakupFrame.TailTipPointingUpUpLeft,
-        RidleyBreakupFrame.TailTipPointingUp, RidleyBreakupFrame.TailTipPointingUpUpRight, RidleyBreakupFrame.TailTipPointingUpRight, RidleyBreakupFrame.TailTipPointingRightUpRight,
-        RidleyBreakupFrame.TailTipPointingRight, RidleyBreakupFrame.TailTipPointingRightDownRight, RidleyBreakupFrame.TailTipPointingDownRight, RidleyBreakupFrame.TailTipPointingDownDownRight);
+    internal static readonly TurnArcs<EnemyFrameId> TailTipBreakupFrames = new(TrigonometryAngle.Wrapped(-8),
+        EnemyFrameId.RidleyTailTipPointingToward180, EnemyFrameId.RidleyTailTipPointingToward157, EnemyFrameId.RidleyTailTipPointingToward135, EnemyFrameId.RidleyTailTipPointingToward112,
+        EnemyFrameId.RidleyTailTipPointingToward90, EnemyFrameId.RidleyTailTipPointingToward67, EnemyFrameId.RidleyTailTipPointingToward45, EnemyFrameId.RidleyTailTipPointingToward22,
+        EnemyFrameId.RidleyTailTipPointingToward0, EnemyFrameId.RidleyTailTipPointingToward337, EnemyFrameId.RidleyTailTipPointingToward315, EnemyFrameId.RidleyTailTipPointingToward292,
+        EnemyFrameId.RidleyTailTipPointingToward270, EnemyFrameId.RidleyTailTipPointingToward247, EnemyFrameId.RidleyTailTipPointingToward225, EnemyFrameId.RidleyTailTipPointingToward202);
 
     /// <summary>
     /// The breakup's spawn order: the tail from tip to base, then wings, legs, torso, head and claw. The places the
@@ -77,14 +78,14 @@ internal static class RidleyExplosionDefinitions
         DeathExplosionScatter.Offset(index);
 
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
-    internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyBreakupFrame> TailFrames = new Dictionary<RidleyExplosionPart, RidleyBreakupFrame>
+    internal static readonly FrozenDictionary<RidleyExplosionPart, EnemyFrameId> TailFrames = new Dictionary<RidleyExplosionPart, EnemyFrameId>
     {
-        [RidleyExplosionPart.TailBaseSegment] = RidleyBreakupFrame.TailBaseLink,
-        [RidleyExplosionPart.TailSecondSegment] = RidleyBreakupFrame.TailBaseLink,
-        [RidleyExplosionPart.TailThirdSegment] = RidleyBreakupFrame.TailMiddleLink,
-        [RidleyExplosionPart.TailFourthSegment] = RidleyBreakupFrame.TailMiddleLink,
-        [RidleyExplosionPart.TailFifthSegment] = RidleyBreakupFrame.TailOuterLink,
-        [RidleyExplosionPart.TailSixthSegment] = RidleyBreakupFrame.TailOuterLink,
+        [RidleyExplosionPart.TailBaseSegment] = EnemyFrameId.RidleyTailBaseLink,
+        [RidleyExplosionPart.TailSecondSegment] = EnemyFrameId.RidleyTailBaseLink,
+        [RidleyExplosionPart.TailThirdSegment] = EnemyFrameId.RidleyTailMiddleLink,
+        [RidleyExplosionPart.TailFourthSegment] = EnemyFrameId.RidleyTailMiddleLink,
+        [RidleyExplosionPart.TailFifthSegment] = EnemyFrameId.RidleyTailOuterLink,
+        [RidleyExplosionPart.TailSixthSegment] = EnemyFrameId.RidleyTailOuterLink,
     }.ToFrozenDictionary();
 
     /// <summary>
@@ -94,11 +95,11 @@ internal static class RidleyExplosionDefinitions
     internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition> BodyParts =
         new Dictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition>
         {
-            [RidleyExplosionPart.Wings] = new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft, RidleyBreakupFrame.WingsFacingRight),
-            [RidleyExplosionPart.Legs] = new(new(15, 22), RidleyBreakupFrame.LegsFacingLeft, RidleyBreakupFrame.LegsFacingRight),
-            [RidleyExplosionPart.OpenHeadAndNeck] = new(new(-3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingLeft, RidleyBreakupFrame.OpenHeadAndNeckFacingRight),
-            [RidleyExplosionPart.Torso] = new(new(16, 0), RidleyBreakupFrame.TorsoFacingLeft, RidleyBreakupFrame.TorsoFacingRight),
-            [RidleyExplosionPart.Claw] = new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft, RidleyBreakupFrame.ClawFacingRight),
+            [RidleyExplosionPart.Wings] = new(new(0, 0), EnemyFrameId.RidleyWingFacingLeftRaised, EnemyFrameId.RidleyWingFacingRightRaised),
+            [RidleyExplosionPart.Legs] = new(new(15, 22), EnemyFrameId.RidleyBreakupLegsLeft, EnemyFrameId.RidleyBreakupLegsRight),
+            [RidleyExplosionPart.OpenHeadAndNeck] = new(new(-3, -24), EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft, EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight),
+            [RidleyExplosionPart.Torso] = new(new(16, 0), EnemyFrameId.RidleyBreakupTorsoLeft, EnemyFrameId.RidleyBreakupTorsoRight),
+            [RidleyExplosionPart.Claw] = new(new(8, 7), EnemyFrameId.RidleyBreakupClawLeft, EnemyFrameId.RidleyBreakupClawRight),
         }.ToFrozenDictionary();
 
     /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>

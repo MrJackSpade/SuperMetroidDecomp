@@ -13,9 +13,9 @@ public sealed class NorfairRidleyHealthBand
     /// <param name="hoverDivisor">The acceleration divisor of his hover, wall sweep and power-bomb dodge.</param>
     /// <param name="grabDivisor">The acceleration divisor of his lunge at Samus.</param>
     /// <param name="pogoLaunches">The launch of each of the four pogo speed patterns a bounce draws among.</param>
-    /// <param name="healthShade">The installed health shade his belly shows, or null for his own colours.</param>
+    /// <param name="healthShade">The health colouring his belly shows, or null for his own colours.</param>
     internal NorfairRidleyHealthBand(int? healthBelow, int hoverDivisor, int grabDivisor,
-        IReadOnlyList<RidleyPogoDefinition> pogoLaunches, int? healthShade)
+        IReadOnlyList<RidleyPogoDefinition> pogoLaunches, RidleyHealthShade? healthShade)
     {
         HealthBelow = healthBelow;
         HoverDivisor = hoverDivisor;
@@ -42,8 +42,8 @@ public sealed class NorfairRidleyHealthBand
     /// </summary>
     public IReadOnlyList<RidleyPogoDefinition> PogoLaunches { get; }
 
-    /// <summary>The installed health shade his belly shows in this band, or null for his own colours.</summary>
-    public int? HealthShade { get; }
+    /// <summary>The health colouring his belly shows in this band, or null for his own colours (#2242).</summary>
+    public RidleyHealthShade? HealthShade { get; }
 
     /// <summary>The band Ridley is in at <paramref name="health"/>.</summary>
     internal static NorfairRidleyHealthBand Of(int health)

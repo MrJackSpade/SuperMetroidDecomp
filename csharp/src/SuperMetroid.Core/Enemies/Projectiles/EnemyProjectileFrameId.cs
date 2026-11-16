@@ -97,10 +97,6 @@ public enum EnemyProjectileFrameId
     CrocomireShotFlareRingFading,
     /// <summary>Ridley's fireball: a swirl of flame.</summary>
     RidleyFireballTurned0,
-    /// <summary>Ridley's fireball: a swirl of flame: the picture of RidleyFireballTurned0, as a frame of its own.</summary>
-    RidleyFireballTurned0Twin,
-    /// <summary>Ridley's fireball: a swirl of flame: the picture of RidleyFireballTurned0, as a frame of its own.</summary>
-    RidleyFireballTurned0TwinB,
     /// <summary>Ridley's fireball: a swirl of flame turned a quarter.</summary>
     RidleyFireballTurned90,
     /// <summary>Ridley's fireball: a swirl of flame turned half round.</summary>
@@ -117,36 +113,6 @@ public enum EnemyProjectileFrameId
     RidleyFireballFireCloudBreaking,
     /// <summary>Ridley's fireball: the embers of a cloud of fire.</summary>
     RidleyFireballFireCloudEmbers,
-    /// <summary>Ridley's fireball: a small spark: the picture of RidleyFireballSpark, as a frame of its own.</summary>
-    RidleyFireballSparkTwin,
-    /// <summary>Ridley's fireball: a cloud of fire: the picture of RidleyFireballFireCloud, as a frame of its own.</summary>
-    RidleyFireballFireCloudTwin,
-    /// <summary>Ridley's fireball: a cloud of fire spreading: the picture of RidleyFireballFireCloudSpreading, as a frame of its own.</summary>
-    RidleyFireballFireCloudSpreadingTwin,
-    /// <summary>Ridley's fireball: a cloud of fire breaking up: the picture of RidleyFireballFireCloudBreaking, as a frame of its own.</summary>
-    RidleyFireballFireCloudBreakingTwin,
-    /// <summary>Ridley's fireball: the embers of a cloud of fire: the picture of RidleyFireballFireCloudEmbers, as a frame of its own.</summary>
-    RidleyFireballFireCloudEmbersTwin,
-    /// <summary>Ridley's fireball: a small spark: the picture of RidleyFireballSpark, as a frame of its own.</summary>
-    RidleyFireballSparkTwinB,
-    /// <summary>Ridley's fireball: a cloud of fire: the picture of RidleyFireballFireCloud, as a frame of its own.</summary>
-    RidleyFireballFireCloudTwinB,
-    /// <summary>Ridley's fireball: a cloud of fire spreading: the picture of RidleyFireballFireCloudSpreading, as a frame of its own.</summary>
-    RidleyFireballFireCloudSpreadingTwinB,
-    /// <summary>Ridley's fireball: a cloud of fire breaking up: the picture of RidleyFireballFireCloudBreaking, as a frame of its own.</summary>
-    RidleyFireballFireCloudBreakingTwinB,
-    /// <summary>Ridley's fireball: the embers of a cloud of fire: the picture of RidleyFireballFireCloudEmbers, as a frame of its own.</summary>
-    RidleyFireballFireCloudEmbersTwinB,
-    /// <summary>Ridley's fireball: a small spark: the picture of RidleyFireballSpark, as a frame of its own.</summary>
-    RidleyFireballSparkTwinC,
-    /// <summary>Ridley's fireball: a cloud of fire: the picture of RidleyFireballFireCloud, as a frame of its own.</summary>
-    RidleyFireballFireCloudTwinC,
-    /// <summary>Ridley's fireball: a cloud of fire spreading: the picture of RidleyFireballFireCloudSpreading, as a frame of its own.</summary>
-    RidleyFireballFireCloudSpreadingTwinC,
-    /// <summary>Ridley's fireball: a cloud of fire breaking up: the picture of RidleyFireballFireCloudBreaking, as a frame of its own.</summary>
-    RidleyFireballFireCloudBreakingTwinC,
-    /// <summary>Ridley's fireball: the embers of a cloud of fire: the picture of RidleyFireballFireCloudEmbers, as a frame of its own.</summary>
-    RidleyFireballFireCloudEmbersTwinC,
     /// <summary>Ceres falling debris: a light chunk.</summary>
     CeresFallingDebrisLight,
     /// <summary>Ceres falling debris: a dark chunk.</summary>
@@ -399,8 +365,11 @@ public enum EnemyProjectileFrameId
     TorizoExplosionFlareRing,
     /// <summary>A Torizo's explosion: a fading ring of light.</summary>
     TorizoExplosionFlareRingFading,
-    /// <summary>A Torizo's explosion: a small spark: the picture of TorizoExplosionSpark, as a frame of its own.</summary>
-    TorizoExplosionSparkTwin,
+    /// <summary>
+    /// A Torizo's death explosion: a small spark, the picture of TorizoExplosionSpark drawn over the room's front tiles, as
+    /// the rest of the death explosion is.
+    /// </summary>
+    TorizoDeathExplosionSpark,
     /// <summary>A Torizo's explosion: a small fireball.</summary>
     TorizoExplosionFireballSmall,
     /// <summary>A Torizo's explosion: a large fireball.</summary>
@@ -421,12 +390,8 @@ public enum EnemyProjectileFrameId
     TorizoExplosionFireCloudEmbers,
     /// <summary>A Torizo's drool: nothing; it draws no picture.</summary>
     TorizoDroolBlank,
-    /// <summary>A Torizo's drool: nothing; it draws no picture: the picture of TorizoDroolBlank, as a frame of its own.</summary>
-    TorizoDroolBlankTwin,
     /// <summary>A Torizo's drool: a falling drop.</summary>
     TorizoDroolDrop,
-    /// <summary>A Torizo's drool: a falling drop: the picture of TorizoDroolDrop, as a frame of its own.</summary>
-    TorizoDroolDropTwin,
     /// <summary>A Torizo's drool: a splash rising.</summary>
     TorizoDroolSplashRising,
     /// <summary>A Torizo's drool: a splash spreading.</summary>
@@ -445,36 +410,20 @@ public enum EnemyProjectileFrameId
     TorizoSwipeFlareRingFading,
     /// <summary>The Bomb Torizo statue's crumbling: a clump of moss.</summary>
     BombTorizoStatueMossClump,
-    /// <summary>The Bomb Torizo statue's crumbling: a clump of moss: the picture of BombTorizoStatueMossClump, as a frame of its own.</summary>
-    BombTorizoStatueMossClumpTwin,
     /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its right.</summary>
     BombTorizoStatueRubbleLitRight,
-    /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its right: the picture of BombTorizoStatueRubbleLitRight, as a frame of its own.</summary>
-    BombTorizoStatueRubbleLitRightTwin,
     /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its centre.</summary>
     BombTorizoStatueRubbleLitCenter,
-    /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its centre: the picture of BombTorizoStatueRubbleLitCenter, as a frame of its own.</summary>
-    BombTorizoStatueRubbleLitCenterTwin,
     /// <summary>The Bomb Torizo statue's crumbling: rubble with one lit spot.</summary>
     BombTorizoStatueRubbleLitSpot,
-    /// <summary>The Bomb Torizo statue's crumbling: rubble with one lit spot: the picture of BombTorizoStatueRubbleLitSpot, as a frame of its own.</summary>
-    BombTorizoStatueRubbleLitSpotTwin,
     /// <summary>The Bomb Torizo statue's crumbling: rubble with moss on top.</summary>
     BombTorizoStatueRubbleMossyTop,
-    /// <summary>The Bomb Torizo statue's crumbling: rubble with moss on top: the picture of BombTorizoStatueRubbleMossyTop, as a frame of its own.</summary>
-    BombTorizoStatueRubbleMossyTopTwin,
     /// <summary>The Bomb Torizo statue's crumbling: rubble with a speck of moss.</summary>
     BombTorizoStatueRubbleMossSpeck,
-    /// <summary>The Bomb Torizo statue's crumbling: rubble with a speck of moss: the picture of BombTorizoStatueRubbleMossSpeck, as a frame of its own.</summary>
-    BombTorizoStatueRubbleMossSpeckTwin,
     /// <summary>The Bomb Torizo statue's crumbling: rubble lit along its base.</summary>
     BombTorizoStatueRubbleLitBase,
-    /// <summary>The Bomb Torizo statue's crumbling: rubble lit along its base: the picture of BombTorizoStatueRubbleLitBase, as a frame of its own.</summary>
-    BombTorizoStatueRubbleLitBaseTwin,
     /// <summary>The Bomb Torizo statue's crumbling: a flat slab lit along its edge.</summary>
     BombTorizoStatueSlab,
-    /// <summary>The Bomb Torizo statue's crumbling: a flat slab lit along its edge: the picture of BombTorizoStatueSlab, as a frame of its own.</summary>
-    BombTorizoStatueSlabTwin,
     /// <summary>A Torizo's Chozo orb: the orb facing left.</summary>
     TorizoChozoOrbFacingLeft,
     /// <summary>A Torizo's Chozo orb: the orb facing right.</summary>
@@ -501,16 +450,6 @@ public enum EnemyProjectileFrameId
     TorizoChozoOrbFlameBurstAboveDome,
     /// <summary>A Torizo's Chozo orb: embers above a dome of flame.</summary>
     TorizoChozoOrbFlameEmbersAboveDome,
-    /// <summary>A Torizo's Chozo orb: a small spark: the picture of TorizoChozoOrbSpark, as a frame of its own.</summary>
-    TorizoChozoOrbSparkTwin,
-    /// <summary>A Torizo's Chozo orb: a ball of light: the picture of TorizoChozoOrbFlareBall, as a frame of its own.</summary>
-    TorizoChozoOrbFlareBallTwin,
-    /// <summary>A Torizo's Chozo orb: a ring of light around a burning core: the picture of TorizoChozoOrbFlareRingCored, as a frame of its own.</summary>
-    TorizoChozoOrbFlareRingCoredTwin,
-    /// <summary>A Torizo's Chozo orb: a ring of light: the picture of TorizoChozoOrbFlareRing, as a frame of its own.</summary>
-    TorizoChozoOrbFlareRingTwin,
-    /// <summary>A Torizo's Chozo orb: a fading ring of light: the picture of TorizoChozoOrbFlareRingFading, as a frame of its own.</summary>
-    TorizoChozoOrbFlareRingFadingTwin,
     /// <summary>A Torizo's sonic boom: a small crescent opening left.</summary>
     TorizoSonicBoomLeftSmall,
     /// <summary>A Torizo's sonic boom: a crescent opening left.</summary>
@@ -587,16 +526,12 @@ public enum EnemyProjectileFrameId
     GoldenTorizoHatchlingLeftClawsLowered,
     /// <summary>Golden Torizo's hatchling: facing left, hunched.</summary>
     GoldenTorizoHatchlingLeftHunched,
-    /// <summary>Golden Torizo's hatchling: facing left, claws lowered: the picture of GoldenTorizoHatchlingLeftClawsLowered, as a frame of its own.</summary>
-    GoldenTorizoHatchlingLeftClawsLoweredTwin,
     /// <summary>Golden Torizo's hatchling: facing right, claws raised.</summary>
     GoldenTorizoHatchlingRightClawsRaised,
     /// <summary>Golden Torizo's hatchling: facing right, claws lowered.</summary>
     GoldenTorizoHatchlingRightClawsLowered,
     /// <summary>Golden Torizo's hatchling: facing right, hunched.</summary>
     GoldenTorizoHatchlingRightHunched,
-    /// <summary>Golden Torizo's hatchling: facing right, claws lowered: the picture of GoldenTorizoHatchlingRightClawsLowered, as a frame of its own.</summary>
-    GoldenTorizoHatchlingRightClawsLoweredTwin,
     /// <summary>Golden Torizo's hatchling: facing left, crumbling.</summary>
     GoldenTorizoHatchlingLeftCrumbling,
     /// <summary>Golden Torizo's hatchling: facing left, collapsing.</summary>
@@ -633,26 +568,6 @@ public enum EnemyProjectileFrameId
     GoldenTorizoSuperMissilePointingLeft,
     /// <summary>Golden Torizo's super missile: pointing down and left.</summary>
     GoldenTorizoSuperMissilePointingDownLeft,
-    /// <summary>Golden Torizo's super missile: pointing down: the picture of GoldenTorizoSuperMissilePointingDown, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingDownTwin,
-    /// <summary>Golden Torizo's super missile: pointing down: the picture of GoldenTorizoSuperMissilePointingDown, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingDownTwinB,
-    /// <summary>Golden Torizo's super missile: pointing down and left: the picture of GoldenTorizoSuperMissilePointingDownLeft, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingDownLeftTwin,
-    /// <summary>Golden Torizo's super missile: pointing left: the picture of GoldenTorizoSuperMissilePointingLeft, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingLeftTwin,
-    /// <summary>Golden Torizo's super missile: pointing up and left: the picture of GoldenTorizoSuperMissilePointingUpLeft, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingUpLeftTwin,
-    /// <summary>Golden Torizo's super missile: pointing up: the picture of GoldenTorizoSuperMissilePointingUp, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingUpTwin,
-    /// <summary>Golden Torizo's super missile: pointing up and right: the picture of GoldenTorizoSuperMissilePointingUpRight, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingUpRightTwin,
-    /// <summary>Golden Torizo's super missile: pointing right: the picture of GoldenTorizoSuperMissilePointingRight, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingRightTwin,
-    /// <summary>Golden Torizo's super missile: pointing down and right: the picture of GoldenTorizoSuperMissilePointingDownRight, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingDownRightTwin,
-    /// <summary>Golden Torizo's super missile: pointing down: the picture of GoldenTorizoSuperMissilePointingDown, as a frame of its own.</summary>
-    GoldenTorizoSuperMissilePointingDownTwinC,
     /// <summary>Golden Torizo's super missile exploding: a small fireball.</summary>
     GoldenTorizoSuperMissileFireballSmall,
     /// <summary>Golden Torizo's super missile exploding: a large fireball.</summary>
@@ -689,16 +604,6 @@ public enum EnemyProjectileFrameId
     GoldenTorizoEyeBeamFlameBurstAboveDome,
     /// <summary>Golden Torizo's eye beam: embers above a dome of flame.</summary>
     GoldenTorizoEyeBeamFlameEmbersAboveDome,
-    /// <summary>Golden Torizo's eye beam: a fading ring of light: the picture of GoldenTorizoEyeBeamFlareRingFading, as a frame of its own.</summary>
-    GoldenTorizoEyeBeamFlareRingFadingTwin,
-    /// <summary>Golden Torizo's eye beam: a ring of light: the picture of GoldenTorizoEyeBeamFlareRing, as a frame of its own.</summary>
-    GoldenTorizoEyeBeamFlareRingTwin,
-    /// <summary>Golden Torizo's eye beam: a ring of light around a burning core: the picture of GoldenTorizoEyeBeamFlareRingCored, as a frame of its own.</summary>
-    GoldenTorizoEyeBeamFlareRingCoredTwin,
-    /// <summary>Golden Torizo's eye beam: a ball of light: the picture of GoldenTorizoEyeBeamFlareBall, as a frame of its own.</summary>
-    GoldenTorizoEyeBeamFlareBallTwin,
-    /// <summary>Golden Torizo's eye beam: a small spark: the picture of GoldenTorizoEyeBeamSpark, as a frame of its own.</summary>
-    GoldenTorizoEyeBeamSparkTwin,
     /// <summary>The old Tourian escape shaft wall's explosion: a small spark.</summary>
     OldTourianWallExplosionSpark,
     /// <summary>The old Tourian escape shaft wall's explosion: a small fireball.</summary>
@@ -1447,16 +1352,10 @@ public enum EnemyProjectileFrameId
     CacatacSpikeRightLow,
     /// <summary>Spore Spawn's spore spawner: closed.</summary>
     SporeSpawnSpawnerClosed,
-    /// <summary>Spore Spawn's spore spawner: closed: the picture of SporeSpawnSpawnerClosed, as a frame of its own.</summary>
-    SporeSpawnSpawnerClosedTwin,
     /// <summary>Spore Spawn's spore spawner: opening.</summary>
     SporeSpawnSpawnerOpening,
     /// <summary>Spore Spawn's spore spawner: open.</summary>
     SporeSpawnSpawnerOpen,
-    /// <summary>Spore Spawn's spore spawner: opening: the picture of SporeSpawnSpawnerOpening, as a frame of its own.</summary>
-    SporeSpawnSpawnerOpeningTwin,
-    /// <summary>Spore Spawn's spore spawner: closed: the picture of SporeSpawnSpawnerClosed, as a frame of its own.</summary>
-    SporeSpawnSpawnerClosedTwinB,
     /// <summary>A Spore Spawn spore: glowing.</summary>
     SporeSpawnSporeGlowing,
     /// <summary>A Spore Spawn spore: dim.</summary>
@@ -1467,8 +1366,6 @@ public enum EnemyProjectileFrameId
     SporeSpawnStalk,
     /// <summary>A Spore Spawn spore bursting: a small spark.</summary>
     SporeSpawnSporeBurstSpark,
-    /// <summary>A Spore Spawn spore bursting: a small spark: the picture of SporeSpawnSporeBurstSpark, as a frame of its own.</summary>
-    SporeSpawnSporeBurstSparkTwin,
     /// <summary>A Spore Spawn spore bursting: a small fireball.</summary>
     SporeSpawnSporeBurstFireballSmall,
     /// <summary>A Spore Spawn spore bursting: a large fireball.</summary>

@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -27,10 +28,9 @@ internal static class RidleyCollisionDefinitionsAccess
             [.. Enumerable.Range(0, 11).Select(index => (ushort)(FirstBodyFrame + index * BodyFrameBytes))];
 
         /// <summary>The body frame stored at native address <paramref name="frame"/>, or null when none is.</summary>
-        internal static RidleyCollisionDefinitions.BodyFrame? BodyFrameAt(ushort frame) =>
-            RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame) is { } shown &&
-                Artwork.RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out RidleyCollisionDefinitions.BodyFrame body)
-                ? body
+        internal static EnemyFrameId? BodyFrameAt(ushort frame) =>
+            RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame) is { } shown && RidleyCollisionDefinitions.BodyFrames.Contains(shown)
+                ? shown
                 : null;
     }
 
@@ -39,8 +39,7 @@ internal static class RidleyCollisionDefinitionsAccess
     {
         /// <summary>Whether the frame at native address <paramref name="frame"/> is one of Ridley's body frames.</summary>
         internal static bool HasFrame(ushort frame) =>
-            RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame) is { } shown &&
-            Artwork.RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out _);
+            RoomEnemyPlaceFrameAccess.TryFrameAt(NativeBank, frame) is { } shown && RidleyCollisionDefinitions.BodyFrames.Contains(shown);
 
         /// <summary>The components of the body frame at native address <paramref name="frame"/>.</summary>
         internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(ushort frame) =>

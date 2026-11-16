@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>One body fragment: where it starts from Ridley's body while he faces left, and the pose it shows each way he faces.</summary>
@@ -6,5 +7,5 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="FacingRightFrame">The pose it shows while he faces right.</param>
 internal readonly record struct RidleyExplosionBodyPartDefinition(
     Offset16<RoomPixels> FacingLeftOffset,
-    RidleyBreakupFrame FacingLeftFrame,
-    RidleyBreakupFrame FacingRightFrame);
+    EnemyFrameId FacingLeftFrame,
+    EnemyFrameId FacingRightFrame);

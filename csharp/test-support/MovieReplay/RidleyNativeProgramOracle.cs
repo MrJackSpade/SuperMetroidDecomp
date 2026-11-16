@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
@@ -96,7 +97,7 @@ internal static class RidleyNativeProgramOracle
     /// <summary>Reads one body segment's native list, comparing each of its beats with the segment's.</summary>
     private static NativeEnemyList<RidleyBodySegment> ReadBodyList(IImportCartridgeSource cartridge, RidleyBodySegment segment, ushort entry)
     {
-        IReadOnlyList<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>> beats = RidleyAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<EnemyFrameId, RidleyBodyCue>> beats = RidleyAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<RidleyBodySegment>>();
         ushort cursor = entry;
@@ -122,9 +123,9 @@ internal static class RidleyNativeProgramOracle
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    var frame = VerificationAssertions.AssertIs<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                    var frame = VerificationAssertions.AssertIs<AnimationBeat<EnemyFrameId, RidleyBodyCue>.Frame>(Beat(beat, at), $"{at}: frame");
                     VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
-                    VerificationAssertions.AssertEqual(RidleyCollisionDefinitions.BodyFrameAt(operand), (RidleyCollisionDefinitions.BodyFrame?)frame.Shown, $"{at}: spritemap");
+                    VerificationAssertions.AssertEqual(RidleyCollisionDefinitions.BodyFrameAt(operand), (EnemyFrameId?)frame.Shown, $"{at}: spritemap");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -134,7 +135,7 @@ internal static class RidleyNativeProgramOracle
                 case NativeEnemyListDefinitions.WordKind.Callback:
                 {
                     VerificationAssertions.AssertTrue(BodyInstructions.TryGetValue(word, out var instruction), $"{at}: native instruction ${word:X4} is known");
-                    var raised = VerificationAssertions.AssertIs<AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.Event>(Beat(beat, at), $"{at}: instruction");
+                    var raised = VerificationAssertions.AssertIs<AnimationBeat<EnemyFrameId, RidleyBodyCue>.Event>(Beat(beat, at), $"{at}: instruction");
                     RidleyBodyCue cue = raised.Raised;
                     instruction.Cue.Check(cue, at);
                     switch (cue)
@@ -178,7 +179,7 @@ internal static class RidleyNativeProgramOracle
             return new NativeEnemyList<RidleyBodySegment>([.. addresses], [.. controls]);
         }
 
-        AnimationBeat<RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue> Beat(int beat, string at) => beat < beats.Count
+        AnimationBeat<EnemyFrameId, RidleyBodyCue> Beat(int beat, string at) => beat < beats.Count
             ? beats[beat]
             : throw new InvalidDataException($"{at}: the native list holds more beats than Ridley {segment}.");
     }
@@ -190,7 +191,7 @@ internal static class RidleyNativeProgramOracle
     /// </summary>
     internal static void CompareBreakupLists(IImportCartridgeSource cartridge)
     {
-        foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())
+        foreach (EnemyFrameId frame in BreakupEntries.Select(entry => entry.Frame))
         {
             int address = (BodyBankNumber << 16) | BreakupList(frame);
             string at = $"Ridley breakup {frame}";
@@ -207,12 +208,12 @@ internal static class RidleyNativeProgramOracle
     /// </summary>
     internal static ushort BreakupPointer(RoomEnemyPlace fragment)
     {
-        RidleyBreakupFrame picture = Ensure.NotNull(fragment).RequireSpeciesState<RidleyExplosionFragmentState>().Picture;
-        return checked((ushort)(BreakupList(picture) + (fragment.Frame == RidleyBreakupFrameDefinitions.ShownFrames.Of(picture) ? 4 : 0)));
+        EnemyFrameId picture = Ensure.NotNull(fragment).RequireSpeciesState<RidleyExplosionFragmentState>().Picture;
+        return checked((ushort)(BreakupList(picture) + (fragment.Frame == picture ? 4 : 0)));
     }
 
     /// <summary>The native list of breakup <paramref name="frame"/>.</summary>
-    internal static ushort BreakupList(RidleyBreakupFrame frame) => BreakupEntry(frame);
+    internal static ushort BreakupList(EnemyFrameId frame) => BreakupEntry(frame);
 
     /// <summary>
     /// Compares every fireball segment with its native bank-$86 list and every fireball animation with the lists' control
@@ -255,7 +256,9 @@ internal static class RidleyNativeProgramOracle
             {
                 var show = VerificationAssertions.AssertIs<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Frame>(Beat(beat, at), $"{at}: frame");
                 VerificationAssertions.AssertEqual(word, show.Duration, $"{at}: duration");
-                VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(show.Shown), $"{at}: presentation key");
+                // A pose an afterburn run shows again from an operand of its own is its one installed frame (#2234).
+                VerificationAssertions.AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(unchecked((ushort)(cursor + 2))),
+                    EnemyProjectileProgramFrameSources.Operand(show.Shown), $"{at}: presentation key");
                 addresses.Add(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;

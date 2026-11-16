@@ -15,12 +15,6 @@ internal static class CeresRidleyFightDefinitions
     /// </summary>
     internal const int SamusLowEnergy = 30;
 
-    /// <summary>The accepted hits from which his body shows his first health shade.</summary>
-    internal const int FirstShadeHits = 50;
-
-    /// <summary>The accepted hits from which his body shows his last health shade.</summary>
-    internal const int LateShadeHits = 70;
-
     /// <summary>The updates a hit flashes him for.</summary>
     internal const int HurtFlash = 13;
 

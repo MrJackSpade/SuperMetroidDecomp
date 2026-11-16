@@ -35,7 +35,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
-            SporeSpawnColorDefinitions.HealthStageCount, native.ResolveHealth, "health"));
+            SporeSpawnColorFormat.HealthFrameCount, native.ResolveHealth, "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
             SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
@@ -78,13 +78,15 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation),
             state.BodyPlayback, "Spore Spawn starts its living animation");
 
-        for (int frame = 0; frame < SporeSpawnColorDefinitions.HealthStageCount; frame++)
+        // His installed health colours hold his bands highest first.
+        for (int frame = 0; frame < SporeSpawnHealthBandDefinitions.HighestFirst.Count; frame++)
         {
             int shown = frame;
-            SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, frame);
-            AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(frame)), body.Shading,
-                $"live Spore Spawn health frame {frame}");
-            AssertShade(sprites, SporeSpawnShades.Health(frame), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health frame {frame}");
+            SporeSpawnHealthBand band = SporeSpawnHealthBandDefinitions.HighestFirst[frame];
+            SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, band);
+            AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(band)), body.Shading,
+                $"live Spore Spawn health band {band}");
+            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health band {band}");
         }
 
         for (int frame = 0; frame < SporeSpawnColorFormat.DeathSceneFrameCount; frame++)

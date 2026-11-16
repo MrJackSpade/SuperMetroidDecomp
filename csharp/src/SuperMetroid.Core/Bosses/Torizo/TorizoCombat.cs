@@ -75,15 +75,9 @@ internal sealed class TorizoCombat
             BeginTorizoDeath(torizo, state);
     }
 
-    /// <summary>Selects Golden Torizo's body and belly health band from its health, one band per 2048.</summary>
-    private static void ShowGoldenTorizoHealthShade(RoomEnemyPlace torizo, TorizoEnemyState state, int health)
-    {
-        // The health gradient selects a band from health divided by the band size, clamping it to the last band; each
-        // band resolves its colours from the installed health shades.
-        int healthBand = Ensure.AtLeastZero(health) / TorizoCombatDefinitions.HealthPerBand;
-        int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
-        TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.GoldenHealth, band));
-    }
+    /// <summary>Shows Golden Torizo's body and belly in the colours of the health band <paramref name="health"/> is in.</summary>
+    private static void ShowGoldenTorizoHealthShade(RoomEnemyPlace torizo, TorizoEnemyState state, int health) =>
+        TorizoBody.LoadTorizoBodyColours(torizo, state, TorizoLook.GoldenHealth(GoldenTorizoHealthBand.Of(Ensure.AtLeastZero(health))));
 
     /// <summary>Runs Bomb Torizo's hurt behaviour (#2240): the low-health drool, then white or its own colours on alternating flash updates.</summary>
     internal void ApplyBombTorizoHurt(RoomEnemyPlace torizo) =>

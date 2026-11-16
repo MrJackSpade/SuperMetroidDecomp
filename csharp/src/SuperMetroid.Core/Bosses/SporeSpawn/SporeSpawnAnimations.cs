@@ -35,8 +35,8 @@ internal static class SporeSpawnAnimations
     /// <summary>The opening poses, closed through fully open; the death shows the second-to-last.</summary>
     private static readonly EnemyFrameId[] OpeningFrames =
     [
-        F.SporeSpawnParted8, F.SporeSpawnParted16, F.SporeSpawnParted24, F.SporeSpawnParted32,
-        F.SporeSpawnParted40, F.SporeSpawnParted44, F.SporeSpawnParted48,
+        F.SporeSpawnCracked, F.SporeSpawnAjar, F.SporeSpawnParting, F.SporeSpawnHalfOpen,
+        F.SporeSpawnWideOpening, F.SporeSpawnNearlyOpen, F.SporeSpawnOpen,
     ];
 
     /// <summary>The opening poses' dwells, closed through fully open.</summary>
@@ -50,7 +50,7 @@ internal static class SporeSpawnAnimations
         [
             Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: DeathShadeSteps - 1)),
             SelectMovement(SporeSpawnMovement.Idle),
-            Show(F.SporeSpawnShutTwin, 1),
+            Show(F.SporeSpawnHusk, 1),
         ],
         [P.InitialAlive] =
         [
@@ -75,10 +75,10 @@ internal static class SporeSpawnAnimations
         ],
         [P.OpenPulse] =
         [
-            Show(F.SporeSpawnParted48CoreGlowing, PoseDuration),
-            Show(F.SporeSpawnParted48CoreBright, PoseDuration),
-            Show(F.SporeSpawnParted48Twin, PoseDuration),
-            Show(F.SporeSpawnParted48CoreBright, PoseDuration),
+            Show(F.SporeSpawnOpenCoreGlowing, PoseDuration),
+            Show(F.SporeSpawnOpenCoreBright, PoseDuration),
+            Show(F.SporeSpawnOpen, PoseDuration),
+            Show(F.SporeSpawnOpenCoreBright, PoseDuration),
         ],
         [P.CloseAndMove] =
         [
@@ -94,19 +94,19 @@ internal static class SporeSpawnAnimations
         [P.Death] =
         [
             SelectMovement(SporeSpawnMovement.SetupDeath),
-            Show(F.SporeSpawnParted44, 1),
+            Show(F.SporeSpawnNearlyOpen, 1),
             SelectMovement(SporeSpawnMovement.Dying),
         ],
         [P.DyingExplosions] =
         [
-            Show(F.SporeSpawnParted44, 1),
+            Show(F.SporeSpawnNearlyOpen, 1),
             Cue(new SporeSpawnCue.Signal(K.SpawnDyingExplosion)),
             Wait(DeathBurstWait),
         ],
         [P.DeathClosing] =
         [
             .. Closing(),
-            Show(F.SporeSpawnShutTwin, 1),
+            Show(F.SporeSpawnHusk, 1),
             Cue(new SporeSpawnCue.Signal(K.Harden)),
         ],
         [P.Hardening] =
@@ -120,7 +120,7 @@ internal static class SporeSpawnAnimations
             {
                 Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
                 Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
-                Show(F.SporeSpawnShutTwin, FadeStepDuration),
+                Show(F.SporeSpawnHusk, FadeStepDuration),
             }),
             Cue(new SporeSpawnCue.Signal(K.RequestDeathDrops)),
         ],

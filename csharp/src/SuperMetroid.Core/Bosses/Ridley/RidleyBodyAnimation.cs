@@ -35,7 +35,7 @@ internal sealed class RidleyBodyAnimation
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<RidleyBodySegment> playback = ridley.Flight.BodyPlayback;
-        EnemyAnimationPlayback.Play(place, RidleyAnimations.Segments, ref playback, RidleyBodyFrameDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(place, RidleyAnimations.Segments, ref playback,
             cue => ApplyCue(place, ridley, samus, cue, owner) is { } target
                 ? new AnimationContinuation<RidleyBodySegment>(RidleyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
@@ -110,7 +110,7 @@ internal sealed class RidleyBodyAnimation
         RidleyExplosionFragmentState state = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
         if (state.ShowsPicture)
             return;
-        fragment.Frame = RidleyBreakupFrameDefinitions.ShownFrames.Of(state.Picture);
+        fragment.Frame = state.Picture;
         fragment.AnimationClock.Show(RidleyBreakupFrameDefinitions.PictureShowingUpdates);
         state.ShowsPicture = true;
     }

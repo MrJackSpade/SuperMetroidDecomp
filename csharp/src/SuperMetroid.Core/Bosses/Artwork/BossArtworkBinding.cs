@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 /// The boss artwork the host has installed, rebound when it reloads artwork (#1395). The runtime owns one for the
 /// session; each room's bosses read through it, so a rebinding reaches bosses already in the room.
 /// </summary>
-public sealed class BossArtworkBinding
+/// <param name="ceresRidleyGetawayBoostDelays">The installed delays Ceres Ridley's getaway wing frames leave behind.</param>
+/// <param name="escapeTypewriterPresentation">The escape typewriters' installed text.</param>
+public sealed class BossArtworkBinding(CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays,
+    EscapeTypewriterPresentation escapeTypewriterPresentation)
 {
     /// <summary>
     /// Kraid's installed eye colours, which his eye glow reads back (#1512), or null before any are installed; the rest of
@@ -26,11 +29,22 @@ public sealed class BossArtworkBinding
     internal MotherBrainRainbowBeamColours RainbowBeamColours() =>
         MotherBrainRainbowColors ?? throw new InvalidOperationException("No Mother Brain rainbow-beam colours are installed to show her beam.");
 
-    /// <summary>The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, bound with the map presentation.</summary>
-    public CeresRidleyGetawayBoostDelays? CeresRidleyGetawayBoostDelays { get; set; }
+    /// <summary>
+    /// The Speed Booster delays Ceres Ridley's getaway wing frames leave behind, installed from the start and rebound with
+    /// the map presentation.
+    /// </summary>
+    public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays
+    {
+        get;
+        set => field = Ensure.NotNull(value);
+    } = Ensure.NotNull(ceresRidleyGetawayBoostDelays);
 
-    /// <summary>The escape typewriters' installed text, bound with the map presentation.</summary>
-    public EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
+    /// <summary>The escape typewriters' installed text, installed from the start and rebound with the map presentation.</summary>
+    public EscapeTypewriterPresentation EscapeTypewriterPresentation
+    {
+        get;
+        set => field = Ensure.NotNull(value);
+    } = Ensure.NotNull(escapeTypewriterPresentation);
 
     /// <summary>Every boss's installed body sheet, or null before any is installed (#1466).</summary>
     public BossBodySheets? BodySheets { get; set; }

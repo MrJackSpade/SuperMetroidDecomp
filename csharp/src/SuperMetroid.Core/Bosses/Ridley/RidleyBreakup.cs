@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Core.Bosses.Ridley.RidleyExplosionDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -25,9 +26,9 @@ internal static class RidleyBreakup
     /// link before it (<see cref="TailTipBreakupFrames"/>). <paramref name="tailTipDirection"/> is ignored for the first
     /// six segments.
     /// </summary>
-    public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart part, TrigonometryAngle tailTipDirection)
+    public static EnemyFrameId SelectTailFrame(RidleyExplosionPart part, TrigonometryAngle tailTipDirection)
     {
-        if (TailFrames.TryGetValue(part, out RidleyBreakupFrame frame))
+        if (TailFrames.TryGetValue(part, out EnemyFrameId frame))
             return frame;
         if (part == RidleyExplosionPart.TailTip)
             return TailTipBreakupFrames.At(tailTipDirection);
@@ -41,7 +42,7 @@ internal static class RidleyBreakup
 
     /// <summary>The pose body fragment <paramref name="part"/> shows, by the way Ridley faced.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="part"/> is not a body fragment.</exception>
-    public static RidleyBreakupFrame BodyPartFrame(RidleyExplosionPart part, HorizontalDirection facing) =>
+    public static EnemyFrameId BodyPartFrame(RidleyExplosionPart part, HorizontalDirection facing) =>
         facing == HorizontalDirection.Right ? BodyPart(part).FacingRightFrame : BodyPart(part).FacingLeftFrame;
 
     /// <summary>Body fragment <paramref name="part"/>'s place and poses.</summary>

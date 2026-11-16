@@ -311,8 +311,7 @@ internal static class RoomBlockPicturesVerification
         runtime.StepFrame(0);
         WrittenPictureSheet sheet = (runtime.Room.Scope?.BackgroundWrittenPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
-        var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
-            ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterMessageId.Zebes));
+        var typewriter = new EscapeTypewriterState(runtime.BossArtwork.EscapeTypewriterPresentation.Get(EscapeTypewriterMessageId.Zebes));
         // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
         RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
         var typedWords = new int[TwoScreenTilemapCells.Count];

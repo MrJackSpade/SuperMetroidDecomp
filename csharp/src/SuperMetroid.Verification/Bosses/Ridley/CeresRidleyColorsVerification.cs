@@ -120,8 +120,9 @@ internal static class CeresRidleyColorsVerification
         {
             state.HitCounter = count;
             healthTick(state);
-            int row = count < 70 ? CeresRidleyShadeDefinitions.HealthMidBand :
-                CeresRidleyShadeDefinitions.HealthLateBand;
+            // The installed health colours' first row (wounded) before his seventieth hit, their last (nearly dead) from
+            // it on: the game omits the branch after its ninety-hit comparison, so the middle row never shows in Ceres.
+            int row = count < 70 ? 0 : 2;
             CheckCgram(state, CeresRidleyColorFormat.HealthColorCount,
                 CeresRidleyShadeDefinitionsConstants.HealthCgramIndex,
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveHealth(row, color),

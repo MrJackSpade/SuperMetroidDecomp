@@ -86,19 +86,16 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Updates the health shade. Ceres uses shot count in place of health, including the
-    /// game's missing branch after the 90-shot comparison: 50-69 selects health band zero,
-    /// and every value from 70 onward selects health band two.
+    /// Shows the health colouring of the band his accepted hits have reached while he fights. Ceres counts hits in place
+    /// of health (<see cref="CeresRidleyHealthBandDefinitions"/>); before his first hurt band his colours stay as they are.
     /// </summary>
     internal static void UpdateCeresRidleyHealthBand(CeresRidleyState ridley)
     {
-        if (ridley.FightMode == RidleyFightMode.NotFighting || ridley.HitCounter < CeresRidleyFightDefinitions.FirstShadeHits)
+        if (ridley.FightMode == RidleyFightMode.NotFighting)
             return;
 
-        int band = ridley.HitCounter < CeresRidleyFightDefinitions.LateShadeHits
-            ? CeresRidleyShadeDefinitions.HealthMidBand
-            : CeresRidleyShadeDefinitions.HealthLateBand;
-        ridley.Colours.ShowHealth(band);
+        if (CeresRidleyHealthBand.Of(ridley.HitCounter).HealthShade is { } shade)
+            ridley.Colours.ShowHealth(shade);
     }
 
     /// <summary>

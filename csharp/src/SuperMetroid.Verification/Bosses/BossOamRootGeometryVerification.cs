@@ -36,12 +36,12 @@ internal static class BossOamRootGeometryVerification
             index => components[index % 24]));
     }
 
-    /// <summary>Checks Spore Spawn's twelve OAM roots and one- or two-part geometry.</summary>
+    /// <summary>Checks Spore Spawn's eleven OAM roots and one- or two-part geometry.</summary>
     internal static void VerifySporeSpawnOamRootGeometry(CartridgeImportAddressSpace rom)
     {
         ushort[] expected = [
         0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,
-        0xeed3, 0xeee5, 0xef3d, 0xef4f, 0xef61,
+        0xeed3, 0xeee5, 0xef3d, 0xef4f,
     ];
         Suite(nameof(VerifyBossOamRoots), () => VerifyBossOamRoots(rom, 0xa5, expected, BossSpriteFrameDefinitionsConstants.SporeSpawnPointer,
             index => index < 2 ? 1 : 2));

@@ -524,15 +524,14 @@ internal static class RoomBlockPicturesVerification
         FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
         byte[] map = memory.Map, pixels = memory.Pixels;
         SpriteImage sheet = shown.Image.Sheet;
-        // The installed image holds the part of the floor that shows anything, placed by its origin (#1649); the floor
-        // beyond it shows nothing.
+        // The installed image is the whole floor (#2104), placed by its origin at the floor's top-left corner.
         int left = -shown.Image.Origin.X, top = -shown.Image.Origin.Y;
         int checkedPixels = 0;
-        for (int y = 0; y < AffineFloor.SidePixels; y++)
+        for (int y = 0; y < FloorSheetComposer.SidePixels; y++)
         {
-            for (int x = 0; x < AffineFloor.SidePixels; x++)
+            for (int x = 0; x < FloorSheetComposer.SidePixels; x++)
             {
-                int tile = map[y / 8 * (AffineFloor.SidePixels / 8) + x / 8];
+                int tile = map[y / 8 * (FloorSheetComposer.SidePixels / 8) + x / 8];
                 int expected = pixels[tile * 64 + y % 8 * 8 + x % 8];
                 checkedPixels++;
                 if (x < left || x >= left + shown.Image.Size.X || y < top || y >= top + shown.Image.Size.Y)

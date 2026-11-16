@@ -9,9 +9,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
-/// Pictures the turning floor of a tileset whose rooms show one (#1392, #1467, #1649): the floor a room of the tileset
-/// starts from, as the part of it that shows anything (<see cref="FloorSheetComposer.ShownPart"/>), and every floor animation
-/// frame drawn over it. Its tiles' pixels are the high bytes of the VRAM words the room's character uploads fill, and its
+/// Pictures the turning floor of a tileset whose rooms show one (#1392, #1467, #1649, #2104): the whole floor a room of the
+/// tileset starts from (<see cref="FloorSheetComposer.Whole"/>), whose extent the game takes from it, and every floor
+/// animation frame drawn over it. Its tiles' pixels are the high bytes of the VRAM words the room's character uploads fill, and its
 /// 128 by 128 cells the low bytes of the first 16384 of those words (#1422): the elevator shaft's and Ceres Ridley's
 /// tilesets upload their turning floor's map and tiles there, interleaved, as the whole of their tile characters. They are
 /// coloured with the tileset's standard palette and, where a pixel names a sprite colour, the sprite half as a room load
@@ -56,8 +56,10 @@ internal static class RoomFloorSheetComposer
             map[word] = words[word * sizeof(ushort)];
             pixels[word] = words[word * sizeof(ushort) + 1];
         }
+        if (!FloorSheetComposer.ShowsAnything(RoomFloorSheet.FloorFrameName, map, pixels))
+            throw new InvalidDataException($"No cell of floor {RoomFloorSheet.FloorFrameName} shows anything.");
         return FloorSheetComposer.ComposeRoom(
-            [FloorSheetComposer.ShownPart(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)],
+            [FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)],
             colours);
     }
 }

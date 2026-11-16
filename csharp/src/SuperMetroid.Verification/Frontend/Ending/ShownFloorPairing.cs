@@ -59,7 +59,7 @@ internal sealed class ShownFloorPairing
                         $"memory floor picture {picture} shows its colour key {keys[key]} as the palette's colour at its composed index {index}");
             }
         }
-        int length = AffineFloor.SidePixels * AffineFloor.SidePixels;
+        int length = FloorSheetComposer.SidePixels * FloorSheetComposer.SidePixels;
         var livePixels = new LaidPixel[length];
         var memoryPixels = new LaidPixel[length];
         Lay(live, livePixels, composedIndices: false);
@@ -138,7 +138,7 @@ internal sealed class ShownFloorPairing
         for (int y = 0; y < picture.Size.Y; y++)
         {
             int source = (picture.Corner.Y + y) * sheet.Size.X + picture.Corner.X;
-            int target = (top + y) * AffineFloor.SidePixels + left;
+            int target = (top + y) * FloorSheetComposer.SidePixels + left;
             for (int x = 0; x < picture.Size.X; x++)
             {
                 int pixel = source + x;

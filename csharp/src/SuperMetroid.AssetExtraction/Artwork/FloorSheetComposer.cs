@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -9,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>
 /// Composes turning floors' pictures once (#1467): each picture is a rectangle of the cartridge's 128 by 128 floor cells,
 /// each cell showing one of 256 eight-by-eight tiles whose pixels name their colours directly from all 256. The floor's
-/// image is the whole floor, or the part of it that shows anything (#1649); a smaller picture is a state drawn over part of
+/// image is the whole floor (#2104), whose extent the game takes from it; a smaller picture is a state drawn over part of
 /// it. Each is placed by its frame's origin at the floor point its top-left cell lies on. Gameplay and the screens never see
 /// the cells: they select the pictures.
 /// </summary>
@@ -17,6 +16,9 @@ internal static class FloorSheetComposer
 {
     /// <summary>Cells along each side of the floor.</summary>
     internal const int Side = 128;
+
+    /// <summary>Pixels along each side of the floor.</summary>
+    internal const int SidePixels = Side * TilePixels;
 
     /// <summary>Cells in the whole floor.</summary>
     internal const int CellCount = Side * Side;
@@ -57,14 +59,11 @@ internal static class FloorSheetComposer
         : throw new InvalidDataException($"Floor {name}'s map holds {map.Length} cells, not {CellCount}.");
 
     /// <summary>
-    /// The picture of the part of the floor that shows anything (#1649): the smallest rectangle of the floor whose cells,
-    /// row by row, are <paramref name="map"/>, holding every cell whose tile shows a pixel, showing
-    /// <paramref name="tilePixels"/>' tiles, and placed at the floor cell its top-left cell lies on. A tile pixel of colour
-    /// zero shows nothing, so the floor beyond the rectangle shows nothing whichever way the floor is turned, and its
-    /// pixels within it land where they lie on the whole floor.
+    /// Whether some cell of the floor whose cells, row by row, are <paramref name="map"/> shows a pixel of
+    /// <paramref name="tilePixels"/>' tiles: a tile pixel of colour zero shows nothing.
     /// </summary>
-    /// <exception cref="InvalidDataException">The map is not every cell of the floor, or no cell of it shows anything.</exception>
-    internal static FloorPicture ShownPart(string name, ReadOnlySpan<byte> map, ReadOnlySpan<byte> tilePixels)
+    /// <exception cref="InvalidDataException">The map is not every cell of the floor.</exception>
+    internal static bool ShowsAnything(string name, ReadOnlySpan<byte> map, ReadOnlySpan<byte> tilePixels)
     {
         if (map.Length != CellCount)
             throw new InvalidDataException($"Floor {name}'s map holds {map.Length} cells, not {CellCount}.");
@@ -81,23 +80,12 @@ internal static class FloorSheetComposer
                 }
             }
         }
-        int left = Side, top = Side, right = -1, bottom = -1;
-        for (int cell = 0; cell < CellCount; cell++)
+        foreach (int cell in map)
         {
-            if (!showing[map[cell]])
-                continue;
-            left = Math.Min(left, cell % Side);
-            right = Math.Max(right, cell % Side);
-            top = Math.Min(top, cell / Side);
-            bottom = Math.Max(bottom, cell / Side);
+            if (showing[cell])
+                return true;
         }
-        if (right < 0)
-            throw new InvalidDataException($"No cell of floor {name} shows anything.");
-        int columns = right - left + 1;
-        var cells = new byte[columns * (bottom - top + 1)];
-        for (int index = 0; index < cells.Length; index++)
-            cells[index] = map[(top + index / columns) * Side + left + index % columns];
-        return new FloorPicture(name, cells, columns, left, top, tilePixels.ToArray());
+        return false;
     }
 
     /// <summary>
@@ -135,7 +123,7 @@ internal static class FloorSheetComposer
         Ensure.NotNull(pictures);
         if (pictures.Count == 0)
             throw new InvalidDataException("A floor sheet holds at least one picture.");
-        int width = Math.Max(AffineFloor.SidePixels, pictures.Max(picture => picture.Columns * TilePixels));
+        int width = Math.Max(SidePixels, pictures.Max(picture => picture.Columns * TilePixels));
         var places = new List<Position16<ImagePixels>>(pictures.Count);
         // A picture showing the same cells as one laid before it is held where that one is, under its own name and origin,
         // so the sheet holds each picture once (#1513).

@@ -42,21 +42,21 @@ internal sealed class CollectibleObject(
     /// </summary>
     public CollectibleBlockPairs.Pair? BlockPair { get; } = blockPair;
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
-    public CollectiblePhase Phase { get; set; } = phase;
+    public CollectiblePhase Phase { get; internal set; } = phase;
     /// <summary>Updates remaining before the item's next image.</summary>
-    public int Timer { get; set; }
+    public int Timer { get; internal set; }
     /// <summary>Which of its two alternating looks the item shows next while it lies visible (#1994).</summary>
     internal CollectibleLook Look { get; private set; }
     /// <summary>Where the item's burst, reveal, hiding or respawn stands (<see cref="CollectibleSequenceAnimations"/>).</summary>
     private AnimationPlace _sequencePlace = AnimationPlace.StartOfAnimation;
     /// <summary>Where a Chozo orb's shell animation stands (<see cref="CollectibleOrbAnimation"/>).</summary>
-    internal AnimationPlace OrbPlace { get; set; } = AnimationPlace.StartOfAnimation;
+    private AnimationPlace _orbPlace = AnimationPlace.StartOfAnimation;
     /// <summary>Remaining paired visible frames before a revealed item is concealed again.</summary>
-    public int VisibleFramePairsRemaining { get; set; }
+    private int _visibleFramePairsRemaining;
     /// <summary>Contact or projectile reaction pending for the item's next update.</summary>
-    public bool Triggered { get; set; }
+    public bool Triggered { get; internal set; }
     /// <summary>Distinguishes a previously acquired concealed item during its reveal.</summary>
-    public bool WasCollectedBeforeReveal { get; set; }
+    private bool _wasCollectedBeforeReveal;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -144,7 +144,7 @@ internal sealed class CollectibleObject(
                 if (!Triggered)
                     return;
                 Triggered = false;
-                WasCollectedBeforeReveal = Phase == CollectiblePhase.CollectedShotBlock;
+                _wasCollectedBeforeReveal = Phase == CollectiblePhase.CollectedShotBlock;
                 Phase = CollectiblePhase.ShotBlockReveal;
                 StartSequence(CollectibleSequence.ShotBlockReveal, place, context);
                 context.QueueSound(EnemySound.BlockCrumble, SoundRequestPriority.Normal);
@@ -153,7 +153,7 @@ internal sealed class CollectibleObject(
             case CollectiblePhase.ShotBlockReveal:
                 if (ShowNextImage(CollectibleSequence.ShotBlockReveal, place, context))
                     return;
-                if (WasCollectedBeforeReveal)
+                if (_wasCollectedBeforeReveal)
                 {
                     Phase = CollectiblePhase.CollectedShotBlockEmpty;
                     context.Draw(place, RoomObjectCollectibleDrawDefinitions.Empty);
@@ -162,7 +162,7 @@ internal sealed class CollectibleObject(
                 }
                 Phase = CollectiblePhase.ShotBlockVisible;
                 Look = CollectibleLook.Primary;
-                VisibleFramePairsRemaining = CollectibleTimingDefinitions.RevealedImagePairs;
+                _visibleFramePairsRemaining = CollectibleTimingDefinitions.RevealedImagePairs;
                 StepRevealed(place, context);
                 return;
 
@@ -203,7 +203,7 @@ internal sealed class CollectibleObject(
         if (Presentation == CollectiblePresentation.ShotBlock)
         {
             Triggered = false;
-            WasCollectedBeforeReveal = true;
+            _wasCollectedBeforeReveal = true;
             Phase = CollectiblePhase.CollectedShotBlockEmpty;
             RoomObjectCollectibleDrawDefinitions.Empty.Draw(level, place.Block, drawing);
             Timer = CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates;
@@ -228,7 +228,7 @@ internal sealed class CollectibleObject(
             return;
         }
         DrawVisible(context, place);
-        if (Look == CollectibleLook.Alternate && --VisibleFramePairsRemaining == 0)
+        if (Look == CollectibleLook.Alternate && --_visibleFramePairsRemaining == 0)
         {
             // The hiding's first image shows once this look's time is up.
             Phase = CollectiblePhase.ShotBlockReconceal;
@@ -244,12 +244,10 @@ internal sealed class CollectibleObject(
     /// <exception cref="InvalidOperationException">The animation showed no image, which a looping animation of images never does.</exception>
     private void ShowNextOrbImage(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        AnimationPlace orbPlace = OrbPlace;
         AnimationShown<CollectibleOrbSegment, CollectibleDraw> shown = CollectibleOrbAnimation.Segments.PlayToNextFrame(
-            CollectibleOrbAnimation.Pulsing, ref orbPlace, static _ => { });
+            CollectibleOrbAnimation.Pulsing, ref _orbPlace, static _ => { });
         if (shown is not AnimationShown<CollectibleOrbSegment, CollectibleDraw>.Frame image)
             throw new InvalidOperationException($"The Chozo orb's animation showed {shown} instead of its next image.");
-        OrbPlace = orbPlace;
         context.Draw(place, CollectibleObjectDraws.Family, image.Shown);
         Timer = image.Duration;
     }

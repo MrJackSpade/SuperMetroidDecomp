@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -48,7 +49,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.NativeTubeCollapseSteps.TryGetValue(W(MotherBrainMemory.BrainSubFunction), out MotherBrainTubeCollapseStep collapse))
             state.TubeCollapseStep = collapse;
         state.TubeCollapseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
-        state.Bursts.Place = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
+        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         state.FakeDeathExplosionTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
         state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
@@ -231,7 +232,7 @@ internal static class NativeSnapshotMotherBrainImport
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
-        state.Bursts.Interval = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction));
+        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction)));
         sequence.State.NeckTurnPerUpdate = RotationAngleConstants.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
         sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
         sequence.State.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(

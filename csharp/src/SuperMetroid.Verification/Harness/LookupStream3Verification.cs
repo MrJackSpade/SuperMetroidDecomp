@@ -1014,7 +1014,7 @@ internal static class LookupStream3Verification
             scatter.State.Body.Position = new(320, 192);
             for (int burst = 0; burst < 8; burst++)
             {
-                bursts.Interval = 0;
+                PrivateState.Set(bursts, nameof(MotherBrainBurstCycle.Interval), 0);
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();

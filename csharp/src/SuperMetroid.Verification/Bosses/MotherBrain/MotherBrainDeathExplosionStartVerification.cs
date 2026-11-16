@@ -1,4 +1,5 @@
 using SuperMetroid.Verification.Bosses.Botwoon;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -32,7 +33,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
-        state.Bursts.Place = 2;
+        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
         runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence
             ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence.");
@@ -47,8 +48,8 @@ internal static class MotherBrainDeathExplosionStartVerification
         // The door's dust continues the place and the interval the last death burst left.
         sequence.State.Phase = MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer;
         sequence.State.PhaseTimer = 32;
-        state.Bursts.Place = 2;
-        state.Bursts.Interval = 0;
+        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), 2);
+        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);
         var frame = new RainbowBeamAttackFrame
         {
             CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(),
@@ -61,7 +62,7 @@ internal static class MotherBrainDeathExplosionStartVerification
             (first.EscapeDoorExplosion ?? throw new InvalidOperationException("The door's first dust did not burst.")).Position,
             "the door's first dust takes the position before the death explosions' place");
         AssertEqual(4, state.Bursts.Interval, "the door's dust waits four updates after a burst");
-        state.Bursts.Interval = 1;
+        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 1);
         AssertTrue(sequence.Step(runtime.Player.IntroducedSamus, frame).EscapeDoorExplosion is null,
             "the door's dust waits while the interval it continues has not run out");
 
@@ -69,8 +70,8 @@ internal static class MotherBrainDeathExplosionStartVerification
         for (int place = 0; place < MotherBrainDeathExplosionDefinitions.GroupCount; place++)
         foreach (MotherBrainDeathExplosionStyle style in Enum.GetValues<MotherBrainDeathExplosionStyle>())
         {
-            state.Bursts.Interval = 0;
-            state.Bursts.Place = place;
+            PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);
+            PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), place);
             int draws = 0;
             var burst = new List<MotherBrainDeathExplosionRequest>();
             sequence.ThirdPhaseDeath.GenerateDeathExplosions(style, () => { draws++; return 0; }, burst);

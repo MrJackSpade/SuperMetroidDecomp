@@ -67,7 +67,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     private readonly ImmutableArray<TLibrary> libraries;
 
     /// <summary>Each library's handshake, kept by its library (#1755).</summary>
-    internal readonly Dictionary<TLibrary, Handshake> Handshakes;
+    private readonly Dictionary<TLibrary, Handshake> handshakes;
 
     /// <summary>Every library's handler ready, awaiting nothing.</summary>
     /// <param name="libraries">The libraries, distinct.</param>
@@ -79,7 +79,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
         if (libraries.Distinct().Count() != libraries.Length)
             throw new ArgumentException("Each sound library is listed once.", nameof(libraries));
         this.libraries = libraries;
-        Handshakes = libraries.ToDictionary(library => library, _ => default(Handshake));
+        handshakes = libraries.ToDictionary(library => library, _ => default(Handshake));
     }
 
     /// <summary>The sound each library's handler last requested and has not withdrawn, as an acknowledgement of it, or none.</summary>
@@ -90,7 +90,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     public void Reset()
     {
         foreach (TLibrary library in libraries)
-            Handshakes[library] = default;
+            handshakes[library] = default;
     }
 
     /// <summary>The sound <paramref name="library"/>'s handler last requested and has not withdrawn, or none.</summary>
@@ -117,7 +117,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
             case Phase.AwaitingAcceptance:
                 if (!acceptance.Acknowledges(handshake.Awaited))
                     return HandshakeStep.RepeatRequest;
-                Handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, HoldCallsLeft = WithdrawalHoldCalls };
+                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, HoldCallsLeft = WithdrawalHoldCalls };
                 return HandshakeStep.Wait;
 
             case Phase.HoldingBeforeWithdrawal:
@@ -125,16 +125,16 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
                 int holdCallsLeft = Ensure.AtLeastZero(handshake.HoldCallsLeft - 1);
                 if (holdCallsLeft != 0)
                 {
-                    Handshakes[library] = handshake with { HoldCallsLeft = holdCallsLeft };
+                    handshakes[library] = handshake with { HoldCallsLeft = holdCallsLeft };
                     return HandshakeStep.Wait;
                 }
-                Handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, HoldCallsLeft: 0);
+                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, HoldCallsLeft: 0);
                 return HandshakeStep.Withdraw;
 
             case Phase.AwaitingWithdrawalAcceptance:
                 if (!acceptance.IsNone)
                     return HandshakeStep.Withdraw;
-                Handshakes[library] = handshake with { Phase = Phase.ReadyToRequest };
+                handshakes[library] = handshake with { Phase = Phase.ReadyToRequest };
                 return HandshakeStep.RequestNext;
 
             default:
@@ -152,7 +152,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
         Phase phase = HandshakeOf(library).Phase;
         if (phase != Phase.ReadyToRequest)
             throw new InvalidOperationException($"Sound library {library} requested a sound while {phase}.");
-        Handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, HoldCallsLeft: 0);
+        handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, HoldCallsLeft: 0);
     }
 
     /// <summary>
@@ -162,12 +162,12 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     public void DropAwaitedRequests()
     {
         foreach (TLibrary library in libraries)
-            Handshakes[library] = Handshakes[library] with { Awaited = null };
+            handshakes[library] = handshakes[library] with { Awaited = null };
     }
 
     /// <summary><paramref name="library"/>'s handshake.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    private Handshake HandshakeOf(TLibrary library) => Handshakes.TryGetValue(library, out Handshake handshake)
+    private Handshake HandshakeOf(TLibrary library) => handshakes.TryGetValue(library, out Handshake handshake)
         ? handshake
         : throw new ArgumentOutOfRangeException(nameof(library), library, "The sound handshakes were not given this library.");
 }

@@ -1210,6 +1210,8 @@ internal static class RoomObjectPopulationVerification
         AssertTrue(!samus.Control.InputLocked,
             "Samus stays released through the post-message retraction");
 
+        // Samus stands centred on the save floor: eight pixels left of her lies in its column.
+        samus.Position = samus.Position.WithWholeX(0x0130);
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "save trigger resolves its same-block parent");
         roomObjects.Step(level);
@@ -1270,6 +1272,7 @@ internal static class RoomObjectPopulationVerification
             .SaveStationLockedOut,
             "save completion installs once-per-room-entry lockout");
 
+        samus.Position = samus.Position.WithWholeX(0x0130);
         AssertTrue(roomObjects.TryNotifyStationTouch(level, new(18, 6), 0x4d),
             "locked save trigger remains a solid station block");
         roomObjects.Step(level);

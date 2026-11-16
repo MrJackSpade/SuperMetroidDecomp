@@ -40,21 +40,21 @@ internal sealed class StationObject(
     /// <summary>Where the accepted save's flash stands.</summary>
     private AnimationPlace _flashPlace = AnimationPlace.StartOfAnimation;
     /// <summary>Updates remaining before the station's next image.</summary>
-    public int AnimationTimer { get; set; } = 1;
+    private int _animationTimer = 1;
     /// <summary>Keeps the save station's image still after its one initial draw.</summary>
-    public bool InitialDrawCompleted { get; set; }
+    private bool _initialDrawCompleted;
     /// <summary>Records an accepted access for the station's next update.</summary>
-    public bool Triggered { get; set; }
+    public bool Triggered { get; internal set; }
     /// <summary>Current extension, hold, retraction, or map-unpause phase.</summary>
-    public StationOperationPhase OperationPhase { get; set; }
+    public StationOperationPhase OperationPhase { get; internal set; }
     /// <summary>Updates remaining in the current access-arm phase.</summary>
-    public int OperationTimer { get; set; }
+    private int _operationTimer;
     /// <summary>The access block where the activated access arm is drawn, or null when no access is active.</summary>
-    public Position16<RoomBlocks>? AccessBlock { get; set; }
+    public Position16<RoomBlocks>? AccessBlock { get; internal set; }
     /// <summary>The access Samus used, which selects the arm's draws.</summary>
-    public StationAccessBehavior? AccessBehavior { get; set; }
+    public StationAccessBehavior? AccessBehavior { get; internal set; }
     /// <summary>Tracks the save's confirmation and animation separately from arm motion.</summary>
-    public SaveStationPhase SavePhase { get; set; }
+    public SaveStationPhase SavePhase { get; internal set; }
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -96,7 +96,7 @@ internal sealed class StationObject(
                 // the station. The touch locked Samus; this update does not lock her again, so one an intervening
                 // unpause freed stays free.
                 OperationPhase = StationOperationPhase.Extending;
-                OperationTimer = StationAccessTimingDefinitions.MovementUpdates;
+                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
                 operationStartedThisUpdate = true;
                 context.QueueSound(EnemySound.StationEngaged, SoundRequestPriority.Normal);
                 DrawAccess(context, StationAccessPose.Retracted);
@@ -111,10 +111,10 @@ internal sealed class StationObject(
             StepAccess(place, context, stations, samus);
 
         // The save station draws once and then stays still until its floor trigger asks to save.
-        if (Kind == StationKind.Save && InitialDrawCompleted)
+        if (Kind == StationKind.Save && _initialDrawCompleted)
             return;
 
-        if (--AnimationTimer != 0)
+        if (--_animationTimer != 0)
             return;
 
         AnimationShown<StationAnimation, StationDraw> shown = StationAnimationDefinitions.Segments.PlayToNextFrame(
@@ -123,8 +123,8 @@ internal sealed class StationObject(
         if (shown is not AnimationShown<StationAnimation, StationDraw>.Frame { Duration: > 0 } frame)
             throw new InvalidDataException($"{Kind} station animation {ShownAnimation} showed {shown} instead of a timed image.");
         context.Draw(place, StationObjectDraws.Family, frame.Shown);
-        AnimationTimer = frame.Duration;
-        InitialDrawCompleted = true;
+        _animationTimer = frame.Duration;
+        _initialDrawCompleted = true;
     }
 
     /// <summary>
@@ -142,14 +142,14 @@ internal sealed class StationObject(
     /// <summary>Advances the arm's countdown and, when it runs out, the arm's next phase.</summary>
     private void StepAccess(RoomObjectPlace place, RoomObjectStepContext context, StationObjects stations, IRoomSamus samus)
     {
-        if (--OperationTimer != 0)
+        if (--_operationTimer != 0)
             return;
         switch (OperationPhase)
         {
             case StationOperationPhase.Extending:
                 DrawAccess(context, StationAccessPose.Extended);
                 OperationPhase = StationOperationPhase.Extended;
-                OperationTimer = StationAccessTimingDefinitions.ExtendedHoldUpdates;
+                _operationTimer = StationAccessTimingDefinitions.ExtendedHoldUpdates;
                 break;
             case StationOperationPhase.Extended:
                 Activate(place, stations, samus);
@@ -158,17 +158,17 @@ internal sealed class StationObject(
                 if (Kind != StationKind.Map)
                     samus.Control.Unlock();
                 OperationPhase = StationOperationPhase.PostActivationHold;
-                OperationTimer = StationAccessTimingDefinitions.MovementUpdates;
+                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
                 break;
             case StationOperationPhase.PostActivationHold:
                 context.QueueSound(EnemySound.StationDisengaged, SoundRequestPriority.Normal);
                 OperationPhase = StationOperationPhase.Retracting;
-                OperationTimer = StationAccessTimingDefinitions.MovementUpdates;
+                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
                 break;
             case StationOperationPhase.Retracting:
                 DrawAccess(context, StationAccessPose.Retracted);
                 OperationPhase = StationOperationPhase.FinalRetractionHold;
-                OperationTimer = StationAccessTimingDefinitions.MovementUpdates;
+                _operationTimer = StationAccessTimingDefinitions.MovementUpdates;
                 break;
             case StationOperationPhase.FinalRetractionHold:
                 OperationPhase = Kind == StationKind.Map && samus.Control.InputLocked
@@ -196,7 +196,7 @@ internal sealed class StationObject(
         if (SavePhase != SaveStationPhase.Animating)
             throw new InvalidDataException($"Save station has unknown phase {SavePhase}.");
 
-        if (--AnimationTimer != 0)
+        if (--_animationTimer != 0)
             return true;
 
         // After the last of its loops the flash is over, and the save publishes the saved-game message instead of
@@ -224,7 +224,7 @@ internal sealed class StationObject(
         {
             case AnimationShown<StationAnimation, StationDraw>.Frame frame:
                 StationObjectDraws.Family.Draw(level, block, Ensure.NotNull(drawing), frame.Shown);
-                AnimationTimer = frame.Duration;
+                _animationTimer = frame.Duration;
                 return true;
             case AnimationShown<StationAnimation, StationDraw>.Ended:
                 return false;
@@ -266,7 +266,7 @@ internal sealed class StationObject(
         }
 
         _animationPlace = AnimationPlace.StartOfAnimation;
-        AnimationTimer = 1;
+        _animationTimer = 1;
         stations.Publish(new StationActivationEvent(
             Kind,
             message,

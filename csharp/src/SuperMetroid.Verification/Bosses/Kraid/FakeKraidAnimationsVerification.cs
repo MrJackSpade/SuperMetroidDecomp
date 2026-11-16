@@ -17,7 +17,7 @@ internal static class FakeKraidAnimationsVerification
             new NativeEnemyCueRules<FakeKraidCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {
                 var instruction = Instructions[word];
-                AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                AssertEqual(instruction.Cue, cue, $"{at}: cue");
                 AssertEqual(0, operands.Length, $"{at}: operands");
             }));
         Console.WriteLine($"  Mini-Kraid animations: {Entries.Length} segments ({beats} beats) match bank $A6.");

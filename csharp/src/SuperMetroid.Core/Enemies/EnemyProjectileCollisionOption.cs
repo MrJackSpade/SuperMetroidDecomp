@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>How a Samus projectile that meets an enemy projectile is handled (an enemy-projectile initializer flag).</summary>
+/// <summary>What a Samus shot that meets an enemy projectile does to it.</summary>
 public enum EnemyProjectileCollisionOption
 {
     /// <summary>The meeting plays the enemy projectile's shot animation.</summary>
-    RunShotList,
+    PlaysShotAnimation,
 
     /// <summary>The enemy projectile is an indestructible dud: the shot ends with the dud sound.</summary>
     IndestructibleDud,

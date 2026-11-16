@@ -202,7 +202,7 @@ internal sealed class EyeDoorBehavior
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         projectile.Velocity = projectile.Velocity.WithX(projectile.Velocity.X + ReadEyeDoorAcceleration(shot.Heading));
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y +
-            ReadEyeDoorAcceleration(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn)));
+            ReadEyeDoorAcceleration(shot.Heading - TrigonometryAngle.QuarterTurn));
 
         if (shot.Doors.HasOpenedDoor(shot.Door))
             StartEyeDoorProjectileImpact(projectile);
@@ -276,6 +276,6 @@ internal sealed class EyeDoorBehavior
         shot.Heading = EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTrigonometryAngle();
         projectile.Velocity = projectile.Velocity.WithX(EnemyMath.SineVelocity(shot.Heading, 1));
-        projectile.Velocity = projectile.Velocity.WithY(EnemyMath.SineVelocity(shot.Heading.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), 1));
+        projectile.Velocity = projectile.Velocity.WithY(EnemyMath.SineVelocity(shot.Heading - TrigonometryAngle.QuarterTurn, 1));
     }
 }

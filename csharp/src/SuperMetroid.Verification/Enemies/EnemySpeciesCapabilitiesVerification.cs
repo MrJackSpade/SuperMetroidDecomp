@@ -203,6 +203,10 @@ internal static class EnemySpeciesCapabilitiesVerification
             if (definition == EnemyDefinitionId.Evir)
                 place.SetSpawnSettings(new SuperMetroid.Core.Enemies.Evir.EvirSpawnSettings(
                     SuperMetroid.Core.Enemies.Evir.EvirBodyPart.Body, SignedSixteenSixteen.FromSixteenthsOfPixel(0), 0));
+            // A Powamp placement names whether it is the body or the balloon (#2163); the body owns the Powamp's reactions.
+            if (definition == EnemyDefinitionId.Powamp)
+                place.SetSpawnSettings(new SuperMetroid.Core.Enemies.Powamp.PowampSpawnSettings(
+                    SuperMetroid.Core.Enemies.Powamp.PowampPart.Body, GrappleTravelDistance: 0));
             place.Bind(definition, HeaderOf(definition));
             IEnemyEntity entity = place.Entity ?? throw new InvalidOperationException($"{definition} bound no entity.");
             bound++;

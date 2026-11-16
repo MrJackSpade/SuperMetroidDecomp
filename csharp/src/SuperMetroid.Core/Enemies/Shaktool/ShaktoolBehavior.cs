@@ -405,7 +405,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
                 MoveShaktoolSegmentForAnimation(
                     place,
                     cue.Kind == ShaktoolCueKind.Lower
-                        ? targetDirection.TurnedBySteps(EnemyTrigonometryAngleDefinitions.HalfTurn)
+                        ? targetDirection + TrigonometryAngle.HalfTurn
                         : targetDirection);
                 break;
             }

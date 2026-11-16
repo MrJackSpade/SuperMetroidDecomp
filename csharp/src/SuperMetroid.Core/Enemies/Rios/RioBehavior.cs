@@ -171,7 +171,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 TrigonometryAngle angle = EnemyMath.CalculateBearing(
                     new(CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole))).ToMirroredTrigonometryAngle();
                 state.Velocity = state.Velocity.WithX(HoverVelocity(
-                    angle.TurnedBySteps(EnemyTrigonometryAngleDefinitions.QuarterTurn)));
+                    angle + TrigonometryAngle.QuarterTurn));
                 state.Velocity = state.Velocity.WithY(HoverVelocity(angle));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,

@@ -232,7 +232,43 @@ internal sealed class CrocomireFight
         CrocomireBodySegment continuation)
     {
         RoomEnemyPlace body = state.Body;
-        switch (cue.Kind)
+        switch (cue)
+        {
+            case CrocomireBodyCue.Step step:
+                if (step.Move.RaisesFootDust)
+                    SpawnCrocomireRandomFootDust(state);
+                if (StepMoves(step.Move.Condition, state, body, cameraX))
+                    MoveCrocomire(body, level, step.Move.HorizontalPixels);
+                return null;
+            case CrocomireBodyCue.Dust dust:
+                _access.SpawnCrocomireDust(state, dust.Offset);
+                return null;
+            case CrocomireBodyCue.Signal signal:
+                return ApplyCrocomireBodySignal(state, samus, level, signal.Kind, continuation);
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCue)} {cue}.");
+        }
+    }
+
+    /// <summary>Whether a step under <paramref name="condition"/> moves the body now.</summary>
+    private static bool StepMoves(CrocomireStepCondition condition, CrocomireEnemyState state, RoomEnemyPlace body, int cameraX) => condition switch
+    {
+        CrocomireStepCondition.Always => true,
+        CrocomireStepCondition.UnlessHitPending => !state.DamageReactionPending,
+        CrocomireStepCondition.WhileOnScreen => CrocomireBodyIsOnScreen(body, cameraX),
+        _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireStepCondition)} {condition}."),
+    };
+
+    /// <summary>Carries out one signalling body-animation cue; the fight AI and the spike-wall step may start another animation.</summary>
+    private CrocomireBodySegment? ApplyCrocomireBodySignal(
+        CrocomireEnemyState state,
+        SamusState samus,
+        RoomLevelData level,
+        CrocomireBodyCueKind kind,
+        CrocomireBodySegment continuation)
+    {
+        RoomEnemyPlace body = state.Body;
+        switch (kind)
         {
             case CrocomireBodyCueKind.FightAi:
                 return RunCrocomireFightCue(state, samus, continuation);
@@ -260,16 +296,7 @@ internal sealed class CrocomireFight
                 _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
                 return null;
 
-            case CrocomireBodyCueKind.MoveLeft:
-                if (!state.DamageReactionPending)
-                    MoveCrocomire(body, level, -4);
-                return null;
-            case CrocomireBodyCueKind.MoveLeftWithDust:
-                SpawnCrocomireRandomFootDust(state);
-                if (!state.DamageReactionPending)
-                    MoveCrocomire(body, level, -4);
-                return null;
-            case CrocomireBodyCueKind.MoveLeftTowardSpikeWall:
+            case CrocomireBodyCueKind.StepTowardSpikeWall:
                 if (MoveCrocomire(body, level, -4))
                 {
                     state.Phase = CrocomirePhase.BackingOffSpikeWall;
@@ -279,28 +306,8 @@ internal sealed class CrocomireFight
                 int baseOffset = BossRandomRolls.InHalfFrom(random, threshold: 2048) ? -32 : 32;
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
-            case CrocomireBodyCueKind.MoveRightIfOnScreen:
-                if (CrocomireBodyIsOnScreen(body, cameraX))
-                    MoveCrocomire(body, level, 4);
-                return null;
-            case CrocomireBodyCueKind.MoveRight:
-                MoveCrocomire(body, level, 4);
-                return null;
-            case CrocomireBodyCueKind.MoveRightIfOnScreenWithDust:
-                SpawnCrocomireRandomFootDust(state);
-                if (CrocomireBodyIsOnScreen(body, cameraX))
-                    MoveCrocomire(body, level, 4);
-                return null;
-            case CrocomireBodyCueKind.MoveRightWithDust:
-                SpawnCrocomireRandomFootDust(state);
-                MoveCrocomire(body, level, 4);
-                return null;
-            case CrocomireBodyCueKind.Dust:
-                _access.SpawnCrocomireDust(state, cue.DustOffset);
-                return null;
-
             default:
-                throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCueKind)} {kind}.");
         }
     }
 

@@ -21,19 +21,19 @@ internal static class KiHunterAcidSpitAnimations
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftThird, 4),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftFourth, 3),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftFifth, 1),
-            Cue(KiHunterAcidSpitCue.LaunchLeft),
+            Cue(new KiHunterAcidSpitCue.Launch(HorizontalDirection.Left)),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftSixth, 1),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftSeventh, 1),
         ],
         [P.HitFloor] =
         [
-            Cue(KiHunterAcidSpitCue.StopMoving),
+            Cue(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.StopMoving)),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorFirst, 12),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorSecond, 10),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorThird, 10),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorFourth, 8),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitHitFloorFifth, 8),
-            Cue(KiHunterAcidSpitCue.Delete),
+            Cue(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.Delete)),
         ],
         [P.Right] =
         [
@@ -42,7 +42,7 @@ internal static class KiHunterAcidSpitAnimations
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightThird, 4),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightFourth, 3),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightFifth, 1),
-            Cue(KiHunterAcidSpitCue.LaunchRight),
+            Cue(new KiHunterAcidSpitCue.Launch(HorizontalDirection.Right)),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightSixth, 1),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightSeventh, 1),
         ],

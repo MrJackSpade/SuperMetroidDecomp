@@ -514,15 +514,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Which of the eight aims the bearing <paramref name="aim"/> points in: eight equal sectors in the aims' clockwise
-    /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read. The
-    /// bearing's units are read through its mirrored trigonometry angle, which counts the same steps.
+    /// order from up, each centred on its direction, so the aim is turned on half a sector before its sector is read.
     /// </summary>
     internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
-        aim.ToMirroredTrigonometryAngle().ToAngle().TurnedBySteps(EnemyTrigonometryAngleDefinitions.EighthTurn / 2).Sector(8));
+        aim.TurnedBySteps(RotationAngle.StepsPerTurn / 16).Sector(8));
 
     /// <summary>X is the Y helper a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
-        CalculateYappingMawY(angle.TurnedBySteps(-EnemyTrigonometryAngleDefinitions.QuarterTurn), length);
+        CalculateYappingMawY(angle - TrigonometryAngle.QuarterTurn, length);
 
     /// <summary>
     /// The offset of a link <paramref name="length"/> along the turn <paramref name="angle"/>, -254 through 254 pixels:

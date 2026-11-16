@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>What a cue of Crocomire's body animations does.</summary>
+/// <summary>What a signalling cue of Crocomire's body animations does.</summary>
 internal enum CrocomireBodyCueKind
 {
     /// <summary>Runs the fight AI's current phase, which may start another animation.</summary>
@@ -15,20 +15,6 @@ internal enum CrocomireBodyCueKind
     SkeletonCollapseSound,
     /// <summary>Shakes the screen and queues its sound.</summary>
     ShakeScreen,
-    /// <summary>Moves four pixels left unless a mouth hit is pending.</summary>
-    MoveLeft,
-    /// <summary>Spawns random foot dust, then moves four pixels left unless a mouth hit is pending.</summary>
-    MoveLeftWithDust,
-    /// <summary>Moves four pixels left, backing off when the spike wall stops it, and otherwise spawns foot dust.</summary>
-    MoveLeftTowardSpikeWall,
-    /// <summary>Moves four pixels right while the body is on screen.</summary>
-    MoveRightIfOnScreen,
-    /// <summary>Moves four pixels right.</summary>
-    MoveRight,
-    /// <summary>Spawns random foot dust, then moves four pixels right while the body is on screen.</summary>
-    MoveRightIfOnScreenWithDust,
-    /// <summary>Spawns random foot dust, then moves four pixels right.</summary>
-    MoveRightWithDust,
-    /// <summary>Spawns a big dust cloud at <see cref="CrocomireBodyCue.DustOffset"/> pixels from the body.</summary>
-    Dust,
+    /// <summary>Steps four pixels toward the spike wall, backing off when the wall stops him, and otherwise spawns foot dust.</summary>
+    StepTowardSpikeWall,
 }

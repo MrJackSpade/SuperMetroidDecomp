@@ -22,16 +22,17 @@ internal static class PowampBehaviorVerification
     internal static void VerifyPowampBehavior(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // The balloon and its body are placed as their room places them, whose settings name the part each is (#2163).
         RoomEnemyPlace balloon = enemies.Places.InUpdateOrder[0];
+        balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
         balloon.Bind(balloon.DefinitionId, default(RoomEnemyDefinition));
-        balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
-        enemies.PowampBehavior.InitializePowamp(balloon);
+        PowampBehavior.InitializePowampBalloon(balloon);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
+        body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
-        body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
-        enemies.PowampBehavior.InitializePowamp(body);
+        enemies.PowampBehavior.InitializePowampBody(body);
         AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BalloonDeflated), AnimationPlace.StartOfAnimation), balloon.RequireSpeciesState<PowampBalloonState>().Playback,
             "the balloon starts deflated");
         AssertEqual(new AnimationPlayback<PowampSegment>(PowampAnimations.StartingWith(PowampSegment.BodySlow), AnimationPlace.StartOfAnimation), body.RequireSpeciesState<PowampBodyState>().Playback,

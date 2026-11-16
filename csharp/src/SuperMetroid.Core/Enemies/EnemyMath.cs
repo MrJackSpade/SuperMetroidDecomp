@@ -36,38 +36,24 @@ internal static class EnemyMath
     {
         // A signed coordinate difference's magnitude reaches 32,768, which a short cannot hold: the offsets widen to int before their
         // absolute values are taken, so -32,768 gives 32,768 instead of overflowing.
-        int quadrant = 0;
         int absoluteX = Math.Abs((int)delta.X);
         int absoluteY = Math.Abs((int)delta.Y);
-        if (delta.X < 0)
-            quadrant += 2;
-        if (delta.Y < 0)
-            quadrant++;
+        bool left = delta.X < 0;
+        bool up = delta.Y < 0;
 
-        // The bearing is counted in 256ths of a turn clockwise from up, so right lies a quarter turn on, down a half
-        // turn and left three quarters; each octant turns from its nearer compass direction by the slope's eighth.
+        // Each octant turns from its nearer compass direction toward the other axis's direction by the slope's eighth:
+        // clockwise from right toward down and from left toward up, so from up or down the other way round.
+        bool turnsClockwiseFromSide = left == up;
         if (absoluteY < absoluteX)
         {
             // The octant is chosen from the full distances; the slope keeps the game's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
-            int divided = AimAngleSlope.Of(absoluteY, absoluteX);
-            return Bearing.Wrapped(quadrant switch
-            {
-                0 => EnemyTrigonometryAngleDefinitions.QuarterTurn + (divided >> 3),
-                1 => EnemyTrigonometryAngleDefinitions.QuarterTurn - (divided >> 3),
-                2 => -EnemyTrigonometryAngleDefinitions.QuarterTurn - (divided >> 3),
-                _ => (divided >> 3) - EnemyTrigonometryAngleDefinitions.QuarterTurn,
-            });
+            int turn = AimAngleSlope.Of(absoluteY, absoluteX) >> 3;
+            return (left ? Bearing.Left : Bearing.Right).TurnedBySteps(turnsClockwiseFromSide ? turn : -turn);
         }
 
-        int inverseDivided = AimAngleSlope.Of(absoluteX, absoluteY);
-        return Bearing.Wrapped(quadrant switch
-        {
-            0 => EnemyTrigonometryAngleDefinitions.HalfTurn - (inverseDivided >> 3),
-            1 => inverseDivided >> 3,
-            2 => EnemyTrigonometryAngleDefinitions.HalfTurn + (inverseDivided >> 3),
-            _ => -(inverseDivided >> 3),
-        });
+        int inverseTurn = AimAngleSlope.Of(absoluteX, absoluteY) >> 3;
+        return (up ? Bearing.Up : Bearing.Down).TurnedBySteps(turnsClockwiseFromSide ? -inverseTurn : inverseTurn);
     }
 
     /// <summary>

@@ -21,8 +21,7 @@ internal static class LowerNorfairRioAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }),
-            onlyRunOnInto: new HashSet<LowerNorfairRioSegment> { LowerNorfairRioSegment.IdleLoop, LowerNorfairRioSegment.AscendingLoop });
+                }));
         Console.WriteLine($"  Lower Norfair Rio animations: {Entries.Length} segments ({beats} beats) and {LowerNorfairRioAnimations.StartingAt.Count} animations match bank $A2.");
     }
 }

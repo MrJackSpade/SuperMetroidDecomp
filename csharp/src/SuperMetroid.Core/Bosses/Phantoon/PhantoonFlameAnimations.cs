@@ -84,7 +84,8 @@ internal static class PhantoonFlameAnimations
 
     /// <summary>
     /// How each flame animation plays its steps: the loops cycle for good, a resting or impacting flame runs on into dying,
-    /// and a falling flame plays each falling phase's poses four times, the three phases in turn for good.
+    /// which no owner starts on its own (#2166), and a falling flame plays each falling phase's poses four times, the three
+    /// phases in turn for good.
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
@@ -92,7 +93,6 @@ internal static class PhantoonFlameAnimations
         [P.CasualHitGround] = new([Whole(P.CasualHitGround)], AnimationEnd.Holds),
         [P.CasualBouncing] = new([Whole(P.CasualBouncing)], AnimationEnd.LoopsFrom(0)),
         [P.CasualResting] = new([Whole(P.CasualResting), Whole(P.Dying)], AnimationEnd.Holds),
-        [P.Dying] = new([Whole(P.Dying)], AnimationEnd.Holds),
         [P.RainImpact] = new([Whole(P.RainImpact), Whole(P.Dying)], AnimationEnd.Holds),
         [P.CasualFalling] = new([Falling(0), Falling(1), Falling(2)], AnimationEnd.LoopsFrom(0)),
         [P.StartingFlame] = new([Whole(P.StartingFlame)], AnimationEnd.LoopsFrom(0)),

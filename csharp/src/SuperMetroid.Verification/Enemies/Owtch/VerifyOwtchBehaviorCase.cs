@@ -2,9 +2,8 @@ using SuperMetroid.Core.Enemies.Owtch;
 
 namespace SuperMetroid.Verification.Enemies.Owtch;
 
-/// <summary>The initial, program, loop and walking of one verify owtch behavior case.</summary>
-/// <param name="Initial">The initial.</param>
-/// <param name="Program">The program.</param>
-/// <param name="Loop">The loop.</param>
-/// <param name="Walking">The walking.</param>
-internal readonly record struct VerifyOwtchBehaviorCase(OwtchBehaviorState Initial, OwtchSegment Program, OwtchSegment Loop, OwtchBehaviorState Walking);
+/// <summary>One Owtch behaviour case: a first behaviour, the walk animation checked and the direction its cue sets.</summary>
+/// <param name="Initial">The first behaviour the Owtch is placed in.</param>
+/// <param name="Program">The walk animation, whose cue sets the direction before its shell loop (#2166).</param>
+/// <param name="Walking">The walking behaviour the animation's cue sets.</param>
+internal readonly record struct VerifyOwtchBehaviorCase(OwtchBehaviorState Initial, OwtchSegment Program, OwtchBehaviorState Walking);

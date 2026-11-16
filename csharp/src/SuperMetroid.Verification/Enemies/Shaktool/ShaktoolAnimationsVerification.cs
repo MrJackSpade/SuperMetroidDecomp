@@ -22,7 +22,9 @@ internal static class ShaktoolAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                Omitted: OmittedInstructions.Contains));
+                Omitted: OmittedInstructions.Contains),
+            // The final piece's spin plays only after its head bob, which runs on into it (#2166).
+            onlyRunOnInto: new HashSet<ShaktoolSegment> { ShaktoolSegment.SawHandFinalPiece });
         Console.WriteLine($"  Shaktool animations: {Entries.Length} segments ({beats} beats) and {ShaktoolAnimations.StartingAt.Count} animations match bank $AA.");
     }
 }

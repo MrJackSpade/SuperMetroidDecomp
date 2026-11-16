@@ -18,10 +18,10 @@ internal static class OwtchBehaviorVerification
     /// </summary>
     internal static void VerifyOwtchBehavior()
     {
-        foreach ((OwtchBehaviorState initial, OwtchSegment program, OwtchSegment loop, OwtchBehaviorState walking) in new[]
+        foreach ((OwtchBehaviorState initial, OwtchSegment program, OwtchBehaviorState walking) in new[]
                  {
-                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingRight, OwtchSegment.MovingLeft, OwtchSegment.MovingLeftLoop, OwtchBehaviorState.MovingLeft),
-                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingLeft, OwtchSegment.MovingRight, OwtchSegment.MovingRightLoop, OwtchBehaviorState.MovingRight),
+                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingRight, OwtchSegment.MovingLeft, OwtchBehaviorState.MovingLeft),
+                     new VerifyOwtchBehaviorCase(OwtchBehaviorState.MovingLeft, OwtchSegment.MovingRight, OwtchBehaviorState.MovingRight),
                  })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -35,8 +35,8 @@ internal static class OwtchBehaviorVerification
             AssertEqual(new AnimationPlayback<OwtchSegment>(OwtchAnimations.StartingWith(started), AnimationPlace.StartOfAnimation), state.Playback, $"Owtch state {initial} starts {started}");
 
             state.Playback = new(OwtchAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Segments, loop, OwtchFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, loop)), $"Owtch {program} loop");
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Segments, program, OwtchFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Segments, program)), $"Owtch {program} loop");
             AssertEqual(walking, state.Behavior, $"Owtch {program} cue sets main AI's direction");
         }
         Console.WriteLine("  Owtch behavior: the initializer picks each facing, the cues set the walking direction and the loops run on time.");

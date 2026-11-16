@@ -183,8 +183,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeEtecoonCue.Signal { Kind: EscapeEtecoonCueKind.ExpressesGratitude }:
                 state.ExpressGratitude();
                 return null;
-            case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
-                return IsAcidLow(samus) ? null : goToIfAcidHigh.Target;
+            case EscapeEtecoonCue.LowTideRunStarts lowTide:
+                return IsAcidLow(samus) ? null : HighTideRun(lowTide.Running);
             case EscapeEtecoonCue.Move move:
                 place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
                 return null;
@@ -193,25 +193,43 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Carries out one cue of the Dachora's animation, returning where a taken branch continues the play, or null to run on.</summary>
+    /// <summary>The run an escaping Etecoon starts the way it runs once the rising acid is high (#2167).</summary>
+    internal static EscapeEtecoonSegment HighTideRun(HorizontalDirection running) =>
+        running == HorizontalDirection.Left ? EscapeEtecoonSegment.RunningLeftHighTide : EscapeEtecoonSegment.RunningRightHighTide;
+
+    /// <summary>
+    /// Carries out one cue of the Dachora's animation, returning where the rising tide or the critters' escape takes the
+    /// play at a lap's end, or null to run on.
+    /// </summary>
     private AnimationContinuation<EscapeDachoraSegment>? ApplyEscapeDachoraCue(RoomEnemyPlace place, SamusState samus, EscapeDachoraCue cue)
     {
-        if (cue is EscapeDachoraCue.Move move)
+        switch (cue)
         {
-            place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
-            return null;
-        }
-        var branch = (EscapeDachoraCue.Branch)cue;
-        switch (branch.Kind)
-        {
-            case EscapeDachoraCueKind.GoToIfAcidHigh:
-                return IsAcidLow(samus) ? null : branch.Then;
-            case EscapeDachoraCueKind.GoToIfCrittersEscaped:
-                return HasCrittersEscaped() ? branch.Then : null;
+            case EscapeDachoraCue.Move move:
+                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
+                return null;
+            case EscapeDachoraCue.LowTideLapEnds lowTide:
+                return IsAcidLow(samus) ? null : RisingTideTakesOver(lowTide.Lap);
+            case EscapeDachoraCue.LapEnds lap:
+                return HasCrittersEscaped() ? EscapeTakesOver(lap.Lap) : null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {branch.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCue)} {cue}.");
         }
     }
+
+    /// <summary>
+    /// Where the rising tide takes the escaping Dachora at the end of a low-tide lap the way <paramref name="lap"/> ran
+    /// (#2167): the end of the high-tide lap that way, counting on the laps the low-tide run had left.
+    /// </summary>
+    internal static AnimationContinuation<EscapeDachoraSegment> RisingTideTakesOver(HorizontalDirection lap) =>
+        lap == HorizontalDirection.Left ? EscapeDachoraAnimations.HighTideLapsAfterLeftLap : EscapeDachoraAnimations.HighTideLapsAfterRightLap;
+
+    /// <summary>
+    /// Where the critters' escape takes the escaping Dachora at the end of a lap the way <paramref name="lap"/> ran (#2167):
+    /// the run for the escape, from its pause after a lap to the left and from its acceleration after one to the right.
+    /// </summary>
+    internal static AnimationContinuation<EscapeDachoraSegment> EscapeTakesOver(HorizontalDirection lap) =>
+        lap == HorizontalDirection.Left ? EscapeDachoraAnimations.EscapeAfterLeftLap : EscapeDachoraAnimations.EscapeAfterRightLap;
 
     /// <summary>Samples the critters-escaped event for Dachora's animation branch and room revisit handling.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);

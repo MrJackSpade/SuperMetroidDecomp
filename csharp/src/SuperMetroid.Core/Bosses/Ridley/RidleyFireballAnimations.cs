@@ -25,9 +25,6 @@ internal static class RidleyFireballAnimations
             Show(EnemyProjectileFrameId.CeresRidleyFireballTurned0, 4),
             Cue(C.BeginFlight),
             Show(EnemyProjectileFrameId.CeresRidleyFireballTurned0Twin, 4),
-        ],
-        [P.FireballLoop] =
-        [
             Show(EnemyProjectileFrameId.CeresRidleyFireballTurned0TwinB, 2),
             Show(EnemyProjectileFrameId.CeresRidleyFireballTurned90, 2),
             Show(EnemyProjectileFrameId.CeresRidleyFireballTurned180, 2),
@@ -85,8 +82,7 @@ internal static class RidleyFireballAnimations
     internal static IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt { get; } =
         new Dictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>>
         {
-            [P.Fireball] = new([Whole(P.Fireball), Whole(P.FireballLoop)], AnimationEnd.LoopsFrom(1)),
-            [P.FireballLoop] = new([Whole(P.FireballLoop)], AnimationEnd.LoopsFrom(0)),
+            [P.Fireball] = new([new(P.Fireball, 0, 4, 1), new(P.Fireball, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
             [P.AfterburnFinal] = new([Whole(P.AfterburnFinal)], AnimationEnd.Holds),
             [P.HorizontalCenter] = new([Whole(P.HorizontalCenter)], AnimationEnd.Holds),
             [P.VerticalCenter] = new([Whole(P.VerticalCenter)], AnimationEnd.Holds),

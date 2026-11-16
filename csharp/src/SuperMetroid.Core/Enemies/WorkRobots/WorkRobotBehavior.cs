@@ -136,8 +136,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge, the two walk redirections, and
-    /// a laser that fires continue the animation elsewhere, as the cues replace the segment.
+    /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge and a laser that fires continue
+    /// the animation elsewhere, as the cues replace the segment.
     /// </summary>
     private WorkRobotSegment? ApplyWorkRobotCue(RoomEnemyPlace place, WorkRobotEnemyState state, EnemyAnimationCueContext context, WorkRobotCue cue)
     {
@@ -148,8 +148,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return MoveWorkRobot(place, state, samus, level, step.Move);
         if (cue is WorkRobotCue.TryLaser laser)
             return TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, camera);
-        if (cue is WorkRobotCue.Walk walk)
-            return walk.Walking;
         WorkRobotCueKind kind = ((WorkRobotCue.Signal)cue).Kind;
         switch (kind)
         {

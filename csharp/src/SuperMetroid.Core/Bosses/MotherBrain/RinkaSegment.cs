@@ -8,10 +8,6 @@ internal enum RinkaSegment
 {
     /// <summary>Where the animation starts.</summary>
     Ordinary,
-    /// <summary>The animation's repeating part.</summary>
-    OrdinaryLoop,
     /// <summary>Where the animation starts.</summary>
     Special,
-    /// <summary>The animation's repeating part.</summary>
-    SpecialLoop,
 }

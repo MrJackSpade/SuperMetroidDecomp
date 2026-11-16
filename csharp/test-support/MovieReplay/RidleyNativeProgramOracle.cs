@@ -217,6 +217,15 @@ internal static class RidleyNativeProgramOracle
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyProjectileInstruction.GotoY:
+                    if (operand != entry && addresses.IndexOf(operand) is var loopBeat and > 0)
+                    {
+                        // A goto back to a beat its own list already showed (#2166) loops the fireball's flight from there: the
+                        // launch before it plays once.
+                        controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
+                            new(NativeEnemyControlKind.LoopStart, loopBeat, segment, null, operand));
+                        controls.Add(new(NativeEnemyControlKind.Goto, beat, segment, null, cursor, loopBeat));
+                        return Finish();
+                    }
                     controls.Add(new(NativeEnemyControlKind.Goto, beat,
                         FireballProgramAt(operand) ?? throw new InvalidDataException($"{at}: ${operand:X4} is no segment's native entry."), null, cursor));
                     return Finish();

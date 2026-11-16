@@ -192,6 +192,8 @@ internal static class NativeEnemyProjectileProgramOracle
     {
         var phases = new List<AnimationPhase<TAnimation>>();
         var entered = new Dictionary<ushort, int> { [start] = 0 };
+        // Where the play reached a beat a goto in its own list loops back to (#2166).
+        var loopsAt = new Dictionary<(ushort List, int Beat), int>();
         ushort list = start;
         int offset = 0, plays = 1;
         int? pending = null;
@@ -225,6 +227,14 @@ internal static class NativeEnemyProjectileProgramOracle
                     case NativeEnemyControlKind.Sleep:
                         end = AnimationEnd.Holds;
                         break;
+                    case NativeEnemyControlKind.LoopStart:
+                        loopsAt[(list, control.AfterBeat)] = phases.Count;
+                        continue;
+                    case NativeEnemyControlKind.Goto when control.TargetBeat != 0:
+                        end = AnimationEnd.LoopsFrom(loopsAt.TryGetValue((control.Target!.Value, control.TargetBeat), out int loopStart)
+                            ? loopStart
+                            : throw new InvalidDataException($"{animation}'s goto to beat {control.TargetBeat} of ${control.Target.Value:X4} enters no list the play has entered."));
+                        break;
                     case NativeEnemyControlKind.Goto:
                     case NativeEnemyControlKind.RunOnIntoNext:
                         ushort target = control.Target!.Value;
@@ -238,8 +248,6 @@ internal static class NativeEnemyProjectileProgramOracle
                         plays = pending ?? 1;
                         pending = null;
                         break;
-                    case NativeEnemyControlKind.LoopStart:
-                        throw new InvalidDataException("The projectile list reader reads no goto back into a list's own beats (#2144).");
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");
                 }
@@ -271,7 +279,7 @@ internal static class NativeEnemyProjectileProgramOracle
         VerificationAssertions.AssertEqual(beats.Count, read.BeatAddresses.Length, $"{segment}: its native list holds each of its beats");
         return new NativeEnemyList<TSegment>(read.BeatAddresses,
             [.. read.Controls.Select(control => new NativeEnemyControl<TSegment>(control.Kind, control.AfterBeat,
-                control.Target is { } target ? ProgramAt(entries, target) : null, control.Count, control.Address))]);
+                control.Target is { } target ? ProgramAt(entries, target) : null, control.Count, control.Address, control.TargetBeat))]);
     }
 
     /// <summary>
@@ -358,6 +366,16 @@ internal static class NativeEnemyProjectileProgramOracle
             }
             if (instruction == NativeEnemyProjectileInstruction.GotoY)
             {
+                if (operand != entry && addresses.IndexOf(operand) is var loopBeat and > 0)
+                {
+                    // A goto back to a beat its own list already showed (#2144, #2166) loops the list from that beat: the
+                    // cues or frames before it play once, as a lead-in before its run. The pointer stands at that beat's
+                    // own address when the play reaches it.
+                    controls.Insert(controls.FindLastIndex(control => control.AfterBeat <= loopBeat) + 1,
+                        new(NativeEnemyControlKind.LoopStart, loopBeat, entry, null, operand));
+                    controls.Add(new(NativeEnemyControlKind.Goto, addresses.Count, entry, null, cursor, loopBeat));
+                    break;
+                }
                 if (!isList(operand))
                 {
                     // A goto into a list no segment starts, as the cartridge's shared deletion (#2061), continues this
@@ -442,5 +460,8 @@ internal static class NativeEnemyProjectileProgramOracle
     /// <param name="Target">The entry of the list it continues at or replays, where it names one.</param>
     /// <param name="Count">The timer it loads, where it loads one.</param>
     /// <param name="Address">Its native address.</param>
-    private sealed record NativeProjectileControl(NativeEnemyControlKind Kind, int AfterBeat, ushort? Target, int? Count, ushort Address);
+    /// <param name="TargetBeat">
+    /// The beat of the target's list it continues at: zero, the list's entry, except for a goto back into its own list (#2166).
+    /// </param>
+    private sealed record NativeProjectileControl(NativeEnemyControlKind Kind, int AfterBeat, ushort? Target, int? Count, ushort Address, int TargetBeat = 0);
 }

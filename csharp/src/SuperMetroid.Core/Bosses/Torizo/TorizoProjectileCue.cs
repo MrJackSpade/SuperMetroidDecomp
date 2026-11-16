@@ -20,10 +20,6 @@ internal abstract record TorizoProjectileCue
     /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
     internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
 
-    /// <summary>Continues in the target animation, from its start, one time in four.</summary>
-    /// <param name="Target">The animation the cue continues in.</param>
-    internal sealed record GoToSometimes(TorizoProjectileSegment Target) : TorizoProjectileCue;
-
     /// <summary>Requests a sound at the priority the cue states.</summary>
     /// <param name="Sound">The sound a <see cref="PlaySound"/> cue queues.</param>
     /// <param name="Priority">How strongly the sound competes for a place in its library's request queue.</param>

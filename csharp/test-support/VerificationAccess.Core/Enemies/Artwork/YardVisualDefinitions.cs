@@ -17,9 +17,7 @@ internal static class YardVisualDefinitions
     private static string GroupName(YardSegment program) => program switch
     {
         YardSegment.AirborneFacingLeft => "airborne_left_initial",
-        YardSegment.AirborneFacingLeftLoop => "airborne_left_loop",
         YardSegment.AirborneFacingRight => "airborne_right_initial",
-        YardSegment.AirborneFacingRightLoop => "airborne_right_loop",
         YardSegment.CrawlingUpsideDownMovingLeft => "crawl_bottom_left",
         YardSegment.CrawlingUpsideDownMovingRight => "crawl_bottom_right",
         YardSegment.CrawlingUpsideLeftMovingDown => "crawl_left_down",

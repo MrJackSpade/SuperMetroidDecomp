@@ -29,7 +29,6 @@ internal static class DraygonNativeListAddresses
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftIdle, 0x9889),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyDying, 0x989b),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyDyingExplosions, 0x98a5),
-        new DraygonNativeListAddressesEntry(DraygonSegment.BodyDyingExplosionsLoop, 0x98bf),
         new DraygonNativeListAddressesEntry(DraygonSegment.Delete, 0x98ed),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftFireGoop, 0x98fe),
         new DraygonNativeListAddressesEntry(DraygonSegment.BodyFacingLeftRoar, 0x9922),
@@ -147,7 +146,6 @@ internal static class DraygonNativeListAddresses
         new ProjectileEntry(DraygonProjectileSegment.Goop, 0x8c3a),
         new ProjectileEntry(DraygonProjectileSegment.GoopShot, 0x8c58),
         new ProjectileEntry(DraygonProjectileSegment.WallTurretBloom, 0x8ca4),
-        new ProjectileEntry(DraygonProjectileSegment.WallTurretFlight, 0x8ce6),
     ];
 
     /// <summary>The bank-$86 callbacks the projectile lists use and the cue each must become.</summary>

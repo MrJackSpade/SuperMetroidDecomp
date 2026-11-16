@@ -17,9 +17,6 @@ internal static class OwtchAnimations
         [P.MovingLeft] =
         [
             Cue(new(HorizontalDirection.Left)),
-        ],
-        [P.MovingLeftLoop] =
-        [
             Show(EnemyFrameId.OwtchCrawlingFeetAtRest, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetShuffling, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetStretched, 8),
@@ -27,9 +24,6 @@ internal static class OwtchAnimations
         [P.MovingRight] =
         [
             Cue(new(HorizontalDirection.Right)),
-        ],
-        [P.MovingRightLoop] =
-        [
             Show(EnemyFrameId.OwtchCrawlingFeetStretched, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetShuffling, 8),
             Show(EnemyFrameId.OwtchCrawlingFeetAtRest, 8),
@@ -42,8 +36,8 @@ internal static class OwtchAnimations
     /// </summary>
     internal static IReadOnlyDictionary<OwtchSegment, Animation<OwtchSegment>> StartingAt { get; } = new Dictionary<OwtchSegment, Animation<OwtchSegment>>
     {
-        [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MovingRight] = new([new(P.MovingRight, 0, 1, 1), new(P.MovingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingLeft] = new([new(P.MovingLeft, 0, 1, 1), new(P.MovingLeft, 1, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.MovingRight] = new([new(P.MovingRight, 0, 1, 1), new(P.MovingRight, 1, 3, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

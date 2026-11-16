@@ -18,9 +18,9 @@ internal static class CeresBabyNativeListAddresses
     /// <summary>The draw list's instructions: the cue variant each becomes, or null for its goto.</summary>
     internal static readonly Dictionary<ushort, Type?> Instructions = new()
     {
-        [0xbfc9] = typeof(CeresBabyCue.CryOrGoTo),
+        [0xbfc9] = typeof(CeresBabyCue.Cries),
         [0xbfe1] = typeof(CeresBabyCue.UpdateColors),
-        [0xbff2] = typeof(CeresBabyCue.GoToIfMoving),
+        [0xbff2] = typeof(CeresBabyCue.ReactsToMotion),
         [0xbff8] = null,
     };
 

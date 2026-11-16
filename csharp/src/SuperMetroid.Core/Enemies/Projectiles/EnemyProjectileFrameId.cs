@@ -867,22 +867,6 @@ public enum EnemyProjectileFrameId
     NuclearWaffleFireballMottledSparse,
     /// <summary>The Polyp's lava rock: a glowing rock.</summary>
     PolypRock,
-    /// <summary>Shaktool's attack circle: a glint of light.</summary>
-    ShaktoolCircleFlareGlint,
-    /// <summary>Shaktool's attack circle: a small glow.</summary>
-    ShaktoolCircleFlareGlow,
-    /// <summary>Shaktool's attack circle: a ball of light.</summary>
-    ShaktoolCircleFlareBall,
-    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
-    ShaktoolCircleFlareGlintTwin,
-    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
-    ShaktoolCircleFlareGlintTwinB,
-    /// <summary>Shaktool's attack circle: a small glow: the picture of ShaktoolCircleFlareGlow, as a frame of its own.</summary>
-    ShaktoolCircleFlareGlowTwin,
-    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
-    ShaktoolCircleFlareGlintTwinC,
-    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
-    ShaktoolCircleFlareGlintTwinD,
     /// <summary>A Mother Brain turret: its barrel facing left.</summary>
     MotherBrainTurretFacingLeft,
     /// <summary>A Mother Brain turret: its barrel facing down and left.</summary>

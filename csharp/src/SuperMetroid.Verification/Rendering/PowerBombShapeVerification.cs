@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
@@ -66,11 +67,11 @@ internal static class PowerBombShapeVerification
         int cases = 0;
         foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
         {
-            explosion.Blast.RenderedPhase = phase;
+            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedPhase), phase);
             for (int radius = 0; radius < 256; radius++)
             {
-                explosion.Blast.RenderedPreExplosionRadius = PowerBombRadius.FromPixels(radius, 123);
-                explosion.Blast.RenderedExplosionRadius = PowerBombRadius.FromPixels(radius, 234);
+                PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedPreExplosionRadius), PowerBombRadius.FromPixels(radius, 123));
+                PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedExplosionRadius), PowerBombRadius.FromPixels(radius, 234));
                 ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                     ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
                 int tall = radius * 3 / 4;
@@ -86,9 +87,9 @@ internal static class PowerBombShapeVerification
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
-            explosion.Blast.RenderedPhase = PowerBombExplosionPhase.ExplosionYellow;
-            explosion.Blast.RenderedExplosionRadius = PowerBombRadius.FromWholePixels(radius);
-            explosion.Blast.GlowColor = explosion.Blast.GlowColor.FadeLevels.WithRed(31).ToColour();
+            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedPhase), PowerBombExplosionPhase.ExplosionYellow);
+            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedExplosionRadius), PowerBombRadius.FromWholePixels(radius));
+            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.GlowColor), explosion.Blast.GlowColor.FadeLevels.WithRed(31).ToColour());
             ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                 ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
             RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),

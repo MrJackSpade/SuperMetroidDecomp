@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed class SamusArmCannonState
 {
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
-    internal HudItem PreviousSelectedHudItem { get; set; }
+    internal HudItem PreviousSelectedHudItem { get; private set; }
 
     /// <summary>The installed artwork the cover is placed by: installed content, not game state.</summary>
     private readonly SamusArtworkBinding _artwork;
@@ -29,10 +29,10 @@ public sealed class SamusArmCannonState
     public InstalledSamusArmCannonArtwork Artwork => _artwork.ArmCannon;
 
     /// <summary>Whether the cover is open or opening; false while closed or closing.</summary>
-    public bool IsOpen { get; internal set; }
+    public bool IsOpen { get; private set; }
 
     /// <summary>Whether an opening or closing is still under way.</summary>
-    public bool IsTransitioning { get; internal set; }
+    public bool IsTransitioning { get; private set; }
 
     /// <summary>The cover picture shown, or null while the cover is closed.</summary>
     public SamusArmCannonCoverFrame? Frame { get; internal set; }

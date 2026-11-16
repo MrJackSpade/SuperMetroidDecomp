@@ -47,7 +47,6 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             PowerBombs = 10,
         };
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        samus.HorizontalSpeed.CycleShadeTimer = 0;
         AssertTrue(
             samus.CrystalFlash.TryBegin(samus, SamusCrystalFlashState.RequiredInput),
             "Crystal Flash timing production fixture begins");

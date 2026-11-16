@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
@@ -106,12 +107,12 @@ internal static class CrocomirePresentation1193Verification
             // A room load builds the room's spikes afresh, with their first frame pending.
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
             PlaceSamusInArena();
-            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.BlockAnimations;
+            PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.BlockAnimations);
             game.Step(0);
             ArtworkAnimation spikeTiles = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             AssertEqual(false, runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out _),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
-            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
+            PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
             game.Step(0);
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
                     resumed == BlockAnimationFrames.Frame(BlockAnimation.HorizontalSpikes, 0),

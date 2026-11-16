@@ -72,7 +72,7 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Seeded to one on the first boosted running frame.</summary>
-    public int CycleShadeTimer { get; set; }
+    public int CycleShadeTimer { get; private set; }
 
     /// <summary>
     /// Whether the Speed Booster's echo sound is playing: set before the echo sound's start request, cleared with the
@@ -116,7 +116,7 @@ public sealed class SamusHorizontalSpeedState
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
     /// <summary>The total horizontal speed produced by the total-speed calculation.</summary>
-    public UnsignedSixteenSixteen TotalSpeed { get; internal set; }
+    public UnsignedSixteenSixteen TotalSpeed { get; private set; }
 
     /// <summary>
     /// Speed divisor, 0 through <see cref="LargestSpeedDivisor"/>: total speed is halved this many times, capped at four

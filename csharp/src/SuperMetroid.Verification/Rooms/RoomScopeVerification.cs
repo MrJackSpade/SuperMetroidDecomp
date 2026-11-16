@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
@@ -31,7 +32,7 @@ internal static class RoomScopeVerification
         RoomScope source = runtime.Room.Scope ?? throw new InvalidOperationException("The debug load adopted no scope.");
         ScrollBoundaryCamera previous = source.Camera;
         previous.Position = previous.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromStoredParts(0, 0x1234, 0, 0x5678));
-        previous.IdealPosition = new Position16<RoomPixels>(0x0123, 0x0456);
+        PrivateState.Set(previous, nameof(ScrollBoundaryCamera.IdealPosition), new Position16<RoomPixels>(0x0123, 0x0456));
         previous.Speed = FixedVector<RoomPixels>.FromStoredParts(2, 0x8000, 0xFFFF, 0x4000);
         previous.FinishSamusScrolling(FixedPosition<RoomPixels>.FromStoredParts(0x0300, 0x1111, 0x0400, 0x2222));
         source.Projectiles.Charge.FlareCounter = 30;

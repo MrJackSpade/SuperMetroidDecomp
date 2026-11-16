@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Cartridge;

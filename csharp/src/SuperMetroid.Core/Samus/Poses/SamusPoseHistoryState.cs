@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Samus.Poses;
 public sealed class SamusPoseHistoryState
 {
     /// <summary>The pose the latest committed transition published.</summary>
-    public SamusPoseId PreviousPose { get; set; }
+    public SamusPoseId PreviousPose { get; private set; }
 
     /// <summary>The movement type the latest committed transition recorded.</summary>
-    public SamusMovementType PreviousMovement { get; set; }
+    public SamusMovementType PreviousMovement { get; private set; }
 
     /// <summary>The movement type the committed transition before the latest one recorded.</summary>
-    public SamusMovementType LastDifferentMovement { get; set; }
+    public SamusMovementType LastDifferentMovement { get; private set; }
 
     /// <summary>
     /// Whether the wall-jump probe may run: only when the older committed transition recorded spin jumping or wall

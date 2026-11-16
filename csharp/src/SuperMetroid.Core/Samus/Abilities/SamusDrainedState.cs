@@ -61,7 +61,7 @@ public sealed class SamusDrainedState
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
     /// deliberately survives the later drained pose changes, just as it does in the game.
     /// </summary>
-    public DrainedGetUpCheck GetUpCheck { get; internal set; }
+    public DrainedGetUpCheck GetUpCheck { get; private set; }
 
     /// <summary>
     /// Ends the drain's hold on Samus's movement when another owner takes her movement and pose before the drain's

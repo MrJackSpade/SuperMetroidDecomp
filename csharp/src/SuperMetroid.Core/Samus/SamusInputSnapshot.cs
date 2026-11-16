@@ -38,7 +38,7 @@ internal sealed class SamusInputSnapshot
     }
 
     /// <summary>Held input published by the post-draw input filter and the main loop's tail.</summary>
-    public GameplayAction PreviousDrawHeldInput { get; internal set; }
+    public GameplayAction PreviousDrawHeldInput { get; private set; }
 
     /// <summary>Samus's pose input is currently the one-shot auto-jump.</summary>
     public bool AutoJumpInputPending { get; internal set; }

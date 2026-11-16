@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms;
@@ -39,7 +40,7 @@ internal static class SuitPickupPeriodicDamageVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.MaxHealth = 299;
         samus.Health = 299;
-        samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
+        PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.None);
         // `$84:88F3` equips the suit before the message box and the pickup routine.
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
@@ -50,7 +51,6 @@ internal static class SuitPickupPeriodicDamageVerification
         {
             MaxHealth = samus.MaxHealth,
             Health = samus.Health,
-            EnergyFraction = samus.EnergyFraction,
             EquippedItems = samus.EquippedItems,
         };
         int pickupFrames = 0;

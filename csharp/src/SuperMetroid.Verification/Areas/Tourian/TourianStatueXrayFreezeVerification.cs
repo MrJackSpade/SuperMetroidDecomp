@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
@@ -32,13 +33,13 @@ internal static class TourianStatueXrayFreezeVerification
         string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Playback?.Place}/{o.Timer}"));
 
         runtime.StepFrame(0);
-        runtime.Player.IntroducedSamus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.All;
+        PrivateState.Set(runtime.Player.IntroducedSamus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.All);
         string frozen = Snapshot();
         for (int frame = 0; frame < 20; frame++)
             runtime.StepFrame(0);
         AssertEqual(frozen, Snapshot(), "the X-ray scope freezes every statue program");
 
-        runtime.Player.IntroducedSamus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
+        PrivateState.Set(runtime.Player.IntroducedSamus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
         runtime.StepFrame(0);
         AssertTrue(frozen != Snapshot(), "the statues resume once the scope re-enables animated tiles");
         Console.WriteLine("Tourian statue X-ray freeze: the scope suspends the statues' animated-tile programs.");

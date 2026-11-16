@@ -99,7 +99,7 @@ public sealed class SamusCrystalFlashState
     /// Whether the flash has finished and asks its next colouring update to show the equipped beams' colours again and
     /// release the shade.
     /// </summary>
-    public bool BeamShadeRestoreRequested { get; internal set; }
+    public bool BeamShadeRestoreRequested { get; private set; }
 
     /// <summary>
     /// The step of the body's colour pulse shown next, zero through nine (#1512): activation starts it at the first, and

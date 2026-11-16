@@ -108,7 +108,7 @@ public sealed class SamusLiquidPhysicsState
     /// Exclusive liquid effect identity: lava, acid,
     /// water, or none.
     /// </summary>
-    public RoomFxType FxType { get; set; }
+    public RoomFxType FxType { get; private set; }
 
     /// <summary>
     /// The water surface's room Y, a line of the room, zero or more, or none when the room has no water surface; movement behaviours then
@@ -138,13 +138,13 @@ public sealed class SamusLiquidPhysicsState
     /// Samus's copy of <see cref="RoomWater.IgnoresSurfaceUntilEnabled"/>. While set, water does not affect her even when
     /// the geometric surface comparison says she is below it.
     /// </summary>
-    public bool IgnoresWaterSurface { get; set; }
+    public bool IgnoresWaterSurface { get; private set; }
 
     /// <summary>
     /// Remembered medium. This is intentionally stateful:
     /// Space Jump reads it, and the animation's liquid steps use changes to detect entry/exit.
     /// </summary>
-    public SamusLiquidMedium LiquidPhysicsType { get; internal set; }
+    public SamusLiquidMedium LiquidPhysicsType { get; private set; }
 
 
     /// <summary>

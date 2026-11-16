@@ -33,9 +33,7 @@ internal static class IntroPoseHistoryVerification
         SamusPresentation.InitializeAnimation(samus);
         var history = samus.PoseHistory;
         var random = new SharedRandom();
-        history.PreviousPose = samus.Pose;
-        history.PreviousMovement = SamusMovementType.Standing;
-        history.LastDifferentMovement = SamusMovementType.SpinJumping;
+        history.Restore(samus.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 0, random);
         AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
@@ -46,7 +44,7 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(samus.Pose, history.PreviousPose, "intro run transition commits current pose");
         AssertEqual(SamusMovementType.Running, history.PreviousMovement, "intro run transition commits running metadata");
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
-        history.LastDifferentMovement = SamusMovementType.SpinJumping;
+        history.Restore(history.PreviousPose, history.PreviousMovement, SamusMovementType.SpinJumping);
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro release fixture retains running during deceleration");
         AssertEqual(SamusMovementType.Running, history.LastDifferentMovement, "intro same-pose fallback shifts running metadata");

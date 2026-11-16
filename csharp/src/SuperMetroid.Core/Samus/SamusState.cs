@@ -268,7 +268,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how it borrows is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public PeriodicDamageEnergyFraction EnergyFraction { get; set; }
+    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>

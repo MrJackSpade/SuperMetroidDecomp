@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -35,8 +36,8 @@ internal static class DrainedSparkCrashVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // Two calls left in the echo hold after the echoes finish circling Samus.
-        samus.Shinespark.Phase = ShinesparkPhase.CrashEchoCircle;
-        samus.Shinespark.StartStopTimer = 2;
+        PrivateState.Set(samus.Shinespark, nameof(SamusShinesparkState.Phase), ShinesparkPhase.CrashEchoCircle);
+        PrivateState.Set(samus.Shinespark, nameof(SamusShinesparkState.StartStopTimer), 2);
         samus.Drained.LetFall(samus);
         AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose, "controller zero installs the drained pose");
 

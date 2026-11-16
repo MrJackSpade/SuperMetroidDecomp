@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -23,8 +24,8 @@ internal static class PauseMomentumVerification
                 ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = new SamusSpeedBoostCounter(4, 2),
                 CycleShadeStep = 3,
-                CycleShadeTimer = 3,
             };
+            PrivateState.Set(speed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 3);
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.
             speed.CaptureSpeedEchoPosition(0, new(80, 200));

@@ -245,7 +245,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     AssertTrue((releasedWallJump.Kinematics.Position.X - beforeReleasedWallX).IsPositive,
         "walljump movement bypasses held-direction gate before pose fallback is applied");
     var ineligibleHistory = CreateSpinSamus(animationFrame: 0);
-    ineligibleHistory.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
+    ineligibleHistory.PoseHistory.Restore(ineligibleHistory.PoseHistory.PreviousPose, ineligibleHistory.PoseHistory.PreviousMovement, SamusMovementType.Standing);
     ineligibleHistory.Kinematics.Position = ineligibleHistory.Kinematics.Position.WithFractionX(0x4321);
     var rejectedContact = SamusAerialMovement.StepSpinJump(
 level, ineligibleHistory, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -421,7 +421,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(52, 48)) };
         // This fixture begins mid-spin after a spin-direction transition.
-        samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+        samus.PoseHistory.Restore(samus.PoseHistory.PreviousPose, samus.PoseHistory.PreviousMovement, SamusMovementType.SpinJumping);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(0));
         samus.AnimationNumber = animationFrame;
@@ -438,7 +438,7 @@ level, heldOnly, (GameplayAction.Left | GameplayAction.Jump), 0, 0, roomObjects:
             Pose = SamusPoseId.SpinJumpLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(92, 48)),
         };
-        samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+        samus.PoseHistory.Restore(samus.PoseHistory.PreviousPose, samus.PoseHistory.PreviousMovement, SamusMovementType.SpinJumping);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(0));
         samus.AnimationNumber = animationFrame;
@@ -725,7 +725,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     // The runtime shifts pose history every gameplay frame. By command-one expiry an
     // uninterrupted hurt body therefore names the same hurt pose as both current and
     // previous; seed that real invariant in this direct movement-unit fixture.
-    expires.PoseHistory.PreviousPose = SamusPoseId.KnockbackRightPose;
+    expires.PoseHistory.Restore(SamusPoseId.KnockbackRightPose, expires.PoseHistory.PreviousMovement, expires.PoseHistory.LastDifferentMovement);
     for (int frame = 0; frame < 5; frame++)
     {
         SamusKnockbackMovement.Step(empty, expires, (ushort)frame, roomObjects: SamusRoomObjectFixtures.Uninstalled);
@@ -806,7 +806,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     SamusPoseMetadata.RefreshCollisionRadii(ballExpires);
     SamusPresentation.InitializeAnimation(ballExpires, ballExpires.PoseFrameNumbered(3));
     SamusKnockbackMovement.Start(ballExpires, controllerInput: GameplayAction.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left }, poseCollision: null);
-    ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
+    ballExpires.PoseHistory.Restore(SamusPoseId.MorphBallGroundRightPose, ballExpires.PoseHistory.PreviousMovement, ballExpires.PoseHistory.LastDifferentMovement);
     int retainedBallFrame = ballExpires.AnimationNumber;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;
     for (int frame = 0; frame < 5; frame++)
@@ -866,8 +866,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
     floorClipOverlap.Kinematics.YSpeed = new UnsignedSixteenSixteen(0xffff, 0xac00);
     floorClipOverlap.Kinematics.YDirection = SamusVerticalDirection.None;
-    floorClipOverlap.PoseHistory.PreviousPose =
-        SamusPoseId.TurningLeftToRightJumpAimDownPose;
+    floorClipOverlap.PoseHistory.Restore(SamusPoseId.TurningLeftToRightJumpAimDownPose, floorClipOverlap.PoseHistory.PreviousMovement, floorClipOverlap.PoseHistory.LastDifferentMovement);
     SamusPoseMetadata.RefreshCollisionRadii(floorClipOverlap);
 
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(floorClipOverlap),
@@ -895,7 +894,7 @@ floorLevel, downKnockback, frameCounter: 0, roomObjects: SamusRoomObjectFixtures
         KnockbackDirection = SamusKnockbackDirection.DownRight,
         KnockbackTimer = 0,
     };
-    sameRadiusExpiry.PoseHistory.PreviousPose = SamusPoseId.NormalJumpAimDownRightPose;
+    sameRadiusExpiry.PoseHistory.Restore(SamusPoseId.NormalJumpAimDownRightPose, sameRadiusExpiry.PoseHistory.PreviousMovement, sameRadiusExpiry.PoseHistory.LastDifferentMovement);
     SamusPoseMetadata.RefreshCollisionRadii(sameRadiusExpiry);
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(sameRadiusExpiry),
         "same-radius adjacent expiry still consumes its native command");

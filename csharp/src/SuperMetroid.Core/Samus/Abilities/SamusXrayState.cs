@@ -49,7 +49,7 @@ public sealed class SamusXrayState
     /// time freeze, automatic Reserve completion and a room transition do not restore
     /// these subsystems; that mismatch is the game's direct/indirect G-Mode state.
     /// </summary>
-    public XraySuspendedSubsystems SuspendedSubsystems { get; internal set; }
+    public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
 
     /// <summary>Whether X-ray's independent enemy-projectile disable remains set; gates projectile updates and drawing even if Reserve recovery has cleared shared time freeze.</summary>
     public bool AreEnemyProjectilesSuspended =>
@@ -77,7 +77,7 @@ public sealed class SamusXrayState
     /// The beam's warm-up: the updates of frozen time it spends after X-ray starts before its own step begins changing
     /// the beam's phase; over whenever no beam is warming up.
     /// </summary>
-    public XrayWarmUp WarmUp { get; internal set; }
+    public XrayWarmUp WarmUp { get; private set; }
 
     /// <summary>The beam's phase once its warm-up is over.</summary>
     public XrayBeamPhase BeamPhase { get; private set; }

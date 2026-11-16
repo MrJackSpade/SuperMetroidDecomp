@@ -1118,7 +1118,7 @@ internal static void VerifySamusAtmosphericEffects()
     // lava rate then borrows from fractional health on the same `$E9CE` consumer call.
     samus.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     samus.Health = 99;
-    samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
+    PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.None);
     samus.EquippedItems = 0;
     int beforeSpray = particles.Count;
     samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
@@ -1211,7 +1211,7 @@ internal static void VerifySamusAtmosphericEffects()
     // $90:A40E reads $0A68 (stored-shine timer), not the boost palette timer
     // at $0AD0. Boost buildup must still publish footsteps into the real queue.
     runner.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-    runner.HorizontalSpeed.CycleShadeTimer = 1;
+    PrivateState.Set(runner.HorizontalSpeed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 1);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     AssertEqual(new SoundRequest(RoomSound.Footsteps, SoundRequestPriority.Normal),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
@@ -1219,7 +1219,7 @@ internal static void VerifySamusAtmosphericEffects()
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: true);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "a nonzero boss ID suppresses footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)), "seed stored shine sound gate");
-    runner.HorizontalSpeed.CycleShadeTimer = 0;
+    PrivateState.Set(runner.HorizontalSpeed, nameof(SamusHorizontalSpeedState.CycleShadeTimer), 0);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
     AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
 
@@ -1340,7 +1340,7 @@ internal static void VerifySamusAtmosphericEffects()
     // type `$000A`; with a dry surface it creates surface splashes at +4/-3 and bottom-4.
     SeedLandingSiteInlineRoomByte(bus);
     landing.Room = RoomDefinitions.LandingSite;
-    landing.LiquidPhysics.FxType = RoomFxType.Rain;
+    PrivateState.Set(landing.LiquidPhysics, nameof(SamusLiquidPhysicsState.FxType), RoomFxType.Rain);
     landing.LiquidPhysics.WaterSurfaceY = null;
     landing.Kinematics.YSpeed = landing.Kinematics.YSpeed.WithFraction(1);
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1594,28 +1594,28 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedItems = 0 };
 
         samus.Health = 50;
-        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits);
+        PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(ThreeQuarterUnits));
         samus.PeriodicDamage.Accumulate(HalfUnit, 1);
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
         AssertEqual(QuarterUnit, samus.EnergyFraction.Parts, "a covered fraction keeps its remainder without borrowing");
 
         samus.Health = 50;
-        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(QuarterUnit);
+        PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(QuarterUnit));
         samus.PeriodicDamage.Accumulate(HalfUnit, 1);
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
         AssertEqual(ThreeQuarterUnits, samus.EnergyFraction.Parts, "an uncovered fraction wraps to the remainder");
 
         samus.Health = 0;
-        samus.EnergyFraction = PeriodicDamageEnergyFraction.None;
+        PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.None);
         samus.PeriodicDamage.Accumulate(HalfUnit, 0);
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "a borrow from zero energy clamps energy to zero");
         AssertEqual(0, samus.EnergyFraction.Parts, "a fatal borrow clears the fraction instead of wrapping it");
 
         samus.Health = 1;
-        samus.EnergyFraction = PeriodicDamageEnergyFraction.Holding(HalfUnit);
+        PrivateState.Set(samus, nameof(SamusState.EnergyFraction), PeriodicDamageEnergyFraction.Holding(HalfUnit));
         samus.PeriodicDamage.Accumulate(0, 2);
         samus.PeriodicDamage.Apply(samus, timeIsFrozen: false);
         AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");

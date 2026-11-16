@@ -157,9 +157,7 @@ internal static class SpikeDamageBoostVerification
             samus.Position = samus.Position.WithWholeY(200);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-            samus.PoseHistory.PreviousPose = retainedPose;
-            samus.PoseHistory.PreviousMovement =
-                SamusPoseMetadata.ReadMovementType(samus);
+            samus.PoseHistory.Restore(retainedPose, SamusPoseMetadata.ReadMovementType(samus), samus.PoseHistory.LastDifferentMovement);
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.
             if (retainedPose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or

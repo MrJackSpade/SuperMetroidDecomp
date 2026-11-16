@@ -63,7 +63,7 @@ public sealed class SamusShinesparkState
     public int ShadeStep { get; private set; }
 
     /// <summary>The shared 30-frame windup/crash countdown.</summary>
-    public int StartStopTimer { get; internal set; }
+    public int StartStopTimer { get; private set; }
 
     /// <summary>The acceleration a shinespark windup starts its upward motion with.</summary>
     private static readonly SignedSixteenSixteen InitialVerticalAcceleration = SignedSixteenSixteen.FromParts(7, 0);
@@ -72,7 +72,7 @@ public sealed class SamusShinesparkState
     private const int MovingSparkHurtFlashCount = 8;
 
     /// <summary>The shinespark's phase: a stored shine, or the windup, flight or crash that moves Samus.</summary>
-    public ShinesparkPhase Phase { get; internal set; }
+    public ShinesparkPhase Phase { get; private set; }
 
     /// <summary>
     /// Ends the spark's hold on Samus's movement, and a stored shine with it, when another owner takes her movement

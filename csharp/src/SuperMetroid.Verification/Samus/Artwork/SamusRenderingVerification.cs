@@ -181,9 +181,7 @@ internal static void VerifySamusRenderingSlice()
     samus.EquippedItems = 0;
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
-    samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
-    samus.PoseHistory.PreviousMovement = SamusMovementType.SpinJumping;
-    samus.PoseHistory.LastDifferentMovement = SamusMovementType.WallJumping;
+    samus.PoseHistory.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
     samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);

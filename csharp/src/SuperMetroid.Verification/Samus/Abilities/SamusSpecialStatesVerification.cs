@@ -120,9 +120,7 @@ internal static void VerifySamusCrystalFlash()
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-    samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
-    samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-    samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    samus.PoseHistory.Restore(SamusPoseId.FacingRightNormalPose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
     AssertTrue(!samus.CrystalFlash.TryBegin(samus, chord | GameplayAction.Jump),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
@@ -317,8 +315,7 @@ internal static void VerifySamusCrystalFlash()
         PowerBombs = 10,
     };
     SamusPoseMetadata.RefreshCollisionRadii(left);
-    left.PoseHistory.PreviousPose = left.Pose;
-    left.PoseHistory.PreviousMovement = SamusMovementType.Standing;
+    left.PoseHistory.Restore(left.Pose, SamusMovementType.Standing, left.PoseHistory.LastDifferentMovement);
     AssertTrue(left.CrystalFlash.TryBegin(left, chord),
         "left-facing Crystal Flash begins");
     AssertEqual(SamusPoseId.CrystalFlashLeftPose, left.Pose,
@@ -492,9 +489,7 @@ internal static void VerifySamusXray()
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
     // F6, pose `$25` supplies type `$0E`, and five native animation ticks reach the
     // exact frame-two/timer-one completion gate before `$D6` is installed.
-    standing.PoseHistory.PreviousPose = standing.Pose;
-    standing.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-    standing.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    standing.PoseHistory.Restore(standing.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
     SamusPoseId xrayPoseBeforeTurn = standing.Pose;
     standing.Xray.HandlePoseInput(
         standing,
@@ -742,9 +737,7 @@ internal static void VerifySamusDeathSequence()
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
-    samus.PoseHistory.PreviousPose = samus.Pose;
-    samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
-    samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
+    samus.PoseHistory.Restore(samus.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
     SamusMovementType deathSourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
     samus.DeathSequence.Begin(
         samus,
@@ -820,8 +813,7 @@ internal static void VerifySamusDeathSequence()
     };
     SamusPoseMetadata.RefreshCollisionRadii(morphedLeft);
     SamusPresentation.InitializeAnimation(morphedLeft);
-    morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
-    morphedLeft.PoseHistory.PreviousMovement = SamusMovementType.MorphBallGround;
+    morphedLeft.PoseHistory.Restore(morphedLeft.Pose, SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.LastDifferentMovement);
     morphedLeft.DeathSequence.Begin(
         morphedLeft, cameraPosition: new(0, 0));
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.Pose, "left Morph death selects D8");

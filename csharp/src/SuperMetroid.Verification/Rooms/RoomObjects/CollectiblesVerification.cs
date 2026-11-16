@@ -873,9 +873,7 @@ internal static class CollectiblesVerification
                 ? (kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : SamusEquipmentFlags.None };
             var history = samus.PoseHistory;
-            history.PreviousPose = SamusPoseId.SpinJumpRightPose;
-            history.PreviousMovement = SamusMovementType.SpinJumping;
-            history.LastDifferentMovement = SamusMovementType.WallJumping;
+            history.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
             var pickup = new SamusSuitPickupState();
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;

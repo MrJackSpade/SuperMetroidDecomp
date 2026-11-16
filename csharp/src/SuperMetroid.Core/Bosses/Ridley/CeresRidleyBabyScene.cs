@@ -242,24 +242,30 @@ internal sealed class CeresRidleyBabyScene
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
         pose is { } shown ? CeresBabyFrameDefinitions.ShownFrames.Of(shown) : null;
 
-    /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation a branch continues in, or null to play on.</summary>
+    /// <summary>The animation the Baby starts while it moves, where it reacts to its motion (#2167).</summary>
+    internal const CeresBabySegment MovingAnimation = CeresBabySegment.ExpressiveLoop;
+
+    /// <summary>The animation the Baby starts when it rests silently instead of crying (#2167).</summary>
+    internal const CeresBabySegment SilentAnimation = CeresBabySegment.Initial;
+
+    /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
     private CeresBabySegment? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
     {
         switch (cue)
         {
-            case CeresBabyCue.CryOrGoTo cryOrGoTo:
+            case CeresBabyCue.Cries:
                 // While the baby is falling (its falling flag set) it always cries and
                 // continues. Otherwise it reads the current random number without
                 // drawing a new one; an odd number makes it jump silently.
                 if (state.BabyVerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsSetIn(_room.Random.Read()))
-                    return cryOrGoTo.Target;
+                    return SilentAnimation;
                 _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
             case CeresBabyCue.UpdateColors updateColors:
                 state.Colours.ShowBaby(updateColors.Shade);
                 return null;
-            case CeresBabyCue.GoToIfMoving goToIfMoving:
-                return !state.BabyVerticalVelocity.IsZero ? goToIfMoving.Target : null;
+            case CeresBabyCue.ReactsToMotion:
+                return !state.BabyVerticalVelocity.IsZero ? MovingAnimation : null;
             default:
                 throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
         }

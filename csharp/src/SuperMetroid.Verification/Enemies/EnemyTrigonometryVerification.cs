@@ -357,8 +357,6 @@ internal static class EnemyTrigonometryVerification
         new(nameof(SaveStationElectricityBehaviorVerification.VerifySaveStationElectricityBehavior), () => SaveStationElectricityBehaviorVerification.VerifySaveStationElectricityBehavior(LoadRepositoryRom())),
         new(nameof(EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations), () => EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations(LoadRepositoryRom())),
         new(nameof(EnemyDeathProjectileBehaviorVerification.VerifyEnemyDeathProjectileBehavior), EnemyDeathProjectileBehaviorVerification.VerifyEnemyDeathProjectileBehavior),
-        new(nameof(ShaktoolProjectileAnimationsVerification.VerifyShaktoolProjectileAnimations), () => ShaktoolProjectileAnimationsVerification.VerifyShaktoolProjectileAnimations(LoadRepositoryRom())),
-        new(nameof(ShaktoolProjectileBehaviorVerification.VerifyShaktoolProjectileBehavior), () => ShaktoolProjectileBehaviorVerification.VerifyShaktoolProjectileBehavior(LoadRepositoryRom())),
         new(nameof(ChozoTourianDustAnimationsVerification.VerifyChozoTourianDustAnimations), () => ChozoTourianDustAnimationsVerification.VerifyChozoTourianDustAnimations(LoadRepositoryRom())),
         new(nameof(ChozoTourianDustBehaviorVerification.VerifyChozoTourianDustBehavior), () => ChozoTourianDustBehaviorVerification.VerifyChozoTourianDustBehavior(LoadRepositoryRom())),
         new(nameof(VerifyTourianStatueProjectileInstructionProgramDefinitions), () => VerifyTourianStatueProjectileInstructionProgramDefinitions(LoadRepositoryRom())),

@@ -23,7 +23,9 @@ internal static class EscapeEtecoonAnimationsVerification
                     for (int index = 0; index < operands.Length; index++)
                         AssertEqual(operands[index], instruction.Operands[index] switch
                     {
-                        'T' => NativeEnemyAnimationOracle.EntryOf(Entries, AssertIs<EscapeEtecoonCue.GoToIfAcidHigh>(cue, $"{at}: cue").Target),
+                        // The native branch names the high-tide run the owner starts that way (#2167).
+                        'T' => NativeEnemyAnimationOracle.EntryOf(Entries,
+                            EscapeAnimalsBehavior.HighTideRun(AssertIs<EscapeEtecoonCue.LowTideRunStarts>(cue, $"{at}: cue").Running)),
                         'S' => unchecked((ushort)AssertIs<EscapeEtecoonCue.Move>(cue, $"{at}: cue").Offset),
                         'E' => AnimalsNativeWords.EscapeEtecoonActions.Word(EscapeEtecoonAction.Escaping),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),

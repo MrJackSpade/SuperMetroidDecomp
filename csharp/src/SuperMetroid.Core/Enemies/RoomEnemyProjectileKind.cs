@@ -229,12 +229,6 @@ public enum RoomEnemyProjectileKind
     WreckedShipChozoSpikeFootstep,
     /// <summary>Dust emitted during the Tourian statue's descent.</summary>
     TourianStatueDescentDust,
-    /// <summary>The front circle of Shaktool's attack.</summary>
-    ShaktoolAttackFrontCircle,
-    /// <summary>The middle circle of Shaktool's attack.</summary>
-    ShaktoolAttackMiddleCircle,
-    /// <summary>The back circle of Shaktool's attack.</summary>
-    ShaktoolAttackBackCircle,
     /// <summary>A projectile-backed stalk segment.</summary>
     SporeSpawnStalk,
     /// <summary>A falling Spore Spawn spore.</summary>

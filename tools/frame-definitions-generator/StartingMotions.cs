@@ -270,21 +270,51 @@ internal sealed class StartingMotions
 
     /// <summary>
     /// The kinds <paramref name="kind"/> can be: what the tracer reads from it, through the values a local holding it is given
-    /// (the Ceres debris choosing its dark or light kind).
+    /// (the Ceres debris choosing its dark or light kind), what each call passes for a parameter holding it, and what each
+    /// implementation of a property holding it gives (a Fune's or Namihe's fireball, from the spitter's state).
     /// </summary>
     /// <exception cref="InvalidDataException">Some value is no kind the tracer can follow.</exception>
     private HashSet<string> KindsOf(ExpressionSyntax kind, SemanticModel semantic)
     {
         var kinds = new HashSet<string>(StringComparer.Ordinal);
-        IEnumerable<(ExpressionSyntax Value, SemanticModel Semantic)> values = semantic.GetSymbolInfo(kind).Symbol is ILocalSymbol local
-            ? ValuesOf(local)
-            : [(kind, semantic)];
-        foreach ((ExpressionSyntax value, SemanticModel valueSemantic) in values)
+        foreach ((ExpressionSyntax value, SemanticModel valueSemantic) in KindValues(kind, semantic, new HashSet<ISymbol>(SymbolEqualityComparer.Default)))
         {
             kinds.UnionWith(new ProgramTracer(_model, reaches: null).Programs(_model.RoomEnemyProjectileKind, value, valueSemantic)
                 ?? throw new InvalidDataException($"{_model.RelativePath(kind.SyntaxTree)}: a behaviour starting in a motion is bound to kind {value}, which this generator cannot trace."));
         }
         return kinds;
+    }
+
+    /// <summary>
+    /// The expressions <paramref name="kind"/> takes its kind from: itself, or, for a local, a parameter or a source property
+    /// holding it, the values given to that holder, followed on to theirs.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A call passes no kind for a parameter holding it.</exception>
+    private IEnumerable<(ExpressionSyntax Value, SemanticModel Semantic)> KindValues(ExpressionSyntax kind, SemanticModel semantic, HashSet<ISymbol> visiting)
+    {
+        ISymbol? holder = semantic.GetSymbolInfo(kind).Symbol;
+        IEnumerable<(ExpressionSyntax Value, SemanticModel Semantic)>? given = holder switch
+        {
+            ILocalSymbol local => ValuesOf(local),
+            IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: not (MethodKind.AnonymousFunction or MethodKind.LocalFunction) } method } parameter =>
+                [.. _model.CallSites(method).Select(site => (site.ArgumentFor(parameter)
+                    ?? throw new InvalidDataException($"A call of {method.ToDisplayString()} passes no kind."), site.Semantic))],
+            IPropertySymbol { IsAbstract: true } property when _model.IsSource(property) =>
+                [.. _model.Implementations(property).SelectMany(ValuesOf)],
+            _ => null,
+        };
+        if (given is null)
+        {
+            yield return (kind, semantic);
+            yield break;
+        }
+        if (!visiting.Add(holder!))
+            yield break;
+        foreach ((ExpressionSyntax value, SemanticModel valueSemantic) in given)
+        {
+            foreach ((ExpressionSyntax Value, SemanticModel Semantic) found in KindValues(value, valueSemantic, visiting))
+                yield return found;
+        }
     }
 
     /// <summary>

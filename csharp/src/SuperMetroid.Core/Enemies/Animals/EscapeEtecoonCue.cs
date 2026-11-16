@@ -8,9 +8,12 @@ internal abstract record EscapeEtecoonCue
     {
     }
 
-    /// <summary>Continues at the target once the rising acid is above Y 206.</summary>
-    /// <param name="Target">The segment a branch continues at.</param>
-    internal sealed record GoToIfAcidHigh(EscapeEtecoonSegment Target) : EscapeEtecoonCue;
+    /// <summary>
+    /// A low-tide run starts (#2167): once the rising acid is above Y 206 the owner starts the high-tide run the same way
+    /// instead.
+    /// </summary>
+    /// <param name="Running">The way the Etecoon runs.</param>
+    internal sealed record LowTideRunStarts(HorizontalDirection Running) : EscapeEtecoonCue;
 
     /// <summary>Moves the Etecoon horizontally.</summary>
     /// <param name="Offset">The cue's signed pixel offset.</param>

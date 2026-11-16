@@ -8,10 +8,6 @@ internal enum OwtchSegment
 {
     /// <summary>The moving left animation.</summary>
     MovingLeft,
-    /// <summary>The moving left loop animation.</summary>
-    MovingLeftLoop,
     /// <summary>The moving right animation.</summary>
     MovingRight,
-    /// <summary>The moving right loop animation.</summary>
-    MovingRightLoop,
 }

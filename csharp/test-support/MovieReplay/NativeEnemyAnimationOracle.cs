@@ -538,7 +538,8 @@ internal static class NativeEnemyAnimationOracle
         where TFrame : struct
         where TEvent : notnull
     {
-        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted) = rules;
+        (Func<ushort, int?> operandWords, Action<ushort, ushort[], TEvent, string> compareCue, Func<TEvent, bool>? endsList, Func<ushort, bool>? omitted,
+            Func<ushort, ushort?>? goesTo) = rules;
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<TSegment>>();
         var continuedAt = new HashSet<ushort>();
@@ -563,6 +564,12 @@ internal static class NativeEnemyAnimationOracle
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
+            if (kind == NativeEnemyListDefinitions.WordKind.Callback && goesTo?.Invoke(word) is { } goneTo)
+            {
+                // An owner routine that only goes on to another list (#2167) is that list's goto.
+                kind = NativeEnemyListDefinitions.WordKind.GoTo;
+                operand = goneTo;
+            }
             switch (kind)
             {
                 case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:

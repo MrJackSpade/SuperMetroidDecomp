@@ -38,8 +38,8 @@ internal static class EnemyProjectileDefinitionsVerification
             .Distinct()
             .ToArray();
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion; #2024 removed the spike-clearing
-        // explosion no spawn starts.
-        AssertEqual(121, kinds.Length, "compiled enemy-projectile definition count");
+        // explosion no spawn starts, and #2166 Shaktool's three attack circles, which no spawn starts either.
+        AssertEqual(118, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
         Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
@@ -293,9 +293,6 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.TourianStatueBaseDecoration or
                         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
                         RoomEnemyProjectileKind.TourianStatueDescentDust or
-                        RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
-                        RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
-                        RoomEnemyProjectileKind.ShaktoolAttackBackCircle or
                         RoomEnemyProjectileKind.SporeSpawnSpawner or
                         RoomEnemyProjectileKind.SaveStationElectricity or
                         RoomEnemyProjectileKind.DownwardGateMoving or
@@ -425,9 +422,6 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.TourianStatueBaseDecoration or
                         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
                         RoomEnemyProjectileKind.TourianStatueDescentDust or
-                        RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
-                        RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
-                        RoomEnemyProjectileKind.ShaktoolAttackBackCircle or
                         RoomEnemyProjectileKind.SporeSpawnStalk or
                         RoomEnemyProjectileKind.SporeSpawnSpore or
                         RoomEnemyProjectileKind.SporeSpawnSpawner or

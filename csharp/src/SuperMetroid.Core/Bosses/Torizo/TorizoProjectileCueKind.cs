@@ -34,6 +34,11 @@ internal enum TorizoProjectileCueKind
     /// <summary>Moves the projectile in front of Samus.</summary>
     DrawInFront,
     /// <summary>
+    /// A death explosion has shown itself (#2167): one time in four, by the room's random draw, its owner turns it into the
+    /// death smoke instead of a scattered blast.
+    /// </summary>
+    MayTurnToSmoke,
+    /// <summary>
     /// Plays the run of steps the cue is in again, from that run's first step, while Golden Torizo's eye-beam explosions are
     /// disabled (#1788): the eye beam's floor spark sparks again.
     /// </summary>

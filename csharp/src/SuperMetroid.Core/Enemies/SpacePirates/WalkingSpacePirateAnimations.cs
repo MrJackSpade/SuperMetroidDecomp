@@ -28,9 +28,6 @@ internal static class WalkingSpacePirateAnimations
         [P.WalkingLeft] =
         [
             Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Left)),
-        ],
-        [P.WalkingLeftLoop] =
-        [
             Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegBack, 10),
             Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegLifting, 10),
             Show(EnemyFrameId.WalkingPirateWalkingLeftFarLegPassing, 10),
@@ -71,9 +68,6 @@ internal static class WalkingSpacePirateAnimations
         [P.WalkingRight] =
         [
             Cue(new WalkingSpacePirateCue.BeginHeading(WalkingSpacePirateAction.Walking, HorizontalDirection.Right)),
-        ],
-        [P.WalkingRightLoop] =
-        [
             Show(EnemyFrameId.WalkingPirateWalkingRightFarLegBack, 10),
             Show(EnemyFrameId.WalkingPirateWalkingRightFarLegLifting, 10),
             Show(EnemyFrameId.WalkingPirateWalkingRightFarLegPassing, 10),
@@ -116,16 +110,14 @@ internal static class WalkingSpacePirateAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>> StartingAt { get; } = new Dictionary<WalkingSpacePirateSegment, Animation<WalkingSpacePirateSegment>>
     {
-        [P.FlinchFacingLeft] = new([new(P.FlinchFacingLeft, 0, 2, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.FlinchFacingRight] = new([new(P.FlinchFacingRight, 0, 2, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.WalkingLeftLoop] = new([new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireLasersLeft] = new([new(P.FireLasersLeft, 0, 15, 1), new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.LookingFacingLeft] = new([new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.WalkingRightLoop] = new([new(P.WalkingRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireLasersRight] = new([new(P.FireLasersRight, 0, 15, 1), new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.LookingFacingRight] = new([new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.FlinchFacingLeft] = new([new(P.FlinchFacingLeft, 0, 2, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.FlinchFacingRight] = new([new(P.FlinchFacingRight, 0, 2, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FireLasersLeft] = new([new(P.FireLasersLeft, 0, 15, 1), new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.LookingFacingLeft] = new([new(P.LookingFacingLeft, 0, 7, 1), new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRight, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.FireLasersRight] = new([new(P.FireLasersRight, 0, 15, 1), new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.LookingFacingRight] = new([new(P.LookingFacingRight, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeft, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

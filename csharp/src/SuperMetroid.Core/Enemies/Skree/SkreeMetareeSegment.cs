@@ -12,14 +12,10 @@ internal enum SkreeMetareeSegment
     MetareePreparingAttack,
     /// <summary>The metaree diving animation.</summary>
     MetareeDiving,
-    /// <summary>The loop.</summary>
-    MetareeDivingLoop,
     /// <summary>The Skree idling animation.</summary>
     SkreeIdling,
     /// <summary>The Skree preparing attack animation.</summary>
     SkreePreparingAttack,
     /// <summary>The Skree diving animation.</summary>
     SkreeDiving,
-    /// <summary>The loop.</summary>
-    SkreeDivingLoop,
 }

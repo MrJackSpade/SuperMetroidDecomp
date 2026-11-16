@@ -17,10 +17,6 @@ internal abstract record WorkRobotCue
     /// <param name="Firing">The firing animation it continues at.</param>
     internal sealed record TryLaser(WorkRobotLaser Laser, WorkRobotSegment Firing) : WorkRobotCue;
 
-    /// <summary>Continues at the cue's walk.</summary>
-    /// <param name="Walking">The walk it continues at.</param>
-    internal sealed record Walk(WorkRobotSegment Walking) : WorkRobotCue;
-
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>
     internal sealed record Signal(WorkRobotCueKind Kind) : WorkRobotCue;

@@ -305,9 +305,6 @@ internal static class YardAnimations
         [
             Cue(new YardCue.Signal(K.BeginFlight)),
             Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 3),
-        ],
-        [P.AirborneFacingLeftLoop] =
-        [
             Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosed, 3),
             Show(EnemyFrameId.YardUpsideDownFacingRightShellClosed, 3),
             Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 3),
@@ -316,9 +313,6 @@ internal static class YardAnimations
         [
             Cue(new YardCue.Signal(K.BeginFlight)),
             Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 3),
-        ],
-        [P.AirborneFacingRightLoop] =
-        [
             Show(EnemyFrameId.YardUpsideRightFacingDownShellClosed, 3),
             Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosed, 3),
             Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 3),
@@ -362,10 +356,8 @@ internal static class YardAnimations
         [P.HidingUpsideLeftMovingUp] = new([new(P.HidingUpsideLeftMovingUp, 0, 6, 1), new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HidingUpsideLeftMovingDown] = new([new(P.HidingUpsideLeftMovingDown, 0, 6, 1), new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HidingUpsideRightMovingDown] = new([new(P.HidingUpsideRightMovingDown, 0, 6, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.AirborneFacingLeft] = new([new(P.AirborneFacingLeft, 0, 2, 1), new(P.AirborneFacingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.AirborneFacingLeftLoop] = new([new(P.AirborneFacingLeftLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AirborneFacingRight] = new([new(P.AirborneFacingRight, 0, 2, 1), new(P.AirborneFacingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.AirborneFacingRightLoop] = new([new(P.AirborneFacingRightLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.AirborneFacingLeft] = new([new(P.AirborneFacingLeft, 0, 2, 1), new(P.AirborneFacingLeft, 2, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.AirborneFacingRight] = new([new(P.AirborneFacingRight, 0, 2, 1), new(P.AirborneFacingRight, 2, 3, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

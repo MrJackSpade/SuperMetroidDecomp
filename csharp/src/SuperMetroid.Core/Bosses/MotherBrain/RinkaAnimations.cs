@@ -20,9 +20,6 @@ internal static class RinkaAnimations
             Cue(new(K.Hide)),
             Show(EnemyFrameId.RinkaWhiteHot, 64),
             Cue(new(K.Fire)),
-        ],
-        [P.OrdinaryLoop] =
-        [
             Show(EnemyFrameId.RinkaWhiteHot, 16),
             Show(EnemyFrameId.RinkaYellow, 8),
             Show(EnemyFrameId.RinkaOrange, 7),
@@ -37,9 +34,6 @@ internal static class RinkaAnimations
             Cue(new(K.HideAndProcessOffScreen)),
             Show(EnemyFrameId.RinkaWhiteHot, 64),
             Cue(new(K.Fire)),
-        ],
-        [P.SpecialLoop] =
-        [
             Show(EnemyFrameId.RinkaWhiteHot, 16),
             Show(EnemyFrameId.RinkaYellow, 8),
             Show(EnemyFrameId.RinkaOrange, 7),
@@ -54,10 +48,8 @@ internal static class RinkaAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<RinkaSegment, Animation<RinkaSegment>> StartingAt { get; } = new Dictionary<RinkaSegment, Animation<RinkaSegment>>
     {
-        [P.Ordinary] = new([new(P.Ordinary, 0, 3, 1), new(P.OrdinaryLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.OrdinaryLoop] = new([new(P.OrdinaryLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Special] = new([new(P.Special, 0, 3, 1), new(P.SpecialLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpecialLoop] = new([new(P.SpecialLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Ordinary] = new([new(P.Ordinary, 0, 3, 1), new(P.Ordinary, 3, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Special] = new([new(P.Special, 0, 3, 1), new(P.Special, 3, 8, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.Animals.EscapeDachoraCueKind;
 using P = SuperMetroid.Core.Enemies.Animals.EscapeDachoraSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -8,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>
 /// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EnemyFrameId"/> and
 /// each cue is a <see cref="EscapeDachoraCue"/> with the values it acts on. Around the shaft it runs five laps
-/// left and five right, counting its laps; a branch cue names where it continues the play (#2061).
+/// left and five right, counting its laps; each lap's end is a cue its owner may take elsewhere (#2061, #2167).
 /// </summary>
 internal static class EscapeDachoraAnimations
 {
@@ -33,19 +32,19 @@ internal static class EscapeDachoraAnimations
     /// Where a rising tide takes a lap to the left (#2061): the high-tide laps at the end of a lap to the left, counting on
     /// the laps the low-tide run had left.
     /// </summary>
-    private static readonly AnimationContinuation<P> HighTideLapsGoingLeft = AnimationContinuation<P>.CountingOn(RunningAroundHighTide, new AnimationPlace(0, 13));
+    internal static readonly AnimationContinuation<P> HighTideLapsAfterLeftLap = AnimationContinuation<P>.CountingOn(RunningAroundHighTide, new AnimationPlace(0, 13));
 
     /// <summary>
     /// Where a rising tide takes a lap to the right (#2061): the high-tide laps at the end of a lap to the right, counting on
     /// the laps the low-tide run had left.
     /// </summary>
-    private static readonly AnimationContinuation<P> HighTideLapsGoingRight = AnimationContinuation<P>.CountingOn(RunningAroundHighTide, new AnimationPlace(1, 13));
+    internal static readonly AnimationContinuation<P> HighTideLapsAfterRightLap = AnimationContinuation<P>.CountingOn(RunningAroundHighTide, new AnimationPlace(1, 13));
 
     /// <summary>Where the critters' escape takes a lap to the left: the run for the escape, from its pause.</summary>
-    private static readonly AnimationContinuation<P> EscapeFromLeftLap = new(RunningForEscape, AnimationPlace.StartOfAnimation);
+    internal static readonly AnimationContinuation<P> EscapeAfterLeftLap = new(RunningForEscape, AnimationPlace.StartOfAnimation);
 
     /// <summary>Where the critters' escape takes a lap to the right: the run for the escape, from its acceleration.</summary>
-    private static readonly AnimationContinuation<P> EscapeFromRightLap = new(RunningForEscapeAccelerating, AnimationPlace.StartOfAnimation);
+    internal static readonly AnimationContinuation<P> EscapeAfterRightLap = new(RunningForEscapeAccelerating, AnimationPlace.StartOfAnimation);
 
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EscapeDachoraSegment, EnemyFrameId, EscapeDachoraCue> Segments { get; } = new(
@@ -65,8 +64,8 @@ internal static class EscapeDachoraAnimations
             Cue(new EscapeDachoraCue.Move(Offset: -6)),
             Show(EnemyFrameId.EscapeDachoraRunningLeftNearLegReaching, 3),
             Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Cue(new EscapeDachoraCue.Branch(K.GoToIfAcidHigh, Then: HighTideLapsGoingLeft)),
-            Cue(new EscapeDachoraCue.Branch(K.GoToIfCrittersEscaped, Then: EscapeFromLeftLap)),
+            Cue(new EscapeDachoraCue.LowTideLapEnds(Lap: HorizontalDirection.Left)),
+            Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Left)),
         ],
         [P.RunningAroundLowTideRight] =
         [
@@ -82,8 +81,8 @@ internal static class EscapeDachoraAnimations
             Cue(new EscapeDachoraCue.Move(Offset: 6)),
             Show(EnemyFrameId.EscapeDachoraRunningRightNearLegReaching, 3),
             Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Cue(new EscapeDachoraCue.Branch(K.GoToIfAcidHigh, Then: HighTideLapsGoingRight)),
-            Cue(new EscapeDachoraCue.Branch(K.GoToIfCrittersEscaped, Then: EscapeFromRightLap)),
+            Cue(new EscapeDachoraCue.LowTideLapEnds(Lap: HorizontalDirection.Right)),
+            Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Right)),
         ],
         [P.RunningAroundHighTideLeft] =
         [
@@ -99,7 +98,7 @@ internal static class EscapeDachoraAnimations
             Cue(new EscapeDachoraCue.Move(Offset: -6)),
             Show(EnemyFrameId.EscapeDachoraRunningLeftNearLegReaching, 2),
             Cue(new EscapeDachoraCue.Move(Offset: -6)),
-            Cue(new EscapeDachoraCue.Branch(K.GoToIfCrittersEscaped, Then: EscapeFromLeftLap)),
+            Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Left)),
         ],
         [P.RunningAroundHighTideRight] =
         [
@@ -115,7 +114,7 @@ internal static class EscapeDachoraAnimations
             Cue(new EscapeDachoraCue.Move(Offset: 6)),
             Show(EnemyFrameId.EscapeDachoraRunningRightNearLegReaching, 2),
             Cue(new EscapeDachoraCue.Move(Offset: 6)),
-            Cue(new EscapeDachoraCue.Branch(K.GoToIfCrittersEscaped, Then: EscapeFromRightLap)),
+            Cue(new EscapeDachoraCue.LapEnds(Lap: HorizontalDirection.Right)),
         ],
         [P.RunningForEscape] =
         [

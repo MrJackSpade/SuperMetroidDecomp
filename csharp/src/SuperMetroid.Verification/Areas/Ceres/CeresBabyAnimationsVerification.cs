@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Areas.Ceres.CeresBabyNativeListAddresses;
 
@@ -66,11 +67,12 @@ internal static class CeresBabyAnimationsVerification
                 case CeresBabyCue.UpdateColors updateColors:
                     AssertEqual(operand, ShadeOperands.Single(item => item.Shade == updateColors.Shade).Operand, $"{at}: shade");
                     break;
-                case CeresBabyCue.CryOrGoTo cryOrGoTo:
-                    AssertEqual(operand, Entries.Single(item => item.Program == cryOrGoTo.Target).Entry, $"{at}: branch target");
+                // Each native branch names the animation the Baby's owner starts there (#2167).
+                case CeresBabyCue.Cries:
+                    AssertEqual(operand, Entries.Single(item => item.Program == CeresRidleyBabyScene.SilentAnimation).Entry, $"{at}: branch target");
                     break;
-                case CeresBabyCue.GoToIfMoving goToIfMoving:
-                    AssertEqual(operand, Entries.Single(item => item.Program == goToIfMoving.Target).Entry, $"{at}: branch target");
+                case CeresBabyCue.ReactsToMotion:
+                    AssertEqual(operand, Entries.Single(item => item.Program == CeresRidleyBabyScene.MovingAnimation).Entry, $"{at}: branch target");
                     break;
                 default:
                     throw new InvalidOperationException($"{at}: undefined Ceres Baby cue {raised.Raised}.");

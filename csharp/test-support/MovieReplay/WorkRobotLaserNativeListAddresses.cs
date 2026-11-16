@@ -13,7 +13,6 @@ internal static class WorkRobotLaserNativeListAddresses
     internal static readonly NativeProgramEntry<WorkRobotLaserSegment>[] Entries =
     [
         new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Initial, 0xd2ec),
-        new NativeProgramEntry<WorkRobotLaserSegment>(WorkRobotLaserSegment.Loop, 0xd2f8),
     ];
 
     /// <summary>The bank-$86 bytes the lists occupy, $86:D2EC-D30B, which production must never read.</summary>

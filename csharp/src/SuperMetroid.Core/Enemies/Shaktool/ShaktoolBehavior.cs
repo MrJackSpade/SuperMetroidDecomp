@@ -17,8 +17,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Allocates the linked Shaktool attack circles.</summary>
-    private readonly EnemyProjectileEngine _projectiles;
     /// <summary>The room's enemy places, where each segment finds its chain when it is placed.</summary>
     private readonly EnemyPlaces _places;
     /// <summary>The chain and neighbours each segment found when it was placed.</summary>
@@ -26,11 +24,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common contact behavior for the segment hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Binds collision, projectile, and place owners for a room's Shaktool chain.</summary>
-    internal ShaktoolBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPlaces places, EnemyCollision collision)
+    /// <summary>Binds collision and place owners for a room's Shaktool chain.</summary>
+    internal ShaktoolBehavior(EnemyTerrain terrain, EnemyPlaces places, EnemyCollision collision)
     {
         _terrain = terrain;
-        _projectiles = projectiles;
         _places = places;
         _collision = collision;
     }
@@ -464,68 +461,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
     };
 
-    /// <summary>Shaktool's attack circles, front, middle and back (#1760): their spawner starts their animations.</summary>
-    internal EnemyProjectileBehavior AttackCircles => field ??= new AttackCircleBehavior(_projectiles);
-
-    /// <summary>
-    /// An attack circle: the front one's flight with room collision, and the trailing ones' while the first
-    /// enemy-projectile place, the front circle's, stays live.
-    /// </summary>
-    /// <param name="projectiles">The enemy projectiles, whose first place the trailing circles follow.</param>
-    private sealed class AttackCircleBehavior(EnemyProjectileEngine projectiles)
-        : EnemyProjectileMotionBehavior<ShaktoolCircleMotion>(StartingMotions), IEnemyProjectileCues<ShaktoolCircleCue>
-    {
-        /// <summary>The front circle leads from its spawn; the trailing ones hold still until their animations start them.</summary>
-        private static readonly Dictionary<RoomEnemyProjectileKind, ShaktoolCircleMotion?> StartingMotions = new()
-        {
-            [RoomEnemyProjectileKind.ShaktoolAttackFrontCircle] = ShaktoolCircleMotion.Leading,
-            [RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle] = null,
-            [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = null,
-        };
-
-        /// <summary>Carries out a trailing circle's animation cue: it starts following the front circle.</summary>
-        public void RunCue(EnemyProjectileCueContext context, ShaktoolCircleCue cue)
-        {
-            if (cue != ShaktoolCircleCue.StartTrailing)
-                throw new InvalidOperationException($"Undefined {nameof(ShaktoolCircleCue)} {cue}.");
-            context.Projectile.StartMotion(ShaktoolCircleMotion.Trailing);
-        }
-
-        /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, ShaktoolCircleMotion motion)
-        {
-            switch (motion)
-            {
-                case ShaktoolCircleMotion.Leading:
-                    FlyShaktoolFrontCircle(context.Projectile, context.Level);
-                    break;
-                case ShaktoolCircleMotion.Trailing:
-                    FlyShaktoolTrailingCircle(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(ShaktoolCircleMotion)} {motion}.");
-            }
-        }
-
-        /// <summary>
-        /// Flies the middle or back circle one update behind the front one: a circle vanishes once the first enemy-projectile
-        /// place is free (<see cref="ShaktoolCirclesFollowFirstPlace"/>).
-        /// </summary>
-        private void FlyShaktoolTrailingCircle(
-            EnemyProjectile projectile,
-            RoomLevelData level)
-        {
-            if (!ShaktoolCirclesFollowFirstPlace.Lasts(projectiles.EnemyProjectiles, place => place.IsActive))
-            {
-                projectile.Delete();
-                return;
-            }
-
-            _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
-            _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
-        }
-    }
-
     /// <summary>Runs Shaktool's main AI.</summary>
     internal void RunShaktoolMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
@@ -557,15 +492,4 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
     };
-    /// <summary>Flies the front circle one update.</summary>
-    internal static void FlyShaktoolFrontCircle(
-        EnemyProjectile projectile,
-        RoomLevelData level)
-    {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
-            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
-        {
-            projectile.Delete();
-        }
-    }
 }

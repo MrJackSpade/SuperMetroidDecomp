@@ -32,7 +32,7 @@ internal static class EscapeEtecoonNativeListAddresses
         // The escape run installs its routine; thanking Samus clears the routine, which leaves the animation to move it.
         [0x806b] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Signal(EscapeEtecoonCueKind.Escapes)) with { Operands = "E" },
         [0x8074] = NativeCueShape<EscapeEtecoonCue>.Exactly(new EscapeEtecoonCue.Signal(EscapeEtecoonCueKind.ExpressesGratitude)),
-        [0xe545] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.GoToIfAcidHigh>("T"),
+        [0xe545] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.LowTideRunStarts>("T"),
         [0xe610] = NativeCueShape<EscapeEtecoonCue>.Of<EscapeEtecoonCue.Move>("S"),
     };
 }

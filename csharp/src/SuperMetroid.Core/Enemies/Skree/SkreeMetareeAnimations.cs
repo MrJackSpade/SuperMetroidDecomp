@@ -31,9 +31,6 @@ internal static class SkreeMetareeAnimations
         [P.MetareeDiving] =
         [
             Cue(new(K.ProcessOffScreen)),
-        ],
-        [P.MetareeDivingLoop] =
-        [
             Show(EnemyFrameId.MetareeTurningOblique, 2),
             Show(EnemyFrameId.MetareeEdgeOn, 2),
             Show(EnemyFrameId.MetareeReturningOblique, 2),
@@ -55,9 +52,6 @@ internal static class SkreeMetareeAnimations
         [P.SkreeDiving] =
         [
             Cue(new(K.ProcessOffScreen)),
-        ],
-        [P.SkreeDivingLoop] =
-        [
             Show(EnemyFrameId.SkreeTurningOblique, 2),
             Show(EnemyFrameId.SkreeEdgeOn, 2),
             Show(EnemyFrameId.SkreeReturningOblique, 2),
@@ -70,12 +64,10 @@ internal static class SkreeMetareeAnimations
     {
         [P.MetareeIdling] = new([new(P.MetareeIdling, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.MetareePreparingAttack] = new([new(P.MetareePreparingAttack, 0, 3, 1)], AnimationEnd.Holds),
-        [P.MetareeDiving] = new([new(P.MetareeDiving, 0, 1, 1), new(P.MetareeDivingLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MetareeDivingLoop] = new([new(P.MetareeDivingLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.MetareeDiving] = new([new(P.MetareeDiving, 0, 1, 1), new(P.MetareeDiving, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.SkreeIdling] = new([new(P.SkreeIdling, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SkreePreparingAttack] = new([new(P.SkreePreparingAttack, 0, 3, 1)], AnimationEnd.Holds),
-        [P.SkreeDiving] = new([new(P.SkreeDiving, 0, 1, 1), new(P.SkreeDivingLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SkreeDivingLoop] = new([new(P.SkreeDivingLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SkreeDiving] = new([new(P.SkreeDiving, 0, 1, 1), new(P.SkreeDiving, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

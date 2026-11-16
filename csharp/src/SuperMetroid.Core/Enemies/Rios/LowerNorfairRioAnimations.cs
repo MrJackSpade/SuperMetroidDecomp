@@ -18,9 +18,6 @@ internal static class LowerNorfairRioAnimations
         [P.Idle] =
         [
             Cue(new(K.HideFlames)),
-        ],
-        [P.IdleLoop] =
-        [
             Show(EnemyFrameId.LowerNorfairRioWingsRaised, 11),
             Show(EnemyFrameId.LowerNorfairRioWingsLevel, 11),
             Show(EnemyFrameId.LowerNorfairRioWingsLevelDropped, 11),
@@ -56,9 +53,6 @@ internal static class LowerNorfairRioAnimations
         [P.Ascending] =
         [
             Cue(new(K.ShowFlames)),
-        ],
-        [P.AscendingLoop] =
-        [
             Show(EnemyFrameId.LowerNorfairRioWingsSweptTwin, 2),
             Show(EnemyFrameId.LowerNorfairRioWingsSweptTwinB, 2),
             Show(EnemyFrameId.LowerNorfairRioWingsSweptTwinC, 2),
@@ -91,11 +85,11 @@ internal static class LowerNorfairRioAnimations
     /// </summary>
     internal static IReadOnlyDictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>> StartingAt { get; } = new Dictionary<LowerNorfairRioSegment, Animation<LowerNorfairRioSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.IdleLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.Idle, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.PrepareToSwoop] = new([new(P.PrepareToSwoop, 0, 11, 1)], AnimationEnd.Holds),
         [P.Descending] = new([new(P.Descending, 0, 2, 1)], AnimationEnd.Holds),
         [P.AscentOpening] = new([new(P.AscentOpening, 0, 5, 1)], AnimationEnd.Holds),
-        [P.Ascending] = new([new(P.Ascending, 0, 1, 1), new(P.AscendingLoop, 0, 3, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Ascending] = new([new(P.Ascending, 0, 1, 1), new(P.Ascending, 1, 3, 1)], AnimationEnd.LoopsFrom(1)),
         [P.Cooldown] = new([new(P.Cooldown, 0, 11, 1)], AnimationEnd.Holds),
         [P.Flames] = new([new(P.Flames, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
     };

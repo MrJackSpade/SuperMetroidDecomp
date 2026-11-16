@@ -122,11 +122,20 @@ internal static class SporeSpawnAnimationsVerification
         foreach ((SporeSpawnProjectileSegment program, ushort entry) in ProjectileEntries)
         {
             RoomEnemySystem enemies = NewProjectileSystem();
-            enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 256));
+            // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
+            var sporeSpawn = new SporeSpawnEnemyState();
+            enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 256), sporeSpawn);
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
                 started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),
                 "the real spore producer starts the falling-spore program");
+            // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231).
+            if (program is SporeSpawnProjectileSegment.SpawnerClosed or SporeSpawnProjectileSegment.SpawnerRelease)
+            {
+                projectile.Delete();
+                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(128, 256));
+                projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
+            }
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
             var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
             int drops = 0;
@@ -149,13 +158,11 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>
-    /// A projectile system with Spore Spawn loaded in slot zero, whose spores take his colours and whose spore drops roll
-    /// for the Samus each projectile pass hands them.
+    /// A projectile system whose spore drops roll for the Samus each projectile pass hands them.
     /// </summary>
     private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.SporeSpawnBehavior.SporeSpawn = new SporeSpawnEnemyState(enemies.Places.InUpdateOrder[0]);
         enemies.VerificationServices().NextRandom = () => 1;
         return enemies;
     }
@@ -177,7 +184,7 @@ internal static class SporeSpawnAnimationsVerification
         body.Health = 960;
         body.AnimationClock.StepOnNextUpdate();
 
-        var state = new SporeSpawnEnemyState(body)
+        var state = new SporeSpawnEnemyState
         {
             Movement = SporeSpawnMovement.Idle,
             MovementCenter = body.Position.Whole,
@@ -187,7 +194,8 @@ internal static class SporeSpawnAnimationsVerification
         };
         enemies.VerificationServices().NextRandom = () => 4660;
         SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
-        enemies.SporeSpawnBehavior.SporeSpawn = state;
+        // His body holds his encounter, as his initialization installs it (#2231).
+        body.SetSpeciesState(state);
 
         for (int frame = 0; frame < frames; frame++)
         {

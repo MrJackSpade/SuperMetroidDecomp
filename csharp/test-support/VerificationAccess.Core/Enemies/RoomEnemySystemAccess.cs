@@ -217,7 +217,9 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<RoomEffectActor> RoomEffectActors => [.. self.EffectActors.Live];
 
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
-        internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior.SporeSpawn;
+        /// <remarks>His body holds his encounter from its initialization (#2231), so the check finds it there.</remarks>
+        internal SporeSpawnEnemyState? SporeSpawn =>
+            self.Places.InUpdateOrder.Select(place => place.SpeciesState<SporeSpawnEnemyState>()).FirstOrDefault(state => state is not null);
 
         /// <summary>The Boyon state of each physical slot's occupant, or null where no initialized Boyon occupies it.</summary>
         internal IReadOnlyList<BoyonEnemyState?> BoyonStates =>

@@ -28,7 +28,7 @@ internal static class SporeSpawnSwayVerification
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
             body.Position = body.Position.WithWhole(new(128, 624));
-            var state = new SporeSpawnEnemyState(body)
+            var state = new SporeSpawnEnemyState
             {
                 Movement = SporeSpawnMovement.Moving,
                 MovementCenter = body.Position.Whole,
@@ -37,12 +37,12 @@ internal static class SporeSpawnSwayVerification
                 Angle = RotationAngle.FromSteps(start),
             };
             state.StalkLinks = [.. SporeSpawnProjectileDefinitions.StalkSegments.Select(segment => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(body, segment))];
-            enemies.SporeSpawnBehavior.SporeSpawn = state;
+            body.SetSpeciesState(state);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
                 new FrameCounters(0));
 
-            enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, frame);
+            enemies.SporeSpawnBehavior.RunSporeSpawnMainAi(body, state);
 
             AssertEqual(RotationAngle.FromSteps(expected), state.Angle,
                 $"Spore Spawn sway phase {start} stepped by {delta} wraps around the turn");

@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 public sealed class SporeSpawnEnemyState
 {
-    /// <summary>Binds boss-specific state to its live common enemy place.</summary>
-    internal SporeSpawnEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <summary>A new fight's state, which his initialization installs on his body (#2231).</summary>
+    internal SporeSpawnEnemyState()
+    {
+    }
 
     /// <summary>Spore Spawn's body's and his room's colours (#1512).</summary>
     internal SporeSpawnColours Colours { get; } = new();
 
-    /// <summary>Live common enemy place owned by the room enemy system; shared by movement, combat, animation, and stalk-projectile owners.</summary>
-    public RoomEnemyPlace Body { get; }
     /// <summary>Current main-AI movement: the phase of the fight it runs each update.</summary>
     public SporeSpawnMovement Movement { get; internal set; }
     /// <summary>The body's animation and where it stands in it (#1600).</summary>
@@ -64,8 +64,6 @@ public sealed class SporeSpawnEnemyState
     /// supplies each axis's movement sign.
     /// </summary>
     public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }
-    /// <summary>Whether the live fight's scrolling-finished hook still enforces the arena's minimum camera Y; cleared at death and never installed for an already defeated load.</summary>
-    public bool ScrollClampHookActive { get; internal set; }
     /// <summary>Guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>
     public bool DeathStarted { get; internal set; }
     /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>

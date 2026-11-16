@@ -13,10 +13,22 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemyPlac
     public void Initialize() => species.InitializeSporeSpawn(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, frame);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunSporeSpawnMainAi(Place, Encounter);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceSporeSpawnAnimation(Place, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceSporeSpawnAnimation(Place, Encounter, context.Samus);
+
+    /// <summary>The encounter his body holds from its initialization (#2231).</summary>
+    /// <exception cref="InvalidOperationException">The body has not initialized.</exception>
+    private SporeSpawnEnemyState Encounter => Place.RequireSpeciesState<SporeSpawnEnemyState>();
+
+    /// <summary>The encounter <paramref name="body"/> holds, which his initialization installed on it (#2231).</summary>
+    /// <param name="body">A place holding Spore Spawn's body, initialized.</param>
+    /// <exception cref="InvalidOperationException">The place holds no initialized Spore Spawn.</exception>
+    internal static SporeSpawnEnemyState EncounterOf(RoomEnemyPlace body) =>
+        Ensure.NotNull(body).Entity is SporeSpawnEntity entity
+            ? entity.Encounter
+            : throw new InvalidOperationException($"Enemy place {body.Ordinal} holds no Spore Spawn.");
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)

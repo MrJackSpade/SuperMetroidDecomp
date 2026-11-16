@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
@@ -42,28 +43,28 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>
-    private AreaMapPresentation? mapPresentation;
+    private InstalledScreenContent? screenContent;
 
     /// <summary>Creates the game-over scene with installed artwork, leaving music, animation, and fade initialization for the first update.</summary>
     /// <param name="audio">Shared music and sound queue used by menu updates.</param>
-    /// <param name="mapPresentation">Required installed presentation bundle.</param>
+    /// <param name="screenContent">Required installed screen content, whose game-over part the screen draws.</param>
     /// <param name="spriteSheets">Required installed sprite sheets, which the Baby, egg and cursor draw from.</param>
     /// <exception cref="ArgumentNullException"><paramref name="audio"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">No installed presentation bundle or sprite sheets are supplied.</exception>
+    /// <exception cref="InvalidOperationException">No installed screen content or sprite sheets are supplied.</exception>
     /// <param name="continueLoadsCeresArrival">
     /// True when the save resumes at the Ceres elevator: the menu then answers Yes by
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
         AudioQueues audio,
-        AreaMapPresentation mapPresentation,
+        InstalledScreenContent screenContent,
         InstalledSpriteSheets spriteSheets,
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
         this.audio = Ensure.NotNull(audio);
-        this.mapPresentation = Ensure.NotNull(mapPresentation);
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, Ensure.NotNull(spriteSheets));
+        this.screenContent = Ensure.NotNull(screenContent);
+        screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
@@ -96,14 +97,14 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// Binds the installed map artwork when the game is bound to its installed content and refreshes only
     /// presentation-owned display state. Animation phase, answer selection and fade remain live.
     /// </summary>
-    public void BindMapPresentation(AreaMapPresentation? catalog)
+    public void BindScreenContent(InstalledScreenContent? catalog)
     {
-        string? previousIdentity = mapPresentation?.ContentIdentity;
-        mapPresentation = catalog ?? throw new InvalidOperationException(
+        string? previousIdentity = screenContent?.ContentIdentity;
+        screenContent = catalog ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
-        screen.Backdrop = catalog.Backdrops.FileSelect;
+        screen.Backdrop = catalog.Backdrops.Menus;
     }
 
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
@@ -135,7 +136,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         // Only the fade-in, the interaction and the two fade-outs draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
-            missile.Step((mapPresentation ?? throw new InvalidOperationException(
+            missile.Step((screenContent ?? throw new InvalidOperationException(
                 "Game over requires installed menu presentation assets.")).GameOver.CursorFrameDuration);
 
         switch (Phase)
@@ -232,7 +233,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     {
         ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
-        var content = mapPresentation ?? throw new InvalidOperationException(
+        var content = screenContent ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
         content.GameOver.DrawBaby(sprites, sheet, BabyLook.Frame, BabyLook.Colours);

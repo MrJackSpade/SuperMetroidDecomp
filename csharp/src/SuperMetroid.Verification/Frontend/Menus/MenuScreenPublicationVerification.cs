@@ -66,7 +66,7 @@ internal static class MenuScreenPublicationVerification
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         saves.SelectSlot(SaveSlot.A);
-        var fileSelect = new FileSelectMenuState(saves, AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        var fileSelect = new FileSelectMenuState(saves, AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)
             fileSelect.Step(0);
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
@@ -80,13 +80,13 @@ internal static class MenuScreenPublicationVerification
             filePage[0].Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PageFrame(FileSelectPage.MainWithData))) &&
             filePage.Any(placed => placed.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PatchFrame(FileSelectPatch.Energy)))),
             "file select shows the main page with the saved slot's ENERGY field");
-        AssertEqual(maps.Backdrops.FileSelect, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
+        AssertEqual(maps.Backdrops.Menus, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
         AssertTrue(fileSelectScene.Layers.ToArray().OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
             "file select's pictures show the colours the import pre-coloured them in");
         AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), mapPresentation: maps, spriteSheets: optionsSheets);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
         // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).
@@ -99,7 +99,7 @@ internal static class MenuScreenPublicationVerification
             ReferenceEquals(primaryPage.Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
             ReferenceEquals(languages.Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(japanese: false))),
             "options shows the primary page with one picture of its language labels highlighting English (#1780)");
-        AssertEqual(maps.Backdrops.FileSelect, optionsScene.Paint.Backdrop, "options shows its own backdrop");
+        AssertEqual(maps.Backdrops.Menus, optionsScene.Paint.Backdrop, "options shows its own backdrop");
         AssertTrue(optionsScene.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),
             "options' sprites show the colours the import pre-coloured them in");
         AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.SpriteDraws, options.screen.Sprites.Draws), "options draws its own sprite entries");
@@ -113,7 +113,7 @@ internal static class MenuScreenPublicationVerification
         AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } gameOverPage] } &&
             ReferenceEquals(gameOverPage.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
             gameOverPage.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
-        AssertEqual(maps.Backdrops.FileSelect, gameOverScene.Paint.Backdrop, "game over shows its own backdrop");
+        AssertEqual(maps.Backdrops.Menus, gameOverScene.Paint.Backdrop, "game over shows its own backdrop");
         AssertTrue(gameOverScene.SpriteDraws.OfType<ImageSpriteDraw>().Any(draw =>
             draw.Shading == PictureShading.Shaded(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverBabyShades.Colours(gameOver.BabyColours))),
             "game over draws the Baby in the colours its pose program names");

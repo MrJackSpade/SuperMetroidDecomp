@@ -279,9 +279,7 @@ internal sealed class MotherBrainRainbowAndDeath
         head.Presence = sequence.ThirdPhaseDeath.BrainPresence;
         head.CollidesByFrameHitboxes = sequence.ThirdPhaseDeath.BrainCollidesByFrameHitboxes;
         head.AnimationClock.ShowsNewFrame = sequence.ThirdPhaseDeath.BrainShowsNewFrame;
-        // The live flag begins at two, while the reusable sequence needs only its Boolean
-        // branch meaning. Preserve every nonzero value; only an explicit clear
-        // is allowed to collapse it to zero.
+        // The sequence only ever turns the hitboxes off; it leaves the parts whose hitboxes are on as they are.
         if (!sequence.ThirdPhaseDeath.HitboxesEnabled)
             state.HitboxesEnabled = MotherBrainHitboxParts.None;
         if (sequence.State.SmallPurpleBreathGenerationWriteCount != state.RainbowAppliedSmallPurpleBreathWrites)
@@ -304,8 +302,8 @@ internal sealed class MotherBrainRainbowAndDeath
             current.PhaseAfter == MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding)
             state.NextRainbowFrame = 0;
         ApplyMotherBrainBeamColours(state, current);
-        // The brain's step runs after body AI. Its health check is enabled during revival,
-        // but the health colours wait until the corpse-state value reaches final-combat state 2.
+        // The brain's step runs after the body's. Its health check is enabled during revival, but the health colours wait
+        // until the corpse has revived.
         if (sequence.State.HealthColoursEnabled && sequence.State.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             state.Colours.ShowHealth(MotherBrainHealthShades.Band(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, sequence, current);

@@ -70,7 +70,7 @@ internal static class FileSelectMapWindowVerification
         foreach (AreaId areaId in AreaIds.Zebes)
         {
             int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);
-            var window = new FileSelectMapWindow(areaId, RetailPresentationFixture().Labels);
+            var window = new FileSelectMapWindow(areaId, RetailPresentationFixture().Maps.Labels);
             AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
             AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");
             AssertEqual(window.Left + 1, window.Right, "map window starts one column wide, its edges on the label");
@@ -109,7 +109,7 @@ internal static class FileSelectMapWindowVerification
             "completed expansion disables window and displays entire empty room frame");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var returning = FileSelectMapWindow.CreateReturn(AreaId.Maridia, RetailPresentationFixture().Labels);
+        var returning = FileSelectMapWindow.CreateReturn(AreaId.Maridia, RetailPresentationFixture().Maps.Labels);
         AssertEqual(new VerifyWorldMapLabelsCase(8, 8, 249, 216),
             new VerifyWorldMapLabelsCase(returning.Left, returning.Top, returning.Right, returning.Bottom), "native return rectangle insets");
         for (int tick = 1; tick <= 40; tick++)
@@ -123,7 +123,7 @@ internal static class FileSelectMapWindowVerification
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
         var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.SharedGameState(new SharedRandom()),
-            SuperMetroid.Core.Progression.AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+            SuperMetroid.Core.Progression.AreaId.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
         RgbaPixel[] frameOnly = graphics.RenderFrameOnly().ToArray();
         AssertTrue(frameOnly.Length > 0 && graphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly).Layers is [PicturedPlaneLayer],
             "transition frame shows only the frame's picture, never the room map's cells");
@@ -137,7 +137,7 @@ internal static class FileSelectMapWindowVerification
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
         var graphics = new FileSelectAreaMapGraphics(AreaId.Crateria, maps.Backdrops, MenuSheetFixtures.For(maps));
-        graphics.BindLabels(maps.Labels);
+        graphics.BindLabels(maps.Maps.Labels);
         foreach (AreaId areaId in AreaIds.Zebes)
         {
             int area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(areaId);

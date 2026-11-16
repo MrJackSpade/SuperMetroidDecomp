@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -31,8 +32,8 @@ internal static class GameOverSheetComposer
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
             frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
-        for (int frame = 0; frame < GameOverPresentationDefinitions.CursorFrameCount; frame++)
-            frames.Add(Frame(GameOverPresentationNames.CursorFrameName(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
+        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+            frames.Add(Frame(MenuMissileFrames.Name(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
         RgbColor[] colours = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         int babyInk = gameOver.BabyPaletteIndex * GroupColours;
         gameOver.BabyPaint.Colours(GameOverBabyColouring.Idle).CopyTo(colours.AsSpan(babyInk, GroupColours));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -22,7 +23,7 @@ internal static class PauseTileAtlasVerification
     /// Compares the stock pause characters with the cartridge's, and in three areas drives the menu from the map to the
     /// equipment page and back and confirms the restored equipment page keeps its pixels.
     /// </summary>
-    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, AreaMapPresentation original)
+    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, InstalledScreenContent original)
     {
         var vram = new SnesVram(); InstalledFixtures.ImportOf(original).Characters.Pause.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(PauseTileAtlasFormatConstants.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormatConstants.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
@@ -31,7 +32,7 @@ internal static class PauseTileAtlasVerification
         {
             var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(area);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
-            var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = area, RoomMapPosition = new(10, 11), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = area, RoomMapPosition = new(10, 11), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
             int toMap = 2 + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {

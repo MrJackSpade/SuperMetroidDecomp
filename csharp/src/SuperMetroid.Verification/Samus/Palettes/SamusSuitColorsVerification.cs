@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -95,7 +96,7 @@ internal static class SamusSuitColorsVerification
     /// <summary>Checks installed suit colors through live loading, restoration, hurt recovery, and Ceres entry.</summary>
     internal static void VerifySamusSuitColors(
         string stockDirectory,
-        AreaMapPresentation original,
+        InstalledScreenContent original,
         ISnesAddressSpace bus,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
@@ -167,7 +168,7 @@ internal static class SamusSuitColorsVerification
             "Screw Attack recovery restores the installed Varia color");
 
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        runtime.Artwork.MapPresentation = original;
+        runtime.Artwork.ScreenContent = original;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();

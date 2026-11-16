@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingShootingStarFrames
 {
-    /// <summary>The sheet frame showing a visible animation frame (#1392).</summary>
+    /// <summary>The sheet frame showing visible animation frame <paramref name="frame"/> (#1392).</summary>
     internal static string SheetFrameName(int frame) => frame is > 0 and < FrameCount
-        ? $"ShootingStar.{Math.Min(frame, FullStarFrame)}"
+        ? SheetFrameNames[Math.Min(frame, FullStarFrame) - 1]
         : throw new ArgumentOutOfRangeException(nameof(frame));
 }

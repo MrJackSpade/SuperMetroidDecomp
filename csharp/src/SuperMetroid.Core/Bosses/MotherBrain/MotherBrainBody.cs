@@ -102,8 +102,8 @@ internal sealed class MotherBrainBody
     /// <summary>Updates the glass-bound first phase and advances its scripted reaction to Samus.</summary>
     internal void RunMotherBrainFirstPhase(MotherBrainEnemyState state, SamusState samus)
     {
-        // Before the glass room object finishes the nineteen missile increments and its 48-frame tail,
-        // event two is clear and the first phase performs no phase change. Head-vs-Samus and
+        // Until the glass has taken its nineteen missile hits and finished shattering 48 frames later, the first phase
+        // changes nothing. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body phase.
         bool glassDestroyed = _room.Services.Events.Has(StoryEvent.MotherBrainGlassDestroyed);
@@ -357,8 +357,8 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first
-    /// turret lands in place 17 and the last in place 6.
+    /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first turret takes
+    /// the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
     {

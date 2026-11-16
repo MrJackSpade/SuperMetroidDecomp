@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
@@ -18,16 +19,16 @@ internal static class FrontendRenderCaptureTestsVerification
     /// <summary>Compares frame pixels, state, audio, and retained packet identity through the intro transition.</summary>
     internal static void VerifyFrontendRenderCapture()
     {
-        AreaMapPresentation presentation = RetailPresentationFixture();
+        InstalledScreenContent presentation = RetailPresentationFixture();
         var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         var captured = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         legacy.BindArtwork(legacy.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         captured.BindArtwork(captured.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         AssertEqual(new RgbaPixel(0, 0, 0, 255), captured.GetRetainedDisplay().SolidColor,
             "the initial display is a published black frame");

@@ -3,25 +3,23 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Immutable physical terrain of the SR388 discovery room. This 32-by-12 authored
-/// region is distinct from the visible room picture; the final four 32-block rows of
-/// the declared room are empty.
+/// The terrain of the SR388 discovery room, distinct from the room's picture (#2204): open air down to a full-width row
+/// of slope blocks lying on a full-width solid floor, with open air below the floor to the room's bottom.
 /// </summary>
 internal static class IntroBabyDiscoveryCollisionDefinitions
 {
-    /// <summary>Thirty-two blocks per room row.</summary>
+    /// <summary>The room's width in blocks.</summary>
     internal const int Columns = 32;
-    /// <summary>Twelve authored rows; the room itself is sixteen rows tall.</summary>
-    internal const int SourceRows = 12;
-    /// <summary>Ten empty rows precede the two authored terrain rows.</summary>
-    internal const int ZeroRows = 10;
-    /// <summary>How the eleventh source row's block collides in every column: as a slope.</summary>
-    internal const RoomCollisionType PenultimateRowBlock = RoomCollisionType.Slope;
-    /// <summary>How the final source row's block collides in every column: as a solid block.</summary>
-    internal const RoomCollisionType FinalRowBlock = RoomCollisionType.SolidBlock;
+    /// <summary>The room's height in blocks.</summary>
+    internal const int RoomRows = 16;
+    /// <summary>The row of slope blocks, counted from the room's top, that lies on the floor across the whole room.</summary>
+    internal const int SlopeRow = 10;
+    /// <summary>The row of the room's solid floor, counted from its top: the row under <see cref="SlopeRow"/>.</summary>
+    internal const int FloorRow = SlopeRow + 1;
+    /// <summary>How every block of <see cref="SlopeRow"/> collides: as a slope.</summary>
+    internal const RoomCollisionType SlopeBlock = RoomCollisionType.Slope;
+    /// <summary>How every block of <see cref="FloorRow"/> collides: as a solid block.</summary>
+    internal const RoomCollisionType FloorBlock = RoomCollisionType.SolidBlock;
     /// <summary>How every other block of the room collides: as air.</summary>
     internal const RoomCollisionType EmptyBlock = RoomCollisionType.Air;
-
-    /// <summary>Room height, including four empty rows beyond the authored region.</summary>
-    internal const int RoomRows = 16;
 }

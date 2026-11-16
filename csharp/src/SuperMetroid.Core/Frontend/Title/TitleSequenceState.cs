@@ -26,10 +26,10 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            BindTitleGradient(artwork.MapPresentation?.TitleGradient);
-            BindTitleBackdrop(artwork.MapPresentation?.TitleBackdrop);
+            BindTitleGradient(artwork.ScreenContent?.TitleGradient);
+            BindTitleBackdrop(artwork.ScreenContent?.TitleBackdrop);
         }
         BindSpriteSheets(artwork.SpriteSheets);
     }
@@ -558,8 +558,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void EnterImmediateTitleScreen()
     {
         gradientEnabled = true;
-        // The skip transition explicitly overwrites the two glyph colours the Nintendo copyright draws in after
-        // restoring the sprite colours; the copyright shows them as a shade from now on (#1512).
+        // Skipping to the title screen shows the Nintendo copyright in its restored colours, a shade from now on (#1512).
         CopyrightRestored = true;
         ActiveCard = null;
         ActiveSprite = TitleSprite.SuperMetroidLogo;

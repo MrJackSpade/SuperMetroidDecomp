@@ -20,11 +20,11 @@ internal sealed class IntroNarrationText
     /// <summary>The text rows, from <see cref="FirstTextRow"/> down to the final line.</summary>
     internal const int TextRows = 20;
 
-    /// <summary>The glyph places along a text row.</summary>
-    internal const int RowCells = IntroCinematicDefinitions.Planes.Width;
+    /// <summary>The glyph columns along a text row: as many glyphs as fit across the screen.</summary>
+    internal const int GlyphColumns = ScreenGeometry.ScreenWidthPixels / ScreenGeometry.BackgroundCellSizePixels;
 
     /// <summary>The letter and colour variant at each place of the text rows, row by row.</summary>
-    private readonly IntroTextCell[] places = new IntroTextCell[TextRows * RowCells];
+    private readonly IntroTextCell[] places = new IntroTextCell[TextRows * GlyphColumns];
 
     /// <summary>The letter at <paramref name="column"/> of text row <paramref name="row"/>, counted from the narration's top.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
@@ -49,6 +49,6 @@ internal sealed class IntroNarrationText
     /// <summary>The index of the place at <paramref name="column"/> of row <paramref name="row"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
     private static int PlaceIndex(int column, int row) =>
-        (Ensure.BetweenInclusive(FirstTextRow, FirstTextRow + TextRows - 1, row) - FirstTextRow) * RowCells +
-        Ensure.BetweenInclusive(0, RowCells - 1, column);
+        (Ensure.BetweenInclusive(FirstTextRow, FirstTextRow + TextRows - 1, row) - FirstTextRow) * GlyphColumns +
+        Ensure.BetweenInclusive(0, GlyphColumns - 1, column);
 }

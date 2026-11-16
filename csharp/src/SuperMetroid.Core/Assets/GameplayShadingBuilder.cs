@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// Gathers a gameplay frame's shading as it is published (#1512): each owner of a colour effect lays the shades its
 /// typed state names and the effects it applies over the groups of pictures it colours, in the order the publication
 /// asks them, and a door or the death sequence fades the whole display. Later shades win where they recolour the same
-/// inks, as the later of two colour writes did.
+/// inks.
 /// </summary>
 public sealed class GameplayShadingBuilder
 {

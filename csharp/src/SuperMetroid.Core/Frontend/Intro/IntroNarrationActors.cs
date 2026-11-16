@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The narration pages' persistent actors: the portrait eye running its typed <see cref="IntroEyeAnimations"/>
-/// animation, the typewriter narration written from installed glyph records, the text caret, and the Japanese text's
+/// animation, the typewriter narration typing the installed text's letters, the text caret, and the Japanese text's
 /// next-page arrow at each page's input wait.
 /// </summary>
 internal sealed class IntroNarrationActors
@@ -305,9 +305,8 @@ internal sealed class IntroNarrationActors
             IntroFinishRequested = true;
             return;
         }
-        // The page's blinking-markers-and-wait cue first
-        // sets the caret blinking, and with Japanese text spawns the next-page arrow. Japanese pages two to five then
-        // wait for the press that shows their second subtitle, which selects the page's input wait.
+        // Once the page is typed the caret starts blinking, and Japanese text shows the next-page arrow. Japanese pages
+        // two to five then wait for the press that shows their second subtitle, which selects the page's input wait.
         SetCaretBlinking();
         if (subtitles.Enabled)
             SpawnNextPageArrow();

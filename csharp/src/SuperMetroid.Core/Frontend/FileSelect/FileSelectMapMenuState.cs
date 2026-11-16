@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Progression;
@@ -62,11 +63,11 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <param name="random">The session's random number generator, which the saved progress the map reads shares with the rest of the session.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Controller buttons already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
-    /// <param name="mapPresentation">The installed map artwork and layout.</param>
+    /// <param name="screenContent">The installed screen content, whose area maps the screen draws.</param>
     /// <param name="spriteSheets">The installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     public FileSelectMapMenuState(AudioQueues audio, SharedRandom random,
-        SuperMetroidSaveSlot slot, ControllerButton initialHeldInput, AreaMapPresentation mapPresentation,
+        SuperMetroidSaveSlot slot, ControllerButton initialHeldInput, InstalledScreenContent screenContent,
         InstalledSpriteSheets spriteSheets)
     {
         this.audio = Ensure.NotNull(audio);
@@ -78,17 +79,17 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         var system = new SharedGameState(random);
         system.Progress.CopyFrom(slot.Progression);
         savedProgress = system.Progress;
-        Ensure.NotNull(mapPresentation);
+        Ensure.NotNull(screenContent);
         InstalledSpriteSheets sheets = Ensure.NotNull(spriteSheets);
-        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation, sheets);
-        roomGraphics = new FileSelectRoomMapGraphics(system, area, mapPresentation, sheets);
-        InstalledMapPresentation = mapPresentation;
+        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, screenContent, sheets);
+        roomGraphics = new FileSelectRoomMapGraphics(system, area, screenContent, sheets);
+        InstalledScreenContent = screenContent;
         Scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(station, mapPresentation.SaveMarkers);
+        marker = new FileSelectStationMarker(station, screenContent.Maps.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
-        navigation.BindLabels(mapPresentation.Labels);
-        animations = new FileSelectMapAnimations(mapPresentation.Arrows);
-        animations.BindHighlight(mapPresentation.HighlightCycle);
+        navigation.BindLabels(screenContent.Maps.Labels);
+        animations = new FileSelectMapAnimations(screenContent.Maps.Arrows);
+        animations.BindHighlight(screenContent.Maps.HighlightCycle);
         entry = new FileSelectMapEntry();
     }
 
@@ -100,28 +101,28 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     public bool OptionsRequested { get; private set; }
 
     /// <summary>Binds the installed map artwork when the game is bound to its installed content, without restarting navigation.</summary>
-    public void BindMapPresentation(AreaMapPresentation? catalog)
+    public void BindScreenContent(InstalledScreenContent? catalog)
     {
-        InstalledMapPresentation = catalog;
-        navigation.BindLabels(catalog?.Labels);
-        areaGraphics.BindMapPresentation(catalog);
-        animations.BindHighlight(catalog?.HighlightCycle);
-        animations.BindPresentation(catalog?.Arrows);
-        roomGraphics.BindMapPresentation(catalog);
-        marker.BindPosition(station, catalog?.SaveMarkers);
+        InstalledScreenContent = catalog;
+        navigation.BindLabels(catalog?.Maps.Labels);
+        areaGraphics.BindScreenContent(catalog);
+        animations.BindHighlight(catalog?.Maps.HighlightCycle);
+        animations.BindPresentation(catalog?.Maps.Arrows);
+        roomGraphics.BindScreenContent(catalog);
+        marker.BindPosition(station, catalog?.Maps.SaveMarkers);
     }
 
     /// <summary>The installed map artwork, which the game binds before the map draws or moves.</summary>
     /// <exception cref="InvalidOperationException">The game was rebound to no map artwork.</exception>
     [AllowNull]
-    private AreaMapPresentation InstalledMapPresentation { get => field ?? throw new InvalidOperationException(
+    private InstalledScreenContent InstalledScreenContent { get => field ?? throw new InvalidOperationException(
         "File-select map requires installed map presentation assets."); set;
     }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
     private MapScroll CreateScrollForCurrentContent()
     {
-        AreaMapPresentation catalog = InstalledMapPresentation;
+        InstalledScreenContent catalog = InstalledScreenContent;
         var anchor = FileSelectMapLoadAnchors.Get(station);
         return MapScroll.Centred(MapFramingDefinitions.FileSelect,
             MapScrollLimits.OfRevealedPlane(catalog.Get(area), roomGraphics.MapSystem), anchor);
@@ -161,7 +162,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 Scroll = CreateScrollForCurrentContent();
-                marker = new FileSelectStationMarker(station, InstalledMapPresentation.SaveMarkers);
+                marker = new FileSelectStationMarker(station, InstalledScreenContent.Maps.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetHighlight();
             }
@@ -173,7 +174,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
                 if (++pendingFrames < FileSelectMapDefinitions.ReturnSetupFrames) break;
                 if (returnWindow is null)
                 {
-                    returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledMapPresentation.Labels);
+                    returnWindow = FileSelectMapWindow.CreateReturn(area, InstalledScreenContent.Maps.Labels);
                     Queue(SamusSound.MapReturn);
                 }
                 else if (returnWindow.Step())

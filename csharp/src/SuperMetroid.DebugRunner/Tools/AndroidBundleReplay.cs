@@ -42,7 +42,7 @@ internal static class AndroidBundleReplay
         if (!SHA256.HashData(importBus.Rom).SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Local ROM does not match Android recording digest.");
         ClipAudioLibrary assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
-        SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentation maps = RepositoryInstallation.Installation.LoadMaps();
+        SuperMetroid.Core.Frontend.Artwork.InstalledScreenContent maps = RepositoryInstallation.Installation.LoadMaps();
         SaveSlotStore journalSaves = SaveRamCodec.Decode(recording.InitialSaveRam, maps);
         string temporary = Directory.CreateTempSubdirectory("SuperMetroid-android-replay-").FullName;
         try

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using System.Collections.Immutable;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -398,8 +399,8 @@ internal static class LookupStream3Verification
             [.. Enum.GetValues<GameOverBabyFrame>().Select(frame =>
                 KeyValuePair.Create(GameOverPresentationNames.BabyFrameName(frame), presentation.babySprites[frame])),
             KeyValuePair.Create(GameOverPresentationDefinitions.EggFrame, presentation.eggSprite),
-            .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-                KeyValuePair.Create(GameOverPresentationNames.CursorFrameName(frame), presentation.cursorSprites[frame]))]);
+            .. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame =>
+                KeyValuePair.Create(MenuMissileFrames.Name(frame), presentation.cursorSprites[frame]))]);
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
             var expected = MenuSpriteCompiler.Compile(expectedParts, "native menu composition");
@@ -421,8 +422,8 @@ internal static class LookupStream3Verification
             .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationNames.BabyFrameName(frame),
                 oam => presentation.Presentation.DrawBaby(oam, GameOverSheet, frame, GameOverBabyColouring.Idle), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
             new(GameOverPresentationDefinitions.EggFrame, oam => presentation.Presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
-            .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame => new GameOverSpriteDraw(
-                GameOverPresentationNames.CursorFrameName(frame), oam => presentation.Presentation.DrawCursor(oam, GameOverSheet, frame, false),
+            .. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame => new GameOverSpriteDraw(
+                MenuMissileFrames.Name(frame), oam => presentation.Presentation.DrawCursor(oam, GameOverSheet, frame, false),
                 original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
         ];
         foreach (GameOverSpriteDraw draw in draws)
@@ -454,7 +455,7 @@ internal static class LookupStream3Verification
             var presentation = load(new MemoryStream(json));
             for (int frame = 0; frame < 4; frame++)
             {
-                string name = GameOverPresentationNames.CursorFrameName(frame);
+                string name = MenuMissileFrames.Name(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
                 Confirm(presentation[frame], parts);
@@ -2061,7 +2062,7 @@ internal static class LookupStream3Verification
             "actual opening constructor transfers installed narration to native VRAM destination");
         intro.SetupFirstIllustratedPage();
         var subtitleUpload = intro.ShownVram().AsSpan(
-            (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroNarrationPictures.FinalLineRow * IntroCinematicDefinitions.Planes.Width * 2,
+            (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroNarrationPictures.FinalLineRow * IntroArtworkExtentDefinitions.PlaneCells * 2,
             IntroFinalLineTilemapFormat.CellCount * 2);
         for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),

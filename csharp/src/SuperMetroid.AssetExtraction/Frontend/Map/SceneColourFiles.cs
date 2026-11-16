@@ -22,8 +22,11 @@ public static class SceneColourFiles
     /// <summary>The installed document's file name.</summary>
     public const string FileName = "scene-colours.json";
 
-    /// <summary>Revision 1 of the scene colour document, the only revision the reader accepts.</summary>
-    public const int Version = 1;
+    /// <summary>
+    /// Revision 2 of the scene colour document, the only revision the reader accepts: 2 names the backdrop the menus share
+    /// for the menus, not for file select (#2203).
+    /// </summary>
+    public const int Version = 2;
 
     /// <summary>The stock tint the Ceres haze fades in to while Ceres Ridley lives.</summary>
     public static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
@@ -58,7 +61,7 @@ public static class SceneColourFiles
             Version = Version,
             TitleBackdrop = PaletteRgb5.From(title.Backdrop),
             PauseBackdrop = PaletteRgb5.From(backdrops.Pause),
-            FileSelectBackdrop = PaletteRgb5.From(backdrops.FileSelect),
+            MenusBackdrop = PaletteRgb5.From(backdrops.Menus),
             WorldMapBackdrops = ZebesAreas().ToDictionary(area => area.ToString(), area => PaletteRgb5.From(backdrops.World(area))),
             CeresHazeWhileRidleyLives = PaletteRgb5.From(StockCeresHazeBlue),
             CeresHazeAfterRidleyDies = PaletteRgb5.From(StockCeresHazeRed),
@@ -87,7 +90,7 @@ public static class SceneColourFiles
             world.Add(area, Colour(backdrop, $"world map's {area} backdrop"));
         }
         return new SceneColours(Colour(document.TitleBackdrop, "title backdrop"),
-            new MenuBackdrops(Colour(document.PauseBackdrop, "pause backdrop"), Colour(document.FileSelectBackdrop, "file-select backdrop"), world),
+            new MenuBackdrops(Colour(document.PauseBackdrop, "pause backdrop"), Colour(document.MenusBackdrop, "menus' backdrop"), world),
             new CeresHazeTints(Colour(document.CeresHazeWhileRidleyLives, "Ceres haze while Ridley lives"),
                 Colour(document.CeresHazeAfterRidleyDies, "Ceres haze once Ridley is dead")));
 

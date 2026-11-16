@@ -311,13 +311,11 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     }
 
     /// <summary>
-    /// The Baby Metroid enemy placed in the room by
-    /// the final beam's Baby spawn. Keeping the place and its extended cutscene state side by side makes
-    /// the cross-enemy index observable without pretending the Baby is a draw-only
-    /// effect owned by Mother Brain's body.
+    /// The Baby Metroid's place in the room's enemy list, which the final beam's Baby spawn fills: the Baby is an enemy of
+    /// its own, which Mother Brain's attacks find there, not an effect her body draws.
     /// </summary>
     public RoomEnemyPlace? BabyMetroidPlace { get; internal set; }
-    /// <summary>Extended cutscene AI state attached to the dynamically allocated baby place; its independent turn owns latch, draining, healing, and death handshakes.</summary>
+    /// <summary>The Baby Metroid's cutscene at that place: on its own turn it latches on, drains, heals Samus and dies.</summary>
     public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
 
 
@@ -332,9 +330,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal AnimationPlayback<MotherBrainBabySegment> BabyPlayback { get; set; } = MotherBrainBabyAnimations.Starting(default);
 
     /// <summary>
-    /// Shared cry counter incremented by onion-ring collision and consumed by the
-    /// Baby's later healing/idle phases. It is deliberately a count, not a boolean:
-    /// <c>INC</c> permits more than one ring to land before the next Baby turn.
+    /// The Baby's cries still to come: each onion ring that hits it adds one, and its later healing and idle phases take
+    /// them. It is a count, not a flag: more than one ring can land before the Baby's next turn.
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 

@@ -9,28 +9,28 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 [RoomLifetime]
 internal sealed record SporeSpawnBehaviorDependencies
 {
-    /// <summary>Room.</summary>
+    /// <summary>The room Spore Spawn's fight is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>The room's presentation, which shows his colours (#2194).</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The enemy projectiles Spore Spawn's fight fires and spawns.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Effect actors.</summary>
+    /// <summary>The room's effect actors, which Spore Spawn's fight shows.</summary>
     public required RoomEffectActors EffectActors { get; init; }
 
-    /// <summary>Frame context.</summary>
+    /// <summary>The enemy update's random number, frame counter and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemies' touches, shots and bombs with Samus, which Spore Spawn's fight reacts to.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' death explosions and drops, which Spore Spawn's fight spawns.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Frame results.</summary>
+    /// <summary>The enemy pass's results, which Spore Spawn's fight writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>The enemy update's sound and music requests.</summary>

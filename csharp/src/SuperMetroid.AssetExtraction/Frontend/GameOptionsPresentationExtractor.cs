@@ -78,7 +78,7 @@ public static class GameOptionsPresentationExtractor
         };
         for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
         {
-            sprites.Add(GameOptionsNames.CursorSpriteName(frame),
+            sprites.Add(MenuMissileFrames.Name(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
         }
 

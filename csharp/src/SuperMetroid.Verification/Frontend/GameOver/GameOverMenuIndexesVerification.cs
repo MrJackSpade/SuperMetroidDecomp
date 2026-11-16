@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -16,7 +17,7 @@ internal static class GameOverMenuIndexesVerification
     /// draws the selection missile. On a Yes answer, loading state $1F publishes the
     /// Ceres loader on the accepting frame; other saves fade into the area map.
     /// </summary>
-    internal static void VerifyGameOverMenuNativeIndexes(AreaMapPresentation presentation)
+    internal static void VerifyGameOverMenuNativeIndexes(InstalledScreenContent presentation)
     {
         var audio = AudioQueues.Standalone();
         var menu = new GameOverMenuState(audio, presentation, MenuSheetFixtures.For(presentation));

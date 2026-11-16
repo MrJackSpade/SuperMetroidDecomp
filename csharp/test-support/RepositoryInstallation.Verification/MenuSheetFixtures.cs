@@ -33,7 +33,7 @@ internal static class MenuSheetFixtures
     /// the artwork they are pictured from (#1616).
     /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="maps"/> is not the installation's presentation.</exception>
-    internal static InstalledSpriteSheets For(AreaMapPresentation maps)
+    internal static InstalledSpriteSheets For(InstalledScreenContent maps)
     {
         ArgumentNullException.ThrowIfNull(maps);
         return maps.ContentIdentity == InstalledFixtures.Maps.ContentIdentity ? InstalledFixtures.SpriteSheets

@@ -343,8 +343,7 @@ internal sealed class MotherBrainHead
             // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
                 return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
-            // Retail branches unconditionally here, where the adjacent commentary might suggest a
-            // conditional one: the hold's chance alone decides whether the phase-three pose holds again.
+            // The hold's chance alone decides whether the phase-three pose holds again.
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
                 return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
@@ -362,11 +361,8 @@ internal sealed class MotherBrainHead
         RoomEnemyPlace head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The bomb spawn gives an explicit mouth coordinate as the common
-        // spawn position, selects direction one (right), and invokes
-        // the bomb's definition. The source definition remains the head's, so the shared
-        // initializer obtains Mother Brain's authored contact damage and
-        // her laser speed flag without any encounter-specific substitute.
+        // The laser leaves her mouth, sixteen pixels right of and four below her head, travelling right. It is the head's
+        // shot, so it deals Mother Brain's contact damage at her laser's speed.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
             head,
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),

@@ -31,7 +31,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
             BindGlowColors(artwork.InstalledPowerBombGlowColors);
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindArtwork(artwork.IntroCinematicArt);
@@ -601,8 +601,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>
     /// The final blast replaces the floor on the same update that creates the final explosion. With Samus gone
     /// the upper half becomes the gunship viewed from the front over a cleared lower half; with Samus still aboard no
-    /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). Leaving the station on either half
-    /// would make the station itself flee the explosion and later carry it into the Zebes approach.
+    /// gunship leaves and both halves are cleared, so the floor shows nothing (#1513). No half keeps the station.
     /// </summary>
     private void LoadFinalExplosionMaps() =>
         FloorShot = WithSamus ? null : CeresFloorShot.Explosion;
@@ -640,9 +639,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             CeresAnimations.Scenes,
             definition.Animation);
 
-        // The explosion's start writes its stagger directly to the frame hold. The loop countdown is a different count, used
-        // by the animation's counted loops; using it here would make all five blasts appear immediately despite distinct
-        // delays.
+        // Each explosion holds its first frame for its own stagger, so the five blasts appear at their own delays.
         actor.DelayFirstStep(placement.DelayFrames);
         actors.Add(actor);
     }
@@ -668,12 +665,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                     throw new InvalidDataException(
                         "A PLANET ZEBES caption actor remained active when scene sliding began.");
                 }
-                // Zebes accelerates by 64 in 1/256 pixels; all four star quarters use 32. The lower-right
-                // stars own the reveal's completion. Identify the actors
-                // by their roles, not their mutable list index: actors delete as they
-                // cross -128, so indexes necessarily shift during this loop.
-                // The slide speed grows by at most 64 a frame and the actor is deleted within a few dozen frames, once
-                // it crosses -128, so the speed stays far inside its range.
+                // Zebes accelerates by 64 256ths of a pixel a frame and all four star quarters by 32; the reveal ends
+                // when the lower-right stars leave. Each actor leaves once it passes 128 pixels left of the screen,
+                // within a few dozen frames, so its speed stays small.
                 SignedEightEight slideSpeed = slideSpeeds.GetValueOrDefault(actor) + slideAcceleration;
                 slideSpeeds[actor] = slideSpeed;
                 actor.Position = actor.Position.WithY(actor.Position.Y - slideSpeed.ToSixteenSixteenDelta());
@@ -750,8 +744,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>
     /// Captures the scene's ordered layers (#1514): over Ceres, the station's turning floor with the asteroids and blasts
     /// in front of it; on the approach to Zebes, the planet and its stars behind the gunship's floor; or the Zebes reveal's
-    /// planet picture. The per-sprite-part priority tiers that once interleaved the sprites with the floor are a
-    /// presentation quirk the model does not keep.
+    /// planet picture. Each picture and sprite is drawn whole, in its layer's order.
     /// </summary>
     public LayeredScene CaptureRenderSnapshot()
     {

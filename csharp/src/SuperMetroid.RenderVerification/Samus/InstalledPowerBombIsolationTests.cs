@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Rendering;
@@ -25,7 +26,7 @@ internal static class InstalledPowerBombIsolationTests
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
-        AreaMapPresentation stock = MapPresentationFiles.Load(stockDirectory).Game;
+        InstalledScreenContent stock = MapPresentationFiles.Load(stockDirectory).Game;
         CheckCompiledLifetimeOperands(stock.PowerBombGlowColors);
         CheckStateRestoration(stock.PowerBombGlowColors);
         var framesToRender = new List<ContextFrame>();

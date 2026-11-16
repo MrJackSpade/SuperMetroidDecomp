@@ -45,11 +45,7 @@ public static class FileSelectParts
     public static string TankFrame(bool filled, int tensDigit) =>
         $"FileSelect.Tank.{(filled ? "Filled" : "Empty")}.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.DigitCount - 1, tensDigit)}";
 
-    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
-    public static string CursorSpriteName(int frame) =>
-        Ensure.Element(CursorSpriteNames, frame);
-
-    /// <summary>The JSON name of a selected-slot helmet frame's sprite, for frames 0-7.</summary>
+    /// <summary>The name of the selected slot's helmet picture at step <paramref name="frame"/> of its animation.</summary>
     public static string HelmetSpriteName(int frame) =>
         Ensure.Element(HelmetSpriteNames, frame);
 }

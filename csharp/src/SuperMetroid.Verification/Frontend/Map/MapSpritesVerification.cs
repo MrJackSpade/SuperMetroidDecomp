@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -44,7 +45,7 @@ internal static class MapSpritesVerification
     internal static IReadOnlyList<PictureShading> MapSpriteShadings { get; } = [.. MapSpriteSets.Keys];
 
     /// <summary>Compares native sprite bytes and clipping, and the installed sprites through rendered maps.</summary>
-    internal static void VerifyMapSprites(ISnesAddressSpace bus, AreaMapPresentation original)
+    internal static void VerifyMapSprites(ISnesAddressSpace bus, InstalledScreenContent original)
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
@@ -76,10 +77,10 @@ internal static class MapSpritesVerification
             var system = new SharedGameState(new SharedRandom()); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.Progress.ExploreEveryCell();
             var marker = new FileSelectStationMarker(LoadStationDefinitions.WreckedShipSave,
-                original.SaveMarkers);
-            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+                original.Maps.SaveMarkers);
+            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             var nativeRoom = new FileSelectRoomMapGraphics(system,
-                AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
+                AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             // Each comparison draws only scenes whose descriptions differ (#1532).
             LayeredScene before = nativeRoom.CaptureRenderSnapshot(new(0, 0), marker);
             AssertTrue(ScenePixels.Same(before, room.CaptureRenderSnapshot(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
@@ -87,8 +88,8 @@ internal static class MapSpritesVerification
             room = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(room);
             room.BindFixtureArtwork(original);
             AssertTrue(ScenePixels.Same(before, room.CaptureRenderSnapshot(new(0, 0), marker)), "restored sprite resources keep the installed pixels");
-            var pauseNative = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.WreckedShip, RoomMapPosition = new(19, 21), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
-            var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.WreckedShip, RoomMapPosition = new(19, 21), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pauseNative = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.WreckedShip, RoomMapPosition = new(19, 21), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
+            var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = AreaId.WreckedShip, RoomMapPosition = new(19, 21), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) });
             AssertTrue(ScenePixels.Same(pauseNative.CaptureRenderSnapshot(), pause.CaptureRenderSnapshot()), "pause map sprite pixels match with source reads blocked");
         }
     }

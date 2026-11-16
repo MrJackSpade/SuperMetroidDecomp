@@ -20,11 +20,16 @@ public static class FileSelectPresentationDefinitions
             [SaveSlot.C] = "C",
         };
 
-    /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
-    internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
-    /// <summary>The JSON names of the helmet frame sprites, by frame.</summary>
+    /// <summary>
+    /// The name each picture of the selected slot's helmet is installed under, in the order it turns to face the player
+    /// and shines (#2202): turned away, turning, the shine on its visor from the left edge across the middle to the right
+    /// edge, a tall sparkle as the shine leaves, and the wide sparkle it settles on.
+    /// </summary>
     internal static readonly string[] HelmetSpriteNames =
-        ["Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"];
+    [
+        "Helmet.TurnedAway", "Helmet.Turning", "Helmet.ShineLeft", "Helmet.ShineLeftOfMiddle", "Helmet.ShineRightOfMiddle",
+        "Helmet.ShineRight", "Helmet.SparkleTall", "Helmet.SparkleWide",
+    ];
 
     /// <summary>The JSON name of a foreground page.</summary>
     internal static readonly IReadOnlyDictionary<FileSelectPage, string> PageNames =

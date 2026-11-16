@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
 /// The installed pictures of the room changes of Mother Brain's fake death (#1557), by frame: the wall fill, the escape
-/// door, the twelve mural rows, the two fill rows and the six tube clears. Their geometry, collision and timing stay
+/// door, the twelve mural rows and the six tube clears. Their geometry, collision and timing stay
 /// with the draws and the encounter.
 /// </summary>
 public sealed class InstalledMotherBrainFakeDeathFrames

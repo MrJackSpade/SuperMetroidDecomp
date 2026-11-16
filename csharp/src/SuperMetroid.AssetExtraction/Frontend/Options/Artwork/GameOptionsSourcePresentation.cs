@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
@@ -233,7 +234,7 @@ public sealed class GameOptionsSourcePresentation
             "options special toggles");
         ValidateExactKeys(document.Sprites,
             [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
-                .. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount).Select(GameOptionsNames.CursorSpriteName)],
+                .. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(MenuMissileFrames.Name)],
             "options sprites");
         GameOptionsPresentation presentation = GameOptionsLayoutFile.Presentation(document.HeadingAnchors, document.CursorAnchors,
             document.CursorFrameDuration);
@@ -285,8 +286,8 @@ public sealed class GameOptionsSourcePresentation
 
         var headingSprites = GameOptionsPresentationFormat.MenuPages.ToDictionary(page => page,
             page => CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationFormat.CursorFrameCount)
-            .Select(frame => CompileSprite(document, GameOptionsNames.CursorSpriteName(frame)))];
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount)
+            .Select(frame => CompileSprite(document, MenuMissileFrames.Name(frame)))];
         return new(document, presentation, new(pages, background, labels), new(headingSprites, cursorSprites),
             Convert.ToHexString(SHA256.HashData(bytes)));
     }

@@ -277,9 +277,8 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Runs the fallthrough. This step advances the global RNG—unlike
-    /// attack selection—and fires immediately on the lower half; the upper half enters the
-    /// ordinary slow-crouch body animation before firing.
+    /// Decides whether Mother Brain crouches before her bomb. Unlike the attack's choice, this advances the room's random
+    /// numbers: a number in the lower half fires at once, one in the upper half crouches slowly first.
     /// </summary>
     private void DecideWhetherMotherBrainCrouchesForBomb(MotherBrainEnemyState state)
     {
@@ -300,7 +299,7 @@ internal sealed class MotherBrainAttacks
             FireMotherBrainBomb(state);
     }
 
-    /// <summary>Runs the unstored firing tail.</summary>
+    /// <summary>Fires the bomb from her mouth and starts the wait after it.</summary>
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
@@ -359,7 +358,7 @@ internal sealed class MotherBrainAttacks
         return false;
     }
 
-    /// <summary>Literal pose/animation behavior of crouching.</summary>
+    /// <summary>Whether Mother Brain is crouched; a standing Mother Brain starts crouching slowly.</summary>
     private static bool TryMakeMotherBrainCrouch(MotherBrainEnemyState state)
     {
         if (state.Pose == MotherBrainBodyPose.Crouched)
@@ -371,7 +370,7 @@ internal sealed class MotherBrainAttacks
         return false;
     }
 
-    /// <summary>Literal pose/animation behavior of standing.</summary>
+    /// <summary>Whether Mother Brain is standing; a crouched or leaning Mother Brain starts standing up.</summary>
     private static bool TryMakeMotherBrainStand(MotherBrainEnemyState state)
     {
         switch (state.Pose)

@@ -476,7 +476,7 @@ internal static class SaveSchemaTranslationVerification
         var frontend = new SuperMetroidGame(ram);
         frontend.BindArtwork(frontend.Artwork with
         {
-            MapPresentation = RetailPresentationFixture(),
+            ScreenContent = RetailPresentationFixture(),
         });
         // Boot fixes the demo playlist, so each marker state boots a session.
         ram.SelectSlot(SaveSlot.C);

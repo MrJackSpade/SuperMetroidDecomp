@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
@@ -14,7 +15,7 @@ internal static class PausePictureSheetConstants
     /// The pause frame <paramref name="area"/> shows under <paramref name="highlight"/>, as the cartridge's tiles: the backdrop
     /// with the button page's two shown rows over its button rows, each label in its shade, for verification.
     /// </summary>
-    internal static BackgroundTile[] Frame(AreaMapPresentation maps, AreaId area, PauseButtonHighlight highlight)
+    internal static BackgroundTile[] Frame(InstalledScreenContent maps, AreaId area, PauseButtonHighlight highlight)
     {
         Ensure.NotNull(maps);
         var frame = new BackgroundTile[PauseBackdropDefinitions.Cells];

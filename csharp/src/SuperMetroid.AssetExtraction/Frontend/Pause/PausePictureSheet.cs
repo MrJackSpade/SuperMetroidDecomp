@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
@@ -19,6 +20,14 @@ internal static class PausePictureSheet
 {
     /// <summary>Cells across the pause frame.</summary>
     private const int Columns = PauseBackdropDefinitions.Columns;
+
+    /// <summary>
+    /// How far each page picture's origin lies below its page's corner (#2207): the screen shows each pause page, frame
+    /// and equipment page alike, from the page's second pixel row, while the markers, icons and selectors are placed from
+    /// its first, so a page's pictures are installed one row higher than the page lays them out. The map's cell pictures
+    /// are drawn in a grid that the screen scrolls with the frame, so their origins keep the page's corner.
+    /// </summary>
+    private static Offset16<ImagePixels> PageLead => new(0, 1);
 
     /// <summary>Every picture the sheet holds.</summary>
     internal static IEnumerable<ScreenPictureSubject> Subjects(ImportAreaMapPresentation maps)
@@ -100,7 +109,11 @@ internal static class PausePictureSheet
             throw new InvalidDataException("The pause sheet's pictures are not the frames the game names it by.");
         ComposedSpriteSheet sheet = ScreenPictureSheetComposer.ComposeHoldingBlanks(subjects, Characters(maps), maps.Palettes.Pause);
         PauseReserveArrowColours arrow = maps.Pause.ReserveUi.ArrowColours;
-        return sheet with { Manifest = sheet.Manifest with { Shades = SheetShade.Documents([.. arrow.Shades()]) } };
+        var cells = new HashSet<string>(MapPictureSheets.CellSubjects(maps).Select(cell => cell.Name), StringComparer.Ordinal);
+        var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
+        foreach ((string name, SpriteSheetFrameDocument frame) in sheet.Manifest.Frames)
+            frames.Add(name, cells.Contains(name) ? frame : frame with { Origin = frame.Origin + PageLead });
+        return sheet with { Manifest = sheet.Manifest with { Frames = frames, Shades = SheetShade.Documents([.. arrow.Shades()]) } };
     }
 
     /// <summary>

@@ -18,8 +18,8 @@ internal static class FakeKraidProjectiles
     }
 
     /// <summary>
-    /// The vertical launch offset of body port <paramref name="row"/>. The spike initializer adds this signed offset to
-    /// the body's Y, wrapping at 65536, independently of animation and facing.
+    /// The vertical launch offset of body port <paramref name="row"/>. A spike launches from the body's height moved by
+    /// this offset, wrapping round the room's coordinates, whatever the body's animation and facing.
     /// </summary>
     internal static int SpikeYOffset(FakeKraidSpikeRow row) =>
         FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(row, out int offset)

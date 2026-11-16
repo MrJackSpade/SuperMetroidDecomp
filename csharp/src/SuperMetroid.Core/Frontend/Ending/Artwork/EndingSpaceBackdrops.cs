@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
 /// The backdrop each colour-effect frame of the space behind the exploding planet shows (#1512, #1583, #1598), as the
-/// import supplies it: every frame of those colours writes its first colour, the space, before any colour it skips, so each
-/// frame shows that colour behind every layer. The ending's other colour-effect colours are pre-coloured into its sheets.
+/// import supplies it: every frame of that colour effect sets the space's colour, so each frame shows it behind every
+/// layer. The ending's other colour-effect colours are pre-coloured into its sheets.
 /// </summary>
 public sealed class EndingSpaceBackdrops
 {

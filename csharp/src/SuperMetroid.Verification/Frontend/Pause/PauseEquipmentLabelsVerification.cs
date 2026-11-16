@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -13,7 +14,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 internal static class PauseEquipmentLabelsVerification
 {
     /// <summary>Compares inventory tilemaps with ROM reads blocked.</summary>
-    internal static void VerifyPauseEquipmentLabelAssets(AreaMapPresentation original)
+    internal static void VerifyPauseEquipmentLabelAssets(InstalledScreenContent original)
     {
 
         SamusState[] inventories =
@@ -26,15 +27,15 @@ internal static class PauseEquipmentLabelsVerification
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
-            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = Clone(inventory), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original) }), original);
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
 
         Console.WriteLine("Pause equipment labels: native inventory/Hyper parity with blocked ROM sources passes.");
 
-        static byte[] EquipmentPage(PauseMenuState pause, AreaMapPresentation maps)
+        static byte[] EquipmentPage(PauseMenuState pause, InstalledScreenContent maps)
         {
             EnterPauseEquipment(pause);
             return pause.ShownVram(maps).AsSpan(0x6000, 0x800).ToArray();

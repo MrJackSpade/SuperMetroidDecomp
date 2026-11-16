@@ -46,7 +46,7 @@ internal sealed class EndingZebesExplosion
     /// <summary>Current colour crossfade step during the explosion crossfade.</summary>
     private int explosionFadeStep;
 
-    /// <summary>Whether the explosion's colour crossfade still owns the colour writes.</summary>
+    /// <summary>Whether the explosion's crossfade still sets the scene's colours.</summary>
     internal bool ExplosionCrossfadeActive => _stage.Phase is EndingCreditsPhase.FadeInZebesExplosion
         or EndingCreditsPhase.ZebesExplosionCrossfade;
 

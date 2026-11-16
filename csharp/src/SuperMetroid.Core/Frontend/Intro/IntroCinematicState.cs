@@ -34,9 +34,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            NarrationPresentation = artwork.MapPresentation?.IntroNarration;
+            NarrationPresentation = artwork.ScreenContent?.IntroNarration;
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindCharacterArtwork(artwork.IntroCinematicArt);
@@ -103,11 +103,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         CharacterArtwork = value;
         CurrentCeresFlight?.BindArtwork(value?.CeresFlight);
-        if (value is not null)
-        {
-            // A restored fade keeps its levels; its pictures show the installed sheets' shades of them (#1512). The first card and the final line are installed pictures the narration plane places (#1467), so a
-            // rebind keeps the live letters and caret state as they are.
-        }
+        // Rebinding keeps a restored fade's levels and the live letters and caret: the pictures show the installed sheets'
+        // shades of the levels (#1512), and the first card and the final line are installed pictures the narration plane
+        // places (#1467).
     }
 
     /// <summary>
@@ -596,9 +594,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         Narration.HideCaret();
         Narration.AcceptPageTurn();
 
-        // The discovery setup shows the Mother Brain room page. Its 32x32 visual map was already
-        // loaded with the initial artwork; the room's block data below is gameplay
-        // collision data and must never be expanded as a visual block map.
+        // The discovery shows the Mother Brain room's installed page picture; the room's blocks below are its terrain,
+        // which Samus collides with, not what the room shows.
         CurrentFlashbackSamus = new SamusState(flashbackAudioRequests, samusOverreads.FramesBeyondAnimation, UnauthoredBoostCadence,
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
@@ -635,7 +632,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
-    /// <summary>Advances 32 component updates of the text-to-gameplay fade before exposing the Mother Brain room.</summary>
+    /// <summary>Advances the thirty-two steps of the crossfade from the narration to the Mother Brain room, then shows the room.</summary>
     private void StepMotherBrainCrossfade()
     {
         if (!AdvanceCrossfade())
@@ -674,12 +671,12 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Completes the Mother Brain-to-page-two colour transition.</summary>
     private void StepPageTwoCrossfade()
     {
-        // The reverse crossfade is the exact inverse of the earlier transition: text/portrait ranges
-        // fade in while Mother Brain gameplay, projectile, and sprite ranges fade out.
+        // The reverse crossfade undoes the earlier one exactly: the narration and the portrait fade in while the Mother
+        // Brain room, its projectiles and its sprites fade out.
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageTwoText);
     }
 
-    /// <summary>Fades gameplay and projectile ranges out while restoring portrait and text ranges.</summary>
+    /// <summary>Fades the flashback room and its projectiles out while bringing the portrait and the narration back.</summary>
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
         if (AdvanceCrossfade())
@@ -763,7 +760,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
-    /// <summary>Fades page-three text and portrait ranges into the delivery laboratory colours.</summary>
+    /// <summary>Fades page three's narration and portrait into the laboratory the Baby is delivered to.</summary>
     internal void StepBabyMetroidDeliveryCrossfade()
     {
         // The scientist crossfade fades the narration away while bringing in the laboratory and its scientists.
@@ -1232,8 +1229,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         var text = new PicturedPlaneLayer(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText, crossfade.SceneShading, crossfade.NarrationShading), default);
         // Back to front (#1514): the page's room, the flashback's actors over it, and the narration over both. Each picture
-        // and sprite is drawn whole at its layer's place; the per-square and per-sprite-part priority tiers that once
-        // interleaved them are a presentation quirk the model does not keep.
+        // and sprite is drawn whole at its layer's place, in its layer's order.
         return new(new FramePaint(Backdrop), new DisplayLayer[]
         {
             room, new SpritesLayer(FlashbackDraws(sprites.Draws)), text,

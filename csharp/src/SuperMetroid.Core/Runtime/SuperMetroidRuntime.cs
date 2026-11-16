@@ -215,7 +215,7 @@ internal sealed class SuperMetroidRuntime
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Player = Player, Room = Room, System = System, Assists = Assists, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies
         {
-            MapPresentation = artwork.MapPresentation, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
+            ScreenContent = artwork.ScreenContent, SpriteSheets = artwork.SpriteSheets, SamusBodyArt = artwork.SamusBodyArt, SamusShownFrames = artwork.SamusShownFrames,
             GrappleFlarePlacement = artwork.GrappleFlarePlacement, GrappleSwingFrames = artwork.GrappleSwingFrames,
             ProjectileFrameBindings = artwork.ProjectileFrameBindings, ChargeFlarePlacement = artwork.ChargeFlarePlacement,
             RoomBlockSheets = artwork.RoomBlockSheets, RoomVisualLayouts = artwork.RoomVisualLayouts, RoomLevelStreams = artwork.RoomLevelStreams,
@@ -264,7 +264,7 @@ internal sealed class SuperMetroidRuntime
     /// runtime being built, or one restored from a saved state), otherwise only the catalogs whose reference changed.
     /// </summary>
     /// <remarks>
-    /// The map presentation binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
+    /// The screen content binds first: its setter pushes the HUD, message-box, effect overlay and Samus colour bindings and
     /// rebinds the queued artwork that later catalogs' setters may read.
     /// </remarks>
     /// <param name="artwork">The catalogs to bind.</param>
@@ -287,7 +287,7 @@ internal sealed class SuperMetroidRuntime
                 bind(value);
         }
 
-        Bind(a => a.MapPresentation, value => Artwork.MapPresentation = value);
+        Bind(a => a.ScreenContent, value => Artwork.ScreenContent = value);
         Bind(a => a.SamusBodyArt, value => Artwork.SamusBodyArt = value);
         Bind(a => a.SamusShownFrames, value => Artwork.SamusShownFrames = value);
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
@@ -638,7 +638,7 @@ internal sealed class SuperMetroidRuntime
         // Main gameplay runs the colour effects before Samus's update and
         // before enemies are processed. The Baby equips the Hyper Beam during that later enemy phase, so a newly
         // started Hyper Beam colour effect begins on the following frame.
-        // The room's colour effects take their turns first (ColourEffectSystem.effects): room FX starts first,
+        // The room's colour effects take their turns first, in the order they started: room FX starts first,
         // and Hyper Beam's effect, which starts later, takes its turn after them.
         // Door destination drawing borrows this frame path, but the door's destination
         // fade does not run the colour effects. Its colors must remain
@@ -885,7 +885,7 @@ internal sealed class SuperMetroidRuntime
             BackgroundPhase.UpdateBackgroundScrollingFromCamera(Freeze.TimeIsFrozen);
 
             // The minimap updates in Samus's normal movement phase from her room position, not the camera's.
-            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.MapPresentation.Get(roomGeometry.Area) });
+            Hud.UpdateMinimap(System, new MinimapFrame { Area = roomGeometry.Area, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Assists.Current.MapReveal, PresentationMap = Artwork.ScreenContent.Get(roomGeometry.Area) });
         }
     }
 
@@ -919,7 +919,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (escapeTimerRuns && EscapeTimer.IsActive)
         {
-            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, Artwork.MapPresentation.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
+            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, Artwork.ScreenContent.EscapeTimer, Artwork.SpriteSheets.Get(SpriteSheetId.EscapeTimer));
         }
     }
 
@@ -1042,7 +1042,7 @@ internal sealed class SuperMetroidRuntime
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),
-            Artwork.MapPresentation.CeresHaze,
+            Artwork.ScreenContent.CeresHaze,
             PowerBombRenderSnapshot.Capture(Room.LoadedScope.BombProjectiles.PowerBombExplosion),
             MessageBoxLayer.Capture(MessageBox, Room.Scope?.MessageBoxes),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
@@ -1054,7 +1054,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// The published frame's gameplay shading (#1512): each owner of a colour effect names the shades and effects its
-    /// state shows, in the order later colour writes won over earlier ones: the room's colour effects and the effect overlay colours,
+    /// state shows, each later one showing over the earlier: the room's colour effects and the effect overlay colours,
     /// then its bosses', then the door's fade over all of them.
     /// </summary>
     private GameplayShading PublishShading()

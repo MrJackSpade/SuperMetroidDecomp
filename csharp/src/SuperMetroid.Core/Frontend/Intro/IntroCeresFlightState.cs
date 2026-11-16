@@ -66,9 +66,9 @@ internal sealed class IntroCeresFlightState
     private int spaceColonyTimer;
     /// <summary>Distinguishes the completed caption's final hold from its glyph-writing phase.</summary>
     private bool spaceColonyHoldStarted;
-    /// <summary>Whether the optional one-frame katakana caption record has drawn the katakana caption.</summary>
+    /// <summary>Whether the Japanese text's katakana caption has shown, for the one frame it shows before the hold.</summary>
     internal bool JapaneseCaptionShown { get; private set; }
-    /// <summary>Selects the game's alternate Japanese caption record.</summary>
+    /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
     private readonly bool japaneseText;
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
@@ -200,9 +200,8 @@ internal sealed class IntroCeresFlightState
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        // The stars, the station, its asteroids and the vortex lie beyond the gunship: they are drawn behind its floor.
-        // The per-sprite-part priority tiers that once interleaved them with the floor are a presentation quirk the model
-        // does not keep.
+        // The stars, the station, its asteroids and the vortex lie beyond the gunship: they are drawn behind its floor,
+        // each whole.
         var sprites = new SpritesLayer(screenSprites.Draws);
         var layers = new List<DisplayLayer> { sprites };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
@@ -352,8 +351,7 @@ internal sealed class IntroCeresFlightState
             return;
         }
 
-        // The caption skips the Japanese caption record for English text. Japanese text draws
-        // it on a one-frame record before the hold.
+        // English text shows no katakana caption; Japanese text shows it for one frame before the hold.
         if (japaneseText && !JapaneseCaptionShown)
         {
             JapaneseCaptionShown = true;

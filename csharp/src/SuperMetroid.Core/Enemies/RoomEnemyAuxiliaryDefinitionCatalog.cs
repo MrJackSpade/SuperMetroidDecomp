@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy definitions used by runtime-created actors but not selected by any retail room population or the
+/// Enemy definitions used by actors the game creates as it runs but not selected by any room's enemy population or the
 /// enemy artwork rooms load. They hold the same immutable gameplay fields as ordinary room definitions.
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog

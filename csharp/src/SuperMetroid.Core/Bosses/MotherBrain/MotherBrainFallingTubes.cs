@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainFallingTubes
 {
     /// <summary>
-    /// Resolves the selected piece's placement. The piece's offset is consumed by the tube's
-    /// initializer. The entry's animation is unused: the piece runs its typed animation (#641), so the field is
-    /// zero. Placement magnitudes and the main delay remain independent required inputs.
+    /// Resolves the selected piece's placement: where the tube's setup places it. The piece runs its own animation (#641).
     /// </summary>
     internal static RoomEnemyPlacement Get(MotherBrainTubePiece piece)
     {

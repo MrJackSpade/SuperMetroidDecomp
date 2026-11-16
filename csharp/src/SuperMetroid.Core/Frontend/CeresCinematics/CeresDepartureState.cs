@@ -45,7 +45,7 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Applies the elevator hold's post-gameplay decrement and reports the transition to the blackout.
     /// </summary>
-    /// <returns>Whether the wrapping countdown reached zero or ran below it and entered the fade; the triggering admission frame is not counted.</returns>
+    /// <returns>Whether the hold ran out this update and the fade to black began.</returns>
     /// <exception cref="InvalidOperationException">The elevator-hold phase is not active.</exception>
     public bool StepHoldAfterGameplay()
     {

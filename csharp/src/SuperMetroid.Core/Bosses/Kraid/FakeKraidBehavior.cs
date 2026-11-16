@@ -333,8 +333,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Replaces generic bomb death with Fake Kraid's death explosion and four-drop sequence.</summary>
     internal EnemyBombReaction FakeKraidBombReaction => field ??= new()
     {
-        // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
-        // Fake Kraid drop. Its definition never runs the generic death, whatever reaction a hitbox selects.
+        // Fake Kraid keeps where it stood before the common damage, then dies in its own explosion and scatters its
+        // drops there. It never dies the generic death, whatever reaction a hitbox selects.
         RunsGenericDeath = false,
         // Fake Kraid's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,

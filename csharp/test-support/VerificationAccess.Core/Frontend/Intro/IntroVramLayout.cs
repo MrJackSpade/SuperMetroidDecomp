@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -34,7 +35,7 @@ internal static class IntroVramLayout
 
     /// <summary>VMADD $4C00-$4FFF: BG3's narration tilemap, rewritten from the <c>$7E:3000</c> staging map.</summary>
     public static readonly PpuLayoutCell NarrationTilemap = new(nameof(NarrationTilemap), PpuLayoutRegion.Vram,
-        IntroVramWords.NarrationTilemapWord, IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount,
+        IntroVramWords.NarrationTilemapWord, IntroArtworkExtentDefinitions.NarrationTilemapCells,
         "BG3 tilemap words (32x32)", PpuMemoryLayout.Vram);
 
     /// <summary>VMADD $5000-$5FFF: the four scene BG tilemap pages (scene BG1, scene BG2, scientists and spare).</summary>

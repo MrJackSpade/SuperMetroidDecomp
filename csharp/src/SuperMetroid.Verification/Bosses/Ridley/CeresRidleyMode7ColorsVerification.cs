@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -19,7 +20,7 @@ internal static class CeresRidleyMode7ColorsVerification
 {
     /// <summary>Compares native zoom rows, all getaway frames, and source-read blocking.</summary>
     internal static void VerifyCeresRidleyMode7Colors(string stockDirectory,
-        AreaMapPresentation original, ISnesAddressSpace rom)
+        InstalledScreenContent original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorExtractor.Extract(rom);
         CeresRidleyFloorColorCatalog native = CeresRidleyMode7ColorFile.Read(
@@ -49,7 +50,7 @@ internal static class CeresRidleyMode7ColorsVerification
                 ArtworkJson.Options)
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        runtime.Artwork.MapPresentation = original;
+        runtime.Artwork.ScreenContent = original;
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var ridley = new RidleyEnemyState();

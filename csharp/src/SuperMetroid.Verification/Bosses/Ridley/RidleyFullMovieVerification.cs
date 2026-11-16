@@ -626,7 +626,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPausePageTiming()
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
-        var menu = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 1), MapPresentation = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
+        var menu = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Norfair, RoomMapPosition = new(0, 1), ScreenContent = RetailPresentationFixture(), SpriteSheets = MenuSheetFixtures.For(RetailPresentationFixture()) });
         foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
             PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;
@@ -686,7 +686,7 @@ internal static class RidleyFullMovieVerification
         // The pause screen's colours are the shadings its pictures name (#1512): the highlight frame and the reserve arrow's.
         PauseMenuState pause = menu ?? throw new InvalidOperationException("Verification requires menu.");
         // The pause screen is bound to the map presentation the game was bound with.
-        var maps = game.Session.Artwork.MapPresentation ?? throw new InvalidOperationException("The game is bound to no map presentation.");
+        var maps = game.Session.Artwork.ScreenContent ?? throw new InvalidOperationException("The game is bound to no map presentation.");
         RgbColor[] initial = PauseShownColours.Of(pause, maps);
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PauseScreenFadeIn && fadeFrames++ < 32)

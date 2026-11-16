@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The live Mother Brain body, brain and neck state the rainbow-beam sequence mirrors (#633).</summary>
 internal sealed record MotherBrainLiveActorSnapshot
 {
-    /// <summary>Body.</summary>
+    /// <summary>Where Mother Brain's body stands in the room.</summary>
     public required Position16<RoomPixels> Body { get; init; }
 
-    /// <summary>Body pose.</summary>
+    /// <summary>The pose her body holds: standing, crouched or leaning.</summary>
     public required MotherBrainBodyPose BodyPose { get; init; }
 
     /// <summary>The live encounter stage, which the sequence's shot reactions and footsteps branch on.</summary>
@@ -30,7 +30,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Mother Brain's brain's room position used by the final beam's aim vector.</summary>
     public required Position16<RoomPixels> Brain { get; init; }
 
-    /// <summary>The brain's health, rewritten to 36,000 when corpse state one is published.</summary>
+    /// <summary>The brain's health, set to 36,000 when she becomes a <see cref="MotherBrainPhase2CorpseState.Corpse"/>.</summary>
     public required int BrainHealth { get; init; }
 
     /// <summary>How the brain meets Samus and her shots; death makes it ignore Samus.</summary>
@@ -48,7 +48,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Whether the brain's animation just installed a frame; cleared when the rot animation completes.</summary>
     public required bool BrainShowsNewFrame { get; init; }
 
-    /// <summary>Neck movement enabled.</summary>
+    /// <summary>Whether her neck moves.</summary>
     public required bool NeckMovementEnabled { get; init; }
 
     /// <summary>The lower neck movement selected by the current actor phase.</summary>

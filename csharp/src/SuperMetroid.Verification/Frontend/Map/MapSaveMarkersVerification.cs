@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Frontend.InstalledFileSelectMapVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -68,13 +69,13 @@ internal static class MapSaveMarkersVerification
     /// Checks which save markers the cartridge lets an area show (<see cref="VerifySaveMarkerEligibility"/>), that a station
     /// with no marker is rejected, and the whole file-select menu over the installed map.
     /// </summary>
-    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, AreaMapPresentation original)
+    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, InstalledScreenContent original)
     {
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));
         int unmarked = 0;
         foreach (LoadStation station in LoadStationDefinitions.All.Where(station => !MapSaveMarkers.IsMarked(station)))
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(station, original.SaveMarkers), $"{station} has no marker");
+            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(station, original.Maps.SaveMarkers), $"{station} has no marker");
             unmarked++;
         }
         AssertEqual(2, unmarked, "the arrival on Zebes and the Ceres start have no marker");

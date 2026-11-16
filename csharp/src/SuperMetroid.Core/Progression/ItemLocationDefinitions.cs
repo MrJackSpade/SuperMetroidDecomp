@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Every item location of the retail room populations, named for the first room-state population that places it and
+/// Every item location of the game's room populations, named for the first room-state population that places it and
 /// its item and, where two would share that name, its block. Regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>

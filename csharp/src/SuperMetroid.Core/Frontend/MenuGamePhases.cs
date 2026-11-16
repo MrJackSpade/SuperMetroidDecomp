@@ -28,8 +28,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         session.Show(new TitleSequenceState(
             session.audio,
-            session.Artwork.InstalledMapPresentation.TitleGradient,
-            session.Artwork.InstalledMapPresentation.TitleBackdrop,
+            session.Artwork.InstalledScreenContent.TitleGradient,
+            session.Artwork.InstalledScreenContent.TitleBackdrop,
             session.Artwork.InstalledSpriteSheets));
         session.ForgetQueuedAudio();
         session.ForgetSpacetimeRestart();
@@ -45,7 +45,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         if (session.ActiveTitle.FileSelectRequested)
         {
             // The title sets the file-select game state only after the slow fade reaches black.
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.InstalledMapPresentation,
+            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.InstalledScreenContent,
                 session.Artwork.InstalledSpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
@@ -89,7 +89,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 : null;
             session.Show(new GameOptionsMenuState(
                 session.audio,
-                session.Artwork.InstalledMapPresentation,
+                session.Artwork.InstalledScreenContent,
                 session.Artwork.InstalledSpriteSheets,
                 optionSlot?.ControllerBindings,
                 optionSlot?.IconCancelEnabled ?? false,
@@ -110,7 +110,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveOptions);
         if (session.ActiveOptions.FileSelectRequested)
         {
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.InstalledMapPresentation,
+            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.InstalledScreenContent,
                 session.Artwork.InstalledSpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
@@ -183,7 +183,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void RunGameOverMenu(ControllerButton controllerInput)
     {
         GameOverMenuState gameOver = session.ScreenAs<GameOverMenuState>() ?? session.Show(new GameOverMenuState(session.audio,
-            session.Artwork.InstalledMapPresentation, session.Artwork.InstalledSpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
+            session.Artwork.InstalledScreenContent, session.Artwork.InstalledSpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
                 SaveLoadingGameState.CeresElevatorArrival));
         gameOver.Step(controllerInput);
         session.display.PublishMenu(gameOver);
@@ -243,13 +243,13 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 // must not keep publishing gameplay audio during map selection.
                 session.ReleaseRuntime();
                 session.Show(new FileSelectMapMenuState(session.audio, session.Random, mapSlot, controllerInput,
-                    session.Artwork.InstalledMapPresentation, session.Artwork.InstalledSpriteSheets));
+                    session.Artwork.InstalledScreenContent, session.Artwork.InstalledSpriteSheets));
             }
             else session.ActiveFileSelectMap.Step(controllerInput);
             session.display.PublishFileMap(session.ActiveFileSelectMap);
             if (session.ActiveFileSelectMap.OptionsRequested)
             {
-                session.Show(new GameOptionsMenuState(session.audio, session.Artwork.InstalledMapPresentation,
+                session.Show(new GameOptionsMenuState(session.audio, session.Artwork.InstalledScreenContent,
                     session.Artwork.InstalledSpriteSheets, mapSlot.ControllerBindings,
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
                     japaneseText: mapSlot.JapaneseText));
@@ -310,7 +310,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,
-            NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
+            NarrationPresentation = session.Artwork.ScreenContent?.IntroNarration,
         };
         return cinematic;
     }

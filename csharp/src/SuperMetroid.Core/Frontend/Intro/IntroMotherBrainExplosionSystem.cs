@@ -18,7 +18,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     internal readonly List<ExplosionActor> actors = [];
 
     /// <summary>
-    /// Replays the eight spawn calls in their original order.
+    /// Spawns the eight explosions of the fourth hit on Mother Brain, in the order they appear.
     /// </summary>
     public void SpawnFourthHitExplosions()
     {

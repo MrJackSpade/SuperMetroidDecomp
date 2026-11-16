@@ -53,7 +53,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+            var graphics = new FileSelectRoomMapGraphics(system, area, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             ShownAreaMap pause = AreaMapProjection.Project(map, system);
             // The room map's image is built once and every frame word read from it.
             var shownRoomMap = MenuScreenFixtures.Vram(graphics, RetailPresentationFixture());
@@ -92,8 +92,8 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             var retailIcons = new FileSelectMapIcons(system, area);
-            retailIcons.BindStations(RetailPresentationFixture().Stations);
-            retailIcons.BindLandmarks(RetailPresentationFixture().Landmarks);
+            retailIcons.BindStations(RetailPresentationFixture().Maps.Stations);
+            retailIcons.BindLandmarks(RetailPresentationFixture().Maps.Landmarks);
             retailIcons.BindSprites(MenuSheetFixtures.MapSprites(RetailImportPresentationFixture().Sprites));
             var retailOam = ScreenSpritesFixtures.Blank();
             retailOam.BeginFrame();
@@ -132,10 +132,10 @@ internal static class FileSelectRoomMapVerification
         var system = new SharedGameState(new SharedRandom());
         system.SetAreaMapAcquired(AreaId.Maridia);
         AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
-        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
+        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
         var areaGraphics = new FileSelectAreaMapGraphics(AreaId.Maridia, maps.Backdrops, MenuSheetFixtures.For(maps));
-        areaGraphics.BindLabels(maps.Labels);
+        areaGraphics.BindLabels(maps.Maps.Labels);
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
         {
@@ -150,7 +150,7 @@ internal static class FileSelectRoomMapVerification
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(AreaId.Maridia, maps.Labels))),
+                FileSelectMapWindow.CreateReturn(AreaId.Maridia, maps.Maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
@@ -328,7 +328,7 @@ internal static class FileSelectRoomMapVerification
         var game = CreateRetailGameFixture(saves, assists: null, renderGameplayFrames: false);
         game.BindArtwork(game.Artwork with
         {
-            MapPresentation = RetailPresentationFixture(),
+            ScreenContent = RetailPresentationFixture(),
         });
         FrontendFrame frame = game.Step(0);
         frame = game.Step(ControllerButton.Start);
@@ -396,7 +396,7 @@ internal static class FileSelectRoomMapVerification
         foreach (ControllerButton confirm in new ControllerButton[] { ControllerButton.Start, ControllerButton.A })
         {
             var navigation = new FileSelectMapNavigation(AreaId.Maridia, confirm);
-            navigation.BindLabels(RetailPresentationFixture().Labels);
+            navigation.BindLabels(RetailPresentationFixture().Maps.Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
@@ -420,7 +420,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
         var cancel = new FileSelectMapNavigation(AreaId.Maridia);
-        cancel.BindLabels(RetailPresentationFixture().Labels);
+        cancel.BindLabels(RetailPresentationFixture().Maps.Labels);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.Right | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
@@ -428,7 +428,7 @@ internal static class FileSelectRoomMapVerification
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
         var back = new FileSelectMapNavigation(AreaId.Maridia);
-        back.BindLabels(RetailPresentationFixture().Labels);
+        back.BindLabels(RetailPresentationFixture().Maps.Labels);
         back.Step(ControllerButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
         back.Step(ControllerButton.B);

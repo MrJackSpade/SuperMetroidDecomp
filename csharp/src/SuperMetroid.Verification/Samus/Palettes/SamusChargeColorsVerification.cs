@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -26,7 +27,7 @@ internal static class SamusChargeColorsVerification
 {
     /// <summary>Checks the installed charge and Hyper colors' CGRAM output without rereading native palette words.</summary>
     internal static void VerifySamusChargeColors(string stockDirectory,
-        AreaMapPresentation original, ISnesAddressSpace rom)
+        InstalledScreenContent original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusChargeColorExtractor.Extract(rom);
         var native = SamusChargeColorFile.Read(new MemoryStream(extracted, writable: false)).ToColours();

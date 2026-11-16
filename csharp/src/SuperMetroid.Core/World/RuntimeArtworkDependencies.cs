@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.World;
 [ArchitectureReview("wide-dependencies", "Ten members are the immutable installed artwork catalogs the runtime binds once at construction (#2049), data rather than collaborators; the runtime-layer GameplayArtwork that groups them sits above World, so World cannot take it without a module cycle.")]
 internal sealed record RuntimeArtworkDependencies
 {
-    /// <summary>The installed map presentation the runtime is built over (#2049).</summary>
-    public required SuperMetroid.Core.Gameplay.IGameplayPresentationContent MapPresentation { get; init; }
+    /// <summary>The installed screen content the runtime is built over (#2049, #2203).</summary>
+    public required SuperMetroid.Core.Gameplay.IGameplayPresentationContent ScreenContent { get; init; }
 
     /// <summary>The installed pre-coloured sprite sheets the runtime is built over.</summary>
     public required SuperMetroid.Core.Assets.InstalledSpriteSheets SpriteSheets { get; init; }

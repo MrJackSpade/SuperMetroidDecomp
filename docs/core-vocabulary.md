@@ -401,6 +401,28 @@ state and extra values (`the shared state extension`, `with its extra values`); 
 the state for what it holds. Two releases set side by side, an expression or member in backticks, a sorted list, a
 per-line scroll, loading a room, a block's, neck's or tail's extension and a literal alone stay English.
 
+Outside hardware owners SME6454 also reads (#2222) the original's cinematic objects as a background object, spaced or
+hyphenated (`five cinematic background-object updates`); a palette's slices as the ranges they colour, outside markup (`text/portrait
+ranges`, `gameplay and projectile ranges`, `colour ranges`); a colour write, overwriting colours and a fade's component
+update or step (`the colour writes`, `overwrites the two glyph colours`, `thirty-two component steps`); a script's step
+as the original's record (`character records`, `the katakana caption record`, `a start-delay record`); the dropped
+drawing order (`the priority tiers that once interleaved them`, `a presentation quirk the model does not keep`); an
+opcode mnemonic set as code in markup, read case-sensitively (`<c>INC</c> permits more than one ring`); a register
+reloaded (`does not reload Y`); a field of the C reimplementation outside markup (`the Baby place's Enemy.health`); a
+packed value (`the packed X and Y collision radii`, `a packed decimal pair`); a disassembly label set as a summary and
+the original's Japanese text label (`Enemy projectile animation: Mother brains drool`, `time Bomb set japan text`); an
+encounter's event, form, place or region by a number in digits (`body form to 4`, `scroll region 1`, `place 17`) and a
+corpse, combat, final-combat, body or story event, form or state by a number in digits or words (`corpse state one`,
+`final-combat state 2`); and
+the retail population or initializer (`Mother Brain's retail population`, `retail part init`). Core names the actor, the
+fade, the colours shown, the step, the drawing order, what a count does, the value, the animation, the story event, the
+form, the scroll or the place, and the game's room populations. A background alone, a range of rows or a shot's range,
+writing a picture's colours into a buffer, a record of something, interleaving alone, a capitalised name that is no
+mnemonic, reloading a timer or a weapon, a file's name, a pack of enemies or a backend's packing, an enemy's animation,
+a number that counts the noun after it or follows a verb (`places two pickups`), a room's or the beam's state by
+number, a stage by number (the game's own Speed Booster stages and the stages its pictures show) and a retail cartridge
+stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

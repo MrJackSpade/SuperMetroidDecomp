@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Video;
@@ -130,8 +131,8 @@ public sealed class GameOverSourcePresentation
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,
             frame => CompileSprite(document, GameOverPresentationNames.BabyFrameName(frame)));
         SpriteComposition eggSprite = CompileSprite(document, GameOverPresentationDefinitions.EggFrame);
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
-            CompileSprite(document, GameOverPresentationNames.CursorFrameName(frame)))];
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame =>
+            CompileSprite(document, MenuMissileFrames.Name(frame)))];
 
         var palettes = new Dictionary<GameOverBabyColouring, RgbColor[]>();
         foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())

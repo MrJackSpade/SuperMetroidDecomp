@@ -2,31 +2,37 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Physical foreground of the intro Mother Brain room. Regular regions are constructed geometrically;
-/// the left silhouette is authored collision-mask data.</summary>
+/// <summary>
+/// The terrain of the intro Mother Brain room (#2204): a full-width ceiling and floor, the left wall's contour between
+/// them, the formation hanging from the middle of the ceiling, the pillar standing on the floor below it and the ledge
+/// at the right wall, the pillar's and the ledge's tops being slopes. Rows are counted from the room's top.
+/// </summary>
 internal static class IntroMotherBrainCollisionDefinitions
 {
-    /// <summary>Sixteen blocks per room row.</summary>
+    /// <summary>The room's width in blocks.</summary>
     internal const int Columns = 16;
-    /// <summary>Fourteen authored rows.</summary>
-    internal const int SourceRows = 14;
-    /// <summary>The room's height in blocks; the rows past the authored ones are empty.</summary>
+    /// <summary>The room's height in blocks; the rows under the floor are open air.</summary>
     internal const int RoomRows = 16;
     /// <summary>A solid block.</summary>
     internal const RoomCollisionType Solid = RoomCollisionType.SolidBlock;
-    /// <summary>A slope block: the platforms' top collision cells.</summary>
+    /// <summary>A slope block: the pillar's and the ledge's tops.</summary>
     internal const RoomCollisionType PlatformTop = RoomCollisionType.Slope;
-    /// <summary>An air block: every cell the authored collision leaves open.</summary>
+    /// <summary>An air block: every block the terrain leaves open.</summary>
     internal const RoomCollisionType Empty = RoomCollisionType.Air;
-    /// <summary>First and last nonzero full-width source rows.</summary>
+    /// <summary>The rows of the full-width ceiling and the full-width floor.</summary>
     internal const int CeilingRow = 1, FloorRow = 13;
-    /// <summary>Upper central formation spans rows 2/3, centered on column 9.</summary>
-    internal const int UpperTipRow = 2, CentralColumn = 9;
-    /// <summary>Lower central and right platforms start at row 8; right platform starts column 12.</summary>
+    /// <summary>
+    /// The formation hanging from the ceiling: one block at its tip on the row under the ceiling, three on the row below,
+    /// centred on the column the pillar stands in.
+    /// </summary>
+    internal const int FormationTipRow = 2, CentralColumn = 9;
+    /// <summary>The row of the pillar's and the ledge's tops, and the first column of the ledge, which reaches the right wall.</summary>
     internal const int PlatformRow = 8, RightPlatformColumn = 12;
 
-    /// <summary>Authored collision-mask widths on rows 2..12: tank interior, upper notch and pipe base.
-    /// These select blocking geometry independently of visible pixels; a fitted curve would
-    /// restate or alter the authored mask.</summary>
+    /// <summary>
+    /// The left wall's width in blocks on each row from <see cref="FormationTipRow"/> down to the row above the floor: the
+    /// tank, the notch above it and the pipe's base. They give the wall its blocking shape independently of the room's
+    /// picture; a fitted curve would restate or alter it.
+    /// </summary>
     internal static ReadOnlySpan<int> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 }

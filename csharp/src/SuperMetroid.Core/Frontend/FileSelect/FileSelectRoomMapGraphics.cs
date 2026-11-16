@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Progression;
@@ -29,25 +30,25 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Installs one area's revealed map and fixed frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
-    /// <param name="mapPresentation">The installed map tiles, colours, screens, and sprite/layout resources.</param>
+    /// <param name="screenContent">The installed screen content, whose area maps supply the stations and landmarks.</param>
     /// <param name="sheets">The installed sprite sheets: the map sprites and the background pictures.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
-    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area, AreaMapPresentation mapPresentation,
+    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area, InstalledScreenContent screenContent,
         InstalledSpriteSheets sheets, MapRevealMode revealMode = MapRevealMode.None)
     {
         Ensure.NotNull(system);
-        Ensure.NotNull(mapPresentation);
+        Ensure.NotNull(screenContent);
         icons = new FileSelectMapIcons(system, area);
-        icons.BindStations(mapPresentation.Stations);
-        icons.BindLandmarks(mapPresentation.Landmarks);
+        icons.BindStations(screenContent.Maps.Stations);
+        icons.BindLandmarks(screenContent.Maps.Landmarks);
         InstalledSpriteSheets installed = Ensure.NotNull(sheets);
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no room map on the saved-game map.");
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, installed);
-        AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system, revealMode);
+        screen = new MenuScreen(screenContent.Backdrops.Menus, installed);
+        AreaMap = AreaMapProjection.Project(screenContent.Get(area), system, revealMode);
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background pictures.</summary>
@@ -61,13 +62,13 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
-    internal void BindMapPresentation(AreaMapPresentation? catalog)
+    internal void BindScreenContent(InstalledScreenContent? catalog)
     {
-        icons.BindStations(catalog?.Stations);
-        icons.BindLandmarks(catalog?.Landmarks);
+        icons.BindStations(catalog?.Maps.Stations);
+        icons.BindLandmarks(catalog?.Maps.Landmarks);
 
         _ = catalog ?? throw new InvalidOperationException("Room-map graphics require installed map presentation assets.");
-        screen.Backdrop = catalog.Backdrops.FileSelect;
+        screen.Backdrop = catalog.Backdrops.Menus;
         var system = icons.MapSystem;
         var area = icons.MapArea;
         AreaMap = AreaMapProjection.Project(catalog.Get(area), system);
@@ -101,7 +102,7 @@ public sealed class FileSelectRoomMapGraphics
         var frame = new PicturedPlane([.. framePictures]);
         var frameScroll = new Offset16<PlanePixels>(0, FileSelectMapDefinitions.RoomFrameVerticalScroll);
         // The room map scrolls through its frame's opening, the frame's border around it (#1514): each picture is drawn
-        // whole, and the per-square priority tiers that once interleaved the two are a presentation quirk the model does not keep.
+        // whole, the map in front of the frame.
         layers.Add(new PicturedPlaneLayer(frame, frameScroll));
         if (content != RoomMapContent.FrameOnly)
             layers.Add(new PictureGridLayer(AreaMapPictures.Grid(AreaMap, pictures), scroll.AsPlaneOffset()) { Window = MapFrameOpening.Window(frameScroll) });

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
@@ -42,7 +43,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Tracks button edges used by menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Installed file-select artwork, bound when the game is bound to its installed content.</summary>
-    private AreaMapPresentation? mapPresentation;
+    private InstalledScreenContent? screenContent;
     /// <summary>Each slot's save; a null entry is an empty or invalid slot.</summary>
     private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot?> saveSlots = [];
     /// <summary>The selection missile's frame cycle.</summary>
@@ -51,7 +52,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private int helmetAnimationTimer;
     /// <summary>Selected helmet turn frame retained through the options fade.</summary>
     internal int HelmetAnimationFrame { get; private set; }
-    /// <summary>How bright the file-select screen is; it starts blanked and fades in and out between pages.</summary>
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
     private readonly ScreenFade screenFade = new(0);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
@@ -62,11 +62,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Performs the menu's first three steps, including every artwork load.</summary>
     public FileSelectMenuState(SaveSlotStore saves, AudioQueues audio,
-        AreaMapPresentation mapPresentation, InstalledSpriteSheets spriteSheets)
+        InstalledScreenContent screenContent, InstalledSpriteSheets spriteSheets)
     {
         this.audio = Ensure.NotNull(audio);
-        this.mapPresentation = Ensure.NotNull(mapPresentation);
-        screen = new MenuScreen(mapPresentation.Backdrops.FileSelect, Ensure.NotNull(spriteSheets));
+        this.screenContent = Ensure.NotNull(screenContent);
+        screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
 
         this.saves = Ensure.NotNull(saves);
@@ -122,7 +122,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         ControllerButton pressed = controller.NewlyPressed;
 
         if (!IsEntryPhase)
-            missile.Step((mapPresentation ?? throw new InvalidOperationException(
+            missile.Step((screenContent ?? throw new InvalidOperationException(
                 "File select requires installed menu presentation assets.")).FileSelect.CursorFrameDuration);
         switch (Phase)
         {
@@ -204,7 +204,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+        FileSelectPresentation presentation = (screenContent ?? throw new InvalidOperationException(
             "File select requires installed menu presentation assets.")).FileSelect;
         // The backdrop, the page, its slots' fields and its slot letters are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
@@ -217,7 +217,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         ScreenSprites sprites = screen.Sprites;
         sprites.BeginFrame();
         bool mainPage = IsMainPagePhase;
-        FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+        FileSelectPresentation presentation = (screenContent ?? throw new InvalidOperationException(
             "File-select sprites require installed menu presentation assets.")).FileSelect;
         FileSelectBorder borderName = IsCopyPhase
             ? FileSelectBorder.Copy
@@ -272,7 +272,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         if (helmetAnimationTimer == 0 || --helmetAnimationTimer != 0)
             return;
-        helmetAnimationTimer = (mapPresentation ?? throw new InvalidOperationException(
+        helmetAnimationTimer = (screenContent ?? throw new InvalidOperationException(
             "File select requires installed menu presentation assets.")).FileSelect.HelmetFrameDuration;
         int next = HelmetAnimationFrame + 1;
         if (next >= FileSelectHelmetAnimation.FrameCount)
@@ -647,12 +647,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         audio.QueueSound(SamusSound.MenuCursor, priority: SoundRequestPriority.Normal);
 
     /// <summary>Binds the installed file-select artwork when the game is bound to its installed content.</summary>
-    public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)
+    public void BindScreenContent([NotNull] InstalledScreenContent? catalog)
     {
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");
-        mapPresentation = catalog;
-        screen.Backdrop = catalog.Backdrops.FileSelect;
+        screenContent = catalog;
+        screen.Backdrop = catalog.Backdrops.Menus;
         RefreshShownPage();
     }
 

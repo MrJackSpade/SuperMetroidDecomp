@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -98,7 +99,7 @@ internal static class MapLoadAnchorsVerification
     }
 
     /// <summary>Compares native and compiled map scrolling, saved-station entry, and area rendering with cartridge access forbidden on the compiled path.</summary>
-    internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentation catalog)
+    internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, InstalledScreenContent catalog)
     {
         // One store for every saved-station fixture, as one SRAM held them.
         var stationSaves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
@@ -149,9 +150,9 @@ internal static class MapLoadAnchorsVerification
         foreach (AreaId area in AreaIds.Zebes)
         {
             var native = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
-            native.BindLabels(catalog.Labels);
+            native.BindLabels(catalog.Maps.Labels);
             var compiled = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
-            compiled.BindLabels(catalog.Labels);
+            compiled.BindLabels(catalog.Maps.Labels);
             for (int mask = 0; mask < 64; mask++)
             {
                 var stations = new ushort[AreaIds.Zebes.Count];

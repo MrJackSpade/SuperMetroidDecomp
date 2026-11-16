@@ -491,7 +491,7 @@ internal sealed class MotherBrainProjectiles
             beam.StartAnimation(new MotherBrainHandBeamAnimation());
         }
 
-        /// <summary>Exact six-position mouth attachment table.</summary>
+        /// <summary>Holds Mother Brain's drool at its point on her mouth as her head moves.</summary>
         internal static void HoldMotherBrainDroolAtMouth(
             EnemyProjectile drool)
         {
@@ -539,8 +539,7 @@ internal sealed class MotherBrainProjectiles
                 {
                     state.PendingBabyCryCount++;
                     baby.ApplyMotherBrainOnionRingHit(MotherBrainAttackDamage.OnionRing);
-                    // The ring writes the Baby place's Enemy.health from this projectile
-                    // pass; it must not wait for the Baby's next AI turn to publish it.
+                    // The ring sets the Baby's health on this projectile pass, not on the Baby's next turn.
                     RoomEnemyPlace babyPlace = state.BabyMetroidPlace ?? throw new InvalidDataException(
                         "A Mother Brain onion ring hit the Baby while the Baby has no enemy in the room.");
                     babyPlace.Health = baby.Health;

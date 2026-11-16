@@ -10,28 +10,28 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed record PhantoonBehaviorDependencies
 {
-    /// <summary>Room.</summary>
+    /// <summary>The room Phantoon's fight is in: its area, its enemy definitions and the game services and random numbers its enemies use.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
-    /// <summary>Projectiles.</summary>
+    /// <summary>The enemy projectiles Phantoon's fight fires and spawns.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 
-    /// <summary>Earthquake.</summary>
+    /// <summary>The room's earthquake, which Phantoon's fight starts.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Audio.</summary>
+    /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
 
-    /// <summary>Presentation.</summary>
+    /// <summary>The room's enemy presentation, which Phantoon's fight is shown through.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Frame context.</summary>
+    /// <summary>The enemy update's random number, frame counter and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
-    /// <summary>Collision.</summary>
+    /// <summary>The enemies' touches, shots and bombs with Samus, which Phantoon's fight reacts to.</summary>
     public required EnemyCollision Collision { get; init; }
 
-    /// <summary>Deaths and drops.</summary>
+    /// <summary>The enemies' death explosions and drops, which Phantoon's fight spawns.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>The session's installed boss artwork.</summary>

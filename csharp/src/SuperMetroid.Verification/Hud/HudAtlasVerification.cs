@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -26,15 +27,15 @@ internal static class HudAtlasVerification
     /// Checks that the selected stock HUD characters show at the next accepted NMI and render the native pixels.
     /// </summary>
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus,
-        AreaMapPresentation original,
+        InstalledScreenContent original,
         MapPresentationInstalledRoomAssets fixtureAssets)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), NativeHudCharacters, HudTileAtlasFormat.ByteCount);
         AssertTrue(source.SequenceEqual(InstalledFixtures.ImportOf(original).Characters.Hud.Bytes.Span), "HUD PNG and compiled padding match all native bytes");
         var native = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        native.Artwork.MapPresentation = original;
+        native.Artwork.ScreenContent = original;
         var installed = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay);
-        installed.Artwork.MapPresentation = original;
+        installed.Artwork.ScreenContent = original;
         fixtureAssets.Bind(native);
         fixtureAssets.Bind(installed);
         Initialize(native); Initialize(installed);
@@ -49,7 +50,7 @@ internal static class HudAtlasVerification
         void Initialize(SuperMetroidRuntime runtime)
         {
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(5, 6), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
+            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { Area = AreaId.Crateria, RoomMap = new(5, 6), RoomSize = new(16, 16), Samus = new(128, 128), FrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.ScreenContent ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ScreenContent.")).Get(AreaId.Crateria) });
         }
         // The top rows of the BG3 plane the frame latches, its characters as their bound artwork composes them, drawn added
         // over the black backdrop: the plane no longer holds the HUD, which is its own layer (#1466), so the band shows

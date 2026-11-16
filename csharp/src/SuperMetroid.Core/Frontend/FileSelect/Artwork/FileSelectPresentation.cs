@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Saves;
 
@@ -47,7 +48,7 @@ public sealed class FileSelectPresentation
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
     internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Offset16<ScreenPixels> anchor) =>
-        screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor, shading: PictureShading.Standard);
+        screenSprites.AddImage(sheet.Frame(MenuMissileFrames.Name(frame)), anchor, shading: PictureShading.Standard);
 
     /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, SaveSlot slot) =>

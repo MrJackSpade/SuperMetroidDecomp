@@ -33,7 +33,7 @@ public static class RoomEnemyDefinitionLookup
                 "Not a referenced retail enemy definition.");
 
     /// <summary>
-    /// The compiled definition for <paramref name="definitionId"/>: an auxiliary definition the retail population needs
+    /// The compiled definition for <paramref name="definitionId"/>: an auxiliary definition the rooms' populations need
     /// beyond the referenced definitions answers first, and every other identity is a referenced definition.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is neither auxiliary nor referenced.</exception>

@@ -132,8 +132,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
     }
 
     /// <summary>
-    /// Runs the second phase finish samus off load baby pictures body phase. True when it moves to the next body phase and the game runs
-    /// on into it within the same call.
+    /// Readies the Baby Metroid's arrival as Mother Brain finishes Samus off, one update at a time; the last spawns the
+    /// Baby and starts the final beam's wait. Never runs on into the next phase within the same update.
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffReadyBaby(MotherBrainRainbowBeamStepRequests requests)
     {

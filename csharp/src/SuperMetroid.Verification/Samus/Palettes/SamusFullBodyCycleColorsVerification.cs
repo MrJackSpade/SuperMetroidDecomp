@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -61,7 +62,7 @@ internal static class SamusFullBodyCycleColorsVerification
     /// <summary>Drives the four installed cycle families' production owners for each suit and checks CGRAM without source rereads.</summary>
     internal static void VerifySamusFullBodyCycleColors(
         string stockDirectory,
-        AreaMapPresentation original, ISnesAddressSpace rom)
+        InstalledScreenContent original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom);
         Suite(nameof(VerifyFullBodyPaletteColorData), () => VerifyFullBodyPaletteColorData(rom, extracted));

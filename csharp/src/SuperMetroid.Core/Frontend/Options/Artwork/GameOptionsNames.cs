@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Core.Frontend.Options.Artwork.GameOptionsPresentationDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
@@ -30,10 +29,6 @@ public static class GameOptionsNames
     /// <returns>Five for primary, nine for controller including Exit and Reset, or three for special including Exit.</returns>
     internal static int CursorCount(GameOptionsPage page) =>
         Ensure.Listed(GameOptionsPresentationDefinitions.CursorCounts, page);
-
-    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
-    public static string CursorSpriteName(int frame) =>
-        Ensure.Element(CursorSpriteNames, frame);
 
     /// <summary>The menus' picture of the options screen's backdrop page (#1467).</summary>
     public const string BackgroundFrame = "Options.Background";

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -15,7 +16,7 @@ internal static class GameOverPresentationVerification
     /// <summary>Compares a No-to-title sequence with native output.</summary>
     internal static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(bus);
         _ = GameOverSourcePresentation.Load(new MemoryStream(extracted));

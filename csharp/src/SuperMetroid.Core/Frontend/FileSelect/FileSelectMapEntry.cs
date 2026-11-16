@@ -12,8 +12,8 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 public sealed class FileSelectMapEntry
 {
     /// <summary>
-    /// The gradual colour change's step number: one after the setup call the game makes, then one more per fade update,
-    /// until it passes the entry fade's last step.
+    /// The entry fade's step: the first once the map is entered, then one more each update, until it passes the fade's
+    /// last step.
     /// </summary>
     private int fadeStep = 1;
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
@@ -43,8 +43,7 @@ public sealed class FileSelectMapEntry
         switch (Phase)
         {
             case FileSelectMapEntryPhase.EntryFade:
-                // The gradual colour change reaches its target at step denominator plus one and reports completion on
-                // the call after it.
+                // The fade reaches its colours one step past its last and finishes on the update after.
                 if (fadeStep > FileSelectMapDefinitions.EntryFadeSteps + 1) Phase = FileSelectMapEntryPhase.LoadForeground;
                 else fadeStep++;
                 break;
@@ -58,8 +57,8 @@ public sealed class FileSelectMapEntry
                 Phase = FileSelectMapEntryPhase.Revealing;
                 break;
             case FileSelectMapEntryPhase.Revealing:
-                // The game returns before updating edges on the call that takes the edge past zero,
-                // disables the mask, and displays the whole area scene on that frame.
+                // When the window's top would pass the screen's top this update, the window opens fully instead: its
+                // edges stay where they are and the whole area shows.
                 if (Top - FileSelectMapDefinitions.EntryWindowSpeed < 0)
                     Phase = FileSelectMapEntryPhase.Complete;
                 else revealSteps++;

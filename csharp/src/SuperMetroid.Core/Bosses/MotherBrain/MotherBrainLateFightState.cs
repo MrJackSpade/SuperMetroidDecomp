@@ -84,12 +84,12 @@ internal sealed class MotherBrainLateFightState
     public int GreyTransitionCounter { get; internal set; }
 
     /// <summary>
-    /// Cross-actor corpse handshake polled by the Baby: <see cref="MotherBrainPhase2CorpseState.Corpse"/> once
-    /// Mother Brain has completed the ninth grey-table probe, then <see cref="MotherBrainPhase2CorpseState.Revived"/>.
+    /// Whether Mother Brain lies as a corpse, which the Baby watches for: <see cref="MotherBrainPhase2CorpseState.Corpse"/>
+    /// once she has faded fully grey, then <see cref="MotherBrainPhase2CorpseState.Revived"/>.
     /// </summary>
     public MotherBrainPhase2CorpseState Phase2CorpseState { get; internal set; }
 
-    /// <summary>The brain's health, rewritten to 36,000 when corpse state one is published.</summary>
+    /// <summary>The brain's health, set to 36,000 when she becomes a <see cref="MotherBrainPhase2CorpseState.Corpse"/>.</summary>
     public int BrainHealth { get; internal set; } = 3000;
 
     /// <summary>
@@ -195,8 +195,8 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body animation.</summary>
     internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
-        // The lean helper ignores every pose except standing (zero) and leaning (six). A request still executes as body
-        // animation later in the enemy-processing stage.
+        // Only a standing or leaning body changes posture. The request plays as a body animation later in the enemy
+        // update.
         if (!randomNumberSeed.Takes(MotherBrainRandomDefinitions.PostureChanges))
             return false;
 

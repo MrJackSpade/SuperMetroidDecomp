@@ -39,7 +39,7 @@ public enum FileSelectPhase
     EnterBlankScreenAfterFrameWait,
     /// <summary>Represent the Zebes and starfield background's loading stage; installed graphics were loaded atomically by construction.</summary>
     LoadBackground,
-    /// <summary>Set both fade timings to one and unblank the display, then wait out one update.</summary>
+    /// <summary>Sets the fades to step every second update, then waits out one update.</summary>
     InitializeMain,
     /// <summary>Continuation of the screen setup after its frame wait; advance to the screen's fade-in without another per-update random advance.</summary>
     InitializeMainAfterFrameWait,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -28,7 +29,7 @@ internal static class PauseMenuFixtureVerification
         CartridgeImportAddressSpace bus)
     {
         ImportAreaMapPresentation stock = RetailImportPresentationFixture();
-        AreaMapPresentation game = stock.Game;
+        InstalledScreenContent game = stock.Game;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
             CartridgeImportSource.Require(bus), address, count);
         T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(
@@ -59,7 +60,7 @@ internal static class PauseMenuFixtureVerification
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
                 SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
             ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
-        foreach (string name in new[] { "Indicator.Frame0", "Indicator.Frame1", "Indicator.Frame2" })
+        foreach (string name in new[] { "Indicator.Small", "Indicator.Middle", "Indicator.Large" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
         // The map sprites' page is import data no installation holds: the cartridge-derived extraction's (#1636).
@@ -78,17 +79,12 @@ internal static class PauseMenuFixtureVerification
         using var reserveJson = Json(reserveTanks);
         PauseReserveTankSourcePresentation constructedTanks = PauseReserveTankSourcePresentation.Load(reserveJson);
         // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.
-        var parts = new AreaMapPresentationParts
+        var parts = new InstalledScreenContentParts
         {
-            Areas = areas,
             ContentIdentity = "constructed-pause-interaction-fixture",
-            HighlightCycle = game.HighlightCycle,
+            Maps = new AreaMapPresentation(areas, game.Maps.HighlightCycle, game.Maps.Labels, game.Maps.Stations, game.Maps.Landmarks,
+                game.Maps.SaveMarkers, game.Maps.Arrows),
             Backdrops = palettes.Backdrops(),
-            Labels = game.Labels,
-            Stations = game.Stations,
-            Landmarks = game.Landmarks,
-            SaveMarkers = game.SaveMarkers,
-            Arrows = game.Arrows,
             PauseSelectors = constructedSelectors.Presentation,
             PauseReserveTanks = constructedTanks.Presentation,
             EscapeTimer = game.EscapeTimer,
@@ -107,7 +103,7 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return InstalledFixtures.Record(new ImportAreaMapPresentation(new AreaMapPresentation(parts),
+        return InstalledFixtures.Record(new ImportAreaMapPresentation(new InstalledScreenContent(parts),
             new ImportPresentationCharacters(new MapCharacterArtwork(
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
                 new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),

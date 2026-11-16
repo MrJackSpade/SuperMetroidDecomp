@@ -76,4 +76,11 @@ internal static class EndingShootingStarDefinitions
 
     /// <summary>The first animation frame showing the full star; every later frame shows it too.</summary>
     internal const int FullStarFrame = 4;
+
+    /// <summary>
+    /// The name each picture a visible star shows is installed under, from its first visible animation frame to the full
+    /// star (#2202): a faint speck, a bright speck, a dim star and the full star.
+    /// </summary>
+    internal static readonly string[] SheetFrameNames =
+        ["ShootingStar.FaintSpeck", "ShootingStar.BrightSpeck", "ShootingStar.DimStar", "ShootingStar.FullStar"];
 }

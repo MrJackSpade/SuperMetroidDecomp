@@ -106,8 +106,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
         place.AnimationClock.RestartAfter(baby.FrameHold);
 
-        // The writer receives the Baby's fifteen colours after its first. The first, the transparent
-        // one, is deliberately skipped, preserving the room's backdrop.
+        // The Baby arrives in its own colours; where it is transparent the room's backdrop shows.
         ShowBabyMetroidArrival(state.Colours);
     }
 

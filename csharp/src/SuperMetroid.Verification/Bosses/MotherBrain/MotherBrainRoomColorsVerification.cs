@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -28,7 +29,7 @@ internal static class MotherBrainRoomColorsVerification
 {
     /// <summary>Checks the shades the production paths lay, the import's colours of them against the extracted cartridge rows, and malformed documents.</summary>
     internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
-        AreaMapPresentation original)
+        InstalledScreenContent original)
     {
         ArgumentNullException.ThrowIfNull(original);
         MotherBrainRoomColorPresentation extracted = MotherBrainRoomColorFile.Read(

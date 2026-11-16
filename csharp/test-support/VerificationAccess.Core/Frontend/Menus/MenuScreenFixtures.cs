@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
@@ -19,7 +20,7 @@ internal static class MenuScreenFixtures
 
     /// <summary>A VRAM holding the world map <paramref name="graphics"/> shows, its pages read from <paramref name="maps"/>.</summary>
     [WholeImageFixture("the menu's 64 KiB VRAM image")]
-    internal static SnesVram Vram(FileSelectAreaMapGraphics graphics, AreaMapPresentation maps)
+    internal static SnesVram Vram(FileSelectAreaMapGraphics graphics, InstalledScreenContent maps)
     {
         Ensure.NotNull(graphics);
         MapScreenPresentation screens = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).Screens;
@@ -31,7 +32,7 @@ internal static class MenuScreenFixtures
 
     /// <summary>A VRAM holding the room map <paramref name="graphics"/> shows, its frame read from <paramref name="maps"/>.</summary>
     [WholeImageFixture("the menu's 64 KiB VRAM image")]
-    internal static SnesVram Vram(FileSelectRoomMapGraphics graphics, AreaMapPresentation maps)
+    internal static SnesVram Vram(FileSelectRoomMapGraphics graphics, InstalledScreenContent maps)
     {
         Ensure.NotNull(graphics);
         var tiles = new BackgroundTile[4 * ScreenCells];

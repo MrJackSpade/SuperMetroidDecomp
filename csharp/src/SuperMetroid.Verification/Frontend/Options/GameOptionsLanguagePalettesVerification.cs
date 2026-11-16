@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
@@ -76,7 +77,7 @@ internal static class GameOptionsLanguagePalettesVerification
             "options language oracle revision");
         byte[] extracted = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(bus);
         GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
-        AreaMapPresentation installed = RetailPresentationFixture();
+        InstalledScreenContent installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsPageDefinitions.LanguageRegions.RowCount, "native language highlight has four regions");
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(index),
@@ -88,7 +89,7 @@ internal static class GameOptionsLanguagePalettesVerification
         for (int language = 0; language < 2; language++)
         {
             bool japanese = language != 0;
-            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), japaneseText: japanese, mapPresentation: installed, spriteSheets: MenuSheetFixtures.For(installed));
+            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), japaneseText: japanese, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed));
             ReadOnlySpan<byte> vram = menu.ShownPageBytes(RetailImportPresentationFixture());
             byte[] editablePage = presentation.CreatePageBytes(GameOptionsScreen.Primary);
             presentation.ApplyLanguage(editablePage, japanese);

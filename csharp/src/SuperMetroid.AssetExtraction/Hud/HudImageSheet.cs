@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -70,7 +71,7 @@ internal static class HudImageSheet
     }
 
     /// <summary>Every installed area map, in area order, whose cells the minimap can show.</summary>
-    internal static IEnumerable<IAreaMapView> Maps(AreaMapPresentation maps) =>
+    internal static IEnumerable<IAreaMapView> Maps(InstalledScreenContent maps) =>
         AreaIds.All.Select(Ensure.NotNull(maps).Get);
 
     /// <summary>
@@ -111,7 +112,7 @@ internal static class HudImageSheet
     }
 
     /// <summary>The frame names of the pause HUD sheet: each HUD image the installed maps let the HUD place.</summary>
-    internal static IEnumerable<string> PauseFrameNames(AreaMapPresentation maps) =>
+    internal static IEnumerable<string> PauseFrameNames(InstalledScreenContent maps) =>
         [.. Images(Maps(maps)).Select(image => image.FrameName)];
 
     /// <summary>

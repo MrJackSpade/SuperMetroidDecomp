@@ -156,7 +156,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         hitbox.Contact = hitbox.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>The hitbox part the visible geyser found when it was placed; retail populations always list one right after it.</summary>
+    /// <summary>The hitbox part the visible geyser found when it was placed; every room that has the geyser lists one right after it.</summary>
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
     /// <summary>Runs Hibashi's main AI.</summary>

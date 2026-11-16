@@ -31,11 +31,11 @@ public sealed class FileSelectAreaMapGraphics
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
     public static FileSelectAreaMapGraphics FromPresentation(AreaId selectedArea,
-        AreaMapPresentation presentation, InstalledSpriteSheets sheets)
+        InstalledScreenContent presentation, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(presentation);
         var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Backdrops, sheets);
-        graphics.BindLabels(presentation.Labels);
+        graphics.BindLabels(presentation.Maps.Labels);
         return graphics;
     }
 
@@ -51,7 +51,7 @@ public sealed class FileSelectAreaMapGraphics
         Backdrops = backdrops;
         worldSheets = sheets;
         mapSheet = sheets.Get(SpriteSheetId.MapSprites);
-        screen = new MenuScreen(backdrops.FileSelect, sheets);
+        screen = new MenuScreen(backdrops.Menus, sheets);
         SelectArea(selectedArea);
     }
 
@@ -73,9 +73,9 @@ public sealed class FileSelectAreaMapGraphics
     /// Binds every installed resource the area map draws, when the game is bound to its installed content, without
     /// selecting another area.
     /// </summary>
-    internal void BindMapPresentation(AreaMapPresentation? catalog)
+    internal void BindScreenContent(InstalledScreenContent? catalog)
     {
-        BindLabels(catalog?.Labels);
+        BindLabels(catalog?.Maps.Labels);
         BindBackdrops(catalog?.Backdrops);
     }
 

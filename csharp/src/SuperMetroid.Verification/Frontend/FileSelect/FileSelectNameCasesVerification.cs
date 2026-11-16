@@ -37,8 +37,9 @@ internal static class FileSelectNameCasesVerification
 
     /// <summary>Checks border, cursor, and helmet sprite identities in the installed schema.</summary>
     internal static void VerifyFileSelectSpriteNames(FileSelectExtraction source) => VerifyFileSelectNames(source, "Sprites",
-        ["Border.Main", "Border.Copy", "Border.Clear", "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
-         "Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"],
+        ["Border.Main", "Border.Copy", "Border.Clear", "Cursor.FinUp", "Cursor.FinsUpAndDown", "Cursor.FinDown", "Cursor.FinsFlat",
+         "Helmet.TurnedAway", "Helmet.Turning", "Helmet.ShineLeft", "Helmet.ShineLeftOfMiddle", "Helmet.ShineRightOfMiddle",
+         "Helmet.ShineRight", "Helmet.SparkleTall", "Helmet.SparkleWide"],
         [.. FileSelectPresentationFormat.SpriteNames],
         () => FileSelectParts.HelmetSpriteName(FileSelectPresentationFormat.HelmetFrameCount));
 

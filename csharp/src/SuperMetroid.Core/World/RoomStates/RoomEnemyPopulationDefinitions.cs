@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 [NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
 public static class RoomEnemyPopulationDefinitions
 {
-    /// <summary>Retail populations in their authored list order, checked complete before gameplay can use them.</summary>
+    /// <summary>The rooms' enemy populations in their authored list order, checked complete before gameplay can use them.</summary>
     internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
     [
         ..CrateriaRoomEnemyPopulationDefinitions.Build(),
@@ -28,7 +28,7 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
     public const int PlacementCount = 1658;
 
-    /// <summary>Each retail population by name.</summary>
+    /// <summary>Each room's enemy population by name.</summary>
     private static readonly Dictionary<string, RoomEnemyPopulationDefinition> ByName = Definitions.ToDictionary(list => list.Name);
 
     /// <summary>The compiled population named <paramref name="name"/>.</summary>

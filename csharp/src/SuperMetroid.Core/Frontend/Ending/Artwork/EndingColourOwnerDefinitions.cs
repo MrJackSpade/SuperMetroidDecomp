@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// The ending actors and scenery each of the ending's colour effects is authored for (#1544): an actor's pictures show an
 /// effect only when its colouring is listed for it, and a background picture or floor only when it is listed, so nothing
 /// shows an effect authored for another, even where both once drew in one colour group (the animals' escape pod and the
-/// exploding planet, the logo and Samus shooting, a floor and the sprites over it): that sharing was a presentation quirk,
-/// and each shows its own colours. A scene's whole screen of colours is every actor's and every scenery's own. Each listing
+/// exploding planet, the logo and Samus shooting, a floor and the sprites over it): each shows its own colours. A scene's whole screen of colours is every actor's and every scenery's own. Each listing
 /// follows the effect's documented subject and the scene that shows it: the planet's cue starts its fade-out and darkens its
 /// glow, the flyaway's setup starts the afterglow the finale spawned and the gunship's emergence, the logo's landing starts
 /// its glare; the side-cloud escape runs the lava and crust effects over its floor and the top-and-bottom-cloud escape the grey clouds over its

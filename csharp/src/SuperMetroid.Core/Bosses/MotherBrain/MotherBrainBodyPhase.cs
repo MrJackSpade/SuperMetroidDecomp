@@ -10,7 +10,7 @@ public enum MotherBrainBodyPhase
     FirstPhase,
     /// <summary>Seeds a 64-count wait and immediately falls into its first decrement.</summary>
     FakeDeathDescentInitialPause,
-    /// <summary>Waits for the timer to pass zero, then locks Samus and closes scroll region 1.</summary>
+    /// <summary>Waits for the timer to pass zero, then locks Samus and closes the scroll to the room's second screen.</summary>
     FakeDeathDescentPauseBeforeLock,
     /// <summary>Expires the 32-count pause, queues music stop/data load, and starts the 12-count unlock wait.</summary>
     FakeDeathDescentPauseBeforeMusic,
@@ -123,9 +123,9 @@ public enum MotherBrainBodyPhase
     SecondPhaseDrainedByBabyTakenAback,
     /// <summary>Maintains the rainbow colours until the timer runs out, then initializes the independent painful-walking sequence.</summary>
     SecondPhaseDrainedByBabyRegainBalance,
-    /// <summary>Refreshes head shake, applies rainbow colours, and advances painful walking until stage 6 disables beam sound and brain colour handling.</summary>
+    /// <summary>Refreshes head shake, applies rainbow colours, and advances painful walking until its sixth step stops the beam's sound and the brain's colours.</summary>
     SecondPhaseDrainedByBabyFiringRainbowBeam,
-    /// <summary>Continues painful walking through stage 8, then selects dying drool and the retreating neck posture.</summary>
+    /// <summary>Continues painful walking through its eighth step, then selects dying drool and the retreating neck posture.</summary>
     SecondPhaseDrainedByBabyRainbowBeamRunOut,
     /// <summary>Requests really-slow backward walking to X 40 before disabling upper-neck motion and entering low-power setup.</summary>
     SecondPhaseDrainedByBabyMoveToBackOfRoom,
@@ -151,7 +151,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseRevivePrepareNeckForBabyDeath,
     /// <summary>Waits for standing, requests really-slow forward walking, and immediately enters the baby-attack chooser.</summary>
     SecondPhaseReviveFinishPreparingForBabyDeath,
-    /// <summary>Sampled RNG may adjust posture or fire the targeted onion-ring head animation, aimed at Samus when no baby index exists.</summary>
+    /// <summary>A random number may change her posture or fire the targeted onion rings, aimed at Samus when there is no Baby.</summary>
     SecondPhaseMurderBabyAttack,
     /// <summary>Waits for the 64-count timer to pass zero before returning to baby-attack selection.</summary>
     SecondPhaseMurderBabyAttackCooldown,
@@ -161,7 +161,7 @@ public enum MotherBrainBodyPhase
     SecondPhaseExecuteFinalBabyAttack,
     /// <summary>Holds while the head volley and baby actor independently own the final damage, death, and recovery sequence.</summary>
     SecondPhaseFinalBabyAttackHolding,
-    /// <summary>Changes body form to 4, requests a fourteen-pixel backward target, and seeds the 32-count combat-setup wait.</summary>
+    /// <summary>Changes her form to <see cref="MotherBrainForm.ThirdPhase"/>, requests a fourteen-pixel backward target, and seeds the 32-count combat-setup wait.</summary>
     ThirdPhaseRecoverMakeSomeDistance,
     /// <summary>When the timer runs out, installs the normal neck and walking steps and immediately runs the first phase-three fighting call.</summary>
     ThirdPhaseRecoverSetupForFighting,

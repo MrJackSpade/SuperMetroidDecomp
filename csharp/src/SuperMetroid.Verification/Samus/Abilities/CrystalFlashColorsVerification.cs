@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -20,7 +21,7 @@ internal static class CrystalFlashColorsVerification
 {
     /// <summary>Compares cartridge source words, then checks the installed colors reach CGRAM with unchanged timers.</summary>
     internal static void VerifyCrystalFlashColors(string stockDirectory,
-        AreaMapPresentation original, ISnesAddressSpace rom)
+        InstalledScreenContent original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(rom);
         InstalledCrystalFlashColors native = CrystalFlashColorFile.Read(

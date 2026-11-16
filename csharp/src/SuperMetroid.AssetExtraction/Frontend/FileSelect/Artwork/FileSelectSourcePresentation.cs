@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
@@ -237,8 +238,8 @@ public sealed class FileSelectSourcePresentation
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => CompileSprite(document, FileSelectParts.BorderSpriteName(border)));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.CursorFrameCount).Select(frame =>
-            CompileSprite(document, FileSelectParts.CursorSpriteName(frame)))];
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame =>
+            CompileSprite(document, MenuMissileFrames.Name(frame)))];
         SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.HelmetFrameCount).Select(frame =>
             CompileSprite(document, FileSelectParts.HelmetSpriteName(frame)))];
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -56,16 +57,16 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
         var options = new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true };
-        AreaMapPresentation presentation = RetailPresentationFixture();
+        InstalledScreenContent presentation = RetailPresentationFixture();
         var legacy = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         var packets = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         legacy.BindArtwork(legacy.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         packets.BindArtwork(packets.Artwork with
         {
-            MapPresentation = presentation,
+            ScreenContent = presentation,
         });
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)

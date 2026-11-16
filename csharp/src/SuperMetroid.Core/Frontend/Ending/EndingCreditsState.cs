@@ -27,9 +27,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
-        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            InstalledArtwork.BindEndingText(artwork.MapPresentation?.EndingText);
+            InstalledArtwork.BindEndingText(artwork.ScreenContent?.EndingText);
         }
         if (!ReferenceEquals(previous.EndingBackdrops, artwork.EndingBackdrops))
             InstalledArtwork.BindBackdrops(artwork.EndingBackdrops);
@@ -359,7 +359,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
-                if (CreditsRoll.WhiteFlashColor > 0) CreditsRoll.WhiteFlashColor--;
+                if (CreditsRoll.WhiteWashStepsLeft > 0) CreditsRoll.WhiteWashStepsLeft--;
                 RewardJump.Step();
                 if (--Stage.PhaseTimer <= 0) CreditsRoll.FinishPostCreditsWhiteFlash();
                 break;
@@ -455,9 +455,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
 
     /// <summary>
     /// Captures the explosion's finale (#1514): the glow's picture behind the planet's, then the glow added over the whole
-    /// screen with the debris glowing over it. The debris is drawn only as glow, never over the planet, which would punch
-    /// holes in it. The per-square priority tiers that interleaved the two pictures, and the single pixel that blended where
-    /// a sprite overlapped the glow, are presentation quirks the model does not keep: the glow and the debris now both add.
+    /// screen with the debris glowing over it. The debris is drawn only as glow, never over the planet: the glow and the
+    /// debris both add.
     /// </summary>
     internal LayeredScene CaptureExplosionFinale()
     {

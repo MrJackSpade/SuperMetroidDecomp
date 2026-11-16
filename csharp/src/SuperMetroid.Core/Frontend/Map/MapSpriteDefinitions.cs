@@ -17,7 +17,7 @@ public static class MapSpriteDefinitions
             [AreaId.Tourian] = MapSpriteId.WorldTourian,
         };
 
-    /// <summary>Resolves the exact case-sensitive presentation key for a map sprite, preserving semantic roles such as <c>Indicator.Frame0</c> and <c>World.Crateria</c>.</summary>
+    /// <summary>Resolves the exact case-sensitive presentation key for a map sprite, preserving semantic roles such as <c>Indicator.Small</c> and <c>World.Crateria</c>.</summary>
     internal static readonly IReadOnlyDictionary<MapSpriteId, string> Names =
         new Dictionary<MapSpriteId, string>
         {
@@ -32,9 +32,9 @@ public static class MapSpriteDefinitions
             [MapSpriteId.MarkerDefeatedBoss] = "Marker.DefeatedBoss",
             [MapSpriteId.MarkerGunship] = "Marker.Gunship",
             [MapSpriteId.IndicatorBacking] = "Indicator.Backing",
-            [MapSpriteId.IndicatorFrame0] = "Indicator.Frame0",
-            [MapSpriteId.IndicatorFrame1] = "Indicator.Frame1",
-            [MapSpriteId.IndicatorFrame2] = "Indicator.Frame2",
+            [MapSpriteId.IndicatorSmall] = "Indicator.Small",
+            [MapSpriteId.IndicatorMiddle] = "Indicator.Middle",
+            [MapSpriteId.IndicatorLarge] = "Indicator.Large",
             [MapSpriteId.ElevatorCrateria] = "Elevator.Crateria",
             [MapSpriteId.ElevatorBrinstar] = "Elevator.Brinstar",
             [MapSpriteId.ElevatorNorfair] = "Elevator.Norfair",

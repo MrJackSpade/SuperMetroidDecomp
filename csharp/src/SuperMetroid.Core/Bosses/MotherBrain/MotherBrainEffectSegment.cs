@@ -6,24 +6,24 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal enum MotherBrainEffectSegment
 {
-    /// <summary>Enemy projectile animation: Mother brains onion rings.</summary>
+    /// <summary>Mother Brain's onion rings in flight.</summary>
     OnionRing,
-    /// <summary>Enemy projectile animation: hit, Mother brains onion rings.</summary>
+    /// <summary>An onion ring bursting where it hits.</summary>
     OnionRingHit,
-    /// <summary>Enemy projectile animation: Mother Brain Bomb.</summary>
+    /// <summary>Mother Brain's bomb.</summary>
     Bomb,
-    /// <summary>Enemy projectile animation: Mother Brain rainbow beam, charging.</summary>
+    /// <summary>Mother Brain's rainbow beam charging.</summary>
     RainbowBeamCharging,
-    /// <summary>Enemy projectile animation: Mother brains drool.</summary>
+    /// <summary>Mother Brain's drool falling.</summary>
     Drool,
-    /// <summary>Enemy projectile animation: Mother brains drool, hit floor.</summary>
+    /// <summary>Mother Brain's drool splashing on the floor.</summary>
     DroolHitFloor,
-    /// <summary>Enemy proj animation: Mother Brain exploded escape door particle.</summary>
+    /// <summary>A fragment of the escape door Mother Brain blew apart.</summary>
     EscapeDoorParticle,
-    /// <summary>Enemy projectile animation: Mother Brain purple breath, big.</summary>
+    /// <summary>Mother Brain's big purple breath.</summary>
     PurpleBreathBig,
-    /// <summary>Enemy projectile animation: Mother Brain purple breath, small.</summary>
+    /// <summary>Mother Brain's small purple breath.</summary>
     PurpleBreathSmall,
-    /// <summary>Enemy projectile animation: time Bomb set japan text.</summary>
+    /// <summary>The Japanese subtitle that the time bomb is set, shown as the escape begins.</summary>
     EscapeSubtitle,
 }

@@ -9,10 +9,10 @@ public static class IntroNarrationDefinitions
     public const int MaximumColumns = 29;
     /// <summary>First permitted text row in page cells, four; presentation lines use even rows with two-row spacing.</summary>
     public const int FirstTextRow = 4;
-    /// <summary>Five cinematic background-object updates between character records, including spaces; independent of host elapsed time.</summary>
+    /// <summary>Five cinematic updates between one typed character and the next, spaces included; independent of host elapsed time.</summary>
     public const int CharacterDelayFrames = 5;
     /// <summary>One-update duration of the empty marker at the beginning of each page's text.</summary>
     public const int InitialMarkerDelayFrames = 1;
-    /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finishing cue.</summary>
+    /// <summary>128 cinematic updates the final page holds once its caret starts blinking, before the narration finishes.</summary>
     public const int FinalPageHoldFrames = 128;
 }

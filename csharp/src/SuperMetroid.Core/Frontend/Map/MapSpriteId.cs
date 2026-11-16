@@ -39,14 +39,14 @@ public enum MapSpriteId
     /// <summary>The backing drawn behind the position indicator on alternate loops.</summary>
     IndicatorBacking,
 
-    /// <summary>The position indicator's first frame.</summary>
-    IndicatorFrame0,
+    /// <summary>The position indicator at its smallest, as each pulse starts and ends.</summary>
+    IndicatorSmall,
 
-    /// <summary>The position indicator's second frame.</summary>
-    IndicatorFrame1,
+    /// <summary>The position indicator between its smallest and largest, as it grows and shrinks.</summary>
+    IndicatorMiddle,
 
-    /// <summary>The position indicator's third frame.</summary>
-    IndicatorFrame2,
+    /// <summary>The position indicator at its largest, at the height of each pulse.</summary>
+    IndicatorLarge,
 
     /// <summary>The elevator label naming Crateria.</summary>
     ElevatorCrateria,

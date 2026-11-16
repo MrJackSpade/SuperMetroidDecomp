@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -6,47 +5,28 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Escape.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Map.Artwork;
+namespace SuperMetroid.Core.Frontend.Artwork;
 
-/// <summary>The installed map, pause, HUD and escape-timer presentation parts an area-map presentation catalog is built from (#633).</summary>
-internal sealed record AreaMapPresentationParts
+/// <summary>The installed screens' content an <see cref="InstalledScreenContent"/> snapshot is built from (#633, #2203).</summary>
+internal sealed record InstalledScreenContentParts
 {
-    /// <summary>Each area's installed map, with its exploration rules.</summary>
-    public required IReadOnlyDictionary<AreaId, IAreaMapView> Areas { get; init; }
-
     /// <summary>Uppercase SHA-256 identity of length-framed map rules, station masks, and installed presentation resources in fixed order; an edit in place changes the identity.</summary>
     public required string ContentIdentity { get; init; }
 
-    /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
-    public required MapHighlightCycle HighlightCycle { get; init; }
+    /// <summary>The area maps with their exploration rules, and the content the map screens draw them with.</summary>
+    public required AreaMapPresentation Maps { get; init; }
 
-    /// <summary>The solid colour the pause, file-select and world-map screens show where nothing is drawn (#1512).</summary>
+    /// <summary>The solid colour the pause, menu and world-map screens show where nothing is drawn (#1512).</summary>
     public required MenuBackdrops Backdrops { get; init; }
-
-    /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
-    public required WorldMapLabelPositions Labels { get; init; }
-
-    /// <summary>Map-station label drawing positions; moving these does not change compiled discovery cells or station reveal masks.</summary>
-    public required MapStationPositions Stations { get; init; }
-
-    /// <summary>Boss, elevator, and gunship drawing anchors, independent of progression and destination rules.</summary>
-    public required MapLandmarkPositions Landmarks { get; init; }
-
-    /// <summary>File-select save-marker visual coordinate overrides, independent of load targets and scrolling.</summary>
-    public required MapSaveMarkerPositions SaveMarkers { get; init; }
-
-    /// <summary>Map-arrow artwork and presentation frames for scrolling indicators.</summary>
-    public required MapArrowPresentation Arrows { get; init; }
-
 
     /// <summary>Pause selection-indicator artwork and presentation parameters; inventory and selection logic remain engine-owned.</summary>
     public required PauseSelectorPresentation PauseSelectors { get; init; }
@@ -78,7 +58,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>The characters the ending's typewriter types, compiled by the import from the installed ending text (#1467).</summary>
     public required EndingTypewriterText EndingText { get; init; }
 
-
     /// <summary>The colour the title shows behind its floor and objects (#1512).</summary>
     public required RgbColor TitleBackdrop { get; init; }
 
@@ -93,8 +72,6 @@ internal sealed record AreaMapPresentationParts
 
     /// <summary>The glow colours Power Bomb, Crystal Flash, and Ceres explosions add to the scene, separate from Samus's suit colours.</summary>
     public required InstalledPowerBombGlowColors PowerBombGlowColors { get; init; }
-
-
 
     /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
     public required CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; init; }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -16,9 +17,9 @@ internal static class MenuArtworkFixtures
     extension(IMenuFrontendScreen self)
     {
         /// <summary>Binds <paramref name="maps"/> and the sprite sheets it composes.</summary>
-        internal void BindFixtureArtwork(AreaMapPresentation maps)
+        internal void BindFixtureArtwork(InstalledScreenContent maps)
         {
-            self.BindMapPresentation(maps);
+            self.BindScreenContent(maps);
             self.BindSpriteSheets(MenuSheetFixtures.For(maps));
         }
     }
@@ -35,9 +36,9 @@ internal static class MenuArtworkFixtures
     extension(FileSelectRoomMapGraphics self)
     {
         /// <summary>Binds <paramref name="maps"/> and the sheets its sprites and background tiles compose.</summary>
-        internal void BindFixtureArtwork(AreaMapPresentation maps)
+        internal void BindFixtureArtwork(InstalledScreenContent maps)
         {
-            self.BindMapPresentation(maps);
+            self.BindScreenContent(maps);
             self.BindSheets(MenuSheetFixtures.For(maps));
         }
     }
@@ -45,9 +46,9 @@ internal static class MenuArtworkFixtures
     extension(FileSelectAreaMapGraphics self)
     {
         /// <summary>Binds <paramref name="maps"/> and the sheets its sprites and background tiles compose.</summary>
-        internal void BindFixtureArtwork(AreaMapPresentation maps)
+        internal void BindFixtureArtwork(InstalledScreenContent maps)
         {
-            self.BindMapPresentation(maps);
+            self.BindScreenContent(maps);
             self.BindSheets(MenuSheetFixtures.For(maps));
         }
     }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
-    /// <summary>The saved Zebes area, retained while area-map directions are suppressed in normal mode.</summary>
+    /// <summary>The saved Zebes area, which the area map shows: its directions never change areas.</summary>
     private readonly AreaId area;
     /// <summary>The buttons held on the previous update, used to detect new confirm and cancel presses.</summary>
     private ControllerButton previousInput;
@@ -19,7 +19,7 @@ public sealed class FileSelectMapNavigation
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
     internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? content) => labels = content;
 
-    /// <summary>Creates normal area/room-map navigation for a saved area.</summary>
+    /// <summary>Creates the area and room maps' navigation for a saved area.</summary>
     /// <param name="area">The saved area, one of the six Zebes areas.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
     public FileSelectMapNavigation(AreaId area, ControllerButton initialHeldInput = ControllerButton.None)

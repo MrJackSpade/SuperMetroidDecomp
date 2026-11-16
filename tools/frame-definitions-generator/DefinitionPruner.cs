@@ -156,8 +156,9 @@ internal sealed class DefinitionPruner
     };
 
     /// <summary>
-    /// The constant <paramref name="expression"/> is for the definition: the entity's own slot's definition, the part the
-    /// behaviour's parts table maps it to, or an enum member; null when it is none of these.
+    /// The constant <paramref name="expression"/> is for the definition: the entity's own slot's definition (read directly or
+    /// through a local holding it), the part the behaviour's parts table maps it to, or an enum member; null when it is none
+    /// of these.
     /// </summary>
     private DispatchConstant? Value(ExpressionSyntax expression)
     {
@@ -172,8 +173,39 @@ internal sealed class DefinitionPruner
                      && SymbolEqualityComparer.Default.Equals(_semantic.GetSymbolInfo(element.Expression).Symbol?.OriginalDefinition, table)
                      && Equal(Value(key.Expression), DispatchConstant.Of(_context.Definition)) == true:
                 return DispatchConstant.Of(part);
+            // A factory naming its place's definition once (#2146: EnemyDefinitionId definition = place.DefinitionId, then an
+            // if-chain building each definition's own entity) tests that definition wherever it reads the local.
+            case IdentifierNameSyntax name when _semantic.GetSymbolInfo(name).Symbol is ILocalSymbol local && SingleValue(local) is { } value:
+                return Value(value);
         }
         return _semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member ? DispatchConstant.Of(member) : null;
+    }
+
+    /// <summary>
+    /// The one value <paramref name="local"/> holds: its declaration's initializer, when nothing in the member declaring it
+    /// assigns it again or takes it by reference; null for any other local.
+    /// </summary>
+    private ExpressionSyntax? SingleValue(ILocalSymbol local)
+    {
+        if (local.DeclaringSyntaxReferences is not [var reference]
+            || reference.GetSyntax() is not VariableDeclaratorSyntax { Initializer.Value: var value }
+            || reference.SyntaxTree != _semantic.SyntaxTree
+            || value.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault() is not { } member)
+            return null;
+        foreach (SyntaxNode node in member.DescendantNodes())
+        {
+            ExpressionSyntax? written = node switch
+            {
+                AssignmentExpressionSyntax assignment => assignment.Left,
+                PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.PreIncrementExpression or (int)SyntaxKind.PreDecrementExpression } prefix => prefix.Operand,
+                PostfixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.PostIncrementExpression or (int)SyntaxKind.PostDecrementExpression } postfix => postfix.Operand,
+                ArgumentSyntax { RefKindKeyword.RawKind: not (int)SyntaxKind.None } argument => argument.Expression,
+                _ => null,
+            };
+            if (written is not null && SymbolEqualityComparer.Default.Equals(_semantic.GetSymbolInfo(written).Symbol, local))
+                return null;
+        }
+        return value;
     }
 
     /// <summary>
@@ -182,6 +214,11 @@ internal sealed class DefinitionPruner
     /// </summary>
     private bool IsOwnSlot(ExpressionSyntax expression)
     {
+        // Core's validations return the value they validate (Ensure.NotNull(place) is the place).
+        while (expression is InvocationExpressionSyntax { ArgumentList.Arguments: [var validated, ..] } validation
+               && _semantic.GetSymbolInfo(validation).Symbol is IMethodSymbol { ContainingType.Name: "Ensure" } method
+               && _model.IsSource(method))
+            expression = validated.Expression;
         if (expression is MemberAccessExpressionSyntax { Expression: ThisExpressionSyntax } thisAccess)
             expression = thisAccess.Name;
         ISymbol? symbol = _semantic.GetSymbolInfo(expression).Symbol;

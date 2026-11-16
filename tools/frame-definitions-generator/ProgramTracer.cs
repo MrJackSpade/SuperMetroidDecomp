@@ -43,6 +43,40 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
     /// <summary>While <see cref="ValuesReadFor"/> traces, the value expressions read from methods and tables.</summary>
     private List<ExpressionSyntax>? _read;
 
+    /// <summary>The property <paramref name="property"/> overrides at the root of its chain.</summary>
+    private static IPropertySymbol Declared(IPropertySymbol property)
+    {
+        IPropertySymbol declared = property.OriginalDefinition;
+        while (declared.OverriddenProperty is { } overridden)
+            declared = overridden.OriginalDefinition;
+        return declared;
+    }
+
+    /// <summary>
+    /// The programs every source declaration of <paramref name="declared"/> and its overrides gives through an expression body;
+    /// null when one gives no traceable value or none gives any.
+    /// </summary>
+    private HashSet<string>? Overridden(INamedTypeSymbol programType, IPropertySymbol declared, HashSet<ISymbol> visiting)
+    {
+        var programs = new HashSet<string>(StringComparer.Ordinal);
+        int bodies = 0;
+        foreach (IPropertySymbol property in model.Types.SelectMany(type => type.GetMembers(declared.Name)).OfType<IPropertySymbol>()
+            .Where(candidate => SymbolEqualityComparer.Default.Equals(Declared(candidate), declared) && !candidate.IsAbstract))
+        {
+            foreach (SyntaxReference reference in property.DeclaringSyntaxReferences)
+            {
+                if (reference.GetSyntax() is not PropertyDeclarationSyntax { ExpressionBody.Expression: var body })
+                    return null;
+                bodies++;
+                _read?.Add(body);
+                if (Traced(programType, body, model.ModelOf(body.SyntaxTree), visiting) is not { } traced)
+                    return null;
+                programs.UnionWith(traced);
+            }
+        }
+        return bodies == 0 ? null : programs;
+    }
+
     /// <summary>
     /// The programs <paramref name="expression"/> can be, with <paramref name="visiting"/> the parameters, methods and tables
     /// being traced.
@@ -78,6 +112,21 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
                 if (Traced(programType, lookedUpAt, semantic, visiting) is not { } atPrograms)
                     return null;
                 programs.UnionWith(atPrograms);
+                continue;
+            }
+            // A state's own answer, a property each kind of state overrides (#2151: a Fune's or a Namihe's fireball), is
+            // every program its overrides give.
+            if (symbol is IPropertySymbol { IsStatic: false } stateProperty
+                && (stateProperty.IsAbstract || stateProperty.IsVirtual || stateProperty.IsOverride))
+            {
+                IPropertySymbol declared = Declared(stateProperty);
+                if (!visiting.Add(declared))
+                    continue;
+                HashSet<string>? overridden = Overridden(programType, declared, visiting);
+                visiting.Remove(declared);
+                if (overridden is null)
+                    return null;
+                programs.UnionWith(overridden);
                 continue;
             }
             (ISymbol Source, IReadOnlyList<ExpressionSyntax> Values, SemanticModel Semantic)? values = choice switch

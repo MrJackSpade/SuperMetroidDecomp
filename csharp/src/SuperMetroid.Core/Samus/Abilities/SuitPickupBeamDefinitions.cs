@@ -20,11 +20,11 @@ public static class SuitPickupBeamDefinitions
         SamusSuitPickupStage.Finish,
     ];
     /// <summary>Collapsed beam with both edges at X=120.</summary>
-    public static readonly SuitPickupBeamEdges NarrowBeamEdges = SuitPickupBeamEdges.Columns(120, 120);
+    public static readonly SuitPickupBeamEdges NarrowBeamEdges = new(120, 120);
     /// <summary>The screen's rightmost column, the furthest right a beam edge reaches.</summary>
     public const int RightmostColumn = ScreenGeometry.ScreenWidthPixels - 1;
     /// <summary>Edges spanning the whole screen line.</summary>
-    public static readonly SuitPickupBeamEdges FullScreenWindow = SuitPickupBeamEdges.Columns(0, RightmostColumn);
+    public static readonly SuitPickupBeamEdges FullScreenWindow = new(0, RightmostColumn);
     /// <summary>Initial widening speed: one pixel per update.</summary>
     public static readonly SignedEightEight InitialWideningSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
     /// <summary>Per-update widening acceleration: 96/256 of a pixel per update.</summary>
@@ -34,9 +34,9 @@ public static class SuitPickupBeamDefinitions
     /// <summary>Minimum shrinking speed: one pixel per update.</summary>
     public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
     /// <summary>Stage-two initial asymmetric edge pair.</summary>
-    public static readonly SuitPickupBeamEdges CurvedWideningStart = SuitPickupBeamEdges.Columns(108, 132);
+    public static readonly SuitPickupBeamEdges CurvedWideningStart = new(108, 132);
     /// <summary>Stage-five starting edge pair, whose left edge comes round to the screen's left on the first narrowing (<see cref="SuitPickupClosingLineWrap"/>).</summary>
-    public static readonly SuitPickupBeamEdges DissipationStart = SuitPickupBeamEdges.Columns(RightmostColumn, 248);
+    public static readonly SuitPickupBeamEdges DissipationStart = new(RightmostColumn, 248);
     /// <summary>The lines the beam spans from the top of the screen; its middle line is half way down them.</summary>
     public const int BeamLines = 256;
     /// <summary>The lines the appearing and the shrinking beam cover from each end before the next stage: half the beam's lines.</summary>

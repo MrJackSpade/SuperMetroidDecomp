@@ -67,11 +67,10 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Samus's room position captured after the complete 20-pixel rise. Only the Y axis is meaningful: the finishing
-    /// phase compares Samus's whole Y with it through the wrapped spatial difference and walks her down one
-    /// pixel an update while they differ.
+    /// The room line Samus's whole Y reached at the end of the complete 20-pixel rise: the finishing phase walks her down
+    /// one pixel an update while her whole Y differs from it.
     /// </summary>
-    public Position16<RoomPixels> RaisedPosition { get; private set; }
+    public int RaisedHeight { get; private set; }
 
     /// <summary>Seeded to one for Samus's colour animation.</summary>
     public int CrystalPulseTimer { get; private set; }
@@ -172,7 +171,7 @@ public sealed class SamusCrystalFlashState
         RaiseTimer = CrystalFlashDefinitions.RaiseUpdates - 1;
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
-        RaisedPosition = Position16<RoomPixels>.Zero;
+        RaisedHeight = 0;
         CrystalPulseTimer = 1;
         _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
         BubbleStep = 0;
@@ -247,7 +246,7 @@ public sealed class SamusCrystalFlashState
         // The delay animation is already on its raise loop, but the raise forces
         // frame six and timer three so main art begins on this precise transition frame.
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: 3);
-        RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
+        RaisedHeight = samus.Position.Y.Whole;
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleEffectRequested = true;
         // The raise becomes the main phase with one essential-priority request that silences the room library.
@@ -308,10 +307,10 @@ public sealed class SamusCrystalFlashState
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests suit shade restoration.</summary>
     private void StepFinish(SamusState samus)
     {
-        // Retail usually enters with equality because RaisedPosition was captured at the
+        // Retail usually enters with equality because the raised height was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
         // displaced Samus upward/downward makes the whole Y walk downward one pixel an update.
-        if ((samus.Position.Whole - RaisedPosition).Y != 0)
+        if (samus.Position.Y.Whole != RaisedHeight)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 
         // The pose's animation ends in a transition to the facing standing pose, which occurs after movement.

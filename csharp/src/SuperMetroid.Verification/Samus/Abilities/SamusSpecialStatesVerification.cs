@@ -187,7 +187,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.Position.Y.Whole, "complete raise is 20 pixels");
-    AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedPosition.Y,
+    AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedHeight,
         "raised Y capture follows tenth displacement");
     AssertEqual(6, samus.AnimationNumber, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleEffectRequested,

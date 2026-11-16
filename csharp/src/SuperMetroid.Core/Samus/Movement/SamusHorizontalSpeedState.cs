@@ -107,13 +107,13 @@ public sealed class SamusHorizontalSpeedState
     public Position16<RoomPixels>? SecondSpeedEchoPosition { get; private set; }
 
     /// <summary>
-    /// Whole-pixel per-frame velocity of the departing first echo; only X moves. Cancellation
-    /// writes -8 while facing left or +8 otherwise.
+    /// The departing first echo's horizontal speed in whole pixels an update, negative leftward. Cancellation
+    /// sets -8 while facing left or +8 otherwise.
     /// </summary>
-    public Offset16<RoomPixels> FirstSpeedEchoVelocity { get; private set; }
+    public int FirstSpeedEchoHorizontalSpeed { get; private set; }
 
-    /// <summary>Whole-pixel per-frame velocity of the departing second echo; only X moves.</summary>
-    public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
+    /// <summary>The departing second echo's horizontal speed in whole pixels an update, negative leftward.</summary>
+    public int SecondSpeedEchoHorizontalSpeed { get; private set; }
 
     /// <summary>The total horizontal speed produced by the total-speed calculation.</summary>
     public UnsignedSixteenSixteen TotalSpeed { get; private set; }
@@ -489,8 +489,8 @@ public sealed class SamusHorizontalSpeedState
     public void ClearSpeedEchoes()
     {
         SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
-        FirstSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
-        SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
+        FirstSpeedEchoHorizontalSpeed = 0;
+        SecondSpeedEchoHorizontalSpeed = 0;
         FirstSpeedEchoPosition = null;
         SecondSpeedEchoPosition = null;
     }
@@ -530,9 +530,9 @@ public sealed class SamusHorizontalSpeedState
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoCursor = SpeedEchoCursor.Departing;
-            Offset16<RoomPixels> velocity = new(facing == SamusFacingDirection.Left ? -8 : 8, 0);
-            FirstSpeedEchoVelocity = velocity;
-            SecondSpeedEchoVelocity = velocity;
+            int speed = facing == SamusFacingDirection.Left ? -8 : 8;
+            FirstSpeedEchoHorizontalSpeed = speed;
+            SecondSpeedEchoHorizontalSpeed = speed;
         }
     }
 
@@ -560,7 +560,7 @@ public sealed class SamusHorizontalSpeedState
         CycleShadeStep = 0;
         SpeedBoostCounter = default;
         SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
-        FirstSpeedEchoVelocity = SecondSpeedEchoVelocity = Offset16<RoomPixels>.Zero;
+        FirstSpeedEchoHorizontalSpeed = SecondSpeedEchoHorizontalSpeed = 0;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = null;
     }
 
@@ -648,11 +648,11 @@ public sealed class SamusHorizontalSpeedState
                 : CoordinateAxis.Wrap(yPosition - 2);
         }
 
-        Offset16<RoomPixels> velocity = echo == SpeedEcho.First
-            ? FirstSpeedEchoVelocity
-            : SecondSpeedEchoVelocity;
-        xPosition = CoordinateAxis.Wrap(xPosition + velocity.X);
-        bool crossedSamus = velocity.X < 0
+        int speed = echo == SpeedEcho.First
+            ? FirstSpeedEchoHorizontalSpeed
+            : SecondSpeedEchoHorizontalSpeed;
+        xPosition = CoordinateAxis.Wrap(xPosition + speed);
+        bool crossedSamus = speed < 0
             ? CoordinateAxis.Difference(xPosition, samusPosition.X) < 0
             : CoordinateAxis.Difference(xPosition, samusPosition.X) >= 0;
         Position16<RoomPixels>? advanced = crossedSamus ? null : Position16<RoomPixels>.Of(xPosition, yPosition);

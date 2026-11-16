@@ -67,7 +67,7 @@ internal static class SuitPickupCarryoverVerification
             context => AssertCarryover(samus, 4, checked((ushort)pickup.Beam.Progress), context));
         AssertCarryover(samus, 5, EdgeWord(SuitPickupBeamDefinitions.DissipationStart), "dissipation starts");
         pickup.Step(samus, cgram);
-        AssertEqual(7, pickup.Beam.Left.X, "the first dissipation call wraps the left column from 255 to 7");
+        AssertEqual(7, pickup.Beam.Left, "the first dissipation call wraps the left column from 255 to 7");
         AssertCarryover(samus, 5, LittleEndianBytes.Word(7, 240), "first dissipation call");
         StepThrough(pickup, samus, cgram, SamusSuitPickupStage.LightBeamDissipates,
             context => AssertCarryover(samus, 5, BeamEdgeWord(pickup), context));
@@ -95,11 +95,11 @@ internal static class SuitPickupCarryoverVerification
 
     /// <summary>The published beam's edge columns as one word, left column in the low byte.</summary>
     private static ushort BeamEdgeWord(SamusSuitPickupState pickup) =>
-        LittleEndianBytes.Word(checked((byte)pickup.Beam.Left.X), checked((byte)pickup.Beam.Right.X));
+        LittleEndianBytes.Word(checked((byte)pickup.Beam.Left), checked((byte)pickup.Beam.Right));
 
     /// <summary>An authored edge pair as the word the carryover leaves, left column in the low byte (#1468).</summary>
     private static ushort EdgeWord(SuitPickupBeamEdges edges) =>
-        LittleEndianBytes.Word(checked((byte)edges.Left.X), checked((byte)edges.Right.X));
+        LittleEndianBytes.Word(checked((byte)edges.Left), checked((byte)edges.Right));
 
     /// <summary>Checks that the spark acceleration, Crystal Flash ammunition timer and escape presses hold what the stage left.</summary>
     private static void AssertCarryover(SamusState samus, ushort stageNumber, ushort lightBeamWord, string context)

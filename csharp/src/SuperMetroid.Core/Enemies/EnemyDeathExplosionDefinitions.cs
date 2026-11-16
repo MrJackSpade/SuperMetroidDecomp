@@ -9,28 +9,18 @@ internal static class EnemyDeathExplosionDefinitions
     internal const EnemyDeathProjectileSegment NoDropTail = EnemyDeathProjectileSegment.RespawnTail;
 
     /// <summary>
-    /// The random field that places a death explosion's sprite 0-63 pixels right of the 32 it is centred back by: the
-    /// low six bits.
+    /// The wide spread a Mini-Kraid death explosion's sprites land in, up to 32 pixels from it each way: 0-63 pixels right
+    /// of and below the 32 they are centred back by, the random number modulo 64 across and the random number divided by
+    /// 256, modulo 64, down.
     /// </summary>
-    internal static readonly RandomSampleField WideSpriteHorizontalScatter = new(0, 6);
+    internal static readonly EnemyDeathSpriteSpread WideSpriteSpread = new(HorizontalScatter: new(0, 6), VerticalScatter: new(8, 6), Radius: 32);
 
     /// <summary>
-    /// The random field that places a death explosion's sprite 0-63 pixels below the 32 it is centred back by: the random
-    /// sample divided by 256, modulo 64.
+    /// The narrow spread a big death explosion's sprites land in, up to 16 pixels from it each way: 0-31 pixels right of
+    /// and below the 16 they are centred back by, the random number modulo 32 across and the random number divided by
+    /// 256, modulo 32, down.
     /// </summary>
-    internal static readonly RandomSampleField WideSpriteVerticalScatter = new(8, 6);
-
-    /// <summary>
-    /// The random field that places a death explosion's sprite 0-31 pixels right of the 16 it is centred back by: the
-    /// low five bits.
-    /// </summary>
-    internal static readonly RandomSampleField NarrowSpriteHorizontalScatter = new(0, 5);
-
-    /// <summary>
-    /// The random field that places a death explosion's sprite 0-31 pixels below the 16 it is centred back by: the random
-    /// sample divided by 256, modulo 32.
-    /// </summary>
-    internal static readonly RandomSampleField NarrowSpriteVerticalScatter = new(8, 5);
+    internal static readonly EnemyDeathSpriteSpread NarrowSpriteSpread = new(HorizontalScatter: new(0, 5), VerticalScatter: new(8, 5), Radius: 16);
 
     /// <summary>
     /// The death explosions in their authored order, the small explosion first: the order the deaths that take their

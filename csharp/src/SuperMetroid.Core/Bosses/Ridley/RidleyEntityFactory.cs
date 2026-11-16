@@ -13,9 +13,19 @@ internal sealed class RidleyEntityFactory(RidleyBehavior ridley, CeresRidleyBeha
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [.. RidleyPartDefinitions.Parts.Keys];
+        [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyBreakupPiece];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        new RidleyEntity(ridley, ceres, encounter, place, common);
+    /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.Ridley)
+            return new NorfairRidleyEntity(ridley, ceres, encounter, place, common);
+        if (definition == EnemyDefinitionId.RidleyCeres)
+            return new CeresRidleyEntity(ridley, ceres, encounter, place, common);
+        if (definition == EnemyDefinitionId.RidleyBreakupPiece)
+            return new RidleyBreakupPieceEntity(ridley, place, common);
+        throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
+    }
 }

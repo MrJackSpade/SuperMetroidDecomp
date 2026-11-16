@@ -2,147 +2,39 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>One Kraid occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// One of Kraid's eight parts: his body (<see cref="KraidBodyEntity"/>), his arm or foot (<see cref="KraidLimbEntity"/>),
+/// a lint (<see cref="KraidLintEntity"/>) or a fingernail (<see cref="KraidNailEntity"/>). Each joins its own reference
+/// before it sets up, so his parts reach one another (#1877), and answers his engine-owned hitboxes.
+/// </summary>
 /// <param name="species">The Kraid species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IEnemyPrivateShotReaction
+/// <param name="reference">Kraid's reference to the part, which it joins as it initializes.</param>
+internal abstract class KraidEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyFrameHitboxes
 {
+    /// <summary>The Kraid species owner.</summary>
+    protected KraidBehavior Species => species;
+
     /// <inheritdoc/>
     public void Initialize()
     {
-        KraidPart part = KraidPartDefinitions.Parts[Place.DefinitionId];
-        // Each part joins as the part its definition names before it sets up, so his parts reach one another (#1877).
-        species.Parts.Join(part, Place);
-        switch (part)
-        {
-            case KraidPart.Kraid:
-                species.Rise.InitializeKraidBody(Place);
-                break;
-            case KraidPart.Arm:
-                species.Limbs.InitializeKraidArm(Place);
-                break;
-            case KraidPart.LintTop:
-                species.Projectiles.RunKraidLintTopInitializationAi(Place);
-                break;
-            case KraidPart.LintMiddle:
-                species.Projectiles.RunKraidLintMiddleInitializationAi(Place);
-                break;
-            case KraidPart.LintBottom:
-                species.Projectiles.RunKraidLintBottomInitializationAi(Place);
-                break;
-            case KraidPart.Foot:
-                species.Limbs.InitializeKraidFoot(Place);
-                break;
-            case KraidPart.FirstNail:
-                species.Projectiles.RunKraidNailInitializationAi(Place);
-                break;
-            case KraidPart.SecondNail:
-                species.Projectiles.RunKraidSecondNailInitializationAi(Place);
-                break;
-            default:
-                throw new InvalidOperationException($"Kraid entity bound to {Place.DefinitionId}.");
-        }
+        reference.Join(Place);
+        SetUp();
     }
+
+    /// <summary>Sets the part up, once it has joined Kraid.</summary>
+    protected abstract void SetUp();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-        switch (KraidPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case KraidPart.Kraid:
-                species.RunKraidMainAi(Place, frame);
-                break;
-            case KraidPart.Arm:
-                species.RunKraidArmMainAi(Place, frame);
-                break;
-            case KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom:
-                species.RunKraidLintTopMainAi(Place, frame);
-                break;
-            case KraidPart.Foot:
-                species.RunKraidFootMainAi(Place, frame);
-                break;
-            case KraidPart.FirstNail or KraidPart.SecondNail:
-                species.RunKraidNailMainAi(Place, frame);
-                break;
-            default:
-                throw new InvalidOperationException($"Kraid entity bound to {Place.DefinitionId}.");
-        }
-    }
+    public abstract void RunMainAi(IEnemyAiFrame frame);
 
-    /// <summary>The part the occupant is.</summary>
-    private KraidPart Part => KraidPartDefinitions.Parts[Place.DefinitionId];
-
-    /// <summary>Every part but Kraid's body animates by its typed animation.</summary>
-    public bool HasTypedAnimation => Part != KraidPart.Kraid;
-
-    /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
-    {
-        switch (Part)
-        {
-            case KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.FirstNail or KraidPart.SecondNail:
-                species.Limbs.AdvanceKraidPartAnimation(Place);
-                break;
-            case KraidPart.Kraid:
-            default:
-                throw new InvalidOperationException($"Kraid entity bound to {Place.DefinitionId} has no typed animation.");
-        }
-    }
-
-    /// <summary>The arm's touch reaction, which its definition leaves to it; no other part's hitboxes name one.</summary>
-    public EnemyReaction? SpeciesTouch => Part == KraidPart.Arm ? KraidReactions.ArmTouch : null;
+    /// <summary>None: no part but the arm has a touch reaction its hitboxes name.</summary>
+    public virtual EnemyReaction? SpeciesTouch => null;
 
     /// <summary>None: the arm's, foot's and body's definitions name the ignoring shot reaction.</summary>
     public EnemyReaction? SpeciesShot => null;
-
-    /// <summary>
-    /// Whether the occupant's definition leaves Samus's touch to its part's own reaction: the arm's push, or a nail's
-    /// touch. Kraid's body leaves its touch to the species too, but has no reaction to it.
-    /// </summary>
-    private bool OwnsTouch => LeavesTouchToSpecies && (Part is KraidPart.Arm or KraidPart.FirstNail or KraidPart.SecondNail);
-
-    /// <summary>Whether the part's own touch or a shared one applies.</summary>
-    public override bool ReactsToTouch => OwnsTouch || base.ReactsToTouch;
-
-    /// <summary>Runs the nails' or the arm's own touch, or the shared one.</summary>
-    /// <param name="context">The touch.</param>
-    public override void ReactToTouch(EnemyTouchContext context)
-    {
-        if (!OwnsTouch)
-            base.ReactToTouch(context);
-        else if (Part == KraidPart.Arm)
-            species.Combat.ReactToArmTouch(context);
-        else
-            species.Projectiles.ReactToKraidNailTouch(context);
-    }
-
-    /// <summary>Whether the occupant is Kraid's arm or foot, which run their own shot and bomb reactions.</summary>
-    private bool IsArmOrFoot => Part is KraidPart.Arm or KraidPart.Foot;
-
-    /// <summary>The arm's and foot's shot reaction behind their ignoring definitions, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction =>
-        IsArmOrFoot && Place.Definition.Shot == EnemyReaction.Ignore ? species.Combat.ArmAndFootShotReaction : base.ShotReaction;
-
-    /// <summary>Runs the arm's and foot's own reaction to every bomb that overlaps them, before the ignoring check.</summary>
-    /// <param name="context">The bomb contact.</param>
-    public override bool TryReactToBomb(EnemyBombContext context)
-    {
-        if (!IsArmOrFoot)
-            return base.TryReactToBomb(context);
-        species.Combat.ReactToArmOrFootBomb(context);
-        return true;
-    }
-
-    /// <summary>
-    /// The shared Power Bomb reaction; Kraid's body leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches him.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The occupant is Kraid's body.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => Part == KraidPart.Kraid && LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
@@ -151,15 +43,4 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemyPlace place, E
         return KraidCombat.FindKraidFootHitboxReaction(Place, probe, out reaction) ??
             KraidCombat.FindKraidArmHitboxReaction(Place, probe, out reaction);
     }
-
-    /// <summary>The arm's and foot's contact and shots meet their frames' hitboxes; only shots meet Kraid's body's; the lint and nails meet neither.</summary>
-    public override EnemyCapabilities Capabilities =>
-        Place.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot
-            ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes
-            : Place.DefinitionId == EnemyDefinitionId.Kraid ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
-
-    /// <summary>The arm's shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        Place.DefinitionId == EnemyDefinitionId.KraidArm && reaction == KraidReactions.ArmShot;
 }

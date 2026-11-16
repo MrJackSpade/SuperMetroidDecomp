@@ -8,10 +8,19 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. KzanPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new KzanEntity(this, place, common);
+    /// <summary>A Kzan's top, or the bottom that follows it (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Kzan definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.KzanTop)
+            return new KzanTopEntity(this, place, common);
+        if (definition == EnemyDefinitionId.KzanBottom)
+            return new KzanBottomEntity(this, place, common);
+        throw new InvalidOperationException($"The Kzan species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>The room's enemy places, where each bottom finds its top when it is placed.</summary>
     private readonly EnemyPlaces _places;

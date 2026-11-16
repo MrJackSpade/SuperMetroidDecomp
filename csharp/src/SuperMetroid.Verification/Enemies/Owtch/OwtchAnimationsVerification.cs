@@ -19,7 +19,7 @@ internal static class OwtchAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }),
             onlyRunOnInto: new HashSet<OwtchSegment> { OwtchSegment.MovingLeftLoop, OwtchSegment.MovingRightLoop });

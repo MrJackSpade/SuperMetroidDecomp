@@ -9,10 +9,26 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EvirPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new EvirEntity(this, place, common);
+    /// <summary>
+    /// An Evir's body or arms, as the placement's settings name the part it is, or its spit (#2146). The arms share the
+    /// body's definition; only their placement tells them apart.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place holds no Evir definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.Evir)
+        {
+            return place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms
+                ? new EvirArmsEntity(this, place, common)
+                : new EvirBodyEntity(this, place, common);
+        }
+        if (definition == EnemyDefinitionId.EvirProjectile)
+            return new EvirSpitEntity(this, place, common);
+        throw new InvalidOperationException($"The Evir species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>The room's enemy places, where each Evir part finds its partners when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -72,22 +88,31 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
     private const int RegenerationStartDistance = 8;
 
-    /// <summary>Initializes an Evir body or its arms.</summary>
-    internal void InitializeEvir(RoomEnemyPlace place, SamusState samus)
+    /// <summary>Initializes an Evir's arms.</summary>
+    internal void InitializeEvirArms(RoomEnemyPlace place)
     {
+        PlaceFollowUpRecipients(place);
+        // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
+        // body and which always read facing and position from it.
+        RoomEnemyPlace body = _places.ListedBefore(place, 1);
+        RequirePlacedBody(body, place, "arms");
+        var arms = new EvirArmsState(body);
+        place.SetSpeciesState(arms);
+        PositionEvirArms(place, arms);
+        arms.ShowsSpawnAnimation = true;
+    }
+
+    /// <summary>
+    /// Finds the two enemies a body's or its arms' follow-up to a hit reaches (<see cref="FollowUpAfterStruckPart"/>),
+    /// the ones the room lists after it.
+    /// </summary>
+    private void PlaceFollowUpRecipients(RoomEnemyPlace place) =>
         _followUpRecipients.Place(place, FollowUpAfterStruckPart.Recipients(distance => _places.ListedAfter(place, distance), reach: 2));
-        if (place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
-        {
-            // The second listed enemy is not a second creature. It is the arms, which the room lists right after their
-            // body and which always read facing and position from it.
-            RoomEnemyPlace body = _places.ListedBefore(place, 1);
-            RequirePlacedBody(body, place, "arms");
-            var arms = new EvirArmsState(body);
-            place.SetSpeciesState(arms);
-            PositionEvirArms(place, arms);
-            arms.ShowsSpawnAnimation = true;
-            return;
-        }
+
+    /// <summary>Initializes an Evir's body, facing Samus.</summary>
+    internal void InitializeEvirBody(RoomEnemyPlace place, SamusState samus)
+    {
+        PlaceFollowUpRecipients(place);
 
         // The room lists each Evir's spit two places after its body, behind the arms.
         var state = new EvirBodyState(spit: _places.ListedAfter(place, 2));
@@ -434,22 +459,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };
 
-    /// <summary>Runs Evir's initialization AI.</summary>
-    internal void RunEvirInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
-    {
-        InitializeEvir(place, surroundings.IntroducedSamus);
-    }
-
-    /// <summary>Runs an Evir body's or arms' main AI: the body bobs and turns, and the arms follow it.</summary>
-    internal static void RunEvirMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        if (place.SpeciesState<EvirArmsState>() is { } arms)
-        {
-            PositionEvirArms(place, arms);
-            return;
-        }
+    /// <summary>Runs an Evir body's main AI: it bobs and turns.</summary>
+    internal static void RunEvirBodyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
         RunEvirMain(place, place.RequireSpeciesState<EvirBodyState>(), frame.Samus);
-    }
+
+    /// <summary>Runs an Evir's arms' main AI: they follow the body.</summary>
+    internal static void RunEvirArmsMainAi(RoomEnemyPlace place) =>
+        PositionEvirArms(place, place.RequireSpeciesState<EvirArmsState>());
 
     /// <summary>Runs EvirProjectile's main AI.</summary>
     internal static void RunEvirProjectileMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
@@ -461,12 +477,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Advances an Evir body's or arms' cue-free typed animation.</summary>
-    internal static void AdvanceEvirBodyOrArmsTypedAnimation(RoomEnemyPlace place)
+    /// <summary>Advances an Evir body's or arms' cue-free typed animation, the part keeping its playback in its <typeparamref name="TState"/>.</summary>
+    internal static void AdvanceEvirPartTypedAnimation<TState>(RoomEnemyPlace place) where TState : EvirPartState
     {
         if (!place.AnimationClock.Expire())
             return;
-        EvirPartState state = place.SpeciesState<EvirArmsState>() ?? (EvirPartState)place.RequireSpeciesState<EvirBodyState>();
+        EvirPartState state = place.RequireSpeciesState<TState>();
         AnimationPlayback<EvirSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, EvirAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"An Evir body's or arms' cue-free animation raised {cue}."));

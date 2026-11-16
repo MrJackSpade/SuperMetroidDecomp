@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using K = SuperMetroid.Core.Enemies.Platforms.PlatformCueKind;
 using P = SuperMetroid.Core.Enemies.Platforms.PlatformSegment;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -17,7 +16,7 @@ internal static class PlatformAnimations
     {
         [P.SuspensorPlatformHeadingLeft] =
         [
-            Cue(new(K.MoveLeft)),
+            Cue(new(PlatformHorizontalMovement.Left)),
         ],
         [P.SuspensorPlatformLoop] =
         [
@@ -28,11 +27,11 @@ internal static class PlatformAnimations
         ],
         [P.SuspensorPlatformHeadingRight] =
         [
-            Cue(new(K.MoveRight)),
+            Cue(new(PlatformHorizontalMovement.Right)),
         ],
         [P.TripperMovingLeft] =
         [
-            Cue(new(K.MoveLeft)),
+            Cue(new(PlatformHorizontalMovement.Left)),
         ],
         [P.TripperMovingLeftLoop] =
         [
@@ -43,7 +42,7 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingRight] =
         [
-            Cue(new(K.MoveRight)),
+            Cue(new(PlatformHorizontalMovement.Right)),
         ],
         [P.TripperMovingRightLoop] =
         [
@@ -54,7 +53,7 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingLeft] =
         [
-            Cue(new(K.MoveLeft)),
+            Cue(new(PlatformHorizontalMovement.Left)),
         ],
         [P.TripperStillMovingLeftLoop] =
         [
@@ -65,7 +64,7 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingRight] =
         [
-            Cue(new(K.MoveRight)),
+            Cue(new(PlatformHorizontalMovement.Right)),
         ],
         [P.TripperStillMovingRightLoop] =
         [

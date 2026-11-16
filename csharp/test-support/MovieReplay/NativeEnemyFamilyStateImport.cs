@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.SamusNativeCodecs;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -633,7 +634,7 @@ internal static class NativeEnemyFamilyStateImport
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
             choot.FallingPatternLoopCounter = unchecked((short)words.D);
-            choot.FallingPath = words.E == 0 ? null : ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern");
+            PrivateState.Set(choot, nameof(ChootEnemyState.FallingPath), ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern"));
             choot.FallingPatternYDistance = words.F;
         }
         if (enemies.SkulteraStates[index] is { } skultera)
@@ -674,8 +675,8 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.EtecoonEscape && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
-            escape.Velocity = new SignedEightEight(words.A);
-            escape.Action = AnimalsNativeWords.EscapeEtecoonActionAt(words.F);
+            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Velocity), new SignedEightEight(words.A));
+            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
         }
         if (enemy.DefinitionId == EnemyDefinitionId.FaceBlock && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {

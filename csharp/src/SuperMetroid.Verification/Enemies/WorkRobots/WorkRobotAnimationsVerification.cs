@@ -19,10 +19,10 @@ internal static class WorkRobotAnimationsVerification
                 (word, operands, cue, at) =>
                 {
                     var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
+                    AssertEqual(instruction.Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                cue => cue.Kind is WorkRobotCueKind.WalkLeft or WorkRobotCueKind.WalkRight));
+                cue => cue is WorkRobotCue.Walk));
         Console.WriteLine($"  Work Robot animations: {Entries.Length} segments ({beats} beats) and {WorkRobotAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

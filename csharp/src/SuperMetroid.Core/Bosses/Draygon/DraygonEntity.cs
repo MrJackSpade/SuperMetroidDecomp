@@ -6,53 +6,30 @@ using SuperMetroid.Core.Enemies.BossBodies;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>One Draygon occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// One of Draygon's occupants: his body (<see cref="DraygonBodyEntity"/>), eye (<see cref="DraygonEyeEntity"/>), tail
+/// (<see cref="DraygonTailEntity"/>) or arms (<see cref="DraygonArmsEntity"/>). Every part plays its animation through the
+/// encounter, answers his engine-owned hitboxes and may show its frames on his boss body layer; the parts other than the
+/// body take the shared reactions their definitions name.
+/// </summary>
 /// <param name="species">The Draygon species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
+internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyFrameHitboxes, IBossBodyFrames
 {
-    /// <summary>The session's installed boss artwork.</summary>
-    private readonly BossArtworkBinding _bossArtwork = bossArtwork;
-    /// <inheritdoc/>
-    public void Initialize()
-    {
-        switch (DraygonPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case DraygonPart.Body:
-                species.Parts.InitializeDraygonBody(Place);
-                break;
-            case DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms:
-                species.Parts.InitializeDraygonPart(Place);
-                break;
-            default:
-                throw new InvalidOperationException($"Draygon entity bound to {Place.DefinitionId}.");
-        }
-    }
+    /// <summary>The Draygon species owner.</summary>
+    protected DraygonBehavior Species => species;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-        switch (DraygonPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case DraygonPart.Body:
-                species.RunDraygonBodyMainAi(Place, frame);
-                break;
-            case DraygonPart.Eye:
-                species.RunDraygonEyeMainAi(Place, frame);
-                break;
-            case DraygonPart.Tail or DraygonPart.Arms:
-                species.RunDraygonTailMainAi(Place, frame);
-                break;
-            default:
-                throw new InvalidOperationException($"Draygon entity bound to {Place.DefinitionId}.");
-        }
-    }
+    public abstract void Initialize();
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceDraygonTypedAnimation(Place, context);
+    public abstract void RunMainAi(IEnemyAiFrame frame);
+
+    /// <inheritdoc/>
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceDraygonTypedAnimation(Place, context);
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
@@ -61,79 +38,13 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemyPlace plac
         return DraygonCombat.FindDraygonHitboxReaction(Place, probe, out reaction);
     }
 
-    /// <summary>Whether the occupant is Draygon's body, the one part with reactions of its own.</summary>
-    private bool IsBody => Place.DefinitionId == EnemyDefinitionId.DraygonBody;
+    /// <summary>None: the parts other than the body name shared touch reactions.</summary>
+    public virtual EnemyReaction? SpeciesTouch => null;
 
-    /// <summary>The body's touch reaction, which its definition leaves to it; the other parts name shared ones.</summary>
-    public EnemyReaction? SpeciesTouch => IsBody ? DraygonReactions.Touch : null;
-
-    /// <summary>The body's shot reaction, which its definition leaves to it; the other parts name shared ones.</summary>
-    public EnemyReaction? SpeciesShot => IsBody ? DraygonReactions.Shot : null;
-
-    /// <summary>
-    /// The body's hurt behaviour: it flashes body, eye and tail together, while a connected grapple's electrocution may
-    /// drain another 256 health every eighth frame. The other parts take the shared hurt their definitions name.
-    /// </summary>
-    /// <param name="frame">The enemy frame.</param>
-    public override bool RunHurt(RoomEnemyFrame frame)
-    {
-        if (!IsBody)
-            return base.RunHurt(frame);
-        species.Combat.ApplyDraygonHurt(Place, species.Combat.RequireCompleteDraygonState(Place), frame.Samus);
-        return true;
-    }
-
-    /// <summary>Whether the body's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => (IsBody && LeavesTouchToSpecies) || base.ReactsToTouch;
-
-    /// <summary>Runs the body's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
-    /// <param name="context">The touch.</param>
-    public override void ReactToTouch(EnemyTouchContext context)
-    {
-        if (IsBody && LeavesTouchToSpecies)
-            species.Combat.ReactToDraygonTouch(context);
-        else
-            base.ReactToTouch(context);
-    }
-
-    /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction =>
-        IsBody && LeavesShotToSpecies ? species.Combat.DraygonShotReaction : base.ShotReaction;
-
-    /// <summary>
-    /// The body's dud shot for a bomb whose hitbox selects it, in place of common bomb damage once the ignoring check has
-    /// passed.
-    /// </summary>
-    /// <param name="context">The bomb contact.</param>
-    public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
-    {
-        if (!IsBody || context.SelectedShot != EnemyReaction.DudShot)
-            return base.TryReplaceCommonBombDamage(context);
-        species.Combat.CreateBombDudShot(context);
-        return true;
-    }
-
-    /// <summary>The body's own stages around common bomb damage, for a bomb that selects its shot reaction.</summary>
-    /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        IsBody && context.SelectedShot == DraygonReactions.Shot
-            ? species.Combat.DraygonBombReaction
-            : base.CommonBombDamageReaction(context);
-
-    /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
-        IsBody && LeavesPowerBombToSpecies ? species.Combat.DraygonPowerBombReaction : base.PowerBombReaction;
+    /// <summary>None: the parts other than the body name shared shot reactions.</summary>
+    public virtual EnemyReaction? SpeciesShot => null;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        DraygonBodyLayerFrameDefinitions.Frames.Contains(selected) ? _bossArtwork.Body(BossBodyOwner.Draygon).Frame(selected) : null;
-
-    /// <summary>Only the body's contact and shots meet its own frames' hitboxes.</summary>
-    public override EnemyCapabilities Capabilities =>
-        Place.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
-
-    /// <summary>The body's shot reaction and its dud shot, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        IsBody && (reaction == DraygonReactions.Shot || reaction == EnemyReaction.DudShot);
+        DraygonBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Draygon).Frame(selected) : null;
 }

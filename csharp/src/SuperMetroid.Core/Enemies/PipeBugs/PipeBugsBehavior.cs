@@ -9,10 +9,21 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PipeBugsPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PipeBugsEntity(this, place, common);
+    /// <summary>A Brinstar Pipe Bug (Zeb or Zebbo), a Norfair one (Gamet) or a yellow one (Geega) (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Pipe Bugs definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo)
+            return new BrinstarPipeBugEntity(place, common);
+        if (definition == EnemyDefinitionId.Gamet)
+            return new NorfairPipeBugEntity(this, place, common);
+        if (definition == EnemyDefinitionId.Geega)
+            return new YellowPipeBugEntity(place, common);
+        throw new InvalidOperationException($"The Pipe Bugs species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>The room's enemy places, where each Norfair formation leader finds its formation when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -624,48 +635,34 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static AnimationPlayback<PipeBugSegment> StartPipeBugAnimation(RoomEnemyPlace place, PipeBugSegment segment) =>
         EnemyAnimationPlayback.Start(place, PipeBugAnimations.StartingWith(segment));
 
-    /// <summary>Advances the Pipe Bug's typed animation, held in its family's state.</summary>
-    internal static void AdvancePipeBugsTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
-    {
-        switch (PipeBugsPartDefinitions.Parts[place.DefinitionId])
-        {
-            case PipeBugsPart.Zeb or PipeBugsPart.Zebbo:
-                EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
-                    static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
-                return;
-            case PipeBugsPart.Gamet:
-                EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
-                    static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
-                return;
-            case PipeBugsPart.Geega:
-                EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
-                    static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
-                return;
-            default:
-                throw new InvalidOperationException($"Pipe Bug animation advanced for {place.DefinitionId}.");
-        }
-    }
+    /// <summary>Advances a Brinstar Pipe Bug's typed animation.</summary>
+    internal static void AdvanceBrinstarPipeBugTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+            static (BrinstarPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+
+    /// <summary>Advances a Norfair Pipe Bug's typed animation.</summary>
+    internal static void AdvanceNorfairPipeBugTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+            static (NorfairPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
+
+    /// <summary>Advances a yellow Pipe Bug's typed animation.</summary>
+    internal static void AdvanceYellowPipeBugTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, PipeBugAnimations.Segments,
+            static (YellowPipeBugState state) => state.Playback, static (state, playback) => state.Playback = playback, static (_, cue) => RaisesNoCues(cue));
 
     /// <summary>Rejects a cue: no Pipe Bug animation raises one.</summary>
     private static AnimationContinuation<PipeBugSegment>? RaisesNoCues(NoAnimationCue cue) =>
         throw new InvalidOperationException($"A Pipe Bug animation raised {cue}, though its lists raise no events.");
 
-    /// <summary>Runs the Pipe Bug's main AI for its family.</summary>
-    internal void RunPipeBugsMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        switch (PipeBugsPartDefinitions.Parts[place.DefinitionId])
-        {
-            case PipeBugsPart.Zeb or PipeBugsPart.Zebbo:
-                RunBrinstarPipeBug(place, place.RequireSpeciesState<BrinstarPipeBugState>(), frame.Samus, frame.Camera);
-                return;
-            case PipeBugsPart.Gamet:
-                RunNorfairPipeBug(place, place.RequireSpeciesState<NorfairPipeBugState>(), frame.Samus, frame.Camera);
-                return;
-            case PipeBugsPart.Geega:
-                RunYellowPipeBug(place, place.RequireSpeciesState<YellowPipeBugState>(), frame.Samus, frame.Camera);
-                return;
-            default:
-                throw new InvalidOperationException($"Pipe Bug main AI ran for {place.DefinitionId}.");
-        }
-    }
+    /// <summary>Runs a Brinstar Pipe Bug's main AI.</summary>
+    internal static void RunBrinstarPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        RunBrinstarPipeBug(place, place.RequireSpeciesState<BrinstarPipeBugState>(), frame.Samus, frame.Camera);
+
+    /// <summary>Runs a Norfair Pipe Bug's main AI.</summary>
+    internal void RunNorfairPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        RunNorfairPipeBug(place, place.RequireSpeciesState<NorfairPipeBugState>(), frame.Samus, frame.Camera);
+
+    /// <summary>Runs a yellow Pipe Bug's main AI.</summary>
+    internal static void RunYellowPipeBugMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+        RunYellowPipeBug(place, place.RequireSpeciesState<YellowPipeBugState>(), frame.Samus, frame.Camera);
 }

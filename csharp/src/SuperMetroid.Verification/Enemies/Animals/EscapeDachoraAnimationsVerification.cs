@@ -31,13 +31,19 @@ internal static class EscapeDachoraAnimationsVerification
         (word, operands, cue, at) =>
         {
             var instruction = Instructions[word];
-            AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
             AssertEqual(instruction.Operands.Length, operands.Length, $"{at}: operands");
+            if (instruction.Move is { } move)
+            {
+                AssertEqual<EscapeDachoraCue>(move, cue, $"{at}: cue");
+                return;
+            }
+            EscapeDachoraCue.Branch branch = AssertIs<EscapeDachoraCue.Branch>(cue, $"{at}: cue");
+            AssertEqual(instruction.Branch, branch.Kind, $"{at}: cue");
             for (int index = 0; index < operands.Length; index++)
             {
                 if (instruction.Operands[index] != 'T')
                     throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}.");
-                branches.Add((operands[index], cue.Then ?? throw new InvalidDataException($"{at}: a branch cue names no continuation."), at));
+                branches.Add((operands[index], branch.Then, at));
             }
         });
 
@@ -87,10 +93,10 @@ internal static class EscapeDachoraAnimationsVerification
                 AnimationShown<EscapeDachoraSegment, EnemyFrameId> shown = EscapeDachoraAnimations.Segments.PlayToNextFrame(ref animation, ref place,
                     cue =>
                     {
-                        if (cue.Kind != EscapeDachoraCueKind.GoToIfAcidHigh)
+                        if (cue is not EscapeDachoraCue.Branch { Kind: EscapeDachoraCueKind.GoToIfAcidHigh } branch)
                             return null;
                         lowTideLaps++;
-                        return lowTideLaps == risesDuringLap ? cue.Then : null;
+                        return lowTideLaps == risesDuringLap ? branch.Then : null;
                     });
                 AnimationShown<EscapeDachoraSegment, EnemyFrameId>.Frame frame = AssertIs<AnimationShown<EscapeDachoraSegment, EnemyFrameId>.Frame>(shown,
                     $"rising during lap {risesDuringLap}, step {step} shows a frame");

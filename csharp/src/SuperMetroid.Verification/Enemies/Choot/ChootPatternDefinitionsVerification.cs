@@ -70,7 +70,7 @@ internal static class ChootPatternDefinitionsVerification
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (LittleEndianBytes.LowByte(loopYDistance))));
-                AssertEqual<ChootFallingPath?>(fallingPath, state.FallingPath,
+                AssertEqual(fallingPath, state.FallingPath,
                     $"Choot production pattern {patternIndex}/{loopCount}");
                 AssertEqual(loopYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");

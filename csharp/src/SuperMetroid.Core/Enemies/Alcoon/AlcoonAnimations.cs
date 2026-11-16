@@ -17,16 +17,16 @@ internal static class AlcoonAnimations
     {
         [P.WalkingLeft] =
         [
-            Cue(new(K.Move)),
+            Cue(new AlcoonCue.Signal(K.Move)),
         ],
         [P.WalkingLeftLoop] =
         [
             Show(EnemyFrameId.AlcoonWalkingLeftNearLegStepping, 10),
-            Cue(new(K.Move)),
+            Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingLeftNearLegPlanted, 10),
-            Cue(new(K.Move)),
+            Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingLeftFarLegStepping, 10),
-            Cue(new(K.Step)),
+            Cue(new AlcoonCue.Signal(K.Step)),
             Show(EnemyFrameId.AlcoonWalkingLeftFarLegPlanted, 10),
         ],
         [P.FireLeft] =
@@ -35,21 +35,21 @@ internal static class AlcoonAnimations
             Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 9),
             Show(EnemyFrameId.AlcoonFacingLeftThroatGlowing, 16),
             Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 3),
-            Cue(new(K.FireHorizontally)),
+            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Level)),
             Show(EnemyFrameId.AlcoonFacingLeftMouthWide, 10),
             Show(EnemyFrameId.AlcoonFacingLeftMouthClosed, 10),
             Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 9),
             Show(EnemyFrameId.AlcoonFacingLeftThroatGlowing, 16),
             Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 3),
-            Cue(new(K.FireUpward)),
+            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Upward)),
             Show(EnemyFrameId.AlcoonFacingLeftMouthWide, 10),
             Show(EnemyFrameId.AlcoonFacingLeftMouthClosed, 10),
             Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 9),
             Show(EnemyFrameId.AlcoonFacingLeftThroatGlowing, 16),
             Show(EnemyFrameId.AlcoonFacingLeftMouthOpening, 3),
-            Cue(new(K.FireDownward)),
+            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Downward)),
             Show(EnemyFrameId.AlcoonFacingLeftMouthWide, 40),
-            Cue(new(K.StartWalking)),
+            Cue(new AlcoonCue.Signal(K.StartWalking)),
         ],
         [P.AirborneLeftLookingUp] =
         [
@@ -61,16 +61,16 @@ internal static class AlcoonAnimations
         ],
         [P.WalkingRight] =
         [
-            Cue(new(K.Move)),
+            Cue(new AlcoonCue.Signal(K.Move)),
         ],
         [P.WalkingRightLoop] =
         [
             Show(EnemyFrameId.AlcoonWalkingRightNearLegStepping, 10),
-            Cue(new(K.Move)),
+            Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingRightNearLegPlanted, 10),
-            Cue(new(K.Move)),
+            Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingRightFarLegStepping, 10),
-            Cue(new(K.Step)),
+            Cue(new AlcoonCue.Signal(K.Step)),
             Show(EnemyFrameId.AlcoonWalkingRightFarLegPlanted, 10),
         ],
         [P.FireRight] =
@@ -79,21 +79,21 @@ internal static class AlcoonAnimations
             Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 9),
             Show(EnemyFrameId.AlcoonFacingRightThroatGlowing, 16),
             Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 3),
-            Cue(new(K.FireHorizontally)),
+            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Level)),
             Show(EnemyFrameId.AlcoonFacingRightMouthWide, 10),
             Show(EnemyFrameId.AlcoonFacingRightMouthClosed, 10),
             Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 9),
             Show(EnemyFrameId.AlcoonFacingRightThroatGlowing, 16),
             Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 3),
-            Cue(new(K.FireUpward)),
+            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Upward)),
             Show(EnemyFrameId.AlcoonFacingRightMouthWide, 10),
             Show(EnemyFrameId.AlcoonFacingRightMouthClosed, 10),
             Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 9),
             Show(EnemyFrameId.AlcoonFacingRightThroatGlowing, 16),
             Show(EnemyFrameId.AlcoonFacingRightMouthOpening, 3),
-            Cue(new(K.FireDownward)),
+            Cue(new AlcoonCue.Fire(AlcoonFireballLaunchDefinitions.Downward)),
             Show(EnemyFrameId.AlcoonFacingRightMouthWide, 40),
-            Cue(new(K.StartWalking)),
+            Cue(new AlcoonCue.Signal(K.StartWalking)),
         ],
         [P.AirborneRightLookingUp] =
         [

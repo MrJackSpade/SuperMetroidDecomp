@@ -4,118 +4,45 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>One Ridley occupant: Lower Norfair Ridley, Ceres Ridley or the breakup explosion actor.</summary>
+/// <summary>
+/// One of the two Ridley bodies, Lower Norfair Ridley (<see cref="NorfairRidleyEntity"/>) or Ceres Ridley
+/// (<see cref="CeresRidleyEntity"/>): both share the body animation and drawing, his hand-authored extended body and
+/// tail tip, his shot reaction and his Power Bomb reaction.
+/// </summary>
 /// <param name="ridley">The Lower Norfair Ridley owner.</param>
 /// <param name="ceres">The Ceres Ridley owner.</param>
 /// <param name="encounter">The shared Ridley encounter.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RidleyEntity(
+internal abstract class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotReaction
+        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyDrawHooks, IEnemyPrivateShotReaction
 {
-    /// <summary>Whether the occupant is one of the two Ridley bodies rather than the breakup actor.</summary>
-    private bool IsBody => Place.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
+    /// <summary>The Lower Norfair Ridley owner.</summary>
+    protected RidleyBehavior NorfairRidley => ridley;
+
+    /// <summary>The Ceres Ridley owner.</summary>
+    protected CeresRidleyBehavior Ceres => ceres;
 
     /// <inheritdoc/>
-    public void Initialize()
-    {
-        switch (RidleyPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case RidleyPart.Ridley:
-                ridley.Combat.InitializeNorfairRidley(Place);
-                break;
-            case RidleyPart.Ceres:
-                ceres.Flight.InitializeCeresRidley(Place);
-                break;
-            case RidleyPart.BreakupPiece:
-                ridley.Death.RunRidleyExplosionInitializationAi(Place);
-                break;
-            default:
-                throw new InvalidOperationException($"Ridley entity bound to {Place.DefinitionId}.");
-        }
-    }
+    public abstract void Initialize();
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-        switch (RidleyPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case RidleyPart.Ridley:
-                ridley.RunRidleyMainAi(Place, frame);
-                break;
-            case RidleyPart.Ceres:
-                ceres.RunCeresRidleyMainAi(Place, frame);
-                break;
-            case RidleyPart.BreakupPiece:
-                ridley.Death.RunNorfairRidleyExplosionMain(Place);
-                break;
-            default:
-                throw new InvalidOperationException($"Ridley entity bound to {Place.DefinitionId}.");
-        }
-    }
+    public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
-    {
-        switch (RidleyPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case RidleyPart.Ridley or RidleyPart.Ceres:
-                ridley.Animation.AdvanceRidleyBodyTypedAnimation(Place, context);
-                break;
-            case RidleyPart.BreakupPiece:
-                RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place);
-                break;
-            default:
-                throw new InvalidOperationException($"Ridley entity bound to {Place.DefinitionId}.");
-        }
-    }
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NorfairRidley.Animation.AdvanceRidleyBodyTypedAnimation(Place, context);
 
-    /// <summary>None: both Ridley bodies' definitions name the ordinary touch, and the breakup actor's ignores it.</summary>
+    /// <summary>None: both Ridley bodies' definitions name the ordinary touch.</summary>
     public EnemyReaction? SpeciesTouch => null;
 
-    /// <summary>Both Ridley bodies' shot reaction, which their definitions leave to them; the breakup actor's ignores shots.</summary>
-    public EnemyReaction? SpeciesShot => IsBody ? RidleyReactions.Shot : null;
-
-    /// <summary>
-    /// Lower Norfair Ridley's hurt behaviour for the post-hit window, which owns hurt frames instead of falling back to
-    /// ordinary main AI: movement and phase work run only on even actor frames, while tail projectile armour and hurt
-    /// colours stay live on every frame. Ceres Ridley and the breakup actor take the shared hurt their definitions name.
-    /// </summary>
-    /// <param name="frame">The enemy frame.</param>
-    public override bool RunHurt(RoomEnemyFrame frame)
-    {
-        if (Place.DefinitionId != EnemyDefinitionId.Ridley)
-            return base.RunHurt(frame);
-        ridley.RunRidleyHurt(Place, frame);
-        return true;
-    }
-
-    /// <summary>Lower Norfair Ridley's own shot reaction where his definition leaves shots to him, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction =>
-        Place.DefinitionId == EnemyDefinitionId.Ridley && LeavesShotToSpecies ? RidleyInteractions.RidleyShotReaction : base.ShotReaction;
-
-    /// <summary>Runs Ceres Ridley's own reaction to a bomb that selects his shot reaction, before the ignoring check.</summary>
-    /// <param name="context">The bomb contact.</param>
-    public override bool TryReactToBomb(EnemyBombContext context)
-    {
-        if (Place.DefinitionId != EnemyDefinitionId.RidleyCeres || context.SelectedShot != RidleyReactions.Shot)
-            return base.TryReactToBomb(context);
-        ceres.Hits.ReactToCeresRidleyBomb(context);
-        return true;
-    }
-
-    /// <summary>Lower Norfair Ridley's own stages around common bomb damage, for a bomb that selects his shot reaction.</summary>
-    /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
-        Place.DefinitionId == EnemyDefinitionId.Ridley && context.SelectedShot == RidleyReactions.Shot
-            ? RidleyInteractions.RidleyBombReaction
-            : base.CommonBombDamageReaction(context);
+    /// <summary>Both Ridley bodies' shot reaction, which their definitions leave to them.</summary>
+    public EnemyReaction? SpeciesShot => RidleyReactions.Shot;
 
     /// <summary>Both Ridley bodies' own Power Bomb reaction where their definitions leave the blast to them, or the shared one.</summary>
     public override EnemyPowerBombReaction? PowerBombReaction =>
-        IsBody && LeavesPowerBombToSpecies ? RidleyInteractions.RidleyPowerBombReaction : base.PowerBombReaction;
+        LeavesPowerBombToSpecies ? RidleyInteractions.RidleyPowerBombReaction : base.PowerBombReaction;
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
@@ -125,7 +52,7 @@ internal sealed class RidleyEntity(
     /// Both Ridley bodies use a hand-authored extended body plus a separately solved tail tip, resolved by their own
     /// contact after the ordinary pass; the ordinary touch pass must not flatten either to the definition's 8x8 radius.
     /// </summary>
-    public bool OwnsSamusTouch => IsBody;
+    public bool OwnsSamusTouch => true;
 
     /// <inheritdoc/>
     public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
@@ -133,34 +60,16 @@ internal sealed class RidleyEntity(
     }
 
     /// <inheritdoc/>
-    public void ResolveAfterSamusContact(SamusState samus)
-    {
-        if (IsBody)
-            _ = ceres.Hits.ResolveRidleyBodySamusContact(samus);
-    }
-
-    /// <summary>Ceres Ridley never enters the ordinary shot pass; its encounter resolves its own shots.</summary>
-    public bool AdmitsShots() => Place.DefinitionId != EnemyDefinitionId.RidleyCeres;
+    public void ResolveAfterSamusContact(SamusState samus) => _ = Ceres.Hits.ResolveRidleyBodySamusContact(samus);
 
     /// <summary>Ridley's AI publishes the common writer's shading: its body, wings and tail share one latched phase (#1512).</summary>
-    public PictureShading? CommonDrawShading() => IsBody ? encounter.Ridley?.CommonDrawShading : null;
+    public PictureShading? CommonDrawShading() => encounter.Ridley?.CommonDrawShading;
 
     /// <summary>Both Ridley mains draw the tail and wings before the common writer emits the body.</summary>
-    public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
-    {
-        if (IsBody)
-            ceres.BabyScene.DrawRidleySupplementalSprites(sprites, Place, camera);
-    }
-
-    /// <summary>
-    /// Only shots meet Lower Norfair Ridley's frames' hitboxes; its contact, Ceres Ridley's collision and the
-    /// breakup actor's take neither.
-    /// </summary>
-    public override EnemyCapabilities Capabilities =>
-        Place.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ProjectileFrameHitboxes : EnemyCapabilities.None;
+    public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>
+        Ceres.BabyScene.DrawRidleySupplementalSprites(sprites, Place, camera);
 
     /// <summary>Both Ridley bodies' shot reaction, which a normal bomb triggers as it does the common one.</summary>
     /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
-        IsBody && reaction == RidleyReactions.Shot;
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == RidleyReactions.Shot;
 }

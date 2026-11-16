@@ -14,10 +14,19 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. WorkRobotPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.WorkRobot, EnemyDefinitionId.UnpoweredWorkRobot];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WorkRobotEntity(this, place, common);
+    /// <summary>A powered or an unpowered work robot (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no work robot definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.WorkRobot)
+            return new PoweredWorkRobotEntity(this, place, common);
+        if (definition == EnemyDefinitionId.UnpoweredWorkRobot)
+            return new UnpoweredWorkRobotEntity(this, place, common);
+        throw new InvalidOperationException($"The work robot species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Checks Phantoon's defeat flag and samples the room random number for laser timing.</summary>
     private readonly EnemyRoomBinding _room;
@@ -57,8 +66,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Enemy-library sound queued by a robot laser.</summary>
     private static readonly SoundEffectId WorkRobotLaserSound =
         EnemySoundEffectDefinitions.WorkRobotLaserSound;
-    /// <summary>Pixels advanced by one robot walk cue.</summary>
-    private const int WorkRobotStepPixels = 4;
 
     /// <summary>Updates left before the powered robots' glow steps; zero while the glow is stopped.</summary>
     internal int GlowStepCountdown { get; private set; }
@@ -151,67 +158,24 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus = context.Samus;
         RoomLevelData level = context.Level;
         Position16<RoomPixels> camera = context.Camera;
-        switch (cue.Kind)
+        if (cue is WorkRobotCue.Step step)
+            return MoveWorkRobot(place, state, samus, level, step.Move);
+        if (cue is WorkRobotCue.TryLaser laser)
+            return TryFireWorkRobotLaser(place, state, laser.Laser, laser.Firing, camera);
+        if (cue is WorkRobotCue.Walk walk)
+            return walk.Walking;
+        WorkRobotCueKind kind = ((WorkRobotCue.Signal)cue).Kind;
+        switch (kind)
         {
-            case WorkRobotCueKind.LeftForwardWatchingLedges:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallAnimation = WorkRobotSegment.ApproachingFallLeft, FallFacing = HorizontalDirection.Right });
-            case WorkRobotCueKind.LeftForward:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
-            case WorkRobotCueKind.LeftBackwardWatchingLedges:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallAnimation = WorkRobotSegment.ApproachingFallRight, FallFacing = HorizontalDirection.Left });
-            case WorkRobotCueKind.LeftBackward:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Left, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
-            case WorkRobotCueKind.WalkRight:
-                return WorkRobotSegment.FacingRightWalkingForwards;
-            case WorkRobotCueKind.RightForwardWatchingLedges:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallAnimation = WorkRobotSegment.ApproachingFallRight, FallFacing = HorizontalDirection.Left });
-            case WorkRobotCueKind.RightForward:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
-            case WorkRobotCueKind.RightBackwardWatchingLedges:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallAnimation = WorkRobotSegment.ApproachingFallLeft, FallFacing = HorizontalDirection.Right });
-            case WorkRobotCueKind.RightBackward:
-                return MoveWorkRobot(place, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, Facing = HorizontalDirection.Right, WallAnimation = WorkRobotSegment.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallAnimation = null, FallFacing = null });
             case WorkRobotCueKind.Footstep:
                 if (IsWorkRobotOriginStrictlyOnScreen(place, camera))
                     _audio.QueueEnemySound(WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
                 return null;
-            case WorkRobotCueKind.WalkLeft:
-                return WorkRobotSegment.FacingLeftWalkingForwards;
-            case WorkRobotCueKind.TryLaserUpRight:
-                return TryFireWorkRobotLaser(
-                    place, state, WorkRobotLaser.UpRight,
-                    WorkRobotSegment.FacingRightShotLaserUpRight,
-                    camera);
-            case WorkRobotCueKind.TryLaserUpLeft:
-                return TryFireWorkRobotLaser(
-                    place, state, WorkRobotLaser.UpLeft,
-                    WorkRobotSegment.FacingLeftShotLaserUpLeft,
-                    camera);
-            case WorkRobotCueKind.TryLaserRight:
-                return TryFireWorkRobotLaser(
-                    place, state, WorkRobotLaser.Horizontal,
-                    WorkRobotSegment.FacingRightShotLaserRight,
-                    camera);
-            case WorkRobotCueKind.TryLaserLeft:
-                return TryFireWorkRobotLaser(
-                    place, state, WorkRobotLaser.Horizontal,
-                    WorkRobotSegment.FacingLeftShotLaserLeft,
-                    camera);
-            case WorkRobotCueKind.TryLaserDownRight:
-                return TryFireWorkRobotLaser(
-                    place, state, WorkRobotLaser.DownRight,
-                    WorkRobotSegment.FacingRightShotLaserDownRight,
-                    camera);
-            case WorkRobotCueKind.TryLaserDownLeft:
-                return TryFireWorkRobotLaser(
-                    place, state, WorkRobotLaser.DownLeft,
-                    WorkRobotSegment.FacingLeftShotLaserDownLeft,
-                    camera);
             case WorkRobotCueKind.CountDownLaserCooldown:
                 DecrementWorkRobotLaserCooldown(state);
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(WorkRobotCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(WorkRobotCueKind)} {kind}.");
         }
     }
 

@@ -13,10 +13,24 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PhantoonPartDefinitions.Parts.Keys];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
+        [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new PhantoonEntity(this, place, common, _bossArtwork);
+    /// <summary>Phantoon's body, eye, tentacles or mouth (#2146).</summary>
+    /// <exception cref="InvalidOperationException">The place holds no Phantoon definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.PhantoonBody)
+            return new PhantoonBodyEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.PhantoonEye)
+            return new PhantoonEyeEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.PhantoonTentacles)
+            return new PhantoonTentaclesEntity(this, place, common, _bossArtwork);
+        if (definition == EnemyDefinitionId.PhantoonMouth)
+            return new PhantoonMouthEntity(this, place, common, _bossArtwork);
+        throw new InvalidOperationException($"The Phantoon species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Room services and background state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -80,32 +94,37 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetPhantoonMouthControls(Combat.Phantoon);
     }
 
-    /// <summary>Runs the shared part initializer.</summary>
-    internal void InitializePhantoonPart(RoomEnemyPlace part)
+    /// <summary>Sets Phantoon's eye up, closed; its start ends any wave.</summary>
+    internal void InitializePhantoonEye(RoomEnemyPlace eye)
     {
-        PhantoonEnemyState state = Combat.RequirePhantoonState(part);
-        // Each part is its own enemy, so the part's identity selects its animation; every part belongs to the encounter.
-        if (part.DefinitionId == EnemyDefinitionId.PhantoonEye)
-        {
-            state.Eye = part;
-            StartPhantoonPart(part, PhantoonPartSegment.EyeClosed);
-            // The eye's start ends any wave.
-            state.Wave.Length = null;
-        }
-        else if (part.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
-        {
-            state.Tentacles = part;
-            StartPhantoonPart(part, PhantoonPartSegment.Tentacles);
-        }
-        else if (part.DefinitionId == EnemyDefinitionId.PhantoonMouth)
-        {
-            state.Mouth = part;
-            StartPhantoonPart(part, PhantoonPartSegment.MouthInitial);
-        }
-        else
-        {
-            throw new InvalidDataException($"Phantoon part place {part.Ordinal} holds {part.DefinitionId}, not a Phantoon part.");
-        }
+        PhantoonEnemyState state = Combat.RequirePhantoonState(eye);
+        state.Eye = eye;
+        StartPhantoonPart(eye, PhantoonPartSegment.EyeClosed);
+        state.Wave.Length = null;
+        JoinPhantoon(eye, state);
+    }
+
+    /// <summary>Sets Phantoon's tentacles up.</summary>
+    internal void InitializePhantoonTentacles(RoomEnemyPlace tentacles)
+    {
+        PhantoonEnemyState state = Combat.RequirePhantoonState(tentacles);
+        state.Tentacles = tentacles;
+        StartPhantoonPart(tentacles, PhantoonPartSegment.Tentacles);
+        JoinPhantoon(tentacles, state);
+    }
+
+    /// <summary>Sets Phantoon's mouth up.</summary>
+    internal void InitializePhantoonMouth(RoomEnemyPlace mouth)
+    {
+        PhantoonEnemyState state = Combat.RequirePhantoonState(mouth);
+        state.Mouth = mouth;
+        StartPhantoonPart(mouth, PhantoonPartSegment.MouthInitial);
+        JoinPhantoon(mouth, state);
+    }
+
+    /// <summary>Ends a drawing part's setup: the part belongs to the encounter, and its setup resets the mouth's controls.</summary>
+    private static void JoinPhantoon(RoomEnemyPlace part, PhantoonEnemyState state)
+    {
         part.SetSpeciesState(state);
         ResetPhantoonMouthControls(state);
     }

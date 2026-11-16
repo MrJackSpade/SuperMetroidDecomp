@@ -34,9 +34,9 @@ internal static class EscapeDachoraNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, EscapeDachoraNativeListAddressesInstruction> Instructions = new()
     {
-        [0xeaa8] = new EscapeDachoraNativeListAddressesInstruction(EscapeDachoraCueKind.GoToIfAcidHigh, "T"),
-        [0xeab8] = new EscapeDachoraNativeListAddressesInstruction(EscapeDachoraCueKind.GoToIfCrittersEscaped, "T"),
-        [0xeac9] = new EscapeDachoraNativeListAddressesInstruction(EscapeDachoraCueKind.MoveLeft, ""),
-        [0xead7] = new EscapeDachoraNativeListAddressesInstruction(EscapeDachoraCueKind.MoveRight, ""),
+        [0xeaa8] = new EscapeDachoraNativeListAddressesInstruction(EscapeDachoraCueKind.GoToIfAcidHigh, null, "T"),
+        [0xeab8] = new EscapeDachoraNativeListAddressesInstruction(EscapeDachoraCueKind.GoToIfCrittersEscaped, null, "T"),
+        [0xeac9] = new EscapeDachoraNativeListAddressesInstruction(null, new EscapeDachoraCue.Move(Offset: -6), ""),
+        [0xead7] = new EscapeDachoraNativeListAddressesInstruction(null, new EscapeDachoraCue.Move(Offset: 6), ""),
     };
 }

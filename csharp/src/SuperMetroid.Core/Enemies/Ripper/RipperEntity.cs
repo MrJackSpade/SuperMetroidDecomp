@@ -1,49 +1,24 @@
 namespace SuperMetroid.Core.Enemies.Ripper;
 
-/// <summary>One Ripper occupant: its own AI, with the shared reactions.</summary>
+/// <summary>
+/// One Ripper: the grapple Ripper (<see cref="GrappleRipperEntity"/>), the jet Ripper (<see cref="JetRipperEntity"/>) or
+/// the ordinary Ripper (<see cref="OrdinaryRipperEntity"/>). Each sets up and flies by its own AI, animates by the shared
+/// Ripper animation, and takes the Rippers' own shot and bomb stages where its definition leaves shots to it.
+/// </summary>
 /// <param name="species">The Ripper species owner.</param>
-/// <param name="place">The place the enemy occupies.</param>
+/// <param name="place">The place the Ripper occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RipperEntity(RipperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal abstract class RipperEntity(RipperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    public void Initialize()
-    {
-        switch (RipperPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case RipperPart.GrappleRipper:
-                RipperBehavior.InitializeGrappleRipper(Place);
-                break;
-            case RipperPart.JetRipper:
-                RipperBehavior.InitializeJetRipper(Place);
-                break;
-            case RipperPart.Ripper:
-                RipperBehavior.InitializeRipper(Place);
-                break;
-            default:
-                throw new InvalidOperationException($"Ripper entity bound to {Place.DefinitionId}.");
-        }
-    }
+    /// <summary>The Ripper species owner.</summary>
+    protected RipperBehavior Species => species;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame)
-    {
-        switch (RipperPartDefinitions.Parts[Place.DefinitionId])
-        {
-            case RipperPart.GrappleRipper:
-                species.RunGrappleRipperMainAi(Place, frame);
-                break;
-            case RipperPart.JetRipper:
-                species.RunJetRipperMainAi(Place, frame);
-                break;
-            case RipperPart.Ripper:
-                species.RunRipperMainAi(Place, frame);
-                break;
-            default:
-                throw new InvalidOperationException($"Ripper entity bound to {Place.DefinitionId}.");
-        }
-    }
+    public abstract void Initialize();
+
+    /// <inheritdoc/>
+    public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RipperBehavior.AdvanceRipperTypedAnimation(Place, context);

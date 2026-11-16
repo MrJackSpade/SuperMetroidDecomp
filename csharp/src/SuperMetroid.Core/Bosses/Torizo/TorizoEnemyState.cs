@@ -23,7 +23,7 @@ public sealed class TorizoEnemyState
     /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
 
-    /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>
+    /// <summary>His colours: the colouring shown, the fade his awakening or death runs toward it and his belly's glow (#2236).</summary>
     internal TorizoColours Colours { get; } = new();
 
     /// <summary>The body animation playing and where it stands in it (#1600).</summary>

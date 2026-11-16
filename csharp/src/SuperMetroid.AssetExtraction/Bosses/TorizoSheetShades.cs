@@ -12,14 +12,11 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>
-/// The shades of the Torizos (#1512), which the import pre-colours their sheets in: the colours both load over their
-/// orb-and-flame and statue-shading rows, each settled colouring of a Torizo's body and belly over its two rows, and each
-/// run of counter values a fade takes from one toward another, as the shared gradual colour change moves each colour one
-/// step from the colour shown. A fade's run starts past zero, as the counter's zero step moves nothing, and at any value
-/// through its last: a hurt colouring written mid-fade restarts the fade from that colouring at the counter value it
-/// stands at. Once a Torizo's fight starts, his belly's glow writes each record of its palette-FX program over his belly's
-/// glowing colours, so the import walks that program and pre-colours each record it shows there, and each run of fade
-/// steps from each record toward each target.
+/// The shades of the Torizos (#1512, #2236), which the import pre-colours their sheets in: the colours both load over their
+/// orb-and-flame and statue-shading rows and each settled colouring of a Torizo's body and belly over its two rows. Once a
+/// Torizo's fight starts, his belly's glow writes each record of its palette-FX program over his belly's glowing colours,
+/// so the import walks that program and pre-colours each record it shows there, and the glowing colours in each colouring
+/// a fade runs toward. A fade between colourings is a typed fade between these shades, never pre-coloured.
 /// </summary>
 internal static class TorizoSheetShades
 {
@@ -74,45 +71,33 @@ internal static class TorizoSheetShades
         ];
         foreach (TorizoLook look in settled)
             shades.Add(SheetShade.Run(TorizoShades.Body(look), BodyFirstInk, Colours(auxiliary, look)));
-        foreach (TorizoLook from in settled)
-        {
-            RgbColor[] start = Colours(auxiliary, from);
-            foreach (TorizoLook to in FadeTargets)
-            {
-                RgbColor[] goal = Colours(auxiliary, to);
-                for (int first = 1; first <= TorizoShadeDefinitions.FadeDenominator + 1; first++)
-                {
-                    for (int last = first; last <= TorizoShadeDefinitions.FadeDenominator + 1; last++)
-                        shades.Add(SheetShade.Run(TorizoShades.Fading(from, to, first, last), BodyFirstInk, Faded(start, goal, first, last)));
-                }
-            }
-        }
         shades.AddRange(BellyGlow(auxiliary, paletteFx, glow));
         return shades;
     }
 
     /// <summary>
-    /// The belly glow's shades: each record its program shows over the glowing colours, and each run of fade steps from
-    /// each record toward each fade target.
+    /// The belly glow's shades: each record its program shows over the glowing colours, and those colours in each
+    /// colouring a fade runs toward, which a fade over the glow ends on.
     /// </summary>
-    private static IEnumerable<SheetShade> BellyGlow(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, ColourEffectId glow)
+    /// <exception cref="InvalidDataException">The glow shows no record, or its records recolour different colours.</exception>
+    private static List<SheetShade> BellyGlow(EnemyAuxiliaryColorCatalog auxiliary, IPaletteFxColorSource paletteFx, ColourEffectId glow)
     {
+        var shades = new List<SheetShade>();
         foreach ((ColourEffectColours colours, ColourEffectFrame record) in PaletteFxRecordShades.ShownBy([glow]))
         {
             if (colours != ColourEffectColours.TorizoBelly)
                 throw new InvalidDataException($"The Torizo belly glow {glow} shows {colours}.");
-            SheetShade written = PaletteFxRecordShades.Shade(colours, record, new InkRange(BellyGlowFirstInk, BellyGlowEndInk), paletteFx);
-            yield return written;
-            foreach (TorizoLook to in FadeTargets)
-            {
-                RgbColor[] goal = [.. written.Inks.Select(ink => Colours(auxiliary, to)[ink - BodyFirstInk])];
-                for (int first = 1; first <= TorizoShadeDefinitions.FadeDenominator + 1; first++)
-                {
-                    for (int last = first; last <= TorizoShadeDefinitions.FadeDenominator + 1; last++)
-                        yield return new SheetShade(TorizoShades.BellyFading(record, to, first, last), written.Inks, Faded(written.Colours, goal, first, last));
-                }
-            }
+            shades.Add(PaletteFxRecordShades.Shade(colours, record, new InkRange(BellyGlowFirstInk, BellyGlowEndInk), paletteFx));
         }
+        int[] inks = shades.Count > 0 ? [.. shades[0].Inks] : throw new InvalidDataException($"The Torizo belly glow {glow} shows no record.");
+        if (shades.Any(shade => !shade.Inks.SequenceEqual(inks)))
+            throw new InvalidDataException($"The Torizo belly glow {glow}'s records recolour different colours.");
+        foreach (TorizoLook to in FadeTargets)
+        {
+            RgbColor[] colouring = Colours(auxiliary, to);
+            shades.Add(new SheetShade(TorizoShades.GlowingBelly(to), inks, [.. inks.Select(ink => colouring[ink - BodyFirstInk])]));
+        }
+        return shades;
     }
 
     /// <summary>The body's and belly's colours of <paramref name="look"/>, body first.</summary>
@@ -131,18 +116,4 @@ internal static class TorizoSheetShades
         ],
         _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
     };
-
-    /// <summary>Each of <paramref name="start"/>'s colours after the fade's steps toward <paramref name="goal"/>'s of counter values <paramref name="first"/> through <paramref name="last"/>.</summary>
-    private static RgbColor[] Faded(RgbColor[] start, RgbColor[] goal, int first, int last)
-    {
-        var faded = new RgbColor[start.Length];
-        for (int ink = 0; ink < faded.Length; ink++)
-        {
-            FadeLevelColour current = start[ink].FadeLevels, toward = goal[ink].FadeLevels;
-            for (int step = first; step <= last; step++)
-                current = GradualColourFade.Step(step, current, toward, TorizoShadeDefinitions.FadeDenominator);
-            faded[ink] = current.ToColour();
-        }
-        return faded;
-    }
 }

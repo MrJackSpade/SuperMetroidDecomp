@@ -35,7 +35,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         var body=runtime.Enemies.Places.InUpdateOrder[0];
-        var state= runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid.");
+        var state= runtime.Enemies.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Kraid.");
         state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
         state.HeadPlayback=RoarPastOpenPose;state.BodyState.HeadTimer=64;
         state.DisplayedHeadFrame = FullyOpenRoarFrame();

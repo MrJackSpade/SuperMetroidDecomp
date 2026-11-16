@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
@@ -101,12 +102,12 @@ internal sealed class MotherBrainHead
     /// Draws her brain, and her neck when it is shown, after every queued enemy has been drawn. The brain is shown by
     /// her own draw rather than the common enemy draw, although her population entry collides by its frames' hitboxes.
     /// </summary>
+    /// <param name="state">The room's Mother Brain, as her body attached her to the room (#2194), or none before she sets up.</param>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
     /// <param name="samus">Samus, whom the brain animation's cues read.</param>
-    internal void DrawMotherBrainBrainAndNeck(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
+    internal void DrawMotherBrainBrainAndNeck(MotherBrainEnemyState? state, SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
     {
-        MotherBrainEnemyState? state = _motherBrainEncounter.MotherBrain;
         RoomEnemyPlace? head = state?.Head;
         if (state?.DrawBrain != true || head is null)
             return;
@@ -131,7 +132,8 @@ internal sealed class MotherBrainHead
                 // Her brain's own draw bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
                 MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.FlashTimer) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
-            camera);
+            camera,
+            ShownCorpseRows(state));
 
         if (!state.DrawNeck || state.Body.Presence.HasAny(EnemyPresence.Hidden))
             return;
@@ -149,16 +151,30 @@ internal sealed class MotherBrainHead
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck),
                 new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
                     state.Colours.OwnShading),
-                camera);
+                camera,
+                ShownCorpseRows(state));
         }
     }
 
+    /// <summary>
+    /// The rows <paramref name="state"/>'s corpse shows as its own rot has left them, which her corpse's frame is drawn
+    /// whole through (#1539); none while her rainbow beam sequence has not begun.
+    /// </summary>
+    private static CorpseRotRows? ShownCorpseRows(MotherBrainEnemyState state) =>
+        state.RainbowBeamSequence?.ThirdPhaseDeath.CorpseRotting.Shown;
+
     /// <summary>Publishes a selected world-space Mother Brain frame from the head's sheet with colours and camera offsets.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="source">The part shown.</param>
+    /// <param name="frame">The frame, where it lies and its shading.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="corpseRows">The rows her rotting corpse shows, or none while she shows no rotting corpse.</param>
     internal void DrawMotherBrainWorldFrame(
         SpriteFrameBuffer sprites,
         SpriteSource source,
         MotherBrainWorldFrame frame,
-        Position16<RoomPixels> camera)
+        Position16<RoomPixels> camera,
+        CorpseRotRows? corpseRows)
     {
         // The frame is published wherever it lies, above the screen included; the display clips it (#1587).
         Offset16<ScreenPixels> screen = frame.World.RelativeToCamera(camera);
@@ -166,7 +182,7 @@ internal sealed class MotherBrainHead
         // The head's sheet pictures each frame as the encounter's artwork changes leave it (#1392); her corpse's frame is drawn
         // whole through her corpse's own rows as its rot leaves them (#1539).
         _presentation.PublishSheetFrame(sprites, source, new EnemySheetDraw(EnemyDefinitionId.MotherBrainHead, EnemySheetDefinitions.FrameName(frame.Frame), screen)
-            { Shading = frame.Shading, RotRows = _motherBrainEncounter.ShownCorpseRows });
+            { Shading = frame.Shading, RotRows = corpseRows });
     }
 
     /// <summary>

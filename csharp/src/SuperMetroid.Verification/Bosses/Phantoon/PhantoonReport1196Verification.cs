@@ -19,7 +19,7 @@ internal static class PhantoonReport1196Verification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = CreatePhantoonSystem();
-        var state = enemies.PhantoonBehavior.Combat.Phantoon;
+        var state = enemies.BossEncounters.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
         (state ?? throw new InvalidOperationException("Verification requires state.")).PhaseTimer = 1;
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
@@ -54,7 +54,7 @@ internal static class PhantoonReport1196Verification
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonSystem();
-        var boss = enemies.PhantoonBehavior.Combat.Phantoon;
+        var boss = enemies.BossEncounters.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;

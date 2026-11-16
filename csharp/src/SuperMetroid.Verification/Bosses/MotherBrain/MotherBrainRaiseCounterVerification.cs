@@ -22,7 +22,7 @@ internal static class MotherBrainRaiseCounterVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.Phase = MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain;
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));

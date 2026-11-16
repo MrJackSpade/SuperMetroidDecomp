@@ -25,7 +25,7 @@ internal static class PhantoonPositionVerification
         var capBody = capEnemies.Places.InUpdateOrder[0];
         var capTentacles = capEnemies.Places.InUpdateOrder[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
-        capEnemies.PhantoonBehavior.Combat.Phantoon = capState;
+        capEnemies.BeginPhantoonAsSetUp(capState);
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capState.Swoop.Velocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
         PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
@@ -40,7 +40,7 @@ internal static class PhantoonPositionVerification
             boundary.RoomLoader.InitializeStartingCeresRoom();
             boundary.RoomLoader.InitializeCeresStartSamus();
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
-            var state = boundary.Enemies.PhantoonBehavior.Combat.Phantoon;
+            var state = boundary.Enemies.BossEncounters.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
             boundaryState.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
             boundaryState.Round.EyeClosedTimer = timer;
@@ -53,7 +53,7 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
-        PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
+        PhantoonEnemyState loaded = runtime.Enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.Phantoon.");
         AssertEqual(120, loaded.PhaseTimer,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
@@ -62,7 +62,7 @@ internal static class PhantoonPositionVerification
         var positions = new HashSet<MotherBrainRinkaDoorSpawnExpected>();
         for (int frame = 0; frame < 1400; frame++)
         {
-            var phantoon = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires the loaded Phantoon.");
+            PhantoonEnemyState phantoon = loaded;
             Position16<RoomPixels> placementBefore = phantoon.Body.Position.Whole;
             Position16<BackgroundPixels> shown = BossBodyPlacement.Shown(placementBefore, runtime.Room.LoadedCamera.PixelPosition);
             ushort displayedX = shown.X;

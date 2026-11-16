@@ -41,7 +41,7 @@ internal static class PhantoonSolidifyingCentreVerification
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
         body.Health = 2500;
         var state = new PhantoonEnemyState(body) { Phase = PhantoonPhase.EyeTracksSamus, PhaseTimer = 60 };
-        enemies.PhantoonBehavior.Combat.Phantoon = state;
+        enemies.BeginPhantoonAsSetUp(state);
 
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
         SamusProjectile shot = shots.Shots[0];

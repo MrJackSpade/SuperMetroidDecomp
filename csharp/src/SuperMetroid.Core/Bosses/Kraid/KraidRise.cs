@@ -58,10 +58,12 @@ internal sealed class KraidRise
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
     internal void InitializeKraidBody(RoomEnemyPlace body)
     {
-        // The body begins the encounter each of his parts joins as it sets up (#2218).
-        KraidEnemyState state = _access.BeginEncounter();
+        // The body begins the encounter each of his parts joins as it sets up (#2218): a body that sets up again begins a
+        // new one.
+        var state = new KraidEnemyState();
         _access.AttachKraidPart(body, state);
-        // The room shows the body layer he draws himself, his backdrop's colours and his own (#2194).
+        // The room shows the body layer he draws himself, of this encounter, his backdrop's colours and his own (#2194).
+        _bodyLayer.Show(state);
         _presentation.AttachBossBody(_bodyLayer);
         _presentation.BossShadings.Show(BossShadingLayer.KraidBackdrop, _access.Backdrop);
         _presentation.BossShadings.Show(BossShadingLayer.Kraid, state.Colours);

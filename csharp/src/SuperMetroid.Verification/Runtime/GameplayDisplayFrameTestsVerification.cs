@@ -96,7 +96,7 @@ internal static class GameplayDisplayFrameTestsVerification
         GameplaySceneView before = Registers(runtime);
         RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
         kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
-        KraidEnemyState kraid = runtime.Enemies.KraidBehavior.Access.BeginEncounter();
+        KraidEnemyState kraid = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
         kraid.ShowsBodyLayer = true;
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
         // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).

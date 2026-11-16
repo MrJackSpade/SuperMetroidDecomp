@@ -23,7 +23,7 @@ internal static class MotherBrainBodyHitboxesVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace body = state.Body;
         RoomEnemyPlace head = state.Head;

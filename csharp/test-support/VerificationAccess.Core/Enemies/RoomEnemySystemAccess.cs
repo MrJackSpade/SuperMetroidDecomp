@@ -92,7 +92,7 @@ internal static class RoomEnemySystemAccess
         {
             Ensure.NotNull(projectiles);
             Ensure.NotNull(sharedProjectiles);
-            var kraid = self.KraidBehavior.Access.Kraid;
+            var kraid = self.Kraid;
             RoomEnemyPlace body = self.Places.InUpdateOrder[0];
             if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Presence.HasAny(EnemyPresence.Deleted))

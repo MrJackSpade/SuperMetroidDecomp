@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -25,6 +26,8 @@ internal sealed class EnemyDrawList
     private readonly EnemyAnimationPlayer _animationPlayer;
     /// <summary>Draws Mother Brain's late parts after the queued enemies.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
+    /// <summary>The encounters of the room's bosses, whose Mother Brain's brain the late draw shows (#2194).</summary>
+    private readonly RoomBossEncounters _bossEncounters;
     /// <summary>Publishes each enemy's frame picture to the frame's sprites.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies every installed enemy frame's display and validates active room ownership.</summary>
@@ -39,6 +42,7 @@ internal sealed class EnemyDrawList
         _frameContext = dependencies.FrameContext;
         _animationPlayer = dependencies.AnimationPlayer;
         _motherBrainBehavior = dependencies.MotherBrainBehavior;
+        _bossEncounters = dependencies.BossEncounters;
         _presentation = dependencies.Presentation;
         _room = dependencies.Room;
         _puyoCeilingTurn = dependencies.PuyoCeilingTurn;
@@ -156,7 +160,7 @@ internal sealed class EnemyDrawList
 
         // Mother Brain's late parts advance her brain, which reads the room's random numbers, after every queued
         // enemy's draw.
-        _motherBrainBehavior.Head.DrawMotherBrainBrainAndNeck(sprites, camera, samus);
+        _motherBrainBehavior.Head.DrawMotherBrainBrainAndNeck(_bossEncounters.MotherBrain, sprites, camera, samus);
         _deadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, camera);
     }
 

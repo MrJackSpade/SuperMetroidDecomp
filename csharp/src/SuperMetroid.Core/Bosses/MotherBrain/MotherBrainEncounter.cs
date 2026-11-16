@@ -6,8 +6,8 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain encounter state shared across Tourian: Mother Brain's own state, the end of
-/// the tube effects the elevator observes, and the encounter's sound and music requests.
+/// Mother Brain encounter state shared across Tourian: her setup's attachment to the room, the warning Zebes's escape
+/// shows, and the encounter's sound and music requests.
 /// </summary>
 [RoomLifetime]
 internal sealed class MotherBrainEncounter
@@ -15,18 +15,27 @@ internal sealed class MotherBrainEncounter
     /// <summary>Receives the encounter's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds the encounter's requests to the enemy audio queue.</summary>
-    internal MotherBrainEncounter(EnemyAudioQueue audio) => _audio = audio;
+    /// <summary>The encounters of the room's bosses, to which her body's setup attaches her (#2194).</summary>
+    private readonly RoomBossEncounters _encounters;
+
+    /// <summary>Binds the encounter's requests to the enemy audio queue and her setup to the room's boss encounters.</summary>
+    internal MotherBrainEncounter(EnemyAudioQueue audio, RoomBossEncounters encounters)
+    {
+        _audio = audio;
+        _encounters = encounters;
+    }
 
     /// <summary>
-    /// The room's Mother Brain as the room's display and colours see it (#2177, #2218): begun as her body sets up and kept
-    /// for the room. No part reads it; each of her parts, the tubes and the Baby hold the encounter they joined.
+    /// Begins <paramref name="motherBrain"/>'s encounter as her body sets up: the room's display, colours and escape text
+    /// and her brain's late draw read her from the room from here (#2194). No part reads it there; each of her parts, the
+    /// tubes and the Baby hold the encounter they joined.
     /// </summary>
-    public MotherBrainEnemyState? MotherBrain { get; private set; }
-
-    /// <summary>Begins <paramref name="motherBrain"/>'s encounter as her body sets up, which the room's display sees from here.</summary>
     /// <returns>The encounter begun.</returns>
-    internal MotherBrainEnemyState Begin(MotherBrainEnemyState motherBrain) => MotherBrain = Ensure.NotNull(motherBrain);
+    internal MotherBrainEnemyState Begin(MotherBrainEnemyState motherBrain)
+    {
+        _encounters.Attach(Ensure.NotNull(motherBrain));
+        return motherBrain;
+    }
 
     /// <summary>
     /// The warning Zebes's escape shows over Mother Brain's room background (#1555): the glyphs her death's typewriter has
@@ -37,12 +46,6 @@ internal sealed class MotherBrainEncounter
 
     /// <summary>Shows <paramref name="picture"/> as the next glyph of <see cref="ZebesWarning"/>.</summary>
     internal void ShowZebesWarning(WrittenPicture picture) => ZebesWarning = ZebesWarning.With(picture);
-
-    /// <summary>
-    /// The rows Mother Brain's corpse shows as its own rot has left them, which her corpse's frame is drawn whole through
-    /// (#1539); none while she is not loaded or her rainbow beam sequence has not begun.
-    /// </summary>
-    internal CorpseRotRows? ShownCorpseRows => MotherBrain?.RainbowBeamSequence?.ThirdPhaseDeath.CorpseRotting.Shown;
 
     /// <summary>
     /// Queues a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the cutscene,

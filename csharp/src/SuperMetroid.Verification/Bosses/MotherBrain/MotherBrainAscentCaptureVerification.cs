@@ -12,7 +12,7 @@ internal static class MotherBrainAscentCaptureVerification
     /// <summary>Verifies what every gameplay line shows during the rise, the completion reset, and snapshot independence after state changes.</summary>
     internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
-        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
+        var state = runtime.Enemies.BossEncounters.MotherBrain;
         // A frame shows the room's backgrounds once an accepted NMI has latched them.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(Layer().Bands.IsEmpty, "No ascent bands before the rise starts");

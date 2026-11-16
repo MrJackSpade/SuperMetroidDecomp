@@ -39,4 +39,7 @@ internal sealed record PhantoonBehaviorDependencies
 
     /// <summary>The bosses' results of the pass, where the fight asks for its door changes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
+
+    /// <summary>The encounters of the room's bosses, to which his body's setup attaches his (#2194).</summary>
+    public required RoomBossEncounters Encounters { get; init; }
 }

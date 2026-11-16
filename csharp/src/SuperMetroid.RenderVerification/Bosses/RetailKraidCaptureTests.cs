@@ -40,7 +40,7 @@ internal static class RetailKraidCaptureTests
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         // The first sample is captured before any update: latch the loaded room for display first.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var boss = runtime.Enemies.KraidBehavior.Access.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
+        var boss = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.Places.InUpdateOrder[0];
         // The body runs the phase of its stage, of the stage's own type (#2208).
         Enum BodyPhase()
@@ -153,9 +153,9 @@ internal static class RetailKraidCaptureTests
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         int restoreTicks = 0;
-        while (runtime.Enemies.KraidBehavior.Access.Kraid is { } reloaded && !DeathFinished(reloaded) && restoreTicks++ < 120)
+        while (runtime.Enemies.Kraid is { } reloaded && !DeathFinished(reloaded) && restoreTicks++ < 120)
             runtime.StepFrame(0);
-        if (runtime.Enemies.KraidBehavior.Access.Kraid is not { } restored || !DeathFinished(restored))
+        if (runtime.Enemies.Kraid is not { } restored || !DeathFinished(restored))
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right", RequireSteadyHud(runtime, $"{device.Kind}: defeated Kraid right"));
     }

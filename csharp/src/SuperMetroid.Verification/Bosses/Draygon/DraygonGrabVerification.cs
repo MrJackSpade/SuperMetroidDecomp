@@ -58,7 +58,7 @@ internal static class DraygonGrabVerification
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.XSpeedDivisor = 1;
         samus.PendingTransitionalPose = pendingPose;
-        DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
+        DraygonEnemyState draygon = runtime.Enemies.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");
         draygon.Phase = DraygonPhase.TryGrabSamus;
         draygon.SpiralCenter = DraygonRegrabSpiralLift.At(draygon.SpiralCenter.Center.WithFractionY(spiralYFraction));

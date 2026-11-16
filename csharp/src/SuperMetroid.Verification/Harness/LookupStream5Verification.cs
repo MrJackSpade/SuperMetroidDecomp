@@ -186,7 +186,7 @@ internal static class LookupStream5Verification
             var body = system.Places.InUpdateOrder[0];
             var eye = system.Places.InUpdateOrder[1];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Places.InUpdateOrder[2], Mouth = system.Places.InUpdateOrder[3] };
-            system.PhantoonBehavior.Combat.Phantoon = state;
+            system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
@@ -247,7 +247,7 @@ internal static class LookupStream5Verification
             var eye = system.Places.InUpdateOrder[1];
             var mouth = system.Places.InUpdateOrder[3];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Places.InUpdateOrder[2], Mouth = mouth };
-            system.PhantoonBehavior.Combat.Phantoon = state;
+            system.BeginPhantoonAsSetUp(state);
             int randomCalls = 0;
             system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
             Action<PhantoonEnemyState> begin = system.PhantoonBehavior.Patterns.RunPhantoonPickFirstRoundPattern;
@@ -357,7 +357,7 @@ internal static class LookupStream5Verification
             var eye = system.Places.InUpdateOrder[1];
             var tentacles = system.Places.InUpdateOrder[2];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.Places.InUpdateOrder[3] };
-            system.PhantoonBehavior.Combat.Phantoon = state;
+            system.BeginPhantoonAsSetUp(state);
             system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
             Action<RoomEnemyPlace, PhantoonEnemyState, SamusState> tick = PhantoonPatterns.RunPhantoonEyeTracking;
@@ -1260,7 +1260,7 @@ internal static class LookupStream5Verification
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
-            enemies.PhantoonBehavior.Combat.Phantoon = state;
+            enemies.BeginPhantoonAsSetUp(state);
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);

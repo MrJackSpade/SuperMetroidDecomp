@@ -47,7 +47,7 @@ internal static class KraidCameraMappingsVerification
         RoomScrollGrid scrolls = runtime.Room.LoadedCamera.Scrolls;
         ExpectCells(rom, InitialOperands, scrolls, "Kraid's room setup");
 
-        KraidEnemyState state = runtime.Enemies.KraidBehavior.Access.Kraid
+        KraidEnemyState state = runtime.Enemies.Kraid
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Kraid);
         state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;

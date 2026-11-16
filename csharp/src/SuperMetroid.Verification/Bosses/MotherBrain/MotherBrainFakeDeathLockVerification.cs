@@ -28,7 +28,7 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
-        MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
+        MotherBrainEnemyState state = (runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain."));
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
         state.PhaseTimer.Count = 0;
         // The original's lock stores to the room's second cell: in Mother Brain's row of four screens, the second screen.
@@ -63,8 +63,8 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ??
-            throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain.");
+        MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain ??
+            throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.MotherBrain.");
         state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
         state.PhaseTimer.Count = 100;
         state.TubeCollapseStep = MotherBrainTubeCollapseStep.Finished;

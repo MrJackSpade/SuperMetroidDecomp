@@ -68,7 +68,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             Eye = eye,
             Tentacles = tentacles,
         };
-        enemies.PhantoonBehavior.Combat.Phantoon = state;
+        enemies.BeginPhantoonAsSetUp(state);
         // His live colour handlers name the shades of his body and room (#1512); the import pre-colours each from the
         // installed colours, which this compares with the catalog.
         IReadOnlyList<SheetShade> bodyShades = PhantoonSheetShades.Body(stock.Bosses);

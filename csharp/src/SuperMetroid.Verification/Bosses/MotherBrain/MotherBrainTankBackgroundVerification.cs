@@ -35,7 +35,7 @@ internal static class MotherBrainTankBackgroundVerification
         // The room shows its library background as the installed image of the pages its list builds (#1406, #1466),
         // whatever Mother Brain's initialization stages for her own BG2.
         AssertTrue(RoomShowsPipeBackground(), "Mother Brain's room shows both pages of the actual pipe-room background");
-        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires state.");
+        var state = runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidOperationException("Verification requires state.");
         BossBodyParts image = runtime.Enemies.Presentation.RequireBossBody();
         AssertTrue(!image.IsShown && Words(image.Publish()).All(word => word == 0x0338),
             "Initializer attaches her body showing nothing, which her room does not show yet");

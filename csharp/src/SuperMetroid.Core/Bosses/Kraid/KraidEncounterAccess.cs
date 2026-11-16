@@ -59,18 +59,8 @@ internal sealed class KraidEncounterAccess
         _room.Random.Read();
 
     /// <summary>
-    /// The room's Kraid as the room's display and colours see it (#2177, #2218): begun as his body sets up and kept for the
-    /// room, so his body layer keeps showing after his body is deleted. No part reads it; each part holds the encounter it
-    /// joined (<see cref="KraidPartState.Kraid"/>).
-    /// </summary>
-    public KraidEnemyState? Kraid { get; private set; }
-
-    /// <summary>Begins Kraid's encounter as his body sets up: a body that sets up again begins a new one.</summary>
-    internal KraidEnemyState BeginEncounter() => Kraid = new KraidEnemyState();
-
-    /// <summary>
     /// The colours Kraid's room backdrop shows (#1512). They belong to the room, not to Kraid: they last
-    /// the room's lifetime, so a re-initialization of Kraid, which replaces <see cref="Kraid"/>, keeps what his growth
+    /// the room's lifetime, so a re-initialization of Kraid, which begins a new encounter, keeps what his growth
     /// fade showed.
     /// </summary>
     internal KraidBackdropColours Backdrop { get; } = new();

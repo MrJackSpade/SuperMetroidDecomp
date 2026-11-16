@@ -401,7 +401,7 @@ internal static class NativeSnapshotImport
                     PipeBugsNativeWords.BrinstarAnimations(strong).Decode(installed, "recorded Pipe Bug installed animation"));
             }
         }
-        if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)
+        if (runtime.Enemies.BossEncounters.MotherBrain is not null)
             ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         runtime.Clock.Import(memory[NativeSnapshotMemory.NmiCounterByte], W(NativeSnapshotMemory.NmiCounter));
         samus.CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = SamusEquipmentWordCodec.FromBeamWord(W(NativeSnapshotMemory.CollectedBeams));

@@ -7,7 +7,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.YappingMaws;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;

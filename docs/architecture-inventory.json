@@ -35711,7 +35711,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresBabyCue.CryOrGoTo",
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresBabyCue.Cries",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -35724,7 +35724,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresBabyCue.GoToIfMoving",
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresBabyCue.ReactsToMotion",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -56383,19 +56383,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCue.GoToSometimes",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoProjectileCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoProjectileCue.PlaySound",
       "kind": "record",
       "scope": "product",
@@ -58558,19 +58545,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.ShaktoolCirclesFollowFirstPlace",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/ShaktoolCirclesFollowFirstPlace.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.ShaktoolDeathDeletesFirstListed",
       "kind": "static class",
       "scope": "product",
@@ -60708,7 +60682,20 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraCue.Branch",
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraCue.LapEnds",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeDachoraCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraCue.LowTideLapEnds",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -60732,19 +60719,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraCueKind",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeDachoraCueKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraEnemyState",
@@ -60838,7 +60812,7 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Animals.EscapeEtecoonCue.GoToIfAcidHigh",
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeEtecoonCue.LowTideRunStarts",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -66702,22 +66676,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorAccess.extension(SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EffectActors/RoomEffectActorAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorAnimations",
       "kind": "static class",
       "scope": "product",
@@ -66729,19 +66687,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EffectActors/RoomEffectActorDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind",
@@ -66800,19 +66745,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorSegment",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EffectActors/RoomEffectActorSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorVisualDefinitionsConstants",
@@ -68557,11 +68489,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/EnemySession.cs"
       ],
       "partial": "none",
-      "disposition": "owner",
-      "flags": [
-        "context-bag"
-      ],
-      "justified": true
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemySheetDraw",
@@ -71310,6 +71238,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/IElevatorJourney.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.IEnemyAfterSamusContact",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyAfterSamusContact.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -74317,19 +74258,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidOuterBodyDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidOuterBodyDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Metroids.MetroidReactions",
       "kind": "static class",
       "scope": "product",
@@ -75094,6 +75022,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleLink\u003CTActor\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleLink.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -76981,6 +76922,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngineAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileEngineAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngineAccess.extension(SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileEngine)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Projectiles/EnemyProjectileEngineAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameAnimation\u003CTSegment, TEvent\u003E",
       "kind": "class",
       "scope": "product",
@@ -77526,6 +77499,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.PseudoScrewCharge",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PseudoScrewCharge.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Puyo.Artwork.PuyoFrameToolingDefinitions",
@@ -78353,19 +78339,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Ripper.GrappleRipperStartDirection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Ripper/GrappleRipperStartDirection.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Ripper.JetRipperEntity",
@@ -79441,19 +79414,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolBehavior.AttackCircleBehavior",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolBehavior.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolChainPlaces",
       "kind": "record",
       "scope": "product",
@@ -79475,32 +79435,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolChainSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolCircleCue",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolCircleCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolCircleMotion",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolCircleMotion.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -79598,58 +79532,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolOrbitTables",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolOrbitTables.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolProjectileAnimation",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolProjectileAnimation.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolProjectileAnimations",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolProjectileAnimations.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolProjectileSegment",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolProjectileSegment.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomControllerObject",
@@ -82272,19 +82154,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCue.Walk",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotCueKind",
       "kind": "enum",
       "scope": "product",
@@ -83087,6 +82956,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawLink",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawLink.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawSegment",
@@ -140803,34 +140685,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.TestSupport.MovieReplay.ShaktoolCircleCueRules",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/ShaktoolCircleCueRules.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.TestSupport.MovieReplay.ShaktoolProjectileNativeListAddresses",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/MovieReplay/ShaktoolProjectileNativeListAddresses.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.TestSupport.MovieReplay.SkreeMetareeParticleNativeListAddresses",
       "kind": "static class",
       "scope": "test",
@@ -157798,14 +157652,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification",
+      "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitSineVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/ShaktoolOrbitAlgorithmVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/ShaktoolOrbitSineVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -157819,32 +157673,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/ShaktoolOwnedStateVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolProjectileAnimationsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/ShaktoolProjectileAnimationsVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolProjectileBehaviorVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/ShaktoolProjectileBehaviorVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -157884,19 +157712,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/VerifyShaktoolOwnedStateCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.Shaktool.VerifyShaktoolProjectileBehaviorCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/VerifyShaktoolProjectileBehaviorCase.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -167769,14 +167584,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorDefinitionsVerification",
+      "type": "SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorKindsVerification",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Rooms/EffectActors/RoomEffectActorDefinitionsVerification.cs"
+        "csharp/src/SuperMetroid.Verification/Rooms/EffectActors/RoomEffectActorKindsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

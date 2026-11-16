@@ -21,7 +21,8 @@ internal static class KraidHeadCommandMappingVerification
         var native = new KraidHeadNativeCursors(cartridge);
         ushort Word(int pointer) => (ushort)(KraidHeadCommandMappingRomByte(rom, KraidHeadNativeCursors.Bank | pointer) |
             (KraidHeadCommandMappingRomByte(rom, KraidHeadNativeCursors.Bank | (pointer + 1)) << 8));
-        AssertEqual(28, native.Records.Count, "the native head lists hold 28 records");
+        AssertEqual(19, native.Records.Count, "the started native head lists hold 19 records");
+        AssertEqual(21, native.AllPoses.Count, "the four native head lists hold 21 poses, the unstarted roar's seven included");
 
         // A pose's mouth stage is its tilemap's rank among the head's distinct tilemaps: the closed mouth is the lowest.
         List<ushort> stageTilemaps = [.. native.Records.Where(record => record.IsPose)
@@ -97,7 +98,7 @@ internal static class KraidHeadCommandMappingVerification
     /// </summary>
     internal static KraidMouthShapeRead NativeMouthRead(KraidHeadNativeCursors native, int address)
     {
-        foreach (KraidHeadNativeRecord record in native.Records.Where(record => record.IsPose))
+        foreach (KraidHeadNativePose record in native.AllPoses)
         {
             if (address == record.Pointer + 4)
                 return new(KraidMouthShapeReadKind.Shape, KraidNativeWords.MouthHitboxes.Decode(record.OuterShape, "Kraid mouth hitbox"));

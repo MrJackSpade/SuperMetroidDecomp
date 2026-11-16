@@ -92,11 +92,6 @@ internal sealed class KraidDeath
             case KraidPhase.DeathShowBody:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.Phase = KraidPhase.DeathStartSinking;
-                foreach (RoomEnemyPlace lint in _parts.Lints)
-                {
-                    _parts.LintStateOf(state, lint).Phase = KraidPhase.AlignPartToKraid;
-                    _parts.LintStateOf(state, lint).PhaseTimer = KraidBehavior.KraidStillPartTimer;
-                }
                 state.ShowBody();
                 return;
 

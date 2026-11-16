@@ -25,23 +25,42 @@ public sealed class EnemyAnimationClock
     /// </summary>
     public bool ShowsNewFrame { get; internal set; }
 
+    /// <summary>
+    /// Whether the clock is stopped (#2213): its animation takes no step, and shows no new frame, until its owner starts or
+    /// steps it again. Lengthening a stopped hold leaves it stopped.
+    /// </summary>
+    public bool IsStopped { get; private set; }
+
     /// <summary>Starts the clock for a newly started animation: its first step plays on the next update.</summary>
-    internal void Restart() => Hold = WrappingCountdown.Start(1);
+    internal void Restart() => Run(WrappingCountdown.Start(1));
 
     /// <summary>
     /// Starts the clock for a newly started animation whose first step plays after <paramref name="updates"/> updates,
     /// 0 through 65535.
     /// </summary>
-    internal void RestartAfter(int updates) => Hold = WrappingCountdown.Start(updates);
+    internal void RestartAfter(int updates) => Run(WrappingCountdown.Start(updates));
 
     /// <summary>
     /// Brings the animation's next step to the next update: the playback goes on from where it stands, or from where its
     /// owner has just placed it.
     /// </summary>
-    internal void StepOnNextUpdate() => Hold = WrappingCountdown.Start(1);
+    internal void StepOnNextUpdate() => Run(WrappingCountdown.Start(1));
 
     /// <summary>Holds the frame shown for <paramref name="updates"/> more updates, 0 through 65535; zero wraps on the next.</summary>
-    internal void HoldFor(int updates) => Hold = WrappingCountdown.Start(updates);
+    internal void HoldFor(int updates) => Run(WrappingCountdown.Start(updates));
+
+    /// <summary>
+    /// Stops the clock (#2213): the frame shown stays and the animation waits, without counting, until its owner starts or
+    /// steps it again.
+    /// </summary>
+    internal void Stop() => IsStopped = true;
+
+    /// <summary>Runs the clock again with <paramref name="hold"/> left before the animation's next step.</summary>
+    private void Run(WrappingCountdown hold)
+    {
+        Hold = hold;
+        IsStopped = false;
+    }
 
     /// <summary>
     /// Lengthens the hold by <paramref name="updates"/> (a negative count shortens it), wrapping as a countdown carried past
@@ -55,6 +74,11 @@ public sealed class EnemyAnimationClock
     /// </summary>
     internal bool Expire()
     {
+        if (IsStopped)
+        {
+            ShowsNewFrame = false;
+            return false;
+        }
         CountdownStep step = Hold.Decrement();
         Hold = step.Remaining;
         if (step.IsZero)
@@ -66,7 +90,7 @@ public sealed class EnemyAnimationClock
     /// <summary>The animation's step showed a new frame for <paramref name="duration"/> updates.</summary>
     internal void Show(int duration)
     {
-        Hold = WrappingCountdown.Start(duration);
+        Run(WrappingCountdown.Start(duration));
         ShowsNewFrame = true;
     }
 
@@ -77,5 +101,5 @@ public sealed class EnemyAnimationClock
     internal void ShowForGood() => ShowsNewFrame = true;
 
     /// <summary>The animation's step paused on its frame for <paramref name="duration"/> updates.</summary>
-    internal void Pause(int duration) => Hold = WrappingCountdown.Start(duration);
+    internal void Pause(int duration) => Run(WrappingCountdown.Start(duration));
 }

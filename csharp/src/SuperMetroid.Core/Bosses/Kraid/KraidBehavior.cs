@@ -94,13 +94,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The longest wait a part's timer is loaded with, kept exact (#1627). The lint and fingernail frame timers wait behind
-    /// it so their animations never advance before their behaviour starts them, and a dying Kraid's lints wait behind it as
-    /// their phase timer, changing phase when it runs out, which gameplay sees.
-    /// </summary>
-    internal const int KraidStillPartTimer = 32767;
-
-    /// <summary>
     /// Runs Kraid's body for one update: mouth-projectile collision, colour handling,
     /// body-projectile collision and body-vs-Samus collision precede the phase. A
     /// killing mouth hit therefore reaches colour handling, which zeroes the hurt frame,

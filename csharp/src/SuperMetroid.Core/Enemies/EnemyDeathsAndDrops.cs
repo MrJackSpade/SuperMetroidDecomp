@@ -144,14 +144,41 @@ internal sealed class EnemyDeathsAndDrops
         RandomSampleField xScatter,
         int yBase,
         RandomSampleField yScatter,
-        SamusState samus)
+        SamusState samus) =>
+        ScatterDrops(count, xBase, xScatter, yBase, yScatter, position => SpawnEnemyDropFromDefinition(position, definitionId, samus));
+
+    /// <summary>
+    /// The twelve item drops' shared behaviour, each rolling <paramref name="dropChances"/> (#2244): a fight whose drops
+    /// roll a table of their own rather than an enemy's.
+    /// </summary>
+    internal void SpawnEnemyDropScatter(
+        EnemyDropChances dropChances,
+        int count,
+        int xBase,
+        RandomSampleField xScatter,
+        int yBase,
+        RandomSampleField yScatter,
+        SamusState samus) =>
+        ScatterDrops(count, xBase, xScatter, yBase, yScatter, position => SpawnEnemyDropFromChanceTable(position, dropChances, samus));
+
+    /// <summary>
+    /// Spawns <paramref name="count"/> drops by <paramref name="spawn"/>, each at the base plus the two scatters of one
+    /// random sample drawn before it spawns.
+    /// </summary>
+    private void ScatterDrops(
+        int count,
+        int xBase,
+        RandomSampleField xScatter,
+        int yBase,
+        RandomSampleField yScatter,
+        Func<Position16<RoomPixels>, EnemyProjectile?> spawn)
     {
         for (int drop = 0; drop < count; drop++)
         {
             int random = _room.Random.Generate();
-            SpawnEnemyDropFromDefinition(new(
+            _ = spawn(new(
                 CoordinateAxis.Wrap(xScatter.Of(random) + xBase),
-                CoordinateAxis.Wrap(yScatter.Of(random) + yBase)), definitionId, samus);
+                CoordinateAxis.Wrap(yScatter.Of(random) + yBase)));
         }
     }
 

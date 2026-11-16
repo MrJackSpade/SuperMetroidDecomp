@@ -239,7 +239,6 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.DraygonTail:
             case EnemyDefinitionId.DraygonArms:
             case EnemyDefinitionId.SporeSpawn:
-            case EnemyDefinitionId.SporeSpawnStalk:
             case EnemyDefinitionId.Boulder:
             case EnemyDefinitionId.KzanTop:
             case EnemyDefinitionId.KzanBottom:

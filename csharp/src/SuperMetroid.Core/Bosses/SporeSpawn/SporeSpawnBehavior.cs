@@ -420,9 +420,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException(
                     $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
             }
-            deathsAndDrops.SpawnEnemyDropFromDefinition(
+            deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 spore.Position.Whole,
-                EnemyDefinitionId.SporeSpawnStalk,
+                SporeSpawnProjectileDefinitions.SporeDropChances,
                 samus);
         }
     }

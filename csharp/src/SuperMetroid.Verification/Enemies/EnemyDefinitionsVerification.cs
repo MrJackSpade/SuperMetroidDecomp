@@ -75,7 +75,6 @@ internal static class EnemyDefinitionsVerification
             RoomEnemyAuxiliaryDefinitionCatalog.Pointers.Order().ToArray();
         AssertTrue(auxiliaryPointers.SequenceEqual(new EnemyDefinitionId[]
             {
-                EnemyDefinitionId.SporeSpawnStalk,
                 EnemyDefinitionId.BabyMetroidCutscene,
                 EnemyDefinitionId.MotherBrainTubes,
                 EnemyDefinitionId.BombTorizoOrb,

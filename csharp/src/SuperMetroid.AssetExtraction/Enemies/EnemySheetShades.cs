@@ -401,7 +401,7 @@ internal sealed class EnemySheetShades
                 or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Skree
                 or EnemyDefinitionId.Yard or EnemyDefinitionId.OrangeZoomer or EnemyDefinitionId.Zeela
                 or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer or EnemyDefinitionId.Metroid
-                or EnemyDefinitionId.SporeSpawnStalk or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
+                or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
                 or EnemyDefinitionId.Hibashi or EnemyDefinitionId.NuclearWaffle or EnemyDefinitionId.FakeKraid or EnemyDefinitionId.CeresSteam
                 or EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
                 or EnemyDefinitionId.PhantoonMouth or EnemyDefinitionId.Etecoon or EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile

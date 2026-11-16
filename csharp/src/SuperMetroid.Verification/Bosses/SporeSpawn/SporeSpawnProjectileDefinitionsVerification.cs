@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -27,6 +28,11 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 SporeSpawnProjectileDefinitions.Emitters[index].X,
                 $"Spore Spawn emitter X {index}");
         }
+        // A shot spore's drop rolls the table the cartridge's spore drop names through the header at $A0:DF7F, whose
+        // drop-chance word lies 58 bytes in (#2244).
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord((RoomEnemyRomLayout.DefinitionBank | 0xdf7f) + 58)),
+            SporeSpawnProjectileDefinitions.SporeDropChances, "a shot spore's drop chances are the cartridge's");
         // The cartridge keeps the drift as one byte stream, each step's X then its Y.
         AssertEqual(128, SporeSpawnProjectiles.DriftStepCount, "Spore Spawn drift steps");
         for (int step = 0; step < SporeSpawnProjectiles.DriftStepCount; step++)

@@ -159,7 +159,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.MotherBrainTubes] = 0,
         [EnemyDefinitionId.BombTorizoOrb] = 8192,
         [EnemyDefinitionId.GoldenTorizoOrb] = 8192,
-        [EnemyDefinitionId.SporeSpawnStalk] = 3584,
     };
 
     /// <summary>

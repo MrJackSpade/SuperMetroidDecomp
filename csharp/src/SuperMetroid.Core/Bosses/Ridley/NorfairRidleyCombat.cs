@@ -394,7 +394,7 @@ internal sealed class NorfairRidleyCombat
             TickNorfairRidleyMoveToDeathSpot(place, state);
             return;
         }
-        // The grab falls through into the carry on the grabbing update.
+        // The carry starts on the grabbing update.
         BeginNorfairRidleyCarry(place, state);
     }
 

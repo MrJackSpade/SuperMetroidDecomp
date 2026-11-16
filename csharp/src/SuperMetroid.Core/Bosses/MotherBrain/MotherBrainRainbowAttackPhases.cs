@@ -9,7 +9,7 @@ internal sealed class MotherBrainRainbowAttackPhases
 {
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement ;
-    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
+    /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>The encounter the late fight runs, the one owner of the state these phases read and write.</summary>

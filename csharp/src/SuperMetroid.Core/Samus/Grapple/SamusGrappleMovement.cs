@@ -143,8 +143,8 @@ public static class SamusGrappleMovement
         // Firing tests the current endpoint against ordinary enemies before moving the
         // beam through its four block-collision substeps. The collision producer sets the
         // enemy's common grapple-response flag; this reads only the definition's
-        // seven common reactions. Kill/no-interaction deliberately fall through to
-        // terrain, exactly like an enemy with no grapple reaction.
+        // seven common reactions. Kill and no interaction deliberately go on to the room's blocks, exactly like an
+        // enemy with no grapple reaction.
         GrappleEnemyCollision enemy = enemyCollision(grapple.Anchor);
         switch (enemy.Reaction)
         {
@@ -167,7 +167,7 @@ public static class SamusGrappleMovement
                     controllerInput,
                     enemy.EnemyDamage);
                 return QueueFiringCancellation(grapple);
-            // Kill and no interaction fall through to terrain, as if the enemy were not there.
+            // Kill and no interaction go on to the room's blocks, as if the enemy were not there.
             case GrappleEnemyReaction.None:
             case GrappleEnemyReaction.Kill:
                 break;

@@ -32,7 +32,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <summary>Spawns release dust and Baby death explosions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Shares physical body, head, rainbow sequence, and requested music state with Mother Brain.</summary>
+    /// <summary>Shares Mother Brain's body, head, rainbow sequence, and requested music state with her.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
 
@@ -85,7 +85,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _places.CoverSpawn(babyPlace);
     }
 
-    /// <summary>Creates the physical Baby only after the rainbow sequence exists and starts its first animation and fifteen nontransparent colors.</summary>
+    /// <summary>Sets the Baby up once the rainbow sequence exists and starts its first animation and fifteen nontransparent colors.</summary>
     internal static void InitializeMotherBrainBabyMetroid(RoomEnemyPlace place)
     {
         MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
@@ -122,7 +122,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
         BabyMetroidCutsceneState baby = state.BabyMetroid ??
-            throw new InvalidOperationException("The physical Baby has no cutscene state.");
+            throw new InvalidOperationException("The Baby has no cutscene state.");
         if (!ReferenceEquals(place, state.BabyMetroidPlace))
         {
             throw new InvalidDataException(

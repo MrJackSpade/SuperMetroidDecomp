@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// One rectangle of an enemy's extended hitboxes, independent of its editable artwork: its signed bounds relative to the
-/// component origin, and the reactions the walker selects when Samus touches it or her weapon hits it.
+/// component origin, and the reactions the collision selects when Samus touches it or her weapon hits it.
 /// </summary>
 /// <param name="Left">Left edge relative to the component origin, in room pixels.</param>
 /// <param name="Top">Top edge relative to the component origin, in room pixels.</param>

@@ -178,7 +178,7 @@ public static class SamusBlockCollision
                         // Finds where the door block leads. A normal destination publishes the door, enters
                         // the door-transition game state, and reports no collision, so this scan must allow
                         // Samus into the doorway. Elevator pseudo-destinations are not doors
-                        // and fall through to the ordinary solid clipping.
+                        // and clip her as an ordinary solid block does.
                         DoorBlockExit horizontalDoor = terrain.Level.ResolveDoorCollision(
                             block,
                             state.CollisionPose.ForRoomCollision(),
@@ -832,7 +832,7 @@ public static class SamusBlockCollision
         if (remainingRows == 0)
         {
             // On the bottom scanned block, the body's bottom half can accept the selected
-            // quadrant directly. Otherwise the test falls through to the opposite
+            // quadrant directly. Otherwise the test goes on to the opposite
             // vertical quadrant test below.
             if (!RoomGridConversions.InSecondHalfOfBlock(state.Radius.Y + state.Position.Y.Whole - 1) && !selectedSolid)
             {

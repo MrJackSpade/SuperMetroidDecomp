@@ -10,7 +10,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>The corpse rotting away after the final death, with its own rot schedule.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
 
-    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
+    /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>The encounter the late fight runs, the one owner of the state these phases read and write.</summary>

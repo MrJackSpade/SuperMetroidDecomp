@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Engine-owned collision data for Crocomire's fifty selected body frames and their thirteen hitbox lists. Each frame lists
+/// The collision the game defines for Crocomire's fifty selected body frames and their thirteen hitbox lists. Each frame lists
 /// only the components that hold hitboxes, each once (#1937): the original's empty low and upper components and the
 /// central body it repeated at the same place could never be the first hitbox a probe met.
 /// Sprite and body-layer art are deliberately absent: installed visual overrides cannot

@@ -16,7 +16,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// <summary>His body shows nothing once his body is deleted, as his room keeps showing it (#2194).</summary>
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => Body.Presence.HasAny(EnemyPresence.Deleted);
 
-    /// <summary>Anchors the encounter-wide state to Draygon's physical body place.</summary>
+    /// <summary>Anchors the encounter-wide state to Draygon's body.</summary>
     internal DraygonEnemyState(RoomEnemyPlace body) => Body = body;
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>

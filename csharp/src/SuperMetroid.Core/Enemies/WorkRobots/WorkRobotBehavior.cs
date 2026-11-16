@@ -373,9 +373,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (projectile is null)
             return;
 
-        // The enemy-projectile spawn installs the complete definition before the family's own setup. Keeping that
-        // division here is important: the five lasers do not share radii or damage, and the common helper also
-        // supplies the blank first frame and all three contact properties. The laser's pictures carry their own
+        // The enemy-projectile spawn copies the complete definition before the family's own setup: the five lasers
+        // do not share radii or damage, and the definition also supplies the blank first frame and all three contact
+        // properties. The laser's pictures carry their own
         // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
         // first pass, so the robot's graphics its spawn briefly held never draw.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

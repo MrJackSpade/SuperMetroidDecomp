@@ -195,7 +195,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Kzan's private copy of the check whether an enemy touches Samus from below. Its only
-    /// difference from the common helper is the shifted Y sample (<see cref="KzanMotionDefinitions.TouchSampleDrop"/>). Horizontal
+    /// difference from the common check is the shifted Y sample (<see cref="KzanMotionDefinitions.TouchSampleDrop"/>). Horizontal
     /// overlap is strict; vertical tangency is accepted after the shifted center test.
     /// </summary>
     private static bool IsKzanTouchingSamusFromBelow(

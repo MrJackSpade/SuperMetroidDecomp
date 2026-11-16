@@ -91,8 +91,8 @@ public static class SamusGroundedMovement
         // horizontal movement and the pose direction's displacement calculator. That
         // calculation publishes total-X speed before collision; do not skip it merely because
         // a freshly spawned standing Samus normally has zero base/extra speed. A left-facing
-        // pose's direction is left, so the helper is the LEFT form even though its
-        // base argument is zero, which matters once extra displacement contributes.
+        // pose's direction is left, so the displacement is leftward even though its
+        // base speed is zero, which matters once extra displacement contributes.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)

@@ -3,14 +3,14 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>How the player's input moves through the saved game's area and room maps at file select.</summary>
+/// <summary>How the player's input moves through the saved game's area and room maps at file select, as it does without the game's debug mode.</summary>
 /// <remarks>
 /// Rendering and fades are separate owners. Requests stay pending until the frontend
 /// completes the requested transition; calling Step again never implicitly skips it.
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
-    /// <summary>The saved Zebes area, which the area map shows: its directions never change areas.</summary>
+    /// <summary>The saved Zebes area, which the area map shows: without the game's debug mode its directions never change areas.</summary>
     private readonly AreaId area;
     /// <summary>The buttons held on the previous update, used to detect new confirm and cancel presses.</summary>
     private ControllerButton previousInput;
@@ -58,8 +58,8 @@ public sealed class FileSelectMapNavigation
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
-                // The area map does not change areas: a newly pressed direction or Select discards the update's
-                // input, a confirm pressed with it included.
+                // The area map changes areas only with the game's debug mode enabled. Without it, a newly pressed
+                // direction or Select discards the update's input, a confirm pressed with it included.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
                         ControllerButton.Right | ControllerButton.Select)) != ControllerButton.None) break;
                 // Otherwise B wins over A/Start, and selecting keeps the saved area.

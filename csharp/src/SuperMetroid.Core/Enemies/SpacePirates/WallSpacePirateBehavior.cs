@@ -167,7 +167,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         if (!_terrain.MoveEnemyVertically(level, place, displacement))
             return null;
 
-        // A collision retains the collision helper's clamped position, flips only its climb direction,
+        // A collision keeps the Pirate where the wall stopped it, flips only its climb direction,
         // and continues at a fresh climb. It does not resume after the cue.
         state.ClimbDirection = state.ClimbDirection == WallSpacePirateClimbDirection.Down
             ? WallSpacePirateClimbDirection.Up

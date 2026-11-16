@@ -286,7 +286,7 @@ internal sealed class MotherBrainFakeDeath
         tube.SetSpeciesState(state);
     }
 
-    /// <summary>Runs the actions of the physical tube enemies.</summary>
+    /// <summary>Runs the actions of the falling tubes.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();

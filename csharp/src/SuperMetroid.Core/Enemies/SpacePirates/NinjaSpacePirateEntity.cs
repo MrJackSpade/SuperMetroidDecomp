@@ -25,7 +25,7 @@ internal class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnem
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => SpacePirateHitboxes.Find(Place, probe, out reaction);
 
-    /// <summary>Pirate contact and shots both meet the Pirate's engine-owned frame hitboxes.</summary>
+    /// <summary>Pirate contact and shots both meet the frame hitboxes the game defines for the Pirate.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;
 

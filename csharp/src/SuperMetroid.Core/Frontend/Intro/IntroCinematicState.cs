@@ -133,7 +133,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// missile impacts in a cinematic frame and her landing, footstep and liquid sounds while a cinematic is active.
     /// </summary>
     private readonly GameplayAudioRequests flashbackAudioRequests;
-    /// <summary>Persistent narration actor and caret walker for illustrated pages.</summary>
+    /// <summary>Persistent narration actor and the caret that moves along the text of illustrated pages.</summary>
     internal IntroNarrationActors? CurrentNarration { get; private set; }
     /// <summary>The intro's narration actors, which exist from the first text page onward.</summary>
     internal IntroNarrationActors Narration => CurrentNarration ??
@@ -842,8 +842,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Seeds the final narration page's timer, preserving the English and Japanese pages' difference in timing.</summary>
     private void SetupPageSix()
     {
-        // Page six's setup turns the page, which deletes the Japanese text's next-page arrow. English falls straight
-        // through into page six; Japanese text selects page six as the next update's cinematic phase.
+        // Page six's setup turns the page, which deletes the Japanese text's next-page arrow. English starts page six
+        // in this same update; Japanese text starts it on the next update.
         Narration.AcceptPageTurn();
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
@@ -993,7 +993,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         SamusHurtFlash.Update(flashbackSamusColours, samus, demoInput);
 
         // The cinematic ages Samus's two hurt timers after both of her state updates, but before the
-        // cinematic-actor walker can publish a new Rinka collision later in this frame.
+        // cinematic's actors can publish a new Rinka collision later in this frame.
         samus.DecrementHurtTimers();
     }
 

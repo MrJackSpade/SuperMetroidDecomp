@@ -42,7 +42,7 @@ internal sealed class ChainsawFuse
         if (fuse.DeleteProjectile)
             _animation.ClearProjectile(shot);
 
-        // The fuse always falls through to the Power Bomb's block reactions, even when the zero-timer/no-flag branch just
+        // The fuse always goes on to the Power Bomb's block reactions, even when the zero-timer/no-flag branch just
         // cleared the projectile. The latter case consequently runs as no projectile, while both paths use the live Power
         // Bomb's centre and radius rather than the Chainsaw's position. Preserve the inclusive edge traversal and its
         // synchronous room-object mutations.

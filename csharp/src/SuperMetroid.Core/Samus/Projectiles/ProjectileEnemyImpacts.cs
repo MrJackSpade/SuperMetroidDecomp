@@ -41,7 +41,7 @@ internal sealed class ProjectileEnemyImpacts
 
         if (shot.Type.Family == SamusProjectileFamily.SuperMissile)
         {
-            // The collision walkers write the enemy-hit quake before running the enemy's
+            // The collisions start the enemy-hit quake before running the enemy's
             // shot reaction. This remains observable even when gold Ninja armor ignores a
             // fresh, not-yet-linked Super Missile.
             _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.EnemyHitEarthquake);

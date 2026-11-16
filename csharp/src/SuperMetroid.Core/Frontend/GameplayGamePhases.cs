@@ -233,7 +233,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         bool messageBoxOwnedFrame = session.GameplayRuntime.MessageBox.IsActive;
         bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
             session.GameplayRuntime.MessageBox.MessageId == GameplayMessageId.MapDataAccessCompleted;
-        // The station lock installs an inert input phase before this
+        // The station's lock has stopped Samus's input before this
         // frame. Retraction can restore normal input later in StepFrame, after
         // Samus's input phase has already passed pause-check.
         bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.InputLocked == true;

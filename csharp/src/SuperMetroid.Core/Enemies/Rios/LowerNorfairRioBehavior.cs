@@ -82,9 +82,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                         place.Position.X.Whole,
                         RioLaunchDefinitions.LowerNorfairTriggerDistance))
                 {
-                    // Unlike upper Norfair Rio, this variant clears the handshake and calls
-                    // its animation starter on every rejected frame. The helper itself prevents
-                    // an unchanged attack animation from restarting.
+                    // Unlike upper Norfair Rio, this variant clears the handshake and asks for its attack animation on
+                    // every rejected frame; an attack animation already playing does not restart.
                     state.AnimationSignal = false;
                     StartLowerNorfairRioAnimation(
                         place,

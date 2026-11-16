@@ -45,8 +45,7 @@ internal sealed class KraidCombat
                 $"normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
         }
 
-        // The arm's shot reaction creates a room-graphics dust actor at the selected physical projectile
-        // coordinates, then returns to the frame-hitbox walker that has already recorded the hit's direction.
+        // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
         // Protected arm frames and every foot rectangle ignore the shot.
         if (c.SelectedShot == KraidReactions.ArmShot)
             SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);

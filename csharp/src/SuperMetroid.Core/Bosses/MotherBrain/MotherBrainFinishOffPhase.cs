@@ -18,7 +18,7 @@ public enum MotherBrainFinishOffPhase
     /// <summary>Readies the Baby Metroid's arrival one update at a time; the last retracts the head, spawns the baby, and seeds a 256-count firing wait.</summary>
     ReadyBaby,
 
-    /// <summary>Expires the final wait, starts the firing head animation, neck extension and its sound, then installs its own empty step as the holding phase.</summary>
+    /// <summary>Expires the final wait, starts the firing head animation, neck extension and its sound, then holds in the next phase.</summary>
     FireFinalBeam,
 
     /// <summary>Inert step that waits until the independently running baby latches on and replaces the body phase.</summary>

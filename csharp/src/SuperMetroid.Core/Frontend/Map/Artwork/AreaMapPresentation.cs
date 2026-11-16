@@ -27,7 +27,7 @@ public sealed class AreaMapPresentation : IAreaMapSource
         Arrows = Ensure.NotNull(arrows);
     }
 
-    /// <summary>Selected highlight color frames used by map presentation; animation progression remains engine-owned.</summary>
+    /// <summary>Selected highlight color frames used by map presentation; how the highlight steps is the game's, not the artwork's.</summary>
     public MapHighlightCycle HighlightCycle { get; }
     /// <summary>World-map area-name drawing anchors, independent of area selection and map exploration.</summary>
     public WorldMapLabelPositions Labels { get; }

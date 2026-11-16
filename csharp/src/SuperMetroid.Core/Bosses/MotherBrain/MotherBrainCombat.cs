@@ -94,7 +94,7 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        // The walker has marked every overlapping family before this reaction;
+        // Every overlapping shot is marked as having struck before this reaction;
         // the next projectile pass consumes the marker, removing a Super Missile's pair too.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
             projectile,

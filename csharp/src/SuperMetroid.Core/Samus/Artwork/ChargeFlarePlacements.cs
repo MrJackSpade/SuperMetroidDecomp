@@ -26,7 +26,7 @@ public sealed class ChargeFlarePlacements
     }
 
     /// <summary>Resolves the installed visual muzzle offset for the requested movement mode and flare aim.</summary>
-    /// <param name="running">True for running placement; false for the standing/default row.</param>
+    /// <param name="running">True for running placement; false for standing and every other movement.</param>
     /// <param name="aim">
     /// The muzzle the flare is placed at or, for the standing beam flare, the turning placement. No pose places a running
     /// or Grapple flare while turning, so those placements are rejected (#1500).

@@ -111,7 +111,7 @@ public sealed class PowerBombBlastTimeline
         IsRunning = true;
 
         // The blast starts after this update's effect pass. The NEXT pass runs its
-        // setup and installs the radius step; that step cannot run until the pass after
+        // setup and starts the radius step; that step cannot run until the pass after
         // setup. Executing setup here would skip one update.
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
@@ -236,7 +236,7 @@ public sealed class PowerBombBlastTimeline
             return;
         }
 
-        // Advancing past the wait runs the yellow stage's setup, installs its radius step,
+        // Advancing past the wait runs the yellow stage's setup, starts its radius step,
         // and waits again during this same effect pass.
         _ovalStageUpdates = 0;
         Phase = PowerBombExplosionPhase.PreExplosionYellow;

@@ -232,7 +232,7 @@ public sealed class SamusLiquidPhysicsState
     /// Suit first, then performs the raw bottom-boundary liquid test. Keeping those two
     /// decisions separate lets the colouring reproduce both the submerged Power/Varia early
     /// return and Gravity Suit's unconditional colour-animation bypass. Water whose surface
-    /// Samus ignores still reads as dry, while a room with no water surface falls through to the
+    /// Samus ignores still reads as dry, while a room with no water surface goes on to test the
     /// independent lava/acid surface exactly as the game does.
     /// </remarks>
     public bool IsBottomBoundarySubmerged(SamusState samus)

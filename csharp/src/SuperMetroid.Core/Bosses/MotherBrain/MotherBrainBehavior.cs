@@ -167,8 +167,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.DescentPhase)
         {
             case MotherBrainDescentPhase.InitialPause:
-                // The fake-death start installs the following countdown and falls through to it. The
-                // first observable value is therefore 63, not the installed value 64.
+                // The fake death's start begins the pause before the lock, whose countdown of 64 takes its first step in
+                // this same update, so it first reads 63.
                 state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
                 state.PhaseTimer.Count = 64;
                 RunMotherBrainPauseBeforeLock(state, samus);

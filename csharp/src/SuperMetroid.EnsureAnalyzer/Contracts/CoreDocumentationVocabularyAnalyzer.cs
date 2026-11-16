@@ -81,6 +81,12 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// steps, a script's record, the dropped drawing order (once interleaved, a presentation quirk), an opcode mnemonic in
 /// markup, a register reloaded, a field of the C reimplementation, a packed value, a disassembly label, an encounter's
 /// numbered event, stage, form, state, place or region, and the retail population or initializer.
+/// #2248 and #2265 narrow debug narration to the repository's tooling (the original game's debug mode is the game's), add
+/// to the review trail, in every type, fix history told inside a clause, and add, outside hardware owners, the
+/// original's enemies told as physical ones, its routines as walkers and helpers, bit masks, negative branches and
+/// unsigned values, its program flow (installing steps, jumps into animations, fall-throughs), data told as
+/// engine-owned, default rows, colour zero and numbered parameters, literal writes with words between and a pace per
+/// any call.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -748,7 +754,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The original's call structure in prose (#1998, #2018), outside hardware owners: a caller in any number and form (the
-    /// caller reads first, its callers, the caller's guard, caller-owned), a pace per call (four pixels per call), and its
+    /// caller reads first, its callers, the caller's guard, caller-owned), a pace per call, with one word between
+    /// (#2248: four pixels per call, one setup stage per AI call), and its
     /// dispatch in any word form (the main AI dispatches, dispatches the body's behaviours, before dispatch, the
     /// redispatch). The original's routines were called from others and jumped through tables of routines; Core says what
     /// runs, when and how often in the game (per update, per frame) and who owns a value. English stays legal: sending a
@@ -756,7 +763,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// audio dispatch), a call and calling.
     /// </summary>
     private static readonly Regex CallerProse = new(
-        @"\bcallers?(?:'s|s')?\b|\bper\s+call\b" +
+        @"\bcallers?(?:'s|s')?\b|\bper\s+(?:[\w-]+\s+)?call\b" +
         @"|(?<!\b" + SentThings + @"[-\s]+)\b(?:re-?)?dispatch(?:es|ed|ing)?\b(?!\s+(?:[\w'-]+\s+){0,3}?" + SentThings + @"\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -1008,12 +1015,13 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// A value told as a literal write (#2192), outside hardware owners: a literal write, store or assignment (these radii
-    /// are literal writes, preserve the literal write). Core says what the value is and why the game sets it. English
-    /// stays legal: a literal alone.
+    /// A value told as a literal write (#2192), outside hardware owners: a literal write, store or assignment, with up to
+    /// two words between (#2248: these radii are literal writes, preserve the literal write, literal inventory writes,
+    /// literal observable writes). Core says what the value is and why the game sets it. English stays legal: a literal
+    /// alone.
     /// </summary>
     private static readonly Regex LiteralWriteProse = new(
-        @"\bliteral\s+(?:writes?|stores?|assignments?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        @"\bliteral\s+(?:[\w-]+\s+){0,2}?(?:writes?|stores?|assignments?)\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
     /// The original's cinematic objects named as background objects (#2222), outside hardware owners, spaced or
@@ -1141,6 +1149,89 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's enemies behind an encounter's parts told as the physical ones (#2265), outside hardware owners:
+    /// physical, then up to two words and a part, pool, enemy, actor, tube, projectile, explosion, bomb, body, Baby or
+    /// place (the physical projectile pool, Draygon's physical body place, the physical Baby, physical tube enemies), and
+    /// a part's enemy by number (tube enemy 1). Core names the part, the falling tube, the projectile or the enemy itself.
+    /// English stays legal: physical contact and a physical component or motion, which are geometry.
+    /// </summary>
+    private static readonly Regex PhysicalCopyProse = new(
+        @"\bphysical\s+(?:[\w-]+\s+){0,2}?(?:parts?|pools?|enem(?:y|ies)|actors?|tubes?|projectiles?|explosions?|bombs?" +
+        @"|bod(?:y|ies)|Baby|places?)\b" +
+        @"|\b(?:tube|part|body|head)\s+enem(?:y|ies)\s+(?:[0-9]+|one|two|three|four|five)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's routines named as walkers and helpers (#2265), outside hardware owners and markup: a collision,
+    /// hitbox, frame-hitbox, extended, shot, touch, contact, bomb, rectangle, caret or actor walker and the walker (the
+    /// extended-hitbox walker marks the projectile, the collision walkers test), and a damage, standing, posture,
+    /// collision, movement, shared, common, ordinary, walking or AI helper and the helper (the damage helper, the
+    /// standing helper reports her standing, the helper's hard floor). Core names the collision test, the check or the
+    /// step and says what it does. English stays legal: an enemy that walks (a floor walker, the left walker's role), a
+    /// helper alone and the helper text of a screen.
+    /// </summary>
+    private static readonly Regex RoutineWalkerProse = new(
+        @"\b(?:collision|hitbox|frame-hitbox|extended(?:-hitbox)?|shot|touch|contact|bomb|normal-bomb|power-bomb|rectangle" +
+        @"|caret|actor|cinematic-actor)\s+walkers?\b|\bthe\s+walkers?\b" +
+        @"|\b(?:damage|standing|posture|collision|room-collision|movement|shared|common|ordinary|walking|AI)\s+helpers?\b" +
+        @"|\bthe\s+helpers?\b(?![-\s]+(?:texts?|messages?|labels?|lines?)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The machine's bit arithmetic in prose (#2265), outside hardware owners: a mask written as an and with a number
+    /// (<c>RNG&amp;7</c>, <c>a &amp; 127</c>) and a masked random number, bit, sample or counter (masked RNG or frame
+    /// bits); a branch or wrap to negative (a decrement of zero branches negative, it expires when it wraps negative);
+    /// and a value told as unsigned (the addition and comparison are unsigned here, the speed read unsigned). Core says
+    /// which choice a random number makes, that a count runs out or passes zero, and which way a value lies. English
+    /// stays legal: an and between words (Samus &amp; Ridley) and an unsigned value alone.
+    /// </summary>
+    private static readonly Regex BitArithmeticProse = new(
+        @"(?:&amp;|(?<!&)&(?!&))\s*[0-9]+\b|\bmasked\s+(?:[\w-]+\s+)?(?:RNG|random|bits?|samples?|counters?)\b" +
+        @"|\b(?:branch(?:es|ed|ing)?|wraps?|wrapped|wrapping)\s+(?:to\s+)?negative\b" +
+        @"|\bunsigned\s+here\b|\b(?:is|are|was|were|read|reads)\s+unsigned\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's program flow in prose (#2248, #2265), outside hardware owners and markup: the code installing,
+    /// writing, storing, loading, branching, jumping, calling, running, falling or reading (the code installs the typing
+    /// step); installing a phase, step, setup, behaviour, handler, routine, reaction, wait, action, delay or countdown,
+    /// with up to two words between (installs the wait phase, installs its moving frame behaviour); a jump into an
+    /// animation, routine, code, branch, handler, script, label or list (the shot animation's jump into the common
+    /// deletion animation); and a fall-through: the noun, and falling into a phase, step, state, setup, branch, case,
+    /// call, code or successor, or falling through into or to anything but a place (the delay falls through into its
+    /// first step, the neck step falls directly into its successor). Core says what the game does next and in which
+    /// update: the step starts, it takes its first step in the same update. English stays legal: installed content
+    /// (the installed pictures), Samus jumping to a ledge and anything falling through into a room, a floor, the water or
+    /// a gap.
+    /// </summary>
+    private static readonly Regex ProgramFlowProse = new(
+        @"\bthe\s+code\s+(?:installs?|writes?|stores?|loads?|branches|jumps?|calls?|runs?|falls?|reads?)\b" +
+        @"|\binstall(?:s|ing)?\s+(?:the\s+|its\s+|a\s+|an\s+|their\s+|his\s+|her\s+)?(?:[\w-]+\s+){0,2}?(?:phases?|steps?" +
+        @"|setups?|behaviou?rs?|handlers?|routines?|reactions?|waits?|actions?|delays?|countdowns?)\b" +
+        @"|\bjump(?:s|ed|ing)?\s+(?:in)?to\s+(?:the\s+|its\s+|a\s+|an\s+|another\s+)?(?:[\w-]+\s+){0,2}?(?:animations?" +
+        @"|routines?|code|branch(?:es)?|handlers?|scripts?|labels?|lists?)\b" +
+        @"|\bfall-?through\b" +
+        @"|\bfall(?:s|ing)?\s+(?:straight\s+|directly\s+|immediately\s+)?(?:in)?to\s+(?:the|its|that|this)\s+(?:[\w-]+\s+){0,2}?" +
+        @"(?:phases?|steps?|states?|setups?|branch(?:es)?|cases?|calls?|code|successors?)\b" +
+        @"|\bfall(?:s|ing)?\s+(?:straight\s+|directly\s+)?through\s+(?:in)?to\b(?!\s+(?:the\s+|a\s+)?(?:[\w-]+\s+)?(?:rooms?" +
+        @"|floors?|platforms?|water|lava|acid|ground|pits?|holes?|gaps?|below)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The port's narration of its own data and the original's tables (#2248), outside hardware owners: data told as
+    /// engine-owned, spaced or hyphenated (Ridley's engine-owned hitboxes); a default or combination row (the default
+    /// row for every other area, the uncharged combination row); a colour by number in words (transparent colour zero);
+    /// and an actor's or projectile's parameter and a parameter by its place (the actor parameter's rightward flag, its
+    /// first parameter). Core names what the data is for: the hitboxes the game defines, the damage everywhere else, the
+    /// colour no picture draws, which way an egg moves. English stays legal: an engine alone, a row of blocks and a
+    /// method's parameter.
+    /// </summary>
+    private static readonly Regex PortDataProse = new(
+        @"\bengine[-\s]+owned\b|\b(?:default|combination)\s+rows?\b|\bcolou?rs?[-\s]+zero\b" +
+        @"|\b(?:actor|projectile)[-\s]+parameters?\b|\b(?:first|second|third|fourth)\s+parameter\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// Fix history told by an adverb of error (#2192), part of the review trail and read in every Core type: incorrectly,
     /// wrongly, erroneously or mistakenly (Testing it here incorrectly advanced the animation, Requiring a collision
     /// wrongly skipped the check). Core states what the game does; what an earlier version of the port got wrong is the
@@ -1193,12 +1284,36 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
-    /// Debug narration (#2192), read in every Core type: debug and non-debug as words (fresh debug sessions, debug
-    /// scripts, debug tools, a debug room, the non-debug branch, with debug enabled). Core is the game: it holds no path
-    /// for a debug session and narrates none; the debugger in any word form is <see cref="HardwareProse"/>'s. English
-    /// stays legal: a name that contains debug, which another rule reads.
+    /// Debug narration of the repository's own tooling (#2192, narrowed by the owner's ruling under #2248 and #2265), read
+    /// in every Core type: debug or non-debug before a session, script, tool, runner, build, host, harness, overlay,
+    /// console, log, output, window, run, helper, seam, launcher, configuration, snapshot, capture or probe (fresh debug
+    /// sessions, debug scripts, debug tools, a non-debug build), and constructing, building, creating, making, loading or
+    /// spawning a debug room. Core is the game: it holds no path for a debug session and narrates none; the debugger in
+    /// any word form is <see cref="HardwareProse"/>'s. English stays legal: the original game's own developer debug mode
+    /// (the game's debug flag, debug-only save icons, the area map changes areas with debug enabled, its non-debug input)
+    /// and a name that contains debug, which another rule reads.
     /// </summary>
-    private static readonly Regex DebugProse = new(@"\b(?:non-?)?debug\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex DebugProse = new(
+        @"\b(?:non-?)?debug[-\s]+(?:sessions?|scripts?|tools?|tooling|runners?|builds?|hosts?|harness(?:es)?|overlays?" +
+        @"|consoles?|logs?|logging|output|windows?|runs?|helpers?|seams?|launchers?|configurations?|snapshots?|captures?" +
+        @"|probes?)\b" +
+        @"|\b(?:construct|build|built|creat|mak|load|spawn)\w*\s+(?:a|an|the|its|their)\s+(?:[\w-]+\s+)?debug[-\s]+rooms?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Fix history told inside a clause (#2248, #2265), part of the review trail and read in every Core type: leaving
+    /// this, that or it out (leaving this assignment out produces a silent attack), reducing, combining, collapsing,
+    /// simplifying or merging something that then lost, broke or regressed something (reducing those branches to
+    /// three/two loses one point), and doing only one thing that then made, caused, broke or lost something (reading only
+    /// the uncharged row made Wave Shield disappear). Core states what the game does; what an earlier version of the port
+    /// got wrong is the repository's history. English stays legal: a consequence told in the present (moving only left
+    /// turns her) and leaving a room.
+    /// </summary>
+    private static readonly Regex ClauseFixHistoryProse = new(
+        @"\bleaving\s+(?:this|that|these|those|it|them)\b[^.;]*?\bout\b" +
+        @"|\b(?:reducing|combining|collapsing|simplifying|merging)\b[^.;]*?\b(?:loses|lost|broke|breaks|regressed)\b" +
+        @"|\b\w+ing\s+only\b[^.;]*?\b(?:made|caused|broke|lost|regressed)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
     /// The port's narration of its C# construction (#2192), read in every Core type: C# then up to three words and a
@@ -1475,6 +1590,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : !generated && FallThroughProse.Match(text) is { Success: true } fallThrough ? fallThrough.Value
             : !generated && EarlierOrderProse.Match(text) is { Success: true } earlierOrder ? earlierOrder.Value
             : !generated && StrandingProse.Match(text) is { Success: true } stranding ? stranding.Value
+            : !generated && ClauseFixHistoryProse.Match(text) is { Success: true } clauseFixHistory ? clauseFixHistory.Value
             : !generated && DiagnosticPathProse.Match(text) is { Success: true } diagnosticPath ? diagnosticPath.Value
             : !generated && DebugProse.Match(text) is { Success: true } debug ? debug.Value
             : !generated && CSharpConstructProse.Match(text) is { Success: true } cSharpConstruct ? cSharpConstruct.Value
@@ -1545,6 +1661,11 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : DisassemblyLabelProse.Match(text) is { Success: true } disassemblyLabel ? disassemblyLabel.Value
             : NumberedStateProse.Match(Markup.Replace(text, " ")) is { Success: true } numberedState ? numberedState.Value
             : RetailPopulationProse.Match(text) is { Success: true } retailPopulation ? retailPopulation.Value
+            : PhysicalCopyProse.Match(text) is { Success: true } physicalCopy ? physicalCopy.Value
+            : RoutineWalkerProse.Match(Markup.Replace(text, " ")) is { Success: true } routineWalker ? routineWalker.Value
+            : BitArithmeticProse.Match(text) is { Success: true } bitArithmetic ? bitArithmetic.Value
+            : ProgramFlowProse.Match(Markup.Replace(text, " ")) is { Success: true } programFlow ? programFlow.Value
+            : PortDataProse.Match(text) is { Success: true } portData ? portData.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

@@ -387,8 +387,10 @@ incorrectly advanced the animation`, `wrongly skipped the run check`), a fall-th
 movement`), an earlier order (`publishing first made the minimum read two`) and what an alternative would strand
 (`omitting it would strand Metroid`), and to debug narration: a gameplay path told as a diagnostic's (`the old diagnostic
 seam`, `direct diagnostic loads`, `its diagnostic pre-impact magnitude`, `the room diagnostic`, `direct/diagnostic step
-use`), debug and non-debug as words (`fresh debug sessions`, `debug scripts`, `the non-debug branch`) and the port's C#
-construction (`the C# room constructor`). Core states what the game does and gives every path it holds a gameplay
+use`), debug narration of the repository's tooling (`fresh debug sessions`, `debug scripts`, `debug tools`, `a non-debug
+build`, constructing a debug room; the owner's ruling under #2248 and #2265 narrowed it: the original game's own developer
+debug mode, its debug flag, its debug-only save icons and an area change with debug enabled, is the game's and stays
+English) and the port's C# construction (`the C# room constructor`). Core states what the game does and gives every path it holds a gameplay
 reason. A thing the game shows wrong, Samus falling through a platform, an order alone, a stranded X-ray beam, a name,
 text or identity for diagnostics and C# alone stay English. Outside hardware owners SME6454 also reads the Japanese and
 North American release named for what the game does when the comment's paragraph, its line comments up to a blank line,
@@ -422,6 +424,25 @@ mnemonic, reloading a timer or a weapon, a file's name, a pack of enemies or a b
 a number that counts the noun after it or follows a verb (`places two pickups`), a room's or the beam's state by
 number, a stage by number (the game's own Speed Booster stages and the stages its pictures show) and a retail cartridge
 stay English.
+
+#2248 and #2265 widen the review trail, read in every type, to fix history told inside a clause (`leaving this
+assignment out produces a silent attack`, `reducing those branches to three/two loses one point`, `reading only the
+uncharged row made Wave Shield disappear`). Outside hardware owners SME6454 also reads the original's enemies behind an
+encounter's parts told as the physical ones (`the physical projectile pool`, `the physical Baby`, `tube enemy 1`); the
+original's routines named as walkers and helpers, outside markup (`the extended-hitbox walker`, `the collision walkers`,
+`the damage helper`, `the standing helper`, `the helper's hard floor`); bit masks, negative branches and unsigned values
+(`RNG&7`, `masked RNG`, `branches negative`, `wraps negative`, `unsigned here`, `the speed, read unsigned`); the
+original's program flow, outside markup (`the code installs the typing step`, `installs the wait phase`, `installs its
+moving frame behaviour`, `the jump into the common deletion animation`, `the fallthrough`, `falls through into its first
+step`, `falls directly into its successor`); data told as engine-owned, a default or combination row, colour zero and a
+numbered or actor parameter (`engine-owned hitboxes`, `the default row`, `transparent colour zero`, `the actor
+parameter's flag`, `its first parameter`); a literal write with up to two words between (`literal inventory writes`);
+and a pace per any call (`one setup stage per AI call`). Core names the part, the collision test, the check, what the
+choice does, that a count runs out, what the game does next and in which update, the hitboxes the game defines and the
+colour no picture draws. Physical contact or a physical component, an enemy that walks (`a floor walker`), a helper
+alone or a screen's helper text, an and between words, an unsigned value alone, installed content, Samus jumping to a
+ledge, anything falling through into a room, a floor or the water, an engine alone, a row of blocks, a method's
+parameter, a literal alone and a call alone stay English.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

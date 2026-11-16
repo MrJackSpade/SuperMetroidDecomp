@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public enum DeadSidehopperAction
 {
-    /// <summary>Activates the living victim when the signed camera-X comparison is below room pixel 513, falling through into movement.</summary>
+    /// <summary>Activates the living victim when the camera's X is left of room pixel 513, moving it in the same update.</summary>
     AliveWaitForCamera,
     /// <summary>Applies signed 1/256-pixel hop velocity and gravity; landing advances the four-phase launch sequence and starts the hopping animation.</summary>
     ActivatedMovement,

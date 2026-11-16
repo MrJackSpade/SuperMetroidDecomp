@@ -118,7 +118,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Projects a 1/256-pixel beam speed onto the vertical axis using the quarter-turn sine lookup.</summary>
-    /// <param name="speed">The beam's speed, read unsigned.</param>
+    /// <param name="speed">The beam's speed, whose size the sine scales.</param>
     /// <param name="angle">The live beam angle.</param>
     internal static SignedEightEight CalculateYVelocity(
         SignedEightEight speed,

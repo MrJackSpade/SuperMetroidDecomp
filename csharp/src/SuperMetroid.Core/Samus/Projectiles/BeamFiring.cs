@@ -313,7 +313,7 @@ internal sealed class BeamFiring
             waveBeam: beamType.HasWave);
         if (!initialImpact)
         {
-            // The game installs the behaviour only after muzzle collision. Do not infer it from the Wave component:
+            // The game starts the shot's behaviour only after muzzle collision. Do not infer it from the Wave component:
             // each combination names its own, the Spazer and Plasma ones included. A Spazer and Plasma combination
             // whose shots run the game's live state or an unconnected region instead of the game's code
             // (UnauthoredBeamShotBehaviors) is refused here: only full memory and processor emulation could reproduce

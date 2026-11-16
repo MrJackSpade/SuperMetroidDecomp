@@ -33,8 +33,8 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.BodyShotReaction : base.ShotReaction;
 
     /// <summary>
-    /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the frame-hitbox bomb walker
-    /// has already marked the physical explosion, and the body's reaction does no health, phase or multipart work of its
+    /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the bomb's explosion is
+    /// already marked as having struck, and the body's reaction does no health, phase or multipart work of its
     /// own.
     /// </summary>
     /// <param name="context">The bomb contact.</param>

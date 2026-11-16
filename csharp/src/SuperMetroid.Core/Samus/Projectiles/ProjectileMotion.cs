@@ -139,8 +139,8 @@ internal sealed class ProjectileMotion
         // Wave's block collisions advance the same 1/65536-pixel positions and scan every block touched by
         // the projectile radii, but deliberately never report a collision. That is
         // the defining Wave Beam behavior: block reactions may run, yet terrain never kills
-        // or clips the shot. The span scanners below now publish ordinary shootable-block
-        // room objects while intentionally discarding their collision result, matching this fallthrough.
+        // or clips the shot. The span scans below publish ordinary shootable-block
+        // room objects while discarding their collision result.
         if (MovesHorizontally(direction))
             _terrainCollision.MoveWaveShotHorizontally(level, shot, roomObjects);
         if (MovesVertically(direction))

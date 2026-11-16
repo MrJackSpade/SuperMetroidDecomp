@@ -451,8 +451,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
             {
-                // The extended collision walker has already selected the vulnerable
-                // core. The core's shot reaction rejects this projectile family before common damage.
+                // The shot has struck the vulnerable core, whose shot reaction rejects it before common damage.
                 c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }

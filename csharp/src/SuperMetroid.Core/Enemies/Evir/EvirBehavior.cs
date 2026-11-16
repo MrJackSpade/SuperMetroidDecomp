@@ -506,8 +506,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves power-bomb reactions on both body and arms, including relative aliases.</summary>
     internal EnemyPowerBombReaction EvirPowerBombReaction => field ??= new()
     {
-        // Touch and shot collision lists exclude the arms through their intangibility property, but the power-bomb walker
-        // does not. Both body and arms therefore run the shared tail, whose follow-up deliberately reaches the enemy after
+        // Touch and shot collision skip the arms, which are intangible, but a Power Bomb's blast does not. Both body and arms therefore run the shared tail, whose follow-up deliberately reaches the enemy after
         // them in the room's list.
         AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
     };

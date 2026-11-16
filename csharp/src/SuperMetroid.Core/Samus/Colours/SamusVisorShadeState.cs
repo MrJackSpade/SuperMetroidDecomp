@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// <remarks>
 /// This is intentionally not a generic color tween. In rooms that animate the visor (<see cref="RoomVisorAnimation"/>),
 /// the animation rotates only Samus's visor through the last three of the six visor shades. The
-/// countdown and the shade are only ever set by this type: the reset installs countdown one at the cycle's first shade,
+/// countdown and the shade are only ever set by this type: the reset starts a countdown of one at the cycle's first shade,
 /// and every expiry reloads the countdown to the frame delay and moves through the cycle's three shades. The countdown
 /// therefore holds one through the frame delay between updates and never counts down from zero.
 /// </remarks>

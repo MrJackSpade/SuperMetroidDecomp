@@ -114,7 +114,7 @@ internal sealed class IntroMotherBrainSpriteState
 
     /// <summary>
     /// Mother Brain's hit test: the highest missile left of X=84 is killed and counted as a hit.
-    /// The fourth hit installs the exploding behaviour, which tests no missiles, so from then on every missile passes through.
+    /// The fourth hit starts her explosion, which tests no missiles, so from then on every missile passes through.
     /// </summary>
     /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
     /// <param name="sharedProjectiles">The flashback's bombs and power-bomb explosion, which the kill consults.</param>

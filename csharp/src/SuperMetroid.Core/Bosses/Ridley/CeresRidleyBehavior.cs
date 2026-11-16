@@ -238,10 +238,8 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                 return true;
 
             case CeresRidleyPhase.PublishEscapeHandoff:
-                // The getaway handoff installs an empty step and publishes the room-main cutscene
-                // state. The renderer stops emitting Ridley's ordinary composite at
-                // this point because the rotating view owns his departure; hide the ordinary actor so
-                // it cannot remain parked over that separately scoped presentation seam.
+                // The getaway handoff leaves Ridley with nothing to do and publishes his escape. The turning floor's
+                // view shows his departure, so his body is hidden.
                 state.Phase = CeresRidleyPhase.Escaped;
                 place.Presence = place.Presence.With(EnemyPresence.Hidden);
                 _escape.BeginGetaway();

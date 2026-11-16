@@ -161,7 +161,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpitDecisionTimer = Math.Max(0, state.SpitDecisionTimer - 1);
 
         // The step expires when the decrement reaches zero: reload and reverse without moving. Otherwise attempt the four-pixel
-        // displacement and reverse only if the room collision helper reports a wall.
+        // displacement and reverse only if it meets a wall.
         bool reverse = --state.WalkStepTimer == 0;
         if (reverse)
         {

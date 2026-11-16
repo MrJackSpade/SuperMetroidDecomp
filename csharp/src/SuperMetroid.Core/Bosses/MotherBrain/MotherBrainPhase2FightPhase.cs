@@ -27,10 +27,10 @@ public enum MotherBrainPhase2FightPhase
     /// <summary>Requests the slow crouch and waits for its pose before starting the bomb-firing head animation.</summary>
     BombCrouch,
 
-    /// <summary>Holds the 44-count post-fire pause, then attempts stand-up with the same-call fallthrough.</summary>
+    /// <summary>Holds the 44-count post-fire pause, then tries to stand her up in the update it ends.</summary>
     BombFired,
 
-    /// <summary>Retries the posture helper until standing and returns to phase-two thinking.</summary>
+    /// <summary>Asks her to stand until she stands, then returns to phase-two thinking.</summary>
     BombStandUp,
 
     /// <summary>Chooses neck targets from head/Samus Y ordering and seeds a four-count quick-positioning wait.</summary>

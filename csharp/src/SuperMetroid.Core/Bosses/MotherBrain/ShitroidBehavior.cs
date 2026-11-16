@@ -95,17 +95,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the Shitroid's main AI for one update.</summary>
     /// <param name="place">The Shitroid's place.</param>
     /// <param name="samus">Samus, when the update has one.</param>
-    /// <param name="camera">
-    /// The camera's position as this step runs, which the wait for the camera and the off-screen test read: the enemy
-    /// pass's camera for the main AI, the power-bomb pass's for the Power Bomb reaction.
-    /// </param>
-    /// <param name="sharedProjectiles">Samus's bomb and projectile counters, which draining Samus locks; none for the Power Bomb reaction.</param>
+    /// <param name="camera">The enemy pass's camera, which the wait for the camera and the off-screen test read.</param>
+    /// <param name="sharedProjectiles">Samus's bomb and projectile counters, which draining Samus locks.</param>
     internal void RunShitroidMain(
         RoomEnemyPlace place,
         SamusState samus,
         Position16<RoomPixels> camera,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
+        Ensure.NotNull(sharedProjectiles);
         ShitroidEnemyState state = place.RequireSpeciesState<ShitroidEnemyState>();
         RunShitroidState(place, state, samus, camera, sharedProjectiles);
         place.Position = place.Position.MovedBy(state.Velocity);
@@ -120,7 +118,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShitroidEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         switch (state.Action)
         {
@@ -420,12 +418,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         ShitroidEnemyState state,
         SamusState samus,
-        SamusBombProjectileSystem? sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles)
     {
         if (samus.Health < 2)
         {
             samus.XSpeedDivisor = 0;
-            sharedProjectiles?.SetSharedBombCounter(0);
+            sharedProjectiles.SetSharedBombCounter(0);
             state.Action = ShitroidAction.BeginPostDrainPause;
             state.Velocity = default;
             SetShitroidAnimation(place, ShitroidSegment.FinishDraining);
@@ -437,8 +435,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        sharedProjectiles?.SetSharedCooldown(8);
-        sharedProjectiles?.SetSharedBombCounter(5);
+        sharedProjectiles.SetSharedCooldown(8);
+        sharedProjectiles.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
         // A speed slowed past zero at the apex reads as below four in the clamp's comparison, so it keeps its value
         // (#1562); the Shitroid sits a pixel right while the speed reads four or more (DrainingShitroidFallShift).
@@ -663,20 +661,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 (angle + RotationAngle.QuarterTurn).ToTrigonometryAngle()));
     }
 
-    /// <summary>Resolves a power bomb's hit on the Shitroid.</summary>
-    private void ResolveShitroidPowerBomb(EnemyPowerBombContext context)
-    {
-        RoomEnemyPlace place = context.Enemy;
-        ShitroidEnemyState state = place.RequireSpeciesState<ShitroidEnemyState>();
-        if (state.ReactsToSamus)
-            BreakReleasedShitroidFollow(state);
-
-        // The power-bomb reaction goes straight on to run main AI. Preserve the extra state/movement/colour
-        // tick rather than reducing the power bomb to a state flag. That step reads the camera as the power-bomb pass
-        // sees it, after the enemy pass and before the main scrolling.
-        RunShitroidMain(place, context.Samus, context.Camera, null);
-    }
-
     /// <summary>Shots or contact break the released follow into the exit sequence.</summary>
     private static void BreakReleasedShitroidFollow(ShitroidEnemyState state)
     {
@@ -780,12 +764,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(ShitroidCue)} {cue}.");
         }
     }
-
-    /// <summary>Runs the private power-bomb reaction in place of common enemy damage.</summary>
-    internal EnemyPowerBombReaction ShitroidPowerBombReaction => field ??= new()
-    {
-        ReplacesCommon = ResolveShitroidPowerBomb,
-    };
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
     internal EnemyShotReaction ShitroidShotReaction => field ??= new()

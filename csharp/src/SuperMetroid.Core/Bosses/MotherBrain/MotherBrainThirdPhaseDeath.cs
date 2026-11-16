@@ -85,7 +85,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal void GenerateDeathExplosions(
         MotherBrainDeathExplosionStyle style,
-        Func<int>? nextRandomNumber,
+        Func<int> nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
     {
         // A restarted interval runs out on the first update, so a burst after a restart is immediate; after a burst the
@@ -99,15 +99,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         int pairIndex = group * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
-            // The global RNG is called once per projectile, not once per visual batch. A
-            // callback is required here so the owning frame runtime advances its real global
-            // state; silently deriving private random values would desynchronize later AI.
-            if (nextRandomNumber is null)
-            {
-                throw new InvalidOperationException(
-                    "Mother Brain death explosions require the global next-random-number producer.");
-            }
-
+            // The shared random sequence advances once per projectile, not once per visual batch.
             int random = nextRandomNumber();
             MotherBrainDeathExplosionAnimation animation = style == MotherBrainDeathExplosionStyle.Mixed
                 ? MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose(random)
@@ -124,7 +116,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// runs out.
     /// </summary>
     private DustExplosionRequest? GenerateEscapeDoorExplosion(
-        Func<int>? nextRandomNumber)
+        Func<int> nextRandomNumber)
     {
         // The door's dust continues the interval and the place the last death explosions left (#1872), then waits four
         // updates between bursts.
@@ -133,12 +125,6 @@ internal sealed class MotherBrainThirdPhaseDeath
 
         int place = _bursts.NextPlace(MotherBrainDeathDefinitions.EscapeDoorDustPositions.Length);
         Position16<RoomPixels> position = Ensure.Element(MotherBrainDeathDefinitions.EscapeDoorDustPositions, place);
-
-        if (nextRandomNumber is null)
-        {
-            throw new InvalidOperationException(
-                "Escape-door explosions require the global next-random-number producer.");
-        }
 
         // The escape-door dust advances the one shared RNG exactly once per emitted projectile.
         // Its smoke chance selects the smoke animation; every other sample retains the preloaded small explosion.

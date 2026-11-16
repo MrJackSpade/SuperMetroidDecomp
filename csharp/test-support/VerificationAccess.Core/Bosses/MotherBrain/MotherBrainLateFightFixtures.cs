@@ -28,4 +28,27 @@ internal static class MotherBrainLateFightFixtures
         };
         return new MotherBrainRainbowBeamAttackSequence(encounter);
     }
+
+    /// <summary>
+    /// One late-fight update with nothing else under way (#2261): no Power Bomb, the room's random number zero and a fresh
+    /// shared random sequence for the draws, the ordinary escape text not yet typed, and the room's earthquake not stopped.
+    /// </summary>
+    /// <param name="cameraCheckpoint">The session's record of what the beam's push hides from the camera.</param>
+    /// <param name="enemyFrameCounter">The enemy frame counter's count.</param>
+    /// <param name="mainEnemyExecutionCounter">The main enemy pass counter's count.</param>
+    internal static RainbowBeamAttackFrame QuietFrame(
+        SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint cameraCheckpoint,
+        int enemyFrameCounter,
+        int mainEnemyExecutionCounter) => new()
+    {
+        CameraCheckpoint = cameraCheckpoint,
+        EnemyFrameCounter = enemyFrameCounter,
+        MainEnemyExecutionCounter = mainEnemyExecutionCounter,
+        PowerBombActive = false,
+        RandomNumberSeed = MotherBrainRandomSample.FromGenerator(0),
+        NextRandomNumber = new SuperMetroid.Core.Compatibility.SharedRandom().Generate,
+        AlternateEscapeText = false,
+        TypewriterFinished = false,
+        RoomEarthquakeStopped = false,
+    };
 }

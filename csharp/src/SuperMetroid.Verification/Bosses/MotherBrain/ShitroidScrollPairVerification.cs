@@ -36,7 +36,7 @@ internal static class ShitroidScrollPairVerification
 
         Seed(scrolls, [RoomScrollState.Open, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.Open]);
         state.Action = ShitroidAction.WaitForCamera;
-        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, null);
+        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, runtime.BombProjectiles);
         AssertEqual(ShitroidAction.BeginEntranceDelay, state.Action, "the camera at X 512 starts the entrance");
         Expect(scrolls, [RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed, RoomScrollState.Open],
             "the entrance");
@@ -44,7 +44,7 @@ internal static class ShitroidScrollPairVerification
         Seed(scrolls, [RoomScrollState.Closed, RoomScrollState.Closed, RoomScrollState.Open, RoomScrollState.Closed, RoomScrollState.Closed]);
         state.Action = ShitroidAction.RiseAfterFeeding;
         state.StateTimer.Count = 0;
-        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, null);
+        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, camera, runtime.BombProjectiles);
         AssertEqual(ShitroidAction.HoverNearSamus, state.Action, "the rise's timer running out starts the hover");
         Expect(scrolls, [RoomScrollState.Closed, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open, RoomScrollState.OpenAlignedToTop, RoomScrollState.Closed],
             "the rise after feeding");

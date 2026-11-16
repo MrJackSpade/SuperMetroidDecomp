@@ -491,21 +491,15 @@ internal static class MapPresentationVerification
         }
         AssertEqual(MotherBrainRainbowPaletteGeometry.BeamCycleColorCount, original.MotherBrainRainbowBeamColours.BeamCycleLength,
             "installed beam colour cycle ends where the native loop does");
-        var nativeBeamSequence = new MotherBrainRainbowBeamEffect
-        {
-            // Source words were compared independently against bank $88 above;
-            // playback itself must use the installed catalog on both paths.
-            PresentationColors = original.MotherBrainRainbowBeamColours,
-        };
-        var installedBeamSequence = new MotherBrainRainbowBeamEffect
-        {
-            PresentationColors = original.MotherBrainRainbowBeamColours,
-        };
+        // Source words were compared independently against bank $88 above;
+        // playback itself must use the installed catalog on both paths.
+        var nativeBeamSequence = new MotherBrainRainbowBeamEffect();
+        var installedBeamSequence = new MotherBrainRainbowBeamEffect();
         for (int frame = 0; frame < MotherBrainRainbowPaletteGeometry.BeamCycleColorCount + 3; frame++)
         {
-            nativeBeamSequence.Show(new(100, 95), RotationAngle.QuarterTurn, RotationAngle.FromSteps(64));
+            nativeBeamSequence.Show(new(100, 95), RotationAngle.QuarterTurn, RotationAngle.FromSteps(64), original.MotherBrainRainbowBeamColours);
             installedBeamSequence.Show(new(100, 95),
-                RotationAngle.QuarterTurn, RotationAngle.FromSteps(64));
+                RotationAngle.QuarterTurn, RotationAngle.FromSteps(64), original.MotherBrainRainbowBeamColours);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
                 nativeBeamSequence.ColourStep == installedBeamSequence.ColourStep &&
                 nativeBeamSequence.Geometry == installedBeamSequence.Geometry,

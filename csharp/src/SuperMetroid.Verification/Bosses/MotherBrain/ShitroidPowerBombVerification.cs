@@ -6,16 +6,15 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
-/// <summary>Checks the Shitroid's Power Bomb reaction (#1813): the main step it runs reads the power-bomb pass's camera.</summary>
+/// <summary>Checks that a Power Bomb's blast passes the Shitroid by (#2261).</summary>
 internal static class ShitroidPowerBombVerification
 {
     /// <summary>
-    /// A Power Bomb reaching the Shitroid runs its main step with the camera the power-bomb pass carries, which is the
-    /// live camera the original's wait for the camera reads, not the one an earlier main step was given: after a main step
-    /// with the camera right of column 513, a Power Bomb with the camera at 512 starts the entrance; after a main step
-    /// with the camera at the room's corner, a Power Bomb with the camera at 600 leaves the Shitroid waiting.
+    /// The Shitroid takes no Power Bomb damage, so the Power Bomb pass passes it by before any reaction, as the original
+    /// passes every enemy its Power Bomb cannot hurt: a blast centred on it with the camera at column 512, where a step of
+    /// its main behaviour would start its entrance, leaves it waiting for the camera.
     /// </summary>
-    internal static void VerifyShitroidPowerBombReadsPassCamera()
+    internal static void VerifyPowerBombPassesTheShitroid()
     {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
@@ -26,24 +25,11 @@ internal static class ShitroidPowerBombVerification
             place.DefinitionId == EnemyDefinitionId.BabyMetroid);
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
-        ShitroidBehavior behavior = runtime.Enemies.ShitroidBehavior;
-        EnemyPowerBombStage reaction = behavior.ShitroidPowerBombReaction.ReplacesCommon
-            ?? throw new InvalidOperationException("The Shitroid's Power Bomb reaction replaces the common damage.");
-
-        // The main step waits with the camera right of the column; the Power Bomb's camera is left of it.
         state.Action = ShitroidAction.WaitForCamera;
-        state.ReactsToSamus = false;
-        behavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(600, 0), null);
-        AssertEqual(ShitroidAction.WaitForCamera, state.Action, "a main step with the camera at column 600 leaves the Shitroid waiting");
-        reaction(new EnemyPowerBombContext(shitroid, runtime.Player.IntroducedSamus, runtime.Room.LoadedLevelData, new(512, 0)));
-        AssertEqual(ShitroidAction.BeginEntranceDelay, state.Action, "a Power Bomb with the camera at column 512 starts the entrance");
 
-        // The main step runs dormant with the camera at the room's corner; the Power Bomb's camera is right of the column.
-        state.Action = ShitroidAction.Dormant;
-        behavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0, 0), null);
-        state.Action = ShitroidAction.WaitForCamera;
-        reaction(new EnemyPowerBombContext(shitroid, runtime.Player.IntroducedSamus, runtime.Room.LoadedLevelData, new(600, 0)));
-        AssertEqual(ShitroidAction.WaitForCamera, state.Action, "a Power Bomb with the camera at column 600 leaves the Shitroid waiting");
-        Console.WriteLine("  Shitroid Power Bomb: the reaction's main step reads the pass's camera.");
+        _ = runtime.Enemies.Collision.ResolveOrdinaryPowerBombHits(
+            shitroid.Position.Whole, 64, runtime.Room.LoadedLevelData, new(512, 0), runtime.Player.IntroducedSamus);
+        AssertEqual(ShitroidAction.WaitForCamera, state.Action, "the blast runs no step of the Shitroid's behaviour");
+        Console.WriteLine("  Shitroid Power Bomb: the blast passes the Shitroid by.");
     }
 }

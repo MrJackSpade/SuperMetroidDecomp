@@ -28,7 +28,7 @@ internal static class MotherBrainRainbowSamusCooldownVerification
         attack.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 100));
         attack.Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
         attack.Encounter.PhaseTimer.Count = 0;
-        RainbowBeamAttackFrame Frame() => new() { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 };
+        RainbowBeamAttackFrame Frame() => MotherBrainLateFightFixtures.QuietFrame(cameraCheckpoint, 0, 0);
 
         MotherBrainRainbowBeamAttackStepResult neckLowered = attack.Step(samus, Frame());
         AssertEqual(MotherBrainRainbowPhase.StartFiring, attack.Encounter.RainbowPhase,

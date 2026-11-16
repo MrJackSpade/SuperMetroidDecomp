@@ -33,7 +33,7 @@ internal static class ShitroidGradualAccelerationVerification
         state.Action = ShitroidAction.RiseAfterFeeding;
         state.Velocity = default;
         shitroid.Position = shitroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
-        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0x0200, 0x0000), null);
+        runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles);
 
         AssertEqual((ushort)0xfff1, state.Velocity.Y.RawValue, "the reversal step borrows once, reaching Y velocity $FFF1");
         AssertEqual((ushort)0x009c, shitroid.Position.Y.Whole, "the rise stays within the same pixel");
@@ -72,7 +72,7 @@ internal static class ShitroidGradualAccelerationVerification
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(ySpeed);
-            runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, samus, new Position16<RoomPixels>(0x0158, 0x0000), null);
+            runtime.Enemies.ShitroidBehavior.RunShitroidMain(shitroid, samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles);
             AssertEqual(expectedX, shitroid.Position.X.Whole, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
             AssertEqual(expectedSpeed, samus.Kinematics.YSpeed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
@@ -151,7 +151,7 @@ internal static class ShitroidGradualAccelerationVerification
                 700, target.X, velocity.X, divisor, OriginalOffScreenReversalKick, () => offScreen);
             SignedEightEight expectedY = BabyMetroidGradualAcceleration.AccelerateVertically(150, target.Y, velocity.Y, divisor);
 
-            behavior.RunShitroidMain(shitroid, samus, camera, null);
+            behavior.RunShitroidMain(shitroid, samus, camera, runtime.BombProjectiles);
 
             AssertEqual(expectedX, state.Velocity.X, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: X velocity");
             AssertEqual(expectedY, state.Velocity.Y, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: Y velocity");

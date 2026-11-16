@@ -39,7 +39,7 @@ internal static class GrappleHurtFeedbackVerification
         samus.SelectedHudItem = HudItem.Grapple;
 
         SamusGrappleMovement.ConnectUnobstructedSwing(samus, new Position16<RoomPixels>(160, 64), 52,
-            RotationAngle.QuarterTurn, 0, faceRight: true);
+            RotationAngle.QuarterTurn, AngularSpeed.Zero, faceRight: true);
         samus.CommitPoseHistory();
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(0, samus.HurtFlash.Count, "undamaged hanging Samus has no hurt flash");

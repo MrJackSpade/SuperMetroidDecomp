@@ -615,7 +615,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(200, 100),
         ropeLength: 50,
         angle: RotationAngle.HalfTurn,
-        angularVelocity: 0,
+        angularVelocity: AngularSpeed.Zero,
         faceRight: true);
 
     AssertEqual(SamusPoseId.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
@@ -633,7 +633,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     // Gravity is exactly zero on that axis, so angle advances by $010C to $810C.
     GrappleMovementResult swung = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = swingLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, (GameplayAction.Shoot | GameplayAction.Left), newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
-    AssertEqual(0x010c, samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
+    AssertEqual(AngularSpeed.FromFractionsOfStep(0x010c), samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
     AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
     AssertEqual(198, samus.Grapple.FlareOrigin.X, "advanced grapple beam-start X");
     AssertEqual(153, samus.Grapple.FlareOrigin.Y, "advanced grapple beam-start Y");
@@ -677,7 +677,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
-            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, 16) ?? throw new InvalidOperationException("Main flare picture sixteen shows a composition."))), grappleFlare.Image,
+            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, 16))), grappleFlare.Image,
         "grapple flare shows main flare frame sixteen from the sheet of the beams she has equipped");
     AssertEqual(new Offset16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 
@@ -799,12 +799,12 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
         angle: RotationAngle.QuarterTurn,
-        angularVelocity: 0x0100,
+        angularVelocity: AngularSpeed.FromSteps(1),
         faceRight: true);
     GrappleMovementResult angularCollision = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = angularCollisionLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, angularCollisionSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(0x4080, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision restores last-safe angle plus half fraction");
-    AssertEqual(-0x008c, angularCollisionSamus.Grapple.AngularVelocity,
+    AssertEqual(AngularSpeed.FromFractionsOfStep(-0x008c), angularCollisionSamus.Grapple.AngularVelocity,
         "grapple collision negates arithmetic half velocity");
     AssertEqual(16, angularCollisionSamus.Grapple.CollisionBounceTimer,
         "grapple collision opens sixteen-frame kick window");
@@ -833,7 +833,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
             angle: RotationAngle.QuarterTurn,
-            angularVelocity: 0x0100,
+            angularVelocity: AngularSpeed.FromSteps(1),
             faceRight: true);
         GrappleMovementResult spikeBlockContact = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = spikeBlockLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spikeBlockSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
@@ -872,7 +872,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             anchor: new Position16<RoomPixels>(128, 128),
             ropeLength: 32,
             angle: RotationAngle.QuarterTurn,
-            angularVelocity: 0x0100,
+            angularVelocity: AngularSpeed.FromSteps(1),
             faceRight: true);
         GrappleMovementResult spikeAirContact = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = spikeAirLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spikeAirSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
@@ -904,9 +904,9 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     GrappleMovementResult afterAngularCollision = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = swingLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, angularCollisionSamus, (GameplayAction.Shoot | GameplayAction.Jump), newlyPressedInput: GameplayAction.Jump, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision kick advances exact reflected-plus-extra angle");
-    AssertEqual(-0x006f, angularCollisionSamus.Grapple.AngularVelocity,
+    AssertEqual(AngularSpeed.FromFractionsOfStep(-0x006f), angularCollisionSamus.Grapple.AngularVelocity,
         "grapple kick keeps gravity-corrected base angular velocity");
-    AssertEqual(-0x02fa, angularCollisionSamus.Grapple.JumpImpulse,
+    AssertEqual(AngularSpeed.FromFractionsOfStep(-0x02fa), angularCollisionSamus.Grapple.JumpImpulse,
         "successful grapple kick damps extra angular velocity by six");
     AssertEqual(15, angularCollisionSamus.Grapple.CollisionBounceTimer,
         "successful post-bounce movement ages kick window");
@@ -928,7 +928,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
         angle: RotationAngle.QuarterTurn,
-        angularVelocity: 0,
+        angularVelocity: AngularSpeed.Zero,
         faceRight: true);
     GrappleMovementResult ropeCollision = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = ropeCollisionLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, ropeCollisionSamus, (GameplayAction.Shoot | GameplayAction.Down), newlyPressedInput: GameplayAction.Down, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertEqual(32, ropeCollisionSamus.Grapple.RopeLength,
@@ -947,7 +947,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 32,
         angle: RotationAngle.QuarterTurn,
-        angularVelocity: 0,
+        angularVelocity: AngularSpeed.Zero,
         faceRight: true);
     disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
     GrappleMovementResult disconnectedAnchor = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = CreateEmptyRoom(new(16, 16)), RoomObjects = SamusRoomObjectFixtures.Uninstalled }, disconnectedAnchorSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -974,7 +974,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: RotationAngleConstants.FromRaw(0x6a00),
-        angularVelocity: 0x0200,
+        angularVelocity: AngularSpeed.FromSteps(2),
         faceRight: true);
     GrappleMovementResult wallGrab = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, wallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(wallGrab.CameraPrevious.HasValue && wallGrab.Phase == GrapplePhase.WallGrab,
@@ -1052,7 +1052,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: RotationAngleConstants.FromRaw(0x6a00),
-        angularVelocity: 0x0200,
+        angularVelocity: AngularSpeed.FromSteps(2),
         faceRight: true);
     SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, enemyWallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, enemyWallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -1081,7 +1081,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: RotationAngleConstants.FromRaw(0x6a00),
-        angularVelocity: 0x0200,
+        angularVelocity: AngularSpeed.FromSteps(2),
         faceRight: true);
     SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, expiredWallGrabSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = specialLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
@@ -1119,7 +1119,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
         anchor: new Position16<RoomPixels>(128, 128),
         ropeLength: 8,
         angle: RotationAngleConstants.FromRaw(0xd600),
-        angularVelocity: 0x0200,
+        angularVelocity: AngularSpeed.FromSteps(2),
         faceRight: true);
     GrappleMovementResult locked = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = lockedLevel, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, lockedSamus, GameplayAction.Shoot, newlyPressedInput: 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(locked.CameraPrevious.HasValue && locked.Phase == GrapplePhase.ConnectedLocked,
@@ -1150,7 +1150,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
-            new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, ropeLength: 7, angle: RotationAngle.Zero, angularVelocity: 0, faceRight: true),
+            new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, ropeLength: 7, angle: RotationAngle.Zero, angularVelocity: AngularSpeed.Zero, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");

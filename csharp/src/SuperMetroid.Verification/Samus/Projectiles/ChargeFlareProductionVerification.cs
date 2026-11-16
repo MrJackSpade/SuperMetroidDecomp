@@ -47,25 +47,27 @@ internal static class ChargeFlareProductionVerification
                 // The flare draw writes only the charge's flare counter, frames and timers: each tick compares those, and
                 // the first tick of each pose compares the whole projectile state (#1567).
                 AssertEqual(native.Charge.FlareCounter, compiled.Charge.FlareCounter, "Drawing leaves the flare counters identical");
-                AssertTrue(native.Charge.FlarePhases.SequenceEqual(compiled.Charge.FlarePhases) && native.Charge.FlareHolds.SequenceEqual(compiled.Charge.FlareHolds),
+                AssertTrue(Enum.GetValues<ChargeFlareComponent>().All(component =>
+                        (native.Charge.Flare(component).Picture, native.Charge.Flare(component).Hold) ==
+                        (compiled.Charge.Flare(component).Picture, compiled.Charge.Flare(component).Hold)),
                     "Drawing leaves the flare animation state identical");
                 if (tick == 0)
                     AssertTrue(SameGraph(native, compiled, InstalledFixtures.BoundContent), "Drawing leaves projectile, flare-counter and animation state identical");
                 ticks++;
             }
         }
-        // A selector past the $93:A1A1 table (the native wrap of a flare frame to $FF, as in
-        // the #1275 Mother Brain glitch movie) makes native draw WRAM/I/O bytes as a spritemap.
-        // The port draws nothing for it and never reads adjacent ROM bytes.
-        foreach (ushort outOfTableFrame in new ushort[] { 54, 0xffff })
+        // A component the Hyper Beam's count runs past its first picture stands, natively, at a selector past the $93:A1A1
+        // table (the native wrap of a flare frame, as in the #1275 Mother Brain glitch movie), which makes native draw
+        // WRAM/I/O bytes as a spritemap. The port's component past its first picture draws nothing (#2114).
         {
             var invalidSelector = Create();
-            Array.Fill(invalidSelector.Charge.FlarePhases, outOfTableFrame);
+            foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+                invalidSelector.Charge.Flare(component).RunPastFirstPicture(WrappingCountdown.Start(3));
             var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.BindBodyFixture(body);
             OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
-                $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
+                "A flare whose components have run past their first pictures draws no sprites");
         }
 
         var random = new SharedRandom();
@@ -81,7 +83,8 @@ internal static class ChargeFlareProductionVerification
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = 30;
-        Array.Fill(runtime.Projectiles.Charge.FlareHolds, WrappingCountdown.Start(100));
+        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+            runtime.Projectiles.Charge.Flare(component).Show(new(ChargeFlareAnimations.FirstPlace, WrappingCountdown.Start(100)));
         game.AdoptRuntime(runtime);
         SpriteImage PowerBeamSheet(InstalledSpriteSheets sheets) => sheets.Get(SpriteSheetId.ProjectilesPower).Image;
         AssertTrue(FlareDraws(runtime).All(draw => ReferenceEquals(PowerBeamSheet(InstalledFixtures.SpriteSheets), draw.Image.Sheet)),
@@ -106,9 +109,8 @@ internal static class ChargeFlareProductionVerification
         {
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             system.Charge.FlareCounter = 30;
-            var frames = system.Charge.FlarePhases;
-            Array.Fill(frames, 3);
-            Array.Fill(system.Charge.FlareHolds, WrappingCountdown.Start(3));
+            foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+                system.Charge.Flare(component).Show(new(3, WrappingCountdown.Start(3)));
             return system;
         }
     }

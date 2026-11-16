@@ -373,7 +373,7 @@ public static class SamusMorphBallMovement
         UnsignedSixteenSixteen oldSpeed = state.YSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {
-            if (state.YSpeed.Whole != 5)
+            if (state.YSpeed.Whole != SamusVerticalMotionDefinitions.BallBounceFallingSpeed)
                 state.YSpeed = oldSpeed + state.YAcceleration;
         }
         else

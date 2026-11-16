@@ -8,23 +8,24 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// pictures are the same either way; each spark ring shows its own facing's six compositions.
 /// </summary>
 /// <remarks>
-/// A component shows only its own pictures. A place outside them, which only the Hyper Beam's backward count reaches
-/// once it has run a component past its first picture, shows nothing: it does not draw the neighbouring run's
-/// picture there, which was a presentation quirk (owner decision, 2026-10-12).
+/// A component shows only its own pictures. One the Hyper Beam's backward count has run past its first picture shows
+/// nothing (<see cref="ChargeFlareComponentState"/>): it does not draw the neighbouring run's picture, which was a
+/// presentation quirk (owner decision, 2026-10-12).
 /// </remarks>
 public static class ChargeFlarePictures
 {
     /// <summary>
-    /// The composition <paramref name="component"/> shows at picture <paramref name="phase"/> facing left or right, or
-    /// null when the place is none of the component's pictures.
+    /// The composition <paramref name="component"/> shows at place <paramref name="place"/> of its animation facing left
+    /// or right.
     /// </summary>
     /// <param name="component">The component.</param>
     /// <param name="facingLeft">Whether Samus faces left.</param>
-    /// <param name="phase">The component's picture, 0 through 65535.</param>
-    public static ProjectileSpriteId? Of(ChargeFlareComponent component, bool facingLeft, int phase) =>
-        ChargeFlareAnimations.PictureAt(component, Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, phase)) is { } picture
+    /// <param name="place">The place of one of the component's pictures in its animation.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="place"/> shows none of the component's pictures.</exception>
+    public static ProjectileSpriteId Of(ChargeFlareComponent component, bool facingLeft, int place) =>
+        ChargeFlareAnimations.PictureAt(component, place) is { } picture
             ? Of(component, facingLeft, picture)
-            : null;
+            : throw new ArgumentOutOfRangeException(nameof(place), place, $"Charge-flare {component} shows no picture at place {place}.");
 
     /// <summary>The composition <paramref name="component"/> shows for <paramref name="picture"/> facing left or right.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is not one of the component's pictures.</exception>

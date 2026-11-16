@@ -13,6 +13,14 @@ internal static class SamusAtmosphericAnimationDefinitions
     internal const int DustInitialFrameTicks = 3;
     /// <summary>Each later dust frame shows one tick longer than the one before, as authored.</summary>
     internal const int DustFrameTickIncrement = 1;
+    /// <summary>The steps of a footstep's surface splash.</summary>
+    internal const int SurfaceSplashStepCount = 4;
+    /// <summary>The steps of a lava spray.</summary>
+    internal const int LavaSprayStepCount = 4;
+    /// <summary>The steps of a breath's bubbles.</summary>
+    internal const int BubbleStepCount = 8;
+    /// <summary>The steps of a dust cloud, each one tick longer than the one before.</summary>
+    internal const int DustStepCount = 4;
     /// <summary>The updates each of the diving splash's nine steps shows, in step order: nine retained exposure choices for the drawn ripple/jet/droplet choreography; discrete frame art does not determine these holds. Preserve old-frame reload and the final hold of seven, which no step shows.</summary>
     internal static IReadOnlyList<int> DivingSplashStepUpdates { get; } = [2, 2, 3, 3, 3, 5, 5, 6, 7];
     /// <summary>Dust rises one pixel on each update it is shown.</summary>

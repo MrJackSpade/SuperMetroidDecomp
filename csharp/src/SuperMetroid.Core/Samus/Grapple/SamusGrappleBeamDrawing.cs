@@ -68,8 +68,7 @@ public static class SamusGrappleBeamDrawing
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
         // shows the sheet of the beams she has equipped (#1586).
         SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId picture =
-            SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, grapple.FlarePlace)
-            ?? throw new InvalidOperationException($"The grapple flare's place {grapple.FlarePlace} shows no main flare.");
+            SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false, grapple.FlarePlace);
         SpriteSheetFrame image = objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(SuperMetroid.Core.Samus.Artwork.ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place, SpriteMirror.None));
@@ -209,11 +208,11 @@ public static class SamusGrappleBeamDrawing
 
     /// <summary>
     /// The displacement along one axis from one rope picture's centre to the next: one segment's spacing scaled by the
-    /// draw direction's signed sine <paramref name="sine"/>, in 256ths, keeping the fraction so diagonal and backward
+    /// draw direction's share <paramref name="component"/> along the axis, keeping the fraction so diagonal and backward
     /// steps add up exactly.
     /// </summary>
-    private static SignedSixteenSixteen SegmentStep(int sine) =>
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sine * GrappleBeamDefinitions.Rendering.SegmentSpacing);
+    private static SignedSixteenSixteen SegmentStep(UnitComponent component) =>
+        component.ExactReachOf(GrappleBeamDefinitions.Rendering.SegmentSpacing);
 
     /// <summary>
     /// How the rope's pictures mirror at the grapple angle <paramref name="angle"/>: horizontally in the second half of

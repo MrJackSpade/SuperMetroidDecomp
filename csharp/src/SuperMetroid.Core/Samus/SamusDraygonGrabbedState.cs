@@ -19,9 +19,6 @@ namespace SuperMetroid.Core.Samus;
 /// </remarks>
 public sealed class SamusDraygonGrabbedState
 {
-    /// <summary>Escape threshold.</summary>
-    public const int EscapeButtonCounterTarget = 60;
-
     /// <summary>
     /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
     /// movements and counts her presses of the directions.
@@ -108,7 +105,9 @@ public sealed class SamusDraygonGrabbedState
                 "Draygon places only a held Samus or one whose escape it has not yet seen.");
         }
 
-        samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? 8 : -8, 40));
+        samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(
+            draygonFacingRight ? SamusDraygonHoldDefinitions.HeldAhead : -SamusDraygonHoldDefinitions.HeldAhead,
+            SamusDraygonHoldDefinitions.HeldBelow));
 
         // The placement writes whole positions only. It does not clear subpositions,
         // so preserving the subpositions is intentional even though the actor overwrites
@@ -153,7 +152,7 @@ public sealed class SamusDraygonGrabbedState
         }
 
         // The game tests the count against the target only on a newly counted press of the directions.
-        bool released = counted && escapePresses.EscapePressesReach(EscapeButtonCounterTarget);
+        bool released = counted && escapePresses.EscapePressesReach(SamusDraygonHoldDefinitions.EscapePresses);
         if (released)
             Release(samus);
 

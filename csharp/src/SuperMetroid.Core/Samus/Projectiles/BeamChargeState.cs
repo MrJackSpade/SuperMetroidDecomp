@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Beam charge state: the charge count and the Hyper Beam's flare, the charge sampled before the charge input, the
-/// charged-shot glow, the charge glow step and the three flare components' pictures and holds.
+/// charged-shot glow, the charge glow step and each flare component's animation.
 /// </summary>
 internal sealed class BeamChargeState
 {
@@ -62,39 +62,21 @@ internal sealed class BeamChargeState
         internal set => field = Ensure.BetweenInclusive(0, SamusChargeShadeDefinitions.ChargeSteps - 1, value);
     }
 
-    /// <summary>
-    /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its animation, or,
-    /// after the Hyper Beam's backward count has run a component past its first picture, the 0 through 65535 place the
-    /// count wrapped to.
-    /// </summary>
-    internal readonly int[] FlarePhases = new int[3];
+    /// <summary>Each flare component's animation: the picture it shows and the wait it holds it for.</summary>
+    private readonly Dictionary<ChargeFlareComponent, ChargeFlareComponentState> _flare =
+        Enum.GetValues<ChargeFlareComponent>().ToDictionary(component => component, component => new ChargeFlareComponentState(component));
 
-    /// <summary>The wait each flare component holds its picture for, in <see cref="ChargeFlareComponent"/> order.</summary>
-    internal readonly WrappingCountdown[] FlareHolds = new WrappingCountdown[3];
-
-    /// <summary>The picture flare <paramref name="component"/> shows.</summary>
-    internal int FlarePhase(ChargeFlareComponent component) => FlarePhases[Place(component)];
-
-    /// <summary>Shows <paramref name="step"/>'s picture on flare <paramref name="component"/> and holds it for the step's wait.</summary>
-    internal void ShowFlare(ChargeFlareComponent component, ChargeFlareStep step)
-    {
-        FlarePhases[Place(component)] = Ensure.BetweenInclusive(0, WrappingCounter.LargestCount, step.Phase);
-        FlareHolds[Place(component)] = step.Hold;
-    }
-
-    /// <summary>Counts one update off flare <paramref name="component"/>'s wait, keeping what remains.</summary>
-    internal CountdownStep CountFlareHold(ChargeFlareComponent component)
-    {
-        CountdownStep step = FlareHolds[Place(component)].Decrement();
-        FlareHolds[Place(component)] = step.Remaining;
-        return step;
-    }
+    /// <summary>Flare <paramref name="component"/>'s animation.</summary>
+    internal ChargeFlareComponentState Flare(ChargeFlareComponent component) =>
+        _flare.TryGetValue(component, out ChargeFlareComponentState? flare)
+            ? flare
+            : throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}.");
 
     /// <summary>The ordinary charge flare's first call: every component starts its animation at its first picture.</summary>
     internal void StartChargeFlare()
     {
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            ShowFlare(component, ChargeFlareAnimations.First(component));
+            Flare(component).Show(ChargeFlareAnimations.First(component));
     }
 
     /// <summary>The Hyper Beam's shot: every component shows its last picture, to count its pictures backward from there.</summary>
@@ -104,7 +86,7 @@ internal sealed class BeamChargeState
         HyperBeamFlare = true;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
         {
-            ShowFlare(component, new(ChargeFlareAnimations.LastPicture(component),
+            Flare(component).Show(new(ChargeFlareAnimations.LastPicture(component),
                 WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates)));
         }
     }
@@ -112,18 +94,9 @@ internal sealed class BeamChargeState
     /// <summary>Clears every flare component to its first picture with no wait.</summary>
     internal void ClearFlare()
     {
-        Array.Clear(FlarePhases);
-        Array.Clear(FlareHolds);
+        foreach (ChargeFlareComponentState flare in _flare.Values)
+            flare.Clear();
     }
-
-    /// <summary>The place of <paramref name="component"/>'s picture and wait in the flare's arrays.</summary>
-    private static int Place(ChargeFlareComponent component) => component switch
-    {
-        ChargeFlareComponent.MainFlare => 0,
-        ChargeFlareComponent.SlowSparks => 1,
-        ChargeFlareComponent.FastSparks => 2,
-        _ => throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}."),
-    };
 
     /// <summary>
     /// Clears the charge and its whole flare, as the shinespark windup and the grapple wall jump's launch do: the count

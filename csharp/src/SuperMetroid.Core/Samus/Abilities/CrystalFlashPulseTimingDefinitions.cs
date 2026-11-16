@@ -11,4 +11,7 @@ internal static class CrystalFlashPulseTimingDefinitions
 
     /// <summary>Every step of the body's pulse shows for ten colouring updates.</summary>
     public const int AuthoredDuration = 10;
+
+    /// <summary>The colouring updates before the pulse's first step when the flash starts: it starts on the next.</summary>
+    public const int FirstStepWait = 1;
 }

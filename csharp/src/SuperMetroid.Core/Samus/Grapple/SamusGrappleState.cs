@@ -81,43 +81,45 @@ public sealed class SamusGrappleState
     /// The signed angular velocity: the swing clamps every update's sum to the maximum either way before storing it,
     /// a still pendulum is pushed off at a fixed speed below it, and the bounce halves it; other writes are rejected.
     /// </summary>
-    public int AngularVelocity
+    public AngularSpeed AngularVelocity
     {
         get;
-        set => field = Ensure.BetweenInclusive(-GrappleBeamDefinitions.Physics.MaximumAngularVelocity,
-            GrappleBeamDefinitions.Physics.MaximumAngularVelocity, value);
+        set => field = NoFasterThan(GrappleBeamDefinitions.Physics.MaximumAngularVelocity, value);
     }
     /// <summary>The angular acceleration contributed by directional input: its magnitude either way, halved underwater, or none.</summary>
-    public int DirectionInputAcceleration
+    public AngularSpeed DirectionInputAcceleration
     {
         get;
-        set => field = Ensure.BetweenInclusive(-GrappleBeamDefinitions.Physics.DirectionInputMagnitude,
-            GrappleBeamDefinitions.Physics.DirectionInputMagnitude, value);
+        set => field = NoFasterThan(GrappleBeamDefinitions.Physics.DirectionInputMagnitude, value);
     }
     /// <summary>The angular acceleration contributed by gravity: its magnitude either way or a fraction of it, or none.</summary>
-    public int GravityAcceleration
+    public AngularSpeed GravityAcceleration
     {
         get;
-        set => field = Ensure.BetweenInclusive(-GrappleBeamDefinitions.Physics.GravityMagnitude,
-            GrappleBeamDefinitions.Physics.GravityMagnitude, value);
+        set => field = NoFasterThan(GrappleBeamDefinitions.Physics.GravityMagnitude, value);
     }
     /// <summary>The angular-velocity correction term: its magnitude either way or a quarter of it, or none.</summary>
-    public int VelocityCorrection
+    public AngularSpeed VelocityCorrection
     {
         get;
-        set => field = Ensure.BetweenInclusive(-GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude,
-            GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude, value);
+        set => field = NoFasterThan(GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude, value);
     }
     /// <summary>
     /// The signed angular impulse a jump during the bounce window adds: its magnitude either way, halved underwater or by
     /// a bounce, decaying toward none.
     /// </summary>
-    public int JumpImpulse
+    public AngularSpeed JumpImpulse
     {
         get;
-        set => field = Ensure.BetweenInclusive(-GrappleBeamDefinitions.Physics.JumpImpulseMagnitude,
-            GrappleBeamDefinitions.Physics.JumpImpulseMagnitude, value);
+        set => field = NoFasterThan(GrappleBeamDefinitions.Physics.JumpImpulseMagnitude, value);
     }
+
+    /// <summary><paramref name="value"/>, which turns no faster than <paramref name="most"/> either way; a faster one is rejected.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> turns faster than <paramref name="most"/>.</exception>
+    private static AngularSpeed NoFasterThan(AngularSpeed most, AngularSpeed value) =>
+        value >= -most && value <= most
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, $"The swing's angular terms turn no faster than {most} either way.");
     /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
     public int CollisionBounceTimer { get; set; }
     /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>

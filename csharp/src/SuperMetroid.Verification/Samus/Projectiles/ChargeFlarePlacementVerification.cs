@@ -157,7 +157,8 @@ internal static class ChargeFlarePlacementVerification
         {
             var hyperSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
             hyperSystem.Charge.FlareCounter = 30;
-            Array.Fill(hyperSystem.Charge.FlarePhases, 2);
+            foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+                hyperSystem.Charge.Flare(component).Show(new(2, hyperSystem.Charge.Flare(component).Hold));
             subject.HyperBeamEnabled = hyper;
             original = SpriteFrameBuffer.DrawnOam(frame => hyperSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 hyperSystem.AdvanceChargeFlare(subject), null,
@@ -194,7 +195,8 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus);
         runtime.Projectiles.Charge.FlareCounter = 30;
-        Array.Fill(runtime.Projectiles.Charge.FlareHolds, WrappingCountdown.Start(100));
+        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
+            runtime.Projectiles.Charge.Flare(component).Show(new(ChargeFlareAnimations.FirstPlace, WrappingCountdown.Start(100)));
         game.AdoptRuntime(runtime);
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);

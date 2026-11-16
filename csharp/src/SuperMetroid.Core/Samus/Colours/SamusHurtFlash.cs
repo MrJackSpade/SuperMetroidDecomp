@@ -21,9 +21,6 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// </remarks>
 public static class SamusHurtFlash
 {
-    /// <summary>The hurt-flash count at which the flash ends and the count is cleared: its largest value.</summary>
-    public const int EndingCall = 60;
-
     /// <summary>
     /// Advances one hurt-flash call, optionally showing the flash's or the restored suit's shade as the suit's colours
     /// (#1512) and publishing the exact recovery sound side effects.
@@ -49,7 +46,7 @@ public static class SamusHurtFlash
         // The hurt flash plays the impact sound exactly on call two. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its movement.
-        if (counterBefore == 2 &&
+        if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundCall &&
             samus.Presentation.Mode != SamusPresentationMode.Cinematic &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseId.KnockbackLeftPose))
@@ -60,7 +57,7 @@ public static class SamusHurtFlash
         // Only calls one through six write colors. Odd calls select the fixed hurt shade;
         // even calls restore either the intro shade or the equipment-selected suit. Once
         // counter seven is reached the existing colours deliberately remain untouched.
-        if (counterBefore < 7)
+        if (counterBefore <= SamusHurtFlashDefinitions.ColouredCalls)
         {
             if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
             {
@@ -80,10 +77,10 @@ public static class SamusHurtFlash
         // cleared at sixty, so it never leaves 0 through 60.
         int counterAfter = samus.HurtFlash.Advance();
 
-        if (counterAfter == 40)
+        if (counterAfter == SamusHurtFlashDefinitions.SoundRecoveryCount)
             RecoverInterruptedSound(samus, controllerInput);
 
-        if (counterAfter >= EndingCall)
+        if (counterAfter >= SamusHurtFlashDefinitions.EndingCall)
         {
             samus.HurtFlash.Clear();
         }

@@ -82,4 +82,13 @@ internal static class SamusVerticalMotionDefinitions
 
     /// <summary>The falling speed at and above which Space Jump no longer restarts the spin jump: five pixels per update.</summary>
     internal static UnsignedSixteenSixteen SpaceJumpFallingSpeedLimit { get; } = new(5, 0);
+
+    /// <summary>
+    /// The whole pixels an update Ceres Ridley's shove drops Samus at from its start, and below which its fall gathers
+    /// speed.
+    /// </summary>
+    internal const int CeresRidleyShoveFallingSpeed = 5;
+
+    /// <summary>The whole pixels an update at which a falling bouncing ball stops gathering speed.</summary>
+    internal const int BallBounceFallingSpeed = 5;
 }

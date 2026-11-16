@@ -47,6 +47,16 @@ public static class XrayScopeDefinitions
         public static RotationAngle LeftRaisedBelow { get; } = RotationAngle.FromSteps(228);
     }
 
+    /// <summary>How long the X-ray pose's pictures the scope sets directly show for, in updates.</summary>
+    public static class Holds
+    {
+        /// <summary>The activation picture, set as the scope takes Samus's pose.</summary>
+        public const int Activation = 63;
+
+        /// <summary>Each aim's picture, set again on every update the scope aims.</summary>
+        public const int Aim = 15;
+    }
+
     /// <summary>The X-ray pose's five aims, from up to down: the frames of its animation the scope's angle selects.</summary>
     internal static class Aims
     {

@@ -45,7 +45,7 @@ internal sealed class ProjectileMotion
         shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
         if (shot.TrailTimer.IsZero)
         {
-            shot.TrailTimer = WrappingCountdown.Start(4);
+            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
             _trails.SpawnTrail(shot);
         }
 
@@ -170,7 +170,7 @@ internal sealed class ProjectileMotion
         shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
         if (shot.TrailTimer.IsZero)
         {
-            shot.TrailTimer = WrappingCountdown.Start(4);
+            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
             _trails.SpawnTrail(shot);
         }
 
@@ -238,7 +238,7 @@ internal sealed class ProjectileMotion
         shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
         if (shot.TrailTimer.IsZero)
         {
-            shot.TrailTimer = WrappingCountdown.Start(2);
+            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.SuperMissileTrailInterval);
             _trails.SpawnTrail(shot);
         }
 

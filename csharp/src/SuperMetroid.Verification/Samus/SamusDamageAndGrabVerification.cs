@@ -785,7 +785,7 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
 
     DraygonEscapeResult release = repeatedUp;
-    for (int inputNumber = 1; inputNumber < SamusDraygonGrabbedState.EscapeButtonCounterTarget; inputNumber++)
+    for (int inputNumber = 1; inputNumber < SamusDraygonHoldDefinitions.EscapePresses; inputNumber++)
     {
         GameplayAction direction = (inputNumber & 1) != 0 ? GameplayAction.Down : GameplayAction.Up;
         release = samus.DraygonGrabbed.CheckDraygonEscape(
@@ -825,7 +825,7 @@ internal static void VerifySamusGrabbedByDraygon()
     // The escape test compares the shared count with the target by the sign of their difference (#1795): a count another
     // sequence left 32768 or more past the target reads as below it, so a press counted onto it does not free Samus, and
     // one counted onto the count just short of that boundary does.
-    int target = SamusDraygonGrabbedState.EscapeButtonCounterTarget;
+    int target = SamusDraygonHoldDefinitions.EscapePresses;
     foreach ((int countLeft, bool frees) in new[] { (target + short.MaxValue - 1, true), (target + short.MaxValue, false), (ushort.MaxValue - 1, false) })
     {
         samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);

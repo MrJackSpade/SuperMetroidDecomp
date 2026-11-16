@@ -25,14 +25,13 @@ internal static class SamusGrappleMovementAccess
             Position16<RoomPixels> anchor,
             byte ropeLength,
             RotationAngle angle,
-            short angularVelocity,
+            AngularSpeed angularVelocity,
             bool faceRight)
         {
             Ensure.NotNull(samus);
             if (ropeLength is < 8 or > 63)
                 throw new ArgumentOutOfRangeException(nameof(ropeLength), "Retail connected rope length is 8..63 pixels.");
-            if (angularVelocity is < -GrappleBeamDefinitions.Physics.MaximumAngularVelocity or
-                > GrappleBeamDefinitions.Physics.MaximumAngularVelocity)
+            if (angularVelocity.Magnitude > GrappleBeamDefinitions.Physics.MaximumAngularVelocity)
                 throw new ArgumentOutOfRangeException(nameof(angularVelocity));
             if (samus.Grapple.Phase != GrapplePhase.Inactive)
                 throw new InvalidOperationException("A grapple state is already active.");
@@ -45,9 +44,9 @@ internal static class SamusGrappleMovementAccess
             grapple.Angle = angle;
             grapple.MirroredAngle = angle;
             grapple.AngularVelocity = angularVelocity;
-            grapple.DirectionInputAcceleration = 0;
-            grapple.GravityAcceleration = 0;
-            grapple.JumpImpulse = 0;
+            grapple.DirectionInputAcceleration = AngularSpeed.Zero;
+            grapple.GravityAcceleration = AngularSpeed.Zero;
+            grapple.JumpImpulse = AngularSpeed.Zero;
             grapple.CollisionBounceTimer = 0;
             grapple.Submerged = false;
             // This public helper is the debugger's already-accepted-anchor seam. Its caller may

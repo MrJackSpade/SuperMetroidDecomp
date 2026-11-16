@@ -9,8 +9,10 @@ internal static class SamusParticleAnimations
     internal static int StepCount(SamusParticleKind kind) => kind switch
     {
         SamusParticleKind.DivingSplash => DivingSplashStepUpdates.Count,
-        SamusParticleKind.Bubbles => 8,
-        SamusParticleKind.SurfaceSplash or SamusParticleKind.LavaSpray or SamusParticleKind.Dust => 4,
+        SamusParticleKind.Bubbles => BubbleStepCount,
+        SamusParticleKind.SurfaceSplash => SurfaceSplashStepCount,
+        SamusParticleKind.LavaSpray => LavaSprayStepCount,
+        SamusParticleKind.Dust => DustStepCount,
         _ => throw new InvalidDataException($"Undefined particle kind {kind}."),
     };
 

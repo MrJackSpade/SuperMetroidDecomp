@@ -434,7 +434,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt flash's
-    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlash.EndingCall"/>).
+    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlashDefinitions.EndingCall"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
@@ -680,7 +680,7 @@ public sealed class SamusState
             // Compares the OLD live radius with eight. Radius seven means
             // Morph Ball, and that branch restores PreviousPose instead of trying to fit
             // stable crouch. Every non-morph compact/standing body still uses crouch.
-            return Kinematics.Radius.Y < 8
+            return Kinematics.Radius.Y < SamusPoseCollisionDefinitions.SmallestUprightYRadius
                 ? LargerPoseCollisionOutcome.RetainSource
                 : LargerPoseCollisionOutcome.CrouchFallback;
         }
@@ -738,7 +738,7 @@ public sealed class SamusState
             WritePreviousYPosition(CoordinateAxis.Wrap(Kinematics.Position.Y.Whole + centerAdjustment));
         return LargerPoseCollisionOutcome.Allowed;
 
-        LargerPoseCollisionOutcome BothSides() => Kinematics.Radius.Y < 8
+        LargerPoseCollisionOutcome BothSides() => Kinematics.Radius.Y < SamusPoseCollisionDefinitions.SmallestUprightYRadius
             ? LargerPoseCollisionOutcome.RetainSource : LargerPoseCollisionOutcome.CrouchFallback;
 
         SolidEnemyCollisionResult ProbeEnemy(SamusCollisionDirection direction, int distance, int radius)

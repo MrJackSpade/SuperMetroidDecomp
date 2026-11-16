@@ -51,8 +51,8 @@ internal static class GrappleCompiledMathVerification
         // at doubled-velocity multiples of 512 and both signs at zero cosine.
         int releaseCount = 0;
         for (int angle = 0; angle < 256; angle++)
-        for (int velocity = -GrappleBeamDefinitions.Physics.MaximumAngularVelocity;
-             velocity <= GrappleBeamDefinitions.Physics.MaximumAngularVelocity; velocity++)
+        for (int velocity = -GrappleBeamDefinitions.Physics.MaximumAngularVelocity.FractionsOfStep;
+             velocity <= GrappleBeamDefinitions.Physics.MaximumAngularVelocity.FractionsOfStep; velocity++)
         {
             int doubled = 2 * Math.Abs(velocity);
             short vertical = native[angle + 64];
@@ -63,7 +63,7 @@ internal static class GrappleCompiledMathVerification
                 ? vertical < 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up
                 : vertical >= 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
             state.Grapple.Angle = RotationAngle.FromSteps(unchecked((byte)angle)).AddRaw(0xff);
-            state.Grapple.AngularVelocity = (short)velocity;
+            state.Grapple.AngularVelocity = AngularSpeed.FromFractionsOfStep(velocity);
             release(state, state.Grapple);
             if (state.Kinematics.YSpeed.Whole != SixteenSixteenWords.WholeOf(expectedY) || state.Kinematics.YSpeed.Fraction != SixteenSixteenWords.FractionOf(expectedY) ||
                 state.Kinematics.YDirection != direction || state.HorizontalSpeed.BaseSpeed.Whole != SixteenSixteenWords.WholeOf(expectedX) ||

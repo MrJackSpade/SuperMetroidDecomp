@@ -17,6 +17,8 @@ public static class SamusDeathSequenceDefinitions
     public const int BrightestExplosionWhiteoutShade = 20;
     /// <summary>The whiteout shade the sequence's last call shows, after the explosion's last frame: full white.</summary>
     public const int FinalWhiteoutShade = 21;
+    /// <summary>The updates the death pose's starting picture shows for: the delay every death pose's frames share.</summary>
+    public const int InitialFrameHold = 2;
 
     /// <summary>The death-pose animation frame each movement type starts the death pose on; InitialFrame looks it up.</summary>
     public static readonly IReadOnlyDictionary<SamusMovementType, int> InitialFrames = new Dictionary<SamusMovementType, int>

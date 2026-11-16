@@ -88,11 +88,8 @@ public sealed class SamusCrystalFlashState
     public int BubbleTimer
     {
         get;
-        private set => field = Ensure.BetweenInclusive(0, BubbleStepUpdates, value);
+        private set => field = Ensure.BetweenInclusive(0, CrystalFlashDefinitions.BubbleStepUpdates, value);
     }
-
-    /// <summary>The colouring updates each bubble colour step shows for.</summary>
-    private const int BubbleStepUpdates = 5;
 
     /// <summary>
     /// Whether the flash has finished and asks its next colouring update to show the equipped beams' colours again and
@@ -172,10 +169,10 @@ public sealed class SamusCrystalFlashState
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         _ammoCountdown.StartAmmoCountdown(CrystalFlashDefinitions.AmmunitionPerKind);
         RaisedHeight = 0;
-        CrystalPulseTimer = 1;
+        CrystalPulseTimer = CrystalFlashPulseTimingDefinitions.FirstStepWait;
         _colouring.Take(SamusSpecialColouringKind.CrystalFlash);
         BubbleStep = 0;
-        BubbleTimer = 1;
+        BubbleTimer = CrystalFlashDefinitions.FirstBubbleStepWait;
         BeamShadeRestoreRequested = false;
         BodyStep = 0;
         BubbleEffectRequested = false;
@@ -236,7 +233,7 @@ public sealed class SamusCrystalFlashState
     private void StepRaising(SamusState samus)
     {
         // The raise changes only the whole pixels. The subposition survives.
-        samus.Position -= new Offset16<RoomPixels>(0, 2);
+        samus.Position -= new Offset16<RoomPixels>(0, CrystalFlashDefinitions.RaiseStep);
 
         // The count starts one below the raise's updates, then decrements and checks for a count below zero. The last
         // raising call runs past zero and starts the main bubble phase after completing its Y move.
@@ -245,7 +242,7 @@ public sealed class SamusCrystalFlashState
 
         // The delay animation is already on its raise loop, but the raise forces
         // frame six and timer three so main art begins on this precise transition frame.
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: CrystalFlashDefinitions.PhasePictureHold);
         RaisedHeight = samus.Position.Y.Whole;
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleEffectRequested = true;
@@ -301,7 +298,7 @@ public sealed class SamusCrystalFlashState
         // The ammunition drain switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a cue.
         Phase = CrystalFlashPhase.Finishing;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashFinish, timer: 3);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashFinish, timer: CrystalFlashDefinitions.PhasePictureHold);
     }
 
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests suit shade restoration.</summary>
@@ -363,7 +360,7 @@ public sealed class SamusCrystalFlashState
         // The bubble countdown runs one through five while the colouring runs, so its decrement reaches zero, never past it.
         if (--BubbleTimer == 0)
         {
-            BubbleTimer = BubbleStepUpdates;
+            BubbleTimer = CrystalFlashDefinitions.BubbleStepUpdates;
             colours.LayOverBeams(SamusShades.CrystalFlashBubble(BubbleStep));
 
             // The step was validated below the set count above, so this advance stays far below any wrap.

@@ -444,23 +444,28 @@ public sealed class SamusProjectileSystem
             ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
-                CountdownStep hold = Charge.CountFlareHold(component);
+                ChargeFlareComponentState flare = Charge.Flare(component);
+                CountdownStep hold = flare.CountHold();
                 if (hold.IsZeroOrNegative)
                 {
-                    int phase = Charge.FlarePhase(component);
-                    int previous = WrappingCounter.DecrementCount(phase);
-                    if (phase == 1)
+                    WrappingCountdown nextHold = WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates);
+                    if (flare.Picture is not { } picture || picture == ChargeFlareAnimations.FirstPlace)
+                    {
+                        // A component already at its first picture when its spent wait runs out again steps back past
+                        // it, where it shows nothing and its count goes on (#2114).
+                        flare.RunPastFirstPicture(nextHold);
+                    }
+                    else if (picture == ChargeFlareAnimations.FirstPlace + 1)
                     {
                         // The component reaches its first picture and stops counting: its wait is left spent. The fast
                         // sparks reaching theirs end the whole flare.
-                        Charge.ShowFlare(component, new(previous, hold.Remaining));
+                        flare.Show(new(ChargeFlareAnimations.FirstPlace, hold.Remaining));
                         if (component == ChargeFlareComponent.FastSparks)
                             Charge.ClearCount();
                     }
                     else
                     {
-                        Charge.ShowFlare(component, new(previous,
-                            WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates)));
+                        flare.Show(new(picture - 1, nextHold));
                     }
                 }
             }

@@ -42,26 +42,29 @@ public static class GrappleBeamDefinitions
         /// <see cref="FiringExtension"/> and then cancels it, and connected motion keeps it shorter still.
         /// </summary>
         public const int LongestRopeLength = FiringCancelLength - 1 + FiringExtension;
-        /// <summary>Per-frame downward angular acceleration.</summary>
-        public const int GravityMagnitude = 24;
-        /// <summary>Per-frame angular acceleration contributed by directional input.</summary>
-        public const int DirectionInputMagnitude = 12;
-        /// <summary>Correction applied when velocity opposes the current swing direction.</summary>
-        public const int VelocityCorrectionMagnitude = 5;
-        /// <summary>Maximum signed angular velocity.</summary>
-        public const int MaximumAngularVelocity = 1152;
-        /// <summary>Angular impulse applied by Jump during a swing.</summary>
-        public const int JumpImpulseMagnitude = 768;
-        /// <summary>How much of the Jump impulse each sweep that meets nothing takes away, toward zero.</summary>
-        public const int JumpImpulseDecay = 6;
-        /// <summary>The angular velocity a motionless pendulum hanging straight down is kicked to by a held direction.</summary>
-        public const int MotionlessPumpKick = 256;
-        /// <summary>A pendulum hanging straight down slower than this stops.</summary>
-        public const int RestingAngularVelocity = 256;
-        /// <summary>The share, in 256ths, of its angular velocity the swing turns through each update in air.</summary>
-        public const int SwingSpeedScale = 256;
-        /// <summary>The share, in 256ths, of its angular velocity the swing turns through each update under water.</summary>
-        public const int SubmergedSwingSpeedScale = 160;
+        /// <summary>Per-update downward angular acceleration: 24/256 of a step.</summary>
+        public static readonly AngularSpeed GravityMagnitude = AngularSpeed.FromFractionsOfStep(24);
+        /// <summary>Per-update angular acceleration contributed by directional input: 12/256 of a step.</summary>
+        public static readonly AngularSpeed DirectionInputMagnitude = AngularSpeed.FromFractionsOfStep(12);
+        /// <summary>Correction applied when velocity opposes the current swing direction: 5/256 of a step.</summary>
+        public static readonly AngularSpeed VelocityCorrectionMagnitude = AngularSpeed.FromFractionsOfStep(5);
+        /// <summary>The fastest the swing turns either way: four and a half steps an update.</summary>
+        public static readonly AngularSpeed MaximumAngularVelocity = AngularSpeed.FromFractionsOfStep(1152);
+        /// <summary>Angular impulse applied by Jump during a swing: three steps an update.</summary>
+        public static readonly AngularSpeed JumpImpulseMagnitude = AngularSpeed.FromSteps(3);
+        /// <summary>How much of the Jump impulse each sweep that meets nothing takes away, toward zero: 6/256 of a step.</summary>
+        public static readonly AngularSpeed JumpImpulseDecay = AngularSpeed.FromFractionsOfStep(6);
+        /// <summary>The angular velocity a motionless pendulum hanging straight down is kicked to by a held direction: a step an update.</summary>
+        public static readonly AngularSpeed MotionlessPumpKick = AngularSpeed.FromSteps(1);
+        /// <summary>A pendulum hanging straight down slower than this, a step an update, stops.</summary>
+        public static readonly AngularSpeed RestingAngularVelocity = AngularSpeed.FromSteps(1);
+        /// <summary>
+        /// The parts of its angular velocity, out of <see cref="SubmergedSwingParts"/>, the swing turns through each update
+        /// under water; in air it turns through all of it.
+        /// </summary>
+        public const int SubmergedSwingShare = 5;
+        /// <summary>The parts a submerged swing's angular velocity divides into: eighths.</summary>
+        public const int SubmergedSwingParts = 8;
         /// <summary>The updates after a bounce off terrain in which Jump adds its impulse.</summary>
         public const int CollisionBounceFrames = 16;
     }
@@ -103,6 +106,8 @@ public static class GrappleBeamDefinitions
     {
         /// <summary>The updates after a wall grab ends in which Jump still wall-jumps.</summary>
         public const int WallJumpWindowFrames = 30;
+        /// <summary>How far the grapple wall-jump probe looks for a wall toward the side Samus faces, in pixels.</summary>
+        public const int WallJumpProbePixels = 16;
     }
 
     /// <summary>How a connection takes up a long rope and how a released beam drops Samus.</summary>
@@ -114,6 +119,21 @@ public static class GrappleBeamDefinitions
         public const int LongRopeShortening = 24;
         /// <summary>The smallest vertical radius of a body that drops standing; a smaller body drops crouching.</summary>
         public const int StandingDropRadius = 17;
+        /// <summary>
+        /// The farthest, in pixels on each axis, the previous position may lag behind Samus after a connection snaps her
+        /// to an exact rope angle.
+        /// </summary>
+        public const int MostSnapPreviousLag = 12;
+    }
+
+    /// <summary>How the beam's block checks read the room.</summary>
+    public static class Blocks
+    {
+        /// <summary>
+        /// The extension links a grapple block check follows from the block it starts on; a longer chain is broken room
+        /// data, which the check reports.
+        /// </summary>
+        public const int LongestExtensionChain = 16;
     }
 
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>

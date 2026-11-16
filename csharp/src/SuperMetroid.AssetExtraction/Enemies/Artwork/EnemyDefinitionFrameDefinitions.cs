@@ -412,10 +412,10 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MotherBrainBodyUncrouching,
         EnemyFrameId.MotherBrainBodyLeaningDown,
         EnemyFrameId.MotherBrainBodyInitialDummy,
-        EnemyFrameId.MotherBrainBodyStandingTwin,
-        EnemyFrameId.MotherBrainBodyStandingTwinB,
-        EnemyFrameId.MotherBrainBodyStandingTwinC,
-        EnemyFrameId.MotherBrainBodyStandingTwinD,
+        EnemyFrameId.MotherBrainBodyHandCurling,
+        EnemyFrameId.MotherBrainBodyArmDrawnBack,
+        EnemyFrameId.MotherBrainBodyArmFlungOut,
+        EnemyFrameId.MotherBrainBodyArmReturning,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainHead</c>.</summary>

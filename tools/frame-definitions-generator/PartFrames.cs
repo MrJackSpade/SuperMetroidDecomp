@@ -52,6 +52,13 @@ internal sealed record PartFrameConfiguration(
     public IReadOnlyDictionary<string, string[]> CodeFrames { get; init; } = new Dictionary<string, string[]>(StringComparer.Ordinal);
 
     /// <summary>
+    /// The catalog list (<c>Type.Member</c>) naming the frames each named definition shows, for a behaviour whose parts'
+    /// animations name the frames they show (#2210): every frame such a list names is that definition's alone, and every
+    /// other definition of the behaviour keeps the walk's other frames. Empty for a behaviour split by table or programs.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> FrameLists { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
+    /// <summary>
     /// The configured behaviours: Draygon's parts each show the programs its slot runs (the body, eye, tail and arms
     /// started together by <c>StartPartPrograms</c> and separately by the code each program start names), and none of his
     /// sprites shows a pose he draws on his body layer; Kraid's parts each show their own kind of pose, Kraid himself none.
@@ -104,17 +111,18 @@ internal sealed record PartFrameConfiguration(
                 ["KraidSecondNail"] = ["NailLoop"],
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
-        // Mother Brain's body poses (every MotherBrainBodyFrame, #1747) are her body's: its slot draws their sprite limbs;
-        // her head and tubes draw none.
-        new("MotherBrainBehavior", "MotherBrainBodyVisualDefinitions", "ShownFrames", null, null, [],
-            new Dictionary<string, string[]>(StringComparer.Ordinal),
-            new Dictionary<string, string[]>(StringComparer.Ordinal)
+        // Mother Brain's body frames are her body's and her brain frames her head's (#2210): her animations name them, the
+        // catalogs list them; her tubes draw none of them.
+        new("MotherBrainBehavior", null, null, null, null, [],
+            new Dictionary<string, string[]>(StringComparer.Ordinal), new Dictionary<string, string[]>(StringComparer.Ordinal),
+            null, null, [])
+        {
+            FrameLists = new Dictionary<string, string>(StringComparer.Ordinal)
             {
-                ["MotherBrainBody"] = ["MotherBrainBodyFrame"],
-                ["MotherBrainHead"] = [],
-                ["MotherBrainTubes"] = [],
+                ["MotherBrainBody"] = "MotherBrainBodyVisualDefinitions.AnimationFrames",
+                ["MotherBrainHead"] = "MotherBrainVisualDefinitions.HeadFrames",
             },
-            null, null, []),
+        },
         // A vertical shutter runs its forty-pixel program, Kamer its platform loop; a growing shutter grows through its
         // three growth programs to the forty-pixel one.
         new("ShuttersBehavior", null, null, "ShutterAnimations", null, [],
@@ -434,6 +442,8 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
     /// <exception cref="InvalidDataException">The source does not have the configured shape, or a self-check fails.</exception>
     public IReadOnlyDictionary<string, IReadOnlySet<string>> Apply(Behaviour behaviour, IReadOnlyDictionary<string, IReadOnlySet<string>> split)
     {
+        if (configuration.FrameLists.Count > 0)
+            return ApplyFrameLists(behaviour, split);
         var problems = new List<string>();
         Dictionary<string, string> table = Table(problems);
         HashSet<string> excluded = Excluded();
@@ -457,6 +467,45 @@ internal sealed class PartFrames(CoreModel model, PartFrameConfiguration configu
                 StringComparer.Ordinal);
             frames.UnionWith(keys[definition].Select(key => table[key]));
             frames.ExceptWith(excluded);
+            if (frames.Count > 0)
+                result.Add(definition, frames);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// <paramref name="split"/>'s frames with each listed frame given to the definition whose catalog list names it alone
+    /// (<see cref="PartFrameConfiguration.FrameLists"/>); a definition left with no frames is left out.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A list names no frame, names another list's frame, or a definition is not the behaviour's.</exception>
+    private IReadOnlyDictionary<string, IReadOnlySet<string>> ApplyFrameLists(Behaviour behaviour, IReadOnlyDictionary<string, IReadOnlySet<string>> split)
+    {
+        var problems = new List<string>();
+        var owned = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach ((string definition, string list) in configuration.FrameLists)
+        {
+            if (!behaviour.Definitions.Contains(definition))
+                problems.Add($"{definition} is not a definition {behaviour.Type.Name} serves");
+            string[] parts = list.Split('.');
+            HashSet<string> frames = parts.Length == 2 ? model.EnemyFramesNamed(Initializer(parts[0], parts[1])) : [];
+            if (frames.Count == 0)
+                problems.Add($"{list} names no frame");
+            owned.Add(definition, frames);
+        }
+        var listed = new HashSet<string>(StringComparer.Ordinal);
+        foreach ((string definition, HashSet<string> frames) in owned)
+        {
+            foreach (string frame in frames.Where(frame => !listed.Add(frame)))
+                problems.Add($"{definition}'s list names {frame}, which another list names");
+        }
+        if (problems.Count > 0)
+            throw new InvalidDataException($"{behaviour.Type.Name}'s part frames cannot be split:\n" + string.Join('\n', problems));
+        var result = new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal);
+        foreach (string definition in behaviour.Definitions)
+        {
+            var frames = new HashSet<string>(split[definition].Where(frame => !listed.Contains(frame)), StringComparer.Ordinal);
+            if (owned.TryGetValue(definition, out HashSet<string>? own))
+                frames.UnionWith(own);
             if (frames.Count > 0)
                 result.Add(definition, frames);
         }

@@ -166,28 +166,28 @@ internal static class MotherBrainCollisionDefinitions
         [
             new(new(0, 0), BrainHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyStandingTwin] =
+        [EnemyFrameId.MotherBrainBodyHandCurling] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(0, 0), TorsoHitboxes),
             new(new(0, 0), HandCurlingUpperBodyHitboxes),
             new(new(-10, 56), LeftLegHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyStandingTwinB] =
+        [EnemyFrameId.MotherBrainBodyArmDrawnBack] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(0, 0), TorsoHitboxes),
             new(new(0, 0), ArmDrawnBackUpperBodyHitboxes),
             new(new(-10, 56), LeftLegHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyStandingTwinC] =
+        [EnemyFrameId.MotherBrainBodyArmFlungOut] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(0, 0), TorsoHitboxes),
             new(new(0, 0), ArmFlungOutUpperBodyHitboxes),
             new(new(-10, 56), LeftLegHitboxes),
         ],
-        [EnemyFrameId.MotherBrainBodyStandingTwinD] =
+        [EnemyFrameId.MotherBrainBodyArmReturning] =
         [
             new(new(18, 58), RightLegHitboxes),
             new(new(0, 0), TorsoHitboxes),

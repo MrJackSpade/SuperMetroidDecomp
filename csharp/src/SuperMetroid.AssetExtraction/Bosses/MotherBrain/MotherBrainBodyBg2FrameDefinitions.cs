@@ -38,10 +38,10 @@ internal static class MotherBrainBodyBg2FrameDefinitions
         [EnemyFrameId.MotherBrainBodyWalkingFarLegPassing] = 4,
         [EnemyFrameId.MotherBrainBodyWalkingFarLegPlanting] = 4,
         [EnemyFrameId.MotherBrainBodyWalkingLegsTogether] = 4,
-        [EnemyFrameId.MotherBrainBodyStandingTwin] = 4,
-        [EnemyFrameId.MotherBrainBodyStandingTwinB] = 4,
-        [EnemyFrameId.MotherBrainBodyStandingTwinC] = 4,
-        [EnemyFrameId.MotherBrainBodyStandingTwinD] = 4,
+        [EnemyFrameId.MotherBrainBodyHandCurling] = 4,
+        [EnemyFrameId.MotherBrainBodyArmDrawnBack] = 4,
+        [EnemyFrameId.MotherBrainBodyArmFlungOut] = 4,
+        [EnemyFrameId.MotherBrainBodyArmReturning] = 4,
         [EnemyFrameId.MotherBrainBodyCrouched] = 6,
     };
 
@@ -60,9 +60,9 @@ internal static class MotherBrainBodyBg2FrameDefinitions
         new(EnemyFrameId.MotherBrainBodyCrouched, "mother_brain_body_bg2_crouched"),
         new(EnemyFrameId.MotherBrainBodyUncrouching, "mother_brain_body_bg2_uncrouching"),
         new(EnemyFrameId.MotherBrainBodyLeaningDown, "mother_brain_body_bg2_leaning_down"),
-        new(EnemyFrameId.MotherBrainBodyStandingTwin, "mother_brain_body_bg2_death_beam_0"),
-        new(EnemyFrameId.MotherBrainBodyStandingTwinB, "mother_brain_body_bg2_death_beam_1"),
-        new(EnemyFrameId.MotherBrainBodyStandingTwinC, "mother_brain_body_bg2_death_beam_2"),
-        new(EnemyFrameId.MotherBrainBodyStandingTwinD, "mother_brain_body_bg2_death_beam_3"),
+        new(EnemyFrameId.MotherBrainBodyHandCurling, "mother_brain_body_bg2_death_beam_0"),
+        new(EnemyFrameId.MotherBrainBodyArmDrawnBack, "mother_brain_body_bg2_death_beam_1"),
+        new(EnemyFrameId.MotherBrainBodyArmFlungOut, "mother_brain_body_bg2_death_beam_2"),
+        new(EnemyFrameId.MotherBrainBodyArmReturning, "mother_brain_body_bg2_death_beam_3"),
     ];
 }

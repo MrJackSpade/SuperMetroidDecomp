@@ -54,9 +54,9 @@ internal static class BossBodySourceDefinitions
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyFrameId> FramesDrawnOver { get; } = new Dictionary<EnemyFrameId, EnemyFrameId>
     {
-        [EnemyFrameId.MotherBrainBodyStandingTwinB] = EnemyFrameId.MotherBrainBodyStandingTwin,
-        [EnemyFrameId.MotherBrainBodyStandingTwinC] = EnemyFrameId.MotherBrainBodyStandingTwinB,
-        [EnemyFrameId.MotherBrainBodyStandingTwinD] = EnemyFrameId.MotherBrainBodyStandingTwinC,
+        [EnemyFrameId.MotherBrainBodyArmDrawnBack] = EnemyFrameId.MotherBrainBodyHandCurling,
+        [EnemyFrameId.MotherBrainBodyArmFlungOut] = EnemyFrameId.MotherBrainBodyArmDrawnBack,
+        [EnemyFrameId.MotherBrainBodyArmReturning] = EnemyFrameId.MotherBrainBodyArmFlungOut,
         [EnemyFrameId.PhantoonEyeballCentered] = EnemyFrameId.PhantoonEyeballCenteredTwin,
         [EnemyFrameId.PhantoonEyeLookingUp] = EnemyFrameId.PhantoonEyeballCenteredTwin,
         [EnemyFrameId.PhantoonEyeLookingUpRight] = EnemyFrameId.PhantoonEyeballCenteredTwin,

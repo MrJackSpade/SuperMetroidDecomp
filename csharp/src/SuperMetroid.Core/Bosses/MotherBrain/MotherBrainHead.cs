@@ -117,7 +117,7 @@ internal sealed class MotherBrainHead
             SpawnMotherBrainPurpleBreathSmall(state);
         // The brain draw advances the brain animation here, after every enemy's AI, and returns out
         // of the whole draw when the animation is not live.
-        if (AdvanceMotherBrainBrain(state, samus) is not MotherBrainHeadFrame brainFrame)
+        if (AdvanceMotherBrainBrain(state, samus) is not EnemyFrameId brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
@@ -126,7 +126,7 @@ internal sealed class MotherBrainHead
             sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain),
             new MotherBrainWorldFrame(
-                MotherBrainVisualDefinitions.HeadFrames.Of(brainFrame),
+                brainFrame,
                 head.Position.Whole + brainShake,
                 // Her brain's own draw bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
@@ -227,20 +227,20 @@ internal sealed class MotherBrainHead
     /// (the timer counting up); past it, cues run until the next frame, which
     /// resets the timer to one.
     /// </summary>
-    internal MotherBrainHeadFrame? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
+    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
         if (state.BrainPlayback is not { } playback)
             return null;
-        AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> beat = RestingBeat(playback);
+        AnimationBeat<EnemyFrameId, MotherBrainHeadCue> beat = RestingBeat(playback);
         if (_frameContext.TimeIsFrozen)
         {
-            return beat is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame frozen ? frozen.Shown : throw new InvalidOperationException(
+            return beat is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frozen ? frozen.Shown : throw new InvalidOperationException(
                 $"Mother Brain's frozen brain rests on {beat} at {playback.Place} of its animation, not a frame.");
         }
 
         Animation<MotherBrainHeadSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        if (beat is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame show)
+        if (beat is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame show)
         {
             if (state.BrainFrameTimer <= show.Duration)
             {
@@ -250,11 +250,11 @@ internal sealed class MotherBrainHead
             place = place with { Beat = place.Beat + 1 };
         }
 
-        AnimationShown<MotherBrainHeadSegment, MotherBrainHeadFrame> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
+        AnimationShown<MotherBrainHeadSegment, EnemyFrameId> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
             ref animation, ref place, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
                 ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
                 : null);
-        if (advance is not AnimationShown<MotherBrainHeadSegment, MotherBrainHeadFrame>.Frame shown)
+        if (advance is not AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Frame shown)
             throw new InvalidOperationException($"Mother Brain's brain animations have no {advance} beat.");
         // The place rests on the frame it shows, so it steps back onto it.
         state.BrainPlayback = new(animation, place with { Beat = place.Beat - 1 });
@@ -263,7 +263,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>The beat <paramref name="playback"/>'s place rests on: its playing phase's next beat.</summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadSegment> playback)
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadSegment> playback)
     {
         AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         return MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat];

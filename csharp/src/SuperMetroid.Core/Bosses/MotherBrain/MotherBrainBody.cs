@@ -149,7 +149,7 @@ internal sealed class MotherBrainBody
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadPlayback;
-        EnemyAnimationPlayback.Play(place, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(place, MotherBrainAnimations.BodySegments, ref playback,
             cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);

@@ -166,7 +166,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainHead =
         new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
-            Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Select(entry => entry.Value).Except(MotherBrainCorpseFrames).Except(MotherBrainAttackFaces),
+            Frames = [.. MotherBrainVisualDefinitions.HeadFrames.Except(MotherBrainCorpseFrames).Except(MotherBrainAttackFaces),
                 MotherBrainVisualDefinitions.NeckJointFrame],
         };
 
@@ -201,7 +201,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainBody =
         new(ComposedEncounter.MotherBrain, [EncounterLookUploads.MotherBrainLegsLook])
         {
-            Frames = [.. MotherBrainBodyVisualDefinitions.ShownFrames.Select(entry => entry.Value)],
+            Frames = [.. MotherBrainBodyVisualDefinitions.AnimationFrames],
             ArtworkOfLook = true,
         };
 

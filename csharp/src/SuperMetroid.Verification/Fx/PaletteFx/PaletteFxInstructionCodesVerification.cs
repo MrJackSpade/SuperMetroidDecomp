@@ -1586,7 +1586,7 @@ internal static class PaletteFxInstructionCodesVerification
         var cgram = new SnesCgram();
         ColourEffectColours[] groups = Enum.GetValues<ColourEffectColours>();
         ColourEffectFrame?[] before = [.. groups.Select(fx.FrameOf)];
-        fx.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        fx.StepScreen();
         foreach ((ColourEffectColours group, ColourEffectFrame record) in fx.Shown)
         {
             if (record != before[Array.IndexOf(groups, group)])

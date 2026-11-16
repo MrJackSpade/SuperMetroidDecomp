@@ -205,7 +205,6 @@ internal static class RoomPaletteFxDefinitionsVerification
     /// </summary>
     internal static void VerifyColourEffectTurnOrder()
     {
-        var conditions = new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         var system = new ColourEffectSystem(new ColourEffectSessionState());
         system.BindAudioRequests(GameplayAudioRequests.Standalone());
         system.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
@@ -220,7 +219,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         while (system.IsRunning(ColourEffectId.FadeInSuperMetroidTitleLogo))
         {
             AssertTrue(++updates <= 64, "the title logo's fade ends");
-            system.StepScreen(conditions);
+            system.StepScreen();
         }
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
@@ -230,7 +229,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight, ColourEffectId.FadeInNintendoCopyright]),
             "a later start joins after every running effect");
-        system.StepScreen(conditions);
+        system.StepScreen();
         ColourEffectColours[] shown = [.. system.Shown.Select(record => record.Colours)];
         // The title logo's fade ran to its end, so its final look lies under every running effect (#1597).
         AssertTrue(shown.SequenceEqual([ColourEffectColours.TitleLogo, ColourEffectColours.TitleScreenDisplays,

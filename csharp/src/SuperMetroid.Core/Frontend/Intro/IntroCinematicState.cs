@@ -584,7 +584,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // them on the update Mother Brain starts page two, before their countdown runs: the record they showed stays on the
         // room's colours until page two's crossfade recolours the room on the next update (#1733).
         if (Phase != IntroCinematicPhase.MotherBrainFlashback || CurrentFlashbackMotherBrain?.PageTwoRequested != true)
-            ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
+            ColourEffects.StepScreen();
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay colours.</summary>

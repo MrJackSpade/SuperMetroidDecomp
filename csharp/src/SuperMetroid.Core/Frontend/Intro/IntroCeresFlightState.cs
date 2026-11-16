@@ -191,7 +191,7 @@ internal sealed class IntroCeresFlightState
 
         // The cinematic's game state runs the colour effects after its actors, including on the update that
         // starts one; their frames are shades the import pre-colours the flight's sheet in (#1733).
-        ColourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
+        ColourEffects.StepScreen();
     }
 
     /// <summary>

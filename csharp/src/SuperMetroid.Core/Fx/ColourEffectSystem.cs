@@ -158,25 +158,30 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <exception cref="InvalidOperationException">A frame is shown in colours no gameplay picture shows.</exception>
     public void Step(ColourEffectInputs conditions)
     {
-        RunTurns(Ensure.NotNull(conditions), ShowGameplayFrame);
+        Ensure.NotNull(conditions);
+        RunTurns(effect => CheckCondition(effect, conditions), ShowGameplayFrame);
     }
 
     /// <summary>
-    /// Runs one update of a frontend screen's colour effects (#1512, #1597): each effect shows the frame it holds now,
-    /// which the screen shades its pictures with, and no owner's colours are written.
+    /// Runs one update of a frontend screen's colour effects (#1512, #1597, #2199): each effect shows the frame it holds
+    /// now, which the screen shades its pictures with, and no owner's colours are written. A screen has no Samus, no
+    /// equipment and no area, so it hands its effects no conditions: none of the effects a screen starts watches one.
     /// </summary>
-    /// <exception cref="InvalidOperationException">A frame is shown in colours no frontend screen shows.</exception>
-    internal void StepScreen(ColourEffectInputs conditions)
+    /// <exception cref="InvalidOperationException">
+    /// A frame is shown in colours no frontend screen shows, or an effect watches a condition, which only gameplay has.
+    /// </exception>
+    internal void StepScreen()
     {
-        RunTurns(conditions, ShowScreenFrame);
+        RunTurns(RefuseScreenCondition, ShowScreenFrame);
     }
 
     /// <summary>
-    /// Gives each running effect its turn, in the order they started: it checks its condition, counts down, and when its
-    /// next step is due runs its steps to the next frame, which goes to <paramref name="show"/>. Effects that end are
-    /// dropped from the turns once every turn has run; one that settled keeps its final frame shown.
+    /// Gives each running effect its turn, in the order they started: <paramref name="checkCondition"/> checks its
+    /// condition, it counts down, and when its next step is due runs its steps to the next frame, which goes to
+    /// <paramref name="show"/>. Effects that end are dropped from the turns once every turn has run; one that settled
+    /// keeps its final frame shown.
     /// </summary>
-    private void RunTurns(ColourEffectInputs conditions, Action<RoomColourEffect, ColourEffectFrame> show)
+    private void RunTurns(Action<RoomColourEffect> checkCondition, Action<RoomColourEffect, ColourEffectFrame> show)
     {
         suitShown.Clear();
         enemyShown.Clear();
@@ -184,7 +189,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
         foreach (RoomColourEffect effect in effects)
         {
-            CheckCondition(effect, conditions);
+            checkCondition(effect);
             if (effect.Ended || !effect.CountDown())
                 continue;
             if (effect.Advance(cue => CarryOut(effect, cue)) is { } frame)
@@ -270,6 +275,17 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             default:
                 throw new InvalidOperationException($"Colour effect {effect.Effect} watches undefined condition {effect.Condition}.");
         }
+    }
+
+    /// <summary>
+    /// Checks that a frontend screen's <paramref name="effect"/> watches no condition (#2199): the conditions are Samus's,
+    /// her equipment's, a Torizo's and the area mini-boss's, none of which a screen has.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The effect watches a condition.</exception>
+    private static void RefuseScreenCondition(RoomColourEffect effect)
+    {
+        if (effect.WatchedCondition is { } condition)
+            throw new InvalidOperationException($"Colour effect {effect.Effect} watches {condition}, which no frontend screen has.");
     }
 
     /// <summary>

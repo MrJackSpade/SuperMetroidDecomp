@@ -16,8 +16,48 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </remarks>
 public sealed class RidleyEnemyState
 {
-    /// <summary>Gets the live phase, shared by reveal logic and encounter-specific attack or escape phases.</summary>
-    public RidleyPhase Phase { get; internal set; }
+    /// <summary>
+    /// Whether Ridley has lifted off (#2227), ending the reveal both encounters open with: until then he runs a
+    /// <see cref="RevealPhase"/>, and from then on his encounter's own phase (<see cref="CeresPhase"/> or
+    /// <see cref="NorfairPhase"/>). Setting an encounter's phase lifts him off.
+    /// </summary>
+    public bool LiftedOff { get; private set; }
+
+    /// <summary>The phase of the reveal Ridley runs before he lifts off.</summary>
+    /// <exception cref="InvalidOperationException">He has lifted off.</exception>
+    public RidleyRevealPhase RevealPhase
+    {
+        get => !LiftedOff ? field : throw new InvalidOperationException($"Ridley has lifted off; he runs no {nameof(RidleyRevealPhase)}.");
+        internal set => field = !LiftedOff ? value : throw new InvalidOperationException($"Ridley has lifted off; he runs no {nameof(RidleyRevealPhase)}.");
+    }
+
+    /// <summary>The phase Ceres Ridley runs once he has lifted off.</summary>
+    /// <exception cref="InvalidOperationException">He has not lifted off.</exception>
+    public CeresRidleyPhase CeresPhase
+    {
+        get => LiftedOff ? field : throw NotLiftedOff();
+        internal set
+        {
+            field = value;
+            LiftedOff = true;
+        }
+    }
+
+    /// <summary>The phase Lower Norfair Ridley runs once he has lifted off.</summary>
+    /// <exception cref="InvalidOperationException">He has not lifted off.</exception>
+    public NorfairRidleyPhase NorfairPhase
+    {
+        get => LiftedOff ? field : throw NotLiftedOff();
+        internal set
+        {
+            field = value;
+            LiftedOff = true;
+        }
+    }
+
+    /// <summary>The failure of reading an encounter's phase while Ridley is still in his reveal.</summary>
+    private InvalidOperationException NotLiftedOff() =>
+        new($"Ridley has not lifted off; he runs reveal phase {RevealPhase}.");
     /// <summary>Gets the encounter mode: not fighting during the reveal, fighting or dodging a power bomb in combat, and dying during Lower Norfair's death.</summary>
     public RidleyFightMode FightMode { get; internal set; }
     /// <summary>

@@ -1957,7 +1957,7 @@ internal static class LookupStream4Verification
                 RoomEnemyPlace place = enemies.Places.InUpdateOrder[0]; place.Bind(EnemyDefinitionId.Ridley, place.Definition);
                 new Action<RoomEnemyPlace>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
+                state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
                 RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
                 Action<RoomEnemyPlace, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
@@ -1974,7 +1974,7 @@ internal static class LookupStream4Verification
                             : color is 127 or >= 241 ? (ushort)0 : (ushort)0x1234,
                             cgram[color], "Actual producer preserves full CGRAM and held rows");
                 }
-                AssertEqual(RidleyPhase.ClearVelocity, state.Phase, "Native terminator handoff");
+                AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
                 AssertEqual(8, state.WingAnimationTimer, "Native wing timer handoff");
                 AssertTrue(state.TailSegments.All(segment => segment.Active), "Native tail activation handoff");

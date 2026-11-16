@@ -39,7 +39,7 @@ internal sealed class RidleyFadeIn
         if (fadeStep.IsComplete)
         {
             state.FadeStep = 0;
-            state.Phase = RidleyPhase.FadeInBody;
+            state.RevealPhase = RidleyRevealPhase.FadeInBody;
             state.MovementAnimationEnabled = true;
             return;
         }
@@ -72,7 +72,7 @@ internal sealed class RidleyFadeIn
         // five updates, then begins the opening-roar animation.
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         state.FadeStep = 0;
-        state.Phase = RidleyPhase.WaitBeforeRoar;
+        state.RevealPhase = RidleyRevealPhase.WaitBeforeRoar;
         state.PhaseTimer = 4;
         // The fade queues the battle music immediately after the final body shade. It
         // intentionally continues after Ridley retreats, so omitting this single publication

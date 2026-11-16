@@ -92,7 +92,7 @@ internal static class RidleyPogoDefinitionsVerification
         {
             seed = (ushort)raw;
             reads = advances = 0;
-            var state = new RidleyEnemyState { Phase = RidleyPhase.NorfairWallSweepSetup };
+            var state = new RidleyEnemyState { NorfairPhase = NorfairRidleyPhase.WallSweepSetup };
             place.Position = place.Position.WithWhole(new(128, 288));
             // Null Samus deliberately takes the non-spin handoff after the timer write;
             // it avoids consuming a timer tick while exercising the real setup dispatcher.
@@ -100,17 +100,17 @@ internal static class RidleyPogoDefinitionsVerification
             AssertEqual(0, advances, "Native Ridley wall sweep setup must not advance RNG");
             AssertEqual(1, reads, "Wall sweep setup samples current RNG once");
             AssertEqual((ushort)((raw & 31) + 32), state.PhaseTimer, "Wall sweep setup exact native timer");
-            AssertEqual(RidleyPhase.NorfairPogoMoveToSide, state.Phase, "Wall sweep non-spin handoff to the pogo retained");
+            AssertEqual(NorfairRidleyPhase.PogoMoveToSide, state.NorfairPhase, "Wall sweep non-spin handoff to the pogo retained");
 
             reads = advances = 0;
-            state.Phase = RidleyPhase.NorfairPogoMoveToHeight;
+            state.NorfairPhase = NorfairRidleyPhase.PogoMoveToHeight;
             state.PhaseTimer = 0;
             state.TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray();
             attack(place, state, samus);
             AssertEqual(0, advances, "Native Ridley pogo start must not advance RNG");
             AssertEqual(2, reads, "Pogo velocity and pogo timer sample the same current word");
             AssertEqual((ushort)((raw & 63) + 128), state.PhaseTimer, "Pogo attack exact native timer");
-            AssertEqual(RidleyPhase.NorfairPogoFall, state.Phase, "Pogo start handoff retained");
+            AssertEqual(NorfairRidleyPhase.PogoFall, state.NorfairPhase, "Pogo start handoff retained");
         }
         Console.WriteLine("Ridley attack timers: both real setup paths preserve RNG and exact duration for all 65536 current words.");
     }

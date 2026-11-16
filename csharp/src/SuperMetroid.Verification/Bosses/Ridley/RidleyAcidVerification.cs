@@ -50,10 +50,10 @@ internal static class RidleyAcidVerification
             "Norfair Ridley never advances an uninitialized Ceres Baby program");
         // Enter the native palette-reveal phase, then let its real ROM table reach
         // the terminator. This does not inject a liquid command into the fixture.
-        state.Phase = RidleyPhase.WaitBeforeLiftoff;
+        state.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
         state.PhaseTimer = 0;
         state.FadeStep = 0;
-        for (int frame = 0; frame < 200 && state.Phase == RidleyPhase.WaitBeforeLiftoff; frame++)
+        for (int frame = 0; frame < 200 && state.RevealPhase == RidleyRevealPhase.WaitBeforeLiftoff; frame++)
             runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(440, fx.NamedTargetSurface, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.LiquidLevelSpeed.RawValue, "native reveal writes rising velocity");
@@ -61,7 +61,7 @@ internal static class RidleyAcidVerification
         for (int frame = 0; frame < 400; frame++) fx.RunUpdate(runtime.System, runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0, 256), TimeIsFrozen = false });
         AssertEqual((ushort)440, fx.NamedBaseY.Whole, "acid reaches native visible battle height");
         AssertAcidVisible(true);
-        state.Phase = RidleyPhase.NorfairDeathRoar;
+        state.NorfairPhase = NorfairRidleyPhase.DeathRoar;
         state.PhaseTimer = 0;
         runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual(528, fx.NamedTargetSurface, "native death roar writes acid drain target");

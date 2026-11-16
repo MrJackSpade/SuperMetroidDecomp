@@ -26,7 +26,7 @@ internal static class RidleyNeutralTailVerification
             AssertEqual(RidleyTailAction.Neutral, state.TailAction, "Power Bomb sets neutral tail function");
             AssertEqual(1, state.TailAngleDelta, "Power Bomb resets native tail angle delta");
             AssertEqual(RidleyClawHeightPlaces.TableOrder[raw % 3], state.ClawHeight, "Power Bomb preserves animated foot displacement");
-            AssertEqual(RidleyPhase.NorfairGrabApproach, state.Phase, "Power Bomb lunge handoff");
+            AssertEqual(NorfairRidleyPhase.GrabApproach, state.NorfairPhase, "Power Bomb lunge handoff");
         }
         foreach (RidleyFightMode fight in Enum.GetValues<RidleyFightMode>())
         foreach (RidleyGrabState grab in Enum.GetValues<RidleyGrabState>())
@@ -37,13 +37,13 @@ internal static class RidleyNeutralTailVerification
             {
                 FightMode = fight, GrabState = grab,
                 TailAction = RidleyTailAction.Pogo, TailAngleDelta = 8, ClawHeight = RidleyClawHeight.LegsExtended,
-                Phase = RidleyPhase.NorfairHover,
+                NorfairPhase = NorfairRidleyPhase.Hover,
             };
             prepare(state, flag ? armed : unarmed);
             AssertEqual(RidleyTailAction.Pogo, state.TailAction, "Inactive reaction preserves tail function");
             AssertEqual(8, state.TailAngleDelta, "Inactive reaction preserves angle delta");
             AssertEqual(RidleyClawHeight.LegsExtended, state.ClawHeight, "Inactive reaction preserves feet");
-            AssertEqual(RidleyPhase.NorfairHover, state.Phase, "Inactive reaction preserves phase");
+            AssertEqual(NorfairRidleyPhase.Hover, state.NorfairPhase, "Inactive reaction preserves phase");
         }
         Console.WriteLine("Ridley Power Bomb neutral tail: 65536 field-preservation cases and inactive gates match native write ownership.");
     }

@@ -84,7 +84,7 @@ internal static class CeresRidleyColorsVerification
         Action<RidleyEnemyState> eyeTick = RidleyFadeIn.TickEyeFadeIn;
         Action<RoomEnemyPlace, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.FadeIn.TickBodyFadeIn;
         Action<RidleyEnemyState> healthTick = CeresRidleyHits.UpdateCeresRidleyHealthBand;
-        var state = new RidleyEnemyState { Phase = RidleyPhase.FadeInEyes };
+        var state = new RidleyEnemyState { RevealPhase = RidleyRevealPhase.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.FadeStepCount; step++)
         {
             state.FadeStep = step;
@@ -98,7 +98,7 @@ internal static class CeresRidleyColorsVerification
                 color => InstalledFixtures.ImportOf(original).CeresRidleyColors.ResolveEyeFade(row, color),
                 $"Ceres Ridley eye fade step {step}");
         }
-        state.Phase = RidleyPhase.FadeInBody;
+        state.RevealPhase = RidleyRevealPhase.FadeInBody;
         for (int row = 0; row < CeresRidleyShadeDefinitions.BodyFadeShadeCount; row++)
         {
             state.FadeStep = row;
@@ -132,11 +132,11 @@ internal static class CeresRidleyColorsVerification
         place.Bind(EnemyDefinitionId.RidleyCeres, place.Definition);
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
-        activeRidley.Phase = RidleyPhase.CeresRetreatDelay;
+        activeRidley.CeresPhase = CeresRidleyPhase.RetreatDelay;
         activeRidley.PhaseTimer = 0;
         activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(place, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), InstalledFixtures.CreateProjectileSystem());
-        AssertEqual(RidleyPhase.CeresPublishEscapeHandoff, activeRidley.Phase,
+        AssertEqual(CeresRidleyPhase.PublishEscapeHandoff, activeRidley.CeresPhase,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(activeRidley, CeresRidleyColorFormat.RetreatBgColorCount,
             CeresRidleyShadeDefinitionsConstants.RetreatBgCgramIndex,

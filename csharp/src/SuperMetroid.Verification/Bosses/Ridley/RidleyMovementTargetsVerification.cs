@@ -88,7 +88,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(place.Position.Y.Whole, y, 16), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual(31, state.PhaseTimer, "Carry setup timer");
-            AssertEqual(RidleyPhase.NorfairCarryMoveToAnchor, state.Phase, "Carry setup phase");
+            AssertEqual(NorfairRidleyPhase.CarryMoveToAnchor, state.NorfairPhase, "Carry setup phase");
             AssertEqual(RidleyInertiaDefinitions.LargestDivisor - hover[raw % 4], readDivisor(state), "Every health band reads its native hover divisor");
         }
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
@@ -109,7 +109,7 @@ internal static class RidleyMovementTargetsVerification
             moveSide(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(Expected(x, pogoSide[RidleyNativeWords.Facings.Word(facing)], 16), state.Velocity.X.RawValue, "Pogo side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0), new SignedEightEight(0));
-            state.Phase = RidleyPhase.NorfairCarryRelease;
+            state.NorfairPhase = NorfairRidleyPhase.CarryRelease;
             state.PhaseTimer = 1;
             run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(Expected(x, release[RidleyNativeWords.Facings.Word(facing)], 16), state.Velocity.X.RawValue, "Carry release target reaches motion");

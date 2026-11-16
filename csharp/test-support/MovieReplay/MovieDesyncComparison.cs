@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
@@ -104,12 +105,12 @@ internal static class MovieDesyncComparison
             Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");
             Console.WriteLine($"  baby native pos={Native(0x103a)}.{Native(0x103c)}/{Native(0x103e)}.{Native(0x1040)} v={Native(0x106a)}/{Native(0x106c)}");
         }
-        if (game.RuntimeForVerification?.Enemies.RidleyEncounter.Ridley is { } ridley)
+        if (game.RuntimeForVerification is { } ridleyRuntime && ridleyRuntime.Enemies.RidleyEncounter.Ridley is { } ridley)
         {
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
             string Port(int index) => $"{ridley.TailSegments[index].Position.X:X4}/{ridley.TailSegments[index].Position.Y:X4}";
             string NativeTail(int index) => $"{Native(0x2020 + index * 20 + 12)}/{Native(0x2020 + index * 20 + 14)}";
-            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={ridley.Phase} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.TailAction):X4} v={ridley.Velocity.X.RawValue:X4}/{ridley.Velocity.Y.RawValue:X4} getaway-frame={ridley.GetawayFrameIndex}");
+            Console.WriteLine("  tail port   " + string.Join(" ", Enumerable.Range(0, 7).Select(Port)) + $" fn={(ridleyRuntime.Enemies.RidleyEncounter.Parts.HoldsCeresRidley ? ridley.CeresPhaseName() : ridley.NorfairPhaseName())} tailfn={SuperMetroid.Core.Bosses.Ridley.RidleyNativeWords.TailActions.Word(ridley.TailAction):X4} v={ridley.Velocity.X.RawValue:X4}/{ridley.Velocity.Y.RawValue:X4} getaway-frame={ridley.GetawayFrameIndex}");
             // $7E:8026 holds the getaway frame as a byte offset into its word-sized tables: twice the frame.
             Console.WriteLine("  tail native " + string.Join(" ", Enumerable.Range(0, 7).Select(NativeTail)) + $" fn={Native(0x0fa8)} tailfn={Native(0x2000)} v={Native(0x0faa)}/{Native(0x0fac)} getaway-frame={Word(memory, 0x8026) / 2}");
         }

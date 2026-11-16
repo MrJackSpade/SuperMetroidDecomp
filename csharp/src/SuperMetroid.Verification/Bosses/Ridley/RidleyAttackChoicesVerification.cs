@@ -29,14 +29,14 @@ internal static class RidleyAttackChoicesVerification
             4 => RidleyAttackSituation.SpinJumping,
             _ => RidleyAttackSituation.ZeroHealth,
         };
-        var native = new RidleyPhase[6, 8];
+        var native = new NorfairRidleyPhase[6, 8];
         for (int row = 0; row < 6; row++)
         for (int choice = 0; choice < 8; choice++)
         {
             if (SituationOf(row) is not { } situation)
                 continue;
             int address = 0xa6b38c + row * 16 + choice * 2;
-            native[row, choice] = RidleyNativeWords.Phases.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            native[row, choice] = RidleyNativeWords.NorfairPhases.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 "Ridley action");
             AssertEqual(native[row, choice], RidleyAttackChoices.Resolve(situation, choice), "Every reachable native Ridley action pointer");
         }
@@ -89,10 +89,10 @@ internal static class RidleyAttackChoicesVerification
         {
             random = (ushort)raw;
             advances = actualReads = referenceReads = 0;
-            var state = new RidleyEnemyState { Phase = RidleyPhase.NorfairSelectAttack, ZeroHealthLungeCount = 0 };
+            var state = new RidleyEnemyState { NorfairPhase = NorfairRidleyPhase.SelectAttack, ZeroHealthLungeCount = 0 };
             var expected = new RidleyEnemyState
             {
-                Phase = native[sample.Row, raw & 7],
+                NorfairPhase = native[sample.Row, raw & 7],
                 ZeroHealthLungeCount = sample.Row == 5 ? 1 : 0,
             };
             foreach (var place in new[] { actual.Places.InUpdateOrder[0], reference.Places.InUpdateOrder[0] })
@@ -104,7 +104,7 @@ internal static class RidleyAttackChoicesVerification
             select(actual.Places.InUpdateOrder[0], state, sample.Samus, 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             AssertEqual(1, advances, "Selector advances RNG exactly once");
             AssertEqual(referenceReads, actualReads, "Chosen setup reads the same current RNG word");
-            AssertEqual(expected.Phase, state.Phase, "Native chosen callback executes on the selection frame");
+            AssertEqual(expected.NorfairPhase, state.NorfairPhase, "Native chosen callback executes on the selection frame");
             AssertEqual(expected.PhaseTimer, state.PhaseTimer, "Same-frame selected timer");
             AssertEqual(expected.Velocity.X.RawValue, state.Velocity.X.RawValue, "Same-frame selected X motion");
             AssertEqual(expected.Velocity.Y.RawValue, state.Velocity.Y.RawValue, "Same-frame selected Y motion");

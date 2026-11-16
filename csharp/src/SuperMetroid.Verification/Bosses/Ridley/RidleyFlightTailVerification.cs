@@ -66,7 +66,7 @@ internal static class RidleyFlightTailVerification
         place.Position = place.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
-            Phase = RidleyPhase.NorfairPogoMoveToHeight, PhaseTimer = 0,
+            NorfairPhase = NorfairRidleyPhase.PogoMoveToHeight, PhaseTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
                 Active = true, StaggerAngle = null, Clockwise = false,
@@ -89,7 +89,7 @@ internal static class RidleyFlightTailVerification
         tail(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(RidleyTailAction.Stab, state.TailAction, "stab setup activates downward stab");
         AssertTrue(state.TailSegments.All(segment => segment.TargetDistance == SignedEightEight.FromParts(10, 0)), "stab sets every segment extension target");
-        state.Phase = RidleyPhase.NorfairPogoRise;
+        state.NorfairPhase = NorfairRidleyPhase.PogoRise;
         run(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), 0, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertEqual(RidleyTailAction.Neutral, state.TailAction, "leaving pogo restores neutral tail");
         AssertEqual(1, state.TailAngleDelta, "leaving pogo restores native delta");

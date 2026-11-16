@@ -553,9 +553,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 // Ridley's AI function is an identity (#1413): the native routine word is translated and the identities compared.
                 ushort nativeFunctionWord = W(NativeSnapshotMemory.RidleyFunction);
-                if (!RidleyNativeWords.Phases.TryDecode(nativeFunctionWord, out RidleyPhase nativePhase) ||
-                    nativePhase != ridleyState.Phase)
-                    mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.Phase}");
+                // Before lift-off he runs his reveal's phases, after it his own (#2227); each table names its own words.
+                if (nativeFunctionWord != RidleyNativeWords.NorfairPhaseWord(ridleyState))
+                    mismatches.Add($"Ridley AI function: native={nativeFunctionWord:X4} port={ridleyState.NorfairPhaseName()}");
                 Check("Ridley AI timer", unchecked((ushort)ridleyState.PhaseTimer), NativeSnapshotMemory.RidleyFunctionTimer);
                 Check("Ridley TailFunctionIndex", RidleyNativeWords.TailActions.Word(ridleyState.TailAction), NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
@@ -580,9 +580,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 Check("Ridley TailDamage", checked((ushort)ridleyState.TailDamage), NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", checked((ushort)RidleyClawHeightPlaces.ByteOffset(ridleyState.ClawHeight)), NativeSnapshotMemory.RidleyFeetDistanceIndex);
                 Check("Ridley IntangibilityTimer", checked((ushort)ridleyState.IntangibilityTimer), NativeSnapshotMemory.RidleyIntangibilityTimer);
-                if (ridleyState.Phase is RidleyPhase.NorfairSwoopMoveToStart or
-                    RidleyPhase.NorfairSwoopAimDown or RidleyPhase.NorfairSwoopAimSideways or
-                    RidleyPhase.NorfairSwoopAimUp or RidleyPhase.NorfairSwoopClimb or RidleyPhase.NorfairSwoopRecover)
+                if (ridleyState.LiftedOff && ridleyState.NorfairPhase is NorfairRidleyPhase.SwoopMoveToStart or
+                    NorfairRidleyPhase.SwoopAimDown or NorfairRidleyPhase.SwoopAimSideways or
+                    NorfairRidleyPhase.SwoopAimUp or NorfairRidleyPhase.SwoopClimb or NorfairRidleyPhase.SwoopRecover)
                     Check("Ridley swoop timer", checked((ushort)ridleyState.SwoopPhaseTimer), NativeSnapshotMemory.RidleySwoopTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {

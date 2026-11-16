@@ -62,72 +62,93 @@ internal static class RidleyNativeWords
         [RidleyTailAction.Stab] = 6,
     });
 
+
     /// <summary>
-    /// The bank-$A6 routine word naming each <see cref="RidleyPhase"/>. The cartridge's pogo fly-to-position entry ($B68B)
-    /// and death-roar entry ($C53E) are only ever jumped to, never stored, so no phase names them (#1939).
+    /// The bank-$A6 routine word naming each <see cref="RidleyRevealPhase"/> (#2227): both encounters store these in their
+    /// AI-function word before lift-off.
     /// </summary>
-    internal static readonly NativeWordIdentities<RidleyPhase> Phases = new(new Dictionary<RidleyPhase, ushort>
+    internal static readonly NativeWordIdentities<RidleyRevealPhase> RevealPhases = new(new Dictionary<RidleyRevealPhase, ushort>
     {
-        [RidleyPhase.ClearVelocity] = 0xa354,
-        [RidleyPhase.WaitForDoorTransition] = 0xa35b,
-        [RidleyPhase.InitialDelay] = 0xa377,
-        [RidleyPhase.FadeInEyes] = 0xa389,
-        [RidleyPhase.FadeInBody] = 0xa3df,
-        [RidleyPhase.WaitBeforeRoar] = 0xa455,
-        [RidleyPhase.WaitBeforeLiftoff] = 0xa478,
-        [RidleyPhase.CeresLiftoffAccelerating] = 0xa6af,
-        [RidleyPhase.CeresLiftoffDecelerating] = 0xa6c8,
-        [RidleyPhase.CeresHovering] = 0xa6e8,
-        [RidleyPhase.CeresFireballMoveToPosition] = 0xa782,
-        [RidleyPhase.CeresFireballShooting] = 0xa7f9,
-        [RidleyPhase.CeresLungeSetup] = 0xa83c,
-        [RidleyPhase.CeresLungeMain] = 0xa84e,
-        [RidleyPhase.CeresSwoopSetup] = 0xa88d,
-        [RidleyPhase.CeresSwoopMoveToPosition] = 0xa8a4,
-        [RidleyPhase.CeresSwoopDescendingAimingDown] = 0xa8d4,
-        [RidleyPhase.CeresSwoopDescendingAimingLeft] = 0xa8f8,
-        [RidleyPhase.CeresSwoopAscendingAimingUp] = 0xa923,
-        [RidleyPhase.CeresSwoopAscendingAimingUpFaster] = 0xa947,
-        [RidleyPhase.CeresRealRetreatRising] = 0xa971,
-        [RidleyPhase.CeresRetreatDelay] = 0xa9a0,
-        [RidleyPhase.CeresPublishEscapeHandoff] = 0xaa11,
-        [RidleyPhase.CeresInactive] = 0xaa1b,
-        [RidleyPhase.CeresActivateSelfDestruct] = 0xc04e,
-        [RidleyPhase.CeresSelfDestructAlarmOnly] = 0xaa50,
-        [RidleyPhase.NorfairEnterArena] = 0xb2f3,
-        [RidleyPhase.NorfairSelectAttack] = 0xb321,
-        [RidleyPhase.NorfairHoverSetup] = 0xb3ec,
-        [RidleyPhase.NorfairHover] = 0xb3f8,
-        [RidleyPhase.NorfairSwoopSetup] = 0xb441,
-        [RidleyPhase.NorfairSwoopMoveToStart] = 0xb455,
-        [RidleyPhase.NorfairSwoopAimDown] = 0xb493,
-        [RidleyPhase.NorfairSwoopAimSideways] = 0xb4d1,
-        [RidleyPhase.NorfairSwoopAimUp] = 0xb516,
-        [RidleyPhase.NorfairSwoopClimb] = 0xb554,
-        [RidleyPhase.NorfairSwoopRecover] = 0xb594,
-        [RidleyPhase.NorfairWallSweepSetup] = 0xb5c4,
-        [RidleyPhase.NorfairSweepToWallBehind] = 0xb5e5,
-        [RidleyPhase.NorfairSweepToWallAhead] = 0xb613,
-        [RidleyPhase.NorfairPogoMoveToSide] = 0xb6a7,
-        [RidleyPhase.NorfairPogoMoveToHeight] = 0xb6dd,
-        [RidleyPhase.NorfairPogoFall] = 0xb70e,
-        [RidleyPhase.NorfairPogoRise] = 0xb7b9,
-        [RidleyPhase.NorfairGrabApproach] = 0xbab7,
-        [RidleyPhase.NorfairCarrySetup] = 0xbb8f,
-        [RidleyPhase.NorfairCarryMoveToAnchor] = 0xbbc4,
-        [RidleyPhase.NorfairCarryRise] = 0xbbf1,
-        [RidleyPhase.NorfairCarryRelease] = 0xbc2e,
-        [RidleyPhase.NorfairPowerBombDodge] = 0xbd4e,
-        [RidleyPhase.CeresFakeRetreatMoveToPosition] = 0xbd9a,
-        [RidleyPhase.CeresFakeRetreatRising] = 0xbdbc,
-        [RidleyPhase.CeresWaitBeforeRetrievingBaby] = 0xbdf2,
-        [RidleyPhase.CeresRetrieveBaby] = 0xbe03,
-        [RidleyPhase.NorfairMoveToDeathSpot] = 0xc538,
-        [RidleyPhase.NorfairDeathRoar] = 0xc551,
-        [RidleyPhase.NorfairDeathExplosions] = 0xc588,
-        [RidleyPhase.NorfairDeathBreakup] = 0xc5a8,
-        [RidleyPhase.NorfairDeathWait] = 0xc5c8,
-        [RidleyPhase.NorfairDeathFinish] = 0xc5da,
-        [RidleyPhase.NorfairDeathComplete] = 0xc600,
+        [RidleyRevealPhase.TakingOff] = 0xa354,
+        [RidleyRevealPhase.WaitForDoorTransition] = 0xa35b,
+        [RidleyRevealPhase.InitialDelay] = 0xa377,
+        [RidleyRevealPhase.FadeInEyes] = 0xa389,
+        [RidleyRevealPhase.FadeInBody] = 0xa3df,
+        [RidleyRevealPhase.WaitBeforeRoar] = 0xa455,
+        [RidleyRevealPhase.WaitBeforeLiftoff] = 0xa478,
     });
+
+    /// <summary>The bank-$A6 routine word naming each <see cref="CeresRidleyPhase"/> (#2227).</summary>
+    internal static readonly NativeWordIdentities<CeresRidleyPhase> CeresPhases = new(new Dictionary<CeresRidleyPhase, ushort>
+    {
+        [CeresRidleyPhase.LiftoffAccelerating] = 0xa6af,
+        [CeresRidleyPhase.LiftoffDecelerating] = 0xa6c8,
+        [CeresRidleyPhase.Hovering] = 0xa6e8,
+        [CeresRidleyPhase.FireballMoveToPosition] = 0xa782,
+        [CeresRidleyPhase.FireballShooting] = 0xa7f9,
+        [CeresRidleyPhase.LungeSetup] = 0xa83c,
+        [CeresRidleyPhase.LungeMain] = 0xa84e,
+        [CeresRidleyPhase.SwoopSetup] = 0xa88d,
+        [CeresRidleyPhase.SwoopMoveToPosition] = 0xa8a4,
+        [CeresRidleyPhase.SwoopDescendingAimingDown] = 0xa8d4,
+        [CeresRidleyPhase.SwoopDescendingAimingLeft] = 0xa8f8,
+        [CeresRidleyPhase.SwoopAscendingAimingUp] = 0xa923,
+        [CeresRidleyPhase.SwoopAscendingAimingUpFaster] = 0xa947,
+        [CeresRidleyPhase.RealRetreatRising] = 0xa971,
+        [CeresRidleyPhase.RetreatDelay] = 0xa9a0,
+        [CeresRidleyPhase.PublishEscapeHandoff] = 0xaa11,
+        [CeresRidleyPhase.Inactive] = 0xaa1b,
+        [CeresRidleyPhase.ActivateSelfDestruct] = 0xc04e,
+        [CeresRidleyPhase.SelfDestructAlarmOnly] = 0xaa50,
+        [CeresRidleyPhase.FakeRetreatMoveToPosition] = 0xbd9a,
+        [CeresRidleyPhase.FakeRetreatRising] = 0xbdbc,
+        [CeresRidleyPhase.WaitBeforeRetrievingBaby] = 0xbdf2,
+        [CeresRidleyPhase.RetrieveBaby] = 0xbe03,
+    });
+
+    /// <summary>
+    /// The bank-$A6 routine word naming each <see cref="NorfairRidleyPhase"/> (#2227). The cartridge's pogo fly-to-position
+    /// entry ($B68B) and death-roar entry ($C53E) are only ever jumped to, never stored, so no phase names them (#1939).
+    /// </summary>
+    internal static readonly NativeWordIdentities<NorfairRidleyPhase> NorfairPhases = new(new Dictionary<NorfairRidleyPhase, ushort>
+    {
+        [NorfairRidleyPhase.EnterArena] = 0xb2f3,
+        [NorfairRidleyPhase.SelectAttack] = 0xb321,
+        [NorfairRidleyPhase.HoverSetup] = 0xb3ec,
+        [NorfairRidleyPhase.Hover] = 0xb3f8,
+        [NorfairRidleyPhase.SwoopSetup] = 0xb441,
+        [NorfairRidleyPhase.SwoopMoveToStart] = 0xb455,
+        [NorfairRidleyPhase.SwoopAimDown] = 0xb493,
+        [NorfairRidleyPhase.SwoopAimSideways] = 0xb4d1,
+        [NorfairRidleyPhase.SwoopAimUp] = 0xb516,
+        [NorfairRidleyPhase.SwoopClimb] = 0xb554,
+        [NorfairRidleyPhase.SwoopRecover] = 0xb594,
+        [NorfairRidleyPhase.WallSweepSetup] = 0xb5c4,
+        [NorfairRidleyPhase.SweepToWallBehind] = 0xb5e5,
+        [NorfairRidleyPhase.SweepToWallAhead] = 0xb613,
+        [NorfairRidleyPhase.PogoMoveToSide] = 0xb6a7,
+        [NorfairRidleyPhase.PogoMoveToHeight] = 0xb6dd,
+        [NorfairRidleyPhase.PogoFall] = 0xb70e,
+        [NorfairRidleyPhase.PogoRise] = 0xb7b9,
+        [NorfairRidleyPhase.GrabApproach] = 0xbab7,
+        [NorfairRidleyPhase.CarrySetup] = 0xbb8f,
+        [NorfairRidleyPhase.CarryMoveToAnchor] = 0xbbc4,
+        [NorfairRidleyPhase.CarryRise] = 0xbbf1,
+        [NorfairRidleyPhase.CarryRelease] = 0xbc2e,
+        [NorfairRidleyPhase.PowerBombDodge] = 0xbd4e,
+        [NorfairRidleyPhase.MoveToDeathSpot] = 0xc538,
+        [NorfairRidleyPhase.DeathRoar] = 0xc551,
+        [NorfairRidleyPhase.DeathExplosions] = 0xc588,
+        [NorfairRidleyPhase.DeathBreakup] = 0xc5a8,
+        [NorfairRidleyPhase.DeathWait] = 0xc5c8,
+        [NorfairRidleyPhase.DeathFinish] = 0xc5da,
+        [NorfairRidleyPhase.DeathComplete] = 0xc600,
+    });
+
+    /// <summary>
+    /// The AI-function word Lower Norfair Ridley's <paramref name="state"/> stands for: his reveal's phase until he lifts
+    /// off, then his own.
+    /// </summary>
+    internal static ushort NorfairPhaseWord(RidleyEnemyState state) =>
+        state.LiftedOff ? NorfairPhases.Word(state.NorfairPhase) : RevealPhases.Word(state.RevealPhase);
 }

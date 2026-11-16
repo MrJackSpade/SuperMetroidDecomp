@@ -59,7 +59,7 @@ internal sealed class CeresRidleyFlight
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
         {
-            Phase = RidleyPhase.WaitForDoorTransition,
+            RevealPhase = RidleyRevealPhase.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
             MovementAnimationEnabled = false,
@@ -98,7 +98,7 @@ internal sealed class CeresRidleyFlight
 
     /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>
     /// <param name="state">Ridley's state.</param>
-    internal static void LiftOff(RidleyEnemyState state) => Ensure.NotNull(state).Phase = RidleyPhase.CeresLiftoffAccelerating;
+    internal static void LiftOff(RidleyEnemyState state) => Ensure.NotNull(state).CeresPhase = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
     /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: he stores eight in his phase timer, cutting
@@ -126,7 +126,7 @@ internal sealed class CeresRidleyFlight
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(20));
         if (CoordinateAxis.Difference(place.Position.Y.Whole, 80) < 0)
         {
-            state.Phase = RidleyPhase.CeresHovering;
+            state.CeresPhase = CeresRidleyPhase.Hovering;
             state.FightMode = RidleyFightMode.Fighting;
         }
     }
@@ -142,7 +142,7 @@ internal sealed class CeresRidleyFlight
         if (state.HitCounter >= 100)
         {
             state.FightMode = RidleyFightMode.NotFighting;
-            state.Phase = RidleyPhase.CeresFakeRetreatMoveToPosition;
+            state.CeresPhase = CeresRidleyPhase.FakeRetreatMoveToPosition;
             TickCeresRidleyFakeRetreatMoveToPosition(place, state);
             return;
         }
@@ -168,7 +168,7 @@ internal sealed class CeresRidleyFlight
                 return;
         }
 
-        state.Phase = CeresRidleyAttackDefinitions.SelectAttack(_room.Random.Read());
+        state.CeresPhase = CeresRidleyAttackDefinitions.SelectAttack(_room.Random.Read());
         state.HoverCounter = 0;
     }
 
@@ -185,7 +185,7 @@ internal sealed class CeresRidleyFlight
         {
             state.HoverCounter++;
             if (state.HoverCounter >= 48)
-                state.Phase = RidleyPhase.CeresSwoopSetup;
+                state.CeresPhase = CeresRidleyPhase.SwoopSetup;
             return;
         }
         if (CoordinateAxis.Difference(place.Position.Y.Whole, 128) >= 0)
@@ -196,7 +196,7 @@ internal sealed class CeresRidleyFlight
         // Its fireball cues calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyAnimation(state, place, RidleyAnimations.Fireballing);
-        state.Phase = RidleyPhase.CeresFireballShooting;
+        state.CeresPhase = CeresRidleyPhase.FireballShooting;
         state.PhaseTimer = 224;
         TickCeresRidleyFireballShooting(place, state);
     }
@@ -214,7 +214,7 @@ internal sealed class CeresRidleyFlight
         if (--state.PhaseTimer < 0)
         {
             state.HoverCounter = 0;
-            state.Phase = RidleyPhase.CeresHovering;
+            state.CeresPhase = CeresRidleyPhase.Hovering;
         }
     }
 
@@ -233,7 +233,7 @@ internal sealed class CeresRidleyFlight
         if (reached || state.PhaseTimer < 0)
         {
             state.HoverCounter = 0;
-            state.Phase = RidleyPhase.CeresHovering;
+            state.CeresPhase = CeresRidleyPhase.Hovering;
         }
     }
 
@@ -245,7 +245,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, state, new(192, 80), 15);
         if (CoordinateAxis.Difference(place.Position.Y.Whole, 96) < 0)
         {
-            state.Phase = RidleyPhase.CeresSwoopDescendingAimingDown;
+            state.CeresPhase = CeresRidleyPhase.SwoopDescendingAimingDown;
             state.PhaseTimer = 10;
             state.SwoopAngleAccumulator = RotationAngle.Zero;
         }
@@ -257,13 +257,13 @@ internal sealed class CeresRidleyFlight
         RidleySwoopTurn turn,
         RotationAngle targetAngle,
         SignedEightEight targetSpeed,
-        RidleyPhase nextPhase,
+        CeresRidleyPhase nextPhase,
         int nextTimer)
     {
         UpdateRidleySwoopVelocity(state, turn, targetAngle, targetSpeed);
         if (--state.PhaseTimer < 0)
         {
-            state.Phase = nextPhase;
+            state.CeresPhase = nextPhase;
             state.PhaseTimer = nextTimer;
         }
     }
@@ -301,7 +301,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
     {
-        state.Phase = RidleyPhase.CeresRealRetreatRising;
+        state.CeresPhase = CeresRidleyPhase.RealRetreatRising;
         state.MovementMinimum = state.MovementMinimum.WithY(CoordinateAxis.Wrap(-192));
     }
 
@@ -314,7 +314,7 @@ internal sealed class CeresRidleyFlight
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
         AccelerateRidleyToward(place, state, new(192, 128), 15);
         if (CoordinateAxis.Difference(place.Position.X.Whole, 192) >= 0)
-            state.Phase = RidleyPhase.CeresFakeRetreatRising;
+            state.CeresPhase = CeresRidleyPhase.FakeRetreatRising;
     }
 
     /// <summary>Raises Ridley above Y=32 before releasing the Baby into its independent fall.</summary>
@@ -330,7 +330,7 @@ internal sealed class CeresRidleyFlight
         if (CoordinateAxis.Difference(place.Position.Y.Whole, 32) < 0)
         {
             state.BabyAction = CeresBabyAction.Drop;
-            state.Phase = RidleyPhase.CeresWaitBeforeRetrievingBaby;
+            state.CeresPhase = CeresRidleyPhase.WaitBeforeRetrievingBaby;
             state.PhaseTimer = 21;
         }
     }
@@ -362,7 +362,7 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(place, state, Position16<RoomPixels>.Wrapped(192, -128), 15);
         if (CoordinateAxis.AsSigned(place.Position.Y.Whole + 128) < 0)
         {
-            state.Phase = RidleyPhase.CeresRetreatDelay;
+            state.CeresPhase = CeresRidleyPhase.RetreatDelay;
             state.PhaseTimer = 64;
             TickCeresRidleyRetreatDelay(state);
         }
@@ -379,7 +379,7 @@ internal sealed class CeresRidleyFlight
         SpawnCeresRidleyGetawayWalls();
         state.Velocity = EightEightVector<RoomPixels>.Zero;
         state.TailAction = RidleyTailAction.None;
-        state.Phase = RidleyPhase.CeresPublishEscapeHandoff;
+        state.CeresPhase = CeresRidleyPhase.PublishEscapeHandoff;
 
         // The retreat recolours the chamber: its walls and the scenery that shares the retreat colours. The game also copied those
         // colours into Ridley's own sprite colours; his sprites here keep their own colours (#1544).
@@ -517,7 +517,7 @@ internal sealed class CeresRidleyFlight
         if (--state.PhaseTimer >= 0)
             return;
 
-        state.Phase = RidleyPhase.FadeInEyes;
+        state.RevealPhase = RidleyRevealPhase.FadeInEyes;
         state.FadeStep = 0;
         state.PhaseTimer = 0;
     }

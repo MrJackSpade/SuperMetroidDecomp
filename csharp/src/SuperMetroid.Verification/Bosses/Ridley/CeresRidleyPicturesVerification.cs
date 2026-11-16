@@ -33,10 +33,10 @@ internal static class CeresRidleyPicturesVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var ridley = new RidleyEnemyState { Phase = RidleyPhase.CeresActivateSelfDestruct };
+        var ridley = new RidleyEnemyState { CeresPhase = CeresRidleyPhase.ActivateSelfDestruct };
         runtime.Enemies.RidleyEncounter.Ridley = ridley;
         // Each frame's uploads and words reach the display as the next accepted frame begins, which resolves their pictures.
-        while (ridley.Phase == RidleyPhase.CeresActivateSelfDestruct)
+        while (ridley.CeresPhase == CeresRidleyPhase.ActivateSelfDestruct)
         {
             runtime.Enemies.CeresRidleyBehavior.Getaway.TickCeresRidleySelfDestruct(ridley);
             runtime.FrameBoundary.BeginAcceptedFrame(0);

@@ -42,8 +42,6 @@ internal sealed class KraidBackground
     internal bool AdvanceKraidRoomBackgroundFade(
         KraidBackdropFade fade)
     {
-        if (_access.Kraid is null)
-            throw new InvalidOperationException("Kraid's backdrop fades once Kraid is loaded.");
         KraidBackdropColours backdrop = _access.Backdrop;
         int step = _presentation.FadeStepCount.Step;
         if (step <= KraidBackgroundDefinitions.BackdropFadeLastStep)

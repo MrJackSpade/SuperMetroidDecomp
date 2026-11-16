@@ -137,13 +137,13 @@ internal static class KraidAnimationsVerification
     private static NewKraidResult NewKraid()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        var state = new KraidEnemyState { InitialHealth = 104 };
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         RoomEnemyPlace arm = enemies.Places.InUpdateOrder[1];
         arm.Bind(EnemyDefinitionId.KraidArm, arm.Definition);
+        // The parts bind before the encounter begins, so each holds it as its setup would.
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        state.InitialHealth = 104;
         return new NewKraidResult(enemies, state, body, arm);
     }
 
@@ -189,6 +189,8 @@ internal static class KraidAnimationsVerification
         (RoomEnemySystem enemies, KraidEnemyState state, _, RoomEnemyPlace arm) = NewKraid();
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
+        // The foot binds after the encounter began, and joins it as its setup would.
+        enemies.KraidBehavior.Access.AttachKraidPart(foot, state);
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);

@@ -94,15 +94,15 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        var kraid = new KraidEnemyState { ShowsBodyLayer = true };
         RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
         kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
-        runtime.Enemies.KraidBehavior.Access.Kraid = kraid;
+        KraidEnemyState kraid = runtime.Enemies.KraidBehavior.Access.BeginEncounter();
+        kraid.ShowsBodyLayer = true;
         AssertPending(runtime, registers => registers.BackgroundScroll == before.BackgroundScroll, "Kraid's body on the background");
         // The view shows the body row below where his body lies against the frame's camera at the screen's top (#1514, #1617).
         AssertPublished(runtime, registers => registers.BackgroundScroll == GameplaySceneView.LayerPixelAtScreenTop(
             BossBodyPlacement.Shown(kraidBody.Position.Whole, runtime.Display.Latched.Scrolls.ForegroundPosition)), "Kraid's body on the background");
-        runtime.Enemies.KraidBehavior.Access.Kraid = null;
+        kraid.ShowsBodyLayer = false;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));

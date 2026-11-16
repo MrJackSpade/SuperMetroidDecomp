@@ -49,7 +49,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Kraid's arrival: his room setup, the rise through the floor and his growth into the second phase.</summary>
     internal KraidRise Rise { get; }
 
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     internal KraidEncounterAccess Access { get; }
 
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
@@ -90,7 +90,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
         Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
-        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision, Access);
+        Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision);
     }
 
     /// <summary>
@@ -108,54 +108,25 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void RunKraidBodyMain(
         RoomEnemyPlace body,
+        KraidEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera,
         SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        KraidEnemyState state = Access.RequireKraidState(body);
         IReadOnlyList<KraidPassProjectile> tested = TestedByShotPasses(samusProjectiles, sharedProjectiles);
         Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         Combat.ResolveKraidBodyContact(body, state, samus, pseudoScrew);
-        if (KraidPhaseGroups.Rising.Contains(state.BodyState.Phase))
-        {
-            Rise.RunKraidRisePhase(body, state, samus);
-            return;
-        }
-        RunKraidCombatPhase(body, state, camera.X, samus);
+        RunKraidBodyStage(body, state, camera.X, samus);
     }
 
-    /// <summary>Runs Kraid's main AI.</summary>
-    internal void RunKraidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    /// <summary>Runs Kraid's main AI for his body in <paramref name="place"/>.</summary>
+    internal void RunKraidMainAi(RoomEnemyPlace place, KraidEnemyState state, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(place, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
-    }
-
-    /// <summary>Runs KraidArm's main AI.</summary>
-    internal void RunKraidArmMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Limbs.RunKraidArmMain(place, frame.Camera.Y);
-    }
-
-    /// <summary>Runs a lint's main AI, for any of Kraid's three.</summary>
-    internal void RunKraidLintMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Projectiles.RunKraidLintMain(place, frame.Samus, frame.PseudoScrew);
-    }
-
-    /// <summary>Runs KraidFoot's main AI.</summary>
-    internal void RunKraidFootMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Limbs.RunKraidFootMain(place, frame.Camera.Y);
-    }
-
-    /// <summary>Runs a fingernail's main AI, for either of Kraid's two.</summary>
-    internal void RunKraidNailMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
-    {
-        Projectiles.RunKraidNailMain(place, frame.Level);
+        RunKraidBodyMain(place, state, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <summary>
@@ -231,106 +202,83 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
 
-    /// <summary>Runs the body's active first- or second-phase combat phase.</summary>
-    internal void RunKraidCombatPhase(
+    /// <summary>Runs the phase of the stage the body is in: his rise, his fight, his growth or his death.</summary>
+    internal void RunKraidBodyStage(
         RoomEnemyPlace body,
         KraidEnemyState state,
         int cameraX,
         SamusState samus)
     {
-        switch (state.BodyState.Phase)
+        switch (state.BodyState.Stage)
         {
-            case KraidPhase.MainloopThinking:
+            case KraidBodyStage.Rising:
+                Rise.RunKraidRisePhase(body, state, samus);
+                return;
+            case KraidBodyStage.Fighting:
+                RunKraidFightPhase(body, state);
+                return;
+            case KraidBodyStage.Growing:
+                Rise.RunKraidGrowthPhase(body, state);
+                return;
+            case KraidBodyStage.Dying:
+                Death.RunKraidDeathPhase(body, state, cameraX, samus);
+                return;
+            default:
+                throw new InvalidDataException($"Undefined {nameof(KraidBodyStage)} {state.BodyState.Stage}.");
+        }
+    }
+
+    /// <summary>Runs the body's first- or second-phase fight phase.</summary>
+    internal void RunKraidFightPhase(RoomEnemyPlace body, KraidEnemyState state)
+    {
+        switch (state.BodyState.FightPhase)
+        {
+            case KraidFightPhase.FirstPhaseThinking:
                 if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
                 {
-                    state.BodyState.Phase = KraidPhase.MainAttackWithMouthOpen;
+                    state.BodyState.FightPhase = KraidFightPhase.MainAttackWithMouthOpen;
                     state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
                     state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
                 }
                 return;
 
-            case KraidPhase.MainAttackWithMouthOpen:
+            case KraidFightPhase.MainAttackWithMouthOpen:
                 Head.RunKraidMouthOpenAttack(body, state);
                 return;
 
-            case KraidPhase.MouthOpenReaction:
+            case KraidFightPhase.MouthOpenReaction:
                 Head.RunKraidMouthOpenReaction(state);
                 return;
 
-            case KraidPhase.InitializeEyeGlow:
+            case KraidFightPhase.InitializeEyeGlow:
                 Head.InitializeKraidEyeGlow(state);
                 return;
 
-            case KraidPhase.GlowEye:
+            case KraidFightPhase.GlowEye:
                 Head.GlowKraidEye(state);
                 return;
 
-            case KraidPhase.UnglowEye:
+            case KraidFightPhase.UnglowEye:
                 Head.UnglowKraidEye(body, state);
                 return;
 
-            case KraidPhase.WaitToResumePhase:
-                KraidEncounterAccess.TickKraidPhaseTimer(state.BodyState);
+            case KraidFightPhase.WaitBeforeEyeGlow:
+                if (state.BodyState.CountPhaseTimerDown())
+                    state.BodyState.FightPhase = KraidFightPhase.InitializeEyeGlow;
                 return;
 
-            case KraidPhase.AdvanceHeadAnimationAndTimer:
+            case KraidFightPhase.HeadAnimationBeforeGrowth:
                 _ = Head.AdvanceKraidHeadAnimation(state);
-                KraidEncounterAccess.TickKraidPhaseTimer(state.BodyState);
+                if (state.BodyState.CountPhaseTimerDown())
+                    state.BodyState.GrowthPhase = KraidGrowthPhase.ReleaseCamera;
                 return;
 
-            case KraidPhase.GrowReleaseCamera:
-            case KraidPhase.GrowBreakCeilingPlatforms:
-            case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowSettleParts:
-            case KraidPhase.GrowShowRoomBackdrop:
-            case KraidPhase.GrowFadeInRoomBackground:
-                Rise.RunKraidGrowthPhase(body, state);
-                return;
-
-            case KraidPhase.SecondPhaseThinking:
+            case KraidFightPhase.SecondPhaseThinking:
                 KraidLimbs.RunKraidSecondPhaseThinking(state);
                 return;
 
-            case KraidPhase.DeathInitialize:
-            case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowBody:
-            case KraidPhase.DeathStartSinking:
-            case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideBody:
-            case KraidPhase.DeathWaitBeforeFadeIn:
-            case KraidPhase.DeathFadeInBackground:
-            case KraidPhase.DeathFinishedWasAlive:
-            case KraidPhase.DeathFinishedWasDead:
-                Death.RunKraidDeathPhase(body, state, cameraX, samus);
-                return;
-
-            case KraidPhase.LintInactive:
-            case KraidPhase.LintProduce:
-            case KraidPhase.LintCharge:
-            case KraidPhase.LintFire:
-            case KraidPhase.FingernailWaitForLint:
-            case KraidPhase.AlignPartToKraid:
-            case KraidPhase.FootWaitBeforeWalk:
-            case KraidPhase.FootFirstPhaseThinking:
-            case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalking:
-            case KraidPhase.FootSecondPhaseWalkToStart:
-            case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.FingernailInitialize:
-            case KraidPhase.FingernailFire:
-            case KraidPhase.FootPrepareFirstPhaseLunge:
-            case KraidPhase.FootFirstPhaseLunge:
-            case KraidPhase.FootFirstPhaseRetreat:
-            case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseShowBody:
-            case KraidPhase.RaiseStartQuakeAndMusic:
-            case KraidPhase.RaiseRocksEvery16Frames:
-            case KraidPhase.RaiseRocksEvery8Frames:
-            case KraidPhase.RaiseBody:
-            case KraidPhase.Resting:
             default:
-                throw new InvalidDataException(
-                    $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");
+                throw new InvalidDataException($"Undefined {nameof(KraidFightPhase)} {state.BodyState.FightPhase}.");
         }
     }
 }

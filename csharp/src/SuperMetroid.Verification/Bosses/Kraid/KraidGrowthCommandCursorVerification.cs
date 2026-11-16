@@ -30,12 +30,10 @@ internal static class KraidGrowthCommandCursorVerification
             new byte[KraidWorkingMapDefinitions.HeadImageCells * 2])));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { KraidBackground = new KraidBackgroundArtwork((referenceArt ?? throw new InvalidOperationException("Verification requires referenceArt.")).Upper, referenceArt.Lower,
                     new Dictionary<int, KraidHeadTilemapAtlas> { [2] = head }, referenceArt.RoomBackgroundTiles) });
-        var state = new KraidEnemyState();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         Func<KraidEnemyState, KraidHeadAnimationResult> execute = enemies.KraidBehavior.Head.RunKraidHeadAnimationStep;
-        Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, cameraY);
+        Action<RoomEnemyPlace, ushort> footMain = (foot, cameraY) => enemies.KraidBehavior.Limbs.RunKraidFootMain(foot, state.FootState, cameraY);
         var body = enemies.Places.InUpdateOrder[0];
         var foot = enemies.Places.InUpdateOrder[5];
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
@@ -45,14 +43,15 @@ internal static class KraidGrowthCommandCursorVerification
         execute(state);
         AssertEqual(native.PlaybackAt(0x96ea), state.HeadPlayback, "head interpreter leaves the next cursor on the roar command");
         KraidHeadFrame? displayed = state.DisplayedHeadFrame;
-        state.FootState.Phase = KraidPhase.FootPrepareFirstPhaseLunge;
+        state.FootState.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
         footMain(foot, 0);
         AssertEqual(native.PlaybackAt(0x96f4), state.HeadPlayback, "native command-cursor growth resumes at the closing-mouth frame");
         AssertEqual(64, state.BodyState.HeadTimer, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
-        AssertEqual(KraidPhase.GrowReleaseCamera, state.BodyState.PhaseToResume, "growth schedules camera release");
+        // The growth's wait names its own continuation, the camera's release (#2208).
+        AssertEqual(KraidFightPhase.HeadAnimationBeforeGrowth, state.BodyState.FightPhase, "growth runs the head animation before releasing the camera");
         AssertEqual(180, state.BodyState.PhaseTimer, "growth function timer");
-        AssertEqual(KraidPhase.Resting, state.FootState.Phase, "growth rests the foot from its lunge");
+        AssertEqual(KraidFootPhase.Resting, state.FootState.Phase, "growth rests the foot from its lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 
         // Confirm the growth resume for every cursor form, including cries and list ends adjacent to the next list:

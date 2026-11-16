@@ -13,5 +13,5 @@ internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyPlace plac
     protected override void SetUp() => Species.Limbs.InitializeKraidFoot(Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidFootMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidFootMain(Place, Encounter.FootState, frame.Camera.Y);
 }

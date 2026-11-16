@@ -17,7 +17,7 @@ internal sealed class KraidLimbs
     private readonly RoomEarthquake _earthquake;
     /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
     private readonly KraidParts _parts;
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -32,33 +32,32 @@ internal sealed class KraidLimbs
     /// <summary>Installs the arm part in its place with the rising-or-sinking animation.</summary>
     internal void InitializeKraidArm(RoomEnemyPlace arm)
     {
-        KraidEnemyState state = _access.RequireKraidState(arm);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(arm);
             return;
         }
+        // The arm joins the encounter its body began, which it holds from here (#2218).
+        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
         _access.AttachKraidPart(arm, state);
         arm.Shading = _parts.Body.Shading;
-        state.ArmState.Phase = KraidPhase.Resting;
-        _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmRisingOrSinking);
-        state.ArmState.PhaseToResume = KraidPhase.Resting;
+        _access.StartKraidPartAnimation(state, arm, KraidPartSegment.ArmRisingOrSinking);
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
     internal void InitializeKraidFoot(RoomEnemyPlace foot)
     {
-        KraidEnemyState state = _access.RequireKraidState(foot);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(foot);
             return;
         }
+        // The foot joins the encounter its body began, which it holds from here (#2218).
+        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
         _access.AttachKraidPart(foot, state);
         foot.Shading = _parts.Body.Shading;
-        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Phase = KraidPhase.Resting;
-        state.FootState.PhaseToResume = KraidPhase.Resting;
+        _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootInitial);
+        state.FootState.Phase = KraidFootPhase.Resting;
     }
 
     /// <summary>
@@ -66,17 +65,17 @@ internal sealed class KraidLimbs
     /// slows once Kraid is below half health. An arm already slow, rising or sinking, dying or preparing a lunge keeps its
     /// animation.
     /// </summary>
-    private bool ArmSwingsNormally() =>
-        _access.Part(_parts.Arm).Playback.PlayingSegment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
+    private static bool ArmSwingsNormally(KraidEnemyState state) =>
+        state.ArmState.Playback.PlayingSegment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
 
     /// <summary>
     /// Whether the arm has yet to reach its pause (#1886): it plays its normal swing and has not shown the swing's last
     /// frame. While that last frame shows, the arm already counts as paused, as it does through the pause and any later
     /// animation.
     /// </summary>
-    private bool ArmYetToPause()
+    private static bool ArmYetToPause(KraidEnemyState state)
     {
-        AnimationPlayback<KraidPartSegment> arm = _access.Part(_parts.Arm).Playback;
+        AnimationPlayback<KraidPartSegment> arm = state.ArmState.Playback;
         return arm.PlayingSegment == KraidPartSegment.ArmNormal && !arm.HasShownPhaseEnd;
     }
 
@@ -84,8 +83,8 @@ internal sealed class KraidLimbs
     /// Whether the foot plays <paramref name="walk"/> and shows its last frame (#1886): a forward walk or lunge has finished
     /// and rests on it, and the backward walk has reached the frame from which it loops.
     /// </summary>
-    private bool FootShowsLastFrameOf(KraidPartSegment walk) =>
-        _access.Part(_parts.Foot).Playback.HasShownLastBeatOf(walk);
+    private static bool FootShowsLastFrameOf(KraidFootState foot, KraidPartSegment walk) =>
+        foot.Playback.HasShownLastBeatOf(walk);
 
     /// <summary>
     /// Runs a Kraid part's animation where the shared enemy animation runs: the frame expires on the update
@@ -95,10 +94,10 @@ internal sealed class KraidLimbs
     {
         if (!part.AnimationClock.Expire())
             return;
-        KraidPartState partState = _access.Part(part);
+        KraidPartState partState = part.RequireSpeciesState<KraidPartState>();
         AnimationPlayback<KraidPartSegment> playback = partState.Playback;
         EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback,
-            cue => ApplyKraidPartCue(cue) is { } started
+            cue => ApplyKraidPartCue(partState.Kraid, cue) is { } started
                 ? new AnimationContinuation<KraidPartSegment>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         partState.Playback = playback;
@@ -106,7 +105,7 @@ internal sealed class KraidLimbs
 
     /// <summary>Carries out one cue of a Kraid part animation.</summary>
     /// <returns>The slow arm animation when the speed cue switches the arm; otherwise null.</returns>
-    private KraidPartSegment? ApplyKraidPartCue(KraidPartCue cue)
+    private KraidPartSegment? ApplyKraidPartCue(KraidEnemyState state, KraidPartCue cue)
     {
         RoomEnemyPlace body = _parts.Body;
         switch (cue)
@@ -128,7 +127,7 @@ internal sealed class KraidLimbs
                 body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole + 3);
                 return null;
             case KraidPartCue.SlowArmBelowHalfHealth:
-                return SelectKraidArmSpeedAnimation();
+                return SelectKraidArmSpeedAnimation(state);
             default:
                 throw new InvalidOperationException($"Undefined {nameof(KraidPartCue)} {cue}.");
         }
@@ -139,7 +138,7 @@ internal sealed class KraidLimbs
     {
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
         {
-            state.BodyState.Phase = KraidPhase.MouthOpenReaction;
+            state.BodyState.FightPhase = KraidFightPhase.MouthOpenReaction;
             state.HeadPlayback = KraidHeadAnimations.RoarAfterEntryFrame;
             state.BodyState.HeadTimer = KraidHeadAnimations.RoarEntryDuration;
         }
@@ -151,9 +150,8 @@ internal sealed class KraidLimbs
         if (body.Health >= state.SevenEighthsHealth)
             return false;
 
-        state.BodyState.Phase = KraidPhase.AdvanceHeadAnimationAndTimer;
+        state.BodyState.FightPhase = KraidFightPhase.HeadAnimationBeforeGrowth;
         state.BodyState.PhaseTimer = 180;
-        state.BodyState.PhaseToResume = KraidPhase.GrowReleaseCamera;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadPlayback).Growth;
         state.HeadPlayback = KraidHeadAnimations.GrowthResumePlayback(resume);
@@ -161,10 +159,10 @@ internal sealed class KraidLimbs
         _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 340);
 
         RoomEnemyPlace foot = _parts.Foot;
-        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Phase = KraidPhase.Resting;
+        _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootInitial);
+        state.FootState.Phase = KraidFootPhase.Resting;
         RoomEnemyPlace arm = _parts.Arm;
-        _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
+        _access.StartKraidPartAnimation(state, arm, KraidPartSegment.ArmNormal);
         foreach (RoomEnemyPlace lint in _parts.Lints)
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
@@ -175,18 +173,14 @@ internal sealed class KraidLimbs
     /// Below half health the arm switches to its slow swing, unless its stored animation is
     /// already the slow one or a later animation.
     /// </summary>
-    private KraidPartSegment? SelectKraidArmSpeedAnimation()
-    {
-        RoomEnemyPlace body = _parts.Body;
-        return body.Health < _access.RequireKraidState(body).HalfHealth && ArmSwingsNormally()
+    private KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
+        _parts.Body.Health < state.HalfHealth && ArmSwingsNormally(state)
             ? KraidPartSegment.ArmSlow
             : null;
-    }
 
     /// <summary>Keeps the arm aligned to the body and advances its animation.</summary>
-    internal void RunKraidArmMain(RoomEnemyPlace arm, int cameraY)
+    internal void RunKraidArmMain(RoomEnemyPlace arm, KraidEnemyState state, int cameraY)
     {
-        KraidEnemyState state = _access.RequireKraidState(arm);
         RoomEnemyPlace body = _parts.Body;
         arm.Position = arm.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole - 44)));
 
@@ -205,9 +199,9 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>Runs the foot's lunge, retreat, and grown-form walking phases.</summary>
-    internal void RunKraidFootMain(RoomEnemyPlace foot, int cameraY)
+    internal void RunKraidFootMain(RoomEnemyPlace foot, KraidFootState part, int cameraY)
     {
-        KraidEnemyState state = _access.RequireKraidState(foot);
+        KraidEnemyState state = part.Kraid;
         RoomEnemyPlace body = _parts.Body;
         foot.Position = foot.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 100)));
         bool onScreen = CoordinateAxis.Difference(foot.Position.Y.Whole, cameraY) >= 0 &&
@@ -216,102 +210,69 @@ internal sealed class KraidLimbs
             ? foot.Presence.Without(EnemyPresence.Hidden)
             : foot.Presence.With(EnemyPresence.Hidden);
 
-        KraidFootState part = state.FootState;
-        switch (state.FootState.Phase)
+        switch (part.Phase)
         {
-            case KraidPhase.Resting:
+            case KraidFootPhase.Resting:
                 return;
-            case KraidPhase.FootFirstPhaseThinking:
+            case KraidFootPhase.FirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))
                     return;
-                KraidEncounterAccess.TickKraidPhaseTimer(part);
+                if (part.CountPhaseTimerDown())
+                    part.Phase = KraidFootPhase.PrepareFirstPhaseLunge;
                 return;
-            case KraidPhase.FootPrepareFirstPhaseLunge:
-                PrepareKraidFirstPhaseLunge(body, foot);
+            case KraidFootPhase.PrepareFirstPhaseLunge:
+                PrepareKraidFirstPhaseLunge(body, foot, part);
                 return;
-            case KraidPhase.FootFirstPhaseLunge:
+            case KraidFootPhase.FirstPhaseLunge:
                 RunKraidFirstPhaseLunge(body, foot, part);
                 return;
-            case KraidPhase.FootWaitBeforeWalk:
-                TickKraidFootTransitionTimer(foot, part);
+            case KraidFootPhase.WaitBeforeRetreat:
+                if (part.CountPhaseTimerDown())
+                {
+                    part.Phase = KraidFootPhase.FirstPhaseRetreat;
+                    _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootWalkingBackward);
+                }
                 return;
-            case KraidPhase.WaitToResumePhase:
-                KraidEncounterAccess.TickKraidPhaseTimer(part);
+            case KraidFootPhase.WaitBeforeSecondPhase:
+                if (part.CountPhaseTimerDown())
+                    part.Phase = KraidFootPhase.SecondPhaseInitialize;
                 return;
-            case KraidPhase.FootFirstPhaseRetreat:
+            case KraidFootPhase.FirstPhaseRetreat:
                 RunKraidFirstPhaseRetreat(body, foot, part);
                 return;
-            case KraidPhase.FootSecondPhaseWalkToStart:
+            case KraidFootPhase.SecondPhaseWalkToStart:
                 RunKraidSecondPhaseWalkToStart(body, foot, part);
                 return;
-            case KraidPhase.FootSecondPhaseInitialize:
+            case KraidFootPhase.SecondPhaseInitialize:
                 SetKraidWalking(foot, part, targetX: 352, thinkTimer: 180, rightward: true);
                 return;
-            case KraidPhase.FootSecondPhaseThinking:
+            case KraidFootPhase.SecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, foot, part);
                 return;
-            case KraidPhase.FootSecondPhaseWalking when part.WalkDirection == HorizontalDirection.Right:
-                RunKraidSecondPhaseWalkingRight(body, foot);
+            case KraidFootPhase.SecondPhaseWalking when part.WalkDirection == HorizontalDirection.Right:
+                RunKraidSecondPhaseWalkingRight(body, foot, part);
                 return;
-            case KraidPhase.FootSecondPhaseWalking:
-                RunKraidSecondPhaseWalkingLeft(body, foot);
+            case KraidFootPhase.SecondPhaseWalking:
+                RunKraidSecondPhaseWalkingLeft(body, foot, part);
                 return;
-            case KraidPhase.GrowBreakCeilingPlatforms:
-            case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowSettleParts:
-            case KraidPhase.GrowShowRoomBackdrop:
-            case KraidPhase.GrowFadeInRoomBackground:
-            case KraidPhase.MainloopThinking:
-            case KraidPhase.SecondPhaseThinking:
-            case KraidPhase.MouthOpenReaction:
-            case KraidPhase.InitializeEyeGlow:
-            case KraidPhase.GlowEye:
-            case KraidPhase.UnglowEye:
-            case KraidPhase.LintInactive:
-            case KraidPhase.LintProduce:
-            case KraidPhase.LintCharge:
-            case KraidPhase.LintFire:
-            case KraidPhase.FingernailWaitForLint:
-            case KraidPhase.AlignPartToKraid:
-            case KraidPhase.AdvanceHeadAnimationAndTimer:
-            case KraidPhase.MainAttackWithMouthOpen:
-            case KraidPhase.FingernailInitialize:
-            case KraidPhase.FingernailFire:
-            case KraidPhase.GrowReleaseCamera:
-            case KraidPhase.DeathInitialize:
-            case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowBody:
-            case KraidPhase.DeathStartSinking:
-            case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideBody:
-            case KraidPhase.DeathWaitBeforeFadeIn:
-            case KraidPhase.DeathFadeInBackground:
-            case KraidPhase.DeathFinishedWasAlive:
-            case KraidPhase.DeathFinishedWasDead:
-            case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseShowBody:
-            case KraidPhase.RaiseStartQuakeAndMusic:
-            case KraidPhase.RaiseRocksEvery16Frames:
-            case KraidPhase.RaiseRocksEvery8Frames:
-            case KraidPhase.RaiseBody:
             default:
-                throw new InvalidDataException(
-                    $"Kraid foot has no behaviour for phase {state.FootState.Phase}.");
+                throw new InvalidDataException($"Undefined {nameof(KraidFootPhase)} {part.Phase}.");
         }
     }
 
     /// <summary>Waits for the arm before starting the small-form foot lunge, or begins growth.</summary>
-    private void PrepareKraidFirstPhaseLunge(RoomEnemyPlace body, RoomEnemyPlace foot)
+    private void PrepareKraidFirstPhaseLunge(RoomEnemyPlace body, RoomEnemyPlace foot, KraidFootState part)
     {
-        if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
+        KraidEnemyState state = part.Kraid;
+        if (TryBeginKraidGrowth(body, state))
             return;
         RoomEnemyPlace arm = _parts.Arm;
-        if (ArmYetToPause())
+        if (ArmYetToPause(state))
             return;
-        _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
-        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
-        _access.Part(foot).Phase = KraidPhase.FootFirstPhaseLunge;
-        _access.Part(foot).PhaseTimer = 0;
+        _access.StartKraidPartAnimation(state, arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
+        _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootLungeForward);
+        part.Phase = KraidFootPhase.FirstPhaseLunge;
+        part.PhaseTimer = 0;
     }
 
     /// <summary>Moves the small-form foot and body through the forward lunge.</summary>
@@ -320,37 +281,23 @@ internal sealed class KraidLimbs
         RoomEnemyPlace foot,
         KraidFootState part)
     {
-        if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
+        if (TryBeginKraidGrowth(body, part.Kraid))
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 92) < 0)
             body.Position = body.Position.WithWholeX(92);
-        if (!FootShowsLastFrameOf(KraidPartSegment.FootLungeForward))
+        if (!FootShowsLastFrameOf(part, KraidPartSegment.FootLungeForward))
             return;
         if (body.Position.X.Whole == 92)
         {
-            part.PhaseToResume = KraidPhase.FootFirstPhaseRetreat;
-            _access.Part(foot).Phase = KraidPhase.FootWaitBeforeWalk;
-            _access.Part(foot).PhaseTimer = 1;
-            _access.SetKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
+            part.Phase = KraidFootPhase.WaitBeforeRetreat;
+            part.PhaseTimer = 1;
+            _access.SetKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootNeutral);
         }
         else
         {
-            _access.SetKraidPartAnimation(foot, KraidPartSegment.FootLungeForward);
+            _access.SetKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootLungeForward);
         }
         foot.AnimationClock.StepOnNextUpdate();
-    }
-
-    /// <summary>Counts down a foot phase and starts its next phase at zero.</summary>
-    private void TickKraidFootTransitionTimer(RoomEnemyPlace foot, KraidFootState part)
-    {
-        KraidPartState footState = _access.Part(foot);
-        if (footState.PhaseTimer == 0)
-            return;
-        if (--footState.PhaseTimer == 0)
-        {
-            _access.Part(foot).Phase = part.PhaseToResume;
-            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
-        }
     }
 
     /// <summary>Returns the foot and body after the small-form lunge.</summary>
@@ -359,24 +306,24 @@ internal sealed class KraidLimbs
         RoomEnemyPlace foot,
         KraidFootState part)
     {
-        if (TryBeginKraidGrowth(body, _access.RequireKraidState(body)))
+        KraidEnemyState state = part.Kraid;
+        if (TryBeginKraidGrowth(body, state))
             return;
         if (CoordinateAxis.Difference(body.Position.X.Whole, 176) >= 0)
             body.Position = body.Position.WithWholeX(176);
-        if (!FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
+        if (!FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingBackward))
             return;
         if (body.Position.X.Whole == 176)
         {
             RoomEnemyPlace arm = _parts.Arm;
-            _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
-            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
-            _access.Part(foot).Phase = KraidPhase.FootFirstPhaseThinking;
-            _access.Part(foot).PhaseTimer = 300;
-            part.PhaseToResume = KraidPhase.FootPrepareFirstPhaseLunge;
+            _access.StartKraidPartAnimation(state, arm, KraidPartSegment.ArmNormal);
+            _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootNeutral);
+            part.Phase = KraidFootPhase.FirstPhaseThinking;
+            part.PhaseTimer = 300;
         }
         else
         {
-            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingBackward);
+            _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootWalkingBackward);
         }
     }
 
@@ -386,19 +333,18 @@ internal sealed class KraidLimbs
         RoomEnemyPlace foot,
         KraidFootState part)
     {
-        int targetX = _access.RequireKraidState(body).WalkTargetX;
+        int targetX = part.Kraid.WalkTargetX;
         if (targetX != body.Position.X.Whole)
         {
             if (!CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
                 return;
             body.Position = body.Position.WithWholeX(targetX);
         }
-        if (!FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
+        if (!FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingBackward))
             return;
-        _access.Part(foot).Phase = KraidPhase.WaitToResumePhase;
-        _access.Part(foot).PhaseTimer = 180;
-        part.PhaseToResume = KraidPhase.FootSecondPhaseInitialize;
-        _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
+        part.Phase = KraidFootPhase.WaitBeforeSecondPhase;
+        part.PhaseTimer = 180;
+        _access.StartKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootNeutral);
     }
 
     /// <summary>Chooses the grown foot's next walking target and direction after its think timer ends.</summary>
@@ -425,47 +371,47 @@ internal sealed class KraidLimbs
         int thinkTimer,
         bool rightward)
     {
-        _access.RequireKraidState(foot).WalkTargetX = targetX;
+        part.Kraid.WalkTargetX = targetX;
         part.ThinkTimer = thinkTimer;
-        _access.Part(foot).Phase = KraidPhase.FootSecondPhaseWalking;
-        _access.RequireKraidState(foot).FootState.WalkDirection = rightward ? HorizontalDirection.Right : HorizontalDirection.Left;
-        _access.StartKraidPartAnimation(foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
+        part.Phase = KraidFootPhase.SecondPhaseWalking;
+        part.WalkDirection = rightward ? HorizontalDirection.Right : HorizontalDirection.Left;
+        _access.StartKraidPartAnimation(part.Kraid, foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>
-    private void RunKraidSecondPhaseWalkingRight(RoomEnemyPlace body, RoomEnemyPlace foot)
+    private void RunKraidSecondPhaseWalkingRight(RoomEnemyPlace body, RoomEnemyPlace foot, KraidFootState part)
     {
-        int targetX = _access.RequireKraidState(body).WalkTargetX;
+        int targetX = part.Kraid.WalkTargetX;
         if (targetX != body.Position.X.Whole)
         {
             if (!CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
                 return;
             body.Position = body.Position.WithWholeX(targetX);
         }
-        if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingBackward))
+        if (FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingBackward))
         {
-            _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
-            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
+            part.Phase = KraidFootPhase.SecondPhaseThinking;
+            _access.StartKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootNeutral);
         }
     }
 
     /// <summary>Moves the body and foot toward the selected leftward target.</summary>
-    private void RunKraidSecondPhaseWalkingLeft(RoomEnemyPlace body, RoomEnemyPlace foot)
+    private void RunKraidSecondPhaseWalkingLeft(RoomEnemyPlace body, RoomEnemyPlace foot, KraidFootState part)
     {
-        int targetX = _access.RequireKraidState(body).WalkTargetX;
+        int targetX = part.Kraid.WalkTargetX;
         if (CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
         {
-            if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingForward))
+            if (FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingForward))
             {
-                _access.StartKraidPartAnimation(foot, KraidPartSegment.FootWalkingForward);
+                _access.StartKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootWalkingForward);
             }
             return;
         }
         body.Position = body.Position.WithWholeX(targetX);
-        if (FootShowsLastFrameOf(KraidPartSegment.FootWalkingForward))
+        if (FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingForward))
         {
-            _access.Part(foot).Phase = KraidPhase.FootSecondPhaseThinking;
-            _access.StartKraidPartAnimation(foot, KraidPartSegment.FootNeutral);
+            part.Phase = KraidFootPhase.SecondPhaseThinking;
+            _access.StartKraidPartAnimation(part.Kraid, foot, KraidPartSegment.FootNeutral);
         }
     }
 }

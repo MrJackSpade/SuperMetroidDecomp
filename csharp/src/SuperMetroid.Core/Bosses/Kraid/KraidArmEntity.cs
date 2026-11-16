@@ -13,7 +13,7 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place
     protected override void SetUp() => Species.Limbs.InitializeKraidArm(Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidArmMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
 
     /// <summary>The arm's touch reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesTouch => KraidReactions.ArmTouch;

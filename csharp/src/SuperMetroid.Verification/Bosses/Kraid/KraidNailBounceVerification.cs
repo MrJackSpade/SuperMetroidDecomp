@@ -19,10 +19,8 @@ internal static class KraidNailBounceVerification
         var terrain = new RoomTerrainBlock[32 * 32];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(terrain, new RoomBlockBehavior[terrain.Length], new RoomBlockAppearance[terrain.Length]), RoomLevelData.NothingBeyondGrid(), []);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var state = new KraidEnemyState();
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
-        Action<RoomEnemyPlace, RoomLevelData> tick = enemies.KraidBehavior.Projectiles.TickKraidNailFlight;
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        Action<RoomEnemyPlace, RoomLevelData> tick = (place, room) => enemies.KraidBehavior.Projectiles.TickKraidNailFlight(place, enemies.KraidBehavior.Parts.NailStateOf(state, place), room);
         var nail = enemies.Places.InUpdateOrder[6];
         nail.Radius = new(4, 4);
         for (int speed = 1; speed <= 4; speed++)

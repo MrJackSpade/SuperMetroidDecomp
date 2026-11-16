@@ -84,20 +84,18 @@ internal static class KraidHeadInstructionsVerification
     private static void VerifyTimerAndGrowthConsumers(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        var state = new KraidEnemyState();
-        enemies.KraidBehavior.Access.Kraid = state;
-        enemies.KraidBehavior.Parts.JoinInRoomOrder(enemies.Places);
+        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
         var guard = new KraidHeadProgramReadGuard(rom);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         var glow = new Action<KraidEnemyState>(enemies.KraidBehavior.Head.InitializeKraidEyeGlow);
         var death = new Action<KraidEnemyState>(deathState => enemies.KraidBehavior.Death.InitializeKraidDeath(deathState, RoomEnemyFrameFixtures.StandaloneSamus()));
         var combat = new Action<RoomEnemyPlace, KraidEnemyState, ushort>((combatBody, combatState, cameraX) =>
-            enemies.KraidBehavior.RunKraidCombatPhase(combatBody, combatState, cameraX, RoomEnemyFrameFixtures.StandaloneSamus()));
+            enemies.KraidBehavior.RunKraidBodyStage(combatBody, combatState, cameraX, RoomEnemyFrameFixtures.StandaloneSamus()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
-            state.BodyState.Phase = KraidPhase.MainloopThinking;
+            state.BodyState.FightPhase = KraidFightPhase.FirstPhaseThinking;
             state.ThinkingTimer = raw;
             state.BodyState.HeadTimer = 999;
             combat(body, state, 0);
@@ -106,7 +104,7 @@ internal static class KraidHeadInstructionsVerification
                     : (ushort)999,
                 state.BodyState.HeadTimer, "Roar timer loads only on thinker expiry");
 
-            state.BodyState.Phase = KraidPhase.SecondPhaseThinking;
+            state.BodyState.FightPhase = KraidFightPhase.SecondPhaseThinking;
             state.ThinkingTimer = raw;
             state.BodyState.HeadTimer = 999;
             combat(body, state, 0);

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and his sound and music requests.</summary>
+/// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class KraidEncounterAccess
 {
@@ -42,15 +42,15 @@ internal sealed class KraidEncounterAccess
         place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
-    /// <summary>Installs <paramref name="segment"/> as the part's animation, from its start; the part's timer is set separately.</summary>
-    internal void SetKraidPartAnimation(RoomEnemyPlace part, KraidPartSegment segment) =>
-        _parts.StateOf(RequireKraidState(part), part).Playback =
+    /// <summary>Installs <paramref name="segment"/> as <paramref name="kraid"/>'s part's animation, from its start; the part's timer is set separately.</summary>
+    internal void SetKraidPartAnimation(KraidEnemyState kraid, RoomEnemyPlace part, KraidPartSegment segment) =>
+        _parts.StateOf(kraid, part).Playback =
             new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Sets a part's animation and runs its first step on the next frame.</summary>
-    internal void StartKraidPartAnimation(RoomEnemyPlace part, KraidPartSegment segment)
+    internal void StartKraidPartAnimation(KraidEnemyState kraid, RoomEnemyPlace part, KraidPartSegment segment)
     {
-        SetKraidPartAnimation(part, segment);
+        SetKraidPartAnimation(kraid, part, segment);
         part.AnimationClock.StepOnNextUpdate();
     }
 
@@ -58,17 +58,15 @@ internal sealed class KraidEncounterAccess
     internal int ReadKraidRandomNumber() =>
         _room.Random.Read();
 
-    /// <summary>Counts a Kraid phase timer down and installs its next state at zero.</summary>
-    internal static void TickKraidPhaseTimer(KraidPartState part)
-    {
-        if (part.PhaseTimer == 0)
-            return;
-        if (--part.PhaseTimer == 0)
-            part.Phase = part.PhaseToResume;
-    }
+    /// <summary>
+    /// The room's Kraid as the room's display and colours see it (#2177, #2218): begun as his body sets up and kept for the
+    /// room, so his body layer keeps showing after his body is deleted. No part reads it; each part holds the encounter it
+    /// joined (<see cref="KraidPartState.Kraid"/>).
+    /// </summary>
+    public KraidEnemyState? Kraid { get; private set; }
 
-    /// <summary>Kraid's encounter state once his body has initialized in the room.</summary>
-    public KraidEnemyState? Kraid { get; internal set; }
+    /// <summary>Begins Kraid's encounter as his body sets up: a body that sets up again begins a new one.</summary>
+    internal KraidEnemyState BeginEncounter() => Kraid = new KraidEnemyState();
 
     /// <summary>
     /// The colours Kraid's room backdrop shows (#1512). They belong to the room, not to Kraid: they last
@@ -76,30 +74,6 @@ internal sealed class KraidEncounterAccess
     /// fade showed.
     /// </summary>
     internal KraidBackdropColours Backdrop { get; } = new();
-
-    /// <summary>
-    /// Kraid's room state, created by the body's initializer and kept for the room. Parts
-    /// read the body's state directly, so they keep running after the dead-room body is
-    /// deleted, as the fingernails do.
-    /// </summary>
-    internal KraidEnemyState RequireKraidState(RoomEnemyPlace place)
-    {
-        if (Kraid is null)
-        {
-            throw new InvalidOperationException(
-                $"Enemy {place.DefinitionId} requires Kraid's body to have initialized this room.");
-        }
-        return Kraid;
-    }
-
-    /// <summary>The state of the Kraid part in <paramref name="place"/>.</summary>
-    internal KraidPartState Part(RoomEnemyPlace place) => _parts.StateOf(RequireKraidState(place), place);
-
-    /// <summary>The state of the Kraid lint in <paramref name="place"/>.</summary>
-    internal KraidLintState LintState(RoomEnemyPlace place) => _parts.LintStateOf(RequireKraidState(place), place);
-
-    /// <summary>The state of the Kraid fingernail in <paramref name="place"/>.</summary>
-    internal KraidNailState NailState(RoomEnemyPlace place) => _parts.NailStateOf(RequireKraidState(place), place);
 
     /// <summary>Installs a part's state for the part's occupant of its place; the encounter keeps it across the part's kills and respawns.</summary>
     internal void AttachKraidPart(RoomEnemyPlace place, KraidEnemyState state)

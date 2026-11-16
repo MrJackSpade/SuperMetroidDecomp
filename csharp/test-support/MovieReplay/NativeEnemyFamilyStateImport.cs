@@ -130,44 +130,7 @@ internal static class NativeEnemyFamilyStateImport
             }
         }
         if (enemy.SpeciesState<KraidPartState>() is { } kraidPartRecord)
-        {
-            bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
-            // A part whose setup has not given it a phase records no word; it rests.
-            (KraidPhase kraidPhase, HorizontalDirection? kraidWalk) = words.A == 0
-                ? (KraidPhase.Resting, null)
-                : deathWait ? (KraidPhase.DeathWaitBeforeFadeIn, null) : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
-            kraidPartRecord.Phase = kraidPhase;
-            // Only the foot's walk names the way it walks (#2165).
-            if (kraidWalk is { } walk)
-            {
-                (kraidPartRecord as KraidFootState ?? throw new InvalidDataException($"Enemy {enemy.Ordinal} walks Kraid's body but is not his foot."))
-                    .WalkDirection = walk;
-            }
-            // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
-            // each part's own state takes its own.
-            if (kraidPartRecord is KraidNailState kraidNail)
-                kraidNail.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.B, words.E, words.D);
-            if (kraidPartRecord is KraidLintState kraidLint)
-            {
-                kraidLint.LintXOffset = CoordinateAxis.AsSigned(words.C);
-                kraidLint.LintTravel = words.B;
-            }
-            // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
-            if (kraidPartRecord is KraidBodyState kraidBody)
-            {
-                kraidBody.HeadTimer = words.C;
-                if (kraidBody.Phase == KraidPhase.GrowBreakCeilingPlatforms)
-                    kraidBody.CeilingRock = words.F / sizeof(ushort);
-                else if (deathWait)
-                    kraidBody.PhaseTimer = deathWaitLeft;
-                else
-                    kraidBody.PhaseTimer = words.F;
-            }
-            else
-            {
-                kraidPartRecord.PhaseTimer = words.F;
-            }
-        }
+            ImportKraidPart(enemy, kraidPartRecord, words);
         if (enemy.SpeciesState<GunshipState>() is { } gunshipRecord)
         {
             // The cartridge keeps the ship's phase timer, engine readying, bob phase, bob timer, and base Y and
@@ -921,6 +884,69 @@ internal static class NativeEnemyFamilyStateImport
             else if (puyo.Action != PuyoAction.Grounded)
                 throw new InvalidDataException($"Recorded {puyo.Action} Puyo has no airborne behaviour.");
             puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
+        }
+    }
+
+    /// <summary>
+    /// Imports one of Kraid's parts' record (#2208): word A names the phase the part runs, of its own part's type, and
+    /// for the foot's walk the way it walks (#2165); words B and C hold the body's head timer, a lint's travel and X offset,
+    /// or a nail's velocity; word F is the part's phase timer, or the ceiling rocks' cursor while his growth breaks the
+    /// ceiling. A part whose setup has not given it a phase records no word A and keeps the phase it starts in.
+    /// </summary>
+    private static void ImportKraidPart(RoomEnemyPlace enemy, KraidPartState part, NativeEnemyRecordWords words)
+    {
+        bool recorded = words.A != 0;
+        switch (part)
+        {
+            case KraidBodyState body:
+            {
+                body.HeadTimer = words.C;
+                bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
+                if (deathWait)
+                    body.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
+                else if (recorded)
+                    KraidNativeWords.ImportBodyPhase(body, words.A);
+                // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
+                if (body.Stage == KraidBodyStage.Growing && body.GrowthPhase == KraidGrowthPhase.BreakCeilingPlatforms)
+                    body.CeilingRock = words.F / sizeof(ushort);
+                else
+                    body.PhaseTimer = deathWait ? deathWaitLeft : words.F;
+                return;
+            }
+            case KraidArmState arm:
+                // The arm runs no phase (#2208): its record names the bank's bare return, as a resting part's does.
+                if (recorded && words.A != KraidNativeWords.RestingWord)
+                    throw new InvalidDataException($"Kraid's arm, enemy {enemy.Ordinal}, runs routine {words.A:X4}, not the resting one.");
+                arm.PhaseTimer = words.F;
+                return;
+            case KraidLintState lint:
+                if (recorded)
+                    lint.Phase = KraidNativeWords.LintPhases.Decode(words.A, "recorded KraidLintPhase");
+                lint.LintXOffset = CoordinateAxis.AsSigned(words.C);
+                lint.LintTravel = words.B;
+                lint.PhaseTimer = words.F;
+                return;
+            case KraidFootState foot:
+            {
+                // A foot whose setup has not given it a phase rests.
+                (KraidFootPhase phase, HorizontalDirection? walk) = recorded
+                    ? KraidNativeWords.FootPhases.Decode(words.A, "recorded KraidFootPhase")
+                    : (KraidFootPhase.Resting, null);
+                foot.Phase = phase;
+                // Only the foot's walk names the way it walks (#2165).
+                if (walk is { } direction)
+                    foot.WalkDirection = direction;
+                foot.PhaseTimer = words.F;
+                return;
+            }
+            case KraidNailState nail:
+                if (recorded)
+                    nail.Phase = KraidNativeWords.NailPhases.Decode(words.A, "recorded KraidNailPhase");
+                nail.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.B, words.E, words.D);
+                nail.PhaseTimer = words.F;
+                return;
+            default:
+                throw new InvalidDataException($"Enemy {enemy.Ordinal} holds a Kraid part state of no part, {part.GetType().Name}.");
         }
     }
 

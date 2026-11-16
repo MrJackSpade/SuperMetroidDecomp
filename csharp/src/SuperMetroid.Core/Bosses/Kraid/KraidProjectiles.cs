@@ -23,7 +23,7 @@ internal sealed class KraidProjectiles
     private readonly EnemyCollision _collision;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
+    /// <summary>Kraid's part animations and states, random numbers and his sound and music requests.</summary>
     private readonly KraidEncounterAccess _access;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -40,19 +40,21 @@ internal sealed class KraidProjectiles
     /// <summary>Initializes one lint part.</summary>
     internal void InitializeKraidLint(RoomEnemyPlace lint, KraidLintPart expected)
     {
-        KraidEnemyState state = _access.RequireKraidState(lint);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             KraidEncounterAccess.MarkKraidPartDead(lint);
             return;
         }
+        // The lint joins the encounter its body began, which it holds from here (#2218).
+        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
         _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
         lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
-        _access.SetKraidPartAnimation(lint, KraidPartSegment.LintInitial);
+        _access.SetKraidPartAnimation(state, lint, KraidPartSegment.LintInitial);
         lint.Frame = EnemyFrameId.KraidLintBudding;
-        _parts.LintStateOf(state, lint).Phase = KraidPhase.LintInactive;
-        _parts.LintStateOf(state, lint).LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
+        KraidLintState part = _parts.LintStateOf(state, lint);
+        part.Phase = KraidLintPhase.Inactive;
+        part.LintXOffset = expected == KraidLintPart.Top ? 0 : -16;
     }
 
     /// <summary>
@@ -62,7 +64,8 @@ internal sealed class KraidProjectiles
     /// </summary>
     internal void InitializeKraidNail(RoomEnemyPlace nail)
     {
-        KraidEnemyState state = _access.RequireKraidState(nail);
+        // The fingernail joins the encounter its body began, which it holds from here (#2218).
+        KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
         _access.AttachKraidPart(nail, state);
         nail.Shading = _parts.Body.Shading;
         KraidNailState nailPart = _parts.NailStateOf(state, nail);
@@ -72,11 +75,10 @@ internal sealed class KraidProjectiles
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
         nail.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
-        _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
+        _access.SetKraidPartAnimation(state, nail, KraidPartSegment.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailTurned0;
-        _parts.NailStateOf(state, nail).PhaseToResume = KraidPhase.FingernailInitialize;
-        _parts.NailStateOf(state, nail).Phase = KraidPhase.WaitToResumePhase;
-        _parts.NailStateOf(state, nail).PhaseTimer = 64;
+        nailPart.Phase = KraidNailPhase.WaitBeforeLaunch;
+        nailPart.PhaseTimer = 64;
     }
 
     /// <summary>The rocks Kraid's rise throws up and the ceiling rocks his roar shakes down (#1760): their spawners start their animations.</summary>
@@ -164,87 +166,40 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Runs a nail's active flight or rebound phase.</summary>
-    internal void RunKraidNailMain(RoomEnemyPlace nail, RoomLevelData level)
+    internal void RunKraidNailMain(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
-        KraidEnemyState state = _access.RequireKraidState(nail);
         if (_parts.Body.Health == 0)
         {
             nail.Presence = nail.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
             return;
         }
 
-        KraidNailState part = _parts.NailStateOf(state, nail);
-        switch (_parts.NailStateOf(state, nail).Phase)
+        switch (part.Phase)
         {
-            case KraidPhase.WaitToResumePhase:
-                KraidEncounterAccess.TickKraidPhaseTimer(part);
+            case KraidNailPhase.WaitBeforeLaunch:
+                if (part.CountPhaseTimerDown())
+                    part.Phase = KraidNailPhase.Initialize;
                 return;
 
-            case KraidPhase.FingernailInitialize:
+            case KraidNailPhase.Initialize:
                 InitializeKraidNailFlight(nail, part);
                 return;
 
-            case KraidPhase.FingernailWaitForLint:
+            case KraidNailPhase.WaitForLint:
                 if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, 256) >= 0)
                 {
-                    _parts.NailStateOf(state, nail).Phase = part.PhaseToResume;
+                    part.Phase = KraidNailPhase.Fire;
                     nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
                     nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
                 }
                 return;
 
-            case KraidPhase.FingernailFire:
-                TickKraidNailFlight(nail, level);
+            case KraidNailPhase.Fire:
+                TickKraidNailFlight(nail, part, level);
                 return;
 
-            case KraidPhase.GrowBreakCeilingPlatforms:
-            case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowSettleParts:
-            case KraidPhase.GrowShowRoomBackdrop:
-            case KraidPhase.GrowFadeInRoomBackground:
-            case KraidPhase.MainloopThinking:
-            case KraidPhase.SecondPhaseThinking:
-            case KraidPhase.MouthOpenReaction:
-            case KraidPhase.InitializeEyeGlow:
-            case KraidPhase.GlowEye:
-            case KraidPhase.UnglowEye:
-            case KraidPhase.LintInactive:
-            case KraidPhase.LintProduce:
-            case KraidPhase.LintCharge:
-            case KraidPhase.LintFire:
-            case KraidPhase.AlignPartToKraid:
-            case KraidPhase.FootWaitBeforeWalk:
-            case KraidPhase.FootFirstPhaseThinking:
-            case KraidPhase.AdvanceHeadAnimationAndTimer:
-            case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalking:
-            case KraidPhase.FootSecondPhaseWalkToStart:
-            case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.MainAttackWithMouthOpen:
-            case KraidPhase.FootPrepareFirstPhaseLunge:
-            case KraidPhase.FootFirstPhaseLunge:
-            case KraidPhase.FootFirstPhaseRetreat:
-            case KraidPhase.GrowReleaseCamera:
-            case KraidPhase.DeathInitialize:
-            case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowBody:
-            case KraidPhase.DeathStartSinking:
-            case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideBody:
-            case KraidPhase.DeathWaitBeforeFadeIn:
-            case KraidPhase.DeathFadeInBackground:
-            case KraidPhase.DeathFinishedWasAlive:
-            case KraidPhase.DeathFinishedWasDead:
-            case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseShowBody:
-            case KraidPhase.RaiseStartQuakeAndMusic:
-            case KraidPhase.RaiseRocksEvery16Frames:
-            case KraidPhase.RaiseRocksEvery8Frames:
-            case KraidPhase.RaiseBody:
-            case KraidPhase.Resting:
             default:
-                throw new InvalidDataException(
-                    $"Kraid fingernail has no behaviour for phase {_parts.NailStateOf(state, nail).Phase}.");
+                throw new InvalidDataException($"Undefined {nameof(KraidNailPhase)} {part.Phase}.");
         }
     }
 
@@ -263,8 +218,8 @@ internal sealed class KraidProjectiles
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
         nail.AnimationClock.StepOnNextUpdate();
-        _access.SetKraidPartAnimation(nail, KraidPartSegment.NailLoop);
-        part.Phase = KraidPhase.FingernailFire;
+        _access.SetKraidPartAnimation(part.Kraid, nail, KraidPartSegment.NailLoop);
+        part.Phase = KraidNailPhase.Fire;
 
         if (!KraidRandomDefinitions.NailWaitsForLint.IsSetIn(random) || siblingPart is { AlternateSpawn: true })
         {
@@ -278,19 +233,17 @@ internal sealed class KraidProjectiles
         part.AlternateSpawn = true;
         nail.Position = nail.Position.WithWhole(new(50, 240));
         part.NailVelocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(1, 0));
-        part.Phase = KraidPhase.FingernailWaitForLint;
-        part.PhaseToResume = KraidPhase.FingernailFire;
+        part.Phase = KraidNailPhase.WaitForLint;
         nail.Contact = nail.Contact.With(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
     }
 
     /// <summary>Advances nail position and terrain response for one enemy update.</summary>
-    internal void TickKraidNailFlight(RoomEnemyPlace nail, RoomLevelData level)
+    internal void TickKraidNailFlight(RoomEnemyPlace nail, KraidNailState part, RoomLevelData level)
     {
-        KraidNailState part = _access.NailState(nail);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, part.NailVelocity.X))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
-        else if (KraidBodyContourReflectsNail(nail))
+        else if (KraidBodyContourReflectsNail(nail, part))
             part.NailVelocity = part.NailVelocity.WithX(ReflectKraidNailHorizontalVelocity(part.NailVelocity.X));
 
         if (_terrain.MoveEnemyVertically(level, nail, part.NailVelocity.Y))
@@ -298,7 +251,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Checks whether a nail crosses the body contour that reverses its flight.</summary>
-    internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail)
+    internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
     {
         RoomEnemyPlace body = _parts.Body;
         int relativeY = CoordinateAxis.Wrap(nail.Position.Y.Whole - body.Position.Y.Whole);
@@ -307,7 +260,7 @@ internal sealed class KraidProjectiles
             _room.Session.BossOverreads.KraidNailPastLedges.LeftOffset(relativeY);
         int contourX = CoordinateAxis.Wrap(body.Position.X.Whole + leftOffset);
         return CoordinateAxis.AsSigned(nail.Position.X.Whole + nail.Radius.X - contourX) >= 0 &&
-            _access.NailState(nail).NailVelocity.X.WholePixels >= 0;
+            part.NailVelocity.X.WholePixels >= 0;
     }
 
     /// <summary>
@@ -318,112 +271,65 @@ internal sealed class KraidProjectiles
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
-    internal void RunKraidLintMain(RoomEnemyPlace lint, SamusState samus, PseudoScrewCharge pseudoScrew)
+    internal void RunKraidLintMain(RoomEnemyPlace lint, KraidLintState part, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
-        KraidEnemyState state = _access.RequireKraidState(lint);
         ResolveKraidLintContact(lint, samus, pseudoScrew);
         lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
-        KraidLintState part = _parts.LintStateOf(state, lint);
-        switch (_parts.LintStateOf(state, lint).Phase)
+        switch (part.Phase)
         {
-            case KraidPhase.LintInactive:
+            case KraidLintPhase.Inactive:
                 return;
-            case KraidPhase.AlignPartToKraid:
-                AlignKraidPart(lint, part);
+            case KraidLintPhase.AlignToKraidBeforeProducing:
+                AlignKraidLint(lint, part);
                 return;
-            case KraidPhase.LintProduce:
-                ProduceKraidLint(lint);
+            case KraidLintPhase.Produce:
+                ProduceKraidLint(lint, part);
                 return;
-            case KraidPhase.LintCharge:
-                ChargeKraidLint(lint);
+            case KraidLintPhase.Charge:
+                ChargeKraidLint(lint, part);
                 return;
-            case KraidPhase.LintFire:
+            case KraidLintPhase.Fire:
                 FireKraidLint(lint, part, samus);
                 return;
-            case KraidPhase.GrowBreakCeilingPlatforms:
-            case KraidPhase.GrowBringBodyInFront:
-            case KraidPhase.GrowSettleParts:
-            case KraidPhase.GrowShowRoomBackdrop:
-            case KraidPhase.GrowFadeInRoomBackground:
-            case KraidPhase.MainloopThinking:
-            case KraidPhase.SecondPhaseThinking:
-            case KraidPhase.MouthOpenReaction:
-            case KraidPhase.InitializeEyeGlow:
-            case KraidPhase.GlowEye:
-            case KraidPhase.UnglowEye:
-            case KraidPhase.FingernailWaitForLint:
-            case KraidPhase.WaitToResumePhase:
-            case KraidPhase.FootWaitBeforeWalk:
-            case KraidPhase.FootFirstPhaseThinking:
-            case KraidPhase.AdvanceHeadAnimationAndTimer:
-            case KraidPhase.FootSecondPhaseThinking:
-            case KraidPhase.FootSecondPhaseWalking:
-            case KraidPhase.FootSecondPhaseWalkToStart:
-            case KraidPhase.FootSecondPhaseInitialize:
-            case KraidPhase.MainAttackWithMouthOpen:
-            case KraidPhase.FingernailInitialize:
-            case KraidPhase.FingernailFire:
-            case KraidPhase.FootPrepareFirstPhaseLunge:
-            case KraidPhase.FootFirstPhaseLunge:
-            case KraidPhase.FootFirstPhaseRetreat:
-            case KraidPhase.GrowReleaseCamera:
-            case KraidPhase.DeathInitialize:
-            case KraidPhase.DeathFadeOut:
-            case KraidPhase.DeathShowBody:
-            case KraidPhase.DeathStartSinking:
-            case KraidPhase.DeathSink:
-            case KraidPhase.DeathHideBody:
-            case KraidPhase.DeathWaitBeforeFadeIn:
-            case KraidPhase.DeathFadeInBackground:
-            case KraidPhase.DeathFinishedWasAlive:
-            case KraidPhase.DeathFinishedWasDead:
-            case KraidPhase.RestrictSamusToFirstScreen:
-            case KraidPhase.RaiseShowBody:
-            case KraidPhase.RaiseStartQuakeAndMusic:
-            case KraidPhase.RaiseRocksEvery16Frames:
-            case KraidPhase.RaiseRocksEvery8Frames:
-            case KraidPhase.RaiseBody:
-            case KraidPhase.Resting:
             default:
-                throw new InvalidDataException(
-                    $"Kraid lint place {lint.Ordinal} has no behaviour for phase " +
-                    $"{_parts.LintStateOf(state, lint).Phase}.");
+                throw new InvalidDataException($"Undefined {nameof(KraidLintPhase)} {part.Phase} for Kraid lint place {lint.Ordinal}.");
         }
     }
 
-    /// <summary>Places a physical part at its body-relative offset.</summary>
-    internal void AlignKraidPart(RoomEnemyPlace partPlace, KraidPartState part)
+    /// <summary>Places a lint at its body-relative offset while its timer runs, then produces it.</summary>
+    internal void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
-        partPlace.Position = partPlace.Position.WithWrappedWholeX(_parts.Body.Position.X.Whole - partPlace.Radius.X);
-        KraidEncounterAccess.TickKraidPhaseTimer(part);
+        lint.Position = lint.Position.WithWrappedWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
+        if (part.CountPhaseTimerDown())
+            part.Phase = KraidLintPhase.Produce;
     }
 
     /// <summary>Starts a lint projectile from the attached part.</summary>
-    private void ProduceKraidLint(RoomEnemyPlace lint)
+    private void ProduceKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
         lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
         lint.Presence = lint.Presence.Without(EnemyPresence.Hidden);
         lint.Position = lint.Position.WithWrappedWholeX(
-            _access.LintState(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.LintState(lint).LintTravel);
-        _access.LintState(lint).LintTravel++;
-        if (_access.LintState(lint).LintTravel >= 32)
+            part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
+        part.LintTravel++;
+        if (part.LintTravel >= 32)
         {
-            _access.LintState(lint).Phase = KraidPhase.LintCharge;
-            _access.LintState(lint).PhaseTimer = 30;
+            part.Phase = KraidLintPhase.Charge;
+            part.PhaseTimer = 30;
         }
     }
 
     /// <summary>Advances the visible lint charge before firing.</summary>
-    private void ChargeKraidLint(RoomEnemyPlace lint)
+    private void ChargeKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
-        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(_access.LintState(lint).PhaseTimer)
-            ? _access.RequireKraidState(lint).Colours.Parts
+        lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(part.PhaseTimer)
+            ? part.Kraid.Colours.Parts
             : EnemyShades.HurtFlashLook;
         lint.Position = lint.Position.WithWrappedWholeX(
-            _access.LintState(lint).LintXOffset + _parts.Body.Position.X.Whole - _access.LintState(lint).LintTravel);
-        if (--_access.LintState(lint).PhaseTimer == 0)
+            part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
+        if (--part.PhaseTimer == 0)
         {
-            _access.LintState(lint).Phase = KraidPhase.LintFire;
+            part.Phase = KraidLintPhase.Fire;
             _access.RequestKraidSound(KraidSoundDefinitions.LintFire);
         }
     }
@@ -437,9 +343,8 @@ internal sealed class KraidProjectiles
         if (CoordinateAxis.Difference(lint.Position.X.Whole, 32) < 0)
         {
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
-            part.Phase = KraidPhase.AlignPartToKraid;
+            part.Phase = KraidLintPhase.AlignToKraidBeforeProducing;
             part.PhaseTimer = 300;
-            part.PhaseToResume = KraidPhase.LintProduce;
             part.LintTravel = 0;
         }
 

@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.World;
 internal sealed class EnemyAttractDemoHooks(KraidBehavior kraid) : IEnemyAttractDemoHooks
 {
     /// <inheritdoc/>
+    /// <remarks>The demo reaches the encounter Kraid's body began through his body, which holds it (#2218).</remarks>
     public void SetKraidPhaseTimer(int frames) =>
-        (kraid.Access.Kraid ?? throw new InvalidDataException("The Kraid demo requires Kraid's encounter state.")).BodyState.PhaseTimer = frames;
+        KraidEntity.EncounterOf(kraid.Parts.Body).BodyState.PhaseTimer = frames;
 }

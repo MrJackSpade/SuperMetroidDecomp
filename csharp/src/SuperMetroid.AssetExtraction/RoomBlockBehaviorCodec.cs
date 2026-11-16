@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <list type="bullet">
 /// <item>a reaction: bit seven selects the area's table over the common one, and the low seven bits are the entry, which
 /// each reacting kind's dispatch tables give their own meaning; an entry past a kind's tables is no reaction of that kind,
-/// which no retail block of the kind holds (<see cref="HoldsReaction"/>, #1742). The special-block and special-air area
+/// which no retail block of the kind holds (<c>HoldsReaction</c>, #1742). The special-block and special-air area
 /// tables give an entry what the room's area makes of it, which the codec resolves into that meaning's own reaction
 /// (#1805): <see cref="ReadingsOf(AreaId, int)"/> reads a byte in an area, and <see cref="ReadingsOf(int)"/> leaves both
 /// readings out of a byte whose meaning the areas give differently;</item>
@@ -106,14 +106,6 @@ public static class RoomBlockBehaviorCodec
     /// <summary>Encodes a behaviour as its byte.</summary>
     /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>
     public static int Encode(RoomBlockBehavior behavior) => Bytes.Value[behavior];
-
-    /// <summary>
-    /// Whether a block of collision kind <paramref name="kind"/> with <paramref name="behavior"/> has a reaction its kind
-    /// reads: true for a kind that reads none. The import refuses a level block without one (#1742): its kind's dispatch
-    /// would read past the end of its tables, and no retail block does.
-    /// </summary>
-    public static bool HoldsReaction(RoomCollisionType kind, RoomBlockBehavior behavior) =>
-        BlockReactionFamilies.Of(kind) is not { } family || behavior.ReactionIn(family) is not null;
 
     /// <summary>
     /// Decodes a behaviour byte into every reading the block's collision kinds take of it in any area: when the areas make

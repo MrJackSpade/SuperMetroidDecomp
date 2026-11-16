@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>Checks native bomb-helper rejection and beam-charge cancellation in morph ball.</summary>

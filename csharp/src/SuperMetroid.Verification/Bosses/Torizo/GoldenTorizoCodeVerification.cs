@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.SamusNativeCodecs;
-using SuperMetroid.Diagnostics.Input;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

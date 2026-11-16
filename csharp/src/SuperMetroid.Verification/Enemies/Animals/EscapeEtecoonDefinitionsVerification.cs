@@ -189,7 +189,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     internal static void VerifyEscapeEtecoonOwnedState()
     {
         RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
-        EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
+        _ = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
         Console.WriteLine("  Escape Etecoon owned state: an initialized escape Etecoon has a pre-instruction.");
     }

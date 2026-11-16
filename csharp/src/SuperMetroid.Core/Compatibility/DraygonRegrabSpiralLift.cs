@@ -20,14 +20,11 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("a spiral after Draygon re-grabs Samus starts from the part of a pixel the last spiral lifted its center to, which decides the updates the pair rises a pixel on")]
 public readonly record struct DraygonRegrabSpiralLift
 {
-    /// <summary>Stores the center; callers use <see cref="At"/>, <see cref="StartSpiral"/> or <see cref="Lifted"/>.</summary>
-    private DraygonRegrabSpiralLift(FixedPosition<RoomPixels> center) => Center = center;
+    /// <summary>Stores the center; callers use <c>At</c>, <see cref="StartSpiral"/> or <see cref="Lifted"/>.</summary>
+    internal DraygonRegrabSpiralLift(FixedPosition<RoomPixels> center) => Center = center;
 
     /// <summary>The spiral's center, its vertical position carrying a part of a pixel; its horizontal position stays whole.</summary>
     public FixedPosition<RoomPixels> Center { get; }
-
-    /// <summary>A center at <paramref name="center"/>, as a check states one.</summary>
-    public static DraygonRegrabSpiralLift At(FixedPosition<RoomPixels> center) => new(center);
 
     /// <summary>
     /// The center a grab starts the next spiral from: at <paramref name="target"/>'s whole position, keeping the vertical

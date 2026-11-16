@@ -39,8 +39,6 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     internal GameOverBabyLook BabyLook { get; private set; } = GameOverBabyAnimation.Resting;
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     internal int BabyFrameHold { get; private set; }
-    /// <summary>The colours the Baby shows (#1512): those of its current look.</summary>
-    internal GameOverBabyColouring BabyColours => BabyLook.Colours;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound whenever the game is bound to its installed content without changing menu timing.</summary>

@@ -70,8 +70,8 @@ internal static class GameOptionsHeadingsVerification
             AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
             Offset16<ScreenPixels> actual = document.HeadingAnchors[GameOptionsPresentationFormat.MenuName(OriginalHeadingPage(page))];
-            AssertEqual((int)x, actual.X, "imported heading X");
-            AssertEqual((int)y, actual.Y, "imported heading Y");
+            AssertEqual(x, actual.X, "imported heading X");
+            AssertEqual(y, actual.Y, "imported heading Y");
         }
     }
 

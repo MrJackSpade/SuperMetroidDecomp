@@ -342,7 +342,7 @@ internal static class SpecialAttackParticlesVerification
                     {
                         falls++;
                         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(angleBefore, radiusBefore);
-                        AssertEqual((int)CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X + (place < 2 ? 16 : -16)),
+                        AssertEqual(CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X + (place < 2 ? 16 : -16)),
                             (int)particle.Position.X.Whole,
                             $"update {update}: Spazer particle {place} steps out its place's pair's way as it falls");
                     }

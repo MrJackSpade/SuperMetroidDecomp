@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

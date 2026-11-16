@@ -118,7 +118,7 @@ internal static class EnemyDefinitionsVerification
                     : SuperMetroid.AssetExtraction.Enemies.EnemyTileSetDefinitions.FixedBlocks.ContainsKey(pointer),
                 $"the import places {pointer}'s tiles at a fixed block exactly when its header does");
             AssertEqual(new SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTileSet(tileWord & 0x7fff),
-                SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSet(bus, pointer),
+                SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporterConstants.TileSet(bus, pointer),
                 $"the importer decodes {pointer}'s tile word as the oracle does");
         }
         // Kraid's post-hit mouth bound is a coordinate in Core (#1413); the ROM oracle confirms it is the word the
@@ -165,7 +165,7 @@ internal static class EnemyDefinitionsVerification
                 .ToArray();
             // The native record decodes to the piece and its fall delay; its instruction list is unread: the piece runs
             // its typed program (#641).
-            EnemyDefinitionId nativeEnemy = EnemyDefinitionIds.FromHeaderPointer(words[0]);
+            EnemyDefinitionId nativeEnemy = EnemyDefinitionIdsConstants.FromHeaderPointer(words[0]);
             RoomEnemyPlacement native = RoomEnemyPopulationRecordCodec.Decode(
                 nativeEnemy, words[1], words[2], words[3], words[4], words[5], words[6], words[7]);
             AssertEqual(native, MotherBrainFallingTubes.Get(piece),

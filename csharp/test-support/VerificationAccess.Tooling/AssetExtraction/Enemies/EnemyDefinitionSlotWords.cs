@@ -8,5 +8,5 @@ internal static class EnemyDefinitionSlotWords
     /// <summary>The species an enemy slot's identity word names; zero is the cleared slot.</summary>
     /// <exception cref="InvalidDataException">The word is neither zero nor a labelled enemy header.</exception>
     internal static EnemyDefinitionId FromSlotWord(ushort word) =>
-        word == 0 ? EnemyDefinitionId.None : EnemyDefinitionIds.FromHeaderPointer(word);
+        word == 0 ? EnemyDefinitionId.None : EnemyDefinitionIdsConstants.FromHeaderPointer(word);
 }

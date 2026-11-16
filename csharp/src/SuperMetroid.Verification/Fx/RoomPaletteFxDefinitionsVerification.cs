@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxAreasVerification;
 using static SuperMetroid.Verification.Fx.PaletteFx.LookupPaletteFxDispatchVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -13,8 +12,8 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Fx;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Checks compiled palette-FX definitions, area selection, and production spawn metadata.</summary>

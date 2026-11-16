@@ -128,10 +128,10 @@ internal static class TitleGradientVerification
         SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(presentation).Get(SpriteSheetId.Title);
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
             CompareComposition(spritemaps.Sprites[frame.Sprite], frame.Sprite.ToString(),
-                installed => TitleSpriteDrawing.DrawSprite(titleSheet, frame.Sprite, installed, new(128, 112), TitleSpriteColouring.Text));
+                installed => TitleSpriteDrawingConstants.DrawSprite(titleSheet, frame.Sprite, installed, new(128, 112), TitleSpriteColouring.Text));
         foreach (TitleCardFrame frame in spriteDocument.Cards)
             CompareComposition(spritemaps.Cards[frame.Typed], frame.Typed.ToString(),
-                installed => TitleSpriteDrawing.DrawCard(titleSheet, frame.Typed, installed, new(128, 112), TitleSpriteColouring.Text));
+                installed => TitleSpriteDrawingConstants.DrawCard(titleSheet, frame.Typed, installed, new(128, 112), TitleSpriteColouring.Text));
         void CompareComposition(int spritemap, string composition, Action<ScreenSprites> draw)
         {
             var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();

@@ -111,7 +111,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
-    AssertEqual(SuperMetroid.Core.Spatial.RotationAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
+    AssertEqual(SuperMetroid.Core.Spatial.RotationAngleConstants.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
     AssertEqual(SignedEightEight.FromPixels(10), baby.Speed, "Baby first curve speed");
     AssertEqual(0xf772, baby.Velocity.X.RawValue, "Baby first ROM sine X velocity");
     AssertEqual(0x051e, baby.Velocity.Y.RawValue, "Baby first ROM cosine Y velocity");
@@ -215,7 +215,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     /// </summary>
     internal static void VerifySamusRainbowFractionCarry()
     {
-        AssertEqual(new SamusRainbowFractionStep(RainbowFramePart.Of(3), false), RainbowFramePart.None.AdvancedByOneCall(),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(3), false), RainbowFramePart.None.AdvancedByOneCall(),
             "one call from a cleared accumulator adds three 256ths without completing a frame");
         RainbowFramePart fraction = RainbowFramePart.None;
         for (int call = 1; call <= 85; call++)
@@ -224,13 +224,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
             AssertTrue(!completed, $"call {call} stays below a whole frame");
             fraction = next;
         }
-        AssertEqual(RainbowFramePart.Of(255), fraction, "85 calls accumulate 255 of the 256 a frame needs");
-        AssertEqual(new SamusRainbowFractionStep(RainbowFramePart.Of(2), true), fraction.AdvancedByOneCall(),
+        AssertEqual(RainbowFramePartConstants.Of(255), fraction, "85 calls accumulate 255 of the 256 a frame needs");
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(2), true), fraction.AdvancedByOneCall(),
             "the 86th call completes a frame and keeps the two-256ths remainder");
-        AssertEqual(new SamusRainbowFractionStep(RainbowFramePart.Of(1), true), RainbowFramePart.Of(254).AdvancedByOneCall(),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(1), true), RainbowFramePartConstants.Of(254).AdvancedByOneCall(),
             "a fraction two short of a frame completes it and keeps the remainder");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RainbowFramePart.Of(256),
+            () => RainbowFramePartConstants.Of(256),
             "a fraction that is already a whole frame is rejected");
         Console.WriteLine("  Baby Metroid: the slowing Samus rainbow carries exactly at whole frames.");
     }

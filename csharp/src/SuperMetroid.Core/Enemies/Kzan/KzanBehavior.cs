@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kzan;

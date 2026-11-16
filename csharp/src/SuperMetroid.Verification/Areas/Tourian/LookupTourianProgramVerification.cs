@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerific
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianDescriptorsVerification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Animation;
 using Beat = SuperMetroid.Core.Animation.AnimationBeat<

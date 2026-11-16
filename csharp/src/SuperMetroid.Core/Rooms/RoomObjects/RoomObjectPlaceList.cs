@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Compatibility;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -10,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class RoomObjectPlaceList
 {
     /// <summary>The room's places, which say which hold an object and which a spawn takes.</summary>
-    private readonly RoomObjectPlaces _occupancy;
+    internal readonly RoomObjectPlaces occupancy;
 
     /// <summary>What each place holds, in update order; each keeps its identity for the room's lifetime.</summary>
     private readonly RoomObjectPlace[] _places;
@@ -19,7 +17,7 @@ internal sealed class RoomObjectPlaceList
     /// <param name="places">The room's places, created with the room.</param>
     internal RoomObjectPlaceList(RoomObjectPlaces places)
     {
-        _occupancy = Ensure.NotNull(places);
+        occupancy = Ensure.NotNull(places);
         _places = [.. Enumerable.Range(0, RoomObjectPlaces.PlaceCount).Select(place => new RoomObjectPlace(places, place))];
     }
 
@@ -44,10 +42,7 @@ internal sealed class RoomObjectPlaceList
     }
 
     /// <summary>Whether every place holds an object, so every spawn is lost.</summary>
-    internal bool IsFull => _occupancy.IsFull;
-
-    /// <summary>How many places hold an object.</summary>
-    public int ActiveCount => _occupancy.HeldCount;
+    internal bool IsFull => occupancy.IsFull;
 
     /// <summary>
     /// Spawns a room object: takes the first free place in update order, emptied for the object's setup, or returns null
@@ -55,7 +50,7 @@ internal sealed class RoomObjectPlaceList
     /// </summary>
     internal RoomObjectPlace? Spawn()
     {
-        if (_occupancy.Take() is not { } taken)
+        if (occupancy.Take() is not { } taken)
             return null;
         RoomObjectPlace place = _places[taken];
         place.Claim();

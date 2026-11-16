@@ -1,12 +1,7 @@
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Diagnostics.SaveStates;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 /// <summary>Checks X-ray's warm-up: its exact update count, its blending rule, and the debugger decoding boundary.</summary>

@@ -7,15 +7,12 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 [RoomLifetime]
 internal sealed class DownwardGateBehavior
 {
-    /// <summary>Enforces that a room is loaded before gate requests are applied.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Shared finite projectile pool holding moving and closed gate actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Binds gate room-object requests to the current room's projectile owner.</summary>
     internal DownwardGateBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
-        _room = room;
         _projectiles = projectiles;
     }
 

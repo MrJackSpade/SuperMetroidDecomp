@@ -45,7 +45,7 @@ internal static class LookupEyeDoorVisualIdsVerification
             if (!expected.Any(entry => entry.Pointer == raw))
                 AssertThrows<InvalidDataException>(() => RoomObjectEyeDoorVisualFiles.VisualId(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door full rejected pointer domain");
             AssertEqual(NativeObjectDraws.At<EyeDoorDraws.Draw>(raw == 0x9bf7 ? 0x9c4f : raw),
-                EyeDoorDraws.VisualSource(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door original mirrored alias");
+                EyeDoorDrawsConstants.VisualSource(NativeObjectDraws.At<EyeDoorDraws.Draw>((ushort)raw)),"Eye door original mirrored alias");
         }
     }
 }

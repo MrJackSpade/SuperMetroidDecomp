@@ -295,6 +295,16 @@ internal static class EnemyTileArtworkVerification
         return 0;
     }
 
+    /// <summary>Runs only the installed Draygon colour comparison against retail.</summary>
+    [VerificationCommand("--draygon-colors")]
+    internal static int DraygonColorsCommand()
+    {
+        var fixture = new EnemyTileFixture();
+        var (bus, _, colours, stock) = fixture;
+        VerifyInstalledDraygonColors(bus, colours, stock);
+        return 0;
+    }
+
     /// <summary>Runs only the installed Dachora palette-colour comparison against retail.</summary>
     [VerificationCommand("--dachora-colors")]
     internal static int DachoraColorsCommand()

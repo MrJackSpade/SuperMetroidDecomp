@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rooms;
@@ -17,6 +18,9 @@ internal sealed record EnemyDrawListDependencies
 
     /// <summary>The shared enemy animation.</summary>
     public required EnemyAnimationPlayer AnimationPlayer { get; init; }
+
+    /// <summary>The encounters of the room's bosses, whose Mother Brain's brain and neck are drawn after the other enemies (#2194).</summary>
+    public required RoomBossEncounters BossEncounters { get; init; }
 
     /// <summary>Mother Brain, whose last parts are drawn after the other enemies.</summary>
     public required MotherBrainBehavior MotherBrainBehavior { get; init; }

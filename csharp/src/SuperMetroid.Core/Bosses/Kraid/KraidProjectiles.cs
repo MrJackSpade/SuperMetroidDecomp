@@ -215,8 +215,7 @@ internal sealed class KraidProjectiles
         RoomEnemyPlace sibling = ReferenceEquals(nail, _parts.FirstNail) ? _parts.SecondNail : _parts.FirstNail;
         var siblingPart = (KraidNailState?)sibling.FoundState<KraidPartState>();
         int random = _room.Random.Read();
-        part.NailVelocity = KraidNailLaunch.FromSiblingVelocity(
-            (siblingPart?.NailVelocity ?? FixedVector<RoomPixels>.Zero).Y.WholePixels);
+        part.NailVelocity = KraidNailLaunch.FromSiblingVelocity((siblingPart?.NailVelocity ?? FixedVector<RoomPixels>.Zero).Y);
         nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
         nail.Presence = nail.Presence.Without(EnemyPresence.Hidden);
         nail.AnimationClock.StepOnNextUpdate();

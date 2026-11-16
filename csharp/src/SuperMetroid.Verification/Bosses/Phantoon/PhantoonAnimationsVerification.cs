@@ -38,12 +38,12 @@ internal static class PhantoonAnimationsVerification
         eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
         tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
         mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
-        enemies.PhantoonBehavior.Combat.Phantoon = new PhantoonEnemyState(body)
+        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body)
         {
             Eye = eye,
             Tentacles = tentacles,
             Mouth = mouth,
-        };
+        });
         return enemies;
     }
 
@@ -53,7 +53,7 @@ internal static class PhantoonAnimationsVerification
 
     /// <summary>The system's Phantoon state.</summary>
     private static PhantoonEnemyState RequireState(RoomEnemySystem enemies) =>
-        enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
+        enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
 
     /// <summary>
     /// Every part segment's beats equal its native list and every part animation the lists' control flow, and the

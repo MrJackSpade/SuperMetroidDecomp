@@ -106,8 +106,8 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     internal DraygonSwoopPath? SwoopPath { get; set; }
 
-    /// <summary>Whether Draygon faces right; false faces left.</summary>
-    public bool FacingRight { get; internal set; }
+    /// <summary>The way Draygon faces: left until his first rightward pass turns him.</summary>
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
     /// Phase of the goop pass's vertical bob, in 256ths of a turn: zero when a pass starts and one unit further each

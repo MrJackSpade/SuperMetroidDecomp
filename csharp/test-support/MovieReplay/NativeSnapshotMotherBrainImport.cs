@@ -30,7 +30,7 @@ internal static class NativeSnapshotMotherBrainImport
     /// </summary>
     internal static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, IImportCartridgeSource cartridge, Func<int, ushort> W)
     {
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
+        MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");
         state.Form = DecodeForm(W(MotherBrainMemory.Form));
         // The body's function word names the stage her body is in and its phase (#2208).

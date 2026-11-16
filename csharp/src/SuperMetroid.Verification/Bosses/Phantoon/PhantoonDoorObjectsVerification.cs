@@ -114,7 +114,7 @@ internal static class PhantoonDoorObjectsVerification
     private static void VerifyPhantoonFightDoor(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
-        PhantoonEnemyState state = enemies.PhantoonBehavior.Combat.Phantoon
+        PhantoonEnemyState state = enemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
         BossFrameResultBuilder results = enemies.BossFrameResults;
         state.StartingFlames.NextFlame = 6;
@@ -142,7 +142,7 @@ internal static class PhantoonDoorObjectsVerification
     private static void VerifyPhantoonRestoredDoor(CartridgeImportAddressSpace rom)
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
-        PhantoonEnemyState state = enemies.PhantoonBehavior.Combat.Phantoon
+        PhantoonEnemyState state = enemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
         BossFrameResultBuilder results = enemies.BossFrameResults;
         // The power's return scatters Phantoon's drops, which choose by Samus's health and ammunition and redraw a zero

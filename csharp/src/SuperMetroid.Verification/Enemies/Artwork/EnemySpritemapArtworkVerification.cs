@@ -688,7 +688,7 @@ internal static class EnemySpritemapArtworkVerification
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
         enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldFrame(sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, PictureShading.Standard),
-            new Position16<RoomPixels>(0x0100, 0x0010));
+            new Position16<RoomPixels>(0x0100, 0x0010), corpseRows: null);
     }
 
     /// <summary>Rejects native visual-data reads for the enemy frame under inspection.</summary>

@@ -62,11 +62,11 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Sets Samus into the grabbed-by-Draygon pose.
     /// </summary>
-    public void Begin(SamusState samus, bool draygonFacingRight)
+    public void Begin(SamusState samus, HorizontalDirection draygonFacing)
     {
         Ensure.NotNull(samus);
 
-        samus.Pose = draygonFacingRight
+        samus.Pose = draygonFacing == HorizontalDirection.Right
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
             : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -96,7 +96,7 @@ public sealed class SamusDraygonGrabbedState
     public void ApplyOwnerPosition(
         SamusState samus,
         Position16<RoomPixels> ownerPosition,
-        bool draygonFacingRight)
+        HorizontalDirection draygonFacing)
     {
         Ensure.NotNull(samus);
         if (!IsActive && !ReleasePublishedToOwner)
@@ -106,7 +106,7 @@ public sealed class SamusDraygonGrabbedState
         }
 
         samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(
-            draygonFacingRight ? SamusDraygonHoldDefinitions.HeldAhead : -SamusDraygonHoldDefinitions.HeldAhead,
+            draygonFacing == HorizontalDirection.Right ? SamusDraygonHoldDefinitions.HeldAhead : -SamusDraygonHoldDefinitions.HeldAhead,
             SamusDraygonHoldDefinitions.HeldBelow));
 
         // The placement writes whole positions only. It does not clear subpositions,

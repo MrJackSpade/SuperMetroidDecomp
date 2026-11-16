@@ -704,18 +704,18 @@ internal static void VerifySamusGrabbedByDraygon()
         new SyntheticSamusCartridgeRecord(0x0000, 0x0400, 0x00f0),
     ]);
 
-    foreach (bool facingRight in new[] { false, true })
+    foreach (HorizontalDirection facing in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
     {
         var historySamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var history = historySamus.PoseHistory;
         history.Restore(SamusPoseId.SpinJumpRightPose, SamusMovementType.SpinJumping, SamusMovementType.WallJumping);
-        SamusPoseId grabbedPose = facingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
+        SamusPoseId grabbedPose = facing == HorizontalDirection.Right ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         SamusMovementType grabbedMetadata = SamusMovementType.DraygonHeld;
-        historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
+        historySamus.DraygonGrabbed.Begin(historySamus, facing);
         AssertEqual(SamusMovementType.SpinJumping, history.MovementBeforePrevious, "Draygon grab shifts previous metadata");
         AssertEqual(grabbedPose, history.PreviousPose, "Draygon grab commits grabbed pose");
         AssertEqual(grabbedMetadata, history.PreviousMovement, "Draygon grab commits grabbed metadata");
-        historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
+        historySamus.DraygonGrabbed.Begin(historySamus, facing);
         AssertEqual(grabbedMetadata, history.MovementBeforePrevious, "repeated grab shifts metadata");
         historySamus.DraygonGrabbed.Release(historySamus);
         AssertEqual(grabbedMetadata, history.MovementBeforePrevious, "Draygon release retains prior grabbed metadata");
@@ -725,13 +725,13 @@ internal static void VerifySamusGrabbedByDraygon()
     }
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) };
-    samus.DraygonGrabbed.Begin(samus, draygonFacingRight: true);
+    samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Right);
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "right-facing Draygon entry selects $EC");
     AssertEqual(21, samus.Kinematics.Radius.Y, "Draygon entry loads radius 21");
 
     samus.DraygonGrabbed.ApplyOwnerPosition(
-        samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: true);
+        samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Right);
     AssertEqual(8, samus.Position.X.Whole - 0x0100,
         "right-facing claw offset is +8");
     AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
@@ -812,9 +812,9 @@ internal static void VerifySamusGrabbedByDraygon()
         "owner release bit is one-shot");
 
     // Mirror the entry/owner/release direction without repeating the 60-input route.
-    samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
+    samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
     samus.DraygonGrabbed.ApplyOwnerPosition(
-        samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: false);
+        samus, ownerPosition: new(0x0100, 0x0180), draygonFacing: HorizontalDirection.Left);
     AssertEqual(-8, samus.Position.X.Whole - 0x0100,
         "left-facing claw offset is -8");
     AssertEqual(0x00f8, samus.Position.X.Whole, "left-facing owner placement X");
@@ -828,7 +828,7 @@ internal static void VerifySamusGrabbedByDraygon()
     int target = SamusDraygonHoldDefinitions.EscapePresses;
     foreach ((int countLeft, bool frees) in new[] { (target + short.MaxValue - 1, true), (target + short.MaxValue, false), (ushort.MaxValue - 1, false) })
     {
-        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
+        samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
         samus.EscapeAndDrainCount.StartAmmoCountdown(countLeft);
         DraygonEscapeResult counted = samus.DraygonGrabbed.CheckDraygonEscape(samus, GameplayAction.Up, grappleLockedInPlace: false);
         AssertEqual(countLeft + 1, samus.DraygonGrabbed.EscapeButtonCounter, $"a press counts onto the {countLeft} another sequence left");

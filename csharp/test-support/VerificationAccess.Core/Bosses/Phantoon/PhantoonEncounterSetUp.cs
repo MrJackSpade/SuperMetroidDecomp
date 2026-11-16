@@ -1,0 +1,23 @@
+using SuperMetroid.Core.World;
+
+namespace SuperMetroid.Core.Bosses.Phantoon;
+
+/// <summary>Verification set-up of Phantoon's encounter for fixtures that place his state without his room's initialization.</summary>
+internal static class PhantoonEncounterSetUp
+{
+    /// <summary>Fixture set-up of Phantoon's encounter.</summary>
+    extension(RoomEnemySystem enemies)
+    {
+        /// <summary>
+        /// Begins <paramref name="state"/>'s encounter as his body's setup does: his fight holds it and the room reads it
+        /// from the room's boss encounters (#2194).
+        /// </summary>
+        /// <returns>The encounter begun.</returns>
+        internal PhantoonEnemyState BeginPhantoonAsSetUp(PhantoonEnemyState state)
+        {
+            enemies.PhantoonBehavior.Combat.Phantoon = state;
+            enemies.BossEncounters.Attach(state);
+            return state;
+        }
+    }
+}

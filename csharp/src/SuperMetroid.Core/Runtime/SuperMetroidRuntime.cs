@@ -1029,14 +1029,12 @@ internal sealed class SuperMetroidRuntime
     {
         if (Room.ActiveDoor is null)
             throw new InvalidOperationException("A room and door must be loaded before publishing gameplay.");
-        CrocomireDeathState? crocomireDeath = Room.LoadedScope.Enemies.RoomMainHooks.Crocomire is not null
-            ? Room.LoadedScope.Enemies.RoomMainHooks.CrocomireDeath : null;
         MotherBrainEnemyState? motherBrain = Room.LoadedScope.Enemies.DisplaySources.MotherBrain;
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionShownLayers,
             sky?.Publish(Room.Camera?.PixelPosition ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")),
-            crocomireDeath is { MeltingScrollActive: true } melting ? melting.MeltDistortion : null,
+            Room.LoadedScope.Enemies.DisplaySources.CrocomireMelt,
             motherBrain is { RisingFloorClipActive: true },
             motherBrain?.RainbowBeam.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(Room.LoadedScope.CeresHaze),

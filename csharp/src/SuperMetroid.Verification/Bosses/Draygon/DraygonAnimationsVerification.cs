@@ -313,7 +313,7 @@ internal static class DraygonAnimationsVerification
             onlyRunOnInto: new HashSet<DraygonProjectileSegment> { DraygonProjectileSegment.WallTurretFlight });
 
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
-        enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, movingRight: true);
+        enemies.DraygonBehavior.Parts.SpawnDraygonGoop(state, HorizontalDirection.Right);
         EnemyProjectile goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.Goop },
             "the real goop producer starts the typed goop loop");

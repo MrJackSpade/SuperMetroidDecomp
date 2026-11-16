@@ -55,7 +55,7 @@ internal static class DraygonPrebattleXrayVerification
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");
         for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
-        var boss = runtime.Enemies.DraygonBehavior.Parts.Draygon;
+        var boss = runtime.Enemies.Draygon;
         AssertEqual(DraygonPhase.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase, "X-Ray preserves the pre-battle phase");
         var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var math = (GameplayBlendLayer)scene.Layers[0];

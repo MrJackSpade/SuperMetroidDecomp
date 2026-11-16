@@ -33,7 +33,7 @@ internal static class PhantoonDeathExplosionsVerification
             var body = enemies.Places.InUpdateOrder[0];
             var tentacles = enemies.Places.InUpdateOrder[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
-            enemies.PhantoonBehavior.Combat.Phantoon = state;
+            enemies.BeginPhantoonAsSetUp(state);
             Action<RoomEnemyPlace, PhantoonEnemyState> step = enemies.PhantoonBehavior.Death.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseTimer = 15;

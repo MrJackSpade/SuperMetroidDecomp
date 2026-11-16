@@ -38,6 +38,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Applies body colours and the background changes.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>The encounters of the room's bosses, to which his body's setup attaches his (#2194).</summary>
+    private readonly RoomBossEncounters _encounters;
     /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
     internal PhantoonOpening Opening { get; }
 
@@ -64,6 +66,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _room = dependencies.Room;
         _audio = dependencies.Audio;
         _presentation = dependencies.Presentation;
+        _encounters = dependencies.Encounters;
         Presentation = new PhantoonPresentation(dependencies.FrameContext);
         Combat = new PhantoonCombat(_room, dependencies.Earthquake, _audio, dependencies.Collision, dependencies.DeathsAndDrops);
         Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation, dependencies.FrameResults, Combat);
@@ -75,6 +78,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonBody(RoomEnemyPlace body)
     {
         Combat.Phantoon = new PhantoonEnemyState(body);
+        // The room steps his body wave and visibility and its display latches them from the room from here (#2194).
+        _encounters.Attach(Combat.Phantoon);
 
         // Phantoon shows his body, eye, tentacle and mouth frames on his body (#1353, #1466, #1515), nothing at first.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Phantoon, Combat.Phantoon));

@@ -22,7 +22,7 @@ internal static class DraygonGrabVerification
     internal static void VerifyDraygonGrabPoseRequests()
     {
         var (runtime, samus, draygon) = GrabSamus(spiralYFraction: 0, pendingPose: SamusPoseId.RunningAimDiagonalUpLeftPose);
-        AssertEqual(draygon.FacingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose,
+        AssertEqual(draygon.Facing == HorizontalDirection.Right ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose,
             samus.Pose, "Draygon grabs Samus");
         AssertTrue(runtime.Enemies.LastEnemyFrame.DraygonDiscardedSamusPoseRequests,
             "the grab publishes that alpha's pose requests are discarded");
@@ -58,12 +58,12 @@ internal static class DraygonGrabVerification
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
         samus.XSpeedDivisor = 1;
         samus.PendingTransitionalPose = pendingPose;
-        DraygonEnemyState draygon = runtime.Enemies.DraygonBehavior.Parts.Draygon
+        DraygonEnemyState draygon = runtime.Enemies.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");
         draygon.Phase = DraygonPhase.TryGrabSamus;
         draygon.SpiralCenter = DraygonRegrabSpiralLift.At(draygon.SpiralCenter.Center.WithFractionY(spiralYFraction));
         // The claw sits eight pixels ahead of the body, on Samus's row.
-        int clawOffset = draygon.FacingRight ? 8 : -8;
+        int clawOffset = draygon.Facing == HorizontalDirection.Right ? 8 : -8;
         draygon.Body.Position = FixedPosition<RoomPixels>.FromWhole(
             new(checked((ushort)(samus.Position.X.Whole - clawOffset)), samus.Position.Y.Whole));
 

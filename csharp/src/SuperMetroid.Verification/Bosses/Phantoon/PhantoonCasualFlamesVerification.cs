@@ -30,7 +30,7 @@ internal static class PhantoonCasualFlamesVerification
         var body = enemies.Places.InUpdateOrder[0];
         var mouth = enemies.Places.InUpdateOrder[3];
         var state = new PhantoonEnemyState(body) { Eye = enemies.Places.InUpdateOrder[1], Tentacles = enemies.Places.InUpdateOrder[2], Mouth = mouth };
-        enemies.PhantoonBehavior.Combat.Phantoon = state;
+        enemies.BeginPhantoonAsSetUp(state);
         void step(RoomEnemyPlace _) => enemies.PhantoonBehavior.Patterns.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
         int calls = 0;

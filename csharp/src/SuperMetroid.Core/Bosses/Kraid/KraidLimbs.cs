@@ -244,7 +244,7 @@ internal sealed class KraidLimbs
                 RunKraidSecondPhaseWalkToStart(body, foot, part);
                 return;
             case KraidFootPhase.SecondPhaseInitialize:
-                SetKraidWalking(foot, part, targetX: 352, thinkTimer: 180, rightward: true);
+                SetKraidWalking(foot, part, targetX: 352, thinkTimer: 180, direction: HorizontalDirection.Right);
                 return;
             case KraidFootPhase.SecondPhaseThinking:
                 RunKraidSecondPhaseThinking(body, foot, part);
@@ -357,7 +357,8 @@ internal sealed class KraidLimbs
             return;
 
         (int targetX, int thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
-        SetKraidWalking(foot, part, targetX, thinkTimer, rightward: CoordinateAxis.Difference(targetX, body.Position.X.Whole) >= 0);
+        SetKraidWalking(foot, part, targetX, thinkTimer,
+            CoordinateAxis.Difference(targetX, body.Position.X.Whole) >= 0 ? HorizontalDirection.Right : HorizontalDirection.Left);
     }
 
     /// <summary>
@@ -369,13 +370,14 @@ internal sealed class KraidLimbs
         KraidFootState part,
         int targetX,
         int thinkTimer,
-        bool rightward)
+        HorizontalDirection direction)
     {
         part.Kraid.WalkTargetX = targetX;
         part.ThinkTimer = thinkTimer;
         part.Phase = KraidFootPhase.SecondPhaseWalking;
-        part.WalkDirection = rightward ? HorizontalDirection.Right : HorizontalDirection.Left;
-        _access.StartKraidPartAnimation(part.Kraid, foot, rightward ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
+        part.WalkDirection = direction;
+        _access.StartKraidPartAnimation(part.Kraid, foot,
+            direction == HorizontalDirection.Right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward);
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>

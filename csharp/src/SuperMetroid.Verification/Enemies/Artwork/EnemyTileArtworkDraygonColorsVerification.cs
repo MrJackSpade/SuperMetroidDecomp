@@ -87,7 +87,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             part.Bind(parts[index].Definition, part.Definition);
             parts[index].Initialize(part);
         }
-        DraygonEnemyState state = enemies.DraygonBehavior.Parts.Draygon ??
+        DraygonEnemyState state = enemies.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
         AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
             "installed Draygon colors leave intro mechanics unchanged");

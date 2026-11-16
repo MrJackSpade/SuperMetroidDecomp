@@ -39,6 +39,8 @@ internal sealed class CrocomireFight
     private readonly CrocomireCombat _combat;
     /// <summary>The room's enemy places, among which the tongue finds the body listed before it.</summary>
     private readonly EnemyPlaces _places;
+    /// <summary>The encounters of the room's bosses, to which his body's setup attaches his (#2194).</summary>
+    private readonly RoomBossEncounters _encounters;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CrocomireFight(CrocomireFightDependencies dependencies)
@@ -54,13 +56,8 @@ internal sealed class CrocomireFight
         _access = dependencies.Access;
         _combat = dependencies.Combat;
         _places = dependencies.Places;
+        _encounters = dependencies.Encounters;
     }
-
-    /// <summary>
-    /// The room's Crocomire as the room's display and main update see it (#2177): set as his body sets up and kept for
-    /// the room, or none in a room without him. His parts never read it: each holds its encounter from its setup.
-    /// </summary>
-    internal CrocomireEnemyState? Encounter { get; private set; }
 
     /// <summary>Sets Crocomire up when the room spawns it.</summary>
     internal void InitializeCrocomire(RoomEnemyPlace place)
@@ -68,7 +65,9 @@ internal sealed class CrocomireFight
         _roomStatus.Boss = AreaBoss.Crocomire;
         var state = new CrocomireEnemyState(place);
         place.SetSpeciesState(state);
-        Encounter = state;
+        // The room's shaking main and his melt's display read him from the room from here (#2194); his parts each hold
+        // the encounter from their own setup.
+        _encounters.Attach(state);
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
         _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire, state));
         _presentation.BossShadings.Show(BossShadingLayer.Crocomire, state.Colours);

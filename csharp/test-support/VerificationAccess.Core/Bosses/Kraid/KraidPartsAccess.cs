@@ -10,12 +10,14 @@ internal static class KraidPartsAccess
     {
         /// <summary>
         /// Begins Kraid's encounter as his body's setup does and joins the first eight enemies of <paramref name="enemies"/>
-        /// to it as his parts in the order his room lists them, each holding the encounter as its setup would (#1877, #2218).
+        /// to it as his parts in the order his room lists them, each holding the encounter as its setup would (#1877, #2218),
+        /// and shows it on his body layer as his body's setup does (#2194).
         /// </summary>
         /// <returns>The encounter begun.</returns>
         internal KraidEnemyState BeginEncounterInRoomOrder(EnemyPlaces enemies)
         {
-            KraidEnemyState state = kraid.Access.BeginEncounter();
+            var state = new KraidEnemyState();
+            kraid.BodyLayer.Show(state);
             KraidParts parts = kraid.Parts;
             KraidPartReference[] roomOrder =
             [

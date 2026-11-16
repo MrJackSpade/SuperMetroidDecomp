@@ -32,7 +32,7 @@ internal static class PhantoonPatternsVerification
             var body = enemies.Places.InUpdateOrder[0];
             var eye = enemies.Places.InUpdateOrder[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
-            enemies.PhantoonBehavior.Combat.Phantoon = state;
+            enemies.BeginPhantoonAsSetUp(state);
             state.PhaseTimer = 1;
             state.FigureEight.Reversed = true;
             new Action<RoomEnemyPlace, PhantoonEnemyState>(enemies.PhantoonBehavior.Patterns.RunPhantoonHiddenFlameRain)(body, state);

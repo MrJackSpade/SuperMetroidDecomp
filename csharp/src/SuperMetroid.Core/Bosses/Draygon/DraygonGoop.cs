@@ -45,7 +45,7 @@ internal sealed class DraygonGoop
             direction == HorizontalDirection.Right
                 ? DraygonSegment.BodyFacingRightReset
                 : DraygonSegment.BodyFacingLeftReset);
-        state.FacingRight = direction == HorizontalDirection.Right;
+        state.Facing = direction;
     }
 
     /// <summary>Runs the oscillating approach.</summary>
@@ -63,7 +63,7 @@ internal sealed class DraygonGoop
             state.GoopCounter = 16;
             return;
         }
-        MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
+        MoveDraygonAlongGoopPath(state, direction);
     }
 
     /// <summary>Runs the firing and off-screen selection.</summary>
@@ -86,7 +86,7 @@ internal sealed class DraygonGoop
         {
             if (--state.GoopCounter == 0)
             {
-                FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
+                FinishDraygonGoopFiring(state, direction);
                 return;
             }
             DraygonParts.StartDraygonAnimation(
@@ -96,21 +96,21 @@ internal sealed class DraygonGoop
                     : DraygonSegment.BodyFacingLeftFireGoop);
         }
 
-        MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
+        MoveDraygonAlongGoopPath(state, direction);
         int x = state.Body.Position.X.Whole;
         bool crossedExit = direction == HorizontalDirection.Right
             ? CoordinateAxis.AsSigned(x) >= 0 && x >= 672
             : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonBehavior.DraygonOffscreenLeftX) < 0;
         if (crossedExit)
-            FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
+            FinishDraygonGoopFiring(state, direction);
     }
 
     /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
-    private static void FinishDraygonGoopFiring(DraygonEnemyState state, bool movingRight)
+    private static void FinishDraygonGoopFiring(DraygonEnemyState state, HorizontalDirection direction)
     {
         DraygonParts.StartDraygonAnimation(
             state.Arms,
-            movingRight
+            direction == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightIdle
                 : DraygonSegment.ArmsFacingLeftIdle);
         state.Phase = DraygonPhase.GoopRecovery;
@@ -130,7 +130,7 @@ internal sealed class DraygonGoop
             return;
         }
 
-        MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
+        MoveDraygonAlongGoopPath(state, direction);
         int x = state.Body.Position.X.Whole;
         bool offScreen = direction == HorizontalDirection.Right
             ? CoordinateAxis.AsSigned(x) >= 0 && x >= 672
@@ -155,11 +155,11 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>
-    internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
+    internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, HorizontalDirection direction)
     {
         state.Body.Position = state.Body.Position.WithWholeY(
             384 + EnemyMath.CircleCosinePixels(state.GoopYOscillationAngle.ToTrigonometryAngle(), 32));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.TurnedBySteps(1);
-        DraygonMovement.MoveDraygonHorizontally(state, movingRight);
+        DraygonMovement.MoveDraygonHorizontally(state, direction);
     }
 }

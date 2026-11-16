@@ -40,7 +40,7 @@ internal static class KraidNailSiblingVerification
             {
                 int record = 0xa70000 | Word(table + randomOffset);
                 AssertEqual(Word(record + fieldOffset),
-                    field(KraidNailLaunch.FromSiblingVelocity((ushort)raw)),
+                    field(KraidNailLaunch.FromSiblingVelocity(FixedVector<RoomPixels>.FromStoredParts(0, 0, raw, 0).Y)),
                     $"Kraid launch field {fieldOffset}, sibling {raw}, RNG offset {randomOffset}");
             }
         }
@@ -110,9 +110,9 @@ internal static class KraidNailSiblingVerification
         random = 0;
         secondNail.Clear();
         initialize(firstNail, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail));
-        AssertEqual(KraidNailLaunch.FromSiblingVelocity(0).Y.UnsignedWholePixels, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail).NailVelocity.Y.UnsignedWholePixels,
+        AssertEqual(KraidNailLaunch.FromSiblingVelocity(SignedSixteenSixteen.Zero).Y.UnsignedWholePixels, enemies.KraidBehavior.Parts.NailStateOf(state, firstNail).NailVelocity.Y.UnsignedWholePixels,
             "a launch after its sibling was killed reads the sibling as stopped");
-        AssertTrue(KraidNailLaunch.FromSiblingVelocity(0).Y.UnsignedWholePixels != KraidNailLaunch.FromSiblingVelocity(0x8000).Y.UnsignedWholePixels,
+        AssertTrue(KraidNailLaunch.FromSiblingVelocity(SignedSixteenSixteen.Zero).Y.UnsignedWholePixels != KraidNailLaunch.FromSiblingVelocity(FixedVector<RoomPixels>.FromStoredParts(0, 0, 0x8000, 0).Y).Y.UnsignedWholePixels,
             "a stopped sibling launches its pair differently from one moving down");
 
         // A killed sibling took no alternate spawn, whatever its mark last held, so a draw that allows it sends the launch

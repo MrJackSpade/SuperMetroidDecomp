@@ -18,7 +18,7 @@ internal static class DraygonEscapeDragVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0135, 0x019d)) };
-        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: false);
+        samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
         samus.DraygonGrabbed.Release(samus);
 
         var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]) { Phase = DraygonPhase.CarrySamus };

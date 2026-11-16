@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -20,6 +21,9 @@ internal interface IEnemyDisplaySources
 
     /// <summary>The loaded Phantoon, if any.</summary>
     PhantoonEnemyState? Phantoon { get; }
+
+    /// <summary>The distortion Crocomire's melt shows on the room while its scroll runs (#1466), or null while it shows none.</summary>
+    CrocomireMeltDistortion? CrocomireMelt { get; }
 
     /// <summary>Ceres Ridley, if loaded.</summary>
     RidleyEnemyState? CeresRidley { get; }

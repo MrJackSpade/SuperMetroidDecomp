@@ -34,7 +34,7 @@ internal sealed class DraygonSwoops
         BuildDraygonSwoopYPositions(state, samus);
         state.Phase = DraygonPhase.SwoopDescending;
         DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
-        state.FacingRight = true;
+        state.Facing = HorizontalDirection.Right;
     }
 
     /// <summary>Captures Samus's height and computes the vertical waypoints for the next swoop.</summary>
@@ -93,7 +93,7 @@ internal sealed class DraygonSwoops
             state.Phase = DraygonPhase.SwoopApex;
             return;
         }
-        DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
+        DraygonMovement.MoveDraygonHorizontally(state, side.Direction);
     }
 
     /// <summary>Runs the velocity recalculation at the bottom of the swoop.</summary>
@@ -134,7 +134,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = entry + 1;
         if (state.SwoopEntry != path.EntryCount)
         {
-            DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
+            DraygonMovement.MoveDraygonHorizontally(state, side.Direction);
             return;
         }
 
@@ -178,7 +178,7 @@ internal sealed class DraygonSwoops
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopDescending;
         DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingLeftReset);
-        state.FacingRight = false;
+        state.Facing = HorizontalDirection.Left;
         state.SwoopEntry = frameCount;
     }
 

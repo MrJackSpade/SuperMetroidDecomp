@@ -48,12 +48,12 @@ internal sealed class DraygonDeath
         if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
-                body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
+                body.Position.Whole + new Offset16<RoomPixels>(state.Facing == HorizontalDirection.Right ? 32 : -32, -16),
                 RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
 
-        MoveDraygonAtMovementAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
+        DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, 4) ||
             !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonDeathTargetY, 4))
@@ -78,7 +78,7 @@ internal sealed class DraygonDeath
         RoomEnemyPlace eye = state.Eye;
         DraygonParts.StartDraygonAnimation(
             eye,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDead
                 : DraygonSegment.EyeFacingLeftDead);
         eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
@@ -201,20 +201,5 @@ internal sealed class DraygonDeath
 
             sprite.Position = sprite.Position.Advance(BurialDrift(evir.Definition));
         }
-    }
-
-    /// <summary>Moves the body along an angle in 256ths of a turn at the supplied speed.</summary>
-    private static void MoveDraygonAtMovementAngle(RoomEnemyPlace body, TrigonometryAngle movementAngle, int speed)
-    {
-        UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);
-        UnsignedSixteenSixteen yMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.HalfTurn);
-        body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
-            body.Position.X,
-            xMagnitude,
-            subtract: EnemyMath.CosineIsNegative(movementAngle)));
-        body.Position = body.Position.WithY(DraygonMovement.AddDraygonAngleMagnitude(
-            body.Position.Y,
-            yMagnitude,
-            subtract: EnemyMath.SineIsNegative(movementAngle)));
     }
 }

@@ -48,13 +48,6 @@ internal sealed class DraygonParts
         _places = dependencies.Places;
     }
 
-    /// <summary>
-    /// The room's Draygon as the room's display sees it (#2177): set as his body sets up and kept for the room, so that
-    /// his body layer hides once his body is deleted; none in a room without him. His parts never read it: each holds
-    /// its encounter from its setup.
-    /// </summary>
-    public DraygonEnemyState? Draygon { get; private set; }
-
     /// <summary>Sets Draygon's body up when the room spawns it.</summary>
     internal void InitializeDraygonBody(RoomEnemyPlace body)
     {
@@ -63,17 +56,18 @@ internal sealed class DraygonParts
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
-        Draygon = new DraygonEnemyState(body)
+        var draygon = new DraygonEnemyState(body)
         {
             Phase = DraygonPhase.IntroInitialDelay,
         };
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first; the
-        // room keeps showing it, hidden, once his body is deleted (#2194).
-        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, Draygon));
-        _presentation.BossShadings.Show(BossShadingLayer.Draygon, Draygon.Colours);
-        body.SetSpeciesState(Draygon);
-        body.Shading = Draygon.Colours.Sprites;
-        Draygon.StartAnimation(body, DraygonSegment.BodyFacingLeftIdle);
+        // room keeps showing it, hidden, once his body is deleted (#2194). The room's display reads only what he attaches;
+        // his parts each hold the encounter from their own setup.
+        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
+        _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
+        body.SetSpeciesState(draygon);
+        body.Shading = draygon.Colours.Sprites;
+        draygon.StartAnimation(body, DraygonSegment.BodyFacingLeftIdle);
     }
 
     /// <summary>
@@ -241,7 +235,7 @@ internal sealed class DraygonParts
                 ApplyDraygonTailWhipHit(state, samus);
                 return;
             case DraygonCue.SpawnGoop goop:
-                SpawnDraygonGoop(state, goop.Direction == HorizontalDirection.Right);
+                SpawnDraygonGoop(state, goop.Direction);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
@@ -327,7 +321,7 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
-    internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
+    internal void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
         EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();
         if (goop is null)
@@ -339,12 +333,12 @@ internal sealed class DraygonParts
             _shots.Goop,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
-        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
+        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (direction == HorizontalDirection.Right ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 
         int random = _room.Random.Generate();
         // The goop leaves within the quarter turn from a half turn when Draygon moves left, or from three quarters of a
         // turn when he moves right.
-        TrigonometryAngle firstAngle = movingRight ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
+        TrigonometryAngle firstAngle = direction == HorizontalDirection.Right ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
         TrigonometryAngle angle = firstAngle + new TrigonometryAngle(DraygonRandomDefinitions.GoopAngleSpread.Of(random));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
     }

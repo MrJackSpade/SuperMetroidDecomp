@@ -20,8 +20,6 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// <inheritdoc />
     bool IBossBodyDisplay.Hidden => false;
 
-    /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
-    private readonly KraidEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
 
@@ -32,12 +30,20 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     private KraidShownBody? shown;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidBodyLayer(KraidEncounterAccess access, BossArtworkBinding bossArtwork, KraidParts parts)
+    internal KraidBodyLayer(BossArtworkBinding bossArtwork, KraidParts parts)
     {
         _bossArtwork = bossArtwork;
-        _access = access;
         _parts = parts;
     }
+
+    /// <summary>
+    /// The encounter whose body the layer shows (#2194): the one his body last began as it set up, kept for the room so
+    /// the layer keeps showing after his body is deleted; none before his body sets up.
+    /// </summary>
+    internal KraidEnemyState? Kraid { get; private set; }
+
+    /// <summary>His body sets up: the layer shows <paramref name="kraid"/>'s body from now on.</summary>
+    internal void Show(KraidEnemyState kraid) => Kraid = Ensure.NotNull(kraid);
 
     /// <summary>
     /// The body layer Kraid shows while he owns it (#1352); null when he does not. Drawn from his installed body sheet once
@@ -47,7 +53,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// <exception cref="InvalidDataException">The sheet lacks a frame his body shows.</exception>
     internal BossBodyLayer? CaptureBodyLayer()
     {
-        if (_access.Kraid is not { ShowsBodyLayer: true } state)
+        if (Kraid is not { ShowsBodyLayer: true } state)
             return null;
         BossBodySheet sheet = _bossArtwork.Body(BossBodyOwner.Kraid);
         KraidBodyAppearance appearance = state.BodyShown ? state.BodyAppearance : KraidBodyAppearance.Hidden;
@@ -63,7 +69,7 @@ internal sealed class KraidBodyLayer : IBossBodyDisplay
     /// Where Kraid's body is placed while it is shown (#1352, #2031): his position, against which each of his body's
     /// installed frames lies; otherwise null.
     /// </summary>
-    internal Position16<RoomPixels>? Placement => _access.Kraid is { ShowsBodyLayer: true } ? _parts.Body.Position.Whole : null;
+    internal Position16<RoomPixels>? Placement => Kraid is { ShowsBodyLayer: true } ? _parts.Body.Position.Whole : null;
 
     /// <summary>
     /// The body <paramref name="appearance"/> shows, drawn from <paramref name="sheet"/>: nothing while it is hidden, and

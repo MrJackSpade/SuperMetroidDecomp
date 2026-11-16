@@ -42,4 +42,7 @@ internal sealed record CrocomireFightDependencies
 
     /// <summary>The room's enemy places, among which the tongue finds the body listed before it.</summary>
     public required EnemyPlaces Places { get; init; }
+
+    /// <summary>The encounters of the room's bosses, to which his body's setup attaches his (#2194).</summary>
+    public required RoomBossEncounters Encounters { get; init; }
 }

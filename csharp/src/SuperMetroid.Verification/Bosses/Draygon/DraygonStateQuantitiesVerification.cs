@@ -62,11 +62,11 @@ internal static class DraygonStateQuantitiesVerification
         (_, DraygonEnemyState state) = NewDraygon();
         state.SwoopVelocity = default;
         state.GoopYOscillationAngle = RotationAngle.FromSteps(byte.MaxValue);
-        DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
+        DraygonGoop.MoveDraygonAlongGoopPath(state, HorizontalDirection.Right);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(byte.MaxValue), 32))), state.Body.Position.Y.Whole,
             "the bob reads the phase before advancing it");
         AssertEqual(RotationAngle.Zero, state.GoopYOscillationAngle, "the phase wraps from the last table unit to zero");
-        DraygonGoop.MoveDraygonAlongGoopPath(state, movingRight: true);
+        DraygonGoop.MoveDraygonAlongGoopPath(state, HorizontalDirection.Right);
         AssertEqual(unchecked((ushort)(384 + EnemyMath.CircleCosinePixels(new TrigonometryAngle(0), 32))), state.Body.Position.Y.Whole,
             "the next bob reads the wrapped phase");
         AssertEqual(1, (int)state.GoopYOscillationAngle.ToTrigonometryAngle().RawValue, "the wrapped phase advances by one unit");

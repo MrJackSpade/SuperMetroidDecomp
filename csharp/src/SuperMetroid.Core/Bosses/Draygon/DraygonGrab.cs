@@ -57,7 +57,7 @@ internal sealed class DraygonGrab
         RoomEnemyPlace body = state.Body;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
-        int clawOffset = state.FacingRight ? 8 : -8;
+        int clawOffset = state.Facing == HorizontalDirection.Right ? 8 : -8;
         bool insideGrabWindow =
             EnemyMath.IsWithinStrictModularDistance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole, 8) &&
             EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, 8);
@@ -69,7 +69,7 @@ internal sealed class DraygonGrab
 
         DraygonParts.StartDraygonAnimation(
             state.Arms,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightGrab
                 : DraygonSegment.ArmsFacingLeftGrab);
 
@@ -82,7 +82,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        samus.DraygonGrabbed.Begin(samus, state.FacingRight);
+        samus.DraygonGrabbed.Begin(samus, state.Facing);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
         state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonBehavior.DraygonSpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
@@ -119,7 +119,7 @@ internal sealed class DraygonGrab
             state.Phase = DraygonPhase.FlailWithSamus;
             DraygonParts.StartDraygonAnimation(
                 body,
-                state.FacingRight
+                state.Facing == HorizontalDirection.Right
                     ? DraygonSegment.BodyFacingRightRoar
                     : DraygonSegment.BodyFacingLeftRoar);
             body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -163,7 +163,7 @@ internal sealed class DraygonGrab
         if (DraygonCadenceDefinitions.GrabFoamEveryEighthUpdate.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
-                body.Position.Whole + new Offset16<RoomPixels>(state.FacingRight ? 32 : -32, -16),
+                body.Position.Whole + new Offset16<RoomPixels>(state.Facing == HorizontalDirection.Right ? 32 : -32, -16),
                 RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
@@ -202,7 +202,7 @@ internal sealed class DraygonGrab
         {
             DraygonParts.StartDraygonAnimation(
                 state.Tail,
-                state.FacingRight
+                state.Facing == HorizontalDirection.Right
                     ? DraygonSegment.TailFacingRightWhip
                     : DraygonSegment.TailFacingLeftWhip);
         }
@@ -214,7 +214,7 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, samus);
         DraygonParts.StartDraygonAnimation(
             state.Tail,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.TailFacingRightFinalWhips
                 : DraygonSegment.TailFacingLeftFinalWhips);
         state.Phase = DraygonPhase.FinalTailWhipsWait;
@@ -245,7 +245,7 @@ internal sealed class DraygonGrab
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         DraygonParts.StartDraygonAnimation(
             state.Tail,
-            state.FacingRight
+            state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.TailFacingRightFlail
                 : DraygonSegment.TailFacingLeftFlail);
     }
@@ -261,7 +261,7 @@ internal sealed class DraygonGrab
         samus.DraygonGrabbed.ApplyOwnerPosition(
             samus,
             state.Body.Position.Whole,
-            state.FacingRight);
+            state.Facing);
         _scrollCap.CapSamusScrollingSpeed(samus);
         if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
             state.Phase = DraygonPhase.FlyStraightUp;
@@ -276,19 +276,7 @@ internal sealed class DraygonGrab
         Position16<RoomPixels> target,
         int speed)
     {
-        TrigonometryAngle movementAngle = EnemyMath.CalculateBearing(target - body.Position.Whole).ToTrigonometryAngle();
-
-        UnsignedSixteenSixteen xMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.QuarterTurn);
-        UnsignedSixteenSixteen yMagnitude = DraygonMovement.AngleMagnitude(movementAngle, speed, RotationAngle.HalfTurn);
-
-        body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
-            body.Position.X,
-            xMagnitude,
-            subtract: EnemyMath.CosineIsNegative(movementAngle)));
-        body.Position = body.Position.WithY(DraygonMovement.AddDraygonAngleMagnitude(
-            body.Position.Y,
-            yMagnitude,
-            subtract: EnemyMath.SineIsNegative(movementAngle)));
+        DraygonMovement.MoveDraygonAtAngle(body, EnemyMath.CalculateBearing(target - body.Position.Whole).ToTrigonometryAngle(), speed);
     }
 
     /// <summary>Recognizes grapple phases that let Samus electrocute a connected Draygon.</summary>

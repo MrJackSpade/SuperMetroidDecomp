@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;

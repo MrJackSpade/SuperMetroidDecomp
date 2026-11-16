@@ -55,7 +55,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         var state = new NorfairLavaJumpingEnemyState(NorfairLavaJumpingEnemyAction.BeginJump)
         {
             AnimationFinished = false,
-            InstalledAnimation = null,
         };
         place.SetSpeciesState(state);
 
@@ -211,16 +210,12 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         place.Position = place.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
-    /// <summary>Starts an animation without restarting an unchanged one.</summary>
+    /// <summary>Starts an animation without restarting the one playing.</summary>
     private static void StartNorfairLavaJumpingEnemyAnimation(
         RoomEnemyPlace place,
         NorfairLavaJumpingEnemyState state,
         NorfairLavaJumperSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(NorfairLavaJumperAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairLavaJumperAnimations.StartingWith(segment));
 
     /// <summary>Runs the Norfair lava-jumping enemy's main AI.</summary>
     internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemyPlace place, IEnemyAiFrame _)

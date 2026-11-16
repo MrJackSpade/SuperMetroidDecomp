@@ -29,4 +29,12 @@ internal sealed class PipeBugNativeInstructionPointers
     /// <summary>The playback native pointer <paramref name="address"/> stands for: an animation's start when it is a segment entry.</summary>
     internal AnimationPlayback<PipeBugSegment> PlaybackAt(ushort address) =>
         NativeEnemyAnimationOracle.PlaybackAt(lists, PipeBugNativeListAddresses.Entries, PipeBugAnimations.StartingAt, address);
+
+    /// <summary>
+    /// The playback native pointer <paramref name="address"/> stands for in the animation the recording installed
+    /// (<paramref name="installed"/>), which a Brinstar Pipe Bug's later request for it must find playing (#2145).
+    /// </summary>
+    internal AnimationPlayback<PipeBugSegment> PlaybackAt(ushort address, PipeBugSegment installed) =>
+        NativeEnemyAnimationOracle.PlaybackAt(lists, PipeBugNativeListAddresses.Entries, PipeBugAnimations.StartingAt, address,
+            playing: PipeBugAnimations.StartingWith(installed));
 }

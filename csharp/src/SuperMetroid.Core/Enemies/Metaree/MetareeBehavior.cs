@@ -46,14 +46,12 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MetareeEnemyState(MetareeAction.Idling)
         {
             BurrowTimer = 0,
-            InstalledAnimation = SkreeMetareeSegment.MetareeIdling,
             AttackReady = false,
             YVelocity = 0,
         };
         place.SetSpeciesState(state);
 
-        // The initializer starts the idle animation directly rather than through StartMetareeAnimation, which would
-        // leave the idle animation it records as installed unstarted.
+        // The initializer starts the idle animation directly, leaving the frame timer as the spawn set it.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 
@@ -168,18 +166,12 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
     }
 
-    /// <summary>Starts <paramref name="animation"/> unless it is the one already installed, which keeps playing.</summary>
+    /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>
     internal static void StartMetareeAnimation(
         RoomEnemyPlace place,
         MetareeEnemyState state,
-        SkreeMetareeSegment animation)
-    {
-        if (animation == state.InstalledAnimation)
-            return;
-
-        state.InstalledAnimation = animation;
-        state.Playback = EnemyAnimationPlayback.Start(place, SkreeMetareeAnimations.StartingWith(animation));
-    }
+        SkreeMetareeSegment animation) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SkreeMetareeAnimations.StartingWith(animation));
 
     /// <summary>Runs Metaree's main AI.</summary>
     internal void RunMetareeMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)

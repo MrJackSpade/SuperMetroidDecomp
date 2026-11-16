@@ -16,11 +16,6 @@ public sealed class SkreeEnemyState
     /// <summary>The current action.</summary>
     public SkreeAction Action { get; internal set; }
 
-    /// <summary>
-    /// The animation the AI last started: idling, preparing to attack or diving. Asking for it again leaves it playing.
-    /// </summary>
-    internal SkreeMetareeSegment InstalledAnimation { get; set; }
-
     /// <summary>The wind-up cue's one-shot authorization to begin diving.</summary>
     public bool AttackReady { get; internal set; }
 }

@@ -12,8 +12,6 @@ internal enum CacatacSegment
     UpsideUpAttack,
     /// <summary>The upside down idle animation.</summary>
     UpsideDownIdle,
-    /// <summary>The upside down idle loop animation.</summary>
-    UpsideDownIdleLoop,
     /// <summary>The upside down attack animation.</summary>
     UpsideDownAttack,
 }

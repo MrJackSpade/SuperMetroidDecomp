@@ -38,12 +38,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyPlace place)
     {
-        var state = new SbugEnemyState(place.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus)
-        {
-            // A new Sbug has no animation: none is requested or installed until it selects its first direction.
-            RequestedAnimation = null,
-            InstalledAnimation = null,
-        };
+        // A new Sbug plays no animation until it selects its first direction.
+        var state = new SbugEnemyState(place.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus);
         place.SetSpeciesState(state);
 
         // The forward velocity uses the unsigned quarter-circle magnitudes and lets the shared helper apply signs later
@@ -362,19 +358,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SignedSixteenSixteen CalculateSignedSbugComponent(TrigonometryAngle angle, int speed, int phase) =>
         EnemyMath.CircleSine(angle.TurnedBySteps(phase), speed);
 
-    /// <summary>Restarts the selected animation only when its facing animation differs from the installed one.</summary>
+    /// <summary>Restarts the selected animation only when its facing animation differs from the one playing (#2145).</summary>
     private static void SetSbugFacing(
         RoomEnemyPlace place,
         SbugEnemyState state,
-        CompassDirection facing)
-    {
-        state.RequestedAnimation = SbugMovement.FacingAnimation(facing);
-        if (state.RequestedAnimation == state.InstalledAnimation)
-            return;
-
-        state.InstalledAnimation = state.RequestedAnimation;
-        state.Playback = EnemyAnimationPlayback.Start(place, SbugAnimations.StartingWith(state.RequestedAnimation.Value));
-    }
+        CompassDirection facing) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
 
     /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>
     private void SetSbugRandomSeed()

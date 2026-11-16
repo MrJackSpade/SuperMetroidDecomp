@@ -85,7 +85,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             var arms = new EvirArmsState(body);
             place.SetSpeciesState(arms);
             PositionEvirArms(place, arms);
-            arms.InstalledAnimation = null;
+            arms.ShowsSpawnAnimation = true;
             return;
         }
 
@@ -100,7 +100,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DirectionChangePeriod = settings.DirectionChangePeriod;
         state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance);
         state.MovingDown = false;
-        state.InstalledAnimation = null;
+        state.ShowsSpawnAnimation = true;
     }
 
     /// <summary>What an Evir body's first half-cycle reads of a room's enemy place (<see cref="EvirBorrowedFirstHalfCycle"/>).</summary>
@@ -127,21 +127,18 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RequirePlacedBody(body, place, "spit");
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
-            RequestedAnimation = EvirSegment.ProjectileNormal,
-            InstalledAnimation = null,
             Regenerating = false,
             InFlight = false,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         place.SetSpeciesState(state);
-        StartEvirAnimation(place, state);
+        RequestEvirAnimation(place, state, EvirSegment.ProjectileNormal);
 
         // The spit has no graphics-set entry of its own: its sheet pictures it in the Evir's art and colours.
         ResetEvirProjectilePosition(place, state);
 
-        // Clears the installed animation after having started the normal animation. That oddity
-        // forces the first main-AI request to refresh the frame timer exactly once.
-        state.InstalledAnimation = null;
+        // The spit's first request, at its first launch, starts its normal animation afresh, refreshing the frame timer once.
+        state.ShowsSpawnAnimation = true;
     }
 
     /// <summary>
@@ -362,11 +359,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(state) ? 1 : -1, 0);
 
     /// <summary>
-    /// Both regeneration cues test the animation installed on the spit's body, not any facing of its own: the living
-    /// body's, the one a deleted body last installed, or none on a killed body's cleared place.
+    /// Both regeneration cues test the facing of the spit's body, not any facing of its own: the living body's, the one a
+    /// deleted body last showed, or left on a killed body's cleared place and on a body that has not yet updated since it
+    /// spawned (#2145).
     /// </summary>
     private static bool EvirBodyFacesRight(EvirSpitState spit) =>
-        spit.Body.FoundState<EvirBodyState>()?.InstalledAnimation == EvirSegment.BodyFacingRight;
+        spit.Body.FoundState<EvirBodyState>() is { ShowsSpawnAnimation: false, Facing: EvirFacing.Right };
 
     /// <summary>
     /// The facing an arms or spit reads from its body in <paramref name="bodyPlace"/>: the living body's own, a deleted
@@ -384,24 +382,20 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = EvirSpitAction.Idle;
     }
 
-    /// <summary>Records the desired animation and starts it only when it differs from the active one.</summary>
+    /// <summary>
+    /// Starts <paramref name="segment"/>'s animation only when it differs from the one playing, or afresh while the part
+    /// still shows its spawn animation, resetting the frame timer once per change and preserving held animations.
+    /// </summary>
     private static void RequestEvirAnimation(
         RoomEnemyPlace place,
         EvirPartState state,
         EvirSegment segment)
     {
-        state.RequestedAnimation = segment;
-        StartEvirAnimation(place, state);
-    }
-
-    /// <summary>Resets the frame timer once per animation change, preserving held animations.</summary>
-    private static void StartEvirAnimation(RoomEnemyPlace place, EvirPartState state)
-    {
-        if (state.RequestedAnimation == state.InstalledAnimation)
-            return;
-        state.Playback = new(EvirAnimations.StartingWith(state.RequestedAnimation), AnimationPlace.StartOfAnimation);
-        state.InstalledAnimation = state.RequestedAnimation;
-        place.AnimationClock.Restart();
+        Animation<EvirSegment> animation = EvirAnimations.StartingWith(segment);
+        state.Playback = state.ShowsSpawnAnimation
+            ? EnemyAnimationPlayback.Start(place, animation)
+            : EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, animation);
+        state.ShowsSpawnAnimation = false;
     }
 
     /// <summary>

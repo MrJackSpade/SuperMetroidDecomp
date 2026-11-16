@@ -118,15 +118,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The head's spawn settings name the speed it and its arm rise and sink at; the arm reads the head's.
         var state = new MagdolliteHeadState(MagdolliteHeadAction.Waiting) { Speed = HeadRise(place).Speed };
         place.SetSpeciesState<MagdollitePartState>(state);
-        state.InstalledAnimation = null;
         state.HeadWaitsForBodyLanding = false;
         state.OriginY = place.Position.Y.Whole;
 
         bool samusIsLeft = (samus.Position.Whole - place.Position.Whole).X < 0;
-        state.DesiredAnimation = samusIsLeft
-            ? MagdolliteSegment.LeftIdle
-            : MagdolliteSegment.RightIdle;
-        StartMagdolliteAnimation(place, state);
+        StartMagdolliteAnimation(place, state, samusIsLeft ? MagdolliteSegment.LeftIdle : MagdolliteSegment.RightIdle);
     }
 
     /// <summary>Hides the rising body 32 pixels below its origin until the head triggers an attack.</summary>
@@ -135,11 +131,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MagdolliteBodyState(MagdolliteBodyAction.Dormant);
         place.SetSpeciesState<MagdollitePartState>(state);
         state.OriginY = place.Position.Y.Whole;
-        state.InstalledAnimation = null;
         state.BodyReachedApex = false;
         state.BodyWakeRequested = true;
-        state.DesiredAnimation = MagdolliteRiseStage.Setup.Phase.BodyAnimation;
-        StartMagdolliteAnimation(place, state);
+        StartMagdolliteAnimation(place, state, MagdolliteRiseStage.Setup.Phase.BodyAnimation);
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
     }
@@ -150,10 +144,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MagdolliteOverlayState(MagdolliteOverlayAction.WaitingForAttack);
         place.SetSpeciesState<MagdollitePartState>(state);
         state.OriginY = place.Position.Y.Whole;
-        state.InstalledAnimation = null;
         state.AttackTimer = WrappingCountdown.Start(0);
-        state.DesiredAnimation = MagdolliteSegment.PillarCap;
-        StartMagdolliteAnimation(place, state);
+        StartMagdolliteAnimation(place, state, MagdolliteSegment.PillarCap);
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + MagdolliteMotionDefinitions.HiddenDepth);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
     }
@@ -260,10 +252,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        state.DesiredAnimation = samusIsRight
-            ? MagdolliteSegment.RightIdle
-            : MagdolliteSegment.LeftIdle;
-        StartMagdolliteAnimation(head, state);
+        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
 
         (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
         MagdolliteOverlayState overlayState = PartState<MagdolliteOverlayState>(overlay);
@@ -275,10 +264,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
-        state.DesiredAnimation = samusIsRight
-            ? MagdolliteSegment.RightSubmerge
-            : MagdolliteSegment.LeftSubmerge;
-        StartMagdolliteAnimation(head, state);
+        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightSubmerge : MagdolliteSegment.LeftSubmerge);
         state.Action = MagdolliteHeadAction.WaitingForAttackAnimation;
     }
 
@@ -306,10 +292,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        state.DesiredAnimation = samusIsRight
-            ? MagdolliteSegment.RightEmerge
-            : MagdolliteSegment.LeftEmerge;
-        StartMagdolliteAnimation(head, state);
+        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightEmerge : MagdolliteSegment.LeftEmerge);
         state.Action = MagdolliteHeadAction.WaitingForReturnAnimation;
     }
 
@@ -323,10 +306,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        state.DesiredAnimation = samusIsRight
-            ? MagdolliteSegment.RightIdle
-            : MagdolliteSegment.LeftIdle;
-        StartMagdolliteAnimation(head, state);
+        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
         state.Action = MagdolliteHeadAction.Waiting;
     }
 
@@ -380,8 +360,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPhase = state.BodyPhase.Higher;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + MagdollitePhaseDefinitions.BodyShiftPerPhase);
-        state.DesiredAnimation = state.BodyPhase.Phase.BodyAnimation;
-        StartMagdolliteAnimation(body, state);
+        StartMagdolliteAnimation(body, state, state.BodyPhase.Phase.BodyAnimation);
     }
 
     /// <summary>Retraces the body's growth phases and releases the head's landing latch at its origin.</summary>
@@ -409,8 +388,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BodyPhase = state.BodyPhase.Lower;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - MagdollitePhaseDefinitions.BodyShiftPerPhase);
-        state.DesiredAnimation = state.BodyPhase.Phase.BodyAnimation;
-        StartMagdolliteAnimation(body, state);
+        StartMagdolliteAnimation(body, state, state.BodyPhase.Phase.BodyAnimation);
     }
 
     /// <summary>Begins following the rising body when the head enters its attack animation.</summary>
@@ -432,8 +410,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             (_, RoomEnemyPlace body, _) = RequireMagdolliteComposite(overlay);
             MagdolliteBodyState bodyState = PartState<MagdolliteBodyState>(body);
-            state.DesiredAnimation = MagdolliteSegment.PillarCap;
-            StartMagdolliteAnimation(overlay, state);
+            StartMagdolliteAnimation(overlay, state, MagdolliteSegment.PillarCap);
             bodyState.Action = MagdolliteBodyAction.Falling;
             state.Action = MagdolliteOverlayAction.TrackingFallingBody;
             bodyState.BodyReachedApex = false;
@@ -454,11 +431,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (bodyState.BodyReachedApex)
         {
             bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, overlay.Position.X.Whole);
-            state.DesiredAnimation = samusIsRight
-                ? MagdolliteSegment.RightThrow
-                : MagdolliteSegment.LeftThrow;
             state.ThrowsRight = samusIsRight;
-            StartMagdolliteAnimation(overlay, state);
+            StartMagdolliteAnimation(overlay, state, samusIsRight ? MagdolliteSegment.RightThrow : MagdolliteSegment.LeftThrow);
             state.Action = MagdolliteOverlayAction.WaitingForThrowAnimation;
             state.ThrowOrigin = overlay.Position.Whole;
         }
@@ -519,17 +493,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         return CoordinateAxis.Difference(place.Position.Y.Whole, before);
     }
 
-    /// <summary>Restarts the animation only when the desired segment differs from the installed one.</summary>
+    /// <summary>Starts <paramref name="segment"/>'s animation only when it differs from the one the part plays (#2145).</summary>
     private static void StartMagdolliteAnimation(
         RoomEnemyPlace place,
-        MagdollitePartState state)
-    {
-        if (state.DesiredAnimation == state.InstalledAnimation)
-            return;
-        state.Playback = new(MagdolliteAnimations.StartingWith(state.DesiredAnimation), AnimationPlace.StartOfAnimation);
-        state.InstalledAnimation = state.DesiredAnimation;
-        place.AnimationClock.Restart();
-    }
+        MagdollitePartState state,
+        MagdolliteSegment segment) =>
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MagdolliteAnimations.StartingWith(segment));
 
     /// <summary>Validates the head, body and overlay, listed in that order, that any one component found when it was placed.</summary>
     private MagdolliteComposite RequireMagdolliteComposite(RoomEnemyPlace member)

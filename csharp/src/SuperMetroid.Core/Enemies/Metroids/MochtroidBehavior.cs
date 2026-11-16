@@ -48,7 +48,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // start every Mochtroid this way.
         var state = new MochtroidEnemyState
         {
-            InstalledAnimation = null,
             AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
@@ -150,16 +149,12 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(velocity);
     }
 
-    /// <summary>Installs a changed flight or attachment animation and restarts its frame timers.</summary>
+    /// <summary>Starts a changed flight or attachment animation and restarts its frame timers (#2145).</summary>
     internal static void SetMochtroidAnimation(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
         MochtroidSegment segment) =>
-        EnemyAnimationPlayback.StartOnce(place, state.InstalledAnimation, segment, installed =>
-        {
-            state.InstalledAnimation = installed;
-            state.Playback = new(MochtroidAnimations.StartingWith(installed), AnimationPlace.StartOfAnimation);
-        });
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, MochtroidAnimations.StartingWith(segment));
 
     /// <summary>Resolves the family-specific portion of a Mochtroid's touch.</summary>
     private void ResolveMochtroidTouch(

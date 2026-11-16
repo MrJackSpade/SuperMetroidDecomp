@@ -17,13 +17,10 @@ internal static class EscapeEtecoonNativeListAddresses
     internal static readonly NativeProgramEntry<EscapeEtecoonSegment>[] Entries =
     [
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningLeftLowTide, 0xe556),
-        new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningLeftLowTideLoop, 0xe55a),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningLeftHighTide, 0xe56e),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningRightLowTide, 0xe582),
-        new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningRightLowTideLoop, 0xe586),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningRightHighTide, 0xe59a),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningForEscape, 0xe5ae),
-        new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.RunningForEscapeLoop, 0xe5b2),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.Stationary, 0xe5c6),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.ExpressGratitudeThenEscape, 0xe5da),
         new NativeProgramEntry<EscapeEtecoonSegment>(EscapeEtecoonSegment.ExpressGratitudeThenEscapeLoop, 0xe5e0),

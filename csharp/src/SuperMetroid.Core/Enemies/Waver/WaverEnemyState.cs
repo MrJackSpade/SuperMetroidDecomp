@@ -10,8 +10,8 @@ public sealed class WaverEnemyState
     /// <summary>Signed 1/65536-pixel horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
-    /// <summary>The animation currently installed; a request for it installs nothing.</summary>
-    internal WaverSegment InstalledAnimation { get; set; }
+    /// <summary>The way the Waver faces: its spawn's, turned around by each wall it meets; a spin keeps it (#2145).</summary>
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
     /// The vertical wave's phase; only its whole step is read, so it wraps after a full turn. It advances two whole
@@ -21,9 +21,6 @@ public sealed class WaverEnemyState
 
     /// <summary>Set by the spin animation's last cue after the four-frame spin completes.</summary>
     public bool SpinFinished { get; internal set; }
-
-    /// <summary>The animation main AI asks for: steady or spinning, facing left or right.</summary>
-    internal WaverSegment RequestedAnimation { get; set; }
 
     /// <summary>Advances the wave phase two steps (256ths of a turn), wrapping after a full turn.</summary>
     internal void AdvanceWave() => Angle = Angle.TurnedBySteps(2);

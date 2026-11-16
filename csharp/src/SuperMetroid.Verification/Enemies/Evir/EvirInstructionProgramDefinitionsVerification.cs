@@ -59,7 +59,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
-            var bodyState = new EvirBodyState(spit: place) { InstalledAnimation = EvirSegment.BodyFacingLeft };
+            var bodyState = new EvirBodyState(spit: place) { Facing = EvirFacing.Left };
             body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
             place.Bind(EnemyDefinitionId.EvirProjectile, place.Definition);
@@ -71,7 +71,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             state.InFlight = true;
             state.Regenerating = true;
             state.Action = EvirSpitAction.Regenerating;
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { InstalledAnimation = EvirSegment.BodyFacingLeft });
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { Facing = EvirFacing.Left });
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {
@@ -110,8 +110,6 @@ internal static class EvirInstructionProgramDefinitionsVerification
         Bind(place, EnemyDefinitionId.Evir);
         var state = new EvirBodyState(spit: place)
         {
-            RequestedAnimation = program,
-            InstalledAnimation = program,
             Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         place.SetSpeciesState(state);
@@ -126,8 +124,6 @@ internal static class EvirInstructionProgramDefinitionsVerification
         Bind(place, EnemyDefinitionId.EvirProjectile);
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
-            RequestedAnimation = program,
-            InstalledAnimation = program,
             Playback = new(EvirAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         place.SetSpeciesState(state);

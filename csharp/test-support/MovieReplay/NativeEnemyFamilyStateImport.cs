@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.SamusNativeCodecs;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -290,18 +291,23 @@ internal static class NativeEnemyFamilyStateImport
             shitroidRecord.ColourDelay = words.E;
             shitroidRecord.StateTimer = CoordinateAxis.AsSigned(words.F);
         }
+        if (enemy.SpeciesState<DachoraEchoState>() is { } dachoraEcho)
+        {
+            // An echo's record names its flicker routine and keeps its lifetime in variable D. The first echo's variable A
+            // holds its body's trail timer, which Core keeps on the body listed right before it (#2147).
+            if (words.F != AnimalsNativeWords.DachoraEchoRoutine)
+                throw new InvalidDataException($"Recorded Dachora echo {enemy.Ordinal} runs routine {words.F:X4}, not the echo's.");
+            dachoraEcho.Lifetime = unchecked((short)words.D);
+            if (enemies.Places.ListedBeforeOrNone(enemy, 1)?.SpeciesState<DachoraEnemyState>() is { } echoBody)
+                echoBody.TrailTimer = unchecked((short)words.A);
+        }
         if (enemy.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
             dachoraRecord.SetGlowCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
             dachoraRecord.Action = AnimalsNativeWords.DachoraActions.Decode(words.F, "recorded DachoraAction");
-            // The cartridge keeps the speed's whole pixels and the countdowns in variable A, and the acceleration's
-            // fraction and an echo's lifetime in variable D; each is read here as the meaning the recorded phase gives it.
-            if (dachoraRecord.Action == DachoraAction.Echo)
-            {
-                dachoraRecord.EchoPositionTimer = unchecked((short)words.A);
-                dachoraRecord.EchoLifetime = unchecked((short)words.D);
-            }
-            else if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
+            // The cartridge keeps the speed's whole pixels and the countdowns in variable A and the acceleration's fraction
+            // in variable D; each is read here as the meaning the recorded phase gives it.
+            if (dachoraRecord.Action is DachoraAction.BlinkingBeforeRun or DachoraAction.ChargingShinespark)
             {
                 dachoraRecord.PhaseTimer = unchecked((short)words.A);
                 dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
@@ -404,8 +410,11 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
         {
             zoaRecord.SpawnPosition = new(words.A, words.B);
-            zoaRecord.RequestedAnimation = ZoaNativeWords.AnimationSelectorOf(words.C);
-            zoaRecord.InstalledAnimation = ZoaNativeWords.AnimationSelectorOf(words.D);
+            // The record keeps the requested animation beside the installed one (#2145): Core keeps the Zoa's facing, which
+            // the requested animation shows, and only the playing animation, which this import does not read.
+            ZoaSegment requested = ZoaNativeWords.AnimationSelectorOf(words.C);
+            zoaRecord.FacesRight = requested is ZoaSegment.FacingRightRising or ZoaSegment.FacingRightShooting;
+            RequirePlaying(zoaRecord.Playback, ZoaAnimations.StartingWith(ZoaNativeWords.AnimationSelectorOf(words.D)), "Zoa");
             zoaRecord.Action = ZoaNativeWords.ZoaActions.Decode(words.F, "recorded ZoaAction");
         }
         if (enemy.SpeciesState<BabyTurtleEnemyState>() is { } babyTurtleRecord)
@@ -533,7 +542,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             skreeRecord.BurrowTimer = unchecked((short)words.A);
             skreeRecord.Action = SkreeNativeWords.SkreeActions.Decode(words.B, "recorded SkreeAction");
-            skreeRecord.InstalledAnimation = InstalledSkreeMetareeAnimation(SkreeNativeWords.SkreeAnimationPhases, words, "Skree");
+            RequirePlayingSkreeMetareeAnimation(skreeRecord.Playback, SkreeNativeWords.SkreeAnimationPhases, words, "Skree");
             skreeRecord.AttackReady = words.E != 0;
         }
         if (enemy.SpeciesState<BoulderEnemyState>() is { } boulderRecord)
@@ -751,11 +760,13 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.WaverStates[index] is { } waver)
         {
             waver.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
-            waver.InstalledAnimation = WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation");
+            // The record keeps the requested animation beside the installed one (#2145): Core keeps the Waver's facing,
+            // which the requested animation shows, and only the playing animation, which this import does not read.
+            RequirePlaying(waver.Playback, WaverAnimations.StartingWith(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation")), "Waver");
             // Only the phase word's low byte is ever read.
             waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
             waver.SpinFinished = words.E != 0;
-            waver.RequestedAnimation = WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation");
+            waver.Facing = WaverAnimationChoices.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
         }
         if (enemy.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
         {
@@ -821,7 +832,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             metaree.BurrowTimer = unchecked((short)words.A);
             metaree.Action = MetareeNativeWords.MetareeActions.Decode(words.B, "recorded MetareeAction");
-            metaree.InstalledAnimation = InstalledSkreeMetareeAnimation(SkreeNativeWords.MetareeAnimationPhases, words, "Metaree");
+            RequirePlayingSkreeMetareeAnimation(metaree.Playback, SkreeNativeWords.MetareeAnimationPhases, words, "Metaree");
             metaree.AttackReady = words.E != 0;
             metaree.YVelocity = Index(words.F, 2734, "Metaree dive speed");
         }
@@ -919,14 +930,29 @@ internal static class NativeEnemyFamilyStateImport
         word <= maximum ? word : throw new InvalidDataException($"Recorded {meaning} {word} exceeds {maximum}.");
 
     /// <summary>
-    /// The animation a recorded Skree or Metaree installed (#1810): the game keeps the requested phase beside the installed
-    /// one and installs a request in the same AI update, so Core keeps the installed animation alone and a record whose
-    /// two phases differ fails.
+    /// Requires a recorded Skree or Metaree to have installed the animation the imported one plays (#1810, #2145): the game
+    /// keeps the requested phase beside the installed one and installs a request in the same AI update, and Core keeps only
+    /// the playing animation, which this import does not read from the record, so a record whose two phases differ, or
+    /// whose installed phase is not the playing animation, fails.
     /// </summary>
-    private static SkreeMetareeSegment InstalledSkreeMetareeAnimation(NativeWordIdentities<SkreeMetareeSegment> phases, NativeEnemyRecordWords words, string enemyName) =>
-        words.C == words.D
-            ? phases.Decode(words.D, $"recorded installed {enemyName} animation phase")
-            : throw new InvalidDataException($"Recorded {enemyName} requests animation phase {words.C} while phase {words.D} is installed.");
+    private static void RequirePlayingSkreeMetareeAnimation(
+        AnimationPlayback<SkreeMetareeSegment> playing, NativeWordIdentities<SkreeMetareeSegment> phases, NativeEnemyRecordWords words, string enemyName)
+    {
+        if (words.C != words.D)
+            throw new InvalidDataException($"Recorded {enemyName} requests animation phase {words.C} while phase {words.D} is installed.");
+        RequirePlaying(playing, SkreeMetareeAnimations.StartingWith(phases.Decode(words.D, $"recorded installed {enemyName} animation phase")), enemyName);
+    }
+
+    /// <summary>
+    /// Requires the imported enemy to play the animation its record installed (#2145): Core keeps no installed animation
+    /// beside its playback, which this import does not read from the record, so a record that installed another fails.
+    /// </summary>
+    private static void RequirePlaying<TSegment>(AnimationPlayback<TSegment> playing, Animation<TSegment> installed, string enemyName)
+        where TSegment : struct
+    {
+        if (!ReferenceEquals(playing.Animation, installed))
+            throw new InvalidDataException($"A recorded {enemyName} installed {installed.Phases[0].Segment}, which the imported {enemyName} does not play.");
+    }
 
     /// <summary>
     /// The speed a recorded pair holds: the game stores a speed beside its negation, and Core keeps the speed alone and

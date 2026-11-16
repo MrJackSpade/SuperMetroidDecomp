@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Waver;
@@ -28,10 +29,10 @@ internal static class WaverBehaviorVerification
             place.SetSpawnWords(EnemyDefinitionId.Waver, words => words);
             WaverBehavior.InitializeWaver(place);
             WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
-            state.InstalledAnimation = selector == WaverSegment.SteadyFacingLeft ? WaverSegment.SteadyFacingRight : WaverSegment.SteadyFacingLeft;
-            state.RequestedAnimation = selector;
+            state.Playback = new(WaverAnimations.StartingWith(selector == WaverSegment.SteadyFacingLeft ? WaverSegment.SteadyFacingRight : WaverSegment.SteadyFacingLeft),
+                AnimationPlace.StartOfAnimation);
             state.SpinFinished = false;
-            WaverBehavior.SetWaverAnimation(place, state);
+            WaverBehavior.SetWaverAnimation(place, state, selector);
 
             WaverSegment program = selector;
             ushort[] frames = WaverAnimationsConstants.Spritemaps(program).ToArray();

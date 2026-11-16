@@ -14,8 +14,6 @@ internal enum KagoBugProjectileSegment
     Falling,
     /// <summary>The jump start animation.</summary>
     JumpStart,
-    /// <summary>The jump loop animation.</summary>
-    JumpLoop,
     /// <summary>The shot animation: the bug bursts, drops its pickup and is deleted.</summary>
     Shot,
 }

@@ -53,7 +53,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         headState.Speed = SignedSixteenSixteen.Zero;
 
         AssertEqual(MagdolliteRiseStage.Setup.Phase.BodyAnimation,
-            bodyState.DesiredAnimation, "Magdollite production initial body list");
+            bodyState.Playback.PlayingSegment, "Magdollite production initial body list");
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {
@@ -85,7 +85,7 @@ internal static class MagdollitePhaseDefinitionsVerification
                 MagdollitePhaseDefinition next = MagdolliteRiseStage.At(phaseIndex + 1).Phase;
                 AssertEqual(MagdolliteRiseStage.At(phaseIndex + 1), bodyState.BodyPhase,
                     $"Magdollite production rise phase {phaseIndex}");
-                AssertEqual(next.BodyAnimation, bodyState.DesiredAnimation,
+                AssertEqual(next.BodyAnimation, bodyState.Playback.PlayingSegment,
                     $"Magdollite production rise list {phaseIndex}");
             }
             else
@@ -105,7 +105,7 @@ internal static class MagdollitePhaseDefinitionsVerification
             AssertEqual(MagdolliteRiseStage.At(priorPhase), bodyState.BodyPhase,
                 $"Magdollite production fall phase {priorPhase}");
             AssertEqual(MagdolliteRiseStage.At(priorPhase).Phase.BodyAnimation,
-                bodyState.DesiredAnimation,
+                bodyState.Playback.PlayingSegment,
                 $"Magdollite production fall list {priorPhase}");
         }
 

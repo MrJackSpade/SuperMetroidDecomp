@@ -26,7 +26,4 @@ public enum DachoraAction
 
     /// <summary>Applies capped gravity until floor collision resumes the running phase.</summary>
     Falling,
-
-    /// <summary>Alternates one echo's visibility for its eight-update lifetime.</summary>
-    Echo,
 }

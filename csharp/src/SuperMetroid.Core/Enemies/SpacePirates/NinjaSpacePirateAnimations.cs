@@ -59,7 +59,7 @@ internal static class NinjaSpacePirateAnimations
             Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingLeft, 8),
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.SpinJumpLeftRising)),
+            Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Left)),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.SpinJump)),
             Show(EnemyFrameId.NinjaPirateSpinningFacingLeftTurned0, 1),
             Show(EnemyFrameId.NinjaPirateSpinningFacingLeftTurned45, 1),
@@ -90,7 +90,7 @@ internal static class NinjaSpacePirateAnimations
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateLeapCrouchFacingLeft, 8),
             Cue(new NinjaSpacePirateCue.Signal(K.StartDivekick)),
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickLeftJump)),
+            Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.DivekickJump, HorizontalDirection.Left)),
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.Stance)),
             Show(EnemyFrameId.NinjaPirateTuckedJumpFacingLeft, 4),
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.GoldWallFlash)),
@@ -105,7 +105,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.WalkToLeftPost] =
         [
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickLeftWalkToPost)),
+            Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.DivekickWalkToPost, HorizontalDirection.Left)),
             Show(EnemyFrameId.NinjaPirateRunningLeftFarLegBack, 5),
             Show(EnemyFrameId.NinjaPirateRunningLeftFarLegLifting, 5),
             Show(EnemyFrameId.NinjaPirateRunningLeftFarLegPassing, 5),
@@ -190,7 +190,7 @@ internal static class NinjaSpacePirateAnimations
             Cue(new NinjaSpacePirateCue.Signal(K.ResetSpeed)),
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateCrouchFacingRight, 8),
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.SpinJumpRightRising)),
+            Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.SpinJumpRising, HorizontalDirection.Right)),
             Cue(new NinjaSpacePirateCue.PlaySound(Sound: NinjaSpacePirateSoundDefinitions.SpinJump)),
             Show(EnemyFrameId.NinjaPirateSpinningFacingRightTurned0, 1),
             Show(EnemyFrameId.NinjaPirateSpinningFacingRightTurned45, 1),
@@ -221,7 +221,7 @@ internal static class NinjaSpacePirateAnimations
             Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.NinjaPirateLeapCrouchFacingRight, 8),
             Cue(new NinjaSpacePirateCue.Signal(K.StartDivekick)),
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickRightJump)),
+            Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.DivekickJump, HorizontalDirection.Right)),
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.Stance)),
             Show(EnemyFrameId.NinjaPirateTuckedJumpFacingRight, 4),
             Cue(new NinjaSpacePirateCue.SetShading(NinjaSpacePirateShades.GoldWallFlash)),
@@ -236,7 +236,7 @@ internal static class NinjaSpacePirateAnimations
         ],
         [P.WalkToRightPost] =
         [
-            Cue(new NinjaSpacePirateCue.Begin(NinjaSpacePirateAction.DivekickRightWalkToPost)),
+            Cue(new NinjaSpacePirateCue.BeginHeading(NinjaSpacePirateAction.DivekickWalkToPost, HorizontalDirection.Right)),
             Show(EnemyFrameId.NinjaPirateRunningRightFarLegBack, 5),
             Show(EnemyFrameId.NinjaPirateRunningRightFarLegLifting, 5),
             Show(EnemyFrameId.NinjaPirateRunningRightFarLegPassing, 5),

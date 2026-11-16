@@ -14,7 +14,7 @@ internal sealed class PowampBodyEntity(PowampBehavior species, RoomEnemyPlace pl
     public void Initialize() => species.InitializePowampBody(Place);
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level);
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunPowampMain(Place, Place.RequireSpeciesState<PowampBodyState>(), frame.Level, frame.Samus);
 
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => PowampBehavior.AdvancePowampBodyTypedAnimation(Place);

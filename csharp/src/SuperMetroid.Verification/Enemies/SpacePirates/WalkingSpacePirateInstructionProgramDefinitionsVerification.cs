@@ -30,32 +30,32 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             WalkingSpacePirateSegment.WalkingLeft,
             frames: 81,
             expectedSegment: WalkingSpacePirateSegment.WalkingLeft,
-            expectedAction: WalkingSpacePirateAction.WalkingLeft));
+            expectedHeading: HorizontalDirection.Left));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.WalkingRight,
             frames: 81,
             expectedSegment: WalkingSpacePirateSegment.WalkingRight,
-            expectedAction: WalkingSpacePirateAction.WalkingRight));
+            expectedHeading: HorizontalDirection.Right));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.FlinchFacingLeft,
             frames: 17,
             expectedSegment: WalkingSpacePirateSegment.WalkingLeft,
-            expectedAction: WalkingSpacePirateAction.WalkingLeft));
+            expectedHeading: HorizontalDirection.Left));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.FlinchFacingRight,
             frames: 17,
             expectedSegment: WalkingSpacePirateSegment.WalkingRight,
-            expectedAction: WalkingSpacePirateAction.WalkingRight));
+            expectedHeading: HorizontalDirection.Right));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.LookingFacingLeft,
             frames: 125,
             expectedSegment: WalkingSpacePirateSegment.WalkingRight,
-            expectedAction: WalkingSpacePirateAction.WalkingRight));
+            expectedHeading: HorizontalDirection.Right));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateSegment.LookingFacingRight,
             frames: 125,
             expectedSegment: WalkingSpacePirateSegment.WalkingLeft,
-            expectedAction: WalkingSpacePirateAction.WalkingLeft));
+            expectedHeading: HorizontalDirection.Left));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: true));
 

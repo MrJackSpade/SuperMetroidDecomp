@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -12,10 +11,16 @@ internal sealed class EndingArtwork
     /// <summary>What every ending scene draws on: brightness, the phase timer, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
 
-    /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingArtwork(EndingStage stage)
+    /// <summary>Builds the component from the collaborators it uses and the installed artwork the ending draws.</summary>
+    /// <param name="stage">What every ending scene draws on, which holds the installed scene backdrops.</param>
+    /// <param name="endingText">The installed text the ending types.</param>
+    /// <param name="sheets">The installed sprite sheets the ending's actors and backgrounds draw from.</param>
+    internal EndingArtwork(EndingStage stage, EndingTypewriterText endingText, InstalledSpriteSheets sheets)
     {
-        _stage = stage;
+        _stage = Ensure.NotNull(stage);
+        SpaceBackdrops = stage.Backdrops.Space;
+        EndingText = Ensure.NotNull(endingText);
+        Sheets = Ensure.NotNull(sheets);
     }
 
     /// <summary>The credits scroll, which exists during the credits phase.</summary>
@@ -25,23 +30,18 @@ internal sealed class EndingArtwork
     private bool creditsColoursShown;
 
     /// <summary>Binds the installed sprite sheets when the game is bound to its installed content.</summary>
-    internal void BindSpriteSheets(InstalledSpriteSheets? value) => Sheets = value;
+    internal void BindSpriteSheets(InstalledSpriteSheets value) => Sheets = Ensure.NotNull(value);
 
     /// <summary>The installed sheet <paramref name="sheet"/>.</summary>
     internal SpriteSheet SpriteSheet(SpriteSheetId sheet) => Sheets.Get(sheet);
 
     /// <summary>The installed sprite sheets the ending's actors and backgrounds draw from (#1392).</summary>
-    [AllowNull]
-    internal InstalledSpriteSheets Sheets
-    {
-        get => field ?? throw new InvalidOperationException("Ending sprites require installed sprite sheets.");
-        private set;
-    }
+    internal InstalledSpriteSheets Sheets { get; private set; }
 
     /// <summary>Binds the installed ending text when the game is bound to its installed content.</summary>
-    public void BindEndingText(EndingTypewriterText? value)
+    public void BindEndingText(EndingTypewriterText value)
     {
-        EndingText = value;
+        EndingText = Ensure.NotNull(value);
         PostCreditsText.BindText(value);
     }
 
@@ -65,20 +65,20 @@ internal sealed class EndingArtwork
     /// the backdrop it started with; the next scene starts with its backdrop from the newly bound ones. The backdrops of the
     /// space behind the exploding planet (#1583, #1637) take effect from the next step of its colour effect shown, without resetting a live fade.
     /// </summary>
-    internal void BindBackdrops(EndingBackdrops? value)
+    internal void BindBackdrops(EndingBackdrops value)
     {
         _stage.BindBackdrops(value);
-        SpaceBackdrops = value?.Space;
+        SpaceBackdrops = value.Space;
     }
 
     /// <summary>Final logo actor created after the white flash.</summary>
     internal EndingLogo? CurrentEndingLogo { get; set; }
 
     /// <summary>The installed backdrops of the space behind the exploding planet, one for each step of its colour effect.</summary>
-    internal EndingSpaceBackdrops? SpaceBackdrops { get; private set; }
+    internal EndingSpaceBackdrops SpaceBackdrops { get; private set; }
 
     /// <summary>The ending text's installed content.</summary>
-    internal EndingTypewriterText? EndingText { get; private set; }
+    internal EndingTypewriterText EndingText { get; private set; }
 
     /// <summary>The post-credits text scene (#1555).</summary>
     internal EndingPostCreditsText PostCreditsText { get; } = new();

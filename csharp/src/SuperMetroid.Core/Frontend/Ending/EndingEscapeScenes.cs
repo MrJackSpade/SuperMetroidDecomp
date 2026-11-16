@@ -62,7 +62,7 @@ internal sealed class EndingEscapeScenes
     internal void SetupTopAndBottomCloudEscape()
     {
         _stage.ResetColourEffects();
-        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GreyClouds, SamusEquipmentFlags.None);
+        _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.GreyClouds);
         sprites.Clear();
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudPattern, EndingSpriteRole.TopCloudPattern);
         _stage.SpawnSprite(EndingActorDefinitions.TopCloudEdge, EndingSpriteRole.TopCloudEdge);
@@ -118,7 +118,7 @@ internal sealed class EndingEscapeScenes
                 return;
 
             case EndingSceneCue.FadeExplosionColours:
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, SamusEquipmentFlags.None);
+                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.FadePlanet);
                 screen.Colours.Flash(EndingFlash.PlanetGlow, null);
                 return;
 
@@ -131,9 +131,9 @@ internal sealed class EndingEscapeScenes
 
             case EndingSceneCue.StartZebesExplosion:
                 ExplosionBurstDisplay = true;
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Supernova, SamusEquipmentFlags.None);
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.Explosion, SamusEquipmentFlags.None);
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.WideExplosion, SamusEquipmentFlags.None);
+                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Supernova);
+                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Explosion);
+                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.WideExplosion);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -144,7 +144,7 @@ internal sealed class EndingEscapeScenes
 
             case EndingSceneCue.ExplosionFinale:
                 ExplosionFinaleDisplay = true;
-                _stage.ColourEffects.Start(EndingColourEffectDefinitions.SupernovaFinale, SamusEquipmentFlags.None);
+                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.SupernovaFinale);
                 _stage.SpawnSprite(
                     EndingActorDefinitions.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);

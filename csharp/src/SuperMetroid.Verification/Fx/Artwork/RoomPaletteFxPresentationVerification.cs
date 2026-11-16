@@ -710,12 +710,15 @@ internal static class RoomPaletteFxPresentationVerification
 
     /// <summary>
     /// Starts <paramref name="definition"/>'s effect as the game starts <paramref name="shape"/>'s family: a Torizo belly glow
-    /// with the Torizo it lights, as that Torizo's fight start hands itself to the glow (#1700); every other family plainly.
+    /// with the Torizo it lights, as that Torizo's fight start hands itself to the glow (#1700); a frontend screen's family
+    /// with the screen-only start (#2223); every other family plainly.
     /// </summary>
     private static void StartFamily(ColourEffectSystem fx, PaletteFxFamilyShape shape, ushort definition)
     {
         if (shape.LitTorizo is { } torizo)
             fx.StartTorizoBellyGlow(definition, torizo, equippedItems: 0);
+        else if (shape.OnScreen)
+            fx.StartScreen(definition);
         else
             fx.Start(definition, equippedItems: 0);
     }

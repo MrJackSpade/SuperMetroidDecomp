@@ -14,7 +14,7 @@ internal static class MapPaletteCycleVerification
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus,
         InstalledScreenContent original)
     {
-        var arrows = new FileSelectMapAnimations(original.Maps.Arrows);
+        var arrows = new FileSelectMapAnimations(original.Maps.Arrows, original.Maps.HighlightCycle);
         arrows.StepArrows(_ => true);
         var arrowOam = ScreenSpritesFixtures.Blank();
         arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, arrows.HighlightShading, MenuSheetFixtures.MapSprites(InstalledFixtures.ImportOf(original).Sprites)); arrowOam.FinishFrame();

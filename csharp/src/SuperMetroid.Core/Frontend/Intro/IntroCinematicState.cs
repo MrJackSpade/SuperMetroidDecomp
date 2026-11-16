@@ -36,19 +36,16 @@ public sealed class IntroCinematicState : IFrontendScreen
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            NarrationPresentation = artwork.ScreenContent?.IntroNarration;
+            NarrationPresentation = artwork.ScreenContent.IntroNarration;
         }
         if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
             BindCharacterArtwork(artwork.IntroCinematicArt);
         if (!ReferenceEquals(previous.SamusBodyArt, artwork.SamusBodyArt))
-            BindSamusBodyArtwork(artwork.SamusBodyArt ?? throw new InvalidOperationException(
-                "The opening cinematic's flashback Samus requires the installed Samus body artwork."));
+            BindSamusBodyArtwork(artwork.SamusBodyArt);
         if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
-            flashbackSamusArtwork.ProjectileFrames = artwork.ProjectileFrameBindings ?? throw new InvalidOperationException(
-                "The opening cinematic's flashback shots and bombs require the installed projectile frames.");
+            flashbackSamusArtwork.ProjectileFrames = artwork.ProjectileFrameBindings;
         if (!ReferenceEquals(previous.SpriteSheets, artwork.SpriteSheets))
-            BindSpriteSheets(artwork.SpriteSheets ?? throw new InvalidOperationException(
-                "The opening cinematic requires the installed sprite sheets."));
+            BindSpriteSheets(artwork.SpriteSheets);
     }
 
     /// <summary>Binds the installed sprite sheets the flashbacks' Samus and projectiles draw from.</summary>
@@ -74,7 +71,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
     /// <summary>The opening's installed backdrops and the Ceres scenes' placements (#1616).</summary>
-    internal IntroCinematicArtwork? CharacterArtwork { get; private set; }
+    internal IntroCinematicArtwork CharacterArtwork { get; private set; }
     /// <summary>The installed Samus artwork the flashbacks' Samus draws from, rebound with the host's artwork.</summary>
     private readonly SamusArtworkBinding flashbackSamusArtwork;
     /// <summary>
@@ -88,21 +85,21 @@ public sealed class IntroCinematicState : IFrontendScreen
         flashbackSamusArtwork.Body = Ensure.NotNull(value);
         flashbackSamusArtwork.ArmCannon = value.ArmCannon;
     }
-    /// <summary>The installed narration content.</summary>
-    public IntroNarrationPresentation? NarrationPresentation
+    /// <summary>The installed narration content, rebound with the host's artwork.</summary>
+    public required IntroNarrationPresentation NarrationPresentation
     {
         get;
         set
         {
-            field = value;
+            field = Ensure.NotNull(value);
             CurrentNarration?.BindNarration(value);
         }
     }
     /// <summary>Binds the opening's installed backdrops and the Ceres scenes' placements when the game is bound to its installed content.</summary>
-    public void BindCharacterArtwork(IntroCinematicArtwork? value)
+    public void BindCharacterArtwork(IntroCinematicArtwork value)
     {
-        CharacterArtwork = value;
-        CurrentCeresFlight?.BindArtwork(value?.CeresFlight);
+        CharacterArtwork = Ensure.NotNull(value);
+        CurrentCeresFlight?.BindArtwork(value.CeresFlight);
         // Rebinding keeps a restored fade's levels and the live letters and caret: the pictures show the installed sheets'
         // shades of the levels (#1512), and the first card and the final line are installed pictures the narration plane
         // places (#1467).
@@ -481,8 +478,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                     // a blanked screen, while the approach restores full brightness only after
                     // the fourteen-frame delayed music request has completed.
                     CurrentCeresFlight = new IntroCeresFlightState(audio,
-                        (CharacterArtwork ?? throw new InvalidOperationException(
-                            "Ceres approach requires installed cinematic artwork.")).CeresFlight,
+                        CharacterArtwork.CeresFlight,
                         SceneSheets, subtitles.Enabled);
                     Phase = IntroCinematicPhase.CeresFlight;
                 }
@@ -653,7 +649,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
     {
         if (display == IntroSamusDisplay.SamusFirst)
-            ColourEffects.Start(IntroCinematicDefinitions.FightLights, SamusEquipmentFlags.None);
+            ColourEffects.StartScreen(IntroCinematicDefinitions.FightLights);
     }
 
     /// <summary>Starts the second narration page while restoring its caret and fading back from gameplay colors.</summary>
@@ -1156,8 +1152,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             narrationText,
             subtitles,
             audio,
-            NarrationPresentation ?? throw new InvalidOperationException(
-                "Opening narration requires installed text presentation assets."));
+            NarrationPresentation);
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
@@ -1245,8 +1240,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         get
         {
-            RgbColor installed = (CharacterArtwork ?? throw new InvalidOperationException(
-                "Opening cinematic rendering requires installed artwork.")).Backdrop;
+            RgbColor installed = CharacterArtwork.Backdrop;
             int level = crossfade.LevelOf(IntroCrossfadeScene.Narration);
             return level == IntroCrossfade.Levels ? installed : new ColourLevel(level, IntroCrossfade.Levels).Apply(installed);
         }

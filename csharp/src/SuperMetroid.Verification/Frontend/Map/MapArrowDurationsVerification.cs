@@ -38,7 +38,8 @@ internal static class MapArrowDurationsVerification
     /// <summary>Checks visible and hidden ticks against the native left-arrow timing program.</summary>
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
-        var actual = new FileSelectMapAnimations(presentation);
+        // The arrows run apart from the highlight cycle, so a one-frame cycle stands in for the installed one.
+        var actual = new FileSelectMapAnimations(presentation, new MapHighlightCycle([1]));
         var arrows = actual.arrows;
         int offset = 0, timer = 0;
         for (int tick = 0; tick < 90; tick++)

@@ -56,7 +56,7 @@ internal sealed class EndingPostCreditsText
         FinalMessage = new EndingTypewriter(setup, EndingTextSequence.FinalMessage);
 
     /// <summary>Binds the typed texts' installed text when the game is bound to its installed content.</summary>
-    internal void BindText(EndingTypewriterText? value)
+    internal void BindText(EndingTypewriterText value)
     {
         ItemPercentage?.BindText(value);
         FinalMessage?.BindText(value);

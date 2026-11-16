@@ -69,8 +69,9 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     public bool IsRunning(ColourEffectId effect) => effects.Exists(running => running.Effect == effect);
 
     /// <summary>
-    /// Starts an effect outside the room's effect: Samus's load appearance, a statue's grey-out, the escape's flashes or
-    /// a screen's effects. It must start: the start is rejected loudly when it does not.
+    /// Starts an effect outside the room's effect during gameplay: Samus's load appearance, a statue's grey-out or the
+    /// escape's flashes. It must start: the start is rejected loudly when it does not. A frontend screen starts its
+    /// effects with <see cref="StartScreen"/>.
     /// </summary>
     /// <exception cref="InvalidOperationException">The effect did not start: its start skips it.</exception>
     public void Start(
@@ -80,6 +81,25 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     {
         if (!TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null))
             throw new InvalidOperationException($"Colour effect {effect} could not start.");
+    }
+
+    /// <summary>
+    /// Starts a frontend screen's effect after the running effects (#2223), as <see cref="StepScreen"/> steps it: a screen
+    /// has no Samus, no equipment, no Torizo and no area, so the start hands the effect none of them. Every effect a screen
+    /// starts plays its own animation from its start and watches nothing.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// The effect's start chooses from Samus's equipment or the area's mini-boss, or the effect watches a condition, which
+    /// only gameplay has.
+    /// </exception>
+    internal void StartScreen(ColourEffectId effect)
+    {
+        ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
+        if (definition.Start != ColourEffectStart.Plain)
+            throw new InvalidOperationException($"Colour effect {effect} starts by {definition.Start}, which no frontend screen has.");
+        if (definition.Condition is { } condition)
+            throw new InvalidOperationException($"Colour effect {effect} watches {condition}, which no frontend screen has.");
+        effects.Add(new RoomColourEffect(effect, definition.Animation, litTorizo: null, glowingEnemy: null));
     }
 
     /// <summary>
@@ -165,7 +185,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <summary>
     /// Runs one update of a frontend screen's colour effects (#1512, #1597, #2199): each effect shows the frame it holds
     /// now, which the screen shades its pictures with, and no owner's colours are written. A screen has no Samus, no
-    /// equipment and no area, so it hands its effects no conditions: none of the effects a screen starts watches one.
+    /// equipment and no area, so it hands its effects no conditions: none of the effects a screen starts
+    /// (<see cref="StartScreen"/>) watches one.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// A frame is shown in colours no frontend screen shows, or an effect watches a condition, which only gameplay has.

@@ -64,7 +64,7 @@ internal static class MoatFirstEntryVerification
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
                 var room = runtime.Room.LoadedRoom;
-                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, GameplayHud = runtime.AcceptedHud });
+                var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, GameplayHud = runtime.AcceptedHud });
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.

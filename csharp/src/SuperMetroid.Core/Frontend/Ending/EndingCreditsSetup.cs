@@ -17,9 +17,6 @@ internal sealed record EndingCreditsSetup
     /// <summary>Whether the game shows its Japanese text, which the credits' closing text follows.</summary>
     public bool JapaneseText { get; init; } = false;
 
-    /// <summary>The installed text the ending types, or null when none is installed.</summary>
-    public EndingTypewriterText? EndingText { get; init; } = null;
-
     /// <summary>Whether Samus freed the animals, whose ship then escapes Zebes beside the gunship.</summary>
     public bool CrittersEscaped { get; init; } = false;
 }

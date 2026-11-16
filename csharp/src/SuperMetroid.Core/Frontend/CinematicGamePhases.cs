@@ -65,8 +65,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         // Without a gameplay owner no loaded game has selected Japanese text, and the game shows English text.
         CeresDestructionCinematicState destruction = session.ScreenAs<CeresDestructionCinematicState>() ??
             session.Show(new CeresDestructionCinematicState(
-                session.audio, session.Artwork.InstalledPowerBombGlowColors,
-                session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
+                session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
+                session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
                 japaneseText: session.Runtime?.JapaneseText == true));
         destruction.Step();
         session.display.PublishCeresDestruction(destruction);
@@ -117,8 +117,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
             return;
         }
         session.Show(new CeresDestructionCinematicState(
-            session.audio, session.Artwork.InstalledPowerBombGlowColors,
-            session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
+            session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
+            session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
             outcome: CeresDestructionOutcome.SamusAboard, japaneseText: session.Runtime.JapaneseText));
         session.GameState = SuperMetroidGameState.CeresGoesBoomWithSamus;
     }

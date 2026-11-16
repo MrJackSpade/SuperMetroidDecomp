@@ -28,6 +28,6 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: reselecting each of the six areas reloads its authored world background.");
 
         static FileSelectAreaMapGraphics World(InstalledScreenContent catalog, int area) =>
-            new(AreaIds.Zebes[area], catalog.Backdrops, MenuSheetFixtures.ForFileSelectMap(InstalledFixtures.ImportOf(catalog)));
+            new(AreaIds.Zebes[area], catalog, MenuSheetFixtures.ForFileSelectMap(InstalledFixtures.ImportOf(catalog)));
     }
 }

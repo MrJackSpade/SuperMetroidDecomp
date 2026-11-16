@@ -28,9 +28,9 @@ internal sealed class MenuGamePhases(FrontendSession session)
         StoredExploredMapLoads.ClearAll(session.storedExploredMaps);
         session.Show(new TitleSequenceState(
             session.audio,
-            session.Artwork.InstalledScreenContent.TitleGradient,
-            session.Artwork.InstalledScreenContent.TitleBackdrop,
-            session.Artwork.InstalledSpriteSheets));
+            session.Artwork.ScreenContent.TitleGradient,
+            session.Artwork.ScreenContent.TitleBackdrop,
+            session.Artwork.SpriteSheets));
         session.ForgetQueuedAudio();
         session.ForgetSpacetimeRestart();
         session.GameState = SuperMetroidGameState.OpeningCinematic;
@@ -45,8 +45,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         if (session.ActiveTitle.FileSelectRequested)
         {
             // The title sets the file-select game state only after the slow fade reaches black.
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.InstalledScreenContent,
-                session.Artwork.InstalledSpriteSheets));
+            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
+                session.Artwork.SpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
         }
@@ -89,8 +89,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 : null;
             session.Show(new GameOptionsMenuState(
                 session.audio,
-                session.Artwork.InstalledScreenContent,
-                session.Artwork.InstalledSpriteSheets,
+                session.Artwork.ScreenContent,
+                session.Artwork.SpriteSheets,
                 optionSlot?.ControllerBindings,
                 optionSlot?.IconCancelEnabled ?? false,
                 optionSlot?.MoonwalkEnabled ?? false,
@@ -110,8 +110,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveOptions);
         if (session.ActiveOptions.FileSelectRequested)
         {
-            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.InstalledScreenContent,
-                session.Artwork.InstalledSpriteSheets));
+            session.Show(new FileSelectMenuState(session.saves, session.audio, session.Artwork.ScreenContent,
+                session.Artwork.SpriteSheets));
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.ActiveFileSelect);
         }
@@ -183,7 +183,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void RunGameOverMenu(ControllerButton controllerInput)
     {
         GameOverMenuState gameOver = session.ScreenAs<GameOverMenuState>() ?? session.Show(new GameOverMenuState(session.audio,
-            session.Artwork.InstalledScreenContent, session.Artwork.InstalledSpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
+            session.Artwork.ScreenContent, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
                 SaveLoadingGameState.CeresElevatorArrival));
         gameOver.Step(controllerInput);
         session.display.PublishMenu(gameOver);
@@ -243,14 +243,14 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 // must not keep publishing gameplay audio during map selection.
                 session.ReleaseRuntime();
                 session.Show(new FileSelectMapMenuState(session.audio, session.Random, mapSlot, controllerInput,
-                    session.Artwork.InstalledScreenContent, session.Artwork.InstalledSpriteSheets));
+                    session.Artwork.ScreenContent, session.Artwork.SpriteSheets));
             }
             else session.ActiveFileSelectMap.Step(controllerInput);
             session.display.PublishFileMap(session.ActiveFileSelectMap);
             if (session.ActiveFileSelectMap.OptionsRequested)
             {
-                session.Show(new GameOptionsMenuState(session.audio, session.Artwork.InstalledScreenContent,
-                    session.Artwork.InstalledSpriteSheets, mapSlot.ControllerBindings,
+                session.Show(new GameOptionsMenuState(session.audio, session.Artwork.ScreenContent,
+                    session.Artwork.SpriteSheets, mapSlot.ControllerBindings,
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
                     japaneseText: mapSlot.JapaneseText));
                 session.GameState = SuperMetroidGameState.GameOptionsMenu;
@@ -290,8 +290,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.GameplayRuntime.FrameBoundary.PublishWhileLoading();
         session.ApplySelectedGameOptions();
         session.Show(new CeresDestructionCinematicState(
-            session.audio, session.Artwork.InstalledPowerBombGlowColors,
-            session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
+            session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
+            session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
             japaneseText: session.GameplayRuntime.JapaneseText));
         session.GameState = SuperMetroidGameState.CeresGoesBoom;
         session.display.PublishBlack();
@@ -301,16 +301,13 @@ internal sealed class MenuGamePhases(FrontendSession session)
     private IntroCinematicState CreateIntroCinematic(bool japaneseText)
     {
         var cinematic = new IntroCinematicState(new IntroCinematicOverreads(
-            session.Artwork.SamusOverreads ?? throw new InvalidOperationException(
-                "The opening cinematic's flashbacks require the installed Samus overread services."),
-            session.Artwork.BossAndIntroOverreads?.ShellFragmentFallPastCurve ?? throw new InvalidOperationException(
-                "The opening cinematic's egg shell requires the installed boss and intro overread services.")),
-            session.audio, session.Artwork.FlashbackSamusArtwork(), session.Artwork.InstalledPowerBombGlowColors,
-            session.Artwork.InstalledIntroCinematicArt, japaneseText)
+            session.Artwork.SamusOverreads, session.Artwork.BossAndIntroOverreads.ShellFragmentFallPastCurve),
+            session.audio, session.Artwork.FlashbackSamusArtwork(), session.Artwork.ScreenContent.PowerBombGlowColors,
+            session.Artwork.IntroCinematicArt, japaneseText)
         {
             Random = session.Random,
             UnauthoredBoostCadence = session.unauthoredBoostCadence,
-            NarrationPresentation = session.Artwork.ScreenContent?.IntroNarration,
+            NarrationPresentation = session.Artwork.ScreenContent.IntroNarration,
         };
         return cinematic;
     }

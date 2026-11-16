@@ -16,7 +16,7 @@ public static class GameOptionsPageCells
     /// <exception cref="ArgumentOutOfRangeException">The action is outside the seven assignable rows.</exception>
     public static Position16<CharacterCells> ControllerLabelAnchor(int action)
     {
-        if ((uint)action >= GameOptionsLayout.ControllerActionRows.Length) throw new ArgumentOutOfRangeException(nameof(action));
+        if ((uint)action >= GameOptionsPageRows.ControllerActions.Count) throw new ArgumentOutOfRangeException(nameof(action));
         return new(ControllerLabels.AnchorColumn, checked((ushort)(ControllerLabels.FirstAnchorRow + ControllerLabels.AnchorRowSpacing * action)));
     }
 
@@ -43,7 +43,7 @@ public static class GameOptionsPageCells
     public static GameOptionsToggleLayout Moonwalk => ToggleLayout(SpecialRowIndex(GameOptionsSpecialRow.Moonwalk));
 
     /// <summary>The cursor position of the special page's row <paramref name="row"/>.</summary>
-    private static int SpecialRowIndex(GameOptionsSpecialRow row) => Array.IndexOf(GameOptionsLayout.SpecialRows, row);
+    private static int SpecialRowIndex(GameOptionsSpecialRow row) => GameOptionsPageRows.Special.PlaceOf(row);
 
     /// <summary>
     /// The two-row choice boxes of Icon Cancel (0) or Moonwalk (1): the toggles are six tilemap rows apart and their

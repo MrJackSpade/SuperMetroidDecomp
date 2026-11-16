@@ -6,20 +6,26 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>The file select map's landmarks and elevator destinations from the game's icon lists.</summary>
-public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
+/// <param name="system">The shared game state whose downloaded maps, explored tiles and defeated bosses the icons show.</param>
+/// <param name="area">The area whose icons the map draws.</param>
+/// <param name="stationLayout">The installed station positions for explored map tiles.</param>
+/// <param name="landmarkLayout">The installed boss, gunship and elevator landmark positions.</param>
+/// <param name="mapSheet">The installed map sprite sheet every icon draws from.</param>
+public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapStationPositions stationLayout,
+    MapLandmarkPositions landmarkLayout, SpriteSheet mapSheet)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>
-    private SpriteSheet? sheet;
+    private SpriteSheet sheet = Ensure.NotNull(mapSheet);
     /// <summary>Binds the installed map sprite sheet every icon draws from.</summary>
-    internal void BindSprites(SpriteSheet? mapSheet) => sheet = mapSheet;
+    internal void BindSprites(SpriteSheet value) => sheet = Ensure.NotNull(value);
     /// <summary>Installed station positions rebound after frontend restoration.</summary>
-    private SuperMetroid.Core.Frontend.Map.Artwork.MapStationPositions? stations;
+    private MapStationPositions stations = Ensure.NotNull(stationLayout);
     /// <summary>Binds installed station positions for explored map tiles.</summary>
-    internal void BindStations(SuperMetroid.Core.Frontend.Map.Artwork.MapStationPositions? layout) => stations = layout;
+    internal void BindStations(MapStationPositions layout) => stations = Ensure.NotNull(layout);
     /// <summary>Installed boss, gunship, and elevator landmark positions.</summary>
-    private SuperMetroid.Core.Frontend.Map.Artwork.MapLandmarkPositions? landmarks;
+    private MapLandmarkPositions landmarks = Ensure.NotNull(landmarkLayout);
     /// <summary>Binds landmark positions used for boss, gunship, and elevator icons.</summary>
-    internal void BindLandmarks(SuperMetroid.Core.Frontend.Map.Artwork.MapLandmarkPositions? layout) => landmarks = layout;
+    internal void BindLandmarks(MapLandmarkPositions layout) => landmarks = Ensure.NotNull(layout);
     /// <summary>Exposes the retained exploration owner to the menu without duplicating its state.</summary>
     internal SharedGameState MapSystem => system;
     /// <summary>Area whose map exploration and icons this view draws.</summary>
@@ -28,8 +34,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     /// <summary>Shared boss-marker drawing used by pause and file-select maps.</summary>
     public void DrawBossMarkers(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
-        var layout = landmarks ?? throw new InvalidOperationException(
-            "Map boss markers require installed landmark layout.");
+        var layout = landmarks;
         // Each marker shows the boss it names: defeated once the area records that boss, alive while the map is known.
         DefeatedBosses defeated = system.BossesDefeatedIn(area);
         foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area))
@@ -59,8 +64,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
 
         void Simple(MapStationKind kind, MapSpriteId id)
         {
-            var layout = stations ?? throw new InvalidOperationException(
-                "Map station icons require installed station layout.");
+            var layout = stations;
             foreach (var rule in MapStationDiscoveryRules.Get(area, kind))
                 if (system.IsMapTileExplored(area, rule.Cell))
                     Draw(id, layout.Get(rule.Id), MapSpriteColouring.Markers);
@@ -74,8 +78,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     {
         if (area == AreaId.Crateria)
         {
-            var point = (landmarks ?? throw new InvalidOperationException(
-                "Gunship icon requires installed landmark layout.")).Get(MapLandmarkDefinitions.Gunship);
+            var point = landmarks.Get(MapLandmarkDefinitions.Gunship);
             Add(entries, MapSpriteId.MarkerGunship, point, scroll, MapSpriteColouring.Markers);
         }
         drawArrows?.Invoke();
@@ -86,8 +89,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     public void DrawElevatorLabels(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
         if (!system.HasAreaMap(area)) return;
-        var elevatorLayout = landmarks ?? throw new InvalidOperationException(
-            "Elevator labels require installed landmark layout.");
+        var elevatorLayout = landmarks;
         foreach (var label in MapLandmarks.Elevators(area))
         {
             Add(entries, MapLandmarks.ElevatorPicture(label.Destination),
@@ -98,7 +100,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     private void Add(ScreenSprites entries, MapSpriteId id, Position16<MapPixels> position, Offset16<MapPixels> scroll,
         MapSpriteColouring colouring)
     {
-        MapSpriteSheet.Draw(sheet ?? throw new InvalidOperationException("Map icons require the installed map sprite sheet."),
+        MapSpriteSheet.Draw(sheet,
             id, entries, position.RelativeToScroll(scroll), MapSpriteScreen.FileSelect, colouring);
     }
 }

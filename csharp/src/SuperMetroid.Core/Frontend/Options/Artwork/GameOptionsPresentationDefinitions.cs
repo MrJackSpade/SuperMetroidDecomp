@@ -67,8 +67,8 @@ public static class GameOptionsPresentationDefinitions
     internal static readonly IReadOnlyDictionary<GameOptionsPage, int> CursorCounts =
         new Dictionary<GameOptionsPage, int>
         {
-            [GameOptionsPage.Primary] = GameOptionsLayout.PrimaryRows.Length,
-            [GameOptionsPage.Controller] = GameOptionsLayout.ControllerRows.Length,
-            [GameOptionsPage.Special] = GameOptionsLayout.SpecialRows.Length,
+            [GameOptionsPage.Primary] = GameOptionsPageRows.Primary.Count,
+            [GameOptionsPage.Controller] = GameOptionsPageRows.Controller.Count,
+            [GameOptionsPage.Special] = GameOptionsPageRows.Special.Count,
         };
 }

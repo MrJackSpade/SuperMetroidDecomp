@@ -70,7 +70,6 @@ internal sealed class EndingCreditsRoll
     internal void ShowRewardCopyright()
     {
         // The copyright panel replaces the producer panel. The text alone is shown until the copyright's hold ends.
-        _ = _artwork.EndingText ?? throw new InvalidOperationException("Ending copyright requires installed text assets.");
         _artwork.PostCreditsText.ReplaceResultWithCopyright();
         RewardCopyrightShown = true;
         _stage.PhaseTimer = EndingSequenceDefinitions.Timing.CopyrightHoldFrames;
@@ -120,7 +119,7 @@ internal sealed class EndingCreditsRoll
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(_stage,
-            () => _stage.ColourEffects.Start(EndingLogoDefinitions.LandingColourEffect, SamusEquipmentFlags.None));
+            () => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 
@@ -134,12 +133,11 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>What the post-credits typed texts type from and count.</summary>
-    /// <exception cref="InvalidOperationException">No ending text is installed.</exception>
     internal EndingTypewriterSetup TypewriterSetup() => new()
     {
         Inventory = inventory,
         JapaneseText = japaneseText,
-        Text = _artwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text."),
+        Text = _artwork.EndingText,
     };
 
     /// <summary>Whether the reward copyright is showing.</summary>

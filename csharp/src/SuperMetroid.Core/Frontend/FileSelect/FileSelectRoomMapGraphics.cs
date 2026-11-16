@@ -18,9 +18,9 @@ public sealed class FileSelectRoomMapGraphics
     internal readonly FileSelectMapIcons icons;
 
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
-    private SpriteSheet? mapSheet;
+    private SpriteSheet mapSheet;
     /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
-    private SpriteSheet? roomPictures;
+    private SpriteSheet roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
     internal ShownAreaMap AreaMap { get; private set; }
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
@@ -37,13 +37,10 @@ public sealed class FileSelectRoomMapGraphics
     {
         Ensure.NotNull(system);
         Ensure.NotNull(screenContent);
-        icons = new FileSelectMapIcons(system, area);
-        icons.BindStations(screenContent.Maps.Stations);
-        icons.BindLandmarks(screenContent.Maps.Landmarks);
         InstalledSpriteSheets installed = Ensure.NotNull(sheets);
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
-        icons.BindSprites(mapSheet);
+        icons = new FileSelectMapIcons(system, area, screenContent.Maps.Stations, screenContent.Maps.Landmarks, mapSheet);
         if (!AreaIds.IsZebes(area))
             throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no room map on the saved-game map.");
         screen = new MenuScreen(screenContent.Backdrops.Menus, installed);
@@ -51,9 +48,9 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Rebinds the installed sheets: the map sprites the icons, marker and arrows draw from, and the background pictures.</summary>
-    internal void BindSheets(InstalledSpriteSheets? sheets)
+    internal void BindSheets(InstalledSpriteSheets sheets)
     {
-        InstalledSpriteSheets installed = sheets ?? throw new InvalidOperationException("Room-map graphics require the installed sprite sheets.");
+        InstalledSpriteSheets installed = Ensure.NotNull(sheets);
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons.BindSprites(mapSheet);
@@ -61,12 +58,11 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
-    internal void BindScreenContent(InstalledScreenContent? catalog)
+    internal void BindScreenContent(InstalledScreenContent catalog)
     {
-        icons.BindStations(catalog?.Maps.Stations);
-        icons.BindLandmarks(catalog?.Maps.Landmarks);
-
-        _ = catalog ?? throw new InvalidOperationException("Room-map graphics require installed map presentation assets.");
+        Ensure.NotNull(catalog);
+        icons.BindStations(catalog.Maps.Stations);
+        icons.BindLandmarks(catalog.Maps.Landmarks);
         screen.Backdrop = catalog.Backdrops.Menus;
         var system = icons.MapSystem;
         var area = icons.MapArea;
@@ -79,7 +75,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
-        SpriteSheet sheet = mapSheet ?? throw new InvalidOperationException("The room map requires the installed map sprite sheet.");
+        SpriteSheet sheet = mapSheet;
         icons.DrawBeforeMarker(entries, scroll);
         marker.Draw(entries, scroll, sheet);
         icons.DrawAfterMarker(entries, scroll,
@@ -93,7 +89,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         var layers = new List<DisplayLayer>();
         // The frame is the area's installed room-frame picture and the map a grid of its cells' pictures (#1467).
-        SpriteSheet pictures = roomPictures ?? throw new InvalidOperationException("The room map's pictures are bound when the game is bound to its installed content.");
+        SpriteSheet pictures = roomPictures;
         // A room frame the sheet holds as showing nothing is not placed (#1513).
         string roomFrame = AreaMapPictures.RoomFrameName(icons.MapArea);
         PlacedPlanePicture[] framePictures = pictures.ShowsNothing(roomFrame) ? []

@@ -23,11 +23,9 @@ public sealed class FileSelectStationMarker
         => BindPosition(station, Ensure.NotNull(layout));
 
     /// <summary>Rebinds drawing position without changing the existing marker animation or selected station.</summary>
-    internal void BindPosition(LoadStation station, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions? layout)
+    internal void BindPosition(LoadStation station, SuperMetroid.Core.Frontend.Map.Artwork.MapSaveMarkerPositions layout)
     {
-        MapPosition = (layout ?? throw new InvalidOperationException(
-            "Save marker requires installed station positions."))
-            .Get(station);
+        MapPosition = Ensure.NotNull(layout).Get(station);
     }
 
     /// <summary>Station's area-map drawing anchor in whole pixels before scroll subtraction, independent of its compiled load coordinates.</summary>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -21,14 +22,14 @@ internal sealed class IntroCeresFlightState
     /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
-    private SpriteSheet? flightSprites;
+    private SpriteSheet flightSprites;
     /// <summary>
     /// The flight's colour effects (#1733): the scene's setup clears them, and the rear view's setup starts the gunship
     /// engine's flicker and the station's navigation lights.
     /// </summary>
     internal ColourEffectSystem ColourEffects { get; } = new(new ColourEffectSessionState());
     /// <summary>Optional edited rear-view actor positions.</summary>
-    private CeresFlightActorPlacements? actorLayout;
+    private CeresFlightActorPlacements actorLayout;
     /// <summary>Front-view star actor, whose rush also drives the diagonal background rush.</summary>
     private readonly CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars, CeresFlightActorDefinitions.FrontStarsStart);
@@ -81,7 +82,7 @@ internal sealed class IntroCeresFlightState
     {
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
-        BindSheets(Ensure.NotNull(sheets));
+        BindSheets(sheets);
         CeresFlightArtwork content = Ensure.NotNull(artwork);
         actorLayout = content.Actors;
 
@@ -94,20 +95,20 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Rebinds the installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</summary>
-    public void BindSheets(InstalledSpriteSheets? sheets)
+    [MemberNotNull(nameof(flightSprites), nameof(floorSheets))]
+    public void BindSheets(InstalledSpriteSheets sheets)
     {
-        flightSprites = sheets?.Get(SpriteSheetId.CeresFlightSprites);
-        floorSheets = sheets;
+        floorSheets = Ensure.NotNull(sheets);
+        flightSprites = sheets.Get(SpriteSheetId.CeresFlightSprites);
     }
 
     /// <summary>The installed sheets the floor's views and the caption are pictured in (#1467); artwork, never saved.</summary>
-    private InstalledSpriteSheets? floorSheets;
+    private InstalledSpriteSheets floorSheets;
 
     /// <summary>Reapplies current external art and backdrop without resetting the live flight phase.</summary>
-    public void BindArtwork(CeresFlightArtwork? artwork)
+    public void BindArtwork(CeresFlightArtwork artwork)
     {
-        actorLayout = artwork?.Actors;
-        if (artwork is null) return;
+        actorLayout = Ensure.NotNull(artwork).Actors;
         Backdrop = artwork.Backdrop;
     }
 
@@ -210,14 +211,14 @@ internal sealed class IntroCeresFlightState
             // The caption shows the pictures of the letters typed so far and, once drawn, the katakana caption (#1467),
             // over the station it names.
             layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(
-                floorSheets ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."),
+                floorSheets,
                 CaptionLettersShown, JapaneseCaptionShown), Offset16<PlanePixels>.Zero));
         }
         else
         {
             layers.Add(new TurningFloorLayer(FloorView.Turned(angle, zoom,
                 CeresFlightRenderDefinitions.FloorCenter, background.Whole),
-                CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
+                CeresFloors.Of(floorSheets,
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront).Shaded(FloorShading)));
         }
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
@@ -239,8 +240,7 @@ internal sealed class IntroCeresFlightState
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();
-        var spriteArtwork = new CinematicSpriteSheet(flightSprites ?? throw new InvalidOperationException(
-            "Cinematic sprites require installed artwork."), CinematicSpriteFamily.CeresFlight, ActorShading);
+        var spriteArtwork = new CinematicSpriteSheet(flightSprites, CinematicSpriteFamily.CeresFlight, ActorShading);
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
             foreach (CeresRearViewActor actor in RearViewActors)
                 actor.Sprite.Draw(screenSprites, installedArt: spriteArtwork);
@@ -279,8 +279,7 @@ internal sealed class IntroCeresFlightState
         // remain authored scripts; the compiled definitions supply behaviour identity,
         // each actor's start and the physical motion applied by StepRearViewActors.
         // Each actor starts at its role's installed placement (#1596).
-        CeresFlightActorPlacements layout = actorLayout ?? throw new InvalidOperationException(
-            "The Ceres approach's rear view requires the installed actor placements.");
+        CeresFlightActorPlacements layout = actorLayout;
         RearViewActors = [.. CeresFlightActorDefinitions.RearViewSpawnOrder
             .Select(role => new CeresRearViewActor(role, CreateActor(CeresFlightActors.RearViewActor(role), layout[role].Place)))];
 
@@ -289,8 +288,8 @@ internal sealed class IntroCeresFlightState
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
-        ColourEffects.Start(CeresFlightSceneDefinitions.GunshipEngineFlicker, SamusEquipmentFlags.None);
-        ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, SamusEquipmentFlags.None);
+        ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);
+        ColourEffects.StartScreen(CeresFlightSceneDefinitions.NavigationLights);
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>

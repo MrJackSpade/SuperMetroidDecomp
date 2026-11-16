@@ -16,8 +16,7 @@ internal static class RetailPresentationFixtureVerification
     internal static GameplayMessageArtwork RetailMessageFixture() => RetailImportPresentationFixture().Messages;
 
     /// <summary>Creates a pause menu using the retail address space and installed map presentation.</summary>
-    internal static PauseMenuState CreateRetailPauseFixture(PauseMenuEntry entry) =>
-        InstalledFixtures.CreatePause(entry);
+    internal static PauseMenuState CreateRetailPauseFixture(PauseMenuEntry entry) => new(entry);
 
     /// <summary>
     /// The shared installation's map presentation, the same extracted content contract the

@@ -117,7 +117,7 @@ internal static class LookupStream4Verification
         var fx = new ColourEffectSystem(fxSession);
         fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         var cgram = new SnesCgram();
-        fx.Start(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
+        fx.StartScreen(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer);
         int ticks = 0;
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
@@ -211,7 +211,7 @@ internal static class LookupStream4Verification
             var fx = new ColourEffectSystem(fxSession);
             fx.BindAudioRequests(GameplayAudioRequests.Standalone());
             var cgram = new SnesCgram();
-            fx.Start(definition.DefinitionPointer, 0);
+            fx.StartScreen(definition.DefinitionPointer);
             for (int cycle = 0; cycle < 2; cycle++)
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
@@ -247,7 +247,7 @@ internal static class LookupStream4Verification
         var fx = new ColourEffectSystem(fxSession);
         fx.BindAudioRequests(GameplayAudioRequests.Standalone());
         foreach (var program in TitleScreenAmbientPaletteOwners.All)
-            fx.Start(program.DefinitionPointer, 0);
+            fx.StartScreen(program.DefinitionPointer);
         for (int tick = 0; tick <= 80; tick++)
         {
             // A frontend screen's step shows each loop's record without writing colours (#1512); the import pre-colours
@@ -362,8 +362,8 @@ internal static class LookupStream4Verification
                                                                  var installed = new ColourEffectSystem(installedSession);
                                                                  installed.BindAudioRequests(GameplayAudioRequests.Standalone());
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
-            native.Start(definition.DefinitionPointer, 0);
-            installed.Start(definition.DefinitionPointer, 0);
+            native.StartScreen(definition.DefinitionPointer);
+            installed.StartScreen(definition.DefinitionPointer);
             for (int step = 0; step <= 24; step++)
             {
                 native.StepScreen();
@@ -528,7 +528,8 @@ internal static class LookupStream4Verification
         {
             IReadOnlyList<SignedSixteenSixteen> sequence = fast ? EndingShipShake.Fast : EndingShipShake.Slow;
             int count = sequence.Count, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
+            var state = new EndingCreditsState(SuperMetroid.Core.Audio.AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 },
+                InstalledFixtures.Maps.EndingText, InstalledFixtures.EndingBackdrops, InstalledFixtures.SpriteSheets);
             state.Stage.FloorPosition = state.Stage.FloorPosition.WithX(SignedSixteenSixteen.FromParts(100, 0xC000));
             state.Stage.FloorZoom = FloorZoom.FromFloorPixelsPerScreenPixel(12); state.Stage.PhaseTimer = 100;
             state.Stage.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;

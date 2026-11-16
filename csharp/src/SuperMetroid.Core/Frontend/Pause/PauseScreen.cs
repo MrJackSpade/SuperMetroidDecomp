@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal sealed class PauseScreen
 {
     /// <summary>Installs the map, pause interface, HUD and menu sprite artwork, and the sheets its backgrounds draw from.</summary>
-    public PauseScreen(InstalledScreenContent artwork, InstalledSpriteSheets? sheets)
+    public PauseScreen(InstalledScreenContent artwork, InstalledSpriteSheets sheets)
     {
         Backdrop = Ensure.NotNull(artwork).Backdrops.Pause;
         Sprites = new ScreenSprites();
@@ -24,13 +24,13 @@ internal sealed class PauseScreen
     }
 
     /// <summary>The installed sheets the screen's background pictures come from (#1392).</summary>
-    [AllowNull]
-    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The pause screen's tiles are bound when the game is bound to its installed content."); set; }
+    private InstalledSpriteSheets Sheets { get; set; }
 
     /// <summary>Rebinds the sheets the screen's background pictures come from (#1392).</summary>
-    public void BindScreenPictures(InstalledSpriteSheets? sheets)
+    [MemberNotNull(nameof(Sheets))]
+    public void BindScreenPictures(InstalledSpriteSheets sheets)
     {
-        Sheets = sheets ?? throw new InvalidOperationException("Pause requires the installed sprite sheets.");
+        Sheets = Ensure.NotNull(sheets);
         HudPictures = null;
         pictured = null;
     }

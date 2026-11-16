@@ -31,10 +31,9 @@ internal static class EndingLogoVerification
         Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
         var guarded = NewEndingLogoDefinitionReadGuard(bus);
         var screen = new EndingScreen();
-        var stage = new EndingStage(0, screen, []);
+        var stage = new EndingStage(0, screen, [], InstalledFixtures.EndingBackdrops);
         int landings = 0;
         EndingPaletteSet palettes = InstalledFixtures.EndingColours;
-        stage.BindBackdrops(InstalledFixtures.EndingBackdrops);
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(palettes, InstalledFixtures.ImportMaps.RoomPaletteFx);
         var logoSprites = CinematicSheetFixtures.Drawer(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects.LogoSprites);
         var logo = new EndingLogo(stage, () => landings++);

@@ -28,17 +28,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         Ensure.NotNull(artwork);
         if (!ReferenceEquals(previous.ScreenContent, artwork.ScreenContent))
         {
-            BindTitleGradient(artwork.ScreenContent?.TitleGradient);
-            BindTitleBackdrop(artwork.ScreenContent?.TitleBackdrop);
+            BindTitleGradient(artwork.ScreenContent.TitleGradient);
+            BindTitleBackdrop(artwork.ScreenContent.TitleBackdrop);
         }
         BindSpriteSheets(artwork.SpriteSheets);
     }
 
     /// <summary>Binds the installed sprite sheets the title's compositions draw from.</summary>
     [MemberNotNull(nameof(spriteSheets))]
-    internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
+    internal void BindSpriteSheets(InstalledSpriteSheets sheets)
     {
-        spriteSheets = sheets ?? throw new InvalidOperationException("Title sequence requires the installed sprite sheets.");
+        spriteSheets = Ensure.NotNull(sheets);
     }
 
     /// <summary>The installed sprite sheets the title's compositions draw from; artwork, never saved.</summary>
@@ -56,12 +56,12 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Installed row gradient, bound when the game is bound to its installed content.</summary>
-    private TitleGradientPresentation? titleGradientPresentation;
+    private TitleGradientPresentation titleGradientPresentation;
     /// <summary>
     /// The installed title backdrop (#1512), bound when the game is bound to its installed content; the title's other colours
     /// are pre-coloured into its sheets.
     /// </summary>
-    private RgbColor? titleBackdrop;
+    private RgbColor titleBackdrop;
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
     /// <summary>The title card whose steps are running.</summary>
@@ -178,11 +178,11 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>Binds the installed row gradient when the game is bound to its installed content.</summary>
-    internal void BindTitleGradient(TitleGradientPresentation? presentation) =>
-        titleGradientPresentation = presentation;
+    internal void BindTitleGradient(TitleGradientPresentation presentation) =>
+        titleGradientPresentation = Ensure.NotNull(presentation);
 
     /// <summary>Binds the installed title backdrop when the game is bound to its installed content.</summary>
-    internal void BindTitleBackdrop(RgbColor? backdrop)
+    internal void BindTitleBackdrop(RgbColor backdrop)
     {
         // The restored copyright is a shade of the installed title sheet (#1512), so a new installation's glyph colours
         // show with its sheet; only the backdrop is bound here.
@@ -282,7 +282,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                     // The logo starts its fade as it first shows; the effect shows its first shade when the colour
                     // effects step at the end of this update, so the logo first shows black.
-                    colourEffects.Start(TitleSequenceDefinitions.Fades.Logo, SamusEquipmentFlags.None);
+                    colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Logo);
                 }
                 break;
 
@@ -293,7 +293,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     // before arming the 900-update demo countdown.
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
-                    colourEffects.Start(TitleSequenceDefinitions.Fades.Copyright, SamusEquipmentFlags.None);
+                    colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);
                 }
                 break;
 
@@ -379,8 +379,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void RestartColourEffects()
     {
         colourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, SamusEquipmentFlags.None);
-        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.FastLights, SamusEquipmentFlags.None);
+        colourEffects.StartScreen(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights);
+        colourEffects.StartScreen(TitleSequenceDefinitions.ConsoleColourEffects.FastLights);
     }
 
     /// <summary>
@@ -403,8 +403,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>The colour the title shows behind its floor and sprites: the installed title colours' backdrop (#1512).</summary>
-    private RgbColor Backdrop => titleBackdrop ?? throw new InvalidOperationException(
-        "Title rendering requires the installed title backdrop.");
+    private RgbColor Backdrop => titleBackdrop;
 
     /// <summary>
     /// The floor's shading (#1512, #1597): the shade each running console light shows, the tube light's then
@@ -450,9 +449,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Resolves the installed title gradient at the floor's current zoom.</summary>
     private ScreenGradient ResolveTitleGradient()
     {
-        if (titleGradientPresentation is null)
-            throw new InvalidOperationException(
-                "Title rendering requires the installed title-gradient asset.");
         return titleGradientPresentation.Resolve(Zoom);
     }
 

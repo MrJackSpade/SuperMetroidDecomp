@@ -11,8 +11,8 @@ internal static class SuperMetroidGameAccess
     /// <summary>Exposes selected frontend identity and direct-room verification setup.</summary>
     extension(SuperMetroidGame self)
     {
-        /// <summary>Identity of the installed area-map presentation, if present.</summary>
-        internal string? MapPresentationIdentity => self.Artwork.ScreenContent?.ContentIdentity;
+        /// <summary>Identity of the installed area-map presentation.</summary>
+        internal string MapPresentationIdentity => self.Artwork.ScreenContent.ContentIdentity;
 
         /// <summary>Random word retained by the frontend dispatcher.</summary>
         internal int DispatcherRandomNumber => self.Session.Random.Read();
@@ -76,7 +76,7 @@ internal static class SuperMetroidGameAccess
         /// Production UI code continues to consume the coarser public game state.
         /// </summary>
         internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.Session.doorTransition.Phase;
-        /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
+        /// <summary>The installed catalogs the host bound (#2224).</summary>
         public GameArtwork Artwork { get => self.Session.Artwork; }
     }
 }

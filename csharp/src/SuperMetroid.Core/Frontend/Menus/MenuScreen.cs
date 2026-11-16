@@ -24,12 +24,12 @@ internal sealed class MenuScreen
     }
 
     /// <summary>The installed sheets the screen's pictures come from (#1467).</summary>
-    [AllowNull]
-    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's pictures are bound when the game is bound to its installed content."); set; }
+    private InstalledSpriteSheets Sheets { get; set; }
 
     /// <summary>Rebinds the sheets the screen's pictures come from (#1467).</summary>
-    public void BindScreenPictures(InstalledSpriteSheets? sheets) =>
-        Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
+    [MemberNotNull(nameof(Sheets))]
+    public void BindScreenPictures(InstalledSpriteSheets sheets) =>
+        Sheets = Ensure.NotNull(sheets);
 
     /// <summary>
     /// A page showing the menus' pictures named <paramref name="frames"/>, each placed at the page's corner in drawing order,

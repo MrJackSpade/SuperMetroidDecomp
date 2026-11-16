@@ -49,7 +49,7 @@ internal static class GameOptionsCursorPhasesVerification
                 "unsupported options cursor phase");
         var installed = RetailPresentationFixture();
         var controllerPage = NewMenu();
-        for (int row = 0; row < Array.IndexOf(GameOptionsLayout.PrimaryRows, GameOptionsPrimaryRow.ControllerSettings); row++)
+        for (int row = 0; row < GameOptionsPageRows.Primary.PlaceOf(GameOptionsPrimaryRow.ControllerSettings); row++)
         {
             controllerPage.Step(ControllerButton.Down);
             controllerPage.Step(0);

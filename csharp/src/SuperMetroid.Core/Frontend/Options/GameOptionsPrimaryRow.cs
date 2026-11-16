@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
-/// <summary>The five rows of the primary options page; <see cref="GameOptionsLayout"/> places them from the top.</summary>
+/// <summary>The five rows of the primary options page; <see cref="GameOptionsPageRows"/> places them from the top.</summary>
 public enum GameOptionsPrimaryRow
 {
     /// <summary>Begins the options fade-out and the following start-game transition.</summary>

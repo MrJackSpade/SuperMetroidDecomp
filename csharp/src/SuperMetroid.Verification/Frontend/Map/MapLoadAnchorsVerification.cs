@@ -148,10 +148,8 @@ internal static class MapLoadAnchorsVerification
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
         foreach (AreaId area in AreaIds.Zebes)
         {
-            var native = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
-            native.BindLabels(catalog.Maps.Labels);
-            var compiled = new FileSelectAreaMapGraphics(area, catalog.Backdrops, MenuSheetFixtures.For(catalog));
-            compiled.BindLabels(catalog.Maps.Labels);
+            var native = new FileSelectAreaMapGraphics(area, catalog, MenuSheetFixtures.For(catalog));
+            var compiled = new FileSelectAreaMapGraphics(area, catalog, MenuSheetFixtures.For(catalog));
             for (int mask = 0; mask < 64; mask++)
             {
                 var stations = new ushort[AreaIds.Zebes.Count];

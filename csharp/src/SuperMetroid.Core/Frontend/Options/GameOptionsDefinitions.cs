@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
 /// The options screen's fixed timing: the controller page's scrolling and the menu's sound priority. The pages' rows are
-/// <see cref="GameOptionsLayout"/>'s; the cursor's and headings' anchors are installed (#1615).
+/// <see cref="GameOptionsPageRows"/>'s; the cursor's and headings' anchors are installed (#1615).
 /// </summary>
 public static class GameOptionsDefinitions
 {

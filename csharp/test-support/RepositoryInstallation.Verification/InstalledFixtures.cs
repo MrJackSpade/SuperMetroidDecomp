@@ -459,15 +459,13 @@ internal static class InstalledFixtures
     internal static EndingCreditsState CreateEnding(AudioQueues audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
-        var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
-        ending.InstalledArtwork.BindFixtureObjectArtwork(endingObjects.Value);
-        ending.InstalledArtwork.BindBackdrops(endingBackdrops.Value);
-        return ending;
+        return new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText },
+            Maps.EndingText, endingBackdrops.Value, EndingSheetFixtures.WithEnding(endingObjects.Value));
     }
 
     /// <summary>Creates a file-select area map from installed presentation resources.</summary>
     internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(SuperMetroid.Core.Progression.AreaId selectedArea) =>
-        FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps, SpriteSheets);
+        new(selectedArea, Maps, SpriteSheets);
 
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
     internal static TitleSequenceState CreateTitle(AudioQueues? audio = null,
@@ -477,10 +475,6 @@ internal static class InstalledFixtures
         new(audio ?? AudioQueues.Standalone(), titleGradientPresentation ?? Maps.TitleGradient,
             titleBackdrop ?? Maps.TitleBackdrop,
             MenuSheetFixtures.WithTitle(titleGraphicsPresentation ?? ImportMaps.TitleGraphics));
-
-    /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>
-    internal static PauseMenuState CreatePause(PauseMenuEntry entry) =>
-        new(new PauseMenuEntry { Samus = entry.Samus, System = entry.System, Area = entry.Area, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayHud = entry.GameplayHud, MapRevealMode = entry.MapRevealMode, ScreenContent = Maps, SpriteSheets = SpriteSheets });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

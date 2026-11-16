@@ -132,8 +132,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(RoomSound.Silence, priority: SoundRequestPriority.Essential);
             session.Show(new CeresDestructionCinematicState(
-                session.audio, session.Artwork.InstalledPowerBombGlowColors,
-                session.Artwork.InstalledIntroCinematicArt, session.Artwork.InstalledSpriteSheets,
+                session.audio, session.Artwork.ScreenContent.PowerBombGlowColors,
+                session.Artwork.IntroCinematicArt, session.Artwork.SpriteSheets,
                 japaneseText: session.GameplayRuntime.JapaneseText));
             session.GameState = SuperMetroidGameState.CeresGoesBoom;
             session.display.PublishBlack();
@@ -185,10 +185,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                     endingSamus.MaxSuperMissiles,
                     endingSamus.MaxPowerBombs,
                     endingSamus.CollectedItems,
-                    endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(StoryEvent.CrittersEscaped) }));
-            session.ActiveEndingCredits.InstalledArtwork.BindEndingText(session.Artwork.ScreenContent?.EndingText);
-            session.ActiveEndingCredits.InstalledArtwork.BindBackdrops(session.Artwork.EndingBackdrops);
-            session.ActiveEndingCredits.InstalledArtwork.BindSpriteSheets(session.Artwork.SpriteSheets);
+                    endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(StoryEvent.CrittersEscaped) },
+                session.Artwork.ScreenContent.EndingText, session.Artwork.EndingBackdrops, session.Artwork.SpriteSheets));
             session.GameState = SuperMetroidGameState.EndingAndCredits;
             session.display.PublishBlack();
         }

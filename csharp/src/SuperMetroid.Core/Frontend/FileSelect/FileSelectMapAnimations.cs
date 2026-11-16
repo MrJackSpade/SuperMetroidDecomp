@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -10,28 +11,30 @@ public sealed class FileSelectMapAnimations
     /// <summary>Independent visibility, phase, and delay state for each map-scroll arrow, by the direction it scrolls.</summary>
     internal readonly Dictionary<MapScrollDirection, Arrow> arrows = [];
     /// <summary>The highlight cycle, advanced separately from arrow timing.</summary>
-    private readonly MapHighlightAnimation highlight = new();
+    private readonly MapHighlightAnimation highlight;
     /// <summary>The installed arrow phases.</summary>
-    private MapArrowPresentation? presentation;
+    private MapArrowPresentation presentation;
 
     /// <summary>Creates independent arrow counters and highlight timing for a map menu, binding installed arrow positions and phase durations without reading the game's animation data.</summary>
     /// <param name="presentation">The installed arrow definitions.</param>
-    public FileSelectMapAnimations(MapArrowPresentation presentation)
+    /// <param name="highlightCycle">The installed highlight cycle's timing.</param>
+    public FileSelectMapAnimations(MapArrowPresentation presentation, MapHighlightCycle highlightCycle)
     {
-        BindPresentation(Ensure.NotNull(presentation));
+        highlight = new MapHighlightAnimation(highlightCycle);
+        BindPresentation(presentation);
     }
 
     /// <summary>Binds the installed arrow phases when the game is bound to its installed content, without resetting visible-arrow timing.</summary>
-    internal void BindPresentation(MapArrowPresentation? content)
+    [MemberNotNull(nameof(presentation))]
+    internal void BindPresentation(MapArrowPresentation content)
     {
+        Ensure.NotNull(content);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
             Arrow? previous = arrows.GetValueOrDefault(direction);
             Arrow replacement;
             int phaseCount;
-            MapArrowPresentation installed = content ?? throw new InvalidOperationException(
-                "Map arrows require installed animation definitions.");
-            MapArrowVisual visual = installed.Get(direction);
+            MapArrowVisual visual = content.Get(direction);
             replacement = new Arrow(visual.Position, MapArrowSprites.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
             if (previous is not null)
@@ -44,7 +47,7 @@ public sealed class FileSelectMapAnimations
     /// <summary>Resetting the map's animations resets the highlight cycle but does not clear the arrow counters.</summary>
     public void ResetHighlight() => highlight.Reset();
     /// <summary>Replaces the installed highlight timing while retaining the menu-owned cycle state.</summary>
-    internal void BindHighlight(MapHighlightCycle? cycle) => highlight.Bind(cycle);
+    internal void BindHighlight(MapHighlightCycle cycle) => highlight.Bind(cycle);
 
     /// <summary>Advances the highlight cycle; returns the room-library sound request at the cycle's loop terminator.</summary>
     /// <returns>True when the cycle wraps and the map's highlight-loop sound should be queued; this method does not enqueue audio itself.</returns>

@@ -31,9 +31,9 @@ internal sealed record PauseMenuEntry
     /// <summary>How much of each area map the map assist shows.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;
 
-    /// <summary>The installed screen content the pause screens draw their maps and selectors from, or null while none is bound.</summary>
-    public InstalledScreenContent? ScreenContent { get; init; } = null;
+    /// <summary>The installed screen content the pause screens draw their maps and selectors from.</summary>
+    public required InstalledScreenContent ScreenContent { get; init; }
 
     /// <summary>The installed sprite sheets the map's sprites draw from.</summary>
-    public InstalledSpriteSheets? SpriteSheets { get; init; } = null;
+    public required InstalledSpriteSheets SpriteSheets { get; init; }
 }

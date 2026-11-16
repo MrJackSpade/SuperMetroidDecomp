@@ -37,7 +37,7 @@ internal static class ShutterBehaviorVerification
             VerifyPose(definition, ShutterSegment.FortyPixels,
                 (enemies, place) =>
                 {
-                    ShuttersBehavior.InitializeVerticalShutter(place);
+                    ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("Verification requires a bound shutter."))).Initialize();
                     VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                         ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
                     AssertEqual(ShuttersBehavior.InitialAction(state.TriggerMode), state.Action,
@@ -49,7 +49,9 @@ internal static class ShutterBehaviorVerification
         RoomEnemySystem kamerSystem = NewSystem();
         RoomEnemyPlace kamer = NewPlace(kamerSystem, EnemyDefinitionId.Kamer);
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
-        ShuttersBehavior.InitializeVerticalShutter(kamer);
+        // The Kamer's own entity sets it up, showing its platform (#2179).
+        AssertTrue(kamer.Entity is KamerEntity, "the Kamer is its own entity");
+        ((IEnemyInitialization)kamer.Entity!).Initialize();
         AssertEqual(new AnimationPlayback<ShutterSegment>(ShutterAnimations.StartingWith(ShutterSegment.KamerPlatform), AnimationPlace.StartOfAnimation),
             kamerSystem.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback, "Kamer vertical platform starts its loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Segments, ShutterSegment.KamerPlatform, ShutterFrameToolingDefinitions.Spritemap),
@@ -188,7 +190,7 @@ internal static class ShutterBehaviorVerification
             place.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
             place.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                 LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
-            ShuttersBehavior.InitializeVerticalShutter(place);
+            ShuttersBehavior.InitializeVerticalShutter(place, ShutterSegment.FortyPixels);
             VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
             string context = $"primary direction {primaryDirection} at Y {spawnY}";

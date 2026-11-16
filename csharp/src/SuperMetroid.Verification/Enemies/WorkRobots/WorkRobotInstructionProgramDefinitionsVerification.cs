@@ -52,12 +52,14 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
+        // The powered robot's definition has power once Phantoon is defeated.
+        enemies.VerificationServices().IsAreaBossDefeated = () => true;
 
         robot = enemies.Places.InUpdateOrder[0];
         robot.Bind(EnemyDefinitionId.WorkRobot, robot.Definition);
         robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
         robot.Radius = new(8, 16);
-        var state = new WorkRobotEnemyState() { Powered = true, Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation) };
+        var state = new WorkRobotEnemyState() { Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.Initial), AnimationPlace.StartOfAnimation) };
         robot.SetSpeciesState(state);
         return enemies;
     }

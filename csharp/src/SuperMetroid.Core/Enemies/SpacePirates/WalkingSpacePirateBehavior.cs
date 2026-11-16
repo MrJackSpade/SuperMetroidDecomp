@@ -483,12 +483,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.Playback = playback;
     }
 
-    /// <summary>Runs the extended-hitbox shot reaction, including collision marking before rejection or reflection.</summary>
-    internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
+    /// <summary>
+    /// Runs the extended-hitbox shot reaction <paramref name="pirateAction"/> the Pirate's hitbox selected, including
+    /// collision marking before rejection or reflection.
+    /// </summary>
+    internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c, PirateHitboxShotActions.PirateHitboxShotAction pirateAction)
     {
-        if (!c.UsesFrameHitboxes)
-            return false;
-        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShot);
         if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
         {
             // The extended walker marks a non-plasma projectile as having entered an extended hitbox before the
@@ -533,31 +533,58 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// </summary>
     internal static EnemyBombReaction SpacePirateBombReaction { get; } = new()
     {
-        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.Enemy, c.SelectedShot),
+        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.SelectedShot),
     };
 
-    /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
+    /// <summary>
+    /// Runs the gold Ninja's bombs through the common bomb damage, showing the hit burst only where the reaction the bomb
+    /// reaches shows it on the gold Ninja (<see cref="PirateHitboxShotActions.GoldNinjaShowsHitBurst"/>).
+    /// </summary>
+    internal static EnemyBombReaction GoldNinjaBombReaction { get; } = new()
+    {
+        ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.SelectedShot),
+    };
+
+    /// <summary>Uses shared Pirate shot logic, including the hitbox quake and the big death explosion, on every Pirate but the gold Ninja.</summary>
     internal EnemyShotReaction SpacePirateShotReaction => field ??= new()
     {
-        AfterSuperMissileQuake = ResolveSpacePirateHitboxShot,
-        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.Enemy, c.HitboxShot),
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
+            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectPirateHitboxShotAction(c.HitboxShot)),
+        ShowsHitBurst = c => PirateHitboxShotActions.ShowsHitBurst(c.HitboxShot),
+        ReplacesGenericDeath = c =>
+        {
+            if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
+                return false;
+            StartPirateDeath(c);
+            return true;
+        },
+    };
+
+    /// <summary>The gold Ninja's shot reaction: its armour's reflections, the Pirate shot logic and the drops its death scatters.</summary>
+    internal EnemyShotReaction GoldNinjaShotReaction => field ??= new()
+    {
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
+            c.UsesFrameHitboxes && ResolveSpacePirateHitboxShot(c, PirateHitboxShotActions.SelectGoldNinjaHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShot)),
+        ShowsHitBurst = c => PirateHitboxShotActions.GoldNinjaShowsHitBurst(c.HitboxShot),
         ReplacesGenericDeath = c =>
         {
             if (c.HitboxShot == EnemyReaction.NormalEnemyShot)
                 return false;
             // The Gold Ninja's death records its position as the drop origin before the enemy's death clears the
             // place; it then spawns the death explosion before the metal ninja Pirate's item drop spawns the drops.
-            bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
             Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
-            _deathsAndDrops.StartGenericEnemyDeath(
-                c.Enemy,
-                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
-                c.Samus);
-            if (spawnsGoldNinjaDrops)
-                _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin, c.Samus);
+            StartPirateDeath(c);
+            _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin, c.Samus);
             return true;
         },
     };
+
+    /// <summary>Starts a Pirate's death by a shot: the big explosion its shot's death animation rule chooses.</summary>
+    private void StartPirateDeath(EnemyShotContext c) =>
+        _deathsAndDrops.StartGenericEnemyDeath(
+            c.Enemy,
+            EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
+            c.Samus);
 
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox reactions before normal touch damage.</summary>
     internal void ReactToSpacePirateTouch(EnemyTouchContext context)

@@ -456,12 +456,11 @@ internal sealed class CrocomireFight
             : null;
     }
 
-    /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 1/65536-pixel displacement.</summary>
-    private bool MoveCrocomire(RoomEnemyPlace place, RoomLevelData level, int pixels) =>
+    /// <summary>Moves Crocomire's body through ordinary ignore-slopes collision with 1/65536-pixel displacement.</summary>
+    private bool MoveCrocomire(RoomEnemyPlace body, RoomLevelData level, int pixels) =>
         // The cues pass a whole ±4 pixels as a 1/65536-pixel displacement into the ordinary ignore-slopes
-        // enemy mover; retaining that precision here preserves collision-edge alignment.
-        place.DefinitionId == EnemyDefinitionId.Crocomire &&
-        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, SignedSixteenSixteen.FromWholePixels(pixels));
+        // enemy mover; retaining that precision here preserves collision-edge alignment. Only his body's steps move it.
+        _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, SignedSixteenSixteen.FromWholePixels(pixels));
 
     /// <summary>Chooses a foot-dust offset from room RNG and spawns the matching effect.</summary>
     private void SpawnCrocomireRandomFootDust(CrocomireEnemyState state)

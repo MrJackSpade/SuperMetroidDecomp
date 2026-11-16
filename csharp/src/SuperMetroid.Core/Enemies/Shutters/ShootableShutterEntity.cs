@@ -1,15 +1,18 @@
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// A shootable vertical shutter, or the Kamer that reuses it (#2146): its own shot reaction, and its own reaction to a
-/// bomb that selects it.
+/// A shootable vertical shutter (#2146), which the Kamer reuses (<see cref="KamerEntity"/>): its own shot reaction, and
+/// its own reaction to a bomb that selects it.
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
+internal class ShootableShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
     : VerticalShutterEntity(species, place, common)
 {
+    /// <summary>A shootable shutter shows forty pixels of shutter.</summary>
+    protected override ShutterSegment Pose => ShutterSegment.FortyPixels;
+
     /// <summary>The shootable shutter's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.ShootableShutterShotReaction : base.ShotReaction;
 

@@ -398,12 +398,14 @@ internal sealed class CrocomireCombat
         projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + CrocomireBridgeFragmentDefinitions.Gravity);
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on the body's frame, or null when the frame has no body hitboxes;
+    /// only his body's entity asks (#2179).
+    /// </summary>
     internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-            CrocomireBodyCollision.HasFrame(enemy.Frame)))
+        if (!CrocomireBodyCollision.HasFrame(enemy.Frame))
             return null;
 
         // Physical body components and their hitbox lists are compiled

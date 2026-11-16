@@ -16,7 +16,16 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateSilverNinja];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NinjaSpacePirateEntity(this, place, common);
+    /// <exception cref="InvalidOperationException">The place holds no ninja definition.</exception>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
+        if (definition == EnemyDefinitionId.PirateGoldNinja)
+            return new GoldNinjaSpacePirateEntity(this, place, common);
+        if (definition == EnemyDefinitionId.PirateSilverNinja)
+            return new NinjaSpacePirateEntity(this, place, common);
+        throw new InvalidOperationException($"The ninja Space Pirate species creates no {place.DefinitionId}.");
+    }
 
     /// <summary>Provides the shared RNG used by divekick selection.</summary>
     private readonly EnemyRoomBinding _room;
@@ -602,9 +611,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
     internal static void ReactToGoldNinjaPirateBomb(EnemyBombContext c)
     {
-        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShot);
-        if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
-            throw new InvalidDataException("A Gold Ninja Space Pirate's normal-bomb reaction selected an action other than ignoring the bomb.");
+        PirateHitboxShotActions.RequireGoldNinjaNormalBombReaction(c.SelectedShot);
         // Both gold-Ninja component reactions compare the normal-bomb family against the Power Bomb family and return
         // immediately. The extended collision walker has already marked the bomb, so this is an
         // accepted physical overlap without damage, impact replacement, reflection, or the Lower-Norfair

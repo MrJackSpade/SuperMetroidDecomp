@@ -227,7 +227,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // request uses target X-14 and delay index two; the ordinary helper may
         // legitimately reject it at the arena's hard left limit.
         Encounter.Form = MotherBrainForm.ThirdPhase;
-        Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting;
+        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
         Encounter.PhaseTimer.Count = 32;
         _state.RequestWalkBackward(
             CoordinateAxis.Wrap(_state.BodyPosition.X - 14),
@@ -245,7 +245,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // yielding 33 setup calls after the one-frame recovery producer above.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
+            Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
@@ -267,7 +267,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // writes until the following body turn; no phase-two behavior leaks through.
         if (Encounter.Head.Health == 0)
         {
-            Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom;
+            Encounter.DeathPhase = MotherBrainDeathPhase.MoveToBackOfRoom;
             return false;
         }
 
@@ -290,7 +290,7 @@ internal sealed class MotherBrainThirdPhaseFight
             _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
         }
 
-        Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown;
+        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
         Encounter.PhaseTimer.Count = 64;
         return false;
     }
@@ -304,7 +304,20 @@ internal sealed class MotherBrainThirdPhaseFight
         // The attack cooldown returns to main only as its timer runs out. It
         // does not fall through, so the neck and walking steps pause for all 65 calls.
         if (Encounter.PhaseTimer.StepRunsOut())
-            Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
+            Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
         return false;
     }
+
+    /// <summary>
+    /// Runs the body's current <see cref="MotherBrainPhase3FightPhase"/> phase. True when it moves to the next body phase and the game runs on
+    /// into it within the same call.
+    /// </summary>
+    internal bool Run(RainbowBeamAttackFrame frame) => Encounter.Phase3FightPhase switch
+    {
+        MotherBrainPhase3FightPhase.RecoverMakeSomeDistance => RunThirdPhaseRecoverMakeSomeDistance(),
+        MotherBrainPhase3FightPhase.RecoverSetupForFighting => RunThirdPhaseRecoverSetupForFighting(),
+        MotherBrainPhase3FightPhase.FightingMain => RunThirdPhaseFightingMain(frame),
+        MotherBrainPhase3FightPhase.FightingAttackCooldown => RunThirdPhaseFightingAttackCooldown(),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainPhase3FightPhase)} {Encounter.Phase3FightPhase}."),
+    };
 }

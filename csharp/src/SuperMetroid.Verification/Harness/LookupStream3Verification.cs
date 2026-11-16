@@ -1036,7 +1036,7 @@ internal static class LookupStream3Verification
             }
         }
         var sequence = MotherBrainLateFightFixtures.NewSequence();
-        sequence.Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseDeathStartEscape;
+        sequence.Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });

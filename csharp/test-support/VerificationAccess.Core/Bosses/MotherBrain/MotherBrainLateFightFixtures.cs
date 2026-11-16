@@ -21,7 +21,7 @@ internal static class MotherBrainLateFightFixtures
         var encounter = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), bursts)
         {
             Head = brain,
-            Phase = MotherBrainBodyPhase.SecondPhaseRainbowStartCharging,
+            RainbowPhase = MotherBrainRainbowPhase.StartCharging,
             DroolGenerationEnabled = true,
             SmallPurpleBreathGenerationEnabled = true,
             HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck,

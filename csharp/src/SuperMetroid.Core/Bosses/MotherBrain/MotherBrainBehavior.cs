@@ -108,128 +108,41 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         MotherBrainBody.ResolveMotherBrainSamusCollision(state, samus);
     }
 
-    /// <summary>Runs Mother Brain's current body phase, keeping that phase's own timer and attack order.</summary>
+    /// <summary>Runs the stage Mother Brain's body is in (#2208), keeping its phase's own timer and attack order.</summary>
     private void RunMotherBrainBodyPhase(
         MotherBrainEnemyState state,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        switch (state.Phase)
+        switch (state.Stage)
         {
-            case MotherBrainBodyPhase.FirstPhase:
+            case MotherBrainBodyStage.Glass:
                 Body.RunMotherBrainFirstPhase(state, samus);
                 return;
-            case MotherBrainBodyPhase.FakeDeathDescentInitialPause:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash:
-            case MotherBrainBodyPhase.FakeDeathDescentFadeToGray:
-            case MotherBrainBodyPhase.FakeDeathDescentCollapseTubes:
-            case MotherBrainBodyPhase.FakeDeathAscentDrawMural:
-            case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics:
+            case MotherBrainBodyStage.FakeDeathDescent:
                 RunMotherBrainFakeDeath(state, samus);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain:
-            case MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense:
-            case MotherBrainBodyPhase.FakeDeathAscentPrepareForRising:
-            case MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody:
-            case MotherBrainBodyPhase.FakeDeathAscentContinuePausing:
-            case MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake:
-            case MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain:
-            case MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched:
-            case MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray:
-            case MotherBrainBodyPhase.SecondPhaseStretchingShakeHead:
-            case MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp:
-            case MotherBrainBodyPhase.SecondPhaseStretchingFinish:
-            case MotherBrainBodyPhase.SecondPhaseThinking:
-            case MotherBrainBodyPhase.SecondPhaseTryAttack:
-            case MotherBrainBodyPhase.SecondPhaseBombDecideWalking:
-            case MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards:
-            case MotherBrainBodyPhase.SecondPhaseBombCrouch:
-            case MotherBrainBodyPhase.SecondPhaseBombFired:
-            case MotherBrainBodyPhase.SecondPhaseBombStandUp:
-            case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly:
-            case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire:
-            case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
-            case MotherBrainBodyPhase.SecondPhaseHandBeam:
-            case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartCharging:
-            case MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck:
-            case MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge:
-            case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartFiring:
-            case MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall:
-            case MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus:
-            case MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus:
-            case MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring:
-            case MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall:
-            case MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand:
-            case MotherBrainBodyPhase.SecondPhaseRainbowLowerHead:
-            case MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOff:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam:
-            case MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife:
-            case MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveWakeUp:
-            case MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch:
-            case MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby:
-            case MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath:
-            case MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath:
-            case MotherBrainBodyPhase.SecondPhaseMurderBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown:
-            case MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding:
-            case MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance:
-            case MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting:
-            case MotherBrainBodyPhase.ThirdPhaseFightingMain:
-            case MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown:
-            case MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom:
-            case MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding:
-            case MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom:
-            case MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions:
-            case MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation:
-            case MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround:
-            case MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey:
-            case MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver:
-            case MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway:
-            case MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay:
-            case MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning:
-            case MotherBrainBodyPhase.ThirdPhaseDeathStartEscape:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
-            case MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText:
-            case MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer:
-            case MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor:
-            case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
-                RunMotherBrainRiseAndLaterPhases(
+            case MotherBrainBodyStage.FakeDeathAscent:
+                RunMotherBrainAscent(state);
+                return;
+            case MotherBrainBodyStage.Phase2Fight:
+                RunMotherBrainPhase2Fight(state, samus);
+                return;
+            case MotherBrainBodyStage.RainbowBeam:
+            case MotherBrainBodyStage.FinishingSamusOff:
+            case MotherBrainBodyStage.DrainedByBaby:
+            case MotherBrainBodyStage.Reviving:
+            case MotherBrainBodyStage.Phase3Fight:
+            case MotherBrainBodyStage.Dying:
+                RainbowAndDeath.RunLiveMotherBrainRainbowBeam(
                     state,
                     samus,
+                    state.Body.FrameCounter,
                     sharedProjectiles);
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain body has no behaviour for phase {state.Phase}.");
+                    $"Mother Brain's body has no behaviour for its {state.Stage} stage.");
         }
     }
 
@@ -248,44 +161,44 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Authored smoke puff X offsets cycled while a tube lands.</summary>
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
-    /// <summary>Runs the body phase after the first phase changes to fake death.</summary>
+    /// <summary>Runs the phase of her fake death's descent her body is in, after her first phase ends.</summary>
     internal void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState samus)
     {
-        switch (state.Phase)
+        switch (state.DescentPhase)
         {
-            case MotherBrainBodyPhase.FakeDeathDescentInitialPause:
+            case MotherBrainDescentPhase.InitialPause:
                 // The fake-death start installs the following countdown and falls through to it. The
                 // first observable value is therefore 63, not the installed value 64.
-                state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock;
+                state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
                 state.PhaseTimer.Count = 64;
                 RunMotherBrainPauseBeforeLock(state, samus);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock:
+            case MotherBrainDescentPhase.PauseBeforeLock:
                 RunMotherBrainPauseBeforeLock(state, samus);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic:
+            case MotherBrainDescentPhase.PauseBeforeMusic:
                 if (!state.PhaseTimer.StepRunsOut())
                     return;
                 _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
                 _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
-                state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock;
+                state.DescentPhase = MotherBrainDescentPhase.PauseBeforeUnlock;
                 state.PhaseTimer.Count = 12;
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
+            case MotherBrainDescentPhase.PauseBeforeUnlock:
                 if (!state.PhaseTimer.StepRunsOut())
                     return;
                 // Restoring Samus's control reinstalls the normal input and movement modes.
                 samus.Control.Unlock();
-                state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash;
+                state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
                 state.PhaseTimer.Count = 8;
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash:
+            case MotherBrainDescentPhase.PauseBeforeFlash:
                 if (!state.PhaseTimer.StepRunsOut())
                     return;
 
@@ -296,123 +209,24 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.WaitForFourFreeProjectileSlots;
                 state.TubeCollapseTimer.Count = 0;
-                state.Phase = MotherBrainBodyPhase.FakeDeathDescentFadeToGray;
+                state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
                 state.PhaseTimer.Count = 0;
                 state.GreyFadeStep = 0;
                 Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathDescentFadeToGray:
+            case MotherBrainDescentPhase.FadeToGray:
                 FakeDeath.RunMotherBrainFadeToGray(state);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathDescentCollapseTubes:
+            case MotherBrainDescentPhase.CollapseTubes:
                 FakeDeath.RunMotherBrainTubeCollapse(state);
                 FakeDeath.RunMotherBrainFakeDeathExplosion(state);
                 return;
 
-            case MotherBrainBodyPhase.FakeDeathAscentDrawMural:
-                FakeDeath.DrawNextMuralRows(state);
-                return;
-            case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics:
-                Ascent.SetupMotherBrainPhaseTwoGraphics(state);
-                return;
-            case MotherBrainBodyPhase.FirstPhase:
-            case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain:
-            case MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense:
-            case MotherBrainBodyPhase.FakeDeathAscentPrepareForRising:
-            case MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody:
-            case MotherBrainBodyPhase.FakeDeathAscentContinuePausing:
-            case MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake:
-            case MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain:
-            case MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched:
-            case MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray:
-            case MotherBrainBodyPhase.SecondPhaseStretchingShakeHead:
-            case MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp:
-            case MotherBrainBodyPhase.SecondPhaseStretchingFinish:
-            case MotherBrainBodyPhase.SecondPhaseThinking:
-            case MotherBrainBodyPhase.SecondPhaseTryAttack:
-            case MotherBrainBodyPhase.SecondPhaseBombDecideWalking:
-            case MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards:
-            case MotherBrainBodyPhase.SecondPhaseBombCrouch:
-            case MotherBrainBodyPhase.SecondPhaseBombFired:
-            case MotherBrainBodyPhase.SecondPhaseBombStandUp:
-            case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly:
-            case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire:
-            case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
-            case MotherBrainBodyPhase.SecondPhaseHandBeam:
-            case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartCharging:
-            case MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck:
-            case MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge:
-            case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartFiring:
-            case MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall:
-            case MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus:
-            case MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus:
-            case MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring:
-            case MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall:
-            case MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand:
-            case MotherBrainBodyPhase.SecondPhaseRainbowLowerHead:
-            case MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOff:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam:
-            case MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife:
-            case MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveWakeUp:
-            case MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch:
-            case MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby:
-            case MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath:
-            case MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath:
-            case MotherBrainBodyPhase.SecondPhaseMurderBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown:
-            case MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding:
-            case MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance:
-            case MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting:
-            case MotherBrainBodyPhase.ThirdPhaseFightingMain:
-            case MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown:
-            case MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom:
-            case MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding:
-            case MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom:
-            case MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions:
-            case MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation:
-            case MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround:
-            case MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey:
-            case MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver:
-            case MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway:
-            case MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay:
-            case MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning:
-            case MotherBrainBodyPhase.ThirdPhaseDeathStartEscape:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
-            case MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText:
-            case MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer:
-            case MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor:
-            case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain fake-death has no behaviour for phase {state.Phase}.");
+                    $"Mother Brain's fake death's descent has no behaviour for phase {state.DescentPhase}.");
         }
     }
 
@@ -430,7 +244,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         requiredSamus.Control.LockStationary();
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
 
-        state.Phase = MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic;
+        state.DescentPhase = MotherBrainDescentPhase.PauseBeforeMusic;
         state.PhaseTimer.Count = 32;
         RunMotherBrainFakeDeath(state, samus);
     }
@@ -454,178 +268,108 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Colours.ShowRoomFlash(frame);
     }
 
-    /// <summary>
-    /// Runs every phase from her rise out of the fake death on: the rise itself, the second phase with the Baby
-    /// Metroid's rescue, the third phase and her death, without collapsing same-frame fallthroughs.
-    /// </summary>
-    private void RunMotherBrainRiseAndLaterPhases(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    /// <summary>Runs the phase of her rise out of the fake death her body is in, from the mural to her colours' return.</summary>
+    private void RunMotherBrainAscent(MotherBrainEnemyState state)
     {
-        switch (state.Phase)
+        switch (state.AscentPhase)
         {
-            case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain:
+            case MotherBrainAscentPhase.DrawMural:
+                FakeDeath.DrawNextMuralRows(state);
+                return;
+            case MotherBrainAscentPhase.SetupPhase2Graphics:
+                Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+                return;
+            case MotherBrainAscentPhase.SetupPhase2Brain:
                 MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense:
+            case MotherBrainAscentPhase.PauseForSuspense:
                 MotherBrainAscent.PauseBeforeMotherBrainRises(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentPrepareForRising:
+            case MotherBrainAscentPhase.PrepareForRising:
                 MotherBrainAscent.PrepareMotherBrainForRising(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody:
+            case MotherBrainAscentPhase.ReadyStandingBody:
                 MotherBrainAscent.ReadyMotherBrainStandingBody(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentContinuePausing:
+            case MotherBrainAscentPhase.ContinuePausing:
                 MotherBrainAscent.ContinueMotherBrainAscentPause(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake:
+            case MotherBrainAscentPhase.StartMusicAndEarthquake:
                 Ascent.StartMotherBrainAscent(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain:
+            case MotherBrainAscentPhase.RaiseMotherBrain:
                 Ascent.RaiseMotherBrain(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched:
+            case MotherBrainAscentPhase.WaitUntilUncrouched:
                 MotherBrainAscent.WaitForMotherBrainToFinishUncrouching(state);
                 return;
-            case MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray:
+            case MotherBrainAscentPhase.TransitionFromGray:
                 MotherBrainFakeDeath.TransitionMotherBrainFromGray(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseStretchingShakeHead:
+            default:
+                throw new InvalidDataException(
+                    $"Mother Brain's rise has no behaviour for phase {state.AscentPhase}.");
+        }
+    }
+
+    /// <summary>
+    /// Runs the phase of her second phase's fight her body is in, from her stretch to her attacks, until her health first
+    /// runs out and her thinking starts the rainbow beam.
+    /// </summary>
+    private void RunMotherBrainPhase2Fight(MotherBrainEnemyState state, SamusState samus)
+    {
+        switch (state.Phase2FightPhase)
+        {
+            case MotherBrainPhase2FightPhase.StretchingShakeHead:
                 MotherBrainAscent.ShakeMotherBrainHeadMenacingly(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp:
+            case MotherBrainPhase2FightPhase.StretchingBringHeadUp:
                 MotherBrainAscent.BringMotherBrainHeadBackUp(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseStretchingFinish:
+            case MotherBrainPhase2FightPhase.StretchingFinish:
                 MotherBrainAscent.FinishMotherBrainStretching(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseThinking:
+            case MotherBrainPhase2FightPhase.Thinking:
                 Attacks.RunMotherBrainSecondPhaseThinking(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseTryAttack:
+            case MotherBrainPhase2FightPhase.TryAttack:
                 Attacks.RunMotherBrainSecondPhaseTryAttack(state, samus);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseBombDecideWalking:
+            case MotherBrainPhase2FightPhase.BombDecideWalking:
                 Attacks.DecideMotherBrainBombWalking(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards:
+            case MotherBrainPhase2FightPhase.BombWalkingBackwards:
                 Attacks.ContinueMotherBrainBombWalk(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseBombCrouch:
+            case MotherBrainPhase2FightPhase.BombCrouch:
                 MotherBrainAttacks.CrouchMotherBrainForBomb(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseBombFired:
+            case MotherBrainPhase2FightPhase.BombFired:
                 MotherBrainAttacks.WaitAfterMotherBrainBomb(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseBombStandUp:
+            case MotherBrainPhase2FightPhase.BombStandUp:
                 MotherBrainAttacks.StandMotherBrainAfterBomb(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly:
+            case MotherBrainPhase2FightPhase.LaserPositionHeadQuickly:
                 MotherBrainAttacks.PositionMotherBrainHeadQuicklyForLaser(
                     state,
                     samus);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire:
+            case MotherBrainPhase2FightPhase.LaserPositionHeadSlowlyAndFire:
                 MotherBrainAttacks.PositionMotherBrainHeadSlowlyAndFireLaser(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
+            case MotherBrainPhase2FightPhase.LaserFinishAttack:
                 Attacks.FinishMotherBrainLaserAttack(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseHandBeam:
+            case MotherBrainPhase2FightPhase.HandBeam:
                 MotherBrainAttacks.RunMotherBrainHandBeamAttack(state);
                 return;
-            case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartCharging:
-            case MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck:
-            case MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge:
-            case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartFiring:
-            case MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall:
-            case MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay:
-            case MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus:
-            case MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus:
-            case MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring:
-            case MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall:
-            case MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand:
-            case MotherBrainBodyPhase.SecondPhaseRainbowLowerHead:
-            case MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOff:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby:
-            case MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam:
-            case MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey:
-            case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife:
-            case MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey:
-            case MotherBrainBodyPhase.SecondPhaseReviveWakeUp:
-            case MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch:
-            case MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby:
-            case MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath:
-            case MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath:
-            case MotherBrainBodyPhase.SecondPhaseMurderBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown:
-            case MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack:
-            case MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding:
-            case MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance:
-            case MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting:
-            case MotherBrainBodyPhase.ThirdPhaseFightingMain:
-            case MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown:
-            case MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom:
-            case MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding:
-            case MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom:
-            case MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions:
-            case MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation:
-            case MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround:
-            case MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey:
-            case MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey:
-            case MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver:
-            case MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway:
-            case MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay:
-            case MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning:
-            case MotherBrainBodyPhase.ThirdPhaseDeathStartEscape:
-            case MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
-            case MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText:
-            case MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer:
-            case MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor:
-            case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
-                RainbowAndDeath.RunLiveMotherBrainRainbowBeam(
-                    state,
-                    samus,
-                    state.Body.FrameCounter,
-                    sharedProjectiles);
-                return;
-            case MotherBrainBodyPhase.FirstPhase:
-            case MotherBrainBodyPhase.FakeDeathDescentInitialPause:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
-            case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash:
-            case MotherBrainBodyPhase.FakeDeathDescentFadeToGray:
-            case MotherBrainBodyPhase.FakeDeathDescentCollapseTubes:
-            case MotherBrainBodyPhase.FakeDeathAscentDrawMural:
-            case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics:
             default:
                 throw new InvalidDataException(
-                    $"Mother Brain's rise and later phases have no behaviour for phase {state.Phase}.");
+                    $"Mother Brain's second-phase fight has no behaviour for phase {state.Phase2FightPhase}.");
         }
     }
+
     /// <summary>Six authored drool spawn offsets from the brain's center.</summary>
     internal static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
         [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];

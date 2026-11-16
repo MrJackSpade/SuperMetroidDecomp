@@ -40,12 +40,127 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
-    /// <summary>The body's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
-    public MotherBrainBodyPhase Phase { get; internal set; }
+    /// <summary>
+    /// The stage her body is in (#2208), which names the type of the phase it runs on its next AI turn; setting a stage's
+    /// phase enters that stage. Her body's setup leaves it in the <see cref="MotherBrainBodyStage.Glass"/> stage.
+    /// </summary>
+    public MotherBrainBodyStage Stage { get; private set; }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathDescent"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainDescentPhase DescentPhase
+    {
+        get => Stage == MotherBrainBodyStage.FakeDeathDescent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathDescent);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.FakeDeathDescent;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathAscent"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainAscentPhase AscentPhase
+    {
+        get => Stage == MotherBrainBodyStage.FakeDeathAscent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathAscent);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.FakeDeathAscent;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase2Fight"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainPhase2FightPhase Phase2FightPhase
+    {
+        get => Stage == MotherBrainBodyStage.Phase2Fight ? field : throw NotIn(MotherBrainBodyStage.Phase2Fight);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Phase2Fight;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.RainbowBeam"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainRainbowPhase RainbowPhase
+    {
+        get => Stage == MotherBrainBodyStage.RainbowBeam ? field : throw NotIn(MotherBrainBodyStage.RainbowBeam);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.RainbowBeam;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FinishingSamusOff"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainFinishOffPhase FinishOffPhase
+    {
+        get => Stage == MotherBrainBodyStage.FinishingSamusOff ? field : throw NotIn(MotherBrainBodyStage.FinishingSamusOff);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.FinishingSamusOff;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.DrainedByBaby"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainDrainedPhase DrainedPhase
+    {
+        get => Stage == MotherBrainBodyStage.DrainedByBaby ? field : throw NotIn(MotherBrainBodyStage.DrainedByBaby);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.DrainedByBaby;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Reviving"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainRevivalPhase RevivalPhase
+    {
+        get => Stage == MotherBrainBodyStage.Reviving ? field : throw NotIn(MotherBrainBodyStage.Reviving);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Reviving;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase3Fight"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainPhase3FightPhase Phase3FightPhase
+    {
+        get => Stage == MotherBrainBodyStage.Phase3Fight ? field : throw NotIn(MotherBrainBodyStage.Phase3Fight);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Phase3Fight;
+        }
+    }
+
+    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Dying"/> stage the body runs; setting it enters that stage.</summary>
+    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
+    public MotherBrainDeathPhase DeathPhase
+    {
+        get => Stage == MotherBrainBodyStage.Dying ? field : throw NotIn(MotherBrainBodyStage.Dying);
+        internal set
+        {
+            field = value;
+            Stage = MotherBrainBodyStage.Dying;
+        }
+    }
+
+    /// <summary>The failure of reading a stage's phase while her body is in another.</summary>
+    private InvalidOperationException NotIn(MotherBrainBodyStage stage) =>
+        new($"Mother Brain's body is in its {Stage} stage, not {stage}.");
 
     /// <summary>
     /// How many of the mural's rows her fake death's ascent has drawn (#2211): zero when the reveal starts, two more each
-    /// update of <see cref="MotherBrainBodyPhase.FakeDeathAscentDrawMural"/>.
+    /// update of <see cref="MotherBrainAscentPhase.DrawMural"/>.
     /// </summary>
     public int MuralRowsDrawn { get; internal set; }
     /// <summary>The brain's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>

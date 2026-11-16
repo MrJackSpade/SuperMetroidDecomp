@@ -67,7 +67,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance;
+        Encounter.DrainedPhase = MotherBrainDrainedPhase.RegainBalance;
         Encounter.PhaseTimer.Count = 48;
         return true;
     }
@@ -78,7 +78,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.ColoursRequested = true;
+        requests.RainbowColours = true;
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             PainfulWalkingForward = true;
@@ -87,7 +87,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             PainfulWalkingPauseTimer = 0;
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.FiringRainbowBeam;
         }
         return false;
     }
@@ -103,7 +103,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // fabricating a body-side countdown that does not exist in this step.
         if (Encounter.BrainMainShakeTimer == 0)
             Encounter.BrainMainShakeTimer = 50;
-        requests.ColoursRequested = true;
+        requests.RainbowColours = true;
         StepPainfulWalking();
 
         // The outer phase updates delay and neck delta after every step of the painful walk, so the sixth step is seen
@@ -117,7 +117,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (PainfulWalkingStage == 6)
         {
             _state.RainbowBeamSoundPlaying = false;
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;
+            requests.DrainedBeamRanOut = true;
             requests.SoundQueued = true; // The rainbow-drain sound stops as the beam runs out.
         }
         return false;
@@ -136,7 +137,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.MoveToBackOfRoom;
             return true;
         }
         return false;
@@ -152,7 +153,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
         if (moveToBack.ReachedTarget)
         {
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.GoIntoLowPowerMode;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.None;
             return true;
         }
@@ -174,7 +175,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             if (Encounter.Pose != MotherBrainBodyPose.Standing)
                 return false;
             _state.SetBodyAnimation(MotherBrainBodySegment.CrouchFast);
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.PrepareTransitionToGrey;
             Encounter.PhaseTimer.Count = 64;
         }
         return false;
@@ -189,7 +190,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.GrayTransitionCounter = 0;
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey;
+            Encounter.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
             Encounter.PhaseTimer.Count = 16;
             return true;
         }
@@ -210,16 +211,34 @@ internal sealed class MotherBrainDrainedByBabyPhases
             // without new colours.
             int greyStep = Encounter.GrayTransitionCounter;
             Encounter.GrayTransitionCounter++;
-            requests.ColoursRequested = greyStep < 8;
+            if (greyStep < 8)
+                requests.DrainColourStep = greyStep;
             if (greyStep >= 8)
             {
                 Encounter.Head.Health = 36000;
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
                 Encounter.SmallPurpleBreathGenerationEnabled = false;
                 Encounter.Form = MotherBrainForm.SecondPhase;
-                Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey;
+                Encounter.RevivalPhase = MotherBrainRevivalPhase.InanimateGrey;
             }
         }
         return false;
     }
+
+    /// <summary>
+    /// Runs the body's current <see cref="MotherBrainDrainedPhase"/> phase. True when it moves to the next body phase and the game runs on
+    /// into it within the same call.
+    /// </summary>
+    internal bool Run(MotherBrainRainbowBeamStepRequests requests) => Encounter.DrainedPhase switch
+    {
+        MotherBrainDrainedPhase.TakenAback => RunSecondPhaseDrainedByBabyTakenAback(),
+        MotherBrainDrainedPhase.RegainBalance => RunSecondPhaseDrainedByBabyRegainBalance(requests),
+        MotherBrainDrainedPhase.FiringRainbowBeam => RunSecondPhaseDrainedByBabyFiringRainbowBeam(requests),
+        MotherBrainDrainedPhase.RainbowBeamRunOut => RunSecondPhaseDrainedByBabyRainbowBeamRunOut(),
+        MotherBrainDrainedPhase.MoveToBackOfRoom => RunSecondPhaseDrainedByBabyMoveToBackOfRoom(),
+        MotherBrainDrainedPhase.GoIntoLowPowerMode => RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(),
+        MotherBrainDrainedPhase.PrepareTransitionToGrey => RunSecondPhaseDrainedByBabyPrepareTransitionToGrey(),
+        MotherBrainDrainedPhase.TransitionToGrey => RunSecondPhaseDrainedByBabyTransitionToGrey(requests),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainDrainedPhase)} {Encounter.DrainedPhase}."),
+    };
 }

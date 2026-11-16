@@ -29,7 +29,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         // The inanimate setup only moves to the next phase and sets its 768-frame timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife;
+        Encounter.RevivalPhase = MotherBrainRevivalPhase.ShowSignsOfLife;
         Encounter.PhaseTimer.Count = 768;
         return false;
     }
@@ -46,7 +46,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             Encounter.SmallPurpleBreathGenerationEnabled = true;
             Encounter.DroolGenerationEnabled = true;
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.TransitionFromGrey;
             Encounter.PhaseTimer.Count = 224;
             Encounter.GrayTransitionCounter = 0;
             return true;
@@ -70,10 +70,11 @@ internal sealed class MotherBrainRevivalPhases
             // with no copy. The existing result flag exposes each real copy cadence.
             int greyStep = Encounter.GrayTransitionCounter;
             Encounter.GrayTransitionCounter++;
-            requests.ColoursRequested = greyStep < 8;
+            if (greyStep < 8)
+                requests.RevivalColourStep = greyStep;
             if (greyStep >= 8)
             {
-                Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUp;
+                Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUp;
                 return true;
             }
         }
@@ -96,7 +97,7 @@ internal sealed class MotherBrainRevivalPhases
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             Encounter.NeckMovementEnabled = true;
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUpStretch;
             Encounter.PhaseTimer.Count = 16;
             return true;
         }
@@ -112,7 +113,7 @@ internal sealed class MotherBrainRevivalPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase3);
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.WalkUpToBaby;
             Encounter.PhaseTimer.Count = 128;
             return true;
         }
@@ -136,7 +137,7 @@ internal sealed class MotherBrainRevivalPhases
             {
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Revived;
                 _state.HealthColoursEnabled = true;
-                Encounter.Phase = MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath;
+                Encounter.RevivalPhase = MotherBrainRevivalPhase.PrepareNeckForBabyDeath;
             }
         }
         return false;
@@ -155,7 +156,7 @@ internal sealed class MotherBrainRevivalPhases
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath;
+        Encounter.RevivalPhase = MotherBrainRevivalPhase.FinishPreparingForBabyDeath;
         return true;
     }
 
@@ -168,7 +169,7 @@ internal sealed class MotherBrainRevivalPhases
         bool stoodUp = _state.MakeBodyStandUp();
         if (stoodUp)
         {
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttack;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttack;
             _state.RequestWalkForward(80, 10);
             return true;
         }
@@ -190,7 +191,7 @@ internal sealed class MotherBrainRevivalPhases
             _state.SetHeadAnimation(_state.BabyMetroidSpawned
                 ? MotherBrainHeadSegment.AttackingBabyMetroid
                 : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttackCooldown;
             Encounter.PhaseTimer.Count = 64;
         }
         return false;
@@ -203,7 +204,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseMurderBabyAttackCooldown()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseMurderBabyAttack;
+            Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttack;
         return false;
     }
 
@@ -227,7 +228,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseExecuteFinalBabyAttack()
     {
         _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingBabyMetroid);
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding;
+        Encounter.RevivalPhase = MotherBrainRevivalPhase.FinalBabyAttackHolding;
         return false;
     }
 
@@ -241,4 +242,26 @@ internal sealed class MotherBrainRevivalPhases
         // health reduction and the Baby actor owns its death/recovery sequence.
         return false;
     }
+
+    /// <summary>
+    /// Runs the body's current <see cref="MotherBrainRevivalPhase"/> phase. True when it moves to the next body phase and the game runs on
+    /// into it within the same call.
+    /// </summary>
+    internal bool Run(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.RevivalPhase switch
+    {
+        MotherBrainRevivalPhase.InanimateGrey => RunSecondPhaseReviveInanimateGrey(),
+        MotherBrainRevivalPhase.ShowSignsOfLife => RunSecondPhaseReviveShowSignsOfLife(),
+        MotherBrainRevivalPhase.TransitionFromGrey => RunSecondPhaseReviveTransitionFromGrey(requests),
+        MotherBrainRevivalPhase.WakeUp => RunSecondPhaseReviveWakeUp(),
+        MotherBrainRevivalPhase.WakeUpStretch => RunSecondPhaseReviveWakeUpStretch(),
+        MotherBrainRevivalPhase.WalkUpToBaby => RunSecondPhaseReviveWalkUpToBaby(),
+        MotherBrainRevivalPhase.PrepareNeckForBabyDeath => RunSecondPhaseRevivePrepareNeckForBabyDeath(),
+        MotherBrainRevivalPhase.FinishPreparingForBabyDeath => RunSecondPhaseReviveFinishPreparingForBabyDeath(),
+        MotherBrainRevivalPhase.MurderBabyAttack => RunSecondPhaseMurderBabyAttack(frame),
+        MotherBrainRevivalPhase.MurderBabyAttackCooldown => RunSecondPhaseMurderBabyAttackCooldown(),
+        MotherBrainRevivalPhase.PrepareForFinalBabyAttack => RunSecondPhasePrepareForFinalBabyAttack(),
+        MotherBrainRevivalPhase.ExecuteFinalBabyAttack => RunSecondPhaseExecuteFinalBabyAttack(),
+        MotherBrainRevivalPhase.FinalBabyAttackHolding => RunSecondPhaseFinalBabyAttackHolding(),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRevivalPhase)} {Encounter.RevivalPhase}."),
+    };
 }

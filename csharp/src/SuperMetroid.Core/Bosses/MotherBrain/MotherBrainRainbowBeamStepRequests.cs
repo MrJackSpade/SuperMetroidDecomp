@@ -16,8 +16,32 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the beam's sound was queued.</summary>
     internal bool SoundQueued { get; set; }
 
-    /// <summary>Whether this step shows the next step of her colours: the rainbow, the drain, the revival or the death fade.</summary>
-    internal bool ColoursRequested { get; set; }
+    /// <summary>Whether the call ran her rainbow colours' handler, which steps them on its phase of the body's update count.</summary>
+    internal bool RainbowColours { get; set; }
+
+    /// <summary>Whether the beam narrowed below its narrowest and let Samus go, so her colours return and the drain's sound stops.</summary>
+    internal bool BeamEnded { get; set; }
+
+    /// <summary>Whether the drained beam ran out at the painful walk's sixth step, leaving her colours on the drained frame.</summary>
+    internal bool DrainedBeamRanOut { get; set; }
+
+    /// <summary>The step of her greying as the Baby drains her that the call shows, if it shows one.</summary>
+    internal int? DrainColourStep { get; set; }
+
+    /// <summary>The step of her revival's colours that the call shows, if it shows one.</summary>
+    internal int? RevivalColourStep { get; set; }
+
+    /// <summary>Whether disabling her brain's effects detached her brain, which keeps the colours it shows.</summary>
+    internal bool BrainDetached { get; set; }
+
+    /// <summary>Whether her body's fade ran, which flickers her body with the background on every call.</summary>
+    internal bool BodyFlickers { get; set; }
+
+    /// <summary>The step of her body's fade to black that the call shows, if it shows one.</summary>
+    internal int? DeathFadeStep { get; set; }
+
+    /// <summary>The step of her corpse's fade to grey that the call shows, if it shows one.</summary>
+    internal int? CorpseFadeStep { get; set; }
 
     /// <summary>The beam explosion requested, if any.</summary>
     internal MotherBrainRainbowExplosionRequest? Explosion { get; set; }
@@ -31,8 +55,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the Baby Metroid's spawn was requested.</summary>
     internal bool BabySpawnRequested { get; set; }
 
-    /// <summary>Whether the final beam's sound was queued.</summary>
-    internal bool FinalBeamSoundQueued { get; set; }
+    /// <summary>Whether the final beam fired: its sound is queued and her rainbow colours start again from the first.</summary>
+    internal bool FinalBeamFired { get; set; }
 
     /// <summary>The death explosions requested.</summary>
     internal List<MotherBrainDeathExplosionRequest> DeathExplosions { get; } = new(capacity: 4);
@@ -103,11 +127,11 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Stops the room's earthquake, keeping any shake this call started for a later run.</summary>
     internal void StopEarthquake() => RunEarthquakeOn(0);
 
-    /// <summary>The call's result, from the phases it started and ended in.</summary>
-    internal MotherBrainRainbowBeamAttackStepResult ToResult(
-        MotherBrainBodyPhase phaseBefore, MotherBrainBodyPhase phaseAfter) =>
-        new(phaseBefore, phaseAfter, Movement, SoundQueued, ColoursRequested, Explosion, ChargeSoundQueued,
-            BodyClearRequested, BabySpawnRequested, FinalBeamSoundQueued,
+    /// <summary>The call's result.</summary>
+    internal MotherBrainRainbowBeamAttackStepResult ToResult() =>
+        new(Movement, SoundQueued, RainbowColours, BeamEnded, DrainedBeamRanOut, DrainColourStep, RevivalColourStep,
+            BrainDetached, BodyFlickers, DeathFadeStep, CorpseFadeStep, Explosion, ChargeSoundQueued,
+            BodyClearRequested, BabySpawnRequested, FinalBeamFired,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeMusicTrackQueued, EscapeColourEffectRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, GetUpReleaseRequested,

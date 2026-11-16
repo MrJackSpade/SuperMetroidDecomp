@@ -140,8 +140,7 @@ internal static class MurderBeamVerification
         var phaseBoundary = MotherBrainLateFightFixtures.NewSequence();
         phaseBoundary.StartFinishOffSequence();
         phaseBoundary.BeginPhase3RecoveryFromBabyCutscene();
-        AssertEqual(MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance,
-            phaseBoundary.Encounter.Phase, "Mother Brain enters the phase-three recovery boundary");
+        AssertEqual(MotherBrainPhase3FightPhase.RecoverMakeSomeDistance, phaseBoundary.Encounter.Phase3FightPhase, "Mother Brain enters the phase-three recovery boundary");
         for (int frame = 0; frame < 120; frame++)
         {
             shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);

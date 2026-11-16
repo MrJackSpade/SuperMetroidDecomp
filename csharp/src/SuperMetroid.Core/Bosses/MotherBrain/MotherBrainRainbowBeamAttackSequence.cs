@@ -97,7 +97,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()
     {
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback;
+        Encounter.DrainedPhase = MotherBrainDrainedPhase.TakenAback;
         State.RainbowBeamSoundPlaying = true; // The Baby's drain writes the shared SFX flag.
     }
 
@@ -107,14 +107,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// walk; the later Baby route decides when to replace this phase with the final attack.
     /// </summary>
     public void PrepareForFinalBabyMetroidAttack() =>
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack;
+        Encounter.RevivalPhase = MotherBrainRevivalPhase.PrepareForFinalBabyAttack;
 
     /// <summary>
     /// Runs the Baby's cross-enemy write. Mother Brain installs one last
     /// four-ring head animation and then leaves her body phase at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
-        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack;
+        Encounter.RevivalPhase = MotherBrainRevivalPhase.ExecuteFinalBabyAttack;
 
     /// <summary>
     /// Applies the head's attack-counter step; the counter stops at twelve.
@@ -132,7 +132,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
-        Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance;
+        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverMakeSomeDistance;
 
         // Clears only the Baby's spawned flag, which head attack selection reads after the
         // Baby has deleted itself.
@@ -176,261 +176,26 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
         Ensure.NotNull(samus);
-        MotherBrainBodyPhase phaseBefore = Encounter.Phase;
         var requests = new MotherBrainRainbowBeamStepRequests();
 
         bool handsOver;
         do
         {
-            switch (Encounter.Phase)
+            handsOver = Encounter.Stage switch
             {
-                case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowExtendNeck();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowStartCharging:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartCharging();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowRetractNeck();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowWaitForCharge(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeckDown:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowExtendNeckDown(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowStartFiring:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartFiring(samus, frame, requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowMoveSamusTowardWall:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowMoveSamusTowardWall(samus, frame, requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowOneFrameDelay:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowOneFrameDelay(samus, frame, requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowStartDrainingSamus:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowStartDrainingSamus(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowDrainingSamus:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowDrainingSamus(samus, frame, requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowFinishFiring:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowFinishFiring(samus, frame, requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowLetSamusFall:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowLetSamusFall(samus);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowWaitForSamusToLand:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowWaitForSamusToLand(samus, frame, requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowLowerHead:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowLowerHead();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowDecideNextAction(samus);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinishSamusOff:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOff(samus, frame);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffStandUp();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffAdmire();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffChargeFinalBeam();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffReadyBaby(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffFireFinalBeam(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding:
-                    handsOver = MotherBrainFinishSamusOffPhases.RunSecondPhaseFinalRainbowBeamHolding();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyTakenAback();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyRegainBalance(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyFiringRainbowBeam(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyRainbowBeamRunOut();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyMoveToBackOfRoom();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyGoIntoLowPowerMode();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyPrepareTransitionToGrey();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyTransitionToGrey(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey:
-                    handsOver = Revival.RunSecondPhaseReviveInanimateGrey();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveShowSignsOfLife:
-                    handsOver = Revival.RunSecondPhaseReviveShowSignsOfLife();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveTransitionFromGrey:
-                    handsOver = Revival.RunSecondPhaseReviveTransitionFromGrey(requests);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveWakeUp:
-                    handsOver = Revival.RunSecondPhaseReviveWakeUp();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch:
-                    handsOver = Revival.RunSecondPhaseReviveWakeUpStretch();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby:
-                    handsOver = Revival.RunSecondPhaseReviveWalkUpToBaby();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath:
-                    handsOver = Revival.RunSecondPhaseRevivePrepareNeckForBabyDeath();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath:
-                    handsOver = Revival.RunSecondPhaseReviveFinishPreparingForBabyDeath();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseMurderBabyAttack:
-                    handsOver = Revival.RunSecondPhaseMurderBabyAttack(frame);
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown:
-                    handsOver = Revival.RunSecondPhaseMurderBabyAttackCooldown();
-                    break;
-                case MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack:
-                    handsOver = Revival.RunSecondPhasePrepareForFinalBabyAttack();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack:
-                    handsOver = Revival.RunSecondPhaseExecuteFinalBabyAttack();
-                    break;
-                case MotherBrainBodyPhase.SecondPhaseFinalBabyAttackHolding:
-                    handsOver = MotherBrainRevivalPhases.RunSecondPhaseFinalBabyAttackHolding();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance:
-                    handsOver = ThirdPhaseFight.RunThirdPhaseRecoverMakeSomeDistance();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting:
-                    handsOver = ThirdPhaseFight.RunThirdPhaseRecoverSetupForFighting();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseFightingMain:
-                    handsOver = ThirdPhaseFight.RunThirdPhaseFightingMain(frame);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown:
-                    handsOver = ThirdPhaseFight.RunThirdPhaseFightingAttackCooldown();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathMoveToBackOfRoom();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathIdleWhilstExploding(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathStumbleToMiddleOfRoom:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathStumbleToMiddleOfRoom(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathDisableBrainEffects:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathDisableBrainEffects(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathSetupBodyFadeOut:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathSetupBodyFadeOut(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathFadeOutBody:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathFadeOutBody(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathFinalFewExplosions:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathFinalFewExplosions(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathRealizeDecapitation:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathRealizeDecapitation();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathBrainFallsToGround:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathBrainFallsToGround(requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathReadyCorpse:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathReadyCorpse();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathSetupFadeToGrey:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathSetupFadeToGrey();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathFadeToGrey:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathFadeToGrey(requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathCorpseTipsOver:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathCorpseTipsOver();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathCorpseRotsAway:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathCorpseRotsAway(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeath20FrameDelay:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeath20FrameDelay();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathReadyEscapeWarning:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathReadyEscapeWarning();
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathStartEscape:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathStartEscape(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathSpawnTimeBombSetSubtitle(requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathTypeOutZebesEscapeText:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathTypeOutZebesEscapeText(frame);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathDoorExplodingStartTimer:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathDoorExplodingStartTimer(frame, requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathBlowUpEscapeDoor:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathBlowUpEscapeDoor(requests);
-                    break;
-                case MotherBrainBodyPhase.ThirdPhaseDeathKeepEarthquakeGoing:
-                    handsOver = MotherBrainThirdPhaseDeath.RunThirdPhaseDeathKeepEarthquakeGoing(frame, requests);
-                    break;
-                // The sequence owns only the rainbow-beam and later body phases; the others belong to the room adapter.
-                case MotherBrainBodyPhase.FirstPhase:
-                case MotherBrainBodyPhase.FakeDeathDescentInitialPause:
-                case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeLock:
-                case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeMusic:
-                case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeUnlock:
-                case MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash:
-                case MotherBrainBodyPhase.FakeDeathDescentFadeToGray:
-                case MotherBrainBodyPhase.FakeDeathDescentCollapseTubes:
-                case MotherBrainBodyPhase.FakeDeathAscentDrawMural:
-                case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics:
-                case MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain:
-                case MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense:
-                case MotherBrainBodyPhase.FakeDeathAscentPrepareForRising:
-                case MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody:
-                case MotherBrainBodyPhase.FakeDeathAscentContinuePausing:
-                case MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake:
-                case MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain:
-                case MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched:
-                case MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray:
-                case MotherBrainBodyPhase.SecondPhaseStretchingShakeHead:
-                case MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp:
-                case MotherBrainBodyPhase.SecondPhaseStretchingFinish:
-                case MotherBrainBodyPhase.SecondPhaseThinking:
-                case MotherBrainBodyPhase.SecondPhaseTryAttack:
-                case MotherBrainBodyPhase.SecondPhaseBombDecideWalking:
-                case MotherBrainBodyPhase.SecondPhaseBombWalkingBackwards:
-                case MotherBrainBodyPhase.SecondPhaseBombCrouch:
-                case MotherBrainBodyPhase.SecondPhaseBombFired:
-                case MotherBrainBodyPhase.SecondPhaseBombStandUp:
-                case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadQuickly:
-                case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire:
-                case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
-                case MotherBrainBodyPhase.SecondPhaseHandBeam:
-                default:
-                    throw new InvalidOperationException($"Unsupported rainbow-beam phase {Encounter.Phase}.");
-            }
+                MotherBrainBodyStage.RainbowBeam => RainbowAttack.Run(samus, frame, requests),
+                MotherBrainBodyStage.FinishingSamusOff => FinishSamusOff.Run(samus, frame, requests),
+                MotherBrainBodyStage.DrainedByBaby => DrainedByBaby.Run(requests),
+                MotherBrainBodyStage.Reviving => Revival.Run(frame, requests),
+                MotherBrainBodyStage.Phase3Fight => ThirdPhaseFight.Run(frame),
+                MotherBrainBodyStage.Dying => ThirdPhaseDeath.Run(frame, requests),
+                // The sequence runs only the rainbow beam and the stages after it; the others belong to the room adapter.
+                MotherBrainBodyStage.Glass or MotherBrainBodyStage.FakeDeathDescent or MotherBrainBodyStage.FakeDeathAscent or MotherBrainBodyStage.Phase2Fight or _ =>
+                    throw new InvalidOperationException($"The late fight does not run Mother Brain's {Encounter.Stage} stage."),
+            };
         }
         while (handsOver);
 
-        return requests.ToResult(phaseBefore, Encounter.Phase);
+        return requests.ToResult();
     }
 }

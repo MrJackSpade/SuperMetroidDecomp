@@ -54,7 +54,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // step on this call.
         if (StandUpToFinishOffEnergy(samus.EquippedItems) >= samus.Health)
         {
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.StandUp;
             return false;
         }
 
@@ -95,7 +95,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         bool stoodUp = _state.MakeBodyStandUp();
         if (stoodUp)
         {
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.Admire;
             Encounter.PhaseTimer.Count = 16;
             return true;
         }
@@ -112,7 +112,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffChargeFinalBeam;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ChargeFinalBeam;
             Encounter.PhaseTimer.Count = 256;
         }
         return false;
@@ -127,7 +127,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.ChargingRainbowBeam);
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffReadyBaby;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ReadyBaby;
             return true;
         }
         return false;
@@ -146,7 +146,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.RetractHead();
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinishSamusOffFireFinalBeam;
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
             Encounter.PhaseTimer.Count = 256;
         }
         return false;
@@ -164,8 +164,8 @@ internal sealed class MotherBrainFinishSamusOffPhases
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
-            requests.FinalBeamSoundQueued = true; // The final beam's sound.
-            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseFinalRainbowBeamHolding;
+            requests.FinalBeamFired = true; // The final beam's sound, and her rainbow colours start again from the first.
+            Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FinalBeamHolding;
         }
         return false;
     }
@@ -181,4 +181,20 @@ internal sealed class MotherBrainFinishSamusOffPhases
         // with the taken-aback step after latching onto her head.
         return false;
     }
+
+    /// <summary>
+    /// Runs the body's current <see cref="MotherBrainFinishOffPhase"/> phase. True when it moves to the next body phase and the game runs on
+    /// into it within the same call.
+    /// </summary>
+    internal bool Run(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.FinishOffPhase switch
+    {
+        MotherBrainFinishOffPhase.GetSamusToLowEnergy => RunSecondPhaseFinishSamusOff(samus, frame),
+        MotherBrainFinishOffPhase.StandUp => RunSecondPhaseFinishSamusOffStandUp(),
+        MotherBrainFinishOffPhase.Admire => RunSecondPhaseFinishSamusOffAdmire(),
+        MotherBrainFinishOffPhase.ChargeFinalBeam => RunSecondPhaseFinishSamusOffChargeFinalBeam(),
+        MotherBrainFinishOffPhase.ReadyBaby => RunSecondPhaseFinishSamusOffReadyBaby(requests),
+        MotherBrainFinishOffPhase.FireFinalBeam => RunSecondPhaseFinishSamusOffFireFinalBeam(requests),
+        MotherBrainFinishOffPhase.FinalBeamHolding => RunSecondPhaseFinalRainbowBeamHolding(),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainFinishOffPhase)} {Encounter.FinishOffPhase}."),
+    };
 }

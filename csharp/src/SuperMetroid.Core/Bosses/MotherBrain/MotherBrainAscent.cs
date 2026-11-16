@@ -42,7 +42,7 @@ internal sealed class MotherBrainAscent
         // The ascent installs the attack and back-leg colours, all but the backdrop colour,
         // which belongs to the room and must remain untouched.
         state.Colours.ShowPhaseTwo();
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain;
+        state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background
         // before the articulated body becomes visible (#1356, #1466, #1515).
         _presentation.RequireBossBody().Reveal();
@@ -60,7 +60,7 @@ internal sealed class MotherBrainAscent
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Health = 18000;
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense;
+        state.AscentPhase = MotherBrainAscentPhase.PauseForSuspense;
         state.PhaseTimer.Count = 128;
 
         // The setup falls directly into the suspense wait; the freshly written timer is observed as
@@ -75,7 +75,7 @@ internal sealed class MotherBrainAscent
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentPrepareForRising;
+        state.AscentPhase = MotherBrainAscentPhase.PrepareForRising;
         state.PhaseTimer.Count = 32;
         PrepareMotherBrainForRising(state);
     }
@@ -93,7 +93,7 @@ internal sealed class MotherBrainAscent
         state.RisingFloorClipActive = true;
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody;
+        state.AscentPhase = MotherBrainAscentPhase.ReadyStandingBody;
         state.PhaseTimer.Count = 256;
 
         // The first readying update runs on the same frame the floor-clipping effect starts.
@@ -109,7 +109,7 @@ internal sealed class MotherBrainAscent
             return;
         }
 
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentContinuePausing;
+        state.AscentPhase = MotherBrainAscentPhase.ContinuePausing;
 
         // The final artwork step runs straight into the next step; the still-256 timer
         // loses its first tick on the final artwork frame.
@@ -144,7 +144,7 @@ internal sealed class MotherBrainAscent
         // From here her body is placed at her (#1949, #2031).
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentStartMusicAndEarthquake;
+        state.AscentPhase = MotherBrainAscentPhase.StartMusicAndEarthquake;
     }
 
     /// <summary>Switches the body into the rising state after its setup pause.</summary>
@@ -161,7 +161,7 @@ internal sealed class MotherBrainAscent
         state.NeckMovementEnabled = true;
         state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentRaiseMotherBrain;
+        state.AscentPhase = MotherBrainAscentPhase.RaiseMotherBrain;
     }
 
     /// <summary>Moves the body upward through the authored rise while updating its head attachment.</summary>
@@ -182,7 +182,7 @@ internal sealed class MotherBrainAscent
         _earthquake.Stop();
         state.RisingFloorClipActive = false;
         MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, MotherBrainBodySegment.StandAfterCrouchSlow);
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentWaitUntilUncrouched;
+        state.AscentPhase = MotherBrainAscentPhase.WaitUntilUncrouched;
     }
 
     /// <summary>Emits dust at the feet as the body rises from the floor.</summary>
@@ -203,7 +203,7 @@ internal sealed class MotherBrainAscent
             return;
 
         state.GrayTransitionCounter = 0;
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentTransitionFromGray;
+        state.AscentPhase = MotherBrainAscentPhase.TransitionFromGray;
         state.PhaseTimer.Count = 0;
     }
 
@@ -215,7 +215,7 @@ internal sealed class MotherBrainAscent
             return;
 
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
-        state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingBringHeadUp;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.StretchingBringHeadUp;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         state.PhaseTimer.Count = 256;
         BringMotherBrainHeadBackUp(state);
@@ -230,7 +230,7 @@ internal sealed class MotherBrainAscent
 
         state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-        state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingFinish;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.StretchingFinish;
         state.PhaseTimer.Count = 64;
         FinishMotherBrainStretching(state);
     }
@@ -242,6 +242,6 @@ internal sealed class MotherBrainAscent
             return;
 
         state.SmallPurpleBreathGenerationEnabled = true;
-        state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.Thinking;
     }
 }

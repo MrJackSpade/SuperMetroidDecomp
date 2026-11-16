@@ -59,7 +59,7 @@ internal sealed class MotherBrainFakeDeath
             int step = state.GreyFadeStep++;
             if (step == MotherBrainFakeDeathFadeDefinitions.FrameCount)
             {
-                state.Phase = MotherBrainBodyPhase.FakeDeathDescentCollapseTubes;
+                state.DescentPhase = MotherBrainDescentPhase.CollapseTubes;
             }
             else
             {
@@ -363,7 +363,7 @@ internal sealed class MotherBrainFakeDeath
         state.LowerNeckAngle = RotationAngle.FromSteps(72);
         state.UpperNeckAngle = RotationAngle.FromSteps(80);
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
-        state.Phase = MotherBrainBodyPhase.FakeDeathAscentDrawMural;
+        state.AscentPhase = MotherBrainAscentPhase.DrawMural;
         state.MuralRowsDrawn = 0;
         ExplodeMotherBrainTube(tube);
     }
@@ -407,7 +407,7 @@ internal sealed class MotherBrainFakeDeath
         }
         state.MuralRowsDrawn = drawn + MotherBrainMuralDefinitions.RowsEachUpdate;
         if (state.MuralRowsDrawn == MotherBrainMuralDefinitions.Rows.Count)
-            state.Phase = MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics;
+            state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Graphics;
     }
 
     /// <summary>Restores the combat colours after the gray fake-death phase.</summary>
@@ -430,7 +430,7 @@ internal sealed class MotherBrainFakeDeath
         state.LowerNeckMovement = MotherBrainNeckMovement.Lower;
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
-        state.Phase = MotherBrainBodyPhase.SecondPhaseStretchingShakeHead;
+        state.Phase2FightPhase = MotherBrainPhase2FightPhase.StretchingShakeHead;
         state.PhaseTimer.Count = 23;
     }
 }

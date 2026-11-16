@@ -595,26 +595,16 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     private EnemyDeathProjectileSegment? ApplyEnemyDeathProjectileCue(EnemyProjectile projectile, EnemyDeathProjectileCue cue)
     {
-        switch (cue.Kind)
+        if (cue is EnemyDeathProjectileCue.SpawnEffectActor spawn)
+        {
+            _projectiles.SpawnRandomEnemyDeathSprite(projectile, spawn.EffectActor, spawn.Spread);
+            return null;
+        }
+        EnemyDeathProjectileCueKind kind = ((EnemyDeathProjectileCue.Signal)cue).Kind;
+        switch (kind)
         {
             case EnemyDeathProjectileCueKind.Delete:
                 projectile.Delete();
-                return null;
-            case EnemyDeathProjectileCueKind.SpawnEffectActorWithin32:
-                _projectiles.SpawnRandomEnemyDeathSprite(
-                    projectile,
-                    cue.EffectActor,
-                    EnemyDeathExplosionDefinitions.WideSpriteHorizontalScatter,
-                    EnemyDeathExplosionDefinitions.WideSpriteVerticalScatter,
-                    center: 32);
-                return null;
-            case EnemyDeathProjectileCueKind.SpawnEffectActorWithin16:
-                _projectiles.SpawnRandomEnemyDeathSprite(
-                    projectile,
-                    cue.EffectActor,
-                    EnemyDeathExplosionDefinitions.NarrowSpriteHorizontalScatter,
-                    EnemyDeathExplosionDefinitions.NarrowSpriteVerticalScatter,
-                    center: 16);
                 return null;
             case EnemyDeathProjectileCueKind.PlayEnemyKilledSound:
                 // The sound-queueing cue continues to the next cue, so the following duration starts the next frame.
@@ -635,7 +625,7 @@ internal sealed class EnemyDeathsAndDrops
                     RespawnEnemyFromSnapshot(projectile.KilledEnemy.Enemy ?? throw new InvalidDataException("A respawning death explosion names no enemy."));
                 return null;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathProjectileCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathProjectileCueKind)} {kind}.");
         }
     }
 }

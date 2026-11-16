@@ -54,7 +54,7 @@ internal static class DownwardGateObjectsVerification
             (6, 0, false), (6, 1, false), (6, 2, true), (6, 4, true), (6, 6, true), (6, 7, false), (5, 3, false), (7, 3, false),
         })
         {
-            samus = CreateSamus(SamusPoseId.ForwardFacingPowerSuitPose, new Position16<RoomPixels>(column * 16 + 8, row * 16 + 8));
+            samus = CreateSamus(SuperMetroid.Core.Samus.Poses.SamusPoseId.ForwardFacingPowerSuitPose, new Position16<RoomPixels>(column * 16 + 8, row * 16 + 8));
             AssertEqual(inside, gates.IsSamusInsideDownwardGateColumn(gate),
                 $"Samus in block ({column}, {row}) lies {(inside ? "inside" : "outside")} the column of the gate at (6, 2)");
         }

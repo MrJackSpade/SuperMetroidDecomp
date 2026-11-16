@@ -40,6 +40,16 @@ internal static class WorkRobotNativeListAddresses
         new NativeProgramEntry<WorkRobotSegment>(WorkRobotSegment.ApproachingFallLeft, 0xcb65),
     ];
 
+    /// <summary>
+    /// The owner routines that only go on to a walk's list (#2167), each loading the instruction pointer with that list and
+    /// returning, as a goto does: the walk each goes on to.
+    /// </summary>
+    internal static readonly Dictionary<ushort, WorkRobotSegment> WalkRoutines = new()
+    {
+        [0xcecb] = WorkRobotSegment.FacingRightWalkingForwards,
+        [0xd0c2] = WorkRobotSegment.FacingLeftWalkingForwards,
+    };
+
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, WorkRobotNativeListAddressesInstruction> Instructions = new()
     {
@@ -47,13 +57,11 @@ internal static class WorkRobotNativeListAddresses
         [0xcda4] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForward), ""),
         [0xcdea] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackwardWatchingLedges), ""),
         [0xce85] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftBackward), ""),
-        [0xcecb] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Walk(WorkRobotSegment.FacingRightWalkingForwards), ""),
         [0xcecf] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForwardWatchingLedges), ""),
         [0xcf6a] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightForward), ""),
         [0xcfb0] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges), ""),
         [0xd04b] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward), ""),
         [0xd091] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Signal(WorkRobotCueKind.Footstep), ""),
-        [0xd0c2] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Walk(WorkRobotSegment.FacingLeftWalkingForwards), ""),
         [0xd0c6] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.UpRight, WorkRobotSegment.FacingRightShotLaserUpRight), ""),
         [0xd0d2] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.UpLeft, WorkRobotSegment.FacingLeftShotLaserUpLeft), ""),
         [0xd100] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Horizontal, WorkRobotSegment.FacingRightShotLaserRight), ""),

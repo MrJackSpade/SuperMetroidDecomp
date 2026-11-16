@@ -17,21 +17,21 @@ internal static class CeresBabyAnimations
     {
         [P.Initial] =
         [
-            Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
+            Cue(new CeresBabyCue.ReactsToMotion()),
             .. SquishCycle,
-            Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
+            Cue(new CeresBabyCue.ReactsToMotion()),
             .. SquishCycle,
         ],
         [P.ExpressiveLoop] =
         [
-            Cue(new CeresBabyCue.CryOrGoTo(Target: P.Initial)),
+            Cue(new CeresBabyCue.Cries()),
             .. ExpressivePoses.SelectMany(pose => new[]
             {
                 Cue(new CeresBabyCue.UpdateColors(Shade: Shade(pose.Pose))),
                 Show(pose.Pose, pose.Duration),
             }),
             Cue(new CeresBabyCue.UpdateColors(Shade: CeresBabyShade.Resting)),
-            Cue(new CeresBabyCue.GoToIfMoving(Target: P.ExpressiveLoop)),
+            Cue(new CeresBabyCue.ReactsToMotion()),
         ],
     });
 

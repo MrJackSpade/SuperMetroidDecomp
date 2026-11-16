@@ -17,7 +17,7 @@ internal static class EscapeEtecoonAnimations
     {
         [P.RunningLeftLowTide] =
         [
-            Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningLeftHighTide)),
+            Cue(new EscapeEtecoonCue.LowTideRunStarts(Running: HorizontalDirection.Left)),
             Show(EnemyFrameId.EscapeEtecoonRunningLeftStretched, 5),
             Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 5),
             Show(EnemyFrameId.EscapeEtecoonRunningLeftPushingOff, 5),
@@ -32,7 +32,7 @@ internal static class EscapeEtecoonAnimations
         ],
         [P.RunningRightLowTide] =
         [
-            Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningRightHighTide)),
+            Cue(new EscapeEtecoonCue.LowTideRunStarts(Running: HorizontalDirection.Right)),
             Show(EnemyFrameId.EscapeEtecoonRunningRightStretched, 6),
             Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 6),
             Show(EnemyFrameId.EscapeEtecoonRunningRightPushingOff, 6),

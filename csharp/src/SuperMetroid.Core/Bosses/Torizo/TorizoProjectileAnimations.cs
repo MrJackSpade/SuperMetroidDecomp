@@ -68,7 +68,7 @@ internal static class TorizoProjectileAnimations
         [
             Cue(new TorizoProjectileCue.Signal(K.StopMoving)),
             Cue(new TorizoProjectileCue.SetProperties(Properties: EnemyProjectilePropertyFlags.HarmlessToSamus, Depth: EnemyProjectileDepth.InFrontOfSamus)),
-            Cue(new TorizoProjectileCue.GoToSometimes(Target: P.DeathSmoke)),
+            Cue(new TorizoProjectileCue.Signal(K.MayTurnToSmoke)),
             Cue(new TorizoProjectileCue.Signal(K.ReturnToOrigin)),
             Cue(new TorizoProjectileCue.Scatter(Spread: new(XRange: new(0, 5), YRange: new(0, 6), Center: new(0, 16)))),
             Cue(new TorizoProjectileCue.PlaySound(Sound: EnemySound.SmallExplosion, Priority: SoundRequestPriority.Normal)),

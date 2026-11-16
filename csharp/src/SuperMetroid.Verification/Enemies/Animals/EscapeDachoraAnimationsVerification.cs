@@ -25,7 +25,10 @@ internal static class EscapeDachoraAnimationsVerification
         new NativeCountedEntry<EscapeDachoraSegment>("the high-tide laps", EscapeDachoraAnimations.RunningAroundHighTide, HighTideLapsStart),
     ];
 
-    /// <summary>How the Dachora's lists are read: each owner instruction becomes its cue, a branch's target read back below.</summary>
+    /// <summary>
+    /// How the Dachora's lists are read: each owner instruction becomes its cue, and a lap end's native target is read back
+    /// below against where its owner takes the play (#2167).
+    /// </summary>
     private static NativeEnemyCueRules<EscapeDachoraCue> Rules(List<(ushort Target, AnimationContinuation<EscapeDachoraSegment> Then, string At)> branches) => new(
         word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
         (word, operands, cue, at) =>
@@ -37,13 +40,18 @@ internal static class EscapeDachoraAnimationsVerification
                 AssertEqual<EscapeDachoraCue>(move, cue, $"{at}: cue");
                 return;
             }
-            EscapeDachoraCue.Branch branch = AssertIs<EscapeDachoraCue.Branch>(cue, $"{at}: cue");
-            AssertEqual(instruction.Branch, branch.Kind, $"{at}: cue");
+            AssertEqual(instruction.Branch, (Type?)cue.GetType(), $"{at}: cue");
+            AnimationContinuation<EscapeDachoraSegment> then = cue switch
+            {
+                EscapeDachoraCue.LowTideLapEnds lowTide => EscapeAnimalsBehavior.RisingTideTakesOver(lowTide.Lap),
+                EscapeDachoraCue.LapEnds lap => EscapeAnimalsBehavior.EscapeTakesOver(lap.Lap),
+                _ => throw new InvalidOperationException($"{at}: {cue} ends no lap."),
+            };
             for (int index = 0; index < operands.Length; index++)
             {
                 if (instruction.Operands[index] != 'T')
                     throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}.");
-                branches.Add((operands[index], branch.Then, at));
+                branches.Add((operands[index], then, at));
             }
         });
 
@@ -93,10 +101,10 @@ internal static class EscapeDachoraAnimationsVerification
                 AnimationShown<EscapeDachoraSegment, EnemyFrameId> shown = EscapeDachoraAnimations.Segments.PlayToNextFrame(ref animation, ref place,
                     cue =>
                     {
-                        if (cue is not EscapeDachoraCue.Branch { Kind: EscapeDachoraCueKind.GoToIfAcidHigh } branch)
+                        if (cue is not EscapeDachoraCue.LowTideLapEnds lowTide)
                             return null;
                         lowTideLaps++;
-                        return lowTideLaps == risesDuringLap ? branch.Then : null;
+                        return lowTideLaps == risesDuringLap ? EscapeAnimalsBehavior.RisingTideTakesOver(lowTide.Lap) : null;
                     });
                 AnimationShown<EscapeDachoraSegment, EnemyFrameId>.Frame frame = AssertIs<AnimationShown<EscapeDachoraSegment, EnemyFrameId>.Frame>(shown,
                     $"rising during lap {risesDuringLap}, step {step} shows a frame");

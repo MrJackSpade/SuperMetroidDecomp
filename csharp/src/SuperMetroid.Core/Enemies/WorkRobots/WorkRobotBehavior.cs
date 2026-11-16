@@ -53,20 +53,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = places;
     }
 
-    /// <summary>How fast a robot's laser flies the way the robot faces: two pixels per update.</summary>
-    private static readonly SignedEightEight WorkRobotLaserSpeed = SignedEightEight.FromPixels(2);
-    /// <summary>What gravity adds to a falling unpowered robot's speed each airborne update: half a pixel.</summary>
-    private static readonly SignedSixteenSixteen WorkRobotGravity = SignedSixteenSixteen.FromParts(0, 32768);
-    /// <summary>The speed an unpowered robot starts falling at: one pixel per update.</summary>
-    private static readonly SignedSixteenSixteen WorkRobotInitialFallVelocity = SignedSixteenSixteen.FromParts(1, 0);
-
-    /// <summary>Enemy-library sound queued by a robot footstep.</summary>
-    private static readonly SoundEffectId WorkRobotFootstepSound =
-        EnemySoundEffectDefinitions.WorkRobotFootstepSound;
-    /// <summary>Enemy-library sound queued by a robot laser.</summary>
-    private static readonly SoundEffectId WorkRobotLaserSound =
-        EnemySoundEffectDefinitions.WorkRobotLaserSound;
-
     /// <summary>Updates left before the powered robots' glow steps; zero while the glow is stopped.</summary>
     internal int GlowStepCountdown { get; private set; }
     /// <summary>
@@ -130,7 +116,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // An unpowered robot stops the room's glow, an earlier powered robot's too: in a room placing both, the order
         // they are placed in decides whether the glow runs.
         GlowStepCountdown = 0;
-        state.FallVelocity = WorkRobotInitialFallVelocity;
+        state.FallVelocity = WorkRobotMotionDefinitions.FallStartSpeed;
     }
 
     /// <summary>Runs the robot's gravity-only main behaviour.</summary>
@@ -146,7 +132,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // Incrementing here cancels that tick, freezing the current art while airborne.
         place.AnimationClock.Extend(1);
         // The fraction carries into the whole pixels, which wrap, as the game's paired additions do.
-        state.FallVelocity += WorkRobotGravity;
+        state.FallVelocity += WorkRobotMotionDefinitions.Gravity;
     }
 
     /// <summary>
@@ -169,7 +155,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case WorkRobotCueKind.Footstep:
                 if (IsWorkRobotOriginStrictlyOnScreen(place, camera))
-                    _audio.QueueEnemySound(WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
+                    _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
                 return null;
             case WorkRobotCueKind.CountDownLaserCooldown:
                 DecrementWorkRobotLaserCooldown(state);
@@ -189,11 +175,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 SignedSixteenSixteen.FromWholePixels(step.HorizontalPixels)))
         {
-            state.LaserCooldown = state.LaserCooldown.AddFrames(8);
+            state.LaserCooldown = state.LaserCooldown.AddFrames(WorkRobotLaserDefinitions.TurnDelay);
             return step.WallAnimation;
         }
 
-        if (EnemyCollision.IsEnemyTouchingSamusFromBelow(place, samus))
+        if (EnemyCollision.IsSamusStandingOn(place, samus))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(step.HorizontalPixels), 0));
         }
@@ -211,7 +197,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (floorFound)
             return null;
 
-        state.LaserCooldown = state.LaserCooldown.AddFrames(8);
+        state.LaserCooldown = state.LaserCooldown.AddFrames(WorkRobotLaserDefinitions.TurnDelay);
         state.Facing = step.FallFacing ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall facing.");
         return step.FallAnimation ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall animation.");
     }
@@ -287,7 +273,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 : WorkRobotSegment.FacingRightShotSamusBehind), AnimationPlace.StartOfAnimation);
         }
         robot.AnimationClock.StepOnNextUpdate();
-        state.LaserCooldown = state.LaserCooldown.AddFrames(64);
+        state.LaserCooldown = state.LaserCooldown.AddFrames(WorkRobotLaserDefinitions.RecoilDelay);
     }
 
     /// <summary>
@@ -376,7 +362,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             Laser,
             SpriteGraphics.SharedStandard);
         projectile.StartAnimation(new WorkRobotLaserAnimation(WorkRobotLaserSegment.Initial));
-        projectile.Velocity = projectile.Velocity.WithX(state.Facing == HorizontalDirection.Left ? -WorkRobotLaserSpeed : WorkRobotLaserSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(state.Facing == HorizontalDirection.Left ? -WorkRobotLaserDefinitions.Speed : WorkRobotLaserDefinitions.Speed);
         projectile.Velocity = projectile.Velocity.WithY(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
@@ -403,7 +389,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             CoordinateAxis.AsSigned(robot.Position.Y.Whole + robot.Radius.Y - camera.Y) >= 0 &&
             CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, EnemyView.PictureHeight) < 0;
         if (horizontallyVisible && verticallyVisible)
-            _audio.QueueEnemySound(WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
+            _audio.QueueEnemySound(EnemySoundEffectDefinitions.WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs the laser's per-frame behaviour: X collision, then Y collision, else move.</summary>

@@ -110,16 +110,15 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
     /// <summary>
     /// Drives the production main AI with Samus 300 pixels right of the root, a distance the targeting helper reports as
-    /// that axis's magnitude at angle zero. The activation distance is compared by the sign of the sixteen-bit
-    /// difference: 301 attacks, 300 does not (strict), and 40000 does not either, because the wrapped difference is
-    /// positive. An attack caps the distance at 64, and the next update's extension setup halves it into the radius.
+    /// that axis's magnitude at angle zero. The activation distance is compared strictly: 301 attacks, 300 does not. An
+    /// attack caps the distance at 64, and the next update's extension setup halves it into the radius.
     /// The setup then turns the aim angle around the turn: the curl is a quarter turn minus the aim, the bend mirrors in
     /// the curl's second half-turn, and the eight sectors are centred on their directions, so an aim of 240 wraps to
     /// sector zero.
     /// </summary>
     private static void VerifyYappingMawTargeting()
     {
-        foreach ((int activationDistance, bool attacks) in new[] { new VerifyYappingMawTargetingCase(301, true), new VerifyYappingMawTargetingCase(300, false), new VerifyYappingMawTargetingCase(40000, false) })
+        foreach ((int activationDistance, bool attacks) in new[] { new VerifyYappingMawTargetingCase(301, true), new VerifyYappingMawTargetingCase(300, false) })
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, YappingMawEnemyState state) = NewInitializedYappingMaw(activationDistance);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());

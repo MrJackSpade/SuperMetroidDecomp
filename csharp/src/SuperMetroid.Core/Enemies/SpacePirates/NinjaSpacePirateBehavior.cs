@@ -40,32 +40,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         _effectActors = effectActors;
     }
 
-    /// <summary>Speed assigned at the start of a divekick jump and descent, six pixels per update.</summary>
-    private static readonly SignedEightEight NinjaPirateInitialDiveSpeed = SignedEightEight.FromParts(6, 0);
-    /// <summary>How much a spin jump's speed changes each update, an eighth of a pixel per update.</summary>
-    private static readonly SignedEightEight NinjaPirateSpinSpeedChange = SignedEightEight.FromParts(0, 32);
-    /// <summary>How much a divekick's speed falls each update, a quarter pixel per update.</summary>
-    private static readonly SignedEightEight NinjaPirateDiveSpeedChange = SignedEightEight.FromParts(0, 64);
-    /// <summary>
-    /// The widest half-span between a ninja's posts, in pixels: the spin's distance then stays below half the counting
-    /// range as it accumulates. Every retail ninja's posts lie 0 or 192 pixels apart (#1620).
-    /// </summary>
-    private const int LongestPostHalfSpan = 127;
-    /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
-    private const int NinjaPirateActivationDistance = 128;
-    /// <summary>Strict distance on both axes for a reaction to the highest occupied projectile.</summary>
-    private const int NinjaPirateFlinchDistance = 32;
-    /// <summary>Strict midpoint distance that permits a spin jump or divekick choice.</summary>
-    private const int NinjaPirateMidpointTriggerDistance = 32;
-    /// <summary>Strict X and Y distance for a standing kick.</summary>
-    private const int NinjaPirateKickDistance = 40;
-    /// <summary>Whole-pixel horizontal step during divekick descent.</summary>
-    private const int NinjaPirateDiveHorizontalPixels = 5;
-    /// <summary>Whole-pixel step while returning to a patrol post after a dive.</summary>
-    private const int NinjaPirateReturnWalkPixels = 2;
-    /// <summary>Whole-pixel vertical step used by each spin-jump update.</summary>
-    private const int NinjaPirateSpinVerticalPixels = 2;
-
     /// <summary>Initializes the Ninja Space Pirate.</summary>
     internal static void InitializeNinjaSpacePirate(RoomEnemyPlace place)
     {
@@ -92,7 +66,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int requestedLeft = startsAtLeft
             ? place.Position.X.Whole
             : CoordinateAxis.Wrap(place.Position.X.Whole - settings.PostDistance);
-        int requestedHalfSpan = Ensure.BetweenInclusive(0, LongestPostHalfSpan, settings.PostDistance / 2);
+        int requestedHalfSpan = Ensure.BetweenInclusive(0, SpacePirateMotionDefinitions.NinjaLongestPostHalfSpan, settings.PostDistance / 2);
         state.PostsMidpointX = CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan);
 
         // The spin's speed grows until the distance it covers reaches the half-span; it runs at least once, so posts no
@@ -102,7 +76,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SignedSixteenSixteen covered = SignedSixteenSixteen.Zero;
         do
         {
-            speed += NinjaPirateSpinSpeedChange;
+            speed += SpacePirateMotionDefinitions.NinjaSpinSpeedChange;
             covered += speed.ToSixteenSixteenDelta();
         }
         while (covered < requestedDistance);
@@ -183,7 +157,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SamusProjectileSystem samusProjectiles)
     {
         if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) >=
-            NinjaPirateActivationDistance)
+            SpacePirateMotionDefinitions.NinjaActivationDistance)
         {
             _ = TryNinjaPirateProjectileFlinch(place, state, samus, samusProjectiles);
             return;
@@ -225,9 +199,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             samusProjectiles.Shots, shot => shot.HasEnemyCollisionPayload);
         if (projectile is null ||
             CoordinateAxis.Distance(projectile.Position.X.Whole, place.Position.X.Whole) >=
-                NinjaPirateFlinchDistance ||
+                SpacePirateMotionDefinitions.NinjaFlinchDistance ||
             CoordinateAxis.Distance(projectile.Position.Y.Whole, place.Position.Y.Whole) >=
-                NinjaPirateFlinchDistance)
+                SpacePirateMotionDefinitions.NinjaFlinchDistance)
         {
             return false;
         }
@@ -245,9 +219,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     private static bool TryNinjaPirateStandingKick(RoomEnemyPlace place, NinjaSpacePirateEnemyState state, SamusState samus)
     {
         if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >=
-                NinjaPirateKickDistance ||
+                SpacePirateMotionDefinitions.NinjaKickDistance ||
             CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >=
-                NinjaPirateKickDistance)
+                SpacePirateMotionDefinitions.NinjaKickDistance)
         {
             return false;
         }
@@ -268,7 +242,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SamusState samus)
     {
         if (CoordinateAxis.Distance(state.PostsMidpointX, samus.Position.X.Whole) >=
-            NinjaPirateMidpointTriggerDistance)
+            SpacePirateMotionDefinitions.NinjaMidpointTriggerDistance)
         {
             return false;
         }
@@ -324,7 +298,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
 
         if (CoordinateAxis.Distance(state.PostsMidpointX, samus.Position.X.Whole) >=
-            NinjaPirateMidpointTriggerDistance)
+            SpacePirateMotionDefinitions.NinjaMidpointTriggerDistance)
         {
             return;
         }
@@ -355,11 +329,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         int xPixels = state.Speed.UnsignedWholePixels;
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole +
-            (vertical == VerticalDirection.Up ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels));
+            (vertical == VerticalDirection.Up ? -SpacePirateMotionDefinitions.NinjaSpinClimbStep : SpacePirateMotionDefinitions.NinjaSpinClimbStep));
 
         if (vertical == VerticalDirection.Up)
         {
-            state.ChangeSpeed(NinjaPirateSpinSpeedChange);
+            state.ChangeSpeed(SpacePirateMotionDefinitions.NinjaSpinSpeedChange);
             bool crossedMidpoint = direction == HorizontalDirection.Right
                 ? CoordinateAxis.Difference(place.Position.X.Whole, state.PostsMidpointX) >= 0
                 : CoordinateAxis.Precedes(place.Position.X.Whole, state.PostsMidpointX);
@@ -372,7 +346,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        state.ChangeSpeed(-NinjaPirateSpinSpeedChange);
+        state.ChangeSpeed(-SpacePirateMotionDefinitions.NinjaSpinSpeedChange);
         if (!state.Speed.IsZero)
             return;
 
@@ -392,7 +366,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// patrol centre, which nothing reads; it is not kept.
     /// </summary>
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
-        state.Speed = NinjaPirateInitialDiveSpeed;
+        state.Speed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
 
     /// <summary>Rises until signed speed turns negative, then switches to the descent animation.</summary>
     private static void StepNinjaPirateDiveJump(
@@ -401,7 +375,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction)
     {
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - state.Speed.UnsignedWholePixels);
-        state.ChangeSpeed(-NinjaPirateDiveSpeedChange);
+        state.ChangeSpeed(-SpacePirateMotionDefinitions.NinjaDiveSpeedChange);
         if (!state.Speed.IsNegative)
             return;
 
@@ -414,7 +388,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.DivekickRightDive
                 : NinjaSpacePirateSegment.DivekickLeftDive);
-        state.Speed = NinjaPirateInitialDiveSpeed;
+        state.Speed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
     }
 
     /// <summary>
@@ -428,12 +402,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction)
     {
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? NinjaPirateDiveHorizontalPixels : -NinjaPirateDiveHorizontalPixels));
+            (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.NinjaDiveStep : -SpacePirateMotionDefinitions.NinjaDiveStep));
 
         bool landed = _terrain.MoveEnemyVertically(level, place, NinjaPirateDiveFallStep.Of(state.Speed));
         if (!landed)
         {
-            state.ChangeSpeed(-NinjaPirateDiveSpeedChange);
+            state.ChangeSpeed(-SpacePirateMotionDefinitions.NinjaDiveSpeedChange);
             landed = state.Speed.IsNegative || state.Speed.UnsignedWholePixels == 0;
         }
         if (!landed)
@@ -460,7 +434,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         HorizontalDirection direction)
     {
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? NinjaPirateReturnWalkPixels : -NinjaPirateReturnWalkPixels));
+            (direction == HorizontalDirection.Right ? SpacePirateMotionDefinitions.NinjaReturnStep : -SpacePirateMotionDefinitions.NinjaReturnStep));
         bool reachedPost = direction == HorizontalDirection.Right
             ? CoordinateAxis.Difference(place.Position.X.Whole, state.RightPostX) >= 0
             : CoordinateAxis.Precedes(place.Position.X.Whole, state.LeftPostX);
@@ -482,17 +456,16 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         SpriteGraphics graphics = SpriteGraphics.SharedStandard;
         _effectActors.SpawnRoomEffectActor(
-            new(CoordinateAxis.Wrap(place.Position.X.Whole - 8), CoordinateAxis.Wrap(place.Position.Y.Whole + 28)),
+            new(CoordinateAxis.Wrap(place.Position.X.Whole - SpacePirateMotionDefinitions.NinjaLandingDustSpread),
+                CoordinateAxis.Wrap(place.Position.Y.Whole + SpacePirateMotionDefinitions.NinjaLandingDustDrop)),
             RoomEffectActorKind.NinjaPirateLandingDust,
             graphics);
         _effectActors.SpawnRoomEffectActor(
-            new(CoordinateAxis.Wrap(place.Position.X.Whole + 8), CoordinateAxis.Wrap(place.Position.Y.Whole + 28)),
+            new(CoordinateAxis.Wrap(place.Position.X.Whole + SpacePirateMotionDefinitions.NinjaLandingDustSpread),
+                CoordinateAxis.Wrap(place.Position.Y.Whole + SpacePirateMotionDefinitions.NinjaLandingDustDrop)),
             RoomEffectActorKind.NinjaPirateLandingDust,
             graphics);
     }
-
-    /// <summary>A thrown claw's launch speed: eight pixels an update.</summary>
-    private static readonly SignedEightEight NinjaPirateClawLaunchSpeed = SignedEightEight.FromPixels(8);
 
     /// <summary>Allocates a claw with the selected throw direction, offset, graphics, and outbound speed.</summary>
     internal void SpawnNinjaPirateClaw(
@@ -513,7 +486,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
             ? SpacePirateProjectileSegment.ClawRight
             : SpacePirateProjectileSegment.ClawLeft));
-        projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
+        projectile.State = new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed);
     }
 
     /// <summary>Flies a claw thrown toward <paramref name="thrown"/> out and back, with exact camera culling.</summary>
@@ -639,7 +612,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             (state, cue) => ApplyNinjaSpacePirateCue(place, cue, context.Samus) is { } continuesAt
                 ? new AnimationContinuation<NinjaSpacePirateSegment>(NinjaSpacePirateAnimations.StartingWith(continuesAt), AnimationPlace.StartOfAnimation)
                 : null);
-
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
     internal static void ReactToGoldNinjaPirateBomb(EnemyBombContext c)

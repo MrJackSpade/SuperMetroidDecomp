@@ -26,4 +26,7 @@ internal static class EnemyDropScatterDefinitions
     /// the random sample divided by 256, modulo 64.
     /// </summary>
     internal static readonly RandomSampleField ArenaBandVerticalScatter = new(Shift: 8, Width: 6);
+
+    /// <summary>How far each scattered drop is drawn back on each axis, in pixels, centring its scatter on the origin.</summary>
+    internal const int ScatterCentring = 16;
 }

@@ -36,11 +36,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         _places = places;
     }
 
-    /// <summary>Strict wrapped X-distance threshold for a random dive opportunity.</summary>
-    private const int NorfairRioHorizontalTriggerDistance = 192;
-    /// <summary>Signed 1/256-pixel vertical speed decrement applied during dive and return.</summary>
-    private static readonly SignedEightEight NorfairRioGravity = SignedEightEight.FromParts(0, 32);
-
     /// <summary>Initializes the Norfair Rio.</summary>
     internal void InitializeNorfairRio(RoomEnemyPlace place)
     {
@@ -85,7 +80,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         place.Position.X.Whole,
-                        NorfairRioHorizontalTriggerDistance))
+                        RioLaunchDefinitions.NorfairTriggerDistance))
                 {
                     if (state.AnimationSignal)
                     {
@@ -134,7 +129,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - NorfairRioGravity);
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
                 if (state.Velocity.Y.IsNegative)
                     BeginNorfairRioReturn(place, state);
                 return;
@@ -150,7 +145,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - NorfairRioGravity);
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.NorfairGravity);
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;

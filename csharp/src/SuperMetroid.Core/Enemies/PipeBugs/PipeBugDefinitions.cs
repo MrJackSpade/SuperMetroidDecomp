@@ -3,7 +3,8 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <summary>
 /// The Norfair Pipe Bug formation's roles (#1840). Each member departs when its formation count reaches its target,
 /// centred on the leader's 104, eight updates per place above or below it; the European release shifts the same targets
-/// down 32 updates. Also the Brinstar Pipe Bug's flight speed (#2076).
+/// down 32 updates. Also the Brinstar Pipe Bug's flight speed (#2076), and when and how each kind of bug emerges and
+/// flies (#2156).
 /// </summary>
 internal static class PipeBugDefinitions
 {
@@ -24,4 +25,34 @@ internal static class PipeBugDefinitions
 
     /// <summary>The member farthest below the leader: it sinks 32 pixels back and departs at 120.</summary>
     internal static readonly NorfairPipeBugRole LowerFarRole = new(120, NorfairPipeBugAction.Stagger, 32);
+
+    /// <summary>How far a Brinstar Pipe Bug rises above where it spawned before it flies, in pixels.</summary>
+    internal const int BrinstarEmergenceHeight = 16;
+
+    /// <summary>How close horizontally Samus comes, in pixels and exclusive, to wake a hidden Brinstar Pipe Bug.</summary>
+    internal const int BrinstarTriggerWidth = 64;
+
+    /// <summary>How far above a hidden Brinstar Pipe Bug Samus may be, in pixels, and still wake it.</summary>
+    internal const int BrinstarTriggerTop = 96;
+
+    /// <summary>How long a Brinstar Pipe Bug that left the screen waits before it may emerge again, in updates.</summary>
+    internal const int BrinstarRespawnWait = 48;
+
+    /// <summary>How far ahead horizontally Samus comes, in pixels, to wake a yellow Pipe Bug.</summary>
+    internal const int YellowTriggerDistance = 192;
+
+    /// <summary>How close vertically Samus comes, in pixels and exclusive, to wake a yellow Pipe Bug.</summary>
+    internal const int YellowTriggerHeight = 48;
+
+    /// <summary>How long a yellow Pipe Bug shows before it starts its straight flight, in updates.</summary>
+    internal const int YellowEmergenceDelay = 24;
+
+    /// <summary>How far past Samus a yellow Pipe Bug flies, in pixels, before it begins its one arc.</summary>
+    internal const int YellowArcTriggerDistance = 48;
+
+    /// <summary>The place along the quadratic speed curve, mark 40, a yellow Pipe Bug's vertical arc starts from.</summary>
+    internal static QuadraticSpeedCurvePlace YellowArcStart { get; } = QuadraticSpeedCurvePlace.FromMarks(40);
+
+    /// <summary>The speed a Norfair Pipe Bug rises and staggers at, one pixel an update.</summary>
+    internal static SignedSixteenSixteen NorfairRiseSpeed { get; } = SignedSixteenSixteen.FromWholePixels(1);
 }

@@ -42,7 +42,7 @@ internal static class MotherBrainPlasmaImpactVerification
             "Mother Brain plasma-blocking property marks the shot for removal");
         AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
             "Accepted beam spends one step of walk credit");
-        AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer,
+        AssertEqual(EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates, head.InvincibilityTimer,
             "The no-death damage tail grants Plasma's hit immunity");
         var level = CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < 3; frame++)

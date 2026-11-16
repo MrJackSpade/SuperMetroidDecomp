@@ -59,7 +59,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
         var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
-        options.Phase = GameOptionsPhase.StartGame;
+        options.SkipToPhase(GameOptionsPhase.StartGame);
         game.Session.Show(options);
         game.Session.LoadingExistingSave = true;
         SetState(game, SuperMetroidGameState.GameOptionsMenu);
@@ -81,7 +81,7 @@ internal static class CeresSaveStartupVerification
         // A resumed cinematic constructs a fresh gameplay owner, unlike an ongoing
         // escape. Its first Landing Site draw must have the same initialized HUD.
         var resumedScene = game.Session.ScreenAs<CeresDestructionCinematicState>();
-        (resumedScene ?? throw new InvalidOperationException("Verification requires resumedScene.")).Phase = CeresDestructionPhase.Finished;
+        (resumedScene ?? throw new InvalidOperationException("Verification requires resumedScene.")).SkipToPhase(CeresDestructionPhase.Finished);
         game.Step(0);
         game.Step(0);
         // Loading spans its native NMI waits; the property here is reaching the fade.
@@ -120,7 +120,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
         var reloadOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
-        reloadOptions.Phase = GameOptionsPhase.StartGame;
+        reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
         reload.Session.Show(reloadOptions);
         reload.Session.LoadingExistingSave = true;
         SetState(reload, SuperMetroidGameState.GameOptionsMenu);
@@ -149,7 +149,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
         var probeOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
-        probeOptions.Phase = GameOptionsPhase.StartGame;
+        probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
         gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.LoadingExistingSave = true;
         SetState(gameOverProbe, SuperMetroidGameState.GameOptionsMenu);
@@ -172,8 +172,7 @@ internal static class CeresSaveStartupVerification
             gameOverProbe.Session.frameClock.Counter,
             "#1275 accepted NMIs keep counting through the game-over menu");
         var probeMenu = gameOverProbe.Session.ScreenAs<GameOverMenuState>();
-        (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).Phase = GameOverMenuPhase.Main;
-        probeMenu.IsWaitingOutDisplayFrame = false;
+        (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).SkipToPhase(GameOverMenuPhase.Main);
         gameOverProbe.Step(0);
         gameOverProbe.Step(ControllerButton.A);
         AssertEqual(SuperMetroidGameState.SetUpNewGame, gameOverProbe.GameState,
@@ -216,7 +215,7 @@ internal static class CeresSaveStartupVerification
             MapPresentation = maps,
         });
         var oldOptions = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
-        oldOptions.Phase = GameOptionsPhase.StartGame;
+        oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
         unmodified.Session.Show(oldOptions);
         unmodified.Session.LoadingExistingSave = true;
         SetState(unmodified, SuperMetroidGameState.GameOptionsMenu);

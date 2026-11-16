@@ -39,7 +39,7 @@ internal static class BossMapMarkersVerification
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1) });
                 // Center the marker under test without changing its authored position.
-                pause.MapScrollPosition = new Offset16<MapPixels>(x - 128, y - 112);
+                pause.ScrollMapTo(new Offset16<MapPixels>(x - 128, y - 112));
                 var alive = pause.Render();
                 AssertEqual(0, record, "retail authored boss markers use area-boss bit zero");
                 for (int other = 0; other < 6; other++)
@@ -103,7 +103,7 @@ internal static class BossMapMarkersVerification
                 PauseMenuState CenteredPause(SharedGameState state)
                 {
                     var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = state, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1) });
-                    reopened.MapScrollPosition = new Offset16<MapPixels>(x - 128, y - 112);
+                    reopened.ScrollMapTo(new Offset16<MapPixels>(x - 128, y - 112));
                     return reopened;
                 }
                 markers++;

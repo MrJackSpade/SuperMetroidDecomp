@@ -75,13 +75,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public YesNoChoice SelectedItem { get; private set; }
 
     /// <summary>Current menu step.</summary>
-    public GameOverMenuPhase Phase { get; internal set; }
+    public GameOverMenuPhase Phase { get; private set; }
 
     /// <summary>
     /// True while the current menu step waits out a frame of the display (after blanking or unblanking): the next update
     /// finishes that step instead of starting a new update of the menu (<see cref="DisplayFrameWaitContinuation"/>).
     /// </summary>
-    public bool IsWaitingOutDisplayFrame { get; internal set; }
+    public bool IsWaitingOutDisplayFrame { get; private set; }
 
     /// <summary>Sticky request raised when the accepted Yes answer has faded fully to black; the outer game-state loop opens file-select map view rather than reloading the save inside this scene.</summary>
     public bool ContinueRequested { get; private set; }

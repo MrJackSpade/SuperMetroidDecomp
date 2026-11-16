@@ -56,7 +56,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.PlayerButtons.NewlyPressed,
             session.GameplayRuntime.PlayerButtons.Current,
             session.GameplayRuntime.Clock.ShortCounter,
-            session.GameplayRuntime.Room.BombProjectiles);
+            session.GameplayRuntime.Room.LoadedScope.BombProjectiles);
         // The paused update writes the HUD after reading pause input; the next displayed frame shows
         // its rows, including the first frame of the unpause fade.
         session.GameplayRuntime.Hud.UpdateGameplayCounters(session.GameplayRuntime.Player.IntroducedSamus, session.GameplayRuntime.AudioRequests,

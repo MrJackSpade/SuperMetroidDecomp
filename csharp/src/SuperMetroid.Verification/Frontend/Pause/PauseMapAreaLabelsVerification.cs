@@ -49,7 +49,7 @@ internal static class PauseMapAreaLabelsVerification
             int topmost = int.MaxValue;
             for (int entry = list; Read(entry) != 0xffff; entry += 6) topmost = Math.Min(topmost, Read(entry + 2));
             int x = Read(list) - 128, y = topmost - LabelTopLine;
-            pause.MapScrollPosition = new Offset16<MapPixels>(x, y);
+            pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
             {
@@ -70,7 +70,7 @@ internal static class PauseMapAreaLabelsVerification
             AssertTrue(differs < 0, $"{area} destination spelling, order, coordinates and palette match raw ROM OAM" + (differs < 0 ? "" :
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
-            pause.AdvanceAnimations(phase: PauseAnimationPhase.FadingOut); _ = pause.CaptureRenderSnapshot();
+            pause.AdvanceAnimations(0, PauseAnimationPhase.FadingOut); _ = pause.CaptureRenderSnapshot();
             AssertLabels(0, "outer unpause fade-out");
             LayeredScene beforeRestore = pause.CaptureRenderSnapshot();
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).

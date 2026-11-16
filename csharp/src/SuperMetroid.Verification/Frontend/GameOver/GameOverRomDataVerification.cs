@@ -45,10 +45,7 @@ internal static class GameOverRomDataVerification
         {
             babyMenu.Step(0);
             if (babyMenu.IsWaitingOutDisplayFrame)
-            {
-                babyMenu.IsWaitingOutDisplayFrame = false;
-                babyMenu.Phase = GameOverMenuPhase.FadeIn;
-            }
+                babyMenu.SkipToPhase(GameOverMenuPhase.FadeIn);
         }
         // The standalone menu's audio is never advanced, so its room-library queue keeps every request the menu made.
         IReadOnlyList<SoundEffectId> roomRequests = babyAudio.WaitingSounds(SoundEffectLibrary.Room);

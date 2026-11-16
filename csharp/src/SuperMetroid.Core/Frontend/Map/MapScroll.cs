@@ -36,7 +36,7 @@ public sealed class MapScroll
     public MapScrollLimits Limits { get; }
 
     /// <summary>The screen's top-left corner as an offset from the map's corner, negative left of or above it.</summary>
-    public Offset16<MapPixels> Scroll { get; set; }
+    public Offset16<MapPixels> Scroll { get; private set; }
 
     /// <summary>The direction of the accepted eight-update scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
     public MapScrollDirection Direction { get; private set; }

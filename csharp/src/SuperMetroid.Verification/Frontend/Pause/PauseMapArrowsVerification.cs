@@ -26,8 +26,7 @@ internal static class PauseMapArrowsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(10, 11) });
-        pause.CurrentMapScroll = new MapScroll(MapFramingDefinitions.Pause, new MapScrollLimits(0, 512, 0, 256), Offset16<MapPixels>.Zero);
-        pause.CurrentMapArrows = null;
+        pause.FrameMap(new MapScroll(MapFramingDefinitions.Pause, new MapScrollLimits(0, 512, 0, 256), Offset16<MapPixels>.Zero));
         pause.BindFixtureArtwork(RetailPresentationFixture());
         var nativeArrowColors = new RgbColor[16];
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
@@ -35,7 +34,7 @@ internal static class PauseMapArrowsVerification
         var arrowAttributes = new HashSet<ushort>();
         foreach (var (x, y) in new VerifyPauseMapArrowsCase[] { new VerifyPauseMapArrowsCase(100, 70), new VerifyPauseMapArrowsCase(-24, 70), new VerifyPauseMapArrowsCase(-23, 70), new VerifyPauseMapArrowsCase(280, 70), new VerifyPauseMapArrowsCase(281, 70), new VerifyPauseMapArrowsCase(100, -56), new VerifyPauseMapArrowsCase(100, -55), new VerifyPauseMapArrowsCase(100, 79), new VerifyPauseMapArrowsCase(100, 80) })
         {
-            pause.MapScrollPosition = new Offset16<MapPixels>(x, y);
+            pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
             pause.Step(0, 0);
             // Literal $82:A92B increment-before-read palette timing and raw colors.
             if (nativePaletteTimer != 0 && --nativePaletteTimer == 0)
@@ -88,7 +87,7 @@ internal static class PauseMapArrowsVerification
         pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);
         pause.BindFixtureArtwork(RetailPresentationFixture());
         AssertTrue(ScenePixels.Same(beforeRestore, pause.CaptureRenderSnapshot()), "debugger restore/rebind retains the current arrow display");
-        pause.MapScrollPosition = new Offset16<MapPixels>(100, 70);
+        pause.ScrollMapTo(new Offset16<MapPixels>(100, 70));
         pause.Step(0, 0); _ = pause.CaptureRenderSnapshot(); int stable = pause.LastRenderedSpriteCount;
         pause.Step(ControllerButton.R, 0); _ = pause.CaptureRenderSnapshot();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");

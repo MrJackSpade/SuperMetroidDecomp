@@ -71,13 +71,13 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Frames left before the next title sequence entry is read.</summary>
     private int sequenceEntryTimer;
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
-    internal TitleSprite? ActiveSprite { get; set; }
+    internal TitleSprite? ActiveSprite { get; private set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
-    internal TitleCardTyping? ActiveCard { get; set; }
+    internal TitleCardTyping? ActiveCard { get; private set; }
     /// <summary>Screen origin used when drawing the active title frame.</summary>
-    internal Offset16<ScreenPixels> ActiveOrigin { get; set; }
+    internal Offset16<ScreenPixels> ActiveOrigin { get; private set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
-    internal TitleSpriteColouring ActiveColouring { get; set; }
+    internal TitleSpriteColouring ActiveColouring { get; private set; }
     /// <summary>
     /// Whether the title screen's rebuild after a skip, or on the return from the demo, has restored the copyright's
     /// glyph colours (#1512), which the copyright then shows over its drawn colours.
@@ -149,7 +149,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>The title's running step; the skip's fade-out runs alongside it (#1719).</summary>
-    public TitleSequencePhase Phase { get; internal set; }
+    public TitleSequencePhase Phase { get; private set; }
 
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     internal TitleSkipStage SkipStage { get; private set; }

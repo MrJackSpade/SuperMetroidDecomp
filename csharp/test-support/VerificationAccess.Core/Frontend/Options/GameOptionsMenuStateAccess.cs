@@ -10,6 +10,10 @@ internal static class GameOptionsMenuStateAccess
     /// <summary>Reads the page the menu shows as the cartridge's tilemap words.</summary>
     extension(GameOptionsMenuState self)
     {
+        /// <summary>Puts the menu at <paramref name="phase"/>, for a check that starts at that step without running the updates that reach it.</summary>
+        internal void SkipToPhase(GameOptionsPhase phase) =>
+            PrivateFrontendState.Set(self, nameof(GameOptionsMenuState.Phase), phase);
+
         /// <summary>
         /// The page the menu shows, laid out as the cartridge's little-endian tilemap words from the import's sources of the
         /// pictures it places (#1467): the page with its language rows, controller labels or toggle choices as shown, read

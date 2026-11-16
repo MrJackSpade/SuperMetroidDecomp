@@ -87,14 +87,14 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>The equipment control the cursor rests on (#1772); its category is the column the cursor is in.</summary>
     internal PauseEquipmentControl SelectedControl { get; private set; } = PauseEquipmentControls.ReserveMode;
     /// <summary>The map page's scroll, framed from the visible area cells when the map page is set up.</summary>
-    internal MapScroll? CurrentMapScroll { get; set; }
+    internal MapScroll? CurrentMapScroll { get; private set; }
     /// <summary>The map page's scroll, which exists once the map page is set up.</summary>
     internal MapScroll ActiveMapScroll => CurrentMapScroll ??
         throw new InvalidOperationException("The pause map scroll has not been set up.");
     /// <summary>The map screen's scroll position.</summary>
-    internal Offset16<MapPixels> MapScrollPosition { get => ActiveMapScroll.Scroll; set => ActiveMapScroll.Scroll = value; }
+    internal Offset16<MapPixels> MapScrollPosition => ActiveMapScroll.Scroll;
     /// <summary>Animated map arrows and their current visibility state.</summary>
-    internal FileSelectMapAnimations? CurrentMapArrows { get; set; }
+    internal FileSelectMapAnimations? CurrentMapArrows { get; private set; }
     /// <summary>The map arrows, which exist once the map page is set up.</summary>
     internal FileSelectMapAnimations MapArrows => CurrentMapArrows ??
         throw new InvalidOperationException("The pause map arrows have not been set up.");
@@ -160,16 +160,19 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>
     /// Runs the pause menu's input once the update's input is latched and the
     /// delayed-held filter applied. Returns true when Start requests unpausing.
-    /// The runtime supplies its short frame counter for the colour animation's phase;
-    /// a standalone diagnostic run may leave that phase at zero. <paramref name="bombs"/> are Samus's bomb slots frozen
-    /// under the pause, which a same-frame toggle into the first reserve row repaints (#1505).
     /// </summary>
-    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCycle = 0,
-        SamusBombProjectileSystem? bombs = null)
+    /// <param name="delayedHeldInput">The held buttons after the delayed-held filter, which the page chrome reads.</param>
+    /// <param name="newlyPressedInput">The buttons newly pressed this update, which the equipment page reads.</param>
+    /// <param name="heldInput">The ordinary held buttons, which the map's scroll arrows read.</param>
+    /// <param name="frameCycle">The runtime's short frame counter, the colour animation's phase.</param>
+    /// <param name="bombs">Samus's bomb slots frozen under the pause, which a same-frame toggle into the first reserve row repaints (#1505).</param>
+    public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton heldInput, int frameCycle,
+        SamusBombProjectileSystem bombs)
     {
+        Ensure.NotNull(bombs);
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
-        AdvanceAnimations(frameCycle);
+        AdvanceAnimations(frameCycle, PauseAnimationPhase.Stable);
         if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
             MapArrows.StepArrows(ActiveMapScroll.CanScroll);
         ControllerButton delayedPressed = delayedHeldInput;
@@ -194,7 +197,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller buttons, not the delayed chrome
             // input. An accepted pulse keeps running after release, as in the game.
-            if (ActiveMapScroll.Step(heldInput ?? delayedHeldInput))
+            if (ActiveMapScroll.Step(heldInput))
                 audio?.QueueSound(SamusSound.MapScroll, priority: SoundRequestPriority.Normal);
             return mapStart;
         }
@@ -237,7 +240,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// (for example, a screen capture). The game-state loop calls this exactly
     /// once per frame so extra draws cannot change game-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(int frameCycle = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
+    public void AdvanceAnimations(int frameCycle, PauseAnimationPhase phase)
     {
         // The fade-out paths emit destination labels before map icons.
         mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
@@ -496,7 +499,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         MapSpriteSheet.Draw(MapSheet, id, screen.Sprites, origin, MapSpriteScreen.Pause, colouring);
 
     /// <summary>Handles reserve input or moves and toggles equipment in the game's update order.</summary>
-    private void HandleEquipmentInput(ControllerButton pressed, SamusBombProjectileSystem? bombs)
+    private void HandleEquipmentInput(ControllerButton pressed, SamusBombProjectileSystem bombs)
     {
         PauseEquipmentCategory handlingCategory = SelectedControl.Category;
         if (handlingCategory == PauseEquipmentCategory.Reserves)
@@ -522,8 +525,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     "A same-frame equipment toggle into a reserve row past the first corrupts unrelated game state; " +
                     "reproducing it needs full memory emulation, which is outside the port's scope.");
             audio?.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
-            SamusBomb last = (bombs ?? throw new InvalidOperationException(
-                "The first reserve row's same-frame toggle needs Samus's bombs.")).Bombs[^1];
+            SamusBomb last = bombs.Bombs[^1];
             last.BombSpreadVerticalVelocity = last.BombSpreadVerticalVelocity.WithWholePixels(
                 ReserveRowToggleSpreadBombSpeed.Repaint(last.BombSpreadVerticalVelocity.WholePixels));
             return;

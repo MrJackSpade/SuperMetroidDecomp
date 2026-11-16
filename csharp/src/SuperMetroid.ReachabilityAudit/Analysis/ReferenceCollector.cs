@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.ReachabilityAudit.Declarations;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ReachabilityAudit.Analysis;
 
@@ -24,9 +25,8 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     {
         foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
         {
-            var model = compilation.GetSemanticModel(tree);
             foreach (var node in tree.GetRoot().DescendantNodes())
-                Visit(project, model, node);
+                Visit(project, SemanticModels.At(compilation, tree, node), node);
         }
     }
 
@@ -227,7 +227,7 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
         {
             var syntax = reference.GetSyntax();
             // A generic declared in another project binds in the compilation that owns its tree.
-            var model = treeOwners[syntax.SyntaxTree].GetSemanticModel(syntax.SyntaxTree);
+            var model = SemanticModels.Of(treeOwners[syntax.SyntaxTree], syntax.SyntaxTree);
             foreach (var name in syntax.DescendantNodes().OfType<GenericNameSyntax>())
             {
                 var symbol = model.GetSymbolInfo(name).Symbol;

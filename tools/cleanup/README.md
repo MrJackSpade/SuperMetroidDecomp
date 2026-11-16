@@ -20,8 +20,8 @@ owner moves a rule into the automatically fixed group (`docs/manifesto.md` secti
 | `.githooks/reference-transaction` | the main checkout's hooks path | Git runs it for every ref update. When a push or fetch moves `refs/remotes/origin/<branch>` it runs the installed `trigger.ps1` and returns. It never fails a transaction or waits for the cleanup. |
 | `trigger.ps1` | installed in `<dir>\bin` | Appends the request to `requests.log` and, if no service holds `service.lock`, starts `service.ps1` detached through WMI: Idle priority, a headless console, outside the caller's process tree. |
 | `service.ps1` | installed in `<dir>\bin` | One at a time. Fetches, resets the clone hard to the remote tip, checks the installed scripts still match the tree, runs the tree's `tools/cleanup/run.ps1`, records the outcome, and repeats while requests are pending. |
-| `run.ps1` | the clone's tree | One run: restore, the reachability audit's Release build, the fix and prune steps (code, dead code, stale reviews), the inventories, one build, commit, push. |
-| `CodeFixRunner.cs` | the clone's tree | The code fixes, as a Roslyn workspace runner (below). |
+| `run.ps1` | the clone's tree | One run: restore, the tool builds, the fix and prune steps (code, dead code, stale reviews) and the inventories in one process, one build, commit, push. |
+| `CodeFixRunner.cs` | the clone's tree | The code fixes, as a Roslyn workspace runner (below), and, with `--cleanup`, the whole fix and prune loop and the inventories on one load of the solution. |
 
 Git has no `post-push` hook; a successful push updates the remote-tracking ref through a ref transaction, so
 `reference-transaction` is where a push is seen after it has landed. A fetch that brings new commits triggers it too,
@@ -34,47 +34,96 @@ developer's checkout, with its own `bin`/`obj` and its own `temp\`), `config.jso
 
 ### The run
 
-1. **Restore** the solution, **build the reachability audit in Release** and **the repository's analyzer and code fixes
-   in Debug** (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) through `tools/build.ps1`. The code fixes load the
-   repository's analyzer and fixers from the projects' Debug references, so they must be built first.
-2. **Fix and prune, taking turns, until one of each in a row changes nothing:**
-   - **Code fixes:** `dotnet run tools/cleanup/CodeFixRunner.cs -- csharp/SuperMetroid.Full.slnx <summary.json> CA1823,CS0162,CS0168,CS0169,CS0219,CS0414,IDE0004,IDE0005,IDE0032,IDE0044,IDE0051,IDE0052,IDE0059,IDE0076,IDE0077,IDE0079,IDE0330,SME6360,SME6391,SME6400,SME6401`.
-     `run.ps1` reads the rules from `csharp/.editorconfig`: the `none` lines directly under the comment that names
-     this cleanup. A rule there that `run.ps1` has no commit-message words for, or words for a
-     rule not there, fails the run.
-   - **Dead code:** `dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --prune-keeping-verification-used unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant --path-prefix csharp/src --to csharp/test-support/VerificationAccess.Core --retired-fields <run>\retired-fields-<step>.txt`.
-     It deletes dead code tests do not use and moves what they still use into test-support; the next code-fix step
-     removes the usings it copies into moved files.
-   - **Stale reviews:** `dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --prune-stale-reviews`.
-     It deletes every `[ArchitectureReview]` whose finding its type no longer has (a prune of dead code can remove a
-     finding), through the attribute's own syntax reference, and keeps every other byte of the file. It validates
-     every edit before writing any and writes nothing if one fails. The next code-fix step removes a using the
-     attribute alone needed.
-   - A step that returns the tree to an earlier state (the steps undo each other), or a run that needs more than 6
-     rounds of the three steps, stops the loop: the run keeps the tree it has and records a problem. A failed prune
-     (which writes nothing) is recorded as a problem and the loop goes on.
-3. **Inventories:** `dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write`.
-   A failure is recorded as a problem and the run goes on.
-4. **Nothing changed:** the run ends quietly. A change outside `csharp/` and `docs/` fails the run.
-5. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. The owner's ruling (2026-11-15): the
+1. **Restore** the solution, **build the repository's analyzer and code fixes in Debug**
+   (`csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes`) and **the cleanup runner** (`tools/cleanup/CodeFixRunner.cs`, with
+   the reachability and architecture audits it runs in its own process) through `tools/build.ps1`. The code fixes load
+   the repository's analyzer and fixers from the projects' Debug references, so they must be built first.
+2. **One process does the fix and prune loop and the inventories:**
+   `dotnet run --no-build tools/cleanup/CodeFixRunner.cs -- --cleanup csharp/SuperMetroid.Full.slnx <run> <run>\cleanup-outcome.json <rules> <prune categories> csharp/src csharp/test-support/VerificationAccess.Core 6`.
+   It loads the solution once (below, "One load") and runs every step on it:
+   - **Fix and prune, taking turns, until one of each in a row changes nothing:**
+     - **Code fixes** of the rules `run.ps1` reads from `csharp/.editorconfig`: the `none` lines directly under the
+       comment that names this cleanup (CA1823, CS0162, CS0168, CS0169, CS0219, CS0414, IDE0004, IDE0005, IDE0032,
+       IDE0044, IDE0051, IDE0052, IDE0059, IDE0076, IDE0077, IDE0079, IDE0330, SME6360, SME6391, SME6400, SME6401). A
+       rule there that `run.ps1` has no commit-message words for, or words for a rule not there, fails the run. Each
+       step's summary is kept as `<run>\code-fixes-<step>.json`.
+     - **Dead code:** the reachability audit's `--prune-keeping-verification-used` of the categories
+       `unreachable-member,unreachable-type,unreferenced-field,unreferenced-enum-member,unreferenced-constant` under
+       `csharp/src`, into `csharp/test-support/VerificationAccess.Core`, retiring fields to
+       `<run>\retired-fields-<step>.txt`. It deletes dead code tests do not use and moves what they still use into
+       test-support; the next code-fix step removes the usings it copies into moved files. It prints how long each of its
+       phases took.
+     - **Stale reviews:** the architecture audit's `--prune-stale-reviews`. It deletes every `[ArchitectureReview]`
+       whose finding its type no longer has (a prune of dead code can remove a finding), through the attribute's own
+       syntax reference, and keeps every other byte of the file. It validates every edit before writing any and writes
+       nothing if one fails. The next code-fix step removes a using the attribute alone needed.
+     - A step that returns the tree to an earlier state (the steps undo each other), or a run that needs more than 6
+       rounds of the three steps, stops the loop: the run keeps the tree it has and records a problem. A failed prune
+       (which writes nothing) is recorded as a problem and the loop goes on.
+   - **Inventories:** the architecture audit's `--write`. A failure is recorded as a problem and the run goes on.
+
+   The process prints each step to the log, with how long it took and how many files it changed, and writes what the
+   steps did (the counts, paths, summaries, retired fields, removed reviews, unfixed sites and problems the commit
+   message is made of) to `cleanup-outcome.json`. Only a failure to load the solution or the analyzers, or a bad command
+   line, fails it, as each step's own process failed the run before.
+3. **Nothing changed:** the run ends quietly. A change outside `csharp/` and `docs/` fails the run.
+4. **Build once:** `pwsh -File tools/build.ps1 csharp/SuperMetroid.Full.slnx`. When the loop changed the code, the runner starts
+   this build as soon as the loop ends and writes the inventories while it runs, since the inventories write only
+   `docs/`, which no build reads; when only the inventories changed, `run.ps1` builds after them. The owner's ruling (2026-11-15): the
    cleanup would rather commit broken code than fail. A failed build is recorded as a problem and the tree is
    committed and pushed anyway, as `Cleanup (does not build): ...`; its full output is kept as
    `logs\<run>\build.log`. Every problem and unfixed site is listed in the commit body and the result, and a pushed
    run with any of them raises a notification. A build failure is never fixed by judgment. The build changes no file;
    a tree it changed fails the run.
-6. **Commit** as `Cleanup: <rule, what, count; ...>` (stale reviews as `stale architecture reviews removed <count>`),
+5. **Commit** as `Cleanup: <rule, what, count; ...>` (stale reviews as `stale architecture reviews removed <count>`),
    with the files, the prune's own summary and every removed review in the body, under
    the owner's identity from the main checkout and with no assistant attribution (the clone runs the repository's
    own `commit-msg` and `pre-push` guards), and **push** with a plain fast-forward push.
 
+### One load
+
+The run used to start a process per step, and each loaded and compiled the whole solution again: the code fixes, both
+halves of every dead-code prune, every stale-review prune and the inventories. A run of seven steps loaded it more than
+ten times, which, with the analysis below, made a run take hours. The runner now loads the solution once, in Debug,
+and each step is handed the solution as the steps before it left it. The load reads every project's design-time build in
+one batch (`MSBuildProjectLoader.LoadSolutionInfoAsync`) rather than opening the projects one after another, and places
+the projects in the order opening them one at a time gives (each listed project, then the projects its evaluated
+`ProjectReference` items reach that are not placed yet, depth first), since the audits take the first project that
+compiles a shared file:
+
+- The code fixes return the solution they wrote.
+- The prunes write their files as before, and the runner reads back what git reports changed since the solution was last
+  brought up to date (`git diff --name-status --no-renames` between the working tree's trees, which the loop records
+  anyway). A changed file's text is read where it differs. When files are added or deleted, or a project file changes,
+  every project's source items are evaluated again (`dotnet msbuild -getItem:Compile`, all projects at once), and each
+  project gets exactly those files, in that order, followed by the generated files it was loaded with. This is the shape
+  a fresh load has, which the runner confirms when it loads: a project whose loaded documents are not its evaluated
+  source items in order, followed by generated ones, fails the load.
+- The audits take the solution through `SolutionLoader.CompileAsync`, which compiles every project on all processors and
+  fails on a compile error, as their own loads did. A compilation no step and no reference changed is the same object
+  from step to step, and its errors are found once. Their command lines open the solution from the files, as before,
+  through the same code.
+- The audits' walks bind every tree's code first, on all processors (`SemanticModels`), and then read the bound answers
+  in their own, unchanged order, so what they record is what the serial walk recorded. A definition catalog's names are
+  bound through several models at once, since one model binds each of them by binding its whole initializer again.
+  The prune collects the verification projects' references while it analyzes reachability, since both only read the
+  same compilations. The audits run with the server garbage collector, without which their parallel binding waits on
+  collections.
+
+The builds use a compiler server of the cleanup's own (`SharedCompilationId=supermetroid-cleanup`), named apart from the
+developer's, so it never serves the developer's builds and runs at the cleanup's priority. `ShaderBuild.targets` in
+`SuperMetroid.Rendering.Direct3D11` compiles the shaders only when a shader source changes, so neither a build nor the
+load runs the shader compiler for an unchanged project.
+
 The service gives every tool its own temporary folder, no shared compiler server (`UseSharedCompilation=false`), no
 reused MSBuild nodes and no MSBuild server, so nothing the cleanup starts serves the developer's builds or runs at the
-cleanup's Idle priority for them. The NuGet package cache is shared read-mostly, as the brief allows. Git credential
+cleanup's Idle priority for them; `run.ps1` gives its builds the cleanup's own compiler server (above), which the
+developer's builds cannot reach. The NuGet package cache is shared read-mostly, as the brief allows. Git credential
 prompts are disabled (`GCM_INTERACTIVE=never`), so a missing credential fails the push instead of opening a dialog.
 
 ### The code fixes
 
-`CodeFixRunner.cs` loads every project into one MSBuildWorkspace, runs each project's own analyzers for the requested
+`CodeFixRunner.cs` loads every project into one workspace (One load, above), runs each project's own analyzers for the requested
 rules with its own configuration, and applies each rule's fixer through its fix-all provider, given exactly the
 findings chosen. `RuleOrder` says what reports each rule and where its one fixer comes from:
 
@@ -130,9 +179,15 @@ beside one that stays an error would still run in every build, so a moved rule g
 reports IDE0059 beside IDE0058 (`silent`), so it still runs in the build.
 
 **IDE0079 (unnecessary suppression) has no command-line analyzer** (only the IDE's suppression analysis reports it),
-so the runner finds its sites itself. When IDE0079 is requested it runs every analyzer of each project, with the whole
-group enabled in its scope and suppressed diagnostics reported (`CompilationWithAnalyzers`,
-`reportSuppressedDiagnostics: true`). A `[SuppressMessage]` or `[UnconditionalSuppressMessage]` (on a member, or at
+so the runner finds its sites itself. When IDE0079 is requested it runs, beside the requested rules' analyzers, every
+analyzer that can show one of the project's suppressions to be needed, with the whole group enabled in its scope and
+suppressed diagnostics reported (`CompilationWithAnalyzers`, `reportSuppressedDiagnostics: true`). A suppression is
+needed only by a diagnostic of the id it names, so the analyzers that report an id one of the project's suppressions
+names (a pragma code, or an attribute's check id) are the ones that can, with every diagnostic suppressor, which
+decides what is suppressed; the compiler reports its own ids anyway. An attribute whose check id is not a string literal
+makes every analyzer run. The others' diagnostics are neither findings nor evidence, so leaving them out changes nothing
+the run decides; running every analyzer of every project, when the repository has almost no suppressions, made the
+analysis cost a whole analyzer build done one analyzer at a time. A `[SuppressMessage]` or `[UnconditionalSuppressMessage]` (on a member, or at
 assembly level with a target) is needed when it is the attribute that suppressed a diagnostic; a
 `#pragma warning disable` code is needed when a diagnostic of that id, suppressed by no attribute, lies between it
 and its `restore`. Every other suppression of a rule its file enables is unnecessary, and the repository's
@@ -152,6 +207,18 @@ commit body.
 The runner repeats its analysis until a pass finds nothing (one rule per file per pass, since other spans go stale
 once a file changes). A file that returns to an earlier text, or more than 20 passes, stops the loop: the run keeps
 the tree it has and records a problem.
+
+A pass analyzes its projects in parallel, each on its own compilation, and takes their results and log lines in name
+order. The requested rules' analyzers run concurrently within a project: each of them declares concurrent execution and
+keeps no state between callbacks. An analyzer that runs only as evidence for a suppression runs serially with the rest,
+as every analyzer once had to: run concurrently with the whole analyzer set over Core, the repository analyzers'
+suppressed findings were intermittently lost, and IDE0079 took the suppressions they needed for unused. An analyzer
+that throws is logged with its AD0001. The pass then computes every file's fix at once, on all processors, from the
+solution it analyzed, and applies them one by one in path order as before: since a pass fixes one rule per file and a
+fix that would change a file another fix of the pass changed waits for the next pass, the file a fix was computed for
+holds the same text when it is applied. Computing each fix from the solution with every earlier fix of the pass applied
+made each fixer bind a new compilation of its project, file after file. The compiler-error check of a fix that changes
+several files runs while the pass goes on, and its problems are recorded in their place when the pass ends.
 
 A fix may change several files, such as IDE0032 deleting a field in one part of a partial type and rewriting its
 property in another. The runner accepts it when every file it changes is compiled by analyzed projects that have no

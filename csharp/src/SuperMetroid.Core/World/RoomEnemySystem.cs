@@ -619,20 +619,21 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <param name="services">The game-state services the room's AI calls.</param>
     /// <param name="area">The area the room is in.</param>
     /// <param name="bossArtwork">The session's installed boss artwork.</param>
-    /// <param name="breakableTerrain">
-    /// The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.
+    /// <param name="roomParts">
+    /// The room's other parts its enemies act on: the room objects that show its enemy-breakable blocks breaking and its
+    /// effect, which live as long as the room.
     /// </param>
-    /// <param name="roomFx">The room's effect state, which its enemies move and read and which lives as long as the room.</param>
     internal RoomEnemySystem(EnemySession session, RoomEnemyCompatibility compatibility,
         IRoomEnemyDefinitionSource definitions, IRoomEnemyServices services, AreaId area,
-        BossArtworkBinding bossArtwork, EnemyBreakableTerrainObjects breakableTerrain, RoomFxOverlayState roomFx)
+        BossArtworkBinding bossArtwork, EnemyRoomParts roomParts)
     {
+        Ensure.NotNull(roomParts);
         Ensure.NotNull(compatibility);
         BossArtworkBinding = Ensure.NotNull(bossArtwork);
         Room = new EnemyRoomBinding(session, definitions, services, area);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
-        RoomFx = new EnemyRoomFx(roomFx);
+        RoomFx = new EnemyRoomFx(roomParts.Fx);
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, compatibility.FadeStepCount);
@@ -649,7 +650,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         EffectActors = new RoomEffectActors(Presentation, compatibility.EffectActorPlaces, PuyoCeilingTurn);
         Projectiles = new EnemyProjectileEngine(Room, Presentation, EffectActors, Earthquake, Audio);
         GunshipBehavior = new GunshipBehavior(Audio, Projectiles, Room, SlotTable, FrameResults);
-        Terrain = new EnemyTerrain(breakableTerrain);
+        Terrain = new EnemyTerrain(roomParts.BreakableTerrain);
         CorpseRowDust = new CorpseRowDust(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);

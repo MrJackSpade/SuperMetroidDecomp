@@ -1012,7 +1012,7 @@ internal sealed class RoomLoader
             YardKickDistance = _yardKickDistance,
         };
         var enemies = new RoomEnemySystem(_enemySession, compatibility, CompiledRoomEnemyDefinitions.Instance, areaServices,
-            room.Area, _bossArtwork, roomObjects.BreakableTerrain, roomFxOverlay);
+            room.Area, _bossArtwork, new EnemyRoomParts(roomObjects.BreakableTerrain, roomFxOverlay));
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which

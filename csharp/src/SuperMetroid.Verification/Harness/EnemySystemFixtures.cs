@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
@@ -34,8 +35,8 @@ internal static class EnemySystemFixtures
     {
         var system = new RoomEnemySystem(session, compatibility, definitions ?? CompiledRoomEnemyDefinitions.Instance,
             services ?? new VerificationRoomEnemyServices(null), area, new BossArtworkBinding(),
-            breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
-            roomFx ?? new RoomFxOverlayState());
+            new EnemyRoomParts(breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
+                roomFx ?? new RoomFxOverlayState()));
         system.BossArtwork = installedBosses;
         return system;
     }

@@ -56,4 +56,10 @@ internal static class SamusAnimationFrames
 
     /// <summary>A ground turn's last frame, whose last tick completes an X-ray turn.</summary>
     internal static SamusAnimationTarget TurnEnd { get; } = new(Main, 2);
+
+    /// <summary>The run stride's first foot contact, on whose last tick a running footstep lands.</summary>
+    internal static SamusAnimationTarget RunFirstFootContact { get; } = new(Run, 2);
+
+    /// <summary>The run stride's second foot contact, on whose last tick the other running footstep lands.</summary>
+    internal static SamusAnimationTarget RunSecondFootContact { get; } = new(Run, 7);
 }

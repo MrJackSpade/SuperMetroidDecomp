@@ -128,7 +128,7 @@ public sealed class SamusDrainedState
             !samus.AnimationHasPassed(SamusDrainedAnimationDefinitions.UnableToStandLastFrame))
         {
             // Unlike the able branch, the failed-stand branch keeps its get-up. A later
-            // visit to frames 8..11 can therefore react to another fresh Up edge.
+            // visit to the held crouch's frames that accept Up can therefore react to another fresh Up edge.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: 1);
             return true;
         }
@@ -170,7 +170,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Stops Samus's rainbow colouring: clear every rainbow/charge colouring
-    /// value and begin the standing portion of the drained animation at frame thirteen.
+    /// value and begin the standing portion of the drained animation at its rainbow-stop frame.
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
@@ -249,7 +249,7 @@ public sealed class SamusDrainedState
             samus.Kinematics.Radius.Y != SamusDrainedAnimationDefinitions.CrouchingYRadius)
             throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
 
-        // The new pose's animation frame is literally two. The animation is initialized here,
+        // The new pose starts on the collapse's third frame. The animation is initialized here,
         // but the special movement type keeps her still until the drained-fall
         // animation step appears.
         SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
@@ -303,8 +303,8 @@ public sealed class SamusDrainedState
 
         if (vertical.Collided)
         {
-            // The landing ends the fall, jumps directly to art
-            // frame seven for eight ticks, and clears both velocity halves. It does not
+            // The landing ends the fall, jumps directly to the held crouch's landing
+            // frame for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.LandingFrame,
                 timer: SamusDrainedAnimationDefinitions.LandingTimer);

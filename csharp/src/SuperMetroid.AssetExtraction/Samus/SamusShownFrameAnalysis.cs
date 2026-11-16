@@ -128,7 +128,7 @@ internal sealed class SamusShownFrameAnalysis
     private static int Number(SamusAnimationPlace place) => SamusAnimationLayout.Offset(place);
 
     /// <summary>The step <paramref name="pose"/>'s animation reads at <paramref name="frame"/> places into its layout.</summary>
-    private SamusPoseAnimationStep? StepAt(SamusPoseId pose, int frame) => layout.Read(pose, frame)?.Step;
+    private SamusPoseAnimationStep? StepAt(SamusPoseId pose, int frame) => layout.Read(SamusAnimationDelays.AnimationForPose(pose), frame)?.Step;
 
     /// <summary>
     /// Follows every pending frame on through its animation, and applies <paramref name="publications"/> to every pose,
@@ -212,14 +212,14 @@ internal sealed class SamusShownFrameAnalysis
         return step switch
         {
             SamusAnimationHold => [frame],
-            SamusAnimationRepeat repeat => Reach(pose, layout.TargetOffset(pose, frame, repeat.Target), FrameReach.Selection),
+            SamusAnimationRepeat repeat => Reach(pose, layout.TargetOffset(SamusAnimationDelays.AnimationForPose(pose), frame, repeat.Target), FrameReach.Selection),
             SamusAnimationRestart => Reach(pose, 0, FrameReach.Selection),
             SamusAnimationLoopUnlessLowEnergy => [.. Reach(pose, frame + 1, FrameReach.Selection), .. Reach(pose, 0, FrameReach.Selection)],
             SamusAnimationWallJumpSelect select =>
             [
-                .. Reach(pose, layout.TargetOffset(pose, frame, select.OrdinaryFrame), FrameReach.Selection),
-                .. Reach(pose, layout.TargetOffset(pose, frame, select.SpaceJumpFrame), FrameReach.Selection),
-                .. Reach(pose, layout.TargetOffset(pose, frame, select.ScrewAttackFrame), FrameReach.Selection),
+                .. Reach(pose, layout.TargetOffset(SamusAnimationDelays.AnimationForPose(pose), frame, select.OrdinaryFrame), FrameReach.Selection),
+                .. Reach(pose, layout.TargetOffset(SamusAnimationDelays.AnimationForPose(pose), frame, select.SpaceJumpFrame), FrameReach.Selection),
+                .. Reach(pose, layout.TargetOffset(SamusAnimationDelays.AnimationForPose(pose), frame, select.ScrewAttackFrame), FrameReach.Selection),
             ],
             // The drained fall's handover installs the fall whatever the pose, then moves on to the next frame (#1535).
             SamusAnimationInstallDrainedFall => InstallDrainedFall(pose, frame),

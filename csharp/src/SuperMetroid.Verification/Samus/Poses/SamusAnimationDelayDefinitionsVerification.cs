@@ -13,20 +13,22 @@ using SuperMetroid.Verification.Harness;
 internal static class SamusAnimationDelayDefinitionsVerification
 {
     /// <summary>
-    /// Decodes every pose's program from the cartridge and requires the typed program the pose animates by to hold the
-    /// same runs: each run's first frame, its delays and the instruction that ends it.
+    /// Decodes every pose record's program from the cartridge and requires the typed animation the record plays, its pose's
+    /// or, for a record no pose names, the one a read past an earlier animation reaches (#2048), to hold the same runs: each
+    /// run's first frame, its delays and the instruction that ends it.
     /// </summary>
     internal static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        var checkedAnimations = new HashSet<SamusAnimationName>();
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
-            if (!SamusPoseNumbering.NamesPose(number)) continue;
-            SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
-            SamusPoseAnimation actual = SamusAnimationDelays.AnimationForPose(pose);
+            if (SamusAnimationProgramCodec.Animation(number) is not { } actual) continue;
+            string pose = SamusPoseNumbering.NamesPose(number) ? SamusPoseNumbering.FromNumber(number).ToString() : $"record {number} ({actual.Name})";
+            checkedAnimations.Add(actual.Name);
             SamusPoseAnimationStep? StepNumbered(int number) => actual.TryStepAt(SamusAnimationNumbers.Frame(actual, number));
             int nextFrame = 0;
-            foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, pose))
+            foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, number))
             {
                 // Frame numbers between two runs name no step: they held the previous instruction's operands.
                 for (; nextFrame < run.FirstFrame; nextFrame++)
@@ -43,6 +45,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
             int past = nextFrame;
             AssertTrue(StepNumbered(past) is null, $"pose {pose} has no step past its program");
         }
+        AssertEqual(Enum.GetValues<SamusAnimationName>().Length, checkedAnimations.Count, "every named animation is a cartridge program");
 
         // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.
         foreach (SamusPoseId adjacent in new[] { SamusPoseId.TallStillRightPose, SamusPoseId.ForwardStandingPose, SamusPoseId.ForwardStillCrouchHeightPose })
@@ -58,33 +61,38 @@ internal static class SamusAnimationDelayDefinitionsVerification
         SamusPresentation.InitializeAnimation(flashbackSamus);
         AssertEqual(SamusPoseId.FacingLeftNormalPose, flashbackSamus.AnimatedPose,
             "Mother Brain flashback pose starts its typed animation program");
-        Console.WriteLine("Samus pose animation: all 253 typed programs match the cartridge's runs, delays and instructions.");
+        Console.WriteLine("Samus pose animation: every record's typed animation matches the cartridge's runs, delays and instructions.");
     }
 
     /// <summary>
     /// Requires every named read past an animation the import decodes to reach the frame the cartridge's layout puts there:
-    /// a later program, at the frame lying as far before the read frame as that program starts after the read pose's
-    /// (#2048), and every named place to land, on every other animation, on the frame its native number names there. The Mother Brain glitch movie's update 1947 is the recorded case: the right-facing drained standing pose at
-    /// native frame 11 plays the left-facing program's native frame 3, which the installation holds (#1473).
+    /// a later program, at the frame lying as far before the read frame as that program starts after the read animation's
+    /// (#2048), and every named place to land, on every other animation, on the frame its native number names there. The
+    /// Mother Brain glitch movie's update 1947 is the recorded case: the right-facing drained standing pose at native frame
+    /// 11 plays the left-facing program's native frame 3, which the installation holds (#1473).
     /// </summary>
     private static void VerifyFramesBeyondAnimation(IImportCartridgeSource cartridge)
     {
-        int[] starts = [.. Enumerable.Range(0, SamusAnimationProgramCodec.PoseCount)
-            .Select(number => SamusAnimationProgramCodec.ProgramStart(cartridge, number))];
-        int reads = 0;
-        foreach ((string poseName, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast> frames) in SamusAnimationLayout.Read(cartridge).ReadsPast())
+        var starts = new Dictionary<SamusAnimationName, int>();
+        for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
-            SamusPoseId pose = Enum.Parse<SamusPoseId>(poseName);
-            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            if (SamusAnimationProgramCodec.Animation(number) is { } recorded)
+                starts.TryAdd(recorded.Name, SamusAnimationProgramCodec.ProgramStart(cartridge, number));
+        }
+        int reads = 0;
+        foreach ((string animationName, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast> frames) in SamusAnimationLayout.Read(cartridge).ReadsPast())
+        {
+            SamusAnimationName name = Enum.Parse<SamusAnimationName>(animationName);
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(name);
             foreach ((string frameName, SamusOverreadDocument.ReadPast read) in frames)
             {
-                SamusPoseId reader = Enum.Parse<SamusPoseId>(read.Pose);
-                SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationForPose(reader);
-                int shift = starts[SamusPoseNumbers.Number(reader)] - starts[SamusPoseNumbers.Number(pose)];
-                AssertTrue(shift > 0, $"pose {pose} at {frameName} reads a program laid out after its own");
+                SamusAnimationName reached = Enum.Parse<SamusAnimationName>(read.Animation);
+                SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationNamed(reached);
+                int shift = starts[reached] - starts[name];
+                AssertTrue(shift > 0, $"the {name} animation at {frameName} reads a program laid out after its own");
                 AssertEqual(SamusAnimationNumbers.Number(animation, animation.FrameNamed(frameName)) - shift,
                     SamusAnimationNumbers.Number(readAnimation, readAnimation.FrameNamed(read.Frame)),
-                    $"pose {pose} at {frameName} reads the frame the cartridge lays out there");
+                    $"the {name} animation at {frameName} reads the frame the cartridge lays out there");
                 reads++;
             }
         }
@@ -94,18 +102,17 @@ internal static class SamusAnimationDelayDefinitionsVerification
         foreach ((string placeName, IReadOnlyDictionary<string, string> landings) in SamusAnimationLayout.Read(cartridge).PlaceLandings())
         {
             SamusAnimationPlace place = places[placeName];
-            foreach ((string poseName, string frameName) in landings)
+            foreach ((string animationName, string frameName) in landings)
             {
-                SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(Enum.Parse<SamusPoseId>(poseName));
+                SamusPoseAnimation animation = SamusAnimationDelays.AnimationNamed(Enum.Parse<SamusAnimationName>(animationName));
                 AssertEqual(SamusAnimationNumbers.Number(place.Animation, place.Frame), SamusAnimationNumbers.Number(animation, animation.FrameNamed(frameName)),
-                    $"place {placeName} lands in {poseName}'s animation on the frame its native number names");
+                    $"place {placeName} lands in the {animationName} animation on the frame its native number names");
             }
         }
-        var drained = InstalledFixtures.FramesBeyondAnimation.ReadPast(SamusPoseId.DrainedStandingRightPose,
+        var drained = InstalledFixtures.FramesBeyondAnimation.ReadPast(SamusAnimationName.DrainedStandingRight,
                 SamusAnimationNumbers.Frame(SamusPoseId.DrainedStandingRightPose, 11))
             ?? throw new InvalidOperationException("The right-facing drained standing pose reads no program past its own.");
-        AssertTrue(ReferenceEquals(SamusAnimationDelays.AnimationForPose(SamusPoseId.DrainedStandingLeftPose),
-            SamusAnimationDelays.AnimationForPose(drained.Animation)), "drained standing right reads into drained standing left");
+        AssertEqual(SamusAnimationName.DrainedStandingLeft, drained.Animation, "drained standing right reads into drained standing left");
         AssertEqual(SamusAnimationNumbers.Frame(SamusPoseId.DrainedStandingLeftPose, 3), drained.Frame,
             "Mother Brain glitch movie update 1947 plays the left program's frame 3");
     }

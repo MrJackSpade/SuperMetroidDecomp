@@ -32,4 +32,11 @@ internal static class SamusPoseNumbering
             ? SamusPoseNumberDefinitions.ByNumber[number] ?? throw new ArgumentOutOfRangeException(
                 nameof(number), number, "The record of a pose no gameplay path reaches names no pose.")
             : throw new ArgumentOutOfRangeException(nameof(number), number, "A pose number is one byte.");
+
+    /// <summary>
+    /// The animation the record numbered <paramref name="number"/> plays when no pose names the record but a read past an
+    /// earlier animation reaches the record's animation (#2048); null for any other number.
+    /// </summary>
+    internal static SamusAnimationName? AnimationWithoutPose(int number) =>
+        SamusPoseNumberDefinitions.AnimationsOfRecordsWithoutPose.TryGetValue(number, out SamusAnimationName animation) ? animation : null;
 }

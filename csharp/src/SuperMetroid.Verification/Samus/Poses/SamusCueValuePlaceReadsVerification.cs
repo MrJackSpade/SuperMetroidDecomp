@@ -87,10 +87,10 @@ internal static class SamusCueValuePlaceReadsVerification
     {
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
-            if (!SamusPoseNumbering.NamesPose(number))
+            if (SamusAnimationProgramCodec.Animation(number) is null)
                 continue;
             int start = SamusAnimationProgramCodec.ProgramStart(cartridge, number);
-            foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, SamusPoseNumbering.FromNumber(number)))
+            foreach (SamusAnimationProgramRun run in SamusAnimationProgramCodec.Decode(cartridge, number))
             {
                 if (start + run.FirstFrame + run.Delays.Count == place)
                     return run.End;

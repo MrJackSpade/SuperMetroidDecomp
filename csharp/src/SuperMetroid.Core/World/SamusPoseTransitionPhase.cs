@@ -763,16 +763,14 @@ internal sealed class SamusPoseTransitionPhase
                   SamusPoseId.SpinJumpRightPose):
             case (SamusPoseId.MovingRightGunExtendedPose,
                   SamusPoseId.SpinJumpRightPose):
-            case (SamusPoseId.RunningAimUpRightPose or
-                  SamusPoseId.RunningAimDiagonalUpRightPose or
+            case (SamusPoseId.RunningAimDiagonalUpRightPose or
                   SamusPoseId.RunningAimDiagonalDownRightPose,
                   SamusPoseId.SpinJumpRightPose):
             case (SamusPoseId.MovingLeftNormalPose,
                   SamusPoseId.SpinJumpLeftPose):
             case (SamusPoseId.MovingLeftGunExtendedPose,
                   SamusPoseId.SpinJumpLeftPose):
-            case (SamusPoseId.RunningAimUpLeftPose or
-                  SamusPoseId.RunningAimDiagonalUpLeftPose or
+            case (SamusPoseId.RunningAimDiagonalUpLeftPose or
                   SamusPoseId.RunningAimDiagonalDownLeftPose,
                   SamusPoseId.SpinJumpLeftPose):
             case var (turnSourcePose, turnTargetPose)

@@ -241,7 +241,7 @@ public sealed class SamusCrystalFlashState
             return;
 
         // The delay animation is already on its raise loop, but the raise forces
-        // frame six and timer three so main art begins on this precise transition frame.
+        // the glow's first frame and its hold so the glow begins on this precise transition frame.
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.CrystalFlashGlow, timer: CrystalFlashDefinitions.PhasePictureHold);
         RaisedHeight = samus.Position.Y.Whole;
         Phase = CrystalFlashPhase.DrainingAmmo;

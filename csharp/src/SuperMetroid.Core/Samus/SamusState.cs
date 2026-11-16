@@ -138,13 +138,14 @@ public sealed class SamusState
     internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
 
     /// <summary>
-    /// The frame of the run's stride her animation is on, which the running cadence times (<see cref="SamusRunningCadences"/>):
-    /// a frame of the running animation's first segment, which every pose that runs animates by.
+    /// The frame of the run's stride her animation is on, which the running cadence times (<see cref="SamusRunningCadences"/>)
+    /// and the footsteps land on: a frame of the running animation's stride, which every pose that runs animates by.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Her animation is past the stride.</exception>
-    internal int RunFrame => AnimationFrame.Segment == 0
-        ? AnimationFrame.Frame
-        : throw new InvalidOperationException($"Samus's animation frame {AnimationFrame} lies past the run's stride.");
+    /// <exception cref="InvalidOperationException">Her animation is not on the stride.</exception>
+    internal SamusAnimationTarget RunStrideFrame =>
+        SamusAnimationDelays.AnimationForPose(AnimationPose).SegmentName(AnimationFrame) == SamusAnimationSegmentName.Run
+            ? new SamusAnimationTarget(SamusAnimationSegmentName.Run, AnimationFrame.Frame)
+            : throw new InvalidOperationException($"Samus's animation frame {AnimationFrameName} is not on the run's stride.");
 
     /// <summary>
     /// Animation frame countdown. Zero and negative-after-decrement both advance,
@@ -515,7 +516,7 @@ public sealed class SamusState
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
     /// body can show.
     /// </summary>
-    internal FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
+    internal FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> FramesBeyondAnimation { get; }
 
     /// <summary>
     /// The pose the animation's pose-transition cue left pending, which outranks every other pose transition. Null means
@@ -570,7 +571,7 @@ public sealed class SamusState
     /// <param name="beamCharge">The session's beam charge, which outlives her and which the projectile pass advances.</param>
     /// <param name="artwork">The installed artwork of whoever builds her, which outlives her and follows its rebinding.</param>
     internal SamusState(GameplayAudioRequests audioRequests,
-        FramesBeyondAnimation<SamusPoseId, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
+        FramesBeyondAnimation<SamusAnimationName, SamusAnimationFrame, SamusAnimationPlaceName, SamusPoseAnimationStep> framesBeyondAnimation,
         UnauthoredBoostCadence unauthoredBoostCadence, SamusCompatibility compatibility, SuperMetroid.Core.Samus.Projectiles.BeamChargeState beamCharge,
         SamusArtworkBinding artwork)
     {

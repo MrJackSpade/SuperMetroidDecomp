@@ -94,14 +94,6 @@ internal enum SamusPoseInputList
     SpringBallJumpRight,
     /// <summary>The input-transition list of the spring ball jump left poses.</summary>
     SpringBallJumpLeft,
-    /// <summary>The unused input-transition list of the compact airborne right poses.</summary>
-    CompactAirborneRight,
-    /// <summary>The unused input-transition list of the compact airborne left poses.</summary>
-    CompactAirborneLeft,
-    /// <summary>The unused input-transition list of the compact airborne falling right poses.</summary>
-    CompactAirborneFallingRight,
-    /// <summary>The unused input-transition list of the compact airborne falling left poses.</summary>
-    CompactAirborneFallingLeft,
     /// <summary>The input-transition list of the wall jump right poses.</summary>
     WallJumpRight,
     /// <summary>The input-transition list of the wall jump left poses.</summary>

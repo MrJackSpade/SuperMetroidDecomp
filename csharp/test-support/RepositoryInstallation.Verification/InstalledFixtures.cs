@@ -61,7 +61,7 @@ internal static class InstalledFixtures
     /// What the installation reads at a Samus animation frame that names no step of her pose's animation, and where its
     /// named places land in other animations, which every Samus takes.
     /// </summary>
-    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame,
+    internal static SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusAnimationName, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame,
         SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep> FramesBeyondAnimation =>
         SamusOverreads.FramesBeyondAnimation;
 

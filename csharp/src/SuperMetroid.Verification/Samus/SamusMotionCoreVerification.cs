@@ -206,7 +206,6 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(7, booster.ExtraRunSpeed.Whole, "Speed Booster reaches exact 7.0000 cap");
     AssertEqual(0, booster.ExtraRunSpeed.Fraction, "Speed Booster cap has zero fraction");
 
-    int boostFrame = 1;
     int echoRequests = 0;
     for (int command = 0; command < 4; command++)
     {
@@ -215,7 +214,6 @@ internal static void VerifySamusHorizontalSpeed()
             movementType: SamusMovementType.Running,
             controllerInput: GameplayAction.Dash,
             animationFrameBuffer: 0,
-            ref boostFrame,
             out int boostTimer,
             requestEchoSound: () =>
             {
@@ -225,8 +223,7 @@ internal static void VerifySamusHorizontalSpeed()
             });
         if (command == 0)
         {
-            AssertTrue(intercepted, "first stage-zero command advances Speed Booster");
-            AssertEqual(0, boostFrame, "Speed Booster stage change restarts animation");
+            AssertTrue(intercepted, "first stage-zero command advances Speed Booster and restarts the run");
             AssertEqual(2, boostTimer, "stage-one delay matches native cadence");
         }
     }

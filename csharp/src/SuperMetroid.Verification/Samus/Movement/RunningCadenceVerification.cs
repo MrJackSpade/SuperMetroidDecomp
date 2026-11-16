@@ -90,23 +90,21 @@ internal static class RunningCadenceVerification
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, low);
             speed.BodyAttack = SamusBodyAttack.None;
-            int frame = 7;
             if (admitted && raw == 0)
             {
                 // The cartridge would wrap the whole word to stage 255; the port's stage-zero counter has no
                 // stage to borrow from, so the countdown fails instead.
                 AssertThrows<InvalidOperationException>(() => speed.TryAdvanceSpeedBoosterAnimationStage(residue,
-                    SamusMovementType.Running, GameplayAction.Dash, 0, ref frame, out _, () => SoundQueueAdmission.Admitted(5)),
+                    SamusMovementType.Running, GameplayAction.Dash, 0, out _, () => SoundQueueAdmission.Admitted(5)),
                     "A stage-zero counter with no cadence cannot borrow a stage");
                 continue;
             }
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
-                dash ? GameplayAction.Dash : 0, raw, ref frame, out int timer,
+                dash ? GameplayAction.Dash : 0, raw, out int timer,
                 () => { calls++; return SoundQueueAdmission.Admitted(5); });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
             AssertEqual(SamusSnapshotWords.DecodeSpeedBoostCounter(next), speed.SpeedBoostCounter, "Native counter decrement, stage advance and cadence reset");
-            AssertEqual(intercept ? 0 : 7, frame, "Only intercepted command resets frame");
             AssertEqual(expectedTimer, timer, "Selected first-frame delay and wrapping frame buffer");
             AssertEqual(sound ? 1 : 0, calls, "Echo call only on bit-two stage entry");
             AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "Animation cannot publish movement-owned boost contact damage");
@@ -118,9 +116,8 @@ internal static class RunningCadenceVerification
         {
             int buffer = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)selection));
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-            int frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, GameplayAction.Dash,
-                buffer, ref frame, out int timer, () => SoundQueueAdmission.Admitted(selection));
+                buffer, out int timer, () => SoundQueueAdmission.Admitted(selection));
             AssertEqual(new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage, SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection)),
                 speed.SpeedBoostCounter, "All reported selections restart the countdown the cartridge's restart word holds");
             int expectedDelay = selection == SamusRunningCadenceCodec.UnauthoredSelection
@@ -135,9 +132,8 @@ internal static class RunningCadenceVerification
         {
             int buffer = LittleEndianBytes.Word(unchecked((byte)low), 0);
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-            int frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, GameplayAction.Dash,
-                buffer, ref frame, out int timer, () => SoundQueueAdmission.Rejected(SoundQueueAdmission.MaximumOccupancy));
+                buffer, out int timer, () => SoundQueueAdmission.Rejected(SoundQueueAdmission.MaximumOccupancy));
             AssertEqual(new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage, SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, 3)),
                 speed.SpeedBoostCounter, "A turned-away echo restarts the countdown stage three's restart word holds");
             AssertEqual(unchecked((ushort)(buffer + SamusRunningCadenceCodec.BoostDelays(cartridge, 3)[0])), timer,
@@ -146,14 +142,12 @@ internal static class RunningCadenceVerification
 
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
-        int invalidFrame = 9;
         AssertThrows<InvalidOperationException>(
             () => speed.TryAdvanceSpeedBoosterAnimationStage(
                 residue,
                 SamusMovementType.Running,
                 GameplayAction.Dash,
                 0,
-                ref invalidFrame,
                 out _,
                 () => SoundQueueAdmission.Admitted(6)),
             "An occupancy the echo's priority cannot admit selects no cadence");

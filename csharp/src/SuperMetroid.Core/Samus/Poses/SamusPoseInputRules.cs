@@ -53,10 +53,6 @@ internal static class SamusPoseInputRules
         SpringBallFallingLeft => MatchSpringBallFallingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         SpringBallJumpRight => MatchSpringBallJumpRight(held, newlyPressed),
         SpringBallJumpLeft => MatchSpringBallJumpLeft(held, newlyPressed),
-        CompactAirborneRight => MatchCompactAirborneRight(held),
-        CompactAirborneLeft => MatchCompactAirborneRight(MirrorButtons(held)).Mirrored(),
-        CompactAirborneFallingRight => MatchCompactAirborneFallingRight(held),
-        CompactAirborneFallingLeft => MatchCompactAirborneFallingRight(MirrorButtons(held)).Mirrored(),
         WallJumpRight => MatchWallJumpRight(held, newlyPressed),
         WallJumpLeft => MatchWallJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
         RanIntoWallRight => MatchRanIntoWallRight(held, newlyPressed),
@@ -697,32 +693,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.SpringBallJumpRightPose);
         if (Has(held, Left))
             return Accept(SamusPoseId.SpringBallJumpLeftPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the unused compact airborne right input list.</summary>
-    private static SamusPoseInputMatch MatchCompactAirborneRight(GameplayAction held)
-    {
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.CompactAirborneFallingLeftPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the unused compact airborne falling right input list.</summary>
-    private static SamusPoseInputMatch MatchCompactAirborneFallingRight(GameplayAction held)
-    {
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose);
-        if (Has(held, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose);
-        if (Has(held, Jump))
-            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.CompactAirborneFallingRightPose);
         return new(null, HasConditions: true);
     }
 

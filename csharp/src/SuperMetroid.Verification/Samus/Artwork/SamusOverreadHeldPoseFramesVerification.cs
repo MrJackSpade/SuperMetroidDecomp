@@ -43,7 +43,6 @@ internal static class SamusOverreadHeldPoseFramesVerification
         int resolved = 0;
         foreach (SamusPoseId pose in OverreadHeldPoses)
         {
-            AssertTrue(!SamusUnreachablePoseDefinitions.Poses.Contains(pose), $"{pose} is held, so it is not listed as never held");
             AssertTrue(SamusShownFrameAnalysis.Poses.Contains(pose), $"{pose} is one of the poses the body can show");
             AssertTrue(shown.Pictures(pose).Any(), $"{pose} pictures at least one frame");
             foreach (int frame in shown.Pictures(pose))

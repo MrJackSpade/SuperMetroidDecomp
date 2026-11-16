@@ -1,23 +1,33 @@
 using static SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions;
-using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusPoseId, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame, SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep>;
+using SamusFramesBeyondAnimation = SuperMetroid.Core.Compatibility.FramesBeyondAnimation<SuperMetroid.Core.Samus.Poses.SamusAnimationName, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame, SuperMetroid.Core.Samus.Poses.SamusAnimationPlaceName, SuperMetroid.Core.Samus.Poses.SamusPoseAnimationStep>;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which animation each Samus pose animates by (#1473), and how her animation reads its frames (#2048).</summary>
 internal static class SamusAnimationDelays
 {
+    /// <summary>Every animation by its name.</summary>
+    private static readonly Dictionary<SamusAnimationName, SamusPoseAnimation> ByName = NameEveryAnimation();
+
     /// <summary>The animation <paramref name="pose"/> animates by.</summary>
     /// <exception cref="ArgumentOutOfRangeException">
     /// The pose is one of the three unauthored poses, which no gameplay path gives Samus.
     /// </exception>
     internal static SamusPoseAnimation AnimationForPose(SamusPoseId pose) => AnimationOf(pose);
 
+    /// <summary>The animation named <paramref name="name"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The name names no animation.</exception>
+    internal static SamusPoseAnimation AnimationNamed(SamusAnimationName name) =>
+        ByName.TryGetValue(name, out SamusPoseAnimation? animation)
+            ? animation
+            : throw new ArgumentOutOfRangeException(nameof(name), name, "No Samus animation has this name.");
+
     /// <summary>The step of <paramref name="pose"/>'s animation at <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">The frame reads no step of the pose's animation.</exception>
     /// <remarks>
     /// A frame on a value a cue carries reads the step the value selects, and a frame past the animation's end reads the
     /// frame of a later animation the import decoded for it, both through <paramref name="framesBeyondAnimation"/>, which
-    /// names each animation by a pose that animates by it (#1535); a cue read there names its frames in that animation
+    /// names each animation by its own name (#1535, #2048); a cue read there names its frames in that animation
     /// (<see cref="Target"/>).
     /// </remarks>
     /// <param name="pose">The pose whose animation is read.</param>
@@ -39,11 +49,12 @@ internal static class SamusAnimationDelays
     internal static SamusPoseAnimationStep? TryStepFor(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation)
     {
         Ensure.NotNull(framesBeyondAnimation);
-        if (OwnStep(pose, frame, framesBeyondAnimation) is { } own)
+        SamusPoseAnimation animation = AnimationOf(pose);
+        if (OwnStep(animation, frame, framesBeyondAnimation) is { } own)
             return own;
-        return framesBeyondAnimation.ReadPast(pose, frame) is { } read
-            ? OwnStep(read.Animation, read.Frame, framesBeyondAnimation) ?? throw new InvalidDataException(
-                $"Samus animation frame {frame} of pose {pose} reads frame {read.Frame} of pose {read.Animation}'s animation, which names no step.")
+        return framesBeyondAnimation.ReadPast(animation.Name, frame) is { } read
+            ? OwnStep(AnimationNamed(read.Animation), read.Frame, framesBeyondAnimation) ?? throw new InvalidDataException(
+                $"Samus animation frame {frame} of pose {pose} reads frame {read.Frame} of the {read.Animation} animation, which names no step.")
             : null;
     }
 
@@ -63,15 +74,16 @@ internal static class SamusAnimationDelays
         SamusFramesBeyondAnimation framesBeyondAnimation)
     {
         Ensure.NotNull(framesBeyondAnimation);
-        if (OwnStep(pose, at, framesBeyondAnimation) is not null)
-            return AnimationOf(pose).Resolve(target);
-        SamusFramesBeyondAnimation.Read read = framesBeyondAnimation.ReadPast(pose, at) ?? throw new InvalidDataException(
+        SamusPoseAnimation animation = AnimationOf(pose);
+        if (OwnStep(animation, at, framesBeyondAnimation) is not null)
+            return animation.Resolve(target);
+        SamusFramesBeyondAnimation.Read read = framesBeyondAnimation.ReadPast(animation.Name, at) ?? throw new InvalidDataException(
             $"Samus animation frame {at} of pose {pose} reads no step whose cue could name a frame.");
-        SamusAnimationFrame named = AnimationOf(read.Animation).Resolve(target);
+        SamusAnimationFrame named = AnimationNamed(read.Animation).Resolve(target);
         return read.Moves.TryGetValue(named, out SamusAnimationFrame moved)
             ? moved
             : throw new InvalidDataException(
-                $"Samus animation frame {at} of pose {pose} reads pose {read.Animation}'s animation, whose frame {named} it has no installed move to.");
+                $"Samus animation frame {at} of pose {pose} reads the {read.Animation} animation, whose frame {named} it has no installed move to.");
     }
 
     /// <summary>
@@ -82,7 +94,8 @@ internal static class SamusAnimationDelays
     {
         Ensure.NotNull(place.Animation);
         Ensure.NotNull(framesBeyondAnimation);
-        return ReferenceEquals(AnimationOf(pose), place.Animation) ? place.Frame : framesBeyondAnimation.Landing(place.Name, pose);
+        SamusPoseAnimation animation = AnimationOf(pose);
+        return ReferenceEquals(animation, place.Animation) ? place.Frame : framesBeyondAnimation.Landing(place.Name, animation.Name);
     }
 
     /// <summary>
@@ -105,11 +118,21 @@ internal static class SamusAnimationDelays
         frame > Land(pose, place, framesBeyondAnimation);
 
     /// <summary>
-    /// The step <paramref name="frame"/> of <paramref name="pose"/>'s animation names itself: one of its delays or cues, or a
-    /// value one of its cues carries; null for a frame read past the animation.
+    /// The step <paramref name="frame"/> of <paramref name="animation"/> names itself: one of its delays or cues, or a value
+    /// one of its cues carries; null for a frame read past the animation.
     /// </summary>
-    private static SamusPoseAnimationStep? OwnStep(SamusPoseId pose, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
-        AnimationOf(pose).TryStepAt(frame) ?? framesBeyondAnimation.CueValueStep(pose, frame);
+    private static SamusPoseAnimationStep? OwnStep(SamusPoseAnimation animation, SamusAnimationFrame frame, SamusFramesBeyondAnimation framesBeyondAnimation) =>
+        animation.TryStepAt(frame) ?? framesBeyondAnimation.CueValueStep(animation.Name, frame);
+
+    /// <summary>Every animation of <see cref="SamusAnimationDelayDefinitions.All"/> by its name, which each has once.</summary>
+    /// <exception cref="InvalidOperationException">An animation's name is missing from the definitions.</exception>
+    private static Dictionary<SamusAnimationName, SamusPoseAnimation> NameEveryAnimation()
+    {
+        Dictionary<SamusAnimationName, SamusPoseAnimation> byName = SamusAnimationDelayDefinitions.All.ToDictionary(animation => animation.Name);
+        return byName.Count == Enum.GetValues<SamusAnimationName>().Length
+            ? byName
+            : throw new InvalidOperationException("A Samus animation name has no animation.");
+    }
 
     /// <summary>The animation of <paramref name="pose"/>.</summary>
     private static SamusPoseAnimation AnimationOf(SamusPoseId pose)
@@ -156,8 +179,6 @@ internal static class SamusAnimationDelays
             SamusPoseId.MovingLeftNormalPose or
             SamusPoseId.MovingRightGunExtendedPose or
             SamusPoseId.MovingLeftGunExtendedPose or
-            SamusPoseId.RunningAimUpRightPose or
-            SamusPoseId.RunningAimUpLeftPose or
             SamusPoseId.RunningAimDiagonalUpRightPose or
             SamusPoseId.RunningAimDiagonalUpLeftPose or
             SamusPoseId.RunningAimDiagonalDownRightPose or
@@ -211,14 +232,10 @@ internal static class SamusAnimationDelays
             SamusPoseId.CrouchingTransitionLeftPose => CrouchingTransitionLeftAnimation,
             SamusPoseId.MorphingTransitionRightPose => MorphingTransitionRightAnimation,
             SamusPoseId.MorphingTransitionLeftPose => MorphingTransitionLeftAnimation,
-            SamusPoseId.GlitchBallMorphingRightPose => GlitchBallMorphingRightAnimation,
-            SamusPoseId.GlitchBallMorphingLeftPose => GlitchBallMorphingLeftAnimation,
             SamusPoseId.StandingTransitionRightPose => StandingTransitionRightAnimation,
             SamusPoseId.StandingTransitionLeftPose => StandingTransitionLeftAnimation,
             SamusPoseId.UnmorphingTransitionRightPose => UnmorphingTransitionRightAnimation,
             SamusPoseId.UnmorphingTransitionLeftPose => UnmorphingTransitionLeftAnimation,
-            SamusPoseId.InstantMorphingRightPose => InstantMorphingRightAnimation,
-            SamusPoseId.InstantMorphingLeftPose => InstantMorphingLeftAnimation,
             SamusPoseId.TurningRightToLeftCrouchingPose => TurningRightToLeftCrouchingAnimation,
             SamusPoseId.TurningLeftToRightCrouchingPose => TurningLeftToRightCrouchingAnimation,
             SamusPoseId.MoonwalkFacingLeftPose or
@@ -245,10 +262,6 @@ internal static class SamusAnimationDelays
             SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose => NormalJumpTransitionAimDiagonalUpLeftAnimation,
             SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose => NormalJumpTransitionAimDiagonalDownRightAnimation,
             SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose => NormalJumpTransitionAimDiagonalDownLeftAnimation,
-            SamusPoseId.CompactAirborneRightPose => CompactAirborneRightAnimation,
-            SamusPoseId.CompactAirborneLeftPose => CompactAirborneLeftAnimation,
-            SamusPoseId.CompactAirborneFallingRightPose or
-            SamusPoseId.CompactAirborneFallingLeftPose => CompactAirborneFallingAnimation,
             SamusPoseId.FallingGunExtendedRightPose or
             SamusPoseId.FallingGunExtendedLeftPose => FallingGunExtendedAnimation,
             SamusPoseId.FallingAimDiagonalUpRightPose or
@@ -295,9 +308,6 @@ internal static class SamusAnimationDelays
             SamusPoseId.GrappleStandingLeftPose or
             SamusPoseId.GrappleStandingDownRightPose or
             SamusPoseId.GrappleStandingDownLeftPose => GrappleStandingAnimation,
-            SamusPoseId.GrappleAirborneGunExtendedRightPose => GrappleAirborneGunExtendedRightAnimation,
-            SamusPoseId.GrappleAirborneAimDownRightPose => GrappleAirborneAimDownRightAnimation,
-            SamusPoseId.GrappleAirborneAimDiagonalDownRightPose => GrappleAirborneAimDiagonalDownRightAnimation,
             SamusPoseId.GrappleSwingRightPose or
             SamusPoseId.GrappleSwingLeftPose => GrappleSwingAnimation,
             SamusPoseId.DraygonGrabbedMovingLeftPose or
@@ -308,7 +318,6 @@ internal static class SamusAnimationDelays
             SamusPoseId.MoonwalkTurnJumpAimUpRightPose => MoonwalkTurnJumpAimUpRightAnimation,
             SamusPoseId.MoonwalkTurnJumpAimDownLeftPose => MoonwalkTurnJumpAimDownLeftAnimation,
             SamusPoseId.MoonwalkTurnJumpAimDownRightPose => MoonwalkTurnJumpAimDownRightAnimation,
-            SamusPoseId.DraygonGrabbingLeftPose => DraygonGrabbingLeftAnimation,
             SamusPoseId.ShinesparkHorizontalRightPose or
             SamusPoseId.ShinesparkHorizontalLeftPose or
             SamusPoseId.ShinesparkVerticalRightPose or
@@ -323,9 +332,6 @@ internal static class SamusAnimationDelays
             SamusPoseId.XrayingCrouchingLeftPose => XrayingAnimation,
             SamusPoseId.DeathSequenceRightPose or
             SamusPoseId.DeathSequenceLeftPose => DeathSequenceAnimation,
-            SamusPoseId.CompactMorphingRightPose => CompactMorphingRightAnimation,
-            SamusPoseId.DraygonHeldMorphingLeftPose => DraygonHeldMorphingLeftAnimation,
-            SamusPoseId.CompactStandingUpRightPose => CompactStandingUpRightAnimation,
             SamusPoseId.DraygonHeldStandingUpLeftPose => DraygonHeldStandingUpLeftAnimation,
             SamusPoseId.LandingAimUpRightPose => LandingAimUpRightAnimation,
             SamusPoseId.LandingAimUpLeftPose => LandingAimUpLeftAnimation,

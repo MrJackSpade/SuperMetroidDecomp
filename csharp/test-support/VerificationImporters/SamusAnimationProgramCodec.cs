@@ -52,13 +52,25 @@ internal static class SamusAnimationProgramCodec
     ];
 
     /// <summary>
-    /// Decodes <paramref name="pose"/>'s program: every run from where the pose's word points up to the next place any
-    /// pose's word points, or the end of the programs.
+    /// The typed animation the pose record numbered <paramref name="number"/> plays: its pose's, or, for a record no pose
+    /// names, the animation a read past an earlier one reaches (#2048); null for a record whose program the game holds no
+    /// typed animation of.
     /// </summary>
-    internal static IReadOnlyList<SamusAnimationProgramRun> Decode(IImportCartridgeSource cartridge, SamusPoseId pose)
+    internal static SamusPoseAnimation? Animation(int number) =>
+        SamusPoseNumbering.NamesPose(number) ? SamusAnimationDelays.AnimationForPose(SamusPoseNumbering.FromNumber(number))
+        : SamusPoseNumbering.AnimationWithoutPose(number) is { } name ? SamusAnimationDelays.AnimationNamed(name)
+        : null;
+
+    /// <summary>
+    /// Decodes the program of the pose record numbered <paramref name="number"/>: every run from where the record's word
+    /// points up to the next place any record's word points, or the end of the programs.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The record plays no typed animation.</exception>
+    internal static IReadOnlyList<SamusAnimationProgramRun> Decode(IImportCartridgeSource cartridge, int number)
     {
-        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-        int start = ProgramStart(cartridge, SamusPoseNumbers.Number(pose));
+        SamusPoseAnimation animation = Animation(number) ??
+            throw new ArgumentOutOfRangeException(nameof(number), number, "The record plays no typed animation.");
+        int start = ProgramStart(cartridge, number);
         int end = ProgramsEnd;
         for (int other = 0; other < PoseCount; other++)
         {
@@ -88,7 +100,7 @@ internal static class SamusAnimationProgramCodec
             sequences.Add(new SamusAnimationProgramRun(firstFrame, delays, instruction));
         }
         if (position != end)
-            throw new InvalidDataException($"Pose {pose}'s program runs past the next program at $91:{end:X4}.");
+            throw new InvalidDataException($"Record {number}'s program runs past the next program at $91:{end:X4}.");
         return sequences;
     }
 

@@ -110,16 +110,17 @@ internal static void VerifySamusRenderingSlice()
     }
     AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 
-    // The item transition's two poses, chosen by equipment (#1473). Only the unused poses $3F/$40 hold one in retail;
-    // pose $3F's run is one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
+    // The item transition's two poses, chosen by equipment (#1473). Only the right-facing instant morph's animation holds
+    // one in retail, and no pose animates by it: the left-facing morph read past its end reaches it (#2048), at native
+    // frame 29 its one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
     // gameplay movement metadata, reaches the transition on its first tick.
-    var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.InstantMorphingRightPose };
-    SamusPresentation.InitializeAnimation(itemTransitionSamus);
+    var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphingTransitionLeftPose };
+    SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
         "an item transition without Spring Ball selects its unequipped pose");
     itemTransitionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
-    SamusPresentation.InitializeAnimation(itemTransitionSamus);
+    SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
         "an item transition with Spring Ball selects its equipped pose");

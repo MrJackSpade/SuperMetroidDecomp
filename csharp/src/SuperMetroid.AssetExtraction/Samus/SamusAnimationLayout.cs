@@ -9,81 +9,76 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// animation's frames from its start, one after another through its segments, each as long as its frames, its cue and the
 /// values the cue carries; it lays the animations' programs out one after another in the cartridge; and it reads a frame
 /// as a byte of that layout, so a frame on a value a cue carries reads the value as a step and a frame past an animation's
-/// end reads a later animation. The import decodes that reading once into the named outcomes the game holds
-/// (<see cref="DocumentCueValueSteps"/>, <see cref="ReadsPast"/>, <see cref="PlaceLandings"/>), and the analysis of the
-/// frames Samus's body can show follows it here.
+/// end reads a later animation. The import decodes that reading once into the named outcomes the game holds, each keyed
+/// by the animation's own name (<see cref="DocumentCueValueSteps"/>, <see cref="ReadsPast"/>, <see cref="PlaceLandings"/>),
+/// and the analysis of the frames Samus's body can show follows it here.
 /// </summary>
 internal sealed class SamusAnimationLayout
 {
-    /// <summary>A step read for a pose: the step, the pose naming the animation it was read in, its frame there and how far that animation lies after the pose's.</summary>
+    /// <summary>A step read for an animation: the step, the animation it was read in, its frame there and how far that animation lies after the one read.</summary>
     /// <param name="Step">The step read.</param>
-    /// <param name="Animation">A pose that animates by the animation the step was read in.</param>
+    /// <param name="Animation">The animation the step was read in.</param>
     /// <param name="Frame">The frame of that animation the step lies at, counted from its start.</param>
-    /// <param name="Shift">How many frames after the read pose's animation that animation starts; zero for the pose's own.</param>
-    internal readonly record struct StepRead(SamusPoseAnimationStep Step, SamusPoseId Animation, int Frame, int Shift);
+    /// <param name="Shift">How many frames after the read animation that animation starts; zero for the read animation itself.</param>
+    internal readonly record struct StepRead(SamusPoseAnimationStep Step, SamusPoseAnimation Animation, int Frame, int Shift);
 
-    /// <summary>A place of a pose's layout: the pose and how far into the game's layout of its animation the place lies.</summary>
-    /// <param name="Pose">The pose.</param>
-    /// <param name="Offset">How far into the layout of the pose's animation the place lies.</param>
-    private readonly record struct LayoutPlace(SamusPoseId Pose, int Offset);
+    /// <summary>A place of an animation's layout: the animation and how far into the game's layout of it the place lies.</summary>
+    /// <param name="Animation">The animation.</param>
+    /// <param name="Offset">How far into the layout of the animation the place lies.</param>
+    private readonly record struct LayoutPlace(SamusPoseAnimation Animation, int Offset);
 
-    /// <summary>A program laid out after another: a pose that animates by it and how many frames later it starts.</summary>
-    private readonly record struct Successor(SamusPoseId Pose, int Shift);
+    /// <summary>A program laid out after another: its animation and how many frames later it starts.</summary>
+    private readonly record struct Successor(SamusPoseAnimation Animation, int Shift);
 
-    /// <summary>
-    /// The pose naming each program, its lowest-numbered pose, in the game's numbering: the installation holds each
-    /// program's outcomes once, under that pose, and every pose of the program reads them.
-    /// </summary>
-    private readonly SamusPoseId[] poses;
+    /// <summary>Every program's animation, in the order of their names: the installation holds each animation's outcomes once, under its name.</summary>
+    private readonly SamusPoseAnimation[] programs;
 
-    /// <summary>Each pose's program's successor, or none for the last program laid out.</summary>
-    private readonly Dictionary<SamusPoseId, Successor?> successors;
+    /// <summary>Each animation's program's successor, or none for the last program laid out.</summary>
+    private readonly Dictionary<SamusPoseAnimation, Successor?> successors;
 
-    /// <summary>The step each cue value's frame of each pose's program reads, by frame counted from the program's start.</summary>
-    private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>> cueValueSteps;
+    /// <summary>The step each cue value's frame of each animation reads, by frame counted from the program's start.</summary>
+    private readonly Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, SamusPoseAnimationStep>> cueValueSteps;
 
-    /// <summary>The installed form of each pose's cue-value steps, by the frame's name.</summary>
-    private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> documentCueValueSteps;
+    /// <summary>The installed form of each animation's cue-value steps, by the frame's name.</summary>
+    private readonly Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> documentCueValueSteps;
 
     /// <summary>Keeps the layout read from the cartridge.</summary>
-    private SamusAnimationLayout(SamusPoseId[] poses, Dictionary<SamusPoseId, Successor?> successors,
-        Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>> cueValueSteps,
-        Dictionary<SamusPoseId, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> documentCueValueSteps)
+    private SamusAnimationLayout(SamusPoseAnimation[] programs, Dictionary<SamusPoseAnimation, Successor?> successors,
+        Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, SamusPoseAnimationStep>> cueValueSteps,
+        Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> documentCueValueSteps)
     {
-        this.poses = poses;
+        this.programs = programs;
         this.successors = successors;
         this.cueValueSteps = cueValueSteps;
         this.documentCueValueSteps = documentCueValueSteps;
     }
 
     /// <summary>Reads the layout of every program and decodes the step every cue value's frame reads.</summary>
-    /// <exception cref="InvalidDataException">Two poses of one program start apart, two programs start together, or a cue value names no frame.</exception>
+    /// <exception cref="InvalidDataException">Two records of one program start apart, two programs start together, or a cue value names no frame.</exception>
     internal static SamusAnimationLayout Read(IImportCartridgeSource cartridge)
     {
         Ensure.NotNull(cartridge);
         SamusAnimationProgramLayout.LaidOutProgram[] laidOut = SamusAnimationProgramLayout.Read(cartridge);
-        var programSuccessors = new Dictionary<SamusPoseAnimation, Successor?>();
+        var successors = new Dictionary<SamusPoseAnimation, Successor?>();
         for (int index = 0; index < laidOut.Length; index++)
         {
-            programSuccessors.Add(laidOut[index].Program, index + 1 < laidOut.Length
-                ? new Successor(laidOut[index + 1].NamedBy, laidOut[index + 1].Start - laidOut[index].Start)
+            successors.Add(laidOut[index].Program, index + 1 < laidOut.Length
+                ? new Successor(laidOut[index + 1].Program, laidOut[index + 1].Start - laidOut[index].Start)
                 : null);
         }
         Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, SamusAnimationCueValueDecoding.DecodedStep>> decoded =
             SamusAnimationCueValueDecoding.CueValueSteps(cartridge, laidOut);
-        var successors = new Dictionary<SamusPoseId, Successor?>();
-        var steps = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
-        var documentSteps = new Dictionary<SamusPoseId, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>>();
-        foreach (SamusPoseId pose in SamusAnimationProgramLayout.PosesWithRecords())
+        var steps = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<int, SamusPoseAnimationStep>>();
+        var documentSteps = new Dictionary<SamusPoseAnimation, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>>();
+        foreach (SamusAnimationProgramLayout.LaidOutProgram program in laidOut)
         {
-            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-            successors.Add(pose, programSuccessors[animation]);
+            SamusPoseAnimation animation = program.Program;
             Dictionary<int, SamusOverreadDocument.CueValueStep> named = decoded[animation].ToDictionary(pair => pair.Key, pair => Named(animation, pair.Value));
-            documentSteps.Add(pose, named.ToDictionary(pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal));
-            steps.Add(pose, named.ToDictionary(pair => pair.Key, pair => SamusOverreadServicesReader.CueValueStep(pose, pair.Value)));
+            documentSteps.Add(animation, named.ToDictionary(pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal));
+            steps.Add(animation, named.ToDictionary(pair => pair.Key, pair => SamusOverreadServicesReader.CueValueStep(animation, pair.Value)));
         }
-        SamusPoseId[] namingPoses = [.. laidOut.Select(program => program.NamedBy).OrderBy(SamusPoseNumbers.Number)];
-        return new SamusAnimationLayout(namingPoses, successors, steps, documentSteps);
+        SamusPoseAnimation[] programs = [.. laidOut.Select(program => program.Program).OrderBy(animation => animation.Name)];
+        return new SamusAnimationLayout(programs, successors, steps, documentSteps);
     }
 
     /// <summary>How far into the game's layout of <paramref name="animation"/> <paramref name="frame"/> lies.</summary>
@@ -134,12 +129,12 @@ internal sealed class SamusAnimationLayout
         offset >= 0 ? Ensure.NotNull(animation).TryStepAt(FrameAt(animation, offset)) : null;
 
     /// <summary>
-    /// The step at <paramref name="offset"/> frames into the game's layout of <paramref name="pose"/>'s animation, reading a
-    /// cue's value or past the animation's end as the game does; null where the game's animation fails.
+    /// The step at <paramref name="offset"/> frames into the game's layout of <paramref name="animation"/>, reading a cue's
+    /// value or past the animation's end as the game does; null where the game's animation fails.
     /// </summary>
-    internal StepRead? Read(SamusPoseId pose, int offset)
+    internal StepRead? Read(SamusPoseAnimation animation, int offset)
     {
-        SamusPoseId read = pose;
+        SamusPoseAnimation read = animation;
         int frame = offset;
         int shift = 0;
         SamusPoseAnimationStep? step = StepOf(read, frame);
@@ -147,7 +142,7 @@ internal sealed class SamusAnimationLayout
         {
             if (successors[read] is not { } next || frame < next.Shift)
                 return null;
-            read = next.Pose;
+            read = next.Animation;
             frame -= next.Shift;
             shift += next.Shift;
             step = StepOf(read, frame);
@@ -156,99 +151,92 @@ internal sealed class SamusAnimationLayout
     }
 
     /// <summary>
-    /// How far into <paramref name="pose"/>'s layout a cue read at <paramref name="offset"/> moves its animation when it
-    /// names <paramref name="target"/>: the target's place in the animation the cue was read in, shifted by as much as that
-    /// animation lies after the pose's.
+    /// How far into <paramref name="animation"/>'s layout a cue read at <paramref name="offset"/> moves it when it names
+    /// <paramref name="target"/>: the target's place in the animation the cue was read in, shifted by as much as that
+    /// animation lies after the one read.
     /// </summary>
     /// <exception cref="InvalidDataException">The frame reads no step.</exception>
-    internal int TargetOffset(SamusPoseId pose, int offset, SamusAnimationTarget target)
+    internal int TargetOffset(SamusPoseAnimation animation, int offset, SamusAnimationTarget target)
     {
-        StepRead read = Read(pose, offset) ?? throw new InvalidDataException(
-            $"Samus animation frame {offset} of pose {pose} reads no step whose cue could name a frame.");
-        SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationForPose(read.Animation);
-        return Offset(readAnimation, readAnimation.Resolve(target)) + read.Shift;
+        StepRead read = Read(animation, offset) ?? throw new InvalidDataException(
+            $"Samus animation frame {offset} of the {animation.Name} animation reads no step whose cue could name a frame.");
+        return Offset(read.Animation, read.Animation.Resolve(target)) + read.Shift;
     }
 
-    /// <summary>Every program's cue-value steps as the installation holds them, by the name of the pose naming it and frame name.</summary>
+    /// <summary>Every program's cue-value steps as the installation holds them, by the animation's name and frame name.</summary>
     internal Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> DocumentCueValueSteps() =>
-        poses.ToDictionary(pose => pose.ToString(), pose => documentCueValueSteps[pose], StringComparer.Ordinal);
+        programs.ToDictionary(animation => animation.Name.ToString(), animation => documentCueValueSteps[animation], StringComparer.Ordinal);
 
     /// <summary>
-    /// What every frame past an animation's end that Samus's animation can reach reads, by the name of the pose naming the
-    /// animation's program and the frame's name: the frames reached from every frame of every animation and from every named
-    /// place landing in it, followed on as the animation plays (#2048).
+    /// What every frame past an animation's end that Samus's animation can reach reads, by the animation's name and the
+    /// frame's name: the frames reached from every frame of every animation and from every named place landing in it,
+    /// followed on as the animation plays (#2048).
     /// </summary>
     internal Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> ReadsPast()
     {
-        var reads = poses.ToDictionary(pose => pose, _ => new SortedDictionary<int, SamusOverreadDocument.ReadPast>());
+        var reads = programs.ToDictionary(animation => animation, _ => new SortedDictionary<int, SamusOverreadDocument.ReadPast>());
         var visited = new HashSet<LayoutPlace>();
         var pending = new Queue<LayoutPlace>();
-        void Visit(SamusPoseId pose, int offset)
+        void Visit(SamusPoseAnimation animation, int offset)
         {
-            if (offset >= 0 && visited.Add(new LayoutPlace(pose, offset)))
-                pending.Enqueue(new LayoutPlace(pose, offset));
+            if (offset >= 0 && visited.Add(new LayoutPlace(animation, offset)))
+                pending.Enqueue(new LayoutPlace(animation, offset));
         }
         // A path that writes a frame from outside the animation may write it with a timer that runs out before the
         // animation reads it, so the animation goes on from the frame after it as well as reading it.
-        foreach (SamusPoseId pose in poses)
+        foreach (SamusPoseAnimation animation in programs)
         {
-            for (int offset = 0; offset <= Length(SamusAnimationDelays.AnimationForPose(pose)); offset++)
-                Visit(pose, offset);
+            for (int offset = 0; offset <= Length(animation); offset++)
+                Visit(animation, offset);
             foreach (SamusAnimationPlace place in SamusAnimationPlaces.All)
             {
-                Visit(pose, Offset(place));
-                Visit(pose, Offset(place) + 1);
+                Visit(animation, Offset(place));
+                Visit(animation, Offset(place) + 1);
             }
         }
         while (pending.TryDequeue(out LayoutPlace at))
         {
-            if (Read(at.Pose, at.Offset) is not { } read)
+            if (Read(at.Animation, at.Offset) is not { } read)
                 continue;
             if (read.Shift > 0)
-                reads[at.Pose].Add(at.Offset, ReadPast(at.Pose, read));
-            foreach (int next in Following(at.Pose, at.Offset, read.Step))
-                Visit(at.Pose, next);
+                reads[at.Animation].Add(at.Offset, ReadPast(at.Animation, read));
+            foreach (int next in Following(at.Animation, at.Offset, read.Step))
+                Visit(at.Animation, next);
         }
-        return poses.ToDictionary(pose => pose.ToString(), pose =>
-        {
-            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-            return (IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>)reads[pose].ToDictionary(
-                pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal);
-        }, StringComparer.Ordinal);
+        return programs.ToDictionary(animation => animation.Name.ToString(), animation =>
+            (IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>)reads[animation].ToDictionary(
+                pair => animation.NameOf(FrameAt(animation, pair.Key)), pair => pair.Value, StringComparer.Ordinal),
+            StringComparer.Ordinal);
     }
 
     /// <summary>
     /// The frame each named place lands on in every animation other than the place's own: the frame lying as far into the
-    /// animation's layout as the place lies into its own, by place name and the name of the pose naming the animation's
-    /// program (#2048).
+    /// animation's layout as the place lies into its own, by place name and the animation's name (#2048).
     /// </summary>
     internal Dictionary<string, IReadOnlyDictionary<string, string>> PlaceLandings() =>
-        SamusAnimationPlaces.All.ToDictionary(place => place.Name.ToString(), place => (IReadOnlyDictionary<string, string>)poses
-            .Where(pose => !ReferenceEquals(SamusAnimationDelays.AnimationForPose(pose), place.Animation))
-            .ToDictionary(pose => pose.ToString(), pose =>
-            {
-                SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-                return animation.NameOf(FrameAt(animation, Offset(place)));
-            }, StringComparer.Ordinal), StringComparer.Ordinal);
+        SamusAnimationPlaces.All.ToDictionary(place => place.Name.ToString(), place => (IReadOnlyDictionary<string, string>)programs
+            .Where(animation => !ReferenceEquals(animation, place.Animation))
+            .ToDictionary(animation => animation.Name.ToString(), animation => animation.NameOf(FrameAt(animation, Offset(place))),
+                StringComparer.Ordinal), StringComparer.Ordinal);
 
     /// <summary>
-    /// The places of <paramref name="pose"/>'s layout the animation can go on to from <paramref name="offset"/>, where it
-    /// reads <paramref name="step"/>: the next frame after a delay, a hold, the breathing loop and the drained fall's
-    /// handover, the start after a restart and the breathing loop, and the frames a repeat or the wall-jump selection names.
-    /// A transition ends the pose's animation.
+    /// The places of <paramref name="animation"/>'s layout it can go on to from <paramref name="offset"/>, where it reads
+    /// <paramref name="step"/>: the next frame after a delay, a hold, the breathing loop and the drained fall's handover,
+    /// the start after a restart and the breathing loop, and the frames a repeat or the wall-jump selection names. A
+    /// transition ends the animation.
     /// </summary>
     /// <exception cref="InvalidDataException">The step has no playback.</exception>
-    private int[] Following(SamusPoseId pose, int offset, SamusPoseAnimationStep step) => step switch
+    private int[] Following(SamusPoseAnimation animation, int offset, SamusPoseAnimationStep step) => step switch
     {
         SamusAnimationDelay or SamusAnimationHold or SamusAnimationInstallDrainedFall => [offset + 1],
         SamusAnimationLoopUnlessLowEnergy => [offset + 1, 0],
         SamusAnimationRestart => [0],
-        SamusAnimationRepeat repeat => [TargetOffset(pose, offset, repeat.Target)],
+        SamusAnimationRepeat repeat => [TargetOffset(animation, offset, repeat.Target)],
         SamusAnimationWallJumpSelect select =>
         [
-            TargetOffset(pose, offset, select.OrdinaryFrame),
-            TargetOffset(pose, offset, select.SpaceJumpFrame),
-            TargetOffset(pose, offset, select.ScrewAttackFrame),
+            TargetOffset(animation, offset, select.OrdinaryFrame),
+            TargetOffset(animation, offset, select.SpaceJumpFrame),
+            TargetOffset(animation, offset, select.ScrewAttackFrame),
         ],
         SamusAnimationTransition or SamusAnimationTurnTransition or SamusAnimationItemTransition or
             SamusAnimationItemAirborneTransition or SamusAnimationVerticalSpeedTransition => [],
@@ -256,13 +244,13 @@ internal sealed class SamusAnimationLayout
     };
 
     /// <summary>
-    /// What <paramref name="read"/>, a read of <paramref name="pose"/>'s animation past its end, reaches as the installation
-    /// names it: the later animation's frame, and the frame of the pose's animation each frame the cue there names moves to.
+    /// What <paramref name="read"/>, a read of <paramref name="animation"/> past its end, reaches as the installation names
+    /// it: the later animation by its name and its frame, and the frame of the animation read each frame the cue there names
+    /// moves to.
     /// </summary>
-    private static SamusOverreadDocument.ReadPast ReadPast(SamusPoseId pose, StepRead read)
+    private static SamusOverreadDocument.ReadPast ReadPast(SamusPoseAnimation animation, StepRead read)
     {
-        SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
-        SamusPoseAnimation readAnimation = SamusAnimationDelays.AnimationForPose(read.Animation);
+        SamusPoseAnimation readAnimation = read.Animation;
         SamusAnimationTarget[] targets = read.Step switch
         {
             SamusAnimationRepeat repeat => [repeat.Target],
@@ -275,13 +263,13 @@ internal sealed class SamusAnimationLayout
             SamusAnimationFrame named = readAnimation.Resolve(target);
             moves[readAnimation.NameOf(named)] = animation.NameOf(FrameAt(animation, Offset(readAnimation, named) + read.Shift));
         }
-        return new SamusOverreadDocument.ReadPast(read.Animation.ToString(), readAnimation.NameOf(FrameAt(readAnimation, read.Frame)), moves);
+        return new SamusOverreadDocument.ReadPast(readAnimation.Name.ToString(), readAnimation.NameOf(FrameAt(readAnimation, read.Frame)), moves);
     }
 
-    /// <summary>The step <paramref name="frame"/> frames into <paramref name="pose"/>'s program names itself: one of its own, or a value one of its cues carries.</summary>
-    private SamusPoseAnimationStep? StepOf(SamusPoseId pose, int frame) =>
-        OwnStepAt(SamusAnimationDelays.AnimationForPose(pose), frame) ??
-        (cueValueSteps[pose].TryGetValue(frame, out SamusPoseAnimationStep? step) ? step : null);
+    /// <summary>The step <paramref name="frame"/> frames into <paramref name="animation"/>'s program names itself: one of its own, or a value one of its cues carries.</summary>
+    private SamusPoseAnimationStep? StepOf(SamusPoseAnimation animation, int frame) =>
+        OwnStepAt(animation, frame) ??
+        (cueValueSteps[animation].TryGetValue(frame, out SamusPoseAnimationStep? step) ? step : null);
 
     /// <summary>A decoded cue value's step as the installation holds it, the frames it selects named in <paramref name="animation"/>.</summary>
     private static SamusOverreadDocument.CueValueStep Named(SamusPoseAnimation animation, SamusAnimationCueValueDecoding.DecodedStep step) =>

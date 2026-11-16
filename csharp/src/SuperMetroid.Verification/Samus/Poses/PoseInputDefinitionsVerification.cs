@@ -99,8 +99,8 @@ internal static class PoseInputDefinitionsVerification
         });
         AssertEqual(0x0fc0, newMask, "Fixture enumerates every referenced new-input bit");
         AssertEqual(0x0ff0, heldMask, "Fixture enumerates every referenced held-input bit");
-        AssertEqual(79, unique.Count, "All distinct native list identities of the records that name a pose");
-        AssertEqual(590, conditionCount, "All distinct-list conditions of the records that name a pose");
+        AssertEqual(75, unique.Count, "All distinct native list identities of the records that name a pose");
+        AssertEqual(576, conditionCount, "All distinct-list conditions of the records that name a pose");
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
             SamusPoseId invalidPose = SamusPoseNumbering.FromNumber(pose);
@@ -151,7 +151,7 @@ internal static class PoseInputDefinitionsVerification
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");
-        Console.WriteLine($"Pose input graph: the mappings of the records that name a pose, 79 lists, 590 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
+        Console.WriteLine($"Pose input graph: the mappings of the records that name a pose, 75 lists, 576 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
     }
 
     /// <summary>The native transition list's first-match, self-match and fallback result for one held and new input.</summary>

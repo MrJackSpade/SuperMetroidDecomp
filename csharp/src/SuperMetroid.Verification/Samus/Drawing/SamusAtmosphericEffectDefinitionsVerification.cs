@@ -38,7 +38,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         for (ushort frame = 0; frame < 10; frame++)
         {
             AssertEqual(rom.ReadCartridgeByte(runningFootstepFrames + frame) != 0,
-                SamusAtmosphericEffects.IsRunningFootContact(frame),
+                SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, frame)),
                 $"running foot-contact frame {frame}");
         }
 
@@ -75,8 +75,11 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             () => SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)(-1)),
             "water-splash movement selector past table");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.IsRunningFootContact(10),
+            () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, 10)),
             "running foot-contact frame past table");
+        AssertThrows<InvalidDataException>(
+            () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Unreached, 2)),
+            "running foot-contact frame off the stride");
         AssertEqual<CrateriaAtmosphericEffect?>(null,
             SamusAtmosphericEffects.ForCrateriaRoom(RoomDefinitions.GreenPiratesShaft),
             "a Crateria room the policy does not name has none");
@@ -131,7 +134,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
 
-            AssertEqual(SamusAtmosphericEffects.IsRunningFootContact(frame) ? "SurfaceSplash,SurfaceSplash" : "",
+            AssertEqual(SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, frame)) ? "SurfaceSplash,SurfaceSplash" : "",
                 ParticleKinds(samus), $"production running contact frame {frame}");
         }
     }

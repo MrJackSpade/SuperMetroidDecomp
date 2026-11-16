@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -12,8 +13,17 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="common">The shared participation.</param>
 /// <param name="reference">Kraid's reference to the limb, which it joins as it initializes.</param>
 internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, KraidPartReference reference)
-    : KraidEntity(species, place, common, reference), IEnemyTypedAnimation
+    : KraidEntity(species, place, common, reference), IEnemyTypedAnimation, IPlacedEnemyPicture
 {
+    /// <summary>Where the limb's pose places its picture: the foot's step along its walk (#2210).</summary>
+    public Offset16<RoomPixels> PicturePlacement => Pose?.Placement ?? Offset16<RoomPixels>.Zero;
+
+    /// <summary>The depth the limb's pose draws it at: behind the room's front tiles while Kraid rises (#2210).</summary>
+    public ActorDepth? PictureDepth => Pose?.Depth;
+
+    /// <summary>The pose the limb's animation shows, or null before it shows one.</summary>
+    private KraidPartPose? Pose => Place.RequireSpeciesState<KraidPartState>().Pose;
+
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Place);
 

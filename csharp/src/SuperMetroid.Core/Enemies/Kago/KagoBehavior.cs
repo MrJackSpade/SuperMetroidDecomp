@@ -145,9 +145,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 case KagoBugProjectileCueKind.SpawnDrop:
                     RequestKagoBugDrop(projectile, samus);
                     break;
-                case KagoBugProjectileCueKind.DrawFromSharedSheet:
-                    projectile.Graphics = SpriteGraphics.SharedStandard;
-                    break;
                 case KagoBugProjectileCueKind.Delete:
                     projectile.Delete();
                     break;

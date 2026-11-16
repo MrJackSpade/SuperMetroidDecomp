@@ -88,7 +88,10 @@ internal sealed class EnemyDrawList
 
             // The draw offset is zero for enemies the room places; the offset is added
             // before the camera is taken away, and the sum wraps as room positions do.
-            Offset16<ScreenPixels> origin = (place.Position.Whole + place.DrawOffset).RelativeToCamera(camera);
+            // An enemy whose animation places its picture draws it there (#2210).
+            var placed = place.Entity as IPlacedEnemyPicture;
+            Offset16<ScreenPixels> origin = (place.Position.Whole + place.DrawOffset + (placed?.PicturePlacement ?? Offset16<RoomPixels>.Zero))
+                .RelativeToCamera(camera);
 
             // The draw pass consumes one shake tick of an enemy it reaches while forming
             // its origin. The enemy's own update count chooses one pixel left or right; this is deliberately not the
@@ -118,7 +121,7 @@ internal sealed class EnemyDrawList
             // Only the draw pass shows a boss body frame; a frame without a body shows none.
             if (reached)
                 _animationPlayer.DrawBossBodyFrame(place, displays.GetDisplayFrame(shown));
-            prepared.Add(new PreparedEnemyDraw(place, origin, drawShading, shown, pictured));
+            prepared.Add(new PreparedEnemyDraw(place, origin, drawShading, shown, pictured, placed?.PictureDepth));
         }
         _prepared = prepared;
     }
@@ -155,6 +158,7 @@ internal sealed class EnemyDrawList
                 {
                     Shading = draw.Shading,
                     RotRows = (place.Entity as IShowsCorpseRotRows)?.ShownRotRows,
+                    Depth = draw.Depth,
                 });
         }
 
@@ -176,8 +180,9 @@ internal sealed class EnemyDrawList
     /// <param name="Frame">The frame the enemy shows, which names its sheet picture.</param>
     /// <param name="Pictured">Whether the frame has a sheet picture: the empty frame, a frame shown only on a boss body and
     /// a frame whose pieces show nothing have none.</param>
+    /// <param name="Depth">The depth the enemy places its picture at (#2210), or null for its picture's own.</param>
     private readonly record struct PreparedEnemyDraw(RoomEnemyPlace Place,
-        Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured);
+        Offset16<ScreenPixels> Origin, PictureShading Shading, EnemyFrameId Frame, bool Pictured, ActorDepth? Depth);
 
     /// <summary>
     /// Selects the shading an enemy is drawn in, immediately before

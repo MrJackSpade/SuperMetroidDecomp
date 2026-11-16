@@ -22,8 +22,8 @@ internal static class MotherBrainTurretAnimations
 
     /// <summary>
     /// Every turret segment's beats: each turret and bullet pose by the direction it faces shows its frame for one update; the
-    /// impact smoke takes its first colouring, stops flying, shows four eight-update puffs and a 32-update fade, then deletes
-    /// itself.
+    /// impact smoke stops flying and shows four eight-update puffs and a 32-update fade, room pictures drawn in
+    /// their standard colours (#2260), then deletes itself.
     /// </summary>
     internal static AnimationSegments<MotherBrainTurretPose, EnemyProjectileFrameId, MotherBrainTurretCue> Segments { get; } = new(
         new Dictionary<MotherBrainTurretPose, Beat[]>
@@ -46,7 +46,6 @@ internal static class MotherBrainTurretAnimations
         [new(S.BulletPose, D.UpLeft)] = [Still(EnemyProjectileFrameId.MotherBrainTurretBulletFacingUpLeft)],
         [MotherBrainTurretPose.BulletImpact] =
         [
-            new Beat.Event(MotherBrainTurretCue.DrawFromSharedSheet),
             new Beat.Event(MotherBrainTurretCue.StopMoving),
             new Beat.Frame(EnemyProjectileFrameId.MotherBrainTurretBulletFireCloud, 8),
             new Beat.Frame(EnemyProjectileFrameId.MotherBrainTurretBulletFireCloudSpreading, 8),

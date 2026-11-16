@@ -32,7 +32,7 @@ internal sealed class DraygonMovement
         if (!DraygonCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(state.Body.FrameCounter))
             return;
         _effectActors.SpawnRoomEffectActor(
-            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),
+            state.Body.Position.Whole + DraygonArenaDefinitions.BreathBubbleOffset,
             RoomEffectActorKind.DraygonBreathBubbles,
             graphics: default);
     }

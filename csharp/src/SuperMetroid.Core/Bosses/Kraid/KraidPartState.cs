@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -21,6 +22,20 @@ public abstract class KraidPartState
     /// <summary>The part's playing animation and where it stands; before the first start, the foot's initial animation.</summary>
     internal AnimationPlayback<KraidPartSegment> Playback { get; set; } =
         new(KraidAnimations.StartingWith(KraidPartSegment.FootInitial), AnimationPlace.StartOfAnimation);
+
+    /// <summary>
+    /// The pose the part's animation shows (#2210): its picture, where the picture sits and the depth it is drawn at; null
+    /// before the animation shows one. The foot's collision moves with its pose's placement.
+    /// </summary>
+    internal KraidPartPose? Pose { get; private set; }
+
+    /// <summary>Shows <paramref name="pose"/>: keeps it for the part's draw and collision, and returns the picture the part shows.</summary>
+    /// <param name="pose">The pose the animation shows.</param>
+    internal EnemyFrameId Show(KraidPartPose pose)
+    {
+        Pose = pose;
+        return pose.Picture;
+    }
 
     /// <summary>The updates before the part's timed phase moves on to the phase it names.</summary>
     public int PhaseTimer { get; internal set; }

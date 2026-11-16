@@ -111,7 +111,7 @@ internal sealed class DraygonShots
             MoveDraygonProjectile(goop);
             int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, goop.Position.X.Whole);
             int yDistance = CoordinateAxis.Distance(samus.Position.Y.Whole, goop.Position.Y.Whole);
-            if (xDistance < 16 && yDistance < 20)
+            if (xDistance < DraygonArenaDefinitions.GoopTouchReach.X && yDistance < DraygonArenaDefinitions.GoopTouchReach.Y)
             {
                 goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.GoopTouch));
                 return;
@@ -128,7 +128,7 @@ internal sealed class DraygonShots
             // The goop's attach step runs the power-bomb catch first, then attaches regardless.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
             int nextDivisor = samus.XSpeedDivisor + 1;
-            if (nextDivisor >= 6)
+            if (nextDivisor >= DraygonArenaDefinitions.GoopSlowdownLimit)
                 return;
 
             samus.XSpeedDivisor = nextDivisor;
@@ -159,7 +159,7 @@ internal sealed class DraygonShots
             }
 
             DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
-            goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + attached.StackPosition * 4 - 12)));
+            goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + attached.StackPosition * DraygonArenaDefinitions.GoopStackSpacing + DraygonArenaDefinitions.GoopStackTop)));
             // The attachment lifetime counts down: the goop falls off when it reaches zero.
             if (--attached.Lifetime == 0)
                 RemoveAttachedDraygonGoop(goop, samus);
@@ -209,6 +209,6 @@ internal sealed class DraygonShots
 
     /// <summary>Tests the projectile against the 512-by-512-pixel Draygon arena bounds.</summary>
     private static bool IsOutsideDraygonRoom(EnemyProjectile projectile) =>
-        CoordinateAxis.AsSigned(projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= 512 ||
-        CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= 512;
+        CoordinateAxis.AsSigned(projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= DraygonArenaDefinitions.ArenaSize ||
+        CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= DraygonArenaDefinitions.ArenaSize;
 }

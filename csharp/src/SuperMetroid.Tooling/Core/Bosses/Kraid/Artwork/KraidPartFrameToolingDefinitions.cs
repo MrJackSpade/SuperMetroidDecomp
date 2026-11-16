@@ -1,11 +1,18 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Spatial;
+using F = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
 
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
-/// <summary>Development-tool table of the cartridge spritemaps Kraid's part frames are stored at; never linked by player hosts.</summary>
+/// <summary>
+/// Development-tool table of the cartridge spritemaps Kraid's part poses are stored at; never linked by player hosts. Many
+/// records show one installed picture (#2210): the foot's walk steps each of its five pictures through a run of records,
+/// and the arm's swing while Kraid rises or sinks draws the normal swing's pictures from records of its own.
+/// </summary>
 internal static class KraidPartFrameToolingDefinitions
 {
-    /// <summary>$A7:A565: the foot's standing pose.</summary>
+    /// <summary>$A7:A565: the foot's standing pose before Kraid's rise ends.</summary>
     internal const ushort FootStanding = 0xa565;
     /// <summary>$A7:8CE3: the first of 33 eighteen-byte foot roots.</summary>
     internal const ushort FootStart = 0x8ce3;
@@ -21,83 +28,117 @@ internal static class KraidPartFrameToolingDefinitions
     internal const ushort LintPostGrowth = 0x8c6c;
     /// <summary>$A7:A617: the first fingernail pose; poses alternate twelve- and twenty-two-byte roots.</summary>
     internal const ushort NailStart = 0xa617;
-    /// <summary>The installed extended spritemap of <paramref name="frame"/>, one of Kraid's part frames.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of Kraid's part frames.</exception>
-    internal static ushort Spritemap(EnemyFrameId frame) => Spritemaps.TryGetValue(frame, out ushort spritemap)
-        ? spritemap
-        : throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a Kraid part frame.");
 
-    /// <summary>Each of Kraid's part frames by the extended spritemap the cartridge stores it at.</summary>
-    private static readonly Dictionary<EnemyFrameId, ushort> Spritemaps = new()
+    /// <summary>
+    /// The first extended spritemap the cartridge stores <paramref name="pose"/> at: the foot's resting pose is stored twice,
+    /// at the start and at the end of its walk's run, and reads as the first.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not one of Kraid's part poses.</exception>
+    internal static ushort Spritemap(KraidPartPose pose)
     {
-        [EnemyFrameId.KraidFootPlanted] = FootStanding,
-        [EnemyFrameId.KraidFootPlantedTwin] = FootRoot(0),
-        [EnemyFrameId.KraidFootPlantedOffset2By1] = FootRoot(1),
-        [EnemyFrameId.KraidFootPlantedOffset4By2] = FootRoot(2),
-        [EnemyFrameId.KraidFootPlantedOffset6By3] = FootRoot(3),
-        [EnemyFrameId.KraidFootPlantedOffset8By4] = FootRoot(4),
-        [EnemyFrameId.KraidFootLiftingOffset10By19] = FootRoot(5),
-        [EnemyFrameId.KraidFootLiftingOffset12By20] = FootRoot(6),
-        [EnemyFrameId.KraidFootLiftingOffset14By21] = FootRoot(7),
-        [EnemyFrameId.KraidFootLiftingOffset16By22] = FootRoot(8),
-        [EnemyFrameId.KraidFootLiftingOffset18By23] = FootRoot(9),
-        [EnemyFrameId.KraidFootRaisedOffset20By26] = FootRoot(10),
-        [EnemyFrameId.KraidFootSwingingOffset22By23] = FootRoot(11),
-        [EnemyFrameId.KraidFootSwingingOffset24By21] = FootRoot(12),
-        [EnemyFrameId.KraidFootSwingingOffset26By19] = FootRoot(13),
-        [EnemyFrameId.KraidFootSwingingOffset28By17] = FootRoot(14),
-        [EnemyFrameId.KraidFootSwingingOffset30By15] = FootRoot(15),
-        [EnemyFrameId.KraidFootSwingingOffset32By13] = FootRoot(16),
-        [EnemyFrameId.KraidFootSwingingOffset34By11] = FootRoot(17),
-        [EnemyFrameId.KraidFootReachingOffset32By10] = FootRoot(18),
-        [EnemyFrameId.KraidFootReachingOffset30By10] = FootRoot(19),
-        [EnemyFrameId.KraidFootReachingOffset28By10] = FootRoot(20),
-        [EnemyFrameId.KraidFootRaisedOffset26By15] = FootRoot(21),
-        [EnemyFrameId.KraidFootRaisedOffset24By15] = FootRoot(22),
-        [EnemyFrameId.KraidFootLiftingOffset22By14] = FootRoot(23),
-        [EnemyFrameId.KraidFootLiftingOffset20By14] = FootRoot(24),
-        [EnemyFrameId.KraidFootLiftingOffset18By14] = FootRoot(25),
-        [EnemyFrameId.KraidFootLiftingOffset16By14] = FootRoot(26),
-        [EnemyFrameId.KraidFootLiftingOffset14By14] = FootRoot(27),
-        [EnemyFrameId.KraidFootLiftingOffset12By14] = FootRoot(28),
-        [EnemyFrameId.KraidFootLiftingOffset10By14] = FootRoot(29),
-        [EnemyFrameId.KraidFootLiftingOffset8By14] = FootRoot(30),
-        [EnemyFrameId.KraidFootPlantedOffset6By0] = FootRoot(31),
-        [EnemyFrameId.KraidFootPlantedOffset4By0] = FootRoot(32),
-        [EnemyFrameId.KraidFootPlantedTwinB] = FootLast,
-        [EnemyFrameId.KraidArmRaisedClawClosed] = ArmRoot(0),
-        [EnemyFrameId.KraidArmRaisedClawOpen] = ArmRoot(1),
-        [EnemyFrameId.KraidArmLoweringClawHooked] = ArmRoot(2),
-        [EnemyFrameId.KraidArmLevelClawHooked] = ArmRoot(3),
-        [EnemyFrameId.KraidArmLevelClawHangingDown] = ArmRoot(4),
-        [EnemyFrameId.KraidArmLevelClawCurlingUnder] = ArmRoot(5),
-        [EnemyFrameId.KraidArmLevelClawTucked] = ArmRoot(6),
-        [EnemyFrameId.KraidArmLevelClawTuckedTight] = ArmRoot(7),
-        [EnemyFrameId.KraidArmLevelClawFolded] = ArmRoot(8),
-        [EnemyFrameId.KraidArmLevelClawFoldedFlat] = ArmRoot(9),
-        [EnemyFrameId.KraidArmRaisedClawClosedTwin] = ArmRoot(10),
-        [EnemyFrameId.KraidArmRaisedClawOpenTwin] = ArmRoot(11),
-        [EnemyFrameId.KraidArmLoweringClawHookedTwin] = ArmRoot(12),
-        [EnemyFrameId.KraidArmLevelClawHookedTwin] = ArmRoot(13),
-        [EnemyFrameId.KraidArmLevelClawHangingDownTwin] = ArmRoot(14),
-        [EnemyFrameId.KraidArmLevelClawCurlingUnderTwin] = ArmRoot(15),
-        [EnemyFrameId.KraidArmLevelClawTuckedTwin] = ArmRoot(16),
-        [EnemyFrameId.KraidArmLevelClawTuckedTightTwin] = ArmRoot(17),
-        [EnemyFrameId.KraidArmLevelClawFoldedTwin] = ArmRoot(18),
-        [EnemyFrameId.KraidArmLevelClawFoldedFlatTwin] = ArmRoot(19),
-        [EnemyFrameId.KraidArmDroopingDiagonal] = ArmRoot(20),
-        [EnemyFrameId.KraidArmOutstretched] = ArmLast,
-        [EnemyFrameId.KraidLintBudding] = LintInitial,
-        [EnemyFrameId.KraidLintGrown] = LintPostGrowth,
-        [EnemyFrameId.KraidNailTurned0] = NailRoot(0),
-        [EnemyFrameId.KraidNailTurned45] = NailRoot(1),
-        [EnemyFrameId.KraidNailTurned90] = NailRoot(2),
-        [EnemyFrameId.KraidNailTurned135] = NailRoot(3),
-        [EnemyFrameId.KraidNailTurned180] = NailRoot(4),
-        [EnemyFrameId.KraidNailTurned225] = NailRoot(5),
-        [EnemyFrameId.KraidNailTurned270] = NailRoot(6),
-        [EnemyFrameId.KraidNailTurned315] = NailRoot(7),
-    };
+        foreach ((ushort spritemap, KraidPartPose stored) in Records)
+        {
+            if (stored == pose)
+                return spritemap;
+        }
+        throw new ArgumentOutOfRangeException(nameof(pose), pose, "Not a Kraid part pose.");
+    }
+
+    /// <summary>The pose the extended spritemap <paramref name="spritemap"/> stores, or null when it stores none of Kraid's.</summary>
+    internal static KraidPartPose? PoseAt(ushort spritemap)
+    {
+        foreach ((ushort stored, KraidPartPose pose) in Records)
+        {
+            if (stored == spritemap)
+                return pose;
+        }
+        return null;
+    }
+
+    /// <summary>The extended spritemaps of the foot's and arm's poses (#2210): every record of theirs the animations show.</summary>
+    internal static IEnumerable<ushort> LimbSpritemaps => Records.Select(record => record.Spritemap)
+        .Where(spritemap => spritemap is >= FootStart and <= ArmLast or FootStanding);
+
+    /// <summary>Each record Kraid's part animations show, with the pose it stores, in the cartridge's order.</summary>
+    private static readonly (ushort Spritemap, KraidPartPose Pose)[] Records =
+    [
+        (FootRoot(0), Foot(F.KraidFootPlanted, new(0, 0))),
+        (FootRoot(1), Foot(F.KraidFootPlanted, new(-2, -1))),
+        (FootRoot(2), Foot(F.KraidFootPlanted, new(-4, -2))),
+        (FootRoot(3), Foot(F.KraidFootPlanted, new(-6, -3))),
+        (FootRoot(4), Foot(F.KraidFootPlanted, new(-8, -4))),
+        (FootRoot(5), Foot(F.KraidFootLifting, new(0, 0))),
+        (FootRoot(6), Foot(F.KraidFootLifting, new(-2, -1))),
+        (FootRoot(7), Foot(F.KraidFootLifting, new(-4, -2))),
+        (FootRoot(8), Foot(F.KraidFootLifting, new(-6, -3))),
+        (FootRoot(9), Foot(F.KraidFootLifting, new(-8, -4))),
+        (FootRoot(10), Foot(F.KraidFootRaised, new(0, 0))),
+        (FootRoot(11), Foot(F.KraidFootSwinging, new(0, 0))),
+        (FootRoot(12), Foot(F.KraidFootSwinging, new(-2, 2))),
+        (FootRoot(13), Foot(F.KraidFootSwinging, new(-4, 4))),
+        (FootRoot(14), Foot(F.KraidFootSwinging, new(-6, 6))),
+        (FootRoot(15), Foot(F.KraidFootSwinging, new(-8, 8))),
+        (FootRoot(16), Foot(F.KraidFootSwinging, new(-10, 10))),
+        (FootRoot(17), Foot(F.KraidFootSwinging, new(-12, 12))),
+        (FootRoot(18), Foot(F.KraidFootReaching, new(0, 0))),
+        (FootRoot(19), Foot(F.KraidFootReaching, new(2, 0))),
+        (FootRoot(20), Foot(F.KraidFootReaching, new(4, 0))),
+        (FootRoot(21), Foot(F.KraidFootRaised, new(-6, 11))),
+        (FootRoot(22), Foot(F.KraidFootRaised, new(-4, 11))),
+        (FootRoot(23), Foot(F.KraidFootLifting, new(-12, 5))),
+        (FootRoot(24), Foot(F.KraidFootLifting, new(-10, 5))),
+        (FootRoot(25), Foot(F.KraidFootLifting, new(-8, 5))),
+        (FootRoot(26), Foot(F.KraidFootLifting, new(-6, 5))),
+        (FootRoot(27), Foot(F.KraidFootLifting, new(-4, 5))),
+        (FootRoot(28), Foot(F.KraidFootLifting, new(-2, 5))),
+        (FootRoot(29), Foot(F.KraidFootLifting, new(0, 5))),
+        (FootRoot(30), Foot(F.KraidFootLifting, new(2, 5))),
+        (FootRoot(31), Foot(F.KraidFootPlanted, new(-6, 0))),
+        (FootRoot(32), Foot(F.KraidFootPlanted, new(-4, 0))),
+        (FootLast, Foot(F.KraidFootPlanted, new(0, 0))),
+        (FootStanding, Sunk(F.KraidFootPlanted)),
+        (ArmRoot(0), Shown(F.KraidArmRaisedClawClosed)),
+        (ArmRoot(1), Shown(F.KraidArmRaisedClawOpen)),
+        (ArmRoot(2), Shown(F.KraidArmLoweringClawHooked)),
+        (ArmRoot(3), Shown(F.KraidArmLevelClawHooked)),
+        (ArmRoot(4), Shown(F.KraidArmLevelClawHangingDown)),
+        (ArmRoot(5), Shown(F.KraidArmLevelClawCurlingUnder)),
+        (ArmRoot(6), Shown(F.KraidArmLevelClawTucked)),
+        (ArmRoot(7), Shown(F.KraidArmLevelClawTuckedTight)),
+        (ArmRoot(8), Shown(F.KraidArmLevelClawFolded)),
+        (ArmRoot(9), Shown(F.KraidArmLevelClawFoldedFlat)),
+        (ArmRoot(10), Sunk(F.KraidArmRaisedClawClosed)),
+        (ArmRoot(11), Sunk(F.KraidArmRaisedClawOpen)),
+        (ArmRoot(12), Sunk(F.KraidArmLoweringClawHooked)),
+        (ArmRoot(13), Sunk(F.KraidArmLevelClawHooked)),
+        (ArmRoot(14), Sunk(F.KraidArmLevelClawHangingDown)),
+        (ArmRoot(15), Sunk(F.KraidArmLevelClawCurlingUnder)),
+        (ArmRoot(16), Sunk(F.KraidArmLevelClawTucked)),
+        (ArmRoot(17), Sunk(F.KraidArmLevelClawTuckedTight)),
+        (ArmRoot(18), Sunk(F.KraidArmLevelClawFolded)),
+        (ArmRoot(19), Sunk(F.KraidArmLevelClawFoldedFlat)),
+        (ArmRoot(20), Shown(F.KraidArmDroopingDiagonal)),
+        (ArmLast, Shown(F.KraidArmOutstretched)),
+        (LintInitial, Shown(F.KraidLintBudding)),
+        (LintPostGrowth, Shown(F.KraidLintGrown)),
+        (NailRoot(0), Shown(F.KraidNailTurned0)),
+        (NailRoot(1), Shown(F.KraidNailTurned45)),
+        (NailRoot(2), Shown(F.KraidNailTurned90)),
+        (NailRoot(3), Shown(F.KraidNailTurned135)),
+        (NailRoot(4), Shown(F.KraidNailTurned180)),
+        (NailRoot(5), Shown(F.KraidNailTurned225)),
+        (NailRoot(6), Shown(F.KraidNailTurned270)),
+        (NailRoot(7), Shown(F.KraidNailTurned315)),
+    ];
+
+    /// <summary>The pose showing <paramref name="picture"/> where the part stands.</summary>
+    private static KraidPartPose Shown(EnemyFrameId picture) => new(picture);
+
+    /// <summary>The foot's <paramref name="picture"/> moved by <paramref name="step"/>.</summary>
+    private static KraidPartPose Foot(EnemyFrameId picture, Offset16<RoomPixels> step) => new(picture) { Placement = step };
+
+    /// <summary>The pose showing <paramref name="picture"/> behind the room's front tiles.</summary>
+    private static KraidPartPose Sunk(EnemyFrameId picture) => new(picture) { Depth = ActorDepth.BehindFrontParts };
 
     /// <summary>The foot pose stored <paramref name="index"/> eighteen-byte roots into the foot run.</summary>
     private static ushort FootRoot(int index) => unchecked((ushort)(FootStart + 18 * index));

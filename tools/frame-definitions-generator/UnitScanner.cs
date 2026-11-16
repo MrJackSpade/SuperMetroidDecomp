@@ -435,12 +435,8 @@ internal sealed class UnitScanner(CoreModel model)
             // Reshading keeps the owner the object already has.
             IReadOnlyList<SpawnTarget> switched = classifier.IsReshading(semantic, assignment.Right) ? [] : classifier.Classify(semantic, assignment.Right);
             // Graphics a method was handed and installs in the object it spawns (the pool's and the engine's spawn
-            // primitives) are its callers' spawn graphics, which their own calls already name: no switch. A cue handler's
-            // switch to the room's graphics is the effect of the programs publishing the cue, which the program frames
-            // route to the shared sheet from that step on (#1513).
-            bool cueSwitch = assignment.Ancestors().OfType<SwitchSectionSyntax>().FirstOrDefault() is { } section
-                && model.ProgramFrames.IsRoomGraphicsCueSection(section);
-            if (switched.Any(target => target.Source != GraphicsSource.Parameter) && !cueSwitch)
+            // primitives) are its callers' spawn graphics, which their own calls already name: no switch.
+            if (switched.Any(target => target.Source != GraphicsSource.Parameter))
                 scan.Reassignments.Add((switched, assignment.ToString(), RestartsSwitchedObject(semantic, assignment)));
         }
         if (node is ExpressionSyntax expression && !SyntaxFacts.IsInTypeOnlyContext(expression)

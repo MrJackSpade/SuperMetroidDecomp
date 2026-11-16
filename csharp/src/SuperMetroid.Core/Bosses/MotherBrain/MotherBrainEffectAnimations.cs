@@ -32,7 +32,6 @@ internal static class MotherBrainEffectAnimations
         ],
         [P.OnionRingHit] =
         [
-            Cue(new MotherBrainEffectCue.Signal(K.DrawFromSharedSheet)),
             Cue(new MotherBrainEffectCue.Signal(K.StopMoving)),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingFireballSmall, 5),
             Show(EnemyProjectileFrameId.MotherBrainBlueRingFireballLarge, 5),
@@ -132,7 +131,7 @@ internal static class MotherBrainEffectAnimations
     internal static IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt { get; } = new Dictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>>
     {
         [P.OnionRing] = new([new(P.OnionRing, 0, 12, 1)], AnimationEnd.Holds),
-        [P.OnionRingHit] = new([new(P.OnionRingHit, 0, 9, 1)], AnimationEnd.Holds),
+        [P.OnionRingHit] = new([new(P.OnionRingHit, 0, 8, 1)], AnimationEnd.Holds),
         [P.Bomb] = new([new(P.Bomb, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
         [P.RainbowBeamCharging] = new([new(P.RainbowBeamCharging, 0, 7, 1)], AnimationEnd.Holds),
         [P.Drool] = new([new(P.Drool, 0, 8, 1)], AnimationEnd.Holds),

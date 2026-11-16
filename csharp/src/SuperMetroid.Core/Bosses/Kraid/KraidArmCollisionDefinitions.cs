@@ -3,9 +3,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Immutable physical components and ordered touch/shot rectangles of the 22 Kraid-arm frames (#1867). The rising or
-/// sinking frames reuse the normal frames' ten poses but have independent editable sprite art. Each of those poses has
-/// five components in collision order: a limb and its connector, his body at the arm's origin, and a second limb and its
+/// Immutable physical components and ordered touch/shot rectangles of the twelve Kraid-arm pictures (#1867). The arm's
+/// swing while Kraid rises or sinks shows the normal swing's ten pictures behind the room's front tiles (#2210). Each of
+/// those pictures has five components in collision order: a limb and its connector, his body at the arm's origin, and a second limb and its
 /// connector; each pose is named for the frame it is (#2211).
 /// </summary>
 internal static class KraidArmCollisionDefinitions
@@ -111,8 +111,8 @@ internal static class KraidArmCollisionDefinitions
     ];
 
     /// <summary>
-    /// Each Kraid-arm frame's components: the normal and rising or sinking frames share the ten poses, and each dying or
-    /// preparing-to-lunge frame is one component at the arm's origin.
+    /// Each Kraid-arm picture's components: the ten swing pictures', and each dying or preparing-to-lunge picture's one
+    /// component at the arm's origin.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, KraidArmComponentDefinition[]> FrameComponents = new()
     {
@@ -126,16 +126,6 @@ internal static class KraidArmCollisionDefinitions
         [EnemyFrameId.KraidArmLevelClawTuckedTight] = LevelClawTuckedTight,
         [EnemyFrameId.KraidArmLevelClawFolded] = LevelClawFolded,
         [EnemyFrameId.KraidArmLevelClawFoldedFlat] = LevelClawFoldedFlat,
-        [EnemyFrameId.KraidArmRaisedClawClosedTwin] = RaisedClawClosed,
-        [EnemyFrameId.KraidArmRaisedClawOpenTwin] = RaisedClawOpen,
-        [EnemyFrameId.KraidArmLoweringClawHookedTwin] = LoweringClawHooked,
-        [EnemyFrameId.KraidArmLevelClawHookedTwin] = LevelClawHooked,
-        [EnemyFrameId.KraidArmLevelClawHangingDownTwin] = LevelClawHangingDown,
-        [EnemyFrameId.KraidArmLevelClawCurlingUnderTwin] = LevelClawCurlingUnder,
-        [EnemyFrameId.KraidArmLevelClawTuckedTwin] = LevelClawTucked,
-        [EnemyFrameId.KraidArmLevelClawTuckedTightTwin] = LevelClawTuckedTight,
-        [EnemyFrameId.KraidArmLevelClawFoldedTwin] = LevelClawFolded,
-        [EnemyFrameId.KraidArmLevelClawFoldedFlatTwin] = LevelClawFoldedFlat,
         [EnemyFrameId.KraidArmDroopingDiagonal] = [new(Offset16<RoomPixels>.Zero, KraidArmHitboxList.DroopingDiagonal)],
         [EnemyFrameId.KraidArmOutstretched] = [new(Offset16<RoomPixels>.Zero, KraidArmHitboxList.Outstretched)],
     };

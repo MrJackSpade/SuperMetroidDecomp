@@ -10,7 +10,4 @@ internal enum KraidRockMotion
 
     /// <summary>Drops a ceiling rock with vertical room collision and gravity.</summary>
     CeilingRockFalling,
-
-    /// <summary>Switches a shot spat rock to the common explosion colours.</summary>
-    ShotRockRecolouring,
 }

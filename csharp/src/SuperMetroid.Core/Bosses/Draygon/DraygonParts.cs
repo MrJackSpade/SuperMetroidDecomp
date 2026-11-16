@@ -261,7 +261,7 @@ internal sealed class DraygonParts
                     ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), CoordinateAxis.Wrap(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
         Position16<RoomPixels> gaze = eye.Position.Whole +
-            new Offset16<RoomPixels>(facing == HorizontalDirection.Right ? 24 : -24, -32);
+            TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
         Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
         if (bearing == eyeState.LookAngle)
@@ -297,7 +297,8 @@ internal sealed class DraygonParts
         RoomEffectActorKind kind)
     {
         int random = _room.Random.Generate();
-        Offset16<RoomPixels> scatter = new(DraygonRandomDefinitions.DyingScatterX.Of(random) - 64, DraygonRandomDefinitions.DyingScatterY.Of(random) - 64);
+        Offset16<RoomPixels> scatter = new(DraygonRandomDefinitions.DyingScatterX.Of(random) - DraygonArenaDefinitions.DyingScatterReach,
+            DraygonRandomDefinitions.DyingScatterY.Of(random) - DraygonArenaDefinitions.DyingScatterReach);
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
@@ -312,13 +313,20 @@ internal sealed class DraygonParts
 
         // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
         // energy it costs.
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), 32);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
 
         _effectActors.SpawnRoomEffectActor(
-            new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + 16)),
+            new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus)),
             RoomEffectActorKind.BigDustCloud,
             graphics: default);
     }
+
+    /// <summary>
+    /// <paramref name="facingRight"/>, an offset given for a Draygon facing right, toward <paramref name="facing"/>: as it
+    /// is facing right, mirrored facing left.
+    /// </summary>
+    internal static Offset16<RoomPixels> TowardFacing(Offset16<RoomPixels> facingRight, HorizontalDirection facing) =>
+        facing == HorizontalDirection.Right ? facingRight : facingRight.MirroredX();
 
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
@@ -333,7 +341,8 @@ internal sealed class DraygonParts
             _shots.Goop,
             graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
-        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (direction == HorizontalDirection.Right ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
+        goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
+            ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
 
         int random = _room.Random.Generate();
         // The goop leaves within the quarter turn from a half turn when Draygon moves left, or from three quarters of a

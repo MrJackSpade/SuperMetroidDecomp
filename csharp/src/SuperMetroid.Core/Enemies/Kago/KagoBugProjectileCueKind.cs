@@ -11,6 +11,4 @@ internal enum KagoBugProjectileCueKind
     StartIdle,
     /// <summary>Launches the bug's jump.</summary>
     StartJump,
-    /// <summary>Draws the bug from the room's shared sheet in its standard colours.</summary>
-    DrawFromSharedSheet,
 }

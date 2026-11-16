@@ -10,8 +10,9 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// </summary>
 /// <param name="Spawned">The frames shown under the graphics the object was spawned with.</param>
 /// <param name="Room">
-/// The frames shown once one of the programs' cues has switched the object to the room's graphics, which draw from the
-/// shared sheet whatever graphics the object was spawned with.
+/// The frames shown on an object its handlers spawned with the room's graphics, and the room pictures Core's
+/// <c>EnemyProjectileRoomPictureDefinitions.RoomPictures</c> lists (#2260), which draw from the shared sheet whatever
+/// graphics the object was spawned with.
 /// </param>
 internal sealed record ProgramFrameSplit(IReadOnlySet<string> Spawned, IReadOnlySet<string> Room);
 
@@ -19,7 +20,7 @@ internal sealed record ProgramFrameSplit(IReadOnlySet<string> Spawned, IReadOnly
 /// Reads, from SuperMetroid.Core's source, what each projectile animation family's animations show (#1513, #1600): its
 /// segments (the beats its <c>Segments</c> names), its animations by the segment each starts at (its <c>StartingAt</c>),
 /// the frame table (the <c>ShownProjectileFrames</c> its <c>Present</c> looks a pose up in) of a family whose beats show
-/// poses rather than projectile frames, and the cues whose handlers switch an object to the room's graphics. A family's
+/// poses rather than projectile frames, and the room pictures Core draws from the shared sheet (#2260). A family's
 /// programs are the segments its animations start at. An animation shows what the segments its phases play show; a
 /// segment shows the projectile frames its beats name, or the table entries of the poses they construct, inlining the
 /// segments' own beat helpers with their constant arguments; a pose argument no constant decides (a loop's phase) matches
@@ -36,8 +37,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     private const string Any = "*";
 
     private readonly Dictionary<INamedTypeSymbol, FamilyProgramSet> _families = new(SymbolEqualityComparer.Default);
-    private HashSet<IFieldSymbol>? _roomCues;
-    private HashSet<SwitchSectionSyntax>? _roomCueSections;
+    /// <summary>The name of Core's catalog of the room pictures (#2260), which name the frames that draw from the shared sheet.</summary>
+    internal const string RoomPictureCatalog = "EnemyProjectileRoomPictureDefinitions";
+
+    private HashSet<string>? _roomPictures;
     private readonly Dictionary<INamedTypeSymbol, HandlerStartSet> _cueStarts = new(SymbolEqualityComparer.Default);
     private HandlerStartSet? _motionHandlerStarts;
 
@@ -45,29 +48,27 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     public IReadOnlySet<string> TableFrames(INamedTypeSymbol family) => Of(family).TableFrames;
 
     /// <summary>
-    /// Whether <paramref name="section"/> is a cue handler's case that switches an object to the room's graphics, whose
-    /// effect the programs publishing its cue carry: the frames they show after it draw from the shared sheet.
-    /// </summary>
-    public bool IsRoomGraphicsCueSection(SwitchSectionSyntax section)
-    {
-        FindRoomCues();
-        return _roomCueSections!.Contains(section);
-    }
-
-    /// <summary>
     /// The frames <paramref name="family"/> shows when started in <paramref name="programs"/>, or in any of its programs
     /// when none are named.
     /// </summary>
     /// <exception cref="InvalidDataException">The family's animations or table cannot be read, or name a segment or pose they lack.</exception>
-    public ProgramFrameSplit Split(INamedTypeSymbol family, IReadOnlySet<string>? programs) => Shown(family, Of(family), programs);
+    public ProgramFrameSplit Split(INamedTypeSymbol family, IReadOnlySet<string>? programs) => Shown(family, Of(family), programs, RoomPictures());
 
-    /// <summary>The frames <paramref name="set"/>, <paramref name="family"/>'s, shows when started in <paramref name="programs"/>, or in any.</summary>
-    private static ProgramFrameSplit Shown(INamedTypeSymbol family, FamilyProgramSet set, IReadOnlySet<string>? programs)
+    /// <summary>
+    /// The frames <paramref name="set"/>, <paramref name="family"/>'s, shows when started in <paramref name="programs"/>, or
+    /// in any; each of the <paramref name="roomPictures"/> it shows draws from the shared sheet.
+    /// </summary>
+    private static ProgramFrameSplit Shown(INamedTypeSymbol family, FamilyProgramSet set, IReadOnlySet<string>? programs, IReadOnlySet<string> roomPictures)
     {
-        if (!set.Precise)
-            return new ProgramFrameSplit(set.TableFrames, new HashSet<string>(StringComparer.Ordinal));
         var spawned = new HashSet<string>(StringComparer.Ordinal);
         var room = new HashSet<string>(StringComparer.Ordinal);
+        void Add(string frame, bool roomGraphics) => (roomGraphics || roomPictures.Contains(frame) ? room : spawned).Add(frame);
+        if (!set.Precise)
+        {
+            foreach (string frame in set.TableFrames)
+                Add(frame, false);
+            return new ProgramFrameSplit(spawned, room);
+        }
         var visited = new HashSet<(AnimationNode Node, bool Switched)>();
         var pending = new Queue<(AnimationNode Node, bool Switched)>();
         IEnumerable<string> entries = programs ?? set.Nodes.Keys.Where(node => node.IsStart).Select(node => node.Name);
@@ -91,9 +92,6 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
             {
                 switch (item.Kind)
                 {
-                    case ProgramItemKind.RoomGraphics:
-                        switched = true;
-                        break;
                     case ProgramItemKind.Continue:
                         // An animation plays its phases' segments; a segment naming a segment continues the play in the
                         // animation starting there.
@@ -107,13 +105,14 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                             pending.Enqueue((AnimationNode.Start(program), switched));
                         break;
                     case ProgramItemKind.ShowFrame:
-                        (switched ? room : spawned).Add(item.Value);
+                        Add(item.Value, switched);
                         break;
                     case ProgramItemKind.ShowPose:
                         string[] shown = [.. set.Table.Where(entry => Matches(item.Value, entry.Key)).Select(entry => entry.Value)];
                         if (shown.Length == 0)
                             throw new InvalidDataException($"{family.ToDisplayString()}'s segment {next.Node.Name} shows pose {item.Value}, which its frame table lacks.");
-                        (switched ? room : spawned).UnionWith(shown);
+                        foreach (string frame in shown)
+                            Add(frame, switched);
                         break;
                     default:
                         throw new InvalidOperationException($"Undefined program item kind {item.Kind}.");
@@ -235,7 +234,7 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         var set = new FamilyProgramSet(entries, tableFrames, nodes, entered, room, Precise: true, cueStarts, motionStarts);
         // The self-check: every frame the segments or table hold is shown by some program, so no beat the reader missed
         // leaves a frame the family draws off its sheets.
-        ProgramFrameSplit all = Shown(family, set, programs: null);
+        ProgramFrameSplit all = Shown(family, set, programs: null, RoomPictures());
         string[] unshown = [.. tableFrames.Where(frame => !all.Spawned.Contains(frame) && !all.Room.Contains(frame)).Order(StringComparer.Ordinal)];
         if (unshown.Length > 0)
             throw new InvalidDataException($"{family.ToDisplayString()}'s frames include frames none of its programs shows as this generator reads them: {string.Join(", ", unshown)}");
@@ -394,14 +393,9 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
                 VisitBody(handedOn, new Dictionary<string, string>(StringComparer.Ordinal), items, segmentType, frameType, direct, helpers, depth + 1);
                 return;
             case IdentifierNameSyntax name when semantic.GetSymbolInfo(name).Symbol is IFieldSymbol field:
-                FindRoomCues();
-                // Any other enum member may name a cue whose handler's case continues the play, a room cue's included.
+                // Any other enum member may name a cue whose handler's case continues the play.
                 bool cue = field.ContainingType.TypeKind == TypeKind.Enum;
-                if (_roomCues!.Contains(field.OriginalDefinition))
-                {
-                    items.Add(new ProgramItem(ProgramItemKind.RoomGraphics, field.Name));
-                }
-                else if (SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType))
+                if (SymbolEqualityComparer.Default.Equals(field.ContainingType, segmentType))
                 {
                     items.Add(new ProgramItem(ProgramItemKind.Continue, field.Name));
                     cue = false;
@@ -1053,49 +1047,32 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     }
 
     /// <summary>
-    /// Finds, once, the switch sections that switch an object to the room's graphics (<c>Graphics = SpriteGraphics.SharedStandard</c>) and the
-    /// enum members their labels name: the cues whose publication switches the object.
+    /// The room pictures Core's <c>EnemyProjectileRoomPictureDefinitions.RoomPictures</c> lists, read once (#2260): the
+    /// projectile frames drawn from the room's shared sheet in their standard colours whoever spawned the projectile.
     /// </summary>
-    private void FindRoomCues()
+    /// <exception cref="InvalidDataException">Core declares no single such catalog.</exception>
+    private HashSet<string> RoomPictures()
     {
-        if (_roomCues is not null)
-            return;
-        var cues = new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default);
-        var sections = new HashSet<SwitchSectionSyntax>();
-        foreach (SyntaxTree tree in model.Compilation.SyntaxTrees)
+        if (_roomPictures is not null)
+            return _roomPictures;
+        INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == RoomPictureCatalog)];
+        if (catalogs is not [var catalog] || catalog.GetMembers("RoomPictures") is not [IFieldSymbol field])
+            throw new InvalidDataException("Core declares no single EnemyProjectileRoomPictureDefinitions.RoomPictures.");
+        var listed = new HashSet<string>(StringComparer.Ordinal);
+        foreach (SyntaxReference reference in field.DeclaringSyntaxReferences)
         {
-            SemanticModel semantic = model.ModelOf(tree);
-            foreach (SwitchSectionSyntax section in tree.GetRoot().DescendantNodes().OfType<SwitchSectionSyntax>())
+            if (reference.GetSyntax() is not VariableDeclaratorSyntax { Initializer.Value: var value })
+                continue;
+            SemanticModel semantic = model.ModelOf(value.SyntaxTree);
+            foreach (ExpressionSyntax expression in value.DescendantNodes().OfType<ExpressionSyntax>())
             {
-                if (!section.Statements.SelectMany(statement => statement.DescendantNodesAndSelf()).OfType<AssignmentExpressionSyntax>()
-                        .Any(assignment => IsRoomGraphicsAssignment(semantic, assignment)))
-                    continue;
-                sections.Add(section);
-                foreach (SwitchLabelSyntax label in section.Labels)
-                {
-                    foreach (IdentifierNameSyntax named in label.DescendantNodes().OfType<IdentifierNameSyntax>())
-                    {
-                        if (semantic.GetSymbolInfo(named).Symbol is IFieldSymbol { ContainingType.TypeKind: TypeKind.Enum } member)
-                            cues.Add(member.OriginalDefinition);
-                    }
-                }
+                if (semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member
+                    && SymbolEqualityComparer.Default.Equals(member.ContainingType, model.EnemyProjectileFrameId))
+                    listed.Add(member.Name);
             }
         }
-        _roomCueSections = sections;
-        _roomCues = cues;
+        return _roomPictures = listed;
     }
-
-    /// <summary>
-    /// Whether <paramref name="assignment"/> sets an object's graphics to the room's: <c>X.Graphics = default</c> or
-    /// <c>X.Graphics = SpriteGraphics.SharedStandard</c>.
-    /// </summary>
-    private bool IsRoomGraphicsAssignment(SemanticModel semantic, AssignmentExpressionSyntax assignment) =>
-        assignment is { RawKind: (int)SyntaxKind.SimpleAssignmentExpression, Left: MemberAccessExpressionSyntax { Name.Identifier.Text: "Graphics" } }
-        && (assignment.Right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.DefaultLiteralExpression } or DefaultExpressionSyntax
-            || semantic.GetSymbolInfo(assignment.Right).Symbol is IPropertySymbol { Name: "SharedStandard" } shared
-               && SymbolEqualityComparer.Default.Equals(shared.ContainingType, model.SpriteGraphics))
-        && semantic.GetTypeInfo(assignment.Left).Type is { } assigned
-        && SymbolEqualityComparer.Default.Equals(assigned.OriginalDefinition, model.SpriteGraphics);
 
     /// <summary>What one beat or phase contributes.</summary>
     private enum ProgramItemKind
@@ -1104,8 +1081,6 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
         ShowFrame,
         /// <summary>It shows a pose, which the family's frame table presents.</summary>
         ShowPose,
-        /// <summary>It publishes a cue that switches the object to the room's graphics.</summary>
-        RoomGraphics,
         /// <summary>
         /// It names a segment: an animation's phase plays it, or a segment's cue continues the play in the animation
         /// starting there.

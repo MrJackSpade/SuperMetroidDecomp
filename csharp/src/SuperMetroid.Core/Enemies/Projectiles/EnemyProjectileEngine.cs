@@ -314,7 +314,7 @@ internal sealed class EnemyProjectileEngine
             // The blank frame, and the animation frames showing the empty picture, draw nothing (#1513).
             if (!EnemyProjectileEmptyFrames.DrawsNothing(frame))
                 _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.EnemyProjectile),
-                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.Graphics);
+                    EnemySheetDefinitions.ProjectileFrameName(frame), screen, projectile.ShownGraphics);
         }
     }
 

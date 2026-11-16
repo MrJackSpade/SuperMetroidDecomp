@@ -20,4 +20,7 @@ internal sealed record EnemySheetDraw(EnemyDefinitionId Enemy, string Frame, Off
     /// shows the corpse is drawn whole through; null for an enemy that shows no rotting corpse.
     /// </summary>
     public CorpseRotRows? RotRows { get; init; }
+
+    /// <summary>The depth the enemy places the picture at (#2210), or null for its picture's own.</summary>
+    public ActorDepth? Depth { get; init; }
 }

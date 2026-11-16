@@ -96,7 +96,7 @@ internal sealed class KraidLimbs
             return;
         KraidPartState partState = part.RequireSpeciesState<KraidPartState>();
         AnimationPlayback<KraidPartSegment> playback = partState.Playback;
-        EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback,
+        EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback, partState.Show,
             cue => ApplyKraidPartCue(partState.Kraid, cue) is { } started
                 ? new AnimationContinuation<KraidPartSegment>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);

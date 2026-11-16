@@ -14,12 +14,13 @@ internal static class KagoBugProjectileCueRules
         [NativeEnemyProjectileInstruction.KagoBugStartJumpInstruction] = KagoBugProjectileCueKind.StartJump,
         [NativeEnemyProjectileInstruction.KagoBugStartIdleInstruction] = KagoBugProjectileCueKind.StartIdle,
         [NativeEnemyProjectileInstruction.KagoBugSpawnDropInstruction] = KagoBugProjectileCueKind.SpawnDrop,
-        [NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction] = KagoBugProjectileCueKind.DrawFromSharedSheet,
     };
 
     /// <summary>The oracle rules for the bugs' programs.</summary>
     internal static NativeEnemyProjectileCueRules<KagoBugProjectileCue> Rules { get; } = new(
         word => Commands.ContainsKey((NativeEnemyProjectileInstruction)word) ? 0 : null,
         (word, operands, cue, at) => VerificationAssertions.AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue"),
-        cue => cue.Kind == KagoBugProjectileCueKind.Delete);
+        cue => cue.Kind == KagoBugProjectileCueKind.Delete,
+        // The burst's frames are room pictures that carry their sheet and colours (#2260): its palette switch has no event.
+        Omitted: word => (NativeEnemyProjectileInstruction)word == NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction);
 }

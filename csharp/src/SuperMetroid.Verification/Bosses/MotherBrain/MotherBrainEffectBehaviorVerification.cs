@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Verification.Harness;
@@ -131,6 +132,7 @@ internal static class MotherBrainEffectBehaviorVerification
             ushort referenceOperand = 0;
             int referenceTimer = 1;
             var observedOperands = new HashSet<ushort>();
+            var observedFrames = new HashSet<EnemyProjectileFrameId>();
             for (int frame = 0; frame < 39; frame++)
             {
                 if (--referenceTimer == 0)
@@ -148,12 +150,16 @@ internal static class MotherBrainEffectBehaviorVerification
                     referenceCursor += 4;
                 }
                 handBeamEnemies.Projectiles.AdvanceEnemyProjectileAnimations(handBeam, handBeamTarget, Position16<RoomPixels>.Zero, shortCounter: 0);
-                AssertEqual(referenceOperand, handBeam.PresentationOperandAddress, $"hand-beam frame {frame} selects the native visual operand");
+                // Each stage draws the first stage's seven pictures from operands of its own (#2210).
+                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(referenceOperand, handBeam.Graphics.Owner), handBeam.Frame,
+                    $"hand-beam frame {frame} shows the picture its native visual operand stores");
                 AssertEqual((ushort)referenceTimer, handBeam.FrameHold.RawValue, $"hand-beam frame {frame} keeps the native remaining duration");
-                observedOperands.Add(handBeam.PresentationOperandAddress);
+                observedOperands.Add(referenceOperand);
+                observedFrames.Add(handBeam.Frame ?? throw new InvalidOperationException($"Hand-beam frame {frame} shows nothing."));
             }
+            AssertEqual(21, observedOperands.Count, "hand-beam's three stages draw from 21 native visual operands");
             AssertEqual(MotherBrainHandBeamAnimations.ProjectileFrames.Count,
-                observedOperands.Count, "hand-beam selects all 21 installed visual operands");
+                observedFrames.Count, "hand-beam shows its seven installed pictures");
             AssertTrue(handBeam.IsActive, "hand-beam charge survives all three 13-frame stages");
             AssertEqual(3, handBeamEnemies.Projectiles.EnemyProjectiles.Count(
                     projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainHandBeamFired),
@@ -194,7 +200,7 @@ internal static class MotherBrainEffectBehaviorVerification
             for (int frame = 0; frame < 30; frame++)
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, ring.Graphics, "onion-ring impact clears its graphics to the common colours");
+            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, ring.ShownGraphics, "onion-ring impact draws its fire from the room's sheet in its standard colours");
             AssertEqual<Enum?>(null, ring.Motion, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");

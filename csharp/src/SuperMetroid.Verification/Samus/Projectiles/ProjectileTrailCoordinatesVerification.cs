@@ -48,10 +48,12 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach ((ProjectileTrailPlacementList list, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement> placements) in
             ProjectileTrailPlacementDefinitions.PlacementsByList)
         foreach ((SamusProjectileFrameId frame, ProjectileTrailPlacement placement) in placements)
+        foreach (int record in SamusProjectileProgramAddresses.RecordAddresses(frame))
         {
-            int trailWord = TrailWord(bus, frame);
-            AssertTrue(trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[list], $"{list} places {frame} from one of its own placements");
-            AssertEqual(NativePlacement(bus, starts[list] + trailWord * RecordByteCount), placement, $"{list} places {frame} where the cartridge does");
+            // Every record that shows a frame places its trail where the frame's placement does (#2274).
+            int trailWord = TrailWord(bus, record);
+            AssertTrue(trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[list], $"{list} places {frame} at $93:{record:X4} from one of its own placements");
+            AssertEqual(NativePlacement(bus, starts[list] + trailWord * RecordByteCount), placement, $"{list} places {frame} at $93:{record:X4} where the cartridge does");
             records++;
         }
 
@@ -104,18 +106,19 @@ internal static class ProjectileTrailCoordinatesVerification
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 36, 0x100, 0x200 })
         foreach (SamusProjectileFrameId frame in ShownFrames(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type)))
+        foreach (int record in SamusProjectileProgramAddresses.RecordAddresses(frame))
         for (ushort direction = 0; direction < 10; direction++)
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
         {
             ushort offsets = DirectionList(bus, type, direction);
-            int trailWord = TrailWord(bus, frame);
+            int trailWord = TrailWord(bus, record);
             ushort y = unchecked((ushort)(offsets + trailWord * 4));
             system.Reset();
             var shot = new SamusProjectile(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
                 Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
-                Playback = SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(SamusProjectileProgramAddresses.RecordAddress(frame) +
+                Playback = SamusProjectileProgramAddresses.PlaybackAt(unchecked((ushort)(record +
                     SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount))),
                 Position = new(new(origin, 0), new(origin, 0)),
             };
@@ -187,9 +190,9 @@ internal static class ProjectileTrailCoordinatesVerification
     private static bool TrailSpawnDraws(Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, int trailWord) =>
         lists.TryGetValue(list, out ProjectileTrailPlacementList named) && trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[named];
 
-    /// <summary>The trail word of the timed record that shows <paramref name="frame"/>: the placement it reads from its list.</summary>
-    private static int TrailWord(ISnesAddressSpace bus, SamusProjectileFrameId frame) => RomDataReader.ReadWordFixedBank(
-        CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(SamusProjectileProgramAddresses.RecordAddress(frame) + 6)));
+    /// <summary>The trail word of the timed record at bank-$93 <paramref name="record"/>: the placement it reads from its list.</summary>
+    private static int TrailWord(ISnesAddressSpace bus, int record) => RomDataReader.ReadWordFixedBank(
+        CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(record + 6)));
 
     /// <summary>
     /// Every frame a projectile of <paramref name="type"/> can show, whatever its direction: the frames of every animation of

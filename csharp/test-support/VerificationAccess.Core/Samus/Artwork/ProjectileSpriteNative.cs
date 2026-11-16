@@ -71,9 +71,9 @@ internal static class ProjectileSpriteNative
     /// <summary>The timed record stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No timed record is stored there.</exception>
     internal static SamusProjectileFrameId Frame(int address) =>
-        SamusProjectileFrameOrder.Frames.Where(record => SamusProjectileProgramAddresses.RecordAddress(record) == address)
-            .Select(record => (SamusProjectileFrameId?)record).SingleOrDefault()
-            ?? throw new InvalidDataException($"No timed projectile record is stored at $93:{address:X4}.");
+        SamusProjectileProgramAddresses.Layout.RecordFrames.TryGetValue(address, out SamusProjectileFrameId frame)
+            ? frame
+            : throw new InvalidDataException($"No timed projectile record is stored at $93:{address:X4}.");
 
     /// <summary>Where <paramref name="sprite"/> sits in <paramref name="all"/>.</summary>
     private static int Place(IReadOnlyList<ProjectileSpriteId> all, ProjectileSpriteId sprite)
@@ -97,9 +97,9 @@ internal static class ProjectileSpriteNative
     /// <summary>The timed records by bank-$93 address.</summary>
     extension(SamusProjectileFrameDefinitions)
     {
-        /// <summary>Every timed record's bank-$93 address, in address order.</summary>
+        /// <summary>Every timed record's bank-$93 address, in address order: a frame shown again stands at several (#2274).</summary>
         internal static IReadOnlyList<ushort> TimedRecordAddresses =>
-            [.. SamusProjectileFrameOrder.Frames.Select(SamusProjectileProgramAddresses.RecordAddress).Order()];
+            [.. SamusProjectileProgramAddresses.Layout.RecordFrames.Keys.Order().Select(record => checked((ushort)record))];
     }
 
     /// <summary>Binding keys by record address.</summary>

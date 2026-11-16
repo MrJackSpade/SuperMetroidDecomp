@@ -1677,8 +1677,7 @@ internal static class LookupStream1Verification
         var document = new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,
-            Frames = expected.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameNameAt(pointer),
-                pointer => ProjectileSpriteDefinitions.Name(Word(0x930000 | (pointer + 2)))),
+            Frames = NativeFrameBindings(rom, expected),
         };
         var guard = NewLookupFlareForbiddenBus();
         int interpreted = 0, bombInterpreted = 0;
@@ -1725,6 +1724,24 @@ internal static class LookupStream1Verification
         _ => null,
     };
 
+    /// <summary>
+    /// The bindings the cartridge's timed records give: each frame's composition, read from every record that shows it,
+    /// which all store the same one (#2274).
+    /// </summary>
+    private static Dictionary<string, string> NativeFrameBindings(ISnesAddressSpace rom, IEnumerable<ushort> records)
+    {
+        var frames = new Dictionary<string, string>();
+        foreach (ushort pointer in records)
+        {
+            int sprite = 0x930000 | (pointer + 2);
+            string name = ProjectileFrameBindingFormat.FrameNameAt(pointer);
+            string composition = ProjectileSpriteDefinitions.Name(LittleEndianBytes.Word(rom.ReadCartridgeByte(sprite), rom.ReadCartridgeByte(sprite + 1)));
+            if (!frames.TryAdd(name, composition))
+                AssertEqual(frames[name], composition, $"every record that shows {name} stores its composition");
+        }
+        return frames;
+    }
+
     /// <summary>Reads native projectile radius words from bank-$93 programs.</summary>
     private static byte LookupStream1ProjectileRadiusLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Traverses projectile programs, comparing timed records and mechanics ownership with bank $93.</summary>
@@ -1763,8 +1780,7 @@ internal static class LookupStream1Verification
         var document = new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,
-            Frames = records.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameNameAt(pointer),
-                pointer => ProjectileSpriteDefinitions.Name(Word(0x930000 | (pointer + 2)))),
+            Frames = NativeFrameBindings(rom, records),
         };
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
         var guard = NewLookupFlareForbiddenBus();
@@ -1809,7 +1825,9 @@ internal static class LookupStream1Verification
                     AssertTrue(bomb.Type.IsNone, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail),
+                // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y,
+                        SamusProjectileProgramAddresses.RecordAddress(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Frame(trail))),
                     new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y,
                         SamusProjectileProgramAddresses.RecordAddress(ProjectileTrails.GetTrailFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record."))),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");

@@ -9,9 +9,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// </summary>
 internal static class SamusProjectileFrameOrder
 {
-    /// <summary>Every frame, animation by animation in segment order, each animation's in the order it shows them.</summary>
+    /// <summary>
+    /// Every frame, animation by animation in segment order, each animation's in the order it first shows them: a frame
+    /// shown again is listed once (#2274).
+    /// </summary>
     internal static IReadOnlyList<SamusProjectileFrameId> Frames { get; } =
         [.. Enum.GetValues<SamusProjectileSegment>().SelectMany(program => SamusProjectileAnimations.Segments.Beats(program)
             .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
-            .Select(show => show.Shown))];
+            .Select(show => show.Shown)).Distinct()];
 }

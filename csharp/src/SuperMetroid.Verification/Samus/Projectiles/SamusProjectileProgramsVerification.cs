@@ -29,6 +29,7 @@ internal static class SamusProjectileProgramsVerification
         Dictionary<ushort, SamusProjectileSegment> byEntry = Enum.GetValues<SamusProjectileSegment>()
             .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);
         var records = new SortedSet<ushort>();
+        var shownFrames = new HashSet<SamusProjectileFrameId>();
         var lists = new Dictionary<SamusProjectileSegment, NativeEnemyList<SamusProjectileSegment>>();
         int steps = 0;
         foreach ((ushort entry, SamusProjectileSegment program) in byEntry)
@@ -54,11 +55,12 @@ internal static class SamusProjectileProgramsVerification
                     AssertTrue(index < beats.Count, $"{at}: the segment has a beat for the timed record");
                     var show = AssertIs<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(cursor, SamusProjectileProgramAddresses.RecordAddress(show.Shown), $"{at}: record address");
+                    AssertTrue(SamusProjectileProgramAddresses.RecordAddresses(show.Shown).Contains(cursor), $"{at}: record address");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)),
                         SamusProjectileFrameDefinitions.Radius(show.Shown), $"{at}: radii");
                     records.Add(cursor);
+                    shownFrames.Add(show.Shown);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount));
                     continue;
@@ -76,7 +78,7 @@ internal static class SamusProjectileProgramsVerification
         }
         // Each animation plays the segments its lists' gotos, runs on and deletes play.
         NativeEnemyAnimationOracle.CompareAnimations(lists, SamusProjectileAnimations.StartingAt);
-        AssertEqual(SamusProjectileFrameDefinitionsConstants.FrameCount, records.Count, "every record is shown by a program");
+        AssertEqual(SamusProjectileFrameDefinitionsConstants.FrameCount, shownFrames.Count, "every frame is shown by a program");
         AssertTrue(records.SequenceEqual(SamusProjectileFrameDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
 
         int fields = 0;

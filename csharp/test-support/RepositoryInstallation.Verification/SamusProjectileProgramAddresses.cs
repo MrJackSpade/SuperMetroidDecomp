@@ -37,4 +37,7 @@ internal static class SamusProjectileProgramAddresses
 
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>
     internal static ushort RecordAddress(SamusProjectileFrameId record) => Layout.RecordPosition(record);
+
+    /// <inheritdoc cref="SamusProjectileListLayout.RecordPositions"/>
+    internal static IReadOnlyList<int> RecordAddresses(SamusProjectileFrameId record) => Layout.RecordPositions(record);
 }

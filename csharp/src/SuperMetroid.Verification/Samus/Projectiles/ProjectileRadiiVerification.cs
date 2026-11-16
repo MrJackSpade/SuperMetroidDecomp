@@ -127,7 +127,7 @@ internal static class ProjectileRadiiVerification
             AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Bomb stream progression unchanged");
             bombFrames++;
         }
-        Console.WriteLine($"Projectile radii: 795 native pairs, loud non-catalog rejection, 795 projectile frames and {bombFrames} bomb frames pass.");
+        Console.WriteLine($"Projectile radii: 795 native pairs, loud non-catalog rejection, 795 projectile records and {bombFrames} bomb records pass.");
     }
 
     /// <summary>Runs radius and instruction checks against the same retail cartridge.</summary>

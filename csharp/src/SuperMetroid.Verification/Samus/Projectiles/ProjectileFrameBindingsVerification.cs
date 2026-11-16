@@ -21,8 +21,8 @@ internal static class ProjectileFrameBindingsVerification
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(stockJson, writable: false));
         AssertEqual(ProjectileFrameBindingFormat.FrameCount,
-            SamusProjectileFrameDefinitions.TimedRecordAddresses.Count,
-            "the frames' gameplay and their visual bindings have identical coverage");
+            SamusProjectileFrameDefinitions.TimedRecordAddresses.Select(record => ProjectileSpriteNative.Frame(record)).Distinct().Count(),
+            "the frames the timed records show and their visual bindings have identical coverage");
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
@@ -95,7 +95,7 @@ internal static class ProjectileFrameBindingsVerification
             .Where(name => name.Split('.').Any(segment => segment.All(char.IsAsciiDigit))).Distinct()];
         AssertTrue(numbered.Length == 0, $"compositions are named for their poses, not numbered: {string.Join(", ", numbered)}");
         AssertEqual("Power.UpRight", document.Frames[nameof(SamusProjectileFrameId.PowerUpRight)], "the up-right Power beam binds the up-right Power pose");
-        AssertEqual("Wave.Right.Up1", document.Frames[nameof(SamusProjectileFrameId.WaveRightUp1)], "the right-travelling Wave beam's first swing binds its first upward stage");
+        AssertEqual("Wave.Right.Up1", document.Frames[nameof(SamusProjectileFrameId.WaveRightUpNear)], "the right-travelling Wave beam's first swing binds its first upward stage");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");
@@ -105,7 +105,7 @@ internal static class ProjectileFrameBindingsVerification
         document.Frames[frameName] = "sprite_0000";
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "uncatalogued sprite selection fails before gameplay");
-        Console.WriteLine("Projectile frame bindings: 795 frames, both handlers, installed bindings and malformed documents pass.");
+        Console.WriteLine($"Projectile frame bindings: {ProjectileFrameBindingFormat.FrameCount} frames over {SamusProjectileFrameDefinitions.TimedRecordAddresses.Count} records, both handlers, installed bindings and malformed documents pass.");
     }
 
     /// <summary>Runs the projectile frame binding checks.</summary>

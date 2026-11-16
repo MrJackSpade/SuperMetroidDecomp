@@ -50,7 +50,7 @@ internal static class WaverAnimationDefinitionsVerification
             WaverBehavior.InitializeWaver(place);
             WaverSegment expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
             WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
-            AssertEqual(WaverAnimationChoices.Facing(expected), waver.Facing,
+            AssertEqual(WaverAnimationChoicesConstants.Facing(expected), waver.Facing,
                 $"production Waver initial facing {parameter}");
             AssertEqual(new AnimationPlayback<WaverSegment>(WaverAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
                 waver.Playback,
@@ -79,7 +79,7 @@ internal static class WaverAnimationDefinitionsVerification
                 WaverAnimationChoices.Steady(turned), $"Waver facing {facing} turned around by a wall");
             AssertEqual(WaverNativeWords.Animations.Decode(index | 2, "Waver animation index"),
                 WaverAnimationChoices.Spinning(facing), $"Waver spinning facing {facing}");
-            AssertEqual(facing, WaverAnimationChoices.Facing(WaverAnimationChoices.Spinning(facing)), $"Waver spin facing {facing} keeps its facing");
+            AssertEqual(facing, WaverAnimationChoicesConstants.Facing(WaverAnimationChoices.Spinning(facing)), $"Waver spin facing {facing} keeps its facing");
         }
     }
 }

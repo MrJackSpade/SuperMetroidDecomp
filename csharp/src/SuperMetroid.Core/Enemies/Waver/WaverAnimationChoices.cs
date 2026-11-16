@@ -18,12 +18,4 @@ internal static class WaverAnimationChoices
         HorizontalDirection.Right => WaverSegment.SpinningFacingRight,
         _ => throw new InvalidDataException($"Waver facing {facing} is not a horizontal direction."),
     };
-
-    /// <summary>The way <paramref name="animation"/> faces.</summary>
-    internal static HorizontalDirection Facing(WaverSegment animation) => animation switch
-    {
-        WaverSegment.SteadyFacingLeft or WaverSegment.SpinningFacingLeft => HorizontalDirection.Left,
-        WaverSegment.SteadyFacingRight or WaverSegment.SpinningFacingRight => HorizontalDirection.Right,
-        _ => throw new InvalidDataException($"Waver animation {animation} is not one of its four animations."),
-    };
 }

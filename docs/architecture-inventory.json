@@ -60208,6 +60208,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraEchoState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraEchoState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.DachoraEnemyState",
       "kind": "class",
       "scope": "product",
@@ -75552,6 +75565,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Platforms.PlatformVerticalArt",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Platforms/PlatformVerticalArt.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Platforms.PlatformVerticalMovement",
       "kind": "enum",
       "scope": "product",
@@ -81264,6 +81290,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverAnimationChoices.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Waver.WaverAnimationChoicesConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Waver/WaverAnimationChoicesConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

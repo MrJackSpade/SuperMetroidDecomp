@@ -100831,6 +100831,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.PrivateState",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/PrivateState.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Progression.AreaBoss",
       "kind": "enum",
       "scope": "product",
@@ -114335,19 +114351,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.CrystalFlashInputCheck",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/CrystalFlashInputCheck.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Abilities.CrystalFlashMovementResult",
       "kind": "record struct",
       "scope": "product",
@@ -114772,6 +114775,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Abilities.SamusSuitPickupDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/SamusSuitPickupDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Abilities.SamusSuitPickupFlash",
       "kind": "record struct",
       "scope": "product",
@@ -115167,19 +115183,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayActivation",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayActivation.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayBeamPhase",
       "kind": "enum",
       "scope": "product",
@@ -115486,6 +115489,19 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.AnimationAngles",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayScopeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Holds",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -116887,6 +116903,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Colours.SamusHurtFlashDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Colours/SamusHurtFlashDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Colours.SamusPaletteDefinitionsBanksConstants",
       "kind": "static class",
       "scope": "test",
@@ -117758,6 +117787,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Drawing.SamusPresentationMode",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusPresentationMode.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Drawing.SamusShownFrames",
       "kind": "class",
       "scope": "product",
@@ -117843,6 +117885,19 @@
     },
     {
       "type": "SuperMetroid.Core.Samus.Grapple.GrappleBeamDefinitions.BeamShades",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleBeamDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Grapple.GrappleBeamDefinitions.Blocks",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -118479,19 +118534,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Grapple.GrapplePoseChange",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Grapple/GrapplePoseChange.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Grapple.GrappleSlowScrollDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -118613,6 +118655,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovementAccess.extension(SuperMetroid.Core.Samus.Grapple.GrappleMovementResult)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Grapple/SamusGrappleMovementAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovementAccess.extension(SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement)",
@@ -120246,19 +120304,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Poses.GrappleDropSpeed",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Poses/GrappleDropSpeed.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Poses.LargerPoseCollisionOutcome",
       "kind": "enum",
       "scope": "product",
@@ -120851,6 +120896,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseHistoryStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Poses/SamusPoseHistoryStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Poses.SamusPoseHistoryStateAccess.extension(SuperMetroid.Core.Samus.Poses.SamusPoseHistoryState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Poses/SamusPoseHistoryStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Samus.Poses.SamusPoseId",
@@ -121634,6 +121711,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponentState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlareComponentState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponents",
       "kind": "class",
       "scope": "product",
@@ -122212,6 +122302,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileTimingDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileTimingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.ProjectileTrailAnimationDefinitions",
@@ -124122,6 +124225,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Samus.SamusDraygonHoldDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusDraygonHoldDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.SamusEnergyRestoration",
       "kind": "static class",
       "scope": "product",
@@ -124289,6 +124405,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/SamusOverreadServices.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusPeriodicDamage",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusPeriodicDamage.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -125652,6 +125781,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Spatial.UnitComponent",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Spatial/UnitComponent.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Spatial.UnsignedEightEight",

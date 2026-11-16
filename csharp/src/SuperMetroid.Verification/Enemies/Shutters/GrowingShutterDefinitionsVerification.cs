@@ -46,7 +46,7 @@ internal static class GrowingShutterDefinitionsVerification
                     AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                        AssertEqual(unchecked((ushort)(place.Position.Y.Whole + direction * 8 * level)), state.SectionOrigin(level).Y, $"Shutter wrapped origin {level}");
+                        AssertEqual(unchecked((ushort)(place.Position.Y.Whole + direction * 8 * level)), state.SectionOriginY(level), $"Shutter wrapped origin {level}");
                     AssertTrue(!place.CollidesByFrameHitboxes && !place.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
                 }
             }

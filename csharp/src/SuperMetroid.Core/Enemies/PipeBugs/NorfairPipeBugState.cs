@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 public sealed class NorfairPipeBugState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal NorfairPipeBugState(PipeBugAction action) => Action = action;
+    internal NorfairPipeBugState(NorfairPipeBugAction action) => Action = action;
 
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }
 
     /// <summary>The current action, one of the Norfair actions.</summary>
-    public PipeBugAction Action { get; internal set; }
+    public NorfairPipeBugAction Action { get; internal set; }
 
     /// <summary>The whole-pixel spawn position restored when the bug leaves the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }
@@ -45,7 +45,7 @@ public sealed class NorfairPipeBugState
     public int StaggerTarget { get; internal set; }
 
     /// <summary>The stagger the member runs after rising, its role's (#1840), or null before its formation assigns one.</summary>
-    public PipeBugAction? PostRiseAction { get; internal set; }
+    public NorfairPipeBugAction? PostRiseAction { get; internal set; }
 
     /// <summary>How far, in pixels, the member's stagger moves it from where its rise ended: its role's (#2071).</summary>
     public int StaggerOffset { get; internal set; }

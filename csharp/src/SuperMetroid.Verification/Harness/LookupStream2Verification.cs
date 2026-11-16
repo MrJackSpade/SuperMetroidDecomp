@@ -920,7 +920,7 @@ internal static class LookupStream2Verification
                 AssertEqual(roles[member].PostRiseAction, state.PostRiseAction ?? throw new InvalidOperationException($"Formation member {member} has no post-rise action."),
                     "Actual formation writes its role's stagger");
                 AssertEqual(roles[member].StaggerOffset, state.StaggerOffset, "Actual formation writes its role's stagger offset");
-                AssertEqual(PipeBugAction.NorfairRise, state.Action, "Actual formation begins rising");
+                AssertEqual(NorfairPipeBugAction.Rise, state.Action, "Actual formation begins rising");
                 AssertEqual(new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(samusX < 128 ? PipeBugSegment.GametRisingLeft : PipeBugSegment.GametRisingRight), AnimationPlace.StartOfAnimation),
                     state.Playback, "Actual formation selects facing");
                 AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.Places.InUpdateOrder[member].AnimationClock.Hold.RawValue,

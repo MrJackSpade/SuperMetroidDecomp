@@ -128,7 +128,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Power-bomb entry.</summary>
     internal static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place)
     {
-        place.RequireSpeciesState<DeadTorizoEnemyState>();
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
             TriggerDeadTorizoRotting(place);
     }

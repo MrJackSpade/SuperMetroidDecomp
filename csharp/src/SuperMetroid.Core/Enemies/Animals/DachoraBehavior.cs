@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -124,39 +124,36 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int frameCycle)
     {
-        // Echo AI needs only the frame counter's parity. Every body state needs both the active
-        // Samus gravity values and authentic room collision, so fail loudly if the family
-        // runs without the state that code reads globally.
+        // Echo AI needs only the frame counter's parity; every body state reads Samus's gravity values and the room's
+        // collision.
         if (state.Action == DachoraAction.Echo)
         {
             RunDachoraEcho(place, state, frameCycle);
             return;
         }
 
-        SamusState activeSamus = samus;
-        RoomLevelData activeLevel = level;
         switch (state.Action)
         {
             case DachoraAction.WaitingForSamus:
-                RunDachoraWaiting(place, state, activeSamus, activeLevel);
+                RunDachoraWaiting(place, state, samus, level);
                 break;
             case DachoraAction.BlinkingBeforeRun:
                 RunDachoraBlinking(place, state);
                 break;
             case DachoraAction.RunningLeft:
-                RunDachoraLeft(place, state, activeLevel);
+                RunDachoraLeft(place, state, level);
                 break;
             case DachoraAction.RunningRight:
-                RunDachoraRight(place, state, activeLevel);
+                RunDachoraRight(place, state, level);
                 break;
             case DachoraAction.ChargingShinespark:
                 RunDachoraCharging(place, state);
                 break;
             case DachoraAction.Shinesparking:
-                RunDachoraShinespark(place, state, activeSamus, activeLevel);
+                RunDachoraShinespark(place, state, samus, level);
                 break;
             case DachoraAction.Falling:
-                RunDachoraFalling(place, state, activeSamus, activeLevel);
+                RunDachoraFalling(place, state, samus, level);
                 break;
             case DachoraAction.Echo:
             default:

@@ -1956,9 +1956,8 @@ internal static class LookupStream4Verification
                 new Action<RoomEnemyPlace>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(place);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 state.Phase = RidleyPhase.WaitBeforeLiftoff; state.PhaseTimer = 0;
-                var liquid = new RoomFxOverlayState();
+                RoomFxOverlayState liquid = enemies.RoomFx.FxOverlay;
                 liquid.BindAudioRequests(GameplayAudioRequests.Standalone());
-                enemies.RoomFx.BindRoomFx(liquid);
                 Action<RoomEnemyPlace, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {

@@ -19,7 +19,6 @@ internal static class ShutterArcNativeWords
     /// </summary>
     internal static ushort Action(VerticalShutterAction action) => action switch
     {
-        VerticalShutterAction.Initial => 0xEF09,
         VerticalShutterAction.WaitForTimer => 0xEF15,
         VerticalShutterAction.WaitForHorizontalProximity => 0xEF28,
         VerticalShutterAction.Activate => 0xEF39,

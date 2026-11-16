@@ -111,7 +111,7 @@ internal static class DragonAnimationDefinitionsVerification
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
-        enemies.DragonBehavior.RunDragonWaitToRise(body, (bodyState), samus);
+        DragonBehavior.RunDragonWaitToRise(body, (bodyState), samus);
         DragonSegment idle = facingLeft
             ? DragonSegment.IdleFacingLeft
             : DragonSegment.IdleFacingRight;
@@ -132,7 +132,7 @@ internal static class DragonAnimationDefinitionsVerification
             expectedFrameHold: facingLeft ? (ushort)0 : (ushort)1);
 
         bodyState.ActionTimer = 0;
-        enemies.DragonBehavior.RunDragonRising(body, bodyState);
+        DragonBehavior.RunDragonRising(body, bodyState);
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         DragonSegment attacking = facingLeft
             ? DragonSegment.AttackingFacingLeft

@@ -25,8 +25,8 @@ internal static class EyeDoorProjectileBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorProjectileNativeListAddresses.Extent, "eye-door shot");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The eye's attack spawns the shot with the door bit its typed state keeps; the aim cue reads that state.
-        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
-            new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Projectile, Facing: EyeDoorOrientation.Left, RoomObjectBlock: new(7, 4), Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0)),
+        enemies.EyeDoorBehavior.SpawnEyeDoorAttack(
+            new EyeDoorAttackRequest(Facing: EyeDoorOrientation.Left, RoomObjectBlock: new(7, 4), Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0)),
             new SharedGameState(new SharedRandom()));
         EnemyProjectile shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);

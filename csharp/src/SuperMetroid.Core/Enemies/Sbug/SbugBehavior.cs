@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -39,7 +39,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Sbug.</summary>
     internal static void InitializeSbug(RoomEnemyPlace place)
     {
-        var state = new SbugEnemyState(place, SbugAction.WaitForSamus)
+        var state = new SbugEnemyState(place.SpawnSettings<SbugSpawnSettings>(), SbugAction.WaitForSamus)
         {
             // Enemy extension arrays are cleared with the room before initialization: no loop
             // is requested or installed until the first direction is selected.

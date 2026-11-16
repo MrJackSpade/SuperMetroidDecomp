@@ -124,8 +124,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
         // sees each post on its own side of the pirate.
-        state.RightPost = new(CoordinateAxis.Wrap(place.Position.X.Whole + settings.PatrolReach), 0);
-        state.LeftPost = new(CoordinateAxis.Wrap(place.Position.X.Whole - settings.PatrolReach), 0);
+        state.RightPostX = CoordinateAxis.Wrap(place.Position.X.Whole + settings.PatrolReach);
+        state.LeftPostX = CoordinateAxis.Wrap(place.Position.X.Whole - settings.PatrolReach);
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
@@ -197,7 +197,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 place,
                 displacement: WalkingPirateLeftStepDisplacement);
             if (!hitWall &&
-                (place.Position.Whole - state.LeftPost).X >= 0)
+                CoordinateAxis.Difference(place.Position.X.Whole, state.LeftPostX) >= 0)
             {
                 return;
             }
@@ -236,7 +236,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 level,
                 place,
                 displacement: WalkingPirateRightStepDisplacement) &&
-            (place.Position.Whole - state.RightPost).X < 0)
+            CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPostX))
         {
             return;
         }

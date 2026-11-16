@@ -1,11 +1,18 @@
 using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>The state of one Fune or Namihe, the two species that share this actor.</summary>
-public sealed class FuneNamiheEnemyState
+/// <summary>
+/// What a Fune and a Namihe, the two species that share this actor's animations and fireball, each keep (#2063): the
+/// animation, whether it is spitting, its facing and its fireballs' launch speed. A Fune's state is a
+/// <see cref="FuneEnemyState"/>, which waits on a cooldown; a Namihe's a <see cref="NamiheEnemyState"/>, which waits for
+/// Samus.
+/// </summary>
+public abstract class FuneNamiheEnemyState
 {
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal FuneNamiheEnemyState(FuneNamiheAction action) => Action = action;
+    /// <summary>Closes the hierarchy to the two species declared here.</summary>
+    private protected FuneNamiheEnemyState()
+    {
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FuneNamiheSegment> Playback { get; set; }
@@ -16,28 +23,15 @@ public sealed class FuneNamiheEnemyState
     /// <summary>Whether the right-facing animations are selected, from its spawn facing.</summary>
     public bool FacingRight { get; internal set; }
 
-    /// <summary>The waiting or spitting behaviour.</summary>
-    public FuneNamiheAction Action { get; internal set; }
+    /// <summary>The speed, in pixels per update, at which its fireballs fly away from it, from its spawn settings.</summary>
+    public SignedEightEight LaunchSpeed { get; internal set; }
 
-    /// <summary>Strict vertical wake distance in pixels used only by Namihe, from the spawn settings.</summary>
-    public int YProximity { get; internal set; }
+    /// <summary>The pixels the spitter's mouth, from which its fireballs leave, sits below its position in the shared art.</summary>
+    internal abstract int MouthDrop { get; }
 
-    /// <summary>
-    /// Fune's count of waiting updates, reset to zero when the wait ends: it counts up to <see cref="CooldownTime"/> (#2045).
-    /// </summary>
-    public int CooldownTimer
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
+    /// <summary>The animation the species, activity and facing select.</summary>
+    internal abstract FuneNamiheSegment Animation { get; }
 
-    /// <summary>The number of updates Fune waits, from the spawn settings, zero or more.</summary>
-    public int CooldownTime
-    {
-        get;
-        internal set => field = Ensure.AtLeastZero(value);
-    }
-
-    /// <summary>Whether it is a Namihe, which waits for Samus, rather than a Fune, which spits on its cooldown.</summary>
-    public bool IsNamihe { get; internal set; }
+    /// <summary>Ends the spit, as its animation's finishing cue does: back to the idle animation and the species' wait.</summary>
+    internal abstract void FinishSpit();
 }

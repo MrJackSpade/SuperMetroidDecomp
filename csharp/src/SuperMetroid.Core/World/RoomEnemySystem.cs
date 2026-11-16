@@ -625,7 +625,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Room = new EnemyRoomBinding(session, dependencies.Definitions, dependencies.Services, dependencies.Area);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
-        RoomFx = new EnemyRoomFx();
+        RoomFx = new EnemyRoomFx(dependencies.RoomFx);
         RoomStatus = new EnemyRoomStatus(session);
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(session, compatibility.FadeStepCount);
@@ -725,7 +725,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
-        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
+        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx, Places);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresFallingTiles = new CeresFallingTiles(Room, Projectiles, Audio);
@@ -864,7 +864,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         // initialization among them.
         Room.Session.Looks.Restart();
         IRoomEnemyDefinitionSource definitions = Room.Definitions;
-        GunshipBehavior.BeginRoomLoad(request.GunshipScenario, request.Samus);
+        GunshipBehavior.BeginRoomLoad(request.GunshipScenario);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
         DeathsAndDrops.BindSamus(request.Samus);
         Presentation.BindBackgrounds(request.Appearance);

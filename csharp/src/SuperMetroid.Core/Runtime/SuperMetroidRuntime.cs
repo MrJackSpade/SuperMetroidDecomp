@@ -531,7 +531,7 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, scope.FxOverlay, Room.LoadedScope.Enemies);
+        EnemyRoomEffects.ApplyPendingChozoStatueObjects(scope.RoomObjects, Room.LoadedScope.Enemies);
     }
 
     /// <summary>Marks the frame's impacts as gameplay's, runs the accepted-frame boundary and the host's post-boundary work, and chooses the screen layers.</summary>

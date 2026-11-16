@@ -35,7 +35,14 @@ internal static class ShutterBehaviorVerification
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
             VerifyPose(definition, ShutterSegment.FortyPixels,
-                (enemies, place) => ShuttersBehavior.InitializeVerticalShutter(place),
+                (enemies, place) =>
+                {
+                    ShuttersBehavior.InitializeVerticalShutter(place);
+                    VerticalShutterEnemyState state = place.SpeciesState<VerticalShutterEnemyState>()
+                        ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
+                    AssertEqual(ShuttersBehavior.InitialAction(state.TriggerMode), state.Action,
+                        $"shutter {definition} starts in its trigger's initial action (#2075)");
+                },
                 enemies => enemies.Places.InUpdateOrder[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Playback);
         }
 
@@ -79,19 +86,17 @@ internal static class ShutterBehaviorVerification
         return place;
     }
 
-    /// <summary>Checks native vertical shutter function selection and invalid trigger-mode rejection.</summary>
+    /// <summary>
+    /// Checks that each trigger mode's initial action is the native trigger table's entry for that mode, and invalid
+    /// trigger-mode rejection.
+    /// </summary>
     internal static void VerifyVerticalShutterInitialFunctionSelection(CartridgeImportAddressSpace rom)
     {
-        Func<VerticalShutterEnemyState, VerticalShutterAction> select = ShuttersBehavior.SelectInitialVerticalShutterAction;
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
         foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
-            state.TriggerMode = mode;
             ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
-            AssertEqual(ShuttersNativeWords.VerticalShutterActions.Decode(native, "vertical shutter initial action"), select(state),
+            AssertEqual(ShuttersNativeWords.VerticalShutterActions.Decode(native, "vertical shutter initial action"), ShuttersBehavior.InitialAction(mode),
                 "vertical shutter native initial function pointer");
-            AssertEqual(VerticalShutterAction.Initial, state.Action,
-                "vertical initial dispatch selects a function without installing it");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
             AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterShootable,
@@ -133,8 +138,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {
-        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry);
-        var state = new GrowingShutterEnemyState(place, GrowingShutterAction.WaitToGrowUpForTimer);
+        var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer);
         state.ActivationTimer = 2;
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
         AssertEqual(1, state.ActivationTimer, "the first call counts the wait down by one");
@@ -205,7 +209,7 @@ internal static class ShutterBehaviorVerification
     /// </summary>
     internal static void VerifyVerticalShutterVelocityWords()
     {
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.Initial);
+        var state = new VerticalShutterEnemyState(VerticalShutterAction.WaitForTimer);
         SignedSixteenSixteen down = SignedSixteenSixteen.FromParts(-2, 40000);
         SignedSixteenSixteen up = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
         state.DownVelocity = down;

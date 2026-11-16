@@ -34,9 +34,12 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
+        /// <remarks>His room's acid, whose surface his acid smoke rises from, is the system's room effect.</remarks>
         internal RoomEnemySystem Enemies { get; } = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: new VerificationRoomEnemyServices(null));
-        /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
+            services: new VerificationRoomEnemyServices(null),
+            roomFx: RoomFxOverlayState.ForDefinition(RoomFxDefinitions.AllRecords.First(record => record.Type == RoomFxType.Acid)
+                with { LiquidStartLevel = 224, LiquidTargetLevel = null, LiquidLevelSpeed = default }, randomNumber: 0));
+        /// <summary>Crocomire body state bound to the first two enemy places.</summary>
         internal CrocomireEnemyState Actor { get; }
         /// <summary>Seeded melt phase with recognizable graphics and the body canvases Crocomire's initialization attaches.</summary>
         internal CrocomireDeathState Effect { get; }
@@ -63,10 +66,6 @@ internal static class EnemyEffectsFixtureVerification
             Effect.MeltDistortion = CrocomireMeltDistortion.Level(19);
             Enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Access.Crocomire = Actor;
-            // His room's acid, whose surface his acid smoke rises from.
-            RoomFxOverlayState acid = RoomFxOverlayState.ForDefinition(RoomFxDefinitions.AllRecords.First(record => record.Type == RoomFxType.Acid)
-                with { LiquidStartLevel = 224, LiquidTargetLevel = null, LiquidLevelSpeed = default }, randomNumber: 0);
-            Enemies.RoomFx.BindRoomFx(acid);
             Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 

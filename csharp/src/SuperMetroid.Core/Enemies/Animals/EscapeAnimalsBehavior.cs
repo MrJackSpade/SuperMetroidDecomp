@@ -219,8 +219,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
-    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent,
-    /// as it is with no Samus or liquid context.
+    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent
+    /// from Samus's room.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
         samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;

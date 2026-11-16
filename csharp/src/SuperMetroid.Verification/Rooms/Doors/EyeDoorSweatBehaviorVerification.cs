@@ -32,7 +32,7 @@ internal static class EyeDoorSweatBehaviorVerification
         var foreground = new RoomTerrainBlock[roomWidth * 16];
         foreground[5 * roomWidth + 6] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         RoomLevelData level = CreateRoom(new(roomWidth, 16), foreground, new RoomBlockBehavior[foreground.Length]);
-        var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Facing: EyeDoorOrientation.Right, RoomObjectBlock: new(7, 4), Door: SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Door(0));
+        var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Facing: EyeDoorOrientation.Right, RoomObjectBlock: new(7, 4));
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, new SharedGameState(new SharedRandom()));
         EnemyProjectile sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
         AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatSegment.Falling }, "the sweat starts its fall");

@@ -71,7 +71,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Yapping Maw.</summary>
     internal void InitializeYappingMaw(RoomEnemyPlace place)
     {
-        var state = new YappingMawEnemyState(place)
+        var state = new YappingMawEnemyState
         {
             Action = YappingMawAction.WaitingForSamus,
             Origin = place.Position.Whole,
@@ -140,7 +140,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 AdvanceYappingMawExtension(place, state, samus);
                 break;
             case YappingMawAction.RetractedDelay:
-                WaitAfterYappingMawRetraction(state, samus);
+                WaitAfterYappingMawRetraction(place, state, samus);
                 break;
             default:
                 throw new InvalidDataException(
@@ -151,10 +151,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // and three-quarter points of the tongue. The game writes coordinates even
         // though their frame behaviours are empty; the projectile pass advances only their one-frame
         // map selection and permanent rest step.
-        PositionYappingMawBodyProjectile(state, 0, state.Origin);
-        PositionYappingMawBodyProjectile(state, 1, YappingMawLinkPosition(state, 0));
-        PositionYappingMawBodyProjectile(state, 2, YappingMawLinkPosition(state, 1));
-        PositionYappingMawBodyProjectile(state, 3, YappingMawLinkPosition(state, 2));
+        PositionYappingMawBodyProjectile(place, state, 0, state.Origin);
+        PositionYappingMawBodyProjectile(place, state, 1, YappingMawLinkPosition(state, 0));
+        PositionYappingMawBodyProjectile(place, state, 2, YappingMawLinkPosition(state, 1));
+        PositionYappingMawBodyProjectile(place, state, 3, YappingMawLinkPosition(state, 2));
     }
 
     /// <summary>Waits for Samus, including the deliberately approximate distance helper.</summary>
@@ -322,11 +322,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Waits after retraction, including the expiry past zero on frame 65.</summary>
     private void WaitAfterYappingMawRetraction(
+        RoomEnemyPlace mouth,
         YappingMawEnemyState state,
         SamusState samus)
     {
         if (state.HasGrabbedSamus)
-            PositionSamusInYappingMaw(state.Owner, state, samus);
+            PositionSamusInYappingMaw(mouth, state, samus);
 
         state.RetractedDelayTimer--;
         if (state.RetractedDelayTimer >= 0 || samus.DeathSequence.IsActive)
@@ -472,13 +473,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>
     private static void PositionYappingMawBodyProjectile(
+        RoomEnemyPlace mouth,
         YappingMawEnemyState state,
         int index,
         Position16<RoomPixels> position)
     {
         EnemyProjectile projectile = state.BodyProjectiles[index] ??
             throw new InvalidOperationException(
-                $"Yapping Maw place {state.Owner.Ordinal} lost body projectile {index}.");
+                $"Yapping Maw place {mouth.Ordinal} lost body projectile {index}.");
         projectile.Position = projectile.Position.WithWhole(position);
     }
 

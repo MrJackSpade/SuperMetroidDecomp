@@ -46,7 +46,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         assets.LoadGraphics(BgArtworkFixtures.For(vram));
         var random = new SharedGameState(new SharedRandom());
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices((installedArt ?? InstalledFixtures.EnemyArtwork).Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }, installedBosses: (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses);
-        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = assets.LevelData });
+        enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, BgArtworkFixtures.For(vram)) { Level = assets.LevelData, Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
 
         RoomEnemyPlace actor = enemies.Places.InUpdateOrder[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??

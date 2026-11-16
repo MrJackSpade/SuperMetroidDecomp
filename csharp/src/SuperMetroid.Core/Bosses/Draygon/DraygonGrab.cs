@@ -167,7 +167,7 @@ internal sealed class DraygonGrab
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + new Offset16<RoomPixels>(state.FacingRight ? 32 : -32, -16),
-                RoomEffectActorKind.DraygonSpiralFoam,
+                RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
 

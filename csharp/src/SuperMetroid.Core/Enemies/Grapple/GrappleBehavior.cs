@@ -95,7 +95,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
             case EnemyGrappleResponse.Kill:
                 // A grapple kill always ends in the small explosion. The shared death keeps the enemy's position, its drop
                 // and any respawn marker; deleting the enemy outright would skip the explosion.
-                _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
+                _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, frame.Samus);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 

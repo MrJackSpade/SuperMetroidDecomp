@@ -44,10 +44,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
-            // The initialization AI never writes the airborne movement or the inactive extra values. The room loader's
-            // cleared enemy allocation therefore leaves them empty until the first hop owns
-            // them; do not pre-populate plausible values the game has not written.
-            AirborneMovement = null,
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             HoppingAnimationActive = false,
@@ -208,8 +204,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo has no behaviour for airborne movement " +
-                    $"{state.AirborneMovement?.ToString() ?? "none"}.");
+                    $"Puyo has no behaviour for airborne movement {state.AirborneMovement}.");
         }
     }
 

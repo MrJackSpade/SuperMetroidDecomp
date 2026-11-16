@@ -2,8 +2,10 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The frames an enemy projectile shows: the compositions its segments select, then every installed animation frame. Each
-/// is named for what it shows: its owner, the animation (or the part, facing or stage) that first shows it, and its place
-/// there; its values are arbitrary and its installed name is its name in snake case.
+/// is named for what its picture shows: its owner, then the shape, turn, size or placement that tells it from the owner's
+/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. A frame of its
+/// own that shows another frame's picture where that frame shows it is that frame's twin. Its values are arbitrary and its
+/// installed name is its name in snake case.
 /// </summary>
 public enum EnemyProjectileFrameId
 {
@@ -13,1997 +15,1994 @@ public enum EnemyProjectileFrameId
     SkreeDebris,
     /// <summary>The Metaree debris, one composed picture.</summary>
     MetareeDebris,
-    /// <summary>The first frame of the Draygon goop.</summary>
-    DraygonGoopFirst,
-    /// <summary>The second frame of the Draygon goop.</summary>
-    DraygonGoopSecond,
-    /// <summary>The third frame of the Draygon goop.</summary>
-    DraygonGoopThird,
-    /// <summary>The fourth frame of the Draygon goop.</summary>
-    DraygonGoopFourth,
-    /// <summary>The fifth frame of the Draygon goop.</summary>
-    DraygonGoopFifth,
-    /// <summary>The sixth frame of the Draygon goop.</summary>
-    DraygonGoopSixth,
-    /// <summary>The first frame of the Draygon goop shot.</summary>
-    DraygonGoopShotFirst,
-    /// <summary>The second frame of the Draygon goop shot.</summary>
-    DraygonGoopShotSecond,
-    /// <summary>The first frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomFirst,
-    /// <summary>The second frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomSecond,
-    /// <summary>The third frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomThird,
-    /// <summary>The fourth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomFourth,
-    /// <summary>The fifth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomFifth,
-    /// <summary>The sixth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomSixth,
-    /// <summary>The seventh frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomSeventh,
-    /// <summary>The eighth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomEighth,
-    /// <summary>The ninth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomNinth,
-    /// <summary>The tenth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomTenth,
-    /// <summary>The eleventh frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomEleventh,
-    /// <summary>The twelfth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomTwelfth,
-    /// <summary>The thirteenth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomThirteenth,
-    /// <summary>The fourteenth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomFourteenth,
-    /// <summary>The fifteenth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomFifteenth,
-    /// <summary>The sixteenth frame of the Draygon wall turret bloom.</summary>
-    DraygonWallTurretBloomSixteenth,
-    /// <summary>The first frame of the Draygon wall turret flight.</summary>
-    DraygonWallTurretFlightFirst,
-    /// <summary>The second frame of the Draygon wall turret flight.</summary>
-    DraygonWallTurretFlightSecond,
-    /// <summary>The third frame of the Draygon wall turret flight.</summary>
-    DraygonWallTurretFlightThird,
-    /// <summary>The first frame of the Crocomire mouth.</summary>
-    CrocomireMouthFirst,
-    /// <summary>The second frame of the Crocomire mouth.</summary>
-    CrocomireMouthSecond,
-    /// <summary>The third frame of the Crocomire mouth.</summary>
-    CrocomireMouthThird,
-    /// <summary>The fourth frame of the Crocomire mouth.</summary>
-    CrocomireMouthFourth,
-    /// <summary>The fifth frame of the Crocomire mouth.</summary>
-    CrocomireMouthFifth,
-    /// <summary>The sixth frame of the Crocomire mouth.</summary>
-    CrocomireMouthSixth,
-    /// <summary>The frame of the Crocomire bridge fragment.</summary>
+    /// <summary>Draygon's goop: a spiky blob.</summary>
+    DraygonGoopSpiky,
+    /// <summary>Draygon's goop: a puffed-out blob.</summary>
+    DraygonGoopPuffed,
+    /// <summary>Draygon's goop: a rounded blob.</summary>
+    DraygonGoopRounded,
+    /// <summary>Draygon's goop: a lopsided blob.</summary>
+    DraygonGoopLopsided,
+    /// <summary>Draygon's goop: a rounded blob: the picture of DraygonGoopRounded, as a frame of its own.</summary>
+    DraygonGoopRoundedTwin,
+    /// <summary>Draygon's goop: a puffed-out blob: the picture of DraygonGoopPuffed, as a frame of its own.</summary>
+    DraygonGoopPuffedTwin,
+    /// <summary>Draygon's goop: a blob curling up.</summary>
+    DraygonGoopCurled,
+    /// <summary>Draygon's goop: scattered scraps.</summary>
+    DraygonGoopScattered,
+    /// <summary>Draygon's wall turret shot: four sparks closing in, 32 pixels across.</summary>
+    DraygonWallTurretSparksApart32,
+    /// <summary>Draygon's wall turret shot: four sparks closing in, 28 pixels across.</summary>
+    DraygonWallTurretSparksApart28,
+    /// <summary>Draygon's wall turret shot: four sparks closing in, 24 pixels across.</summary>
+    DraygonWallTurretSparksApart24,
+    /// <summary>Draygon's wall turret shot: four sparks closing in, 20 pixels across.</summary>
+    DraygonWallTurretSparksApart20,
+    /// <summary>Draygon's wall turret shot: four sparks closing in, 16 pixels across.</summary>
+    DraygonWallTurretSparksApart16,
+    /// <summary>Draygon's wall turret shot: four sparks closing in, 14 pixels across.</summary>
+    DraygonWallTurretSparksApart14,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 32 pixels across.</summary>
+    DraygonWallTurretSparksTwistedApart32,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 28 pixels across.</summary>
+    DraygonWallTurretSparksTwistedApart28,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 24 pixels across.</summary>
+    DraygonWallTurretSparksTwistedApart24,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 20 pixels across.</summary>
+    DraygonWallTurretSparksTwistedApart20,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 16 pixels across.</summary>
+    DraygonWallTurretSparksTwistedApart16,
+    /// <summary>Draygon's wall turret shot: four sparks set the other way round, closing in, 14 pixels across.</summary>
+    DraygonWallTurretSparksTwistedApart14,
+    /// <summary>Draygon's wall turret shot: a faint green glow.</summary>
+    DraygonWallTurretGlowFaint,
+    /// <summary>Draygon's wall turret shot: a dim green glow.</summary>
+    DraygonWallTurretGlowDim,
+    /// <summary>Draygon's wall turret shot: a bright green glow.</summary>
+    DraygonWallTurretGlowBright,
+    /// <summary>Draygon's wall turret shot: a green orb forming.</summary>
+    DraygonWallTurretOrbForming,
+    /// <summary>Draygon's wall turret shot: a bright green orb.</summary>
+    DraygonWallTurretOrbBright,
+    /// <summary>Draygon's wall turret shot: a green orb flickering.</summary>
+    DraygonWallTurretOrbFlickering,
+    /// <summary>Draygon's wall turret shot: a dimmed green orb.</summary>
+    DraygonWallTurretOrbDimmed,
+    /// <summary>Crocomire's mouth glow: a small grey ball.</summary>
+    CrocomireMouthBallSmall,
+    /// <summary>Crocomire's mouth glow: a medium grey ball.</summary>
+    CrocomireMouthBallMedium,
+    /// <summary>Crocomire's mouth glow: a large grey ball.</summary>
+    CrocomireMouthBallLarge,
+    /// <summary>Crocomire's mouth glow: the largest grey ball.</summary>
+    CrocomireMouthBallLargest,
+    /// <summary>Crocomire's mouth glow: a large grey ball: the picture of CrocomireMouthBallLarge, as a frame of its own.</summary>
+    CrocomireMouthBallLargeTwin,
+    /// <summary>Crocomire's mouth glow: a medium grey ball: the picture of CrocomireMouthBallMedium, as a frame of its own.</summary>
+    CrocomireMouthBallMediumTwin,
+    /// <summary>Crocomire's bridge: a falling fragment.</summary>
     CrocomireBridgeFragment,
-    /// <summary>The frame of the Crocomire spike wall piece.</summary>
+    /// <summary>Crocomire's spike wall: a crumbling piece.</summary>
     CrocomireSpikeWallPiece,
-    /// <summary>The first frame of the Crocomire shot.</summary>
-    CrocomireShotFirst,
-    /// <summary>The second frame of the Crocomire shot.</summary>
-    CrocomireShotSecond,
-    /// <summary>The third frame of the Crocomire shot.</summary>
-    CrocomireShotThird,
-    /// <summary>The fourth frame of the Crocomire shot.</summary>
-    CrocomireShotFourth,
-    /// <summary>The fifth frame of the Crocomire shot.</summary>
-    CrocomireShotFifth,
-    /// <summary>The first frame of the Ceres Ridley launch.</summary>
-    CeresRidleyLaunchFirst,
-    /// <summary>The second frame of the Ceres Ridley launch.</summary>
-    CeresRidleyLaunchSecond,
-    /// <summary>The first frame of the Ceres Ridley flight.</summary>
-    CeresRidleyFlightFirst,
-    /// <summary>The second frame of the Ceres Ridley flight.</summary>
-    CeresRidleyFlightSecond,
-    /// <summary>The third frame of the Ceres Ridley flight.</summary>
-    CeresRidleyFlightThird,
-    /// <summary>The fourth frame of the Ceres Ridley flight.</summary>
-    CeresRidleyFlightFourth,
-    /// <summary>The first frame of the Ceres Ridley afterburn final.</summary>
-    CeresRidleyAfterburnFinalFirst,
-    /// <summary>The second frame of the Ceres Ridley afterburn final.</summary>
-    CeresRidleyAfterburnFinalSecond,
-    /// <summary>The third frame of the Ceres Ridley afterburn final.</summary>
-    CeresRidleyAfterburnFinalThird,
-    /// <summary>The fourth frame of the Ceres Ridley afterburn final.</summary>
-    CeresRidleyAfterburnFinalFourth,
-    /// <summary>The fifth frame of the Ceres Ridley afterburn final.</summary>
-    CeresRidleyAfterburnFinalFifth,
-    /// <summary>The first frame of the Ceres Ridley horizontal center.</summary>
-    CeresRidleyHorizontalCenterFirst,
-    /// <summary>The second frame of the Ceres Ridley horizontal center.</summary>
-    CeresRidleyHorizontalCenterSecond,
-    /// <summary>The third frame of the Ceres Ridley horizontal center.</summary>
-    CeresRidleyHorizontalCenterThird,
-    /// <summary>The fourth frame of the Ceres Ridley horizontal center.</summary>
-    CeresRidleyHorizontalCenterFourth,
-    /// <summary>The fifth frame of the Ceres Ridley horizontal center.</summary>
-    CeresRidleyHorizontalCenterFifth,
-    /// <summary>The first frame of the Ceres Ridley vertical center.</summary>
-    CeresRidleyVerticalCenterFirst,
-    /// <summary>The second frame of the Ceres Ridley vertical center.</summary>
-    CeresRidleyVerticalCenterSecond,
-    /// <summary>The third frame of the Ceres Ridley vertical center.</summary>
-    CeresRidleyVerticalCenterThird,
-    /// <summary>The fourth frame of the Ceres Ridley vertical center.</summary>
-    CeresRidleyVerticalCenterFourth,
-    /// <summary>The fifth frame of the Ceres Ridley vertical center.</summary>
-    CeresRidleyVerticalCenterFifth,
-    /// <summary>The first frame of the Ceres Ridley directional.</summary>
-    CeresRidleyDirectionalFirst,
-    /// <summary>The second frame of the Ceres Ridley directional.</summary>
-    CeresRidleyDirectionalSecond,
-    /// <summary>The third frame of the Ceres Ridley directional.</summary>
-    CeresRidleyDirectionalThird,
-    /// <summary>The fourth frame of the Ceres Ridley directional.</summary>
-    CeresRidleyDirectionalFourth,
-    /// <summary>The fifth frame of the Ceres Ridley directional.</summary>
-    CeresRidleyDirectionalFifth,
-    /// <summary>The frame of the Ceres falling debris light.</summary>
+    /// <summary>Crocomire's shot bursting: a small spark.</summary>
+    CrocomireShotSpark,
+    /// <summary>Crocomire's shot bursting: a ball of light.</summary>
+    CrocomireShotFlareBall,
+    /// <summary>Crocomire's shot bursting: a ring of light around a burning core.</summary>
+    CrocomireShotFlareRingCored,
+    /// <summary>Crocomire's shot bursting: a ring of light.</summary>
+    CrocomireShotFlareRing,
+    /// <summary>Crocomire's shot bursting: a fading ring of light.</summary>
+    CrocomireShotFlareRingFading,
+    /// <summary>Ceres Ridley's fireball: a swirl of flame.</summary>
+    CeresRidleyFireballTurned0,
+    /// <summary>Ceres Ridley's fireball: a swirl of flame: the picture of CeresRidleyFireballTurned0, as a frame of its own.</summary>
+    CeresRidleyFireballTurned0Twin,
+    /// <summary>Ceres Ridley's fireball: a swirl of flame: the picture of CeresRidleyFireballTurned0, as a frame of its own.</summary>
+    CeresRidleyFireballTurned0TwinB,
+    /// <summary>Ceres Ridley's fireball: a swirl of flame turned a quarter.</summary>
+    CeresRidleyFireballTurned90,
+    /// <summary>Ceres Ridley's fireball: a swirl of flame turned half round.</summary>
+    CeresRidleyFireballTurned180,
+    /// <summary>Ceres Ridley's fireball: a swirl of flame turned three quarters.</summary>
+    CeresRidleyFireballTurned270,
+    /// <summary>Ceres Ridley's fireball: a small spark.</summary>
+    CeresRidleyFireballSpark,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire.</summary>
+    CeresRidleyFireballFireCloud,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading.</summary>
+    CeresRidleyFireballFireCloudSpreading,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up.</summary>
+    CeresRidleyFireballFireCloudBreaking,
+    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire.</summary>
+    CeresRidleyFireballFireCloudEmbers,
+    /// <summary>Ceres Ridley's fireball: a small spark: the picture of CeresRidleyFireballSpark, as a frame of its own.</summary>
+    CeresRidleyFireballSparkTwin,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire: the picture of CeresRidleyFireballFireCloud, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudTwin,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading: the picture of CeresRidleyFireballFireCloudSpreading, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudSpreadingTwin,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up: the picture of CeresRidleyFireballFireCloudBreaking, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudBreakingTwin,
+    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire: the picture of CeresRidleyFireballFireCloudEmbers, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudEmbersTwin,
+    /// <summary>Ceres Ridley's fireball: a small spark: the picture of CeresRidleyFireballSpark, as a frame of its own.</summary>
+    CeresRidleyFireballSparkTwinB,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire: the picture of CeresRidleyFireballFireCloud, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudTwinB,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading: the picture of CeresRidleyFireballFireCloudSpreading, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudSpreadingTwinB,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up: the picture of CeresRidleyFireballFireCloudBreaking, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudBreakingTwinB,
+    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire: the picture of CeresRidleyFireballFireCloudEmbers, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudEmbersTwinB,
+    /// <summary>Ceres Ridley's fireball: a small spark: the picture of CeresRidleyFireballSpark, as a frame of its own.</summary>
+    CeresRidleyFireballSparkTwinC,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire: the picture of CeresRidleyFireballFireCloud, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudTwinC,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire spreading: the picture of CeresRidleyFireballFireCloudSpreading, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudSpreadingTwinC,
+    /// <summary>Ceres Ridley's fireball: a cloud of fire breaking up: the picture of CeresRidleyFireballFireCloudBreaking, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudBreakingTwinC,
+    /// <summary>Ceres Ridley's fireball: the embers of a cloud of fire: the picture of CeresRidleyFireballFireCloudEmbers, as a frame of its own.</summary>
+    CeresRidleyFireballFireCloudEmbersTwinC,
+    /// <summary>Ceres falling debris: a light chunk.</summary>
     CeresFallingDebrisLight,
-    /// <summary>The frame of the Ceres falling debris dark.</summary>
+    /// <summary>Ceres falling debris: a dark chunk.</summary>
     CeresFallingDebrisDark,
-    /// <summary>The first frame of the Phantoon destroyable idle.</summary>
-    PhantoonDestroyableIdleFirst,
-    /// <summary>The second frame of the Phantoon destroyable idle.</summary>
-    PhantoonDestroyableIdleSecond,
-    /// <summary>The third frame of the Phantoon destroyable idle.</summary>
-    PhantoonDestroyableIdleThird,
-    /// <summary>The fifth frame of the Phantoon destroyable idle.</summary>
-    PhantoonDestroyableIdleFifth,
-    /// <summary>The first frame of the Phantoon casual bouncing.</summary>
-    PhantoonCasualBouncingFirst,
-    /// <summary>The second frame of the Phantoon casual bouncing.</summary>
-    PhantoonCasualBouncingSecond,
-    /// <summary>The third frame of the Phantoon casual bouncing.</summary>
-    PhantoonCasualBouncingThird,
-    /// <summary>The fifth frame of the Phantoon casual bouncing.</summary>
-    PhantoonCasualBouncingFifth,
-    /// <summary>The sixth frame of the Phantoon casual bouncing.</summary>
-    PhantoonCasualBouncingSixth,
-    /// <summary>The third frame of the Phantoon casual resting.</summary>
-    PhantoonCasualRestingThird,
-    /// <summary>The fourth frame of the Phantoon casual resting.</summary>
-    PhantoonCasualRestingFourth,
-    /// <summary>The fifth frame of the Phantoon casual resting.</summary>
-    PhantoonCasualRestingFifth,
-    /// <summary>The sixth frame of the Phantoon casual resting.</summary>
-    PhantoonCasualRestingSixth,
-    /// <summary>The first frame of the Phantoon dying.</summary>
-    PhantoonDyingFirst,
-    /// <summary>The second frame of the Phantoon dying.</summary>
-    PhantoonDyingSecond,
-    /// <summary>The third frame of the Phantoon dying.</summary>
-    PhantoonDyingThird,
-    /// <summary>The fourth frame of the Phantoon dying.</summary>
-    PhantoonDyingFourth,
-    /// <summary>The first frame of the Phantoon rain impact.</summary>
-    PhantoonRainImpactFirst,
-    /// <summary>The fourth frame of the Phantoon rain impact.</summary>
-    PhantoonRainImpactFourth,
-    /// <summary>The fifth frame of the Phantoon rain impact.</summary>
-    PhantoonRainImpactFifth,
-    /// <summary>The third frame of the Phantoon casual falling.</summary>
-    PhantoonCasualFallingThird,
-    /// <summary>The fourth frame of the Phantoon casual falling.</summary>
-    PhantoonCasualFallingFourth,
-    /// <summary>The fifth frame of the Phantoon casual falling.</summary>
-    PhantoonCasualFallingFifth,
-    /// <summary>The sixth frame of the Phantoon casual falling.</summary>
-    PhantoonCasualFallingSixth,
-    /// <summary>The first frame of the Phantoon starting flame.</summary>
-    PhantoonStartingFlameFirst,
-    /// <summary>The second frame of the Phantoon starting flame.</summary>
-    PhantoonStartingFlameSecond,
-    /// <summary>The third frame of the Phantoon starting flame.</summary>
-    PhantoonStartingFlameThird,
-    /// <summary>The first frame of the Phantoon destroyable shot.</summary>
-    PhantoonDestroyableShotFirst,
-    /// <summary>The second frame of the Phantoon destroyable shot.</summary>
-    PhantoonDestroyableShotSecond,
-    /// <summary>The third frame of the Phantoon destroyable shot.</summary>
-    PhantoonDestroyableShotThird,
-    /// <summary>The fourth frame of the Phantoon destroyable shot.</summary>
-    PhantoonDestroyableShotFourth,
-    /// <summary>The frame of the Kraid rock.</summary>
-    KraidRock,
-    /// <summary>The frame of the Kraid rock rising right pose.</summary>
-    KraidRockRisingRightPose,
-    /// <summary>The first frame of the Kraid rock burst.</summary>
-    KraidRockBurstFirst,
-    /// <summary>The second frame of the Kraid rock burst.</summary>
-    KraidRockBurstSecond,
-    /// <summary>The third frame of the Kraid rock burst.</summary>
-    KraidRockBurstThird,
-    /// <summary>The fourth frame of the Kraid rock burst.</summary>
-    KraidRockBurstFourth,
-    /// <summary>The fifth frame of the Kraid rock burst.</summary>
-    KraidRockBurstFifth,
-    /// <summary>The frame of the Fake Kraid spit.</summary>
+    /// <summary>Phantoon's flame: a tall flame around a ringed eye.</summary>
+    PhantoonFlameRingedEye,
+    /// <summary>Phantoon's flame: a tall flame around a bright eye.</summary>
+    PhantoonFlameBrightEye,
+    /// <summary>Phantoon's flame: a tall flame flickering.</summary>
+    PhantoonFlameFlickering,
+    /// <summary>Phantoon's flame: a flame splashed flat.</summary>
+    PhantoonFlameSplashed,
+    /// <summary>Phantoon's flame: a tall flame around a ringed eye: the picture of PhantoonFlameRingedEye, as a frame of its own.</summary>
+    PhantoonFlameRingedEyeTwin,
+    /// <summary>Phantoon's flame: a tall flame around a bright eye: the picture of PhantoonFlameBrightEye, as a frame of its own.</summary>
+    PhantoonFlameBrightEyeTwin,
+    /// <summary>Phantoon's flame: a tall flame flickering: the picture of PhantoonFlameFlickering, as a frame of its own.</summary>
+    PhantoonFlameFlickeringTwin,
+    /// <summary>Phantoon's flame: a tall flame swelling.</summary>
+    PhantoonFlameSwelling,
+    /// <summary>Phantoon's flame: a tall flame leaning.</summary>
+    PhantoonFlameLeaning,
+    /// <summary>Phantoon's flame: a tall flame at rest.</summary>
+    PhantoonFlameResting,
+    /// <summary>Phantoon's flame: a tall flame swaying at rest.</summary>
+    PhantoonFlameRestingSwaying,
+    /// <summary>Phantoon's flame: a tall flame low at rest.</summary>
+    PhantoonFlameRestingLow,
+    /// <summary>Phantoon's flame: a tall flame at rest: the picture of PhantoonFlameResting, as a frame of its own.</summary>
+    PhantoonFlameRestingTwin,
+    /// <summary>Phantoon's flame: a flame dying down.</summary>
+    PhantoonFlameDying,
+    /// <summary>Phantoon's flame: a flame guttering.</summary>
+    PhantoonFlameGuttering,
+    /// <summary>Phantoon's flame: wisps of a flame.</summary>
+    PhantoonFlameWisps,
+    /// <summary>Phantoon's flame: the last wisp of a flame.</summary>
+    PhantoonFlameLastWisp,
+    /// <summary>Phantoon's flame: a flame splashed flat: the picture of PhantoonFlameSplashed, as a frame of its own.</summary>
+    PhantoonFlameSplashedTwin,
+    /// <summary>Phantoon's flame: a flame kindling.</summary>
+    PhantoonFlameKindling,
+    /// <summary>Phantoon's flame: nothing; it draws no picture.</summary>
+    PhantoonFlameBlank,
+    /// <summary>Phantoon's flame: a teardrop of flame.</summary>
+    PhantoonFlameTeardrop,
+    /// <summary>Phantoon's flame: nothing; it draws no picture: the picture of PhantoonFlameBlank, as a frame of its own.</summary>
+    PhantoonFlameBlankTwin,
+    /// <summary>Phantoon's flame: a flame sputtering.</summary>
+    PhantoonFlameSputtering,
+    /// <summary>Phantoon's flame: nothing; it draws no picture: the picture of PhantoonFlameBlank, as a frame of its own.</summary>
+    PhantoonFlameBlankTwinB,
+    /// <summary>Phantoon's flame: a flame kindling: the picture of PhantoonFlameKindling, as a frame of its own.</summary>
+    PhantoonFlameKindlingTwin,
+    /// <summary>Phantoon's flame: a teardrop of flame: the picture of PhantoonFlameTeardrop, as a frame of its own.</summary>
+    PhantoonFlameTeardropTwin,
+    /// <summary>Phantoon's flame: a flame sputtering: the picture of PhantoonFlameSputtering, as a frame of its own.</summary>
+    PhantoonFlameSputteringTwin,
+    /// <summary>Phantoon's flame: a flame dying down: the picture of PhantoonFlameDying, as a frame of its own.</summary>
+    PhantoonFlameDyingTwin,
+    /// <summary>Phantoon's flame: a flame guttering: the picture of PhantoonFlameGuttering, as a frame of its own.</summary>
+    PhantoonFlameGutteringTwin,
+    /// <summary>Phantoon's flame: wisps of a flame: the picture of PhantoonFlameWisps, as a frame of its own.</summary>
+    PhantoonFlameWispsTwin,
+    /// <summary>Phantoon's flame: the last wisp of a flame: the picture of PhantoonFlameLastWisp, as a frame of its own.</summary>
+    PhantoonFlameLastWispTwin,
+    /// <summary>Kraid's rock: a large rock.</summary>
+    KraidRockLarge,
+    /// <summary>Kraid's rock: a small rock.</summary>
+    KraidRockSmall,
+    /// <summary>Kraid's rock bursting: a small spark.</summary>
+    KraidRockSpark,
+    /// <summary>Kraid's rock bursting: a ball of light.</summary>
+    KraidRockFlareBall,
+    /// <summary>Kraid's rock bursting: a ring of light around a burning core.</summary>
+    KraidRockFlareRingCored,
+    /// <summary>Kraid's rock bursting: a ring of light.</summary>
+    KraidRockFlareRing,
+    /// <summary>Kraid's rock bursting: a fading ring of light.</summary>
+    KraidRockFlareRingFading,
+    /// <summary>Fake Kraid: a gob of spit.</summary>
     FakeKraidSpit,
-    /// <summary>The frame of the Fake Kraid spike left.</summary>
+    /// <summary>Fake Kraid: a spike pointing left.</summary>
     FakeKraidSpikeLeft,
-    /// <summary>The frame of the Fake Kraid spike right.</summary>
+    /// <summary>Fake Kraid: a spike pointing right.</summary>
     FakeKraidSpikeRight,
-    /// <summary>The first frame of the Alcoon fireball initial.</summary>
-    AlcoonFireballInitialFirst,
-    /// <summary>The second frame of the Alcoon fireball initial.</summary>
-    AlcoonFireballInitialSecond,
-    /// <summary>The third frame of the Alcoon fireball initial.</summary>
-    AlcoonFireballInitialThird,
-    /// <summary>The fourth frame of the Alcoon fireball initial.</summary>
-    AlcoonFireballInitialFourth,
-    /// <summary>The first frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftFirst,
-    /// <summary>The second frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftSecond,
-    /// <summary>The third frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftThird,
-    /// <summary>The fourth frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftFourth,
-    /// <summary>The fifth frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftFifth,
-    /// <summary>The sixth frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftSixth,
-    /// <summary>The seventh frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftSeventh,
-    /// <summary>The eighth frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftEighth,
-    /// <summary>The ninth frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftNinth,
-    /// <summary>The tenth frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftTenth,
-    /// <summary>The eleventh frame of the Space Pirate laser left.</summary>
-    SpacePirateLaserLeftEleventh,
-    /// <summary>The first frame of the Space Pirate laser left loop.</summary>
-    SpacePirateLaserLeftLoopFirst,
-    /// <summary>The second frame of the Space Pirate laser left loop.</summary>
-    SpacePirateLaserLeftLoopSecond,
-    /// <summary>The first frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightFirst,
-    /// <summary>The second frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightSecond,
-    /// <summary>The third frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightThird,
-    /// <summary>The fourth frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightFourth,
-    /// <summary>The fifth frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightFifth,
-    /// <summary>The sixth frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightSixth,
-    /// <summary>The seventh frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightSeventh,
-    /// <summary>The eighth frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightEighth,
-    /// <summary>The ninth frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightNinth,
-    /// <summary>The tenth frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightTenth,
-    /// <summary>The eleventh frame of the Space Pirate laser right.</summary>
-    SpacePirateLaserRightEleventh,
-    /// <summary>The first frame of the Space Pirate laser right loop.</summary>
-    SpacePirateLaserRightLoopFirst,
-    /// <summary>The second frame of the Space Pirate laser right loop.</summary>
-    SpacePirateLaserRightLoopSecond,
-    /// <summary>The first frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopFirst,
-    /// <summary>The second frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopSecond,
-    /// <summary>The third frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopThird,
-    /// <summary>The fourth frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopFourth,
-    /// <summary>The fifth frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopFifth,
-    /// <summary>The sixth frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopSixth,
-    /// <summary>The seventh frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopSeventh,
-    /// <summary>The eighth frame of the Space Pirate claw left loop.</summary>
-    SpacePirateClawLeftLoopEighth,
-    /// <summary>The first frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopFirst,
-    /// <summary>The second frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopSecond,
-    /// <summary>The third frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopThird,
-    /// <summary>The fourth frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopFourth,
-    /// <summary>The fifth frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopFifth,
-    /// <summary>The sixth frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopSixth,
-    /// <summary>The seventh frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopSeventh,
-    /// <summary>The eighth frame of the Space Pirate claw right loop.</summary>
-    SpacePirateClawRightLoopEighth,
-    /// <summary>The first frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerFirst,
-    /// <summary>The second frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerSecond,
-    /// <summary>The third frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerThird,
-    /// <summary>The fourth frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerFourth,
-    /// <summary>The fifth frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerFifth,
-    /// <summary>The sixth frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerSixth,
-    /// <summary>The seventh frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerSeventh,
-    /// <summary>The eighth frame of the gunship dust right inner.</summary>
-    GunshipDustRightInnerEighth,
-    /// <summary>The first frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleFirst,
-    /// <summary>The second frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleSecond,
-    /// <summary>The third frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleThird,
-    /// <summary>The fourth frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleFourth,
-    /// <summary>The fifth frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleFifth,
-    /// <summary>The sixth frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleSixth,
-    /// <summary>The seventh frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleSeventh,
-    /// <summary>The eighth frame of the gunship dust right middle.</summary>
-    GunshipDustRightMiddleEighth,
-    /// <summary>The first frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterFirst,
-    /// <summary>The second frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterSecond,
-    /// <summary>The third frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterThird,
-    /// <summary>The fourth frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterFourth,
-    /// <summary>The fifth frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterFifth,
-    /// <summary>The sixth frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterSixth,
-    /// <summary>The seventh frame of the gunship dust right outer.</summary>
-    GunshipDustRightOuterSeventh,
-    /// <summary>The first frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerFirst,
-    /// <summary>The second frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerSecond,
-    /// <summary>The third frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerThird,
-    /// <summary>The fourth frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerFourth,
-    /// <summary>The fifth frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerFifth,
-    /// <summary>The sixth frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerSixth,
-    /// <summary>The seventh frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerSeventh,
-    /// <summary>The eighth frame of the gunship dust left inner.</summary>
-    GunshipDustLeftInnerEighth,
-    /// <summary>The first frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleFirst,
-    /// <summary>The second frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleSecond,
-    /// <summary>The third frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleThird,
-    /// <summary>The fourth frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleFourth,
-    /// <summary>The fifth frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleFifth,
-    /// <summary>The sixth frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleSixth,
-    /// <summary>The seventh frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleSeventh,
-    /// <summary>The eighth frame of the gunship dust left middle.</summary>
-    GunshipDustLeftMiddleEighth,
-    /// <summary>The first frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterFirst,
-    /// <summary>The second frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterSecond,
-    /// <summary>The third frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterThird,
-    /// <summary>The fourth frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterFourth,
-    /// <summary>The fifth frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterFifth,
-    /// <summary>The sixth frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterSixth,
-    /// <summary>The seventh frame of the gunship dust left outer.</summary>
-    GunshipDustLeftOuterSeventh,
-    /// <summary>The first frame of the torizo explosion low health initial loop.</summary>
-    TorizoExplosionLowHealthInitialLoopFirst,
-    /// <summary>The second frame of the Torizo explosion low health initial loop.</summary>
-    TorizoExplosionLowHealthInitialLoopSecond,
-    /// <summary>The third frame of the Torizo explosion low health initial loop.</summary>
-    TorizoExplosionLowHealthInitialLoopThird,
-    /// <summary>The fourth frame of the Torizo explosion low health initial loop.</summary>
-    TorizoExplosionLowHealthInitialLoopFourth,
-    /// <summary>The fifth frame of the Torizo explosion low health initial loop.</summary>
-    TorizoExplosionLowHealthInitialLoopFifth,
-    /// <summary>The first frame of the Torizo explosion death initial loop.</summary>
-    TorizoExplosionDeathInitialLoopFirst,
-    /// <summary>The second frame of the Torizo explosion death initial loop.</summary>
-    TorizoExplosionDeathInitialLoopSecond,
-    /// <summary>The third frame of the Torizo explosion death initial loop.</summary>
-    TorizoExplosionDeathInitialLoopThird,
-    /// <summary>The fourth frame of the Torizo explosion death initial loop.</summary>
-    TorizoExplosionDeathInitialLoopFourth,
-    /// <summary>The fifth frame of the Torizo explosion death initial loop.</summary>
-    TorizoExplosionDeathInitialLoopFifth,
-    /// <summary>The sixth frame of the Torizo explosion death initial loop.</summary>
-    TorizoExplosionDeathInitialLoopSixth,
-    /// <summary>The first frame of the Torizo explosion death smoke setup loop.</summary>
-    TorizoExplosionDeathSmokeSetupLoopFirst,
-    /// <summary>The second frame of the Torizo explosion death smoke setup loop.</summary>
-    TorizoExplosionDeathSmokeSetupLoopSecond,
-    /// <summary>The third frame of the Torizo explosion death smoke setup loop.</summary>
-    TorizoExplosionDeathSmokeSetupLoopThird,
-    /// <summary>The fourth frame of the Torizo explosion death smoke setup loop.</summary>
-    TorizoExplosionDeathSmokeSetupLoopFourth,
-    /// <summary>The frame of the Torizo drool four frame delay.</summary>
-    TorizoDroolFourFrameDelay,
-    /// <summary>The frame of the Torizo drool two frame delay.</summary>
-    TorizoDroolTwoFrameDelay,
-    /// <summary>The frame of the Torizo drool no delay.</summary>
-    TorizoDroolNoDelay,
-    /// <summary>The frame of the Torizo drool falling loop.</summary>
-    TorizoDroolFallingLoop,
-    /// <summary>The first frame of the Torizo drool floor impact.</summary>
-    TorizoDroolFloorImpactFirst,
-    /// <summary>The second frame of the Torizo drool floor impact.</summary>
-    TorizoDroolFloorImpactSecond,
-    /// <summary>The third frame of the Torizo drool floor impact.</summary>
-    TorizoDroolFloorImpactThird,
-    /// <summary>The first frame of the Torizo explosive swipe initial.</summary>
-    TorizoExplosiveSwipeInitialFirst,
-    /// <summary>The second frame of the Torizo explosive swipe initial.</summary>
-    TorizoExplosiveSwipeInitialSecond,
-    /// <summary>The third frame of the Torizo explosive swipe initial.</summary>
-    TorizoExplosiveSwipeInitialThird,
-    /// <summary>The fourth frame of the Torizo explosive swipe initial.</summary>
-    TorizoExplosiveSwipeInitialFourth,
-    /// <summary>The fifth frame of the Torizo explosive swipe initial.</summary>
-    TorizoExplosiveSwipeInitialFifth,
-    /// <summary>The first frame of the Bomb Torizo first statue fragment.</summary>
-    BombTorizoFirstStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo first statue fragment.</summary>
-    BombTorizoFirstStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo second statue fragment.</summary>
-    BombTorizoSecondStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo second statue fragment.</summary>
-    BombTorizoSecondStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo third statue fragment.</summary>
-    BombTorizoThirdStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo third statue fragment.</summary>
-    BombTorizoThirdStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo fourth statue fragment.</summary>
-    BombTorizoFourthStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo fourth statue fragment.</summary>
-    BombTorizoFourthStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo fifth statue fragment.</summary>
-    BombTorizoFifthStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo fifth statue fragment.</summary>
-    BombTorizoFifthStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo sixth statue fragment.</summary>
-    BombTorizoSixthStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo sixth statue fragment.</summary>
-    BombTorizoSixthStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo seventh statue fragment.</summary>
-    BombTorizoSeventhStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo seventh statue fragment.</summary>
-    BombTorizoSeventhStatueFragmentSecond,
-    /// <summary>The first frame of the Bomb Torizo eighth statue fragment.</summary>
-    BombTorizoEighthStatueFragmentFirst,
-    /// <summary>The second frame of the Bomb Torizo eighth statue fragment.</summary>
-    BombTorizoEighthStatueFragmentSecond,
-    /// <summary>The frame of the Torizo Chozo orb moving left.</summary>
-    TorizoChozoOrbMovingLeft,
-    /// <summary>The frame of the Torizo Chozo orb moving right.</summary>
-    TorizoChozoOrbMovingRight,
-    /// <summary>The first frame of the Torizo Chozo orb wall impact.</summary>
-    TorizoChozoOrbWallImpactFirst,
-    /// <summary>The second frame of the Torizo Chozo orb wall impact.</summary>
-    TorizoChozoOrbWallImpactSecond,
-    /// <summary>The third frame of the Torizo Chozo orb wall impact.</summary>
-    TorizoChozoOrbWallImpactThird,
-    /// <summary>The fourth frame of the Torizo Chozo orb wall impact.</summary>
-    TorizoChozoOrbWallImpactFourth,
-    /// <summary>The fifth frame of the Torizo Chozo orb wall impact.</summary>
-    TorizoChozoOrbWallImpactFifth,
-    /// <summary>The first frame of the Torizo Chozo orb floor impact.</summary>
-    TorizoChozoOrbFloorImpactFirst,
-    /// <summary>The second frame of the Torizo Chozo orb floor impact.</summary>
-    TorizoChozoOrbFloorImpactSecond,
-    /// <summary>The third frame of the Torizo Chozo orb floor impact.</summary>
-    TorizoChozoOrbFloorImpactThird,
-    /// <summary>The fourth frame of the Torizo Chozo orb floor impact.</summary>
-    TorizoChozoOrbFloorImpactFourth,
-    /// <summary>The fifth frame of the Torizo Chozo orb floor impact.</summary>
-    TorizoChozoOrbFloorImpactFifth,
-    /// <summary>The sixth frame of the Torizo Chozo orb floor impact.</summary>
-    TorizoChozoOrbFloorImpactSixth,
-    /// <summary>The first frame of the Torizo Chozo orb shot.</summary>
-    TorizoChozoOrbShotFirst,
-    /// <summary>The second frame of the Torizo Chozo orb shot.</summary>
-    TorizoChozoOrbShotSecond,
-    /// <summary>The third frame of the Torizo Chozo orb shot.</summary>
-    TorizoChozoOrbShotThird,
-    /// <summary>The fourth frame of the Torizo Chozo orb shot.</summary>
-    TorizoChozoOrbShotFourth,
-    /// <summary>The fifth frame of the Torizo Chozo orb shot.</summary>
-    TorizoChozoOrbShotFifth,
-    /// <summary>The first frame of the Torizo sonic boom fired left.</summary>
-    TorizoSonicBoomFiredLeftFirst,
-    /// <summary>The second frame of the Torizo sonic boom fired left.</summary>
-    TorizoSonicBoomFiredLeftSecond,
-    /// <summary>The frame of the Torizo sonic boom moving left.</summary>
-    TorizoSonicBoomMovingLeft,
-    /// <summary>The first frame of the Torizo sonic boom fired right.</summary>
-    TorizoSonicBoomFiredRightFirst,
-    /// <summary>The second frame of the Torizo sonic boom fired right.</summary>
-    TorizoSonicBoomFiredRightSecond,
-    /// <summary>The frame of the Torizo sonic boom moving right.</summary>
-    TorizoSonicBoomMovingRight,
-    /// <summary>The first frame of the Torizo sonic boom wall impact loop.</summary>
-    TorizoSonicBoomWallImpactLoopFirst,
-    /// <summary>The second frame of the Torizo sonic boom wall impact loop.</summary>
-    TorizoSonicBoomWallImpactLoopSecond,
-    /// <summary>The third frame of the Torizo sonic boom wall impact loop.</summary>
-    TorizoSonicBoomWallImpactLoopThird,
-    /// <summary>The fourth frame of the Torizo sonic boom wall impact loop.</summary>
-    TorizoSonicBoomWallImpactLoopFourth,
-    /// <summary>The fifth frame of the Torizo sonic boom wall impact loop.</summary>
-    TorizoSonicBoomWallImpactLoopFifth,
-    /// <summary>The first frame of the Chozo Tourian dust footsteps.</summary>
-    ChozoTourianDustFootstepsFirst,
-    /// <summary>The second frame of the Chozo Tourian dust footsteps.</summary>
-    ChozoTourianDustFootstepsSecond,
-    /// <summary>The third frame of the Chozo Tourian dust footsteps.</summary>
-    ChozoTourianDustFootstepsThird,
-    /// <summary>The fourth frame of the Chozo Tourian dust footsteps.</summary>
-    ChozoTourianDustFootstepsFourth,
-    /// <summary>The first frame of the Chozo Tourian dust Tourian descent dust.</summary>
-    ChozoTourianDustTourianDescentDustFirst,
-    /// <summary>The second frame of the Chozo Tourian dust Tourian descent dust.</summary>
-    ChozoTourianDustTourianDescentDustSecond,
-    /// <summary>The third frame of the Chozo Tourian dust Tourian descent dust.</summary>
-    ChozoTourianDustTourianDescentDustThird,
-    /// <summary>The fourth frame of the Chozo Tourian dust Tourian descent dust.</summary>
-    ChozoTourianDustTourianDescentDustFourth,
-    /// <summary>The first frame of the Torizo landing dust right foot.</summary>
-    TorizoLandingDustRightFootFirst,
-    /// <summary>The second frame of the Torizo landing dust right foot.</summary>
-    TorizoLandingDustRightFootSecond,
-    /// <summary>The third frame of the Torizo landing dust right foot.</summary>
-    TorizoLandingDustRightFootThird,
-    /// <summary>The fourth frame of the Torizo landing dust right foot.</summary>
-    TorizoLandingDustRightFootFourth,
-    /// <summary>The first frame of the Torizo landing dust left foot.</summary>
-    TorizoLandingDustLeftFootFirst,
-    /// <summary>The second frame of the Torizo landing dust left foot.</summary>
-    TorizoLandingDustLeftFootSecond,
-    /// <summary>The third frame of the Torizo landing dust left foot.</summary>
-    TorizoLandingDustLeftFootThird,
-    /// <summary>The fourth frame of the Torizo landing dust left foot.</summary>
-    TorizoLandingDustLeftFootFourth,
-    /// <summary>The frame of the Golden Torizo egg bouncing left.</summary>
-    GoldenTorizoEggBouncingLeft,
-    /// <summary>The first frame of the Golden Torizo egg bouncing left hatching.</summary>
-    GoldenTorizoEggBouncingLeftHatchingFirst,
-    /// <summary>The second frame of the Golden Torizo egg bouncing left hatching.</summary>
-    GoldenTorizoEggBouncingLeftHatchingSecond,
-    /// <summary>The third frame of the Golden Torizo egg bouncing left hatching.</summary>
-    GoldenTorizoEggBouncingLeftHatchingThird,
-    /// <summary>The frame of the Golden Torizo egg bouncing right.</summary>
-    GoldenTorizoEggBouncingRight,
-    /// <summary>The first frame of the Golden Torizo egg bouncing right hatching.</summary>
-    GoldenTorizoEggBouncingRightHatchingFirst,
-    /// <summary>The second frame of the Golden Torizo egg bouncing right hatching.</summary>
-    GoldenTorizoEggBouncingRightHatchingSecond,
-    /// <summary>The third frame of the Golden Torizo egg bouncing right hatching.</summary>
-    GoldenTorizoEggBouncingRightHatchingThird,
-    /// <summary>The first frame of the Golden Torizo egg hatched left loop.</summary>
-    GoldenTorizoEggHatchedLeftLoopFirst,
-    /// <summary>The second frame of the Golden Torizo egg hatched left loop.</summary>
-    GoldenTorizoEggHatchedLeftLoopSecond,
-    /// <summary>The third frame of the Golden Torizo egg hatched left loop.</summary>
-    GoldenTorizoEggHatchedLeftLoopThird,
-    /// <summary>The fourth frame of the Golden Torizo egg hatched left loop.</summary>
-    GoldenTorizoEggHatchedLeftLoopFourth,
-    /// <summary>The first frame of the Golden Torizo egg hatched right loop.</summary>
-    GoldenTorizoEggHatchedRightLoopFirst,
-    /// <summary>The second frame of the Golden Torizo egg hatched right loop.</summary>
-    GoldenTorizoEggHatchedRightLoopSecond,
-    /// <summary>The third frame of the Golden Torizo egg hatched right loop.</summary>
-    GoldenTorizoEggHatchedRightLoopThird,
-    /// <summary>The fourth frame of the Golden Torizo egg hatched right loop.</summary>
-    GoldenTorizoEggHatchedRightLoopFourth,
-    /// <summary>The first frame of the Golden Torizo egg break left.</summary>
-    GoldenTorizoEggBreakLeftFirst,
-    /// <summary>The second frame of the Golden Torizo egg break left.</summary>
-    GoldenTorizoEggBreakLeftSecond,
-    /// <summary>The third frame of the Golden Torizo egg break left.</summary>
-    GoldenTorizoEggBreakLeftThird,
-    /// <summary>The fourth frame of the Golden Torizo egg break left.</summary>
-    GoldenTorizoEggBreakLeftFourth,
-    /// <summary>The fifth frame of the Golden Torizo egg break left.</summary>
-    GoldenTorizoEggBreakLeftFifth,
-    /// <summary>The first frame of the Golden Torizo egg break right.</summary>
-    GoldenTorizoEggBreakRightFirst,
-    /// <summary>The second frame of the Golden Torizo egg break right.</summary>
-    GoldenTorizoEggBreakRightSecond,
-    /// <summary>The third frame of the Golden Torizo egg break right.</summary>
-    GoldenTorizoEggBreakRightThird,
-    /// <summary>The fourth frame of the Golden Torizo egg break right.</summary>
-    GoldenTorizoEggBreakRightFourth,
-    /// <summary>The fifth frame of the Golden Torizo egg break right.</summary>
-    GoldenTorizoEggBreakRightFifth,
-    /// <summary>The frame of the Golden Torizo Super Missile right initial.</summary>
-    GoldenTorizoSuperMissileRightInitial,
-    /// <summary>The first frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopFirst,
-    /// <summary>The second frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopSecond,
-    /// <summary>The third frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopThird,
-    /// <summary>The fourth frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopFourth,
-    /// <summary>The fifth frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopFifth,
-    /// <summary>The sixth frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopSixth,
-    /// <summary>The seventh frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopSeventh,
-    /// <summary>The eighth frame of the Golden Torizo Super Missile right loop.</summary>
-    GoldenTorizoSuperMissileRightLoopEighth,
-    /// <summary>The frame of the Golden Torizo Super Missile left initial.</summary>
-    GoldenTorizoSuperMissileLeftInitial,
-    /// <summary>The first frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopFirst,
-    /// <summary>The second frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopSecond,
-    /// <summary>The third frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopThird,
-    /// <summary>The fourth frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopFourth,
-    /// <summary>The fifth frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopFifth,
-    /// <summary>The sixth frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopSixth,
-    /// <summary>The seventh frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopSeventh,
-    /// <summary>The eighth frame of the Golden Torizo Super Missile left loop.</summary>
-    GoldenTorizoSuperMissileLeftLoopEighth,
-    /// <summary>The first frame of the Golden Torizo Super Missile impact.</summary>
-    GoldenTorizoSuperMissileImpactFirst,
-    /// <summary>The second frame of the Golden Torizo Super Missile impact.</summary>
-    GoldenTorizoSuperMissileImpactSecond,
-    /// <summary>The third frame of the Golden Torizo Super Missile impact.</summary>
-    GoldenTorizoSuperMissileImpactThird,
-    /// <summary>The fourth frame of the Golden Torizo Super Missile impact.</summary>
-    GoldenTorizoSuperMissileImpactFourth,
-    /// <summary>The fifth frame of the Golden Torizo Super Missile impact.</summary>
-    GoldenTorizoSuperMissileImpactFifth,
-    /// <summary>The sixth frame of the Golden Torizo Super Missile impact.</summary>
-    GoldenTorizoSuperMissileImpactSixth,
-    /// <summary>The first frame of the Golden Torizo eye beam wall impact.</summary>
-    GoldenTorizoEyeBeamWallImpactFirst,
-    /// <summary>The second frame of the Golden Torizo eye beam wall impact.</summary>
-    GoldenTorizoEyeBeamWallImpactSecond,
-    /// <summary>The third frame of the Golden Torizo eye beam wall impact.</summary>
-    GoldenTorizoEyeBeamWallImpactThird,
-    /// <summary>The fourth frame of the Golden Torizo eye beam wall impact.</summary>
-    GoldenTorizoEyeBeamWallImpactFourth,
-    /// <summary>The fifth frame of the Golden Torizo eye beam wall impact.</summary>
-    GoldenTorizoEyeBeamWallImpactFifth,
-    /// <summary>The first frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopFirst,
-    /// <summary>The second frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopSecond,
-    /// <summary>The third frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopThird,
-    /// <summary>The fourth frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopFourth,
-    /// <summary>The fifth frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopFifth,
-    /// <summary>The sixth frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopSixth,
-    /// <summary>The seventh frame of the Golden Torizo eye beam floor impact loop.</summary>
-    GoldenTorizoEyeBeamFloorImpactLoopSeventh,
-    /// <summary>The first frame of the Golden Torizo eye beam normal.</summary>
-    GoldenTorizoEyeBeamNormalFirst,
-    /// <summary>The second frame of the Golden Torizo eye beam normal.</summary>
-    GoldenTorizoEyeBeamNormalSecond,
-    /// <summary>The third frame of the Golden Torizo eye beam normal.</summary>
-    GoldenTorizoEyeBeamNormalThird,
-    /// <summary>The fourth frame of the Golden Torizo eye beam normal.</summary>
-    GoldenTorizoEyeBeamNormalFourth,
-    /// <summary>The fifth frame of the Golden Torizo eye beam normal.</summary>
-    GoldenTorizoEyeBeamNormalFifth,
-    /// <summary>The first frame of the old Tourian escape wall explosion.</summary>
-    OldTourianEscapeWallExplosionFirst,
-    /// <summary>The second frame of the old Tourian escape wall explosion.</summary>
-    OldTourianEscapeWallExplosionSecond,
-    /// <summary>The third frame of the old Tourian escape wall explosion.</summary>
-    OldTourianEscapeWallExplosionThird,
-    /// <summary>The fourth frame of the old Tourian escape wall explosion.</summary>
-    OldTourianEscapeWallExplosionFourth,
-    /// <summary>The fifth frame of the old Tourian escape wall explosion.</summary>
-    OldTourianEscapeWallExplosionFifth,
-    /// <summary>The sixth frame of the old Tourian escape wall explosion.</summary>
-    OldTourianEscapeWallExplosionSixth,
-    /// <summary>The first frame of the Dragon fireball rising left.</summary>
-    DragonFireballRisingLeftFirst,
-    /// <summary>The second frame of the Dragon fireball rising left.</summary>
-    DragonFireballRisingLeftSecond,
-    /// <summary>The first frame of the Dragon fireball rising right.</summary>
-    DragonFireballRisingRightFirst,
-    /// <summary>The second frame of the Dragon fireball rising right.</summary>
-    DragonFireballRisingRightSecond,
-    /// <summary>The first frame of the Dragon fireball falling left.</summary>
-    DragonFireballFallingLeftFirst,
-    /// <summary>The second frame of the Dragon fireball falling left.</summary>
-    DragonFireballFallingLeftSecond,
-    /// <summary>The first frame of the Dragon fireball falling right.</summary>
-    DragonFireballFallingRightFirst,
-    /// <summary>The second frame of the Dragon fireball falling right.</summary>
-    DragonFireballFallingRightSecond,
-    /// <summary>The first frame of the eye door initial.</summary>
-    EyeDoorInitialFirst,
-    /// <summary>The second frame of the eye door initial.</summary>
-    EyeDoorInitialSecond,
-    /// <summary>The third frame of the eye door initial.</summary>
-    EyeDoorInitialThird,
-    /// <summary>The frame of the eye door flying loop.</summary>
-    EyeDoorFlyingLoop,
-    /// <summary>The first frame of the eye door impact.</summary>
-    EyeDoorImpactFirst,
-    /// <summary>The second frame of the eye door impact.</summary>
-    EyeDoorImpactSecond,
-    /// <summary>The third frame of the eye door impact.</summary>
-    EyeDoorImpactThird,
-    /// <summary>The first frame of the eye door shot.</summary>
-    EyeDoorShotFirst,
-    /// <summary>The second frame of the eye door shot.</summary>
-    EyeDoorShotSecond,
-    /// <summary>The third frame of the eye door shot.</summary>
-    EyeDoorShotThird,
-    /// <summary>The fourth frame of the eye door shot.</summary>
-    EyeDoorShotFourth,
-    /// <summary>The frame of the eye door sweat falling.</summary>
-    EyeDoorSweatFalling,
-    /// <summary>The first frame of the eye door sweat hit floor.</summary>
-    EyeDoorSweatHitFloorFirst,
-    /// <summary>The second frame of the eye door sweat hit floor.</summary>
-    EyeDoorSweatHitFloorSecond,
-    /// <summary>The third frame of the eye door sweat hit floor.</summary>
-    EyeDoorSweatHitFloorThird,
-    /// <summary>The first frame of the Tourian statue splash.</summary>
-    TourianStatueSplashFirst,
-    /// <summary>The second frame of the Tourian statue splash.</summary>
-    TourianStatueSplashSecond,
-    /// <summary>The third frame of the Tourian statue splash.</summary>
-    TourianStatueSplashThird,
-    /// <summary>The fourth frame of the Tourian statue splash.</summary>
-    TourianStatueSplashFourth,
-    /// <summary>The first frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowFirst,
-    /// <summary>The second frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowSecond,
-    /// <summary>The third frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowThird,
-    /// <summary>The fourth frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowFourth,
-    /// <summary>The fifth frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowFifth,
-    /// <summary>The sixth frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowSixth,
-    /// <summary>The seventh frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowSeventh,
-    /// <summary>The eighth frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowEighth,
-    /// <summary>The ninth frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowNinth,
-    /// <summary>The tenth frame of the Tourian statue eye glow.</summary>
-    TourianStatueEyeGlowTenth,
-    /// <summary>The first frame of the Tourian statue particle.</summary>
-    TourianStatueParticleFirst,
-    /// <summary>The second frame of the Tourian statue particle.</summary>
-    TourianStatueParticleSecond,
-    /// <summary>The third frame of the Tourian statue particle.</summary>
-    TourianStatueParticleThird,
-    /// <summary>The fourth frame of the Tourian statue particle.</summary>
-    TourianStatueParticleFourth,
-    /// <summary>The first frame of the Tourian statue tail.</summary>
-    TourianStatueTailFirst,
-    /// <summary>The second frame of the Tourian statue tail.</summary>
-    TourianStatueTailSecond,
-    /// <summary>The third frame of the Tourian statue tail.</summary>
-    TourianStatueTailThird,
-    /// <summary>The fourth frame of the Tourian statue tail.</summary>
-    TourianStatueTailFourth,
-    /// <summary>The first frame of the Tourian statue soul.</summary>
-    TourianStatueSoulFirst,
-    /// <summary>The second frame of the Tourian statue soul.</summary>
-    TourianStatueSoulSecond,
-    /// <summary>The frame of the Tourian statue base decoration.</summary>
+    /// <summary>The Alcoon's fireball: a spinning flame.</summary>
+    AlcoonFireballTurned0,
+    /// <summary>The Alcoon's fireball: a spinning flame turned a quarter.</summary>
+    AlcoonFireballTurned90,
+    /// <summary>The Alcoon's fireball: a spinning flame turned half round.</summary>
+    AlcoonFireballTurned180,
+    /// <summary>The Alcoon's fireball: a spinning flame turned three quarters.</summary>
+    AlcoonFireballTurned270,
+    /// <summary>A Space Pirate's laser: a glint of light.</summary>
+    SpacePirateLaserFlareGlint,
+    /// <summary>A Space Pirate's laser: a small glow.</summary>
+    SpacePirateLaserFlareGlow,
+    /// <summary>A Space Pirate's laser: a ball of light.</summary>
+    SpacePirateLaserFlareBall,
+    /// <summary>A Space Pirate's laser: a bright zigzag 8 pixels long.</summary>
+    SpacePirateLaserBright8,
+    /// <summary>A Space Pirate's laser: a dim zigzag 8 pixels long.</summary>
+    SpacePirateLaserDim8,
+    /// <summary>A Space Pirate's laser: a bright zigzag 16 pixels long.</summary>
+    SpacePirateLaserBright16,
+    /// <summary>A Space Pirate's laser: a dim zigzag 16 pixels long.</summary>
+    SpacePirateLaserDim16,
+    /// <summary>A Space Pirate's laser: a bright zigzag 24 pixels long.</summary>
+    SpacePirateLaserBright24,
+    /// <summary>A Space Pirate's laser: a dim zigzag 24 pixels long.</summary>
+    SpacePirateLaserDim24,
+    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long.</summary>
+    SpacePirateLaserBright32,
+    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long.</summary>
+    SpacePirateLaserDim32,
+    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long: the picture of SpacePirateLaserBright32, as a frame of its own.</summary>
+    SpacePirateLaserBright32Twin,
+    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long: the picture of SpacePirateLaserDim32, as a frame of its own.</summary>
+    SpacePirateLaserDim32Twin,
+    /// <summary>A Space Pirate's laser: a glint of light: the picture of SpacePirateLaserFlareGlint, as a frame of its own.</summary>
+    SpacePirateLaserFlareGlintTwin,
+    /// <summary>A Space Pirate's laser: a small glow: the picture of SpacePirateLaserFlareGlow, as a frame of its own.</summary>
+    SpacePirateLaserFlareGlowTwin,
+    /// <summary>A Space Pirate's laser: a ball of light: the picture of SpacePirateLaserFlareBall, as a frame of its own.</summary>
+    SpacePirateLaserFlareBallTwin,
+    /// <summary>A Space Pirate's laser: a bright zigzag 8 pixels long: the picture of SpacePirateLaserBright8, as a frame of its own.</summary>
+    SpacePirateLaserBright8Twin,
+    /// <summary>A Space Pirate's laser: a dim zigzag 8 pixels long: the picture of SpacePirateLaserDim8, as a frame of its own.</summary>
+    SpacePirateLaserDim8Twin,
+    /// <summary>A Space Pirate's laser: a bright zigzag 16 pixels long: the picture of SpacePirateLaserBright16, as a frame of its own.</summary>
+    SpacePirateLaserBright16Twin,
+    /// <summary>A Space Pirate's laser: a dim zigzag 16 pixels long: the picture of SpacePirateLaserDim16, as a frame of its own.</summary>
+    SpacePirateLaserDim16Twin,
+    /// <summary>A Space Pirate's laser: a bright zigzag 24 pixels long: the picture of SpacePirateLaserBright24, as a frame of its own.</summary>
+    SpacePirateLaserBright24Twin,
+    /// <summary>A Space Pirate's laser: a dim zigzag 24 pixels long: the picture of SpacePirateLaserDim24, as a frame of its own.</summary>
+    SpacePirateLaserDim24Twin,
+    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long: the picture of SpacePirateLaserBright32, as a frame of its own.</summary>
+    SpacePirateLaserBright32TwinB,
+    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long: the picture of SpacePirateLaserDim32, as a frame of its own.</summary>
+    SpacePirateLaserDim32TwinB,
+    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long: the picture of SpacePirateLaserBright32, as a frame of its own.</summary>
+    SpacePirateLaserBright32TwinC,
+    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long: the picture of SpacePirateLaserDim32, as a frame of its own.</summary>
+    SpacePirateLaserDim32TwinC,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 0 degrees.</summary>
+    SpacePirateClawLeftTurned0,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 45 degrees.</summary>
+    SpacePirateClawLeftTurned45,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 90 degrees.</summary>
+    SpacePirateClawLeftTurned90,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 135 degrees.</summary>
+    SpacePirateClawLeftTurned135,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 180 degrees.</summary>
+    SpacePirateClawLeftTurned180,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 225 degrees.</summary>
+    SpacePirateClawLeftTurned225,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 270 degrees.</summary>
+    SpacePirateClawLeftTurned270,
+    /// <summary>A Space Pirate's claw thrown left: the claw turned 315 degrees.</summary>
+    SpacePirateClawLeftTurned315,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 0 degrees.</summary>
+    SpacePirateClawRightTurned0,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 45 degrees.</summary>
+    SpacePirateClawRightTurned45,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 90 degrees.</summary>
+    SpacePirateClawRightTurned90,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 135 degrees.</summary>
+    SpacePirateClawRightTurned135,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 180 degrees.</summary>
+    SpacePirateClawRightTurned180,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 225 degrees.</summary>
+    SpacePirateClawRightTurned225,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 270 degrees.</summary>
+    SpacePirateClawRightTurned270,
+    /// <summary>A Space Pirate's claw thrown right: the claw turned 315 degrees.</summary>
+    SpacePirateClawRightTurned315,
+    /// <summary>The gunship's inner dust cloud on its right: a puff of dust.</summary>
+    GunshipDustRightInnerPuff,
+    /// <summary>The gunship's inner dust cloud on its right: dust billowing.</summary>
+    GunshipDustRightInnerBillowing,
+    /// <summary>The gunship's inner dust cloud on its right: dust spreading.</summary>
+    GunshipDustRightInnerSpreading,
+    /// <summary>The gunship's inner dust cloud on its right: dust drifting.</summary>
+    GunshipDustRightInnerDrifting,
+    /// <summary>The gunship's inner dust cloud on its right: dust thinning.</summary>
+    GunshipDustRightInnerThinning,
+    /// <summary>The gunship's inner dust cloud on its right: dust fading.</summary>
+    GunshipDustRightInnerFading,
+    /// <summary>The gunship's inner dust cloud on its right: wisps of dust.</summary>
+    GunshipDustRightInnerWisps,
+    /// <summary>The gunship's inner dust cloud on its right: faint dust.</summary>
+    GunshipDustRightInnerFaint,
+    /// <summary>The gunship's middle dust cloud on its right: a puff of dust.</summary>
+    GunshipDustRightMiddlePuff,
+    /// <summary>The gunship's middle dust cloud on its right: dust billowing.</summary>
+    GunshipDustRightMiddleBillowing,
+    /// <summary>The gunship's middle dust cloud on its right: dust spreading.</summary>
+    GunshipDustRightMiddleSpreading,
+    /// <summary>The gunship's middle dust cloud on its right: dust drifting.</summary>
+    GunshipDustRightMiddleDrifting,
+    /// <summary>The gunship's middle dust cloud on its right: dust thinning.</summary>
+    GunshipDustRightMiddleThinning,
+    /// <summary>The gunship's middle dust cloud on its right: dust fading.</summary>
+    GunshipDustRightMiddleFading,
+    /// <summary>The gunship's middle dust cloud on its right: wisps of dust.</summary>
+    GunshipDustRightMiddleWisps,
+    /// <summary>The gunship's middle dust cloud on its right: faint dust.</summary>
+    GunshipDustRightMiddleFaint,
+    /// <summary>The gunship's outer dust cloud on its right: a puff of dust.</summary>
+    GunshipDustRightOuterPuff,
+    /// <summary>The gunship's outer dust cloud on its right: dust billowing.</summary>
+    GunshipDustRightOuterBillowing,
+    /// <summary>The gunship's outer dust cloud on its right: dust spreading.</summary>
+    GunshipDustRightOuterSpreading,
+    /// <summary>The gunship's outer dust cloud on its right: dust drifting.</summary>
+    GunshipDustRightOuterDrifting,
+    /// <summary>The gunship's outer dust cloud on its right: dust thinning.</summary>
+    GunshipDustRightOuterThinning,
+    /// <summary>The gunship's outer dust cloud on its right: dust fading.</summary>
+    GunshipDustRightOuterFading,
+    /// <summary>The gunship's outer dust cloud on its right: faint dust.</summary>
+    GunshipDustRightOuterFaint,
+    /// <summary>The gunship's inner dust cloud on its left: a puff of dust.</summary>
+    GunshipDustLeftInnerPuff,
+    /// <summary>The gunship's inner dust cloud on its left: dust billowing.</summary>
+    GunshipDustLeftInnerBillowing,
+    /// <summary>The gunship's inner dust cloud on its left: dust spreading.</summary>
+    GunshipDustLeftInnerSpreading,
+    /// <summary>The gunship's inner dust cloud on its left: dust drifting.</summary>
+    GunshipDustLeftInnerDrifting,
+    /// <summary>The gunship's inner dust cloud on its left: dust thinning.</summary>
+    GunshipDustLeftInnerThinning,
+    /// <summary>The gunship's inner dust cloud on its left: dust fading.</summary>
+    GunshipDustLeftInnerFading,
+    /// <summary>The gunship's inner dust cloud on its left: wisps of dust.</summary>
+    GunshipDustLeftInnerWisps,
+    /// <summary>The gunship's inner dust cloud on its left: faint dust.</summary>
+    GunshipDustLeftInnerFaint,
+    /// <summary>The gunship's middle dust cloud on its left: a puff of dust.</summary>
+    GunshipDustLeftMiddlePuff,
+    /// <summary>The gunship's middle dust cloud on its left: dust billowing.</summary>
+    GunshipDustLeftMiddleBillowing,
+    /// <summary>The gunship's middle dust cloud on its left: dust spreading.</summary>
+    GunshipDustLeftMiddleSpreading,
+    /// <summary>The gunship's middle dust cloud on its left: dust drifting.</summary>
+    GunshipDustLeftMiddleDrifting,
+    /// <summary>The gunship's middle dust cloud on its left: dust thinning.</summary>
+    GunshipDustLeftMiddleThinning,
+    /// <summary>The gunship's middle dust cloud on its left: dust fading.</summary>
+    GunshipDustLeftMiddleFading,
+    /// <summary>The gunship's middle dust cloud on its left: wisps of dust.</summary>
+    GunshipDustLeftMiddleWisps,
+    /// <summary>The gunship's middle dust cloud on its left: faint dust.</summary>
+    GunshipDustLeftMiddleFaint,
+    /// <summary>The gunship's outer dust cloud on its left: a puff of dust.</summary>
+    GunshipDustLeftOuterPuff,
+    /// <summary>The gunship's outer dust cloud on its left: dust billowing.</summary>
+    GunshipDustLeftOuterBillowing,
+    /// <summary>The gunship's outer dust cloud on its left: dust spreading.</summary>
+    GunshipDustLeftOuterSpreading,
+    /// <summary>The gunship's outer dust cloud on its left: dust drifting.</summary>
+    GunshipDustLeftOuterDrifting,
+    /// <summary>The gunship's outer dust cloud on its left: dust thinning.</summary>
+    GunshipDustLeftOuterThinning,
+    /// <summary>The gunship's outer dust cloud on its left: dust fading.</summary>
+    GunshipDustLeftOuterFading,
+    /// <summary>The gunship's outer dust cloud on its left: faint dust.</summary>
+    GunshipDustLeftOuterFaint,
+    /// <summary>A Torizo's explosion: a small spark.</summary>
+    TorizoExplosionSpark,
+    /// <summary>A Torizo's explosion: a ball of light.</summary>
+    TorizoExplosionFlareBall,
+    /// <summary>A Torizo's explosion: a ring of light around a burning core.</summary>
+    TorizoExplosionFlareRingCored,
+    /// <summary>A Torizo's explosion: a ring of light.</summary>
+    TorizoExplosionFlareRing,
+    /// <summary>A Torizo's explosion: a fading ring of light.</summary>
+    TorizoExplosionFlareRingFading,
+    /// <summary>A Torizo's explosion: a small spark: the picture of TorizoExplosionSpark, as a frame of its own.</summary>
+    TorizoExplosionSparkTwin,
+    /// <summary>A Torizo's explosion: a small fireball.</summary>
+    TorizoExplosionFireballSmall,
+    /// <summary>A Torizo's explosion: a large fireball.</summary>
+    TorizoExplosionFireballLarge,
+    /// <summary>A Torizo's explosion: a fireball opening into a flaming ring.</summary>
+    TorizoExplosionFlamingRing,
+    /// <summary>A Torizo's explosion: a starburst of flame.</summary>
+    TorizoExplosionStarburst,
+    /// <summary>A Torizo's explosion: scattering embers.</summary>
+    TorizoExplosionEmbers,
+    /// <summary>A Torizo's explosion: a cloud of fire.</summary>
+    TorizoExplosionFireCloud,
+    /// <summary>A Torizo's explosion: a cloud of fire spreading.</summary>
+    TorizoExplosionFireCloudSpreading,
+    /// <summary>A Torizo's explosion: a cloud of fire breaking up.</summary>
+    TorizoExplosionFireCloudBreaking,
+    /// <summary>A Torizo's explosion: the embers of a cloud of fire.</summary>
+    TorizoExplosionFireCloudEmbers,
+    /// <summary>A Torizo's drool: nothing; it draws no picture.</summary>
+    TorizoDroolBlank,
+    /// <summary>A Torizo's drool: nothing; it draws no picture: the picture of TorizoDroolBlank, as a frame of its own.</summary>
+    TorizoDroolBlankTwin,
+    /// <summary>A Torizo's drool: a falling drop.</summary>
+    TorizoDroolDrop,
+    /// <summary>A Torizo's drool: a falling drop: the picture of TorizoDroolDrop, as a frame of its own.</summary>
+    TorizoDroolDropTwin,
+    /// <summary>A Torizo's drool: a splash rising.</summary>
+    TorizoDroolSplashRising,
+    /// <summary>A Torizo's drool: a splash spreading.</summary>
+    TorizoDroolSplashSpreading,
+    /// <summary>A Torizo's drool: a flat splash.</summary>
+    TorizoDroolSplashFlat,
+    /// <summary>A Torizo's explosive swipe: a small spark.</summary>
+    TorizoSwipeSpark,
+    /// <summary>A Torizo's explosive swipe: a ball of light.</summary>
+    TorizoSwipeFlareBall,
+    /// <summary>A Torizo's explosive swipe: a ring of light around a burning core.</summary>
+    TorizoSwipeFlareRingCored,
+    /// <summary>A Torizo's explosive swipe: a ring of light.</summary>
+    TorizoSwipeFlareRing,
+    /// <summary>A Torizo's explosive swipe: a fading ring of light.</summary>
+    TorizoSwipeFlareRingFading,
+    /// <summary>The Bomb Torizo statue's crumbling: a clump of moss.</summary>
+    BombTorizoStatueMossClump,
+    /// <summary>The Bomb Torizo statue's crumbling: a clump of moss: the picture of BombTorizoStatueMossClump, as a frame of its own.</summary>
+    BombTorizoStatueMossClumpTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its right.</summary>
+    BombTorizoStatueRubbleLitRight,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its right: the picture of BombTorizoStatueRubbleLitRight, as a frame of its own.</summary>
+    BombTorizoStatueRubbleLitRightTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its centre.</summary>
+    BombTorizoStatueRubbleLitCenter,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble lit at its centre: the picture of BombTorizoStatueRubbleLitCenter, as a frame of its own.</summary>
+    BombTorizoStatueRubbleLitCenterTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble with one lit spot.</summary>
+    BombTorizoStatueRubbleLitSpot,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble with one lit spot: the picture of BombTorizoStatueRubbleLitSpot, as a frame of its own.</summary>
+    BombTorizoStatueRubbleLitSpotTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble with moss on top.</summary>
+    BombTorizoStatueRubbleMossyTop,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble with moss on top: the picture of BombTorizoStatueRubbleMossyTop, as a frame of its own.</summary>
+    BombTorizoStatueRubbleMossyTopTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble with a speck of moss.</summary>
+    BombTorizoStatueRubbleMossSpeck,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble with a speck of moss: the picture of BombTorizoStatueRubbleMossSpeck, as a frame of its own.</summary>
+    BombTorizoStatueRubbleMossSpeckTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble lit along its base.</summary>
+    BombTorizoStatueRubbleLitBase,
+    /// <summary>The Bomb Torizo statue's crumbling: rubble lit along its base: the picture of BombTorizoStatueRubbleLitBase, as a frame of its own.</summary>
+    BombTorizoStatueRubbleLitBaseTwin,
+    /// <summary>The Bomb Torizo statue's crumbling: a flat slab lit along its edge.</summary>
+    BombTorizoStatueSlab,
+    /// <summary>The Bomb Torizo statue's crumbling: a flat slab lit along its edge: the picture of BombTorizoStatueSlab, as a frame of its own.</summary>
+    BombTorizoStatueSlabTwin,
+    /// <summary>A Torizo's Chozo orb: the orb facing left.</summary>
+    TorizoChozoOrbFacingLeft,
+    /// <summary>A Torizo's Chozo orb: the orb facing right.</summary>
+    TorizoChozoOrbFacingRight,
+    /// <summary>A Torizo's Chozo orb: a small spark.</summary>
+    TorizoChozoOrbSpark,
+    /// <summary>A Torizo's Chozo orb: a ball of light.</summary>
+    TorizoChozoOrbFlareBall,
+    /// <summary>A Torizo's Chozo orb: a ring of light around a burning core.</summary>
+    TorizoChozoOrbFlareRingCored,
+    /// <summary>A Torizo's Chozo orb: a ring of light.</summary>
+    TorizoChozoOrbFlareRing,
+    /// <summary>A Torizo's Chozo orb: a fading ring of light.</summary>
+    TorizoChozoOrbFlareRingFading,
+    /// <summary>A Torizo's Chozo orb: a burst of flame.</summary>
+    TorizoChozoOrbFlameBurst,
+    /// <summary>A Torizo's Chozo orb: a low dome of flame.</summary>
+    TorizoChozoOrbFlameDome,
+    /// <summary>A Torizo's Chozo orb: a short column of flame.</summary>
+    TorizoChozoOrbFlameColumnShort,
+    /// <summary>A Torizo's Chozo orb: a tall column of flame.</summary>
+    TorizoChozoOrbFlameColumnTall,
+    /// <summary>A Torizo's Chozo orb: a burst of flame above a dome of flame.</summary>
+    TorizoChozoOrbFlameBurstAboveDome,
+    /// <summary>A Torizo's Chozo orb: embers above a dome of flame.</summary>
+    TorizoChozoOrbFlameEmbersAboveDome,
+    /// <summary>A Torizo's Chozo orb: a small spark: the picture of TorizoChozoOrbSpark, as a frame of its own.</summary>
+    TorizoChozoOrbSparkTwin,
+    /// <summary>A Torizo's Chozo orb: a ball of light: the picture of TorizoChozoOrbFlareBall, as a frame of its own.</summary>
+    TorizoChozoOrbFlareBallTwin,
+    /// <summary>A Torizo's Chozo orb: a ring of light around a burning core: the picture of TorizoChozoOrbFlareRingCored, as a frame of its own.</summary>
+    TorizoChozoOrbFlareRingCoredTwin,
+    /// <summary>A Torizo's Chozo orb: a ring of light: the picture of TorizoChozoOrbFlareRing, as a frame of its own.</summary>
+    TorizoChozoOrbFlareRingTwin,
+    /// <summary>A Torizo's Chozo orb: a fading ring of light: the picture of TorizoChozoOrbFlareRingFading, as a frame of its own.</summary>
+    TorizoChozoOrbFlareRingFadingTwin,
+    /// <summary>A Torizo's sonic boom: a small crescent opening left.</summary>
+    TorizoSonicBoomLeftSmall,
+    /// <summary>A Torizo's sonic boom: a crescent opening left.</summary>
+    TorizoSonicBoomLeftMedium,
+    /// <summary>A Torizo's sonic boom: a tall crescent opening left.</summary>
+    TorizoSonicBoomLeftLarge,
+    /// <summary>A Torizo's sonic boom: a small crescent opening right.</summary>
+    TorizoSonicBoomRightSmall,
+    /// <summary>A Torizo's sonic boom: a crescent opening right.</summary>
+    TorizoSonicBoomRightMedium,
+    /// <summary>A Torizo's sonic boom: a tall crescent opening right.</summary>
+    TorizoSonicBoomRightLarge,
+    /// <summary>A Torizo's sonic boom: a small spark.</summary>
+    TorizoSonicBoomSpark,
+    /// <summary>A Torizo's sonic boom: a ball of light.</summary>
+    TorizoSonicBoomFlareBall,
+    /// <summary>A Torizo's sonic boom: a ring of light around a burning core.</summary>
+    TorizoSonicBoomFlareRingCored,
+    /// <summary>A Torizo's sonic boom: a ring of light.</summary>
+    TorizoSonicBoomFlareRing,
+    /// <summary>A Torizo's sonic boom: a fading ring of light.</summary>
+    TorizoSonicBoomFlareRingFading,
+    /// <summary>A Chozo statue's dust: a small puff of dust.</summary>
+    ChozoDustPuff,
+    /// <summary>A Chozo statue's dust: a puff of dust and a smaller one.</summary>
+    ChozoDustPuffPair,
+    /// <summary>A Chozo statue's dust: three puffs of dust.</summary>
+    ChozoDustPuffTrio,
+    /// <summary>A Chozo statue's dust: dense clouds of dust.</summary>
+    ChozoDustCloudsDense,
+    /// <summary>A Chozo statue's dust: a small puff of dust: the picture of ChozoDustPuff, as a frame of its own.</summary>
+    ChozoDustPuffTwin,
+    /// <summary>A Chozo statue's dust: a puff of dust and a smaller one: the picture of ChozoDustPuffPair, as a frame of its own.</summary>
+    ChozoDustPuffPairTwin,
+    /// <summary>A Chozo statue's dust: three puffs of dust: the picture of ChozoDustPuffTrio, as a frame of its own.</summary>
+    ChozoDustPuffTrioTwin,
+    /// <summary>A Chozo statue's dust: dense clouds of dust: the picture of ChozoDustCloudsDense, as a frame of its own.</summary>
+    ChozoDustCloudsDenseTwin,
+    /// <summary>A Torizo's landing dust at its right foot: a small puff of dust.</summary>
+    TorizoLandingDustRightDustPuff,
+    /// <summary>A Torizo's landing dust at its right foot: a smaller puff of dust.</summary>
+    TorizoLandingDustRightDustPuffSmall,
+    /// <summary>A Torizo's landing dust at its right foot: a thin puff of dust.</summary>
+    TorizoLandingDustRightDustPuffThin,
+    /// <summary>A Torizo's landing dust at its right foot: a faint puff of dust.</summary>
+    TorizoLandingDustRightDustPuffFaint,
+    /// <summary>A Torizo's landing dust at its left foot: a small puff of dust.</summary>
+    TorizoLandingDustLeftDustPuff,
+    /// <summary>A Torizo's landing dust at its left foot: a smaller puff of dust.</summary>
+    TorizoLandingDustLeftDustPuffSmall,
+    /// <summary>A Torizo's landing dust at its left foot: a thin puff of dust.</summary>
+    TorizoLandingDustLeftDustPuffThin,
+    /// <summary>A Torizo's landing dust at its left foot: a faint puff of dust.</summary>
+    TorizoLandingDustLeftDustPuffFaint,
+    /// <summary>Golden Torizo's egg: a whole egg lit from the left.</summary>
+    GoldenTorizoEggWholeLeft,
+    /// <summary>Golden Torizo's egg: an egg cracked, lit from the left.</summary>
+    GoldenTorizoEggCrackedLeft,
+    /// <summary>Golden Torizo's egg: an egg splitting, lit from the left.</summary>
+    GoldenTorizoEggSplittingLeft,
+    /// <summary>Golden Torizo's egg: an egg hatching, an eye showing at its left.</summary>
+    GoldenTorizoEggHatchingLeft,
+    /// <summary>Golden Torizo's egg: a whole egg lit from the right.</summary>
+    GoldenTorizoEggWholeRight,
+    /// <summary>Golden Torizo's egg: an egg cracked, lit from the right.</summary>
+    GoldenTorizoEggCrackedRight,
+    /// <summary>Golden Torizo's egg: an egg splitting, lit from the right.</summary>
+    GoldenTorizoEggSplittingRight,
+    /// <summary>Golden Torizo's egg: an egg hatching, an eye showing at its right.</summary>
+    GoldenTorizoEggHatchingRight,
+    /// <summary>Golden Torizo's hatchling: facing left, claws raised.</summary>
+    GoldenTorizoHatchlingLeftClawsRaised,
+    /// <summary>Golden Torizo's hatchling: facing left, claws lowered.</summary>
+    GoldenTorizoHatchlingLeftClawsLowered,
+    /// <summary>Golden Torizo's hatchling: facing left, hunched.</summary>
+    GoldenTorizoHatchlingLeftHunched,
+    /// <summary>Golden Torizo's hatchling: facing left, claws lowered: the picture of GoldenTorizoHatchlingLeftClawsLowered, as a frame of its own.</summary>
+    GoldenTorizoHatchlingLeftClawsLoweredTwin,
+    /// <summary>Golden Torizo's hatchling: facing right, claws raised.</summary>
+    GoldenTorizoHatchlingRightClawsRaised,
+    /// <summary>Golden Torizo's hatchling: facing right, claws lowered.</summary>
+    GoldenTorizoHatchlingRightClawsLowered,
+    /// <summary>Golden Torizo's hatchling: facing right, hunched.</summary>
+    GoldenTorizoHatchlingRightHunched,
+    /// <summary>Golden Torizo's hatchling: facing right, claws lowered: the picture of GoldenTorizoHatchlingRightClawsLowered, as a frame of its own.</summary>
+    GoldenTorizoHatchlingRightClawsLoweredTwin,
+    /// <summary>Golden Torizo's hatchling: facing left, crumbling.</summary>
+    GoldenTorizoHatchlingLeftCrumbling,
+    /// <summary>Golden Torizo's hatchling: facing left, collapsing.</summary>
+    GoldenTorizoHatchlingLeftCollapsing,
+    /// <summary>Golden Torizo's hatchling: facing left, slumped.</summary>
+    GoldenTorizoHatchlingLeftSlumped,
+    /// <summary>Golden Torizo's hatchling: its remains, facing left.</summary>
+    GoldenTorizoHatchlingLeftRemains,
+    /// <summary>Golden Torizo's hatchling: its flattened remains, facing left.</summary>
+    GoldenTorizoHatchlingLeftRemainsFlat,
+    /// <summary>Golden Torizo's hatchling: facing right, crumbling.</summary>
+    GoldenTorizoHatchlingRightCrumbling,
+    /// <summary>Golden Torizo's hatchling: facing right, collapsing.</summary>
+    GoldenTorizoHatchlingRightCollapsing,
+    /// <summary>Golden Torizo's hatchling: facing right, slumped.</summary>
+    GoldenTorizoHatchlingRightSlumped,
+    /// <summary>Golden Torizo's hatchling: its remains, facing right.</summary>
+    GoldenTorizoHatchlingRightRemains,
+    /// <summary>Golden Torizo's hatchling: its flattened remains, facing right.</summary>
+    GoldenTorizoHatchlingRightRemainsFlat,
+    /// <summary>Golden Torizo's super missile: pointing down.</summary>
+    GoldenTorizoSuperMissilePointingDown,
+    /// <summary>Golden Torizo's super missile: pointing down and right.</summary>
+    GoldenTorizoSuperMissilePointingDownRight,
+    /// <summary>Golden Torizo's super missile: pointing right.</summary>
+    GoldenTorizoSuperMissilePointingRight,
+    /// <summary>Golden Torizo's super missile: pointing up and right.</summary>
+    GoldenTorizoSuperMissilePointingUpRight,
+    /// <summary>Golden Torizo's super missile: pointing up.</summary>
+    GoldenTorizoSuperMissilePointingUp,
+    /// <summary>Golden Torizo's super missile: pointing up and left.</summary>
+    GoldenTorizoSuperMissilePointingUpLeft,
+    /// <summary>Golden Torizo's super missile: pointing left.</summary>
+    GoldenTorizoSuperMissilePointingLeft,
+    /// <summary>Golden Torizo's super missile: pointing down and left.</summary>
+    GoldenTorizoSuperMissilePointingDownLeft,
+    /// <summary>Golden Torizo's super missile: pointing down: the picture of GoldenTorizoSuperMissilePointingDown, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingDownTwin,
+    /// <summary>Golden Torizo's super missile: pointing down: the picture of GoldenTorizoSuperMissilePointingDown, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingDownTwinB,
+    /// <summary>Golden Torizo's super missile: pointing down and left: the picture of GoldenTorizoSuperMissilePointingDownLeft, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingDownLeftTwin,
+    /// <summary>Golden Torizo's super missile: pointing left: the picture of GoldenTorizoSuperMissilePointingLeft, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingLeftTwin,
+    /// <summary>Golden Torizo's super missile: pointing up and left: the picture of GoldenTorizoSuperMissilePointingUpLeft, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingUpLeftTwin,
+    /// <summary>Golden Torizo's super missile: pointing up: the picture of GoldenTorizoSuperMissilePointingUp, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingUpTwin,
+    /// <summary>Golden Torizo's super missile: pointing up and right: the picture of GoldenTorizoSuperMissilePointingUpRight, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingUpRightTwin,
+    /// <summary>Golden Torizo's super missile: pointing right: the picture of GoldenTorizoSuperMissilePointingRight, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingRightTwin,
+    /// <summary>Golden Torizo's super missile: pointing down and right: the picture of GoldenTorizoSuperMissilePointingDownRight, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingDownRightTwin,
+    /// <summary>Golden Torizo's super missile: pointing down: the picture of GoldenTorizoSuperMissilePointingDown, as a frame of its own.</summary>
+    GoldenTorizoSuperMissilePointingDownTwinC,
+    /// <summary>Golden Torizo's super missile exploding: a small fireball.</summary>
+    GoldenTorizoSuperMissileFireballSmall,
+    /// <summary>Golden Torizo's super missile exploding: a large fireball.</summary>
+    GoldenTorizoSuperMissileFireballLarge,
+    /// <summary>Golden Torizo's super missile exploding: a fireball opening into a flaming ring.</summary>
+    GoldenTorizoSuperMissileFlamingRing,
+    /// <summary>Golden Torizo's super missile exploding: a huge fireball with a ring inside it.</summary>
+    GoldenTorizoSuperMissileFireballHuge,
+    /// <summary>Golden Torizo's super missile exploding: a wide ring of fire.</summary>
+    GoldenTorizoSuperMissileWideRing,
+    /// <summary>Golden Torizo's super missile exploding: a wide, fading ring of fire.</summary>
+    GoldenTorizoSuperMissileWideRingFading,
+    /// <summary>Golden Torizo's eye beam: a small spark.</summary>
+    GoldenTorizoEyeBeamSpark,
+    /// <summary>Golden Torizo's eye beam: a ball of light.</summary>
+    GoldenTorizoEyeBeamFlareBall,
+    /// <summary>Golden Torizo's eye beam: a ring of light around a burning core.</summary>
+    GoldenTorizoEyeBeamFlareRingCored,
+    /// <summary>Golden Torizo's eye beam: a ring of light.</summary>
+    GoldenTorizoEyeBeamFlareRing,
+    /// <summary>Golden Torizo's eye beam: a fading ring of light.</summary>
+    GoldenTorizoEyeBeamFlareRingFading,
+    /// <summary>Golden Torizo's eye beam: nothing; it draws no picture.</summary>
+    GoldenTorizoEyeBeamBlank,
+    /// <summary>Golden Torizo's eye beam: a burst of flame.</summary>
+    GoldenTorizoEyeBeamFlameBurst,
+    /// <summary>Golden Torizo's eye beam: a low dome of flame.</summary>
+    GoldenTorizoEyeBeamFlameDome,
+    /// <summary>Golden Torizo's eye beam: a short column of flame.</summary>
+    GoldenTorizoEyeBeamFlameColumnShort,
+    /// <summary>Golden Torizo's eye beam: a tall column of flame.</summary>
+    GoldenTorizoEyeBeamFlameColumnTall,
+    /// <summary>Golden Torizo's eye beam: a burst of flame above a dome of flame.</summary>
+    GoldenTorizoEyeBeamFlameBurstAboveDome,
+    /// <summary>Golden Torizo's eye beam: embers above a dome of flame.</summary>
+    GoldenTorizoEyeBeamFlameEmbersAboveDome,
+    /// <summary>Golden Torizo's eye beam: a fading ring of light: the picture of GoldenTorizoEyeBeamFlareRingFading, as a frame of its own.</summary>
+    GoldenTorizoEyeBeamFlareRingFadingTwin,
+    /// <summary>Golden Torizo's eye beam: a ring of light: the picture of GoldenTorizoEyeBeamFlareRing, as a frame of its own.</summary>
+    GoldenTorizoEyeBeamFlareRingTwin,
+    /// <summary>Golden Torizo's eye beam: a ring of light around a burning core: the picture of GoldenTorizoEyeBeamFlareRingCored, as a frame of its own.</summary>
+    GoldenTorizoEyeBeamFlareRingCoredTwin,
+    /// <summary>Golden Torizo's eye beam: a ball of light: the picture of GoldenTorizoEyeBeamFlareBall, as a frame of its own.</summary>
+    GoldenTorizoEyeBeamFlareBallTwin,
+    /// <summary>Golden Torizo's eye beam: a small spark: the picture of GoldenTorizoEyeBeamSpark, as a frame of its own.</summary>
+    GoldenTorizoEyeBeamSparkTwin,
+    /// <summary>The old Tourian escape shaft wall's explosion: a small spark.</summary>
+    OldTourianWallExplosionSpark,
+    /// <summary>The old Tourian escape shaft wall's explosion: a small fireball.</summary>
+    OldTourianWallExplosionFireballSmall,
+    /// <summary>The old Tourian escape shaft wall's explosion: a large fireball.</summary>
+    OldTourianWallExplosionFireballLarge,
+    /// <summary>The old Tourian escape shaft wall's explosion: a fireball opening into a flaming ring.</summary>
+    OldTourianWallExplosionFlamingRing,
+    /// <summary>The old Tourian escape shaft wall's explosion: a starburst of flame.</summary>
+    OldTourianWallExplosionStarburst,
+    /// <summary>The old Tourian escape shaft wall's explosion: scattering embers.</summary>
+    OldTourianWallExplosionEmbers,
+    /// <summary>A Dragon's fireball: rising to the left, flaring.</summary>
+    DragonFireballRisingLeftFlaring,
+    /// <summary>A Dragon's fireball: rising to the left, compact.</summary>
+    DragonFireballRisingLeftCompact,
+    /// <summary>A Dragon's fireball: rising to the right, flaring.</summary>
+    DragonFireballRisingRightFlaring,
+    /// <summary>A Dragon's fireball: rising to the right, compact.</summary>
+    DragonFireballRisingRightCompact,
+    /// <summary>A Dragon's fireball: falling to the left, flaring.</summary>
+    DragonFireballFallingLeftFlaring,
+    /// <summary>A Dragon's fireball: falling to the left, compact.</summary>
+    DragonFireballFallingLeftCompact,
+    /// <summary>A Dragon's fireball: falling to the right, flaring.</summary>
+    DragonFireballFallingRightFlaring,
+    /// <summary>A Dragon's fireball: falling to the right, compact.</summary>
+    DragonFireballFallingRightCompact,
+    /// <summary>An eye door's energy ball: a faint ring.</summary>
+    EyeDoorBallRingFaint,
+    /// <summary>An eye door's energy ball: a blue ring.</summary>
+    EyeDoorBallRing,
+    /// <summary>An eye door's energy ball: a bright ring around a blue core.</summary>
+    EyeDoorBallRingCored,
+    /// <summary>An eye door's energy ball: a whole blue ball.</summary>
+    EyeDoorBallWhole,
+    /// <summary>An eye door's energy ball: a bright ring around a blue core: the picture of EyeDoorBallRingCored, as a frame of its own.</summary>
+    EyeDoorBallRingCoredTwin,
+    /// <summary>An eye door's energy ball: a blue ring: the picture of EyeDoorBallRing, as a frame of its own.</summary>
+    EyeDoorBallRingTwin,
+    /// <summary>An eye door's energy ball: a faint ring: the picture of EyeDoorBallRingFaint, as a frame of its own.</summary>
+    EyeDoorBallRingFaintTwin,
+    /// <summary>An eye door's energy ball: a cloud of fire.</summary>
+    EyeDoorBallFireCloud,
+    /// <summary>An eye door's energy ball: a cloud of fire spreading.</summary>
+    EyeDoorBallFireCloudSpreading,
+    /// <summary>An eye door's energy ball: a cloud of fire breaking up.</summary>
+    EyeDoorBallFireCloudBreaking,
+    /// <summary>An eye door's energy ball: the embers of a cloud of fire.</summary>
+    EyeDoorBallFireCloudEmbers,
+    /// <summary>An eye door's sweat: a falling drop.</summary>
+    EyeDoorSweatDrop,
+    /// <summary>An eye door's sweat: a low puff of smoke.</summary>
+    EyeDoorSweatSmokePuffLow,
+    /// <summary>An eye door's sweat: a puff of smoke rising in specks.</summary>
+    EyeDoorSweatSmokePuffRising,
+    /// <summary>An eye door's sweat: a puff of smoke scattering.</summary>
+    EyeDoorSweatSmokePuffScattering,
+    /// <summary>A Tourian statue's splash: a low splash.</summary>
+    TourianStatueSplashLow,
+    /// <summary>A Tourian statue's splash: a splash rising.</summary>
+    TourianStatueSplashRising,
+    /// <summary>A Tourian statue's splash: a splash scattering.</summary>
+    TourianStatueSplashScattering,
+    /// <summary>A Tourian statue's splash: a splash fading.</summary>
+    TourianStatueSplashFading,
+    /// <summary>A Tourian statue's eye glow: a faint, wide ring of specks.</summary>
+    TourianStatueEyeGlowRingFaint,
+    /// <summary>A Tourian statue's eye glow: a ring around a dash.</summary>
+    TourianStatueEyeGlowRing,
+    /// <summary>A Tourian statue's eye glow: a ring crossed by a bright cross.</summary>
+    TourianStatueEyeGlowRingCrossed,
+    /// <summary>A Tourian statue's eye glow: a bright diagonal streak.</summary>
+    TourianStatueEyeGlowStreak,
+    /// <summary>A Tourian statue's eye glow: a cross inside a ring.</summary>
+    TourianStatueEyeGlowCrossRinged,
+    /// <summary>A Tourian statue's eye glow: a sparkle.</summary>
+    TourianStatueEyeGlowSparkle,
+    /// <summary>A Tourian statue's eye glow: a small sparkle.</summary>
+    TourianStatueEyeGlowSparkleSmall,
+    /// <summary>A Tourian statue's eye glow: a small diagonal streak.</summary>
+    TourianStatueEyeGlowStreakSmall,
+    /// <summary>A Tourian statue's eye glow: one dot.</summary>
+    TourianStatueEyeGlowDot,
+    /// <summary>A Tourian statue's eye glow: nothing; it draws no picture.</summary>
+    TourianStatueEyeGlowBlank,
+    /// <summary>A Tourian statue's particle: a curl.</summary>
+    TourianStatueParticleTurned0,
+    /// <summary>A Tourian statue's particle: a curl turned a quarter.</summary>
+    TourianStatueParticleTurned90,
+    /// <summary>A Tourian statue's particle: a curl turned half round.</summary>
+    TourianStatueParticleTurned180,
+    /// <summary>A Tourian statue's particle: a curl turned three quarters.</summary>
+    TourianStatueParticleTurned270,
+    /// <summary>A Tourian statue's sparkle trail: bright sparkles.</summary>
+    TourianStatueTailBright,
+    /// <summary>A Tourian statue's sparkle trail: sparkles.</summary>
+    TourianStatueTailSparkles,
+    /// <summary>A Tourian statue's sparkle trail: dim sparkles.</summary>
+    TourianStatueTailDim,
+    /// <summary>A Tourian statue's sparkle trail: faint sparkles.</summary>
+    TourianStatueTailFaint,
+    /// <summary>A Tourian statue's soul: its mouth closed.</summary>
+    TourianStatueSoulMouthClosed,
+    /// <summary>A Tourian statue's soul: its mouth open.</summary>
+    TourianStatueSoulMouthOpen,
+    /// <summary>A Tourian statue's base decoration: the base's mossy decoration.</summary>
     TourianStatueBaseDecoration,
-    /// <summary>The frame of the Tourian statue base decoration loop.</summary>
-    TourianStatueBaseDecorationLoop,
-    /// <summary>The frame of the Tourian statue Ridley.</summary>
+    /// <summary>A Tourian statue's base decoration: the base's mossy decoration: the picture of TourianStatueBaseDecoration, as a frame of its own.</summary>
+    TourianStatueBaseDecorationTwin,
+    /// <summary>The Tourian statue: Ridley's figure.</summary>
     TourianStatueRidley,
-    /// <summary>The frame of the Tourian statue Phantoon.</summary>
+    /// <summary>The Tourian statue: Phantoon's figure.</summary>
     TourianStatuePhantoon,
-    /// <summary>The first frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialFirst,
-    /// <summary>The second frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialSecond,
-    /// <summary>The third frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialThird,
-    /// <summary>The fourth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialFourth,
-    /// <summary>The fifth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialFifth,
-    /// <summary>The sixth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialSixth,
-    /// <summary>The seventh frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialSeventh,
-    /// <summary>The eighth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialEighth,
-    /// <summary>The ninth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialNinth,
-    /// <summary>The tenth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialTenth,
-    /// <summary>The eleventh frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialEleventh,
-    /// <summary>The twelfth frame of the Nuclear Waffle initial.</summary>
-    NuclearWaffleInitialTwelfth,
-    /// <summary>The frame of the Polyp rock initial.</summary>
-    PolypRockInitial,
-    /// <summary>The first frame of the Shaktool front.</summary>
-    ShaktoolFrontFirst,
-    /// <summary>The second frame of the Shaktool front.</summary>
-    ShaktoolFrontSecond,
-    /// <summary>The frame of the Shaktool front loop.</summary>
-    ShaktoolFrontLoop,
-    /// <summary>The first frame of the Shaktool middle.</summary>
-    ShaktoolMiddleFirst,
-    /// <summary>The second frame of the Shaktool middle.</summary>
-    ShaktoolMiddleSecond,
-    /// <summary>The frame of the Shaktool middle loop.</summary>
-    ShaktoolMiddleLoop,
-    /// <summary>The frame of the Shaktool back.</summary>
-    ShaktoolBack,
-    /// <summary>The frame of the Shaktool back loop.</summary>
-    ShaktoolBackLoop,
-    /// <summary>The first frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseFirst,
-    /// <summary>The second frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseSecond,
-    /// <summary>The third frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseThird,
-    /// <summary>The fourth frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseFourth,
-    /// <summary>The fifth frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseFifth,
-    /// <summary>The sixth frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseSixth,
-    /// <summary>The seventh frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseSeventh,
-    /// <summary>The eighth frame of the Mother Brain turret pose.</summary>
-    MotherBrainTurretPoseEighth,
-    /// <summary>The first frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseFirst,
-    /// <summary>The second frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseSecond,
-    /// <summary>The third frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseThird,
-    /// <summary>The fourth frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseFourth,
-    /// <summary>The fifth frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseFifth,
-    /// <summary>The sixth frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseSixth,
-    /// <summary>The seventh frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseSeventh,
-    /// <summary>The eighth frame of the Mother Brain turret bullet pose.</summary>
-    MotherBrainTurretBulletPoseEighth,
-    /// <summary>The first frame of the Mother Brain turret bullet impact.</summary>
-    MotherBrainTurretBulletImpactFirst,
-    /// <summary>The second frame of the Mother Brain turret bullet impact.</summary>
-    MotherBrainTurretBulletImpactSecond,
-    /// <summary>The third frame of the Mother Brain turret bullet impact.</summary>
-    MotherBrainTurretBulletImpactThird,
-    /// <summary>The fourth frame of the Mother Brain turret bullet impact.</summary>
-    MotherBrainTurretBulletImpactFourth,
-    /// <summary>The fifth frame of the Mother Brain turret bullet impact.</summary>
-    MotherBrainTurretBulletImpactFifth,
-    /// <summary>The first frame of the Mother Brain blue ring onion ring.</summary>
-    MotherBrainBlueRingOnionRingFirst,
-    /// <summary>The second frame of the Mother Brain blue ring onion ring.</summary>
-    MotherBrainBlueRingOnionRingSecond,
-    /// <summary>The third frame of the Mother Brain blue ring onion ring.</summary>
-    MotherBrainBlueRingOnionRingThird,
-    /// <summary>The fourth frame of the Mother Brain blue ring onion ring.</summary>
-    MotherBrainBlueRingOnionRingFourth,
-    /// <summary>The fifth frame of the Mother Brain blue ring onion ring.</summary>
-    MotherBrainBlueRingOnionRingFifth,
-    /// <summary>The sixth frame of the Mother Brain blue ring onion ring.</summary>
-    MotherBrainBlueRingOnionRingSixth,
-    /// <summary>The first frame of the Mother Brain blue ring impact onion ring hit.</summary>
-    MotherBrainBlueRingImpactOnionRingHitFirst,
-    /// <summary>The second frame of the Mother Brain blue ring impact onion ring hit.</summary>
-    MotherBrainBlueRingImpactOnionRingHitSecond,
-    /// <summary>The third frame of the Mother Brain blue ring impact onion ring hit.</summary>
-    MotherBrainBlueRingImpactOnionRingHitThird,
-    /// <summary>The fourth frame of the Mother Brain blue ring impact onion ring hit.</summary>
-    MotherBrainBlueRingImpactOnionRingHitFourth,
-    /// <summary>The fifth frame of the Mother Brain blue ring impact onion ring hit.</summary>
-    MotherBrainBlueRingImpactOnionRingHitFifth,
-    /// <summary>The sixth frame of the Mother Brain blue ring impact onion ring hit.</summary>
-    MotherBrainBlueRingImpactOnionRingHitSixth,
-    /// <summary>The first frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombFirst,
-    /// <summary>The second frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombSecond,
-    /// <summary>The third frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombThird,
-    /// <summary>The fourth frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombFourth,
-    /// <summary>The fifth frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombFifth,
-    /// <summary>The sixth frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombSixth,
-    /// <summary>The seventh frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombSeventh,
-    /// <summary>The eighth frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombEighth,
-    /// <summary>The ninth frame of the Mother Brain Bomb.</summary>
-    MotherBrainBombNinth,
-    /// <summary>The frame of the Mother Brain hand beam first stage first phase.</summary>
-    MotherBrainHandBeamFirstStageFirstPhase,
-    /// <summary>The frame of the Mother Brain hand beam first stage second phase.</summary>
-    MotherBrainHandBeamFirstStageSecondPhase,
-    /// <summary>The frame of the Mother Brain hand beam first stage third phase.</summary>
-    MotherBrainHandBeamFirstStageThirdPhase,
-    /// <summary>The frame of the Mother Brain hand beam first stage fourth phase.</summary>
-    MotherBrainHandBeamFirstStageFourthPhase,
-    /// <summary>The frame of the Mother Brain hand beam first stage fifth phase.</summary>
-    MotherBrainHandBeamFirstStageFifthPhase,
-    /// <summary>The frame of the Mother Brain hand beam first stage sixth phase.</summary>
-    MotherBrainHandBeamFirstStageSixthPhase,
-    /// <summary>The frame of the Mother Brain hand beam first stage seventh phase.</summary>
-    MotherBrainHandBeamFirstStageSeventhPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage first phase.</summary>
-    MotherBrainHandBeamSecondStageFirstPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage second phase.</summary>
-    MotherBrainHandBeamSecondStageSecondPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage third phase.</summary>
-    MotherBrainHandBeamSecondStageThirdPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage fourth phase.</summary>
-    MotherBrainHandBeamSecondStageFourthPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage fifth phase.</summary>
-    MotherBrainHandBeamSecondStageFifthPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage sixth phase.</summary>
-    MotherBrainHandBeamSecondStageSixthPhase,
-    /// <summary>The frame of the Mother Brain hand beam second stage seventh phase.</summary>
-    MotherBrainHandBeamSecondStageSeventhPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage first phase.</summary>
-    MotherBrainHandBeamThirdStageFirstPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage second phase.</summary>
-    MotherBrainHandBeamThirdStageSecondPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage third phase.</summary>
-    MotherBrainHandBeamThirdStageThirdPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage fourth phase.</summary>
-    MotherBrainHandBeamThirdStageFourthPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage fifth phase.</summary>
-    MotherBrainHandBeamThirdStageFifthPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage sixth phase.</summary>
-    MotherBrainHandBeamThirdStageSixthPhase,
-    /// <summary>The frame of the Mother Brain hand beam third stage seventh phase.</summary>
-    MotherBrainHandBeamThirdStageSeventhPhase,
-    /// <summary>The first frame of the Mother Brain rainbow beam charging.</summary>
-    MotherBrainRainbowBeamChargingFirst,
-    /// <summary>The second frame of the Mother Brain rainbow beam charging.</summary>
-    MotherBrainRainbowBeamChargingSecond,
-    /// <summary>The third frame of the Mother Brain rainbow beam charging.</summary>
-    MotherBrainRainbowBeamChargingThird,
-    /// <summary>The fourth frame of the Mother Brain rainbow beam charging.</summary>
-    MotherBrainRainbowBeamChargingFourth,
-    /// <summary>The fifth frame of the Mother Brain rainbow beam charging.</summary>
-    MotherBrainRainbowBeamChargingFifth,
-    /// <summary>The sixth frame of the Mother Brain rainbow beam charging.</summary>
-    MotherBrainRainbowBeamChargingSixth,
-    /// <summary>The first frame of the Mother Brain drool attached drool.</summary>
-    MotherBrainDroolAttachedDroolFirst,
-    /// <summary>The second frame of the Mother Brain drool attached drool.</summary>
-    MotherBrainDroolAttachedDroolSecond,
-    /// <summary>The third frame of the Mother Brain drool attached drool.</summary>
-    MotherBrainDroolAttachedDroolThird,
-    /// <summary>The fourth frame of the Mother Brain drool attached drool.</summary>
-    MotherBrainDroolAttachedDroolFourth,
-    /// <summary>The fifth frame of the Mother Brain drool attached drool.</summary>
-    MotherBrainDroolAttachedDroolFifth,
-    /// <summary>The frame of the Mother Brain drool released.</summary>
-    MotherBrainDroolReleased,
-    /// <summary>The first frame of the Mother Brain drool hit floor.</summary>
-    MotherBrainDroolHitFloorFirst,
-    /// <summary>The second frame of the Mother Brain drool hit floor.</summary>
-    MotherBrainDroolHitFloorSecond,
-    /// <summary>The third frame of the Mother Brain drool hit floor.</summary>
-    MotherBrainDroolHitFloorThird,
-    /// <summary>The fourth frame of the Mother Brain drool hit floor.</summary>
-    MotherBrainDroolHitFloorFourth,
-    /// <summary>The first frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleFirst,
-    /// <summary>The second frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleSecond,
-    /// <summary>The third frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleThird,
-    /// <summary>The fourth frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleFourth,
-    /// <summary>The fifth frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleFifth,
-    /// <summary>The sixth frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleSixth,
-    /// <summary>The seventh frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleSeventh,
-    /// <summary>The eighth frame of the Mother Brain escape door particle.</summary>
-    MotherBrainEscapeDoorParticleEighth,
-    /// <summary>The first frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigFirst,
-    /// <summary>The second frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigSecond,
-    /// <summary>The third frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigThird,
-    /// <summary>The fourth frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigFourth,
-    /// <summary>The fifth frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigFifth,
-    /// <summary>The sixth frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigSixth,
-    /// <summary>The seventh frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigSeventh,
-    /// <summary>The eighth frame of the Mother Brain purple breath big.</summary>
-    MotherBrainPurpleBreathBigEighth,
-    /// <summary>The first frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallFirst,
-    /// <summary>The second frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallSecond,
-    /// <summary>The third frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallThird,
-    /// <summary>The fourth frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallFourth,
-    /// <summary>The fifth frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallFifth,
-    /// <summary>The sixth frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallSixth,
-    /// <summary>The seventh frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallSeventh,
-    /// <summary>The eighth frame of the Mother Brain purple breath small.</summary>
-    MotherBrainPurpleBreathSmallEighth,
-    /// <summary>The frame of the Mother Brain escape subtitle.</summary>
+    /// <summary>The Nuclear Waffle's fireball: a swirling fireball.</summary>
+    NuclearWaffleFireballSwirl,
+    /// <summary>The Nuclear Waffle's fireball: a blazing fireball.</summary>
+    NuclearWaffleFireballBlazing,
+    /// <summary>The Nuclear Waffle's fireball: a mottled fireball.</summary>
+    NuclearWaffleFireballMottled,
+    /// <summary>The Nuclear Waffle's fireball: a swirling fireball turned the other way.</summary>
+    NuclearWaffleFireballSwirlTurned,
+    /// <summary>The Nuclear Waffle's fireball: a blazing fireball in a dark ring.</summary>
+    NuclearWaffleFireballBlazingRinged,
+    /// <summary>The Nuclear Waffle's fireball: a densely mottled fireball.</summary>
+    NuclearWaffleFireballMottledDense,
+    /// <summary>The Nuclear Waffle's fireball: a swirling fireball: the picture of NuclearWaffleFireballSwirl, as a frame of its own.</summary>
+    NuclearWaffleFireballSwirlTwin,
+    /// <summary>The Nuclear Waffle's fireball: a blazing fireball: the picture of NuclearWaffleFireballBlazing, as a frame of its own.</summary>
+    NuclearWaffleFireballBlazingTwin,
+    /// <summary>The Nuclear Waffle's fireball: a mottled fireball turned the other way.</summary>
+    NuclearWaffleFireballMottledTurned,
+    /// <summary>The Nuclear Waffle's fireball: a swirling fireball turned the other way: the picture of NuclearWaffleFireballSwirlTurned, as a frame of its own.</summary>
+    NuclearWaffleFireballSwirlTurnedTwin,
+    /// <summary>The Nuclear Waffle's fireball: a blazing fireball in a dark ring: the picture of NuclearWaffleFireballBlazingRinged, as a frame of its own.</summary>
+    NuclearWaffleFireballBlazingRingedTwin,
+    /// <summary>The Nuclear Waffle's fireball: a sparsely mottled fireball.</summary>
+    NuclearWaffleFireballMottledSparse,
+    /// <summary>The Polyp's lava rock: a glowing rock.</summary>
+    PolypRock,
+    /// <summary>Shaktool's attack circle: a glint of light.</summary>
+    ShaktoolCircleFlareGlint,
+    /// <summary>Shaktool's attack circle: a small glow.</summary>
+    ShaktoolCircleFlareGlow,
+    /// <summary>Shaktool's attack circle: a ball of light.</summary>
+    ShaktoolCircleFlareBall,
+    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
+    ShaktoolCircleFlareGlintTwin,
+    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
+    ShaktoolCircleFlareGlintTwinB,
+    /// <summary>Shaktool's attack circle: a small glow: the picture of ShaktoolCircleFlareGlow, as a frame of its own.</summary>
+    ShaktoolCircleFlareGlowTwin,
+    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
+    ShaktoolCircleFlareGlintTwinC,
+    /// <summary>Shaktool's attack circle: a glint of light: the picture of ShaktoolCircleFlareGlint, as a frame of its own.</summary>
+    ShaktoolCircleFlareGlintTwinD,
+    /// <summary>A Mother Brain turret: its barrel facing left.</summary>
+    MotherBrainTurretFacingLeft,
+    /// <summary>A Mother Brain turret: its barrel facing down and left.</summary>
+    MotherBrainTurretFacingDownLeft,
+    /// <summary>A Mother Brain turret: its barrel facing down.</summary>
+    MotherBrainTurretFacingDown,
+    /// <summary>A Mother Brain turret: its barrel facing down and right.</summary>
+    MotherBrainTurretFacingDownRight,
+    /// <summary>A Mother Brain turret: its barrel facing right.</summary>
+    MotherBrainTurretFacingRight,
+    /// <summary>A Mother Brain turret: its barrel facing up and right.</summary>
+    MotherBrainTurretFacingUpRight,
+    /// <summary>A Mother Brain turret: its barrel facing up.</summary>
+    MotherBrainTurretFacingUp,
+    /// <summary>A Mother Brain turret: its barrel facing up and left.</summary>
+    MotherBrainTurretFacingUpLeft,
+    /// <summary>A Mother Brain turret's bullet: flying left.</summary>
+    MotherBrainTurretBulletFacingLeft,
+    /// <summary>A Mother Brain turret's bullet: flying down and left.</summary>
+    MotherBrainTurretBulletFacingDownLeft,
+    /// <summary>A Mother Brain turret's bullet: flying down.</summary>
+    MotherBrainTurretBulletFacingDown,
+    /// <summary>A Mother Brain turret's bullet: flying down and right.</summary>
+    MotherBrainTurretBulletFacingDownRight,
+    /// <summary>A Mother Brain turret's bullet: flying right.</summary>
+    MotherBrainTurretBulletFacingRight,
+    /// <summary>A Mother Brain turret's bullet: flying up and right.</summary>
+    MotherBrainTurretBulletFacingUpRight,
+    /// <summary>A Mother Brain turret's bullet: flying up.</summary>
+    MotherBrainTurretBulletFacingUp,
+    /// <summary>A Mother Brain turret's bullet: flying up and left.</summary>
+    MotherBrainTurretBulletFacingUpLeft,
+    /// <summary>A Mother Brain turret's bullet: a cloud of fire.</summary>
+    MotherBrainTurretBulletFireCloud,
+    /// <summary>A Mother Brain turret's bullet: a cloud of fire spreading.</summary>
+    MotherBrainTurretBulletFireCloudSpreading,
+    /// <summary>A Mother Brain turret's bullet: a cloud of fire breaking up.</summary>
+    MotherBrainTurretBulletFireCloudBreaking,
+    /// <summary>A Mother Brain turret's bullet: the embers of a cloud of fire.</summary>
+    MotherBrainTurretBulletFireCloudEmbers,
+    /// <summary>A Mother Brain turret's bullet: one faint speck.</summary>
+    MotherBrainTurretBulletSpeck,
+    /// <summary>Mother Brain's blue ring: a blue ring 8 pixels across.</summary>
+    MotherBrainBlueRingAcross8,
+    /// <summary>Mother Brain's blue ring: a blue ring 16 pixels across.</summary>
+    MotherBrainBlueRingAcross16,
+    /// <summary>Mother Brain's blue ring: a blue ring 22 pixels across.</summary>
+    MotherBrainBlueRingAcross22,
+    /// <summary>Mother Brain's blue ring: a blue ring 24 pixels across.</summary>
+    MotherBrainBlueRingAcross24,
+    /// <summary>Mother Brain's blue ring: a blue ring 30 pixels across.</summary>
+    MotherBrainBlueRingAcross30,
+    /// <summary>Mother Brain's blue ring: a blue ring 32 pixels across.</summary>
+    MotherBrainBlueRingAcross32,
+    /// <summary>Mother Brain's blue ring exploding: a small fireball.</summary>
+    MotherBrainBlueRingFireballSmall,
+    /// <summary>Mother Brain's blue ring exploding: a large fireball.</summary>
+    MotherBrainBlueRingFireballLarge,
+    /// <summary>Mother Brain's blue ring exploding: a fireball opening into a flaming ring.</summary>
+    MotherBrainBlueRingFlamingRing,
+    /// <summary>Mother Brain's blue ring exploding: a huge fireball with a ring inside it.</summary>
+    MotherBrainBlueRingFireballHuge,
+    /// <summary>Mother Brain's blue ring exploding: a wide ring of fire.</summary>
+    MotherBrainBlueRingWideRing,
+    /// <summary>Mother Brain's blue ring exploding: a wide, fading ring of fire.</summary>
+    MotherBrainBlueRingWideRingFading,
+    /// <summary>Mother Brain's bomb: a dark ball glowing red.</summary>
+    MotherBrainBombGlowRed,
+    /// <summary>Mother Brain's bomb: a dark ball glowing orange at its right.</summary>
+    MotherBrainBombGlowOrangeRight,
+    /// <summary>Mother Brain's bomb: a dark ball glowing yellow at its right.</summary>
+    MotherBrainBombGlowYellowRight,
+    /// <summary>Mother Brain's bomb: a dark ball glowing yellow at its top.</summary>
+    MotherBrainBombGlowYellowTop,
+    /// <summary>Mother Brain's bomb: a dark ball glowing orange at its centre.</summary>
+    MotherBrainBombGlowOrangeCenter,
+    /// <summary>Mother Brain's bomb: a dark ball glowing yellow at its bottom.</summary>
+    MotherBrainBombGlowYellowBottom,
+    /// <summary>Mother Brain's bomb: a dark ball glowing yellow at its left.</summary>
+    MotherBrainBombGlowYellowLeft,
+    /// <summary>Mother Brain's bomb: a dark ball glowing orange at its left.</summary>
+    MotherBrainBombGlowOrangeLeft,
+    /// <summary>Mother Brain's bomb: a dark ball glowing a dim red.</summary>
+    MotherBrainBombGlowRedDim,
+    /// <summary>Mother Brain's hand beam: a small red orb.</summary>
+    MotherBrainHandBeamOrbSmall,
+    /// <summary>Mother Brain's hand beam: a red orb with a yellow speck.</summary>
+    MotherBrainHandBeamOrbRed,
+    /// <summary>Mother Brain's hand beam: a red orb with a yellow core.</summary>
+    MotherBrainHandBeamOrbRedYellowCore,
+    /// <summary>Mother Brain's hand beam: an orange orb with a white core.</summary>
+    MotherBrainHandBeamOrbOrange,
+    /// <summary>Mother Brain's hand beam: an orange orb with a wide white core.</summary>
+    MotherBrainHandBeamOrbWhiteCore,
+    /// <summary>Mother Brain's hand beam: a yellow orb with a white core.</summary>
+    MotherBrainHandBeamOrbYellow,
+    /// <summary>Mother Brain's hand beam: a white orb with a yellow rim.</summary>
+    MotherBrainHandBeamOrbWhite,
+    /// <summary>Mother Brain's hand beam: a small red orb: the picture of MotherBrainHandBeamOrbSmall, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbSmallTwin,
+    /// <summary>Mother Brain's hand beam: a red orb with a yellow speck: the picture of MotherBrainHandBeamOrbRed, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbRedTwin,
+    /// <summary>Mother Brain's hand beam: a red orb with a yellow core: the picture of MotherBrainHandBeamOrbRedYellowCore, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbRedYellowCoreTwin,
+    /// <summary>Mother Brain's hand beam: an orange orb with a white core: the picture of MotherBrainHandBeamOrbOrange, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbOrangeTwin,
+    /// <summary>Mother Brain's hand beam: an orange orb with a wide white core: the picture of MotherBrainHandBeamOrbWhiteCore, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbWhiteCoreTwin,
+    /// <summary>Mother Brain's hand beam: a yellow orb with a white core: the picture of MotherBrainHandBeamOrbYellow, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbYellowTwin,
+    /// <summary>Mother Brain's hand beam: a white orb with a yellow rim: the picture of MotherBrainHandBeamOrbWhite, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbWhiteTwin,
+    /// <summary>Mother Brain's hand beam: a small red orb: the picture of MotherBrainHandBeamOrbSmall, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbSmallTwinB,
+    /// <summary>Mother Brain's hand beam: a red orb with a yellow speck: the picture of MotherBrainHandBeamOrbRed, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbRedTwinB,
+    /// <summary>Mother Brain's hand beam: a red orb with a yellow core: the picture of MotherBrainHandBeamOrbRedYellowCore, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbRedYellowCoreTwinB,
+    /// <summary>Mother Brain's hand beam: an orange orb with a white core: the picture of MotherBrainHandBeamOrbOrange, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbOrangeTwinB,
+    /// <summary>Mother Brain's hand beam: an orange orb with a wide white core: the picture of MotherBrainHandBeamOrbWhiteCore, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbWhiteCoreTwinB,
+    /// <summary>Mother Brain's hand beam: a yellow orb with a white core: the picture of MotherBrainHandBeamOrbYellow, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbYellowTwinB,
+    /// <summary>Mother Brain's hand beam: a white orb with a yellow rim: the picture of MotherBrainHandBeamOrbWhite, as a frame of its own.</summary>
+    MotherBrainHandBeamOrbWhiteTwinB,
+    /// <summary>Mother Brain's rainbow beam charging: sparks spread 86 pixels across.</summary>
+    MotherBrainRainbowChargeSparksSpread,
+    /// <summary>Mother Brain's rainbow beam charging: sparks closing in, 80 pixels across.</summary>
+    MotherBrainRainbowChargeSparksClosing,
+    /// <summary>Mother Brain's rainbow beam charging: streaks closing in, 73 pixels across.</summary>
+    MotherBrainRainbowChargeStreaksClosing,
+    /// <summary>Mother Brain's rainbow beam charging: streaks drawing near, 64 pixels across.</summary>
+    MotherBrainRainbowChargeStreaksNear,
+    /// <summary>Mother Brain's rainbow beam charging: streaks gathered, 50 pixels across.</summary>
+    MotherBrainRainbowChargeStreaksGathered,
+    /// <summary>Mother Brain's rainbow beam charging: streaks and fireballs, 90 pixels across.</summary>
+    MotherBrainRainbowChargeStreaksAndFireballs,
+    /// <summary>Mother Brain's drool: a speck of drool.</summary>
+    MotherBrainDroolSpeck,
+    /// <summary>Mother Brain's drool: a bead of drool.</summary>
+    MotherBrainDroolBead,
+    /// <summary>Mother Brain's drool: a drop of drool hanging.</summary>
+    MotherBrainDroolHanging,
+    /// <summary>Mother Brain's drool: drool stretching.</summary>
+    MotherBrainDroolStretching,
+    /// <summary>Mother Brain's drool: a long strand of drool.</summary>
+    MotherBrainDroolStrand,
+    /// <summary>Mother Brain's drool: a falling drop.</summary>
+    MotherBrainDroolDrop,
+    /// <summary>Mother Brain's drool: a splash rising.</summary>
+    MotherBrainDroolSplashRising,
+    /// <summary>Mother Brain's drool: a scattered splash.</summary>
+    MotherBrainDroolSplashScattered,
+    /// <summary>Mother Brain's drool: a flat splash.</summary>
+    MotherBrainDroolSplashFlat,
+    /// <summary>Mother Brain's drool: a faint splash.</summary>
+    MotherBrainDroolSplashFaint,
+    /// <summary>The escape door's debris: a chip seen edge on.</summary>
+    MotherBrainEscapeDoorDebrisEdgeTurned0,
+    /// <summary>The escape door's debris: a chip seen face on.</summary>
+    MotherBrainEscapeDoorDebrisFaceTurned0,
+    /// <summary>The escape door's debris: a chip seen edge on, turned a quarter.</summary>
+    MotherBrainEscapeDoorDebrisEdgeTurned90,
+    /// <summary>The escape door's debris: a chip seen face on, turned a quarter.</summary>
+    MotherBrainEscapeDoorDebrisFaceTurned90,
+    /// <summary>The escape door's debris: a chip seen edge on, turned half round.</summary>
+    MotherBrainEscapeDoorDebrisEdgeTurned180,
+    /// <summary>The escape door's debris: a chip seen face on, turned half round.</summary>
+    MotherBrainEscapeDoorDebrisFaceTurned180,
+    /// <summary>The escape door's debris: a chip seen edge on, turned three quarters.</summary>
+    MotherBrainEscapeDoorDebrisEdgeTurned270,
+    /// <summary>The escape door's debris: a chip seen face on, turned three quarters.</summary>
+    MotherBrainEscapeDoorDebrisFaceTurned270,
+    /// <summary>Mother Brain's large purple breath: a puff.</summary>
+    MotherBrainBreathLargePuff,
+    /// <summary>Mother Brain's large purple breath: a short plume.</summary>
+    MotherBrainBreathLargePlume,
+    /// <summary>Mother Brain's large purple breath: a long plume.</summary>
+    MotherBrainBreathLargePlumeLong,
+    /// <summary>Mother Brain's large purple breath: a full plume.</summary>
+    MotherBrainBreathLargePlumeFull,
+    /// <summary>Mother Brain's large purple breath: the plume dispersing.</summary>
+    MotherBrainBreathLargeDispersing,
+    /// <summary>Mother Brain's large purple breath: the plume thinning.</summary>
+    MotherBrainBreathLargeThinning,
+    /// <summary>Mother Brain's large purple breath: the plume fading.</summary>
+    MotherBrainBreathLargeFading,
+    /// <summary>Mother Brain's large purple breath: a faint wisp.</summary>
+    MotherBrainBreathLargeFaint,
+    /// <summary>Mother Brain's small purple breath: a puff.</summary>
+    MotherBrainBreathSmallPuff,
+    /// <summary>Mother Brain's small purple breath: a puff growing.</summary>
+    MotherBrainBreathSmallPuffGrowing,
+    /// <summary>Mother Brain's small purple breath: a cloud.</summary>
+    MotherBrainBreathSmallCloud,
+    /// <summary>Mother Brain's small purple breath: a long cloud.</summary>
+    MotherBrainBreathSmallCloudLong,
+    /// <summary>Mother Brain's small purple breath: the cloud dispersing.</summary>
+    MotherBrainBreathSmallDispersing,
+    /// <summary>Mother Brain's small purple breath: the cloud thinning.</summary>
+    MotherBrainBreathSmallThinning,
+    /// <summary>Mother Brain's small purple breath: the cloud fading.</summary>
+    MotherBrainBreathSmallFading,
+    /// <summary>Mother Brain's small purple breath: a faint speck.</summary>
+    MotherBrainBreathSmallFaint,
+    /// <summary>Mother Brain's room: the escape subtitle.</summary>
     MotherBrainEscapeSubtitle,
-    /// <summary>The frame of the Mother Brain top tube top right.</summary>
+    /// <summary>Mother Brain's room: the top tube's top right piece.</summary>
     MotherBrainTopTubeTopRight,
-    /// <summary>The frame of the Mother Brain top tube top left.</summary>
+    /// <summary>Mother Brain's room: the top tube's top left piece.</summary>
     MotherBrainTopTubeTopLeft,
-    /// <summary>The frame of the Mother Brain top tube top middle left.</summary>
+    /// <summary>Mother Brain's room: the top tube's top middle left piece.</summary>
     MotherBrainTopTubeTopMiddleLeft,
-    /// <summary>The frame of the Mother Brain top tube top middle right.</summary>
+    /// <summary>Mother Brain's room: the top tube's top middle right piece.</summary>
     MotherBrainTopTubeTopMiddleRight,
-    /// <summary>The first frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying up.</summary>
-    MotherBrainGlassShardFlyingUpEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying up right.</summary>
-    MotherBrainGlassShardFlyingUpRightEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying right.</summary>
-    MotherBrainGlassShardFlyingRightEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying down right.</summary>
-    MotherBrainGlassShardFlyingDownRightEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying down.</summary>
-    MotherBrainGlassShardFlyingDownEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying down left.</summary>
-    MotherBrainGlassShardFlyingDownLeftEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying left.</summary>
-    MotherBrainGlassShardFlyingLeftEighth,
-    /// <summary>The first frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftFirst,
-    /// <summary>The second frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftSecond,
-    /// <summary>The third frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftThird,
-    /// <summary>The fourth frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftFourth,
-    /// <summary>The fifth frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftFifth,
-    /// <summary>The sixth frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftSixth,
-    /// <summary>The seventh frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftSeventh,
-    /// <summary>The eighth frame of the Mother Brain glass shard flying up left.</summary>
-    MotherBrainGlassShardFlyingUpLeftEighth,
-    /// <summary>The first frame of the Mother Brain glass sparkle.</summary>
-    MotherBrainGlassSparkleFirst,
-    /// <summary>The second frame of the Mother Brain glass sparkle.</summary>
-    MotherBrainGlassSparkleSecond,
-    /// <summary>The third frame of the Mother Brain glass sparkle.</summary>
-    MotherBrainGlassSparkleThird,
-    /// <summary>The fourth frame of the Mother Brain glass sparkle.</summary>
-    MotherBrainGlassSparkleFourth,
-    /// <summary>The first frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftFirst,
-    /// <summary>The second frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftSecond,
-    /// <summary>The third frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftThird,
-    /// <summary>The fourth frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftFourth,
-    /// <summary>The fifth frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftFifth,
-    /// <summary>The sixth frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftSixth,
-    /// <summary>The seventh frame of the Ki-Hunter acid spit left.</summary>
-    KiHunterAcidSpitLeftSeventh,
-    /// <summary>The first frame of the Ki-Hunter acid spit hit floor.</summary>
-    KiHunterAcidSpitHitFloorFirst,
-    /// <summary>The second frame of the Ki-Hunter acid spit hit floor.</summary>
-    KiHunterAcidSpitHitFloorSecond,
-    /// <summary>The third frame of the Ki-Hunter acid spit hit floor.</summary>
-    KiHunterAcidSpitHitFloorThird,
-    /// <summary>The fourth frame of the Ki-Hunter acid spit hit floor.</summary>
-    KiHunterAcidSpitHitFloorFourth,
-    /// <summary>The fifth frame of the Ki-Hunter acid spit hit floor.</summary>
-    KiHunterAcidSpitHitFloorFifth,
-    /// <summary>The first frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightFirst,
-    /// <summary>The second frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightSecond,
-    /// <summary>The third frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightThird,
-    /// <summary>The fourth frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightFourth,
-    /// <summary>The fifth frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightFifth,
-    /// <summary>The sixth frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightSixth,
-    /// <summary>The seventh frame of the Ki-Hunter acid spit right.</summary>
-    KiHunterAcidSpitRightSeventh,
-    /// <summary>
-    /// The frame of a Kago bug waiting in its Kago before it is shot out: the still pose Kraid's resting rocks show, drawn
-    /// from the Kago's own sheet as a bug of its colour.
-    /// </summary>
-    KagoBugWaiting,
-    /// <summary>The first frame of the Kago bug landed.</summary>
-    KagoBugLandedFirst,
-    /// <summary>The second frame of the Kago bug landed.</summary>
-    KagoBugLandedSecond,
-    /// <summary>The frame of the Kago bug falling.</summary>
-    KagoBugFalling,
-    /// <summary>The first frame of the Kago bug jump start.</summary>
-    KagoBugJumpStartFirst,
-    /// <summary>The second frame of the Kago bug jump start.</summary>
-    KagoBugJumpStartSecond,
-    /// <summary>The frame of the Kago bug jump loop.</summary>
-    KagoBugJumpLoop,
-    /// <summary>The first frame of the Kago bug shot.</summary>
-    KagoBugShotFirst,
-    /// <summary>The second frame of the Kago bug shot.</summary>
-    KagoBugShotSecond,
-    /// <summary>The third frame of the Kago bug shot.</summary>
-    KagoBugShotThird,
-    /// <summary>The fourth frame of the Kago bug shot.</summary>
-    KagoBugShotFourth,
-    /// <summary>The fifth frame of the Kago bug shot.</summary>
-    KagoBugShotFifth,
-    /// <summary>The first frame of the Powamp spike initial.</summary>
-    PowampSpikeInitialFirst,
-    /// <summary>The second frame of the Powamp spike initial.</summary>
-    PowampSpikeInitialSecond,
-    /// <summary>The third frame of the Powamp spike initial.</summary>
-    PowampSpikeInitialThird,
-    /// <summary>The first frame of the Work Robot laser initial.</summary>
-    WorkRobotLaserInitialFirst,
-    /// <summary>The second frame of the Work Robot laser initial.</summary>
-    WorkRobotLaserInitialSecond,
-    /// <summary>The third frame of the Work Robot laser initial.</summary>
-    WorkRobotLaserInitialThird,
-    /// <summary>The first frame of the Work Robot laser loop.</summary>
-    WorkRobotLaserLoopFirst,
-    /// <summary>The second frame of the Work Robot laser loop.</summary>
-    WorkRobotLaserLoopSecond,
-    /// <summary>The third frame of the Work Robot laser loop.</summary>
-    WorkRobotLaserLoopThird,
-    /// <summary>The fourth frame of the Work Robot laser loop.</summary>
-    WorkRobotLaserLoopFourth,
-    /// <summary>The first frame of the n00b tube crack spreading.</summary>
-    NoobTubeCrackSpreadingFirst,
-    /// <summary>The second frame of the n00b tube crack spreading.</summary>
-    NoobTubeCrackSpreadingSecond,
-    /// <summary>The third frame of the n00b tube crack spreading.</summary>
-    NoobTubeCrackSpreadingThird,
-    /// <summary>The fourth frame of the n00b tube crack spreading.</summary>
-    NoobTubeCrackSpreadingFourth,
-    /// <summary>The fifth frame of the n00b tube crack spreading.</summary>
-    NoobTubeCrackSpreadingFifth,
-    /// <summary>The sixth frame of the n00b tube crack spreading.</summary>
-    NoobTubeCrackSpreadingSixth,
-    /// <summary>The first frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringFirst,
-    /// <summary>The second frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringSecond,
-    /// <summary>The third frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringThird,
-    /// <summary>The fourth frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringFourth,
-    /// <summary>The fifth frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringFifth,
-    /// <summary>The sixth frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringSixth,
-    /// <summary>The seventh frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringSeventh,
-    /// <summary>The eighth frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringEighth,
-    /// <summary>The ninth frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringNinth,
-    /// <summary>The tenth frame of the n00b tube crack shattering.</summary>
-    NoobTubeCrackShatteringTenth,
-    /// <summary>The first frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingFirst,
-    /// <summary>The second frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingSecond,
-    /// <summary>The third frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingThird,
-    /// <summary>The fourth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingFourth,
-    /// <summary>The fifth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingFifth,
-    /// <summary>The sixth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingSixth,
-    /// <summary>The seventh frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingSeventh,
-    /// <summary>The eighth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingEighth,
-    /// <summary>The ninth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingNinth,
-    /// <summary>The tenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingTenth,
-    /// <summary>The eleventh frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingEleventh,
-    /// <summary>The twelfth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingTwelfth,
-    /// <summary>The thirteenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingThirteenth,
-    /// <summary>The fourteenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingFourteenth,
-    /// <summary>The fifteenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingFifteenth,
-    /// <summary>The sixteenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingSixteenth,
-    /// <summary>The seventeenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingSeventeenth,
-    /// <summary>The eighteenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingEighteenth,
-    /// <summary>The nineteenth frame of the n00b tube crack falling.</summary>
-    NoobTubeCrackFallingNineteenth,
-    /// <summary>The first frame of the n00b tube crack fallen.</summary>
-    NoobTubeCrackFallenFirst,
-    /// <summary>The second frame of the n00b tube crack fallen.</summary>
-    NoobTubeCrackFallenSecond,
-    /// <summary>The frame of the n00b tube shard down outward flying.</summary>
-    NoobTubeShardDownOutwardFlying,
-    /// <summary>The frame of the n00b tube shard down outward flying mirrored.</summary>
-    NoobTubeShardDownOutwardFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard down outward falling.</summary>
-    NoobTubeShardDownOutwardFalling,
-    /// <summary>The frame of the n00b tube shard down outward falling mirrored.</summary>
-    NoobTubeShardDownOutwardFallingMirrored,
-    /// <summary>The frame of the n00b tube shard up outward flying.</summary>
-    NoobTubeShardUpOutwardFlying,
-    /// <summary>The frame of the n00b tube shard up outward flying mirrored.</summary>
-    NoobTubeShardUpOutwardFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard up outward falling.</summary>
-    NoobTubeShardUpOutwardFalling,
-    /// <summary>The frame of the n00b tube shard up outward falling mirrored.</summary>
-    NoobTubeShardUpOutwardFallingMirrored,
-    /// <summary>The frame of the n00b tube shard up steep flying.</summary>
-    NoobTubeShardUpSteepFlying,
-    /// <summary>The frame of the n00b tube shard up steep flying mirrored.</summary>
-    NoobTubeShardUpSteepFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard up steep falling.</summary>
-    NoobTubeShardUpSteepFalling,
-    /// <summary>The frame of the n00b tube shard up steep falling mirrored.</summary>
-    NoobTubeShardUpSteepFallingMirrored,
-    /// <summary>The frame of the n00b tube shard up diagonal inner flying.</summary>
-    NoobTubeShardUpDiagonalInnerFlying,
-    /// <summary>The frame of the n00b tube shard up diagonal inner flying mirrored.</summary>
-    NoobTubeShardUpDiagonalInnerFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard up diagonal inner falling.</summary>
-    NoobTubeShardUpDiagonalInnerFalling,
-    /// <summary>The frame of the n00b tube shard up diagonal inner falling mirrored.</summary>
-    NoobTubeShardUpDiagonalInnerFallingMirrored,
-    /// <summary>The frame of the n00b tube shard up diagonal outer flying.</summary>
-    NoobTubeShardUpDiagonalOuterFlying,
-    /// <summary>The frame of the n00b tube shard up diagonal outer flying mirrored.</summary>
-    NoobTubeShardUpDiagonalOuterFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard up diagonal outer falling.</summary>
-    NoobTubeShardUpDiagonalOuterFalling,
-    /// <summary>The frame of the n00b tube shard up diagonal outer falling mirrored.</summary>
-    NoobTubeShardUpDiagonalOuterFallingMirrored,
-    /// <summary>The frame of the n00b tube shard down diagonal flying.</summary>
-    NoobTubeShardDownDiagonalFlying,
-    /// <summary>The frame of the n00b tube shard down diagonal flying mirrored.</summary>
-    NoobTubeShardDownDiagonalFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard down diagonal falling.</summary>
-    NoobTubeShardDownDiagonalFalling,
-    /// <summary>The frame of the n00b tube shard down diagonal falling mirrored.</summary>
-    NoobTubeShardDownDiagonalFallingMirrored,
-    /// <summary>The frame of the n00b tube shard down outer flying.</summary>
-    NoobTubeShardDownOuterFlying,
-    /// <summary>The frame of the n00b tube shard down outer flying mirrored.</summary>
-    NoobTubeShardDownOuterFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard down outer falling.</summary>
-    NoobTubeShardDownOuterFalling,
-    /// <summary>The frame of the n00b tube shard down outer falling mirrored.</summary>
-    NoobTubeShardDownOuterFallingMirrored,
-    /// <summary>The frame of the n00b tube shard outward flying.</summary>
-    NoobTubeShardOutwardFlying,
-    /// <summary>The frame of the n00b tube shard outward flying mirrored.</summary>
-    NoobTubeShardOutwardFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard outward falling.</summary>
-    NoobTubeShardOutwardFalling,
-    /// <summary>The frame of the n00b tube shard outward falling mirrored.</summary>
-    NoobTubeShardOutwardFallingMirrored,
-    /// <summary>The frame of the n00b tube shard up flying.</summary>
-    NoobTubeShardUpFlying,
-    /// <summary>The frame of the n00b tube shard up falling.</summary>
-    NoobTubeShardUpFalling,
-    /// <summary>The frame of the n00b tube shard down inner flying.</summary>
-    NoobTubeShardDownInnerFlying,
-    /// <summary>The frame of the n00b tube shard down inner flying mirrored.</summary>
-    NoobTubeShardDownInnerFlyingMirrored,
-    /// <summary>The frame of the n00b tube shard down inner falling.</summary>
-    NoobTubeShardDownInnerFalling,
-    /// <summary>The frame of the n00b tube shard down inner falling mirrored.</summary>
-    NoobTubeShardDownInnerFallingMirrored,
-    /// <summary>The first frame of the n00b tube bubble rising.</summary>
-    NoobTubeBubbleRisingFirst,
-    /// <summary>The second frame of the n00b tube bubble rising.</summary>
-    NoobTubeBubbleRisingSecond,
-    /// <summary>The third frame of the n00b tube bubble rising.</summary>
-    NoobTubeBubbleRisingThird,
-    /// <summary>The fourth frame of the n00b tube bubble rising.</summary>
-    NoobTubeBubbleRisingFourth,
-    /// <summary>The first frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingFirst,
-    /// <summary>The second frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingSecond,
-    /// <summary>The third frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingThird,
-    /// <summary>The fourth frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingFourth,
-    /// <summary>The fifth frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingFifth,
-    /// <summary>The sixth frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingSixth,
-    /// <summary>The seventh frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingSeventh,
-    /// <summary>The eighth frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingEighth,
-    /// <summary>The ninth frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingNinth,
-    /// <summary>The tenth frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingTenth,
-    /// <summary>The eleventh frame of the n00b tube bubble falling.</summary>
-    NoobTubeBubbleFallingEleventh,
-    /// <summary>The frame of the Cacatac spike left facing up.</summary>
-    CacatacSpikeLeftFacingUp,
-    /// <summary>The frame of the Cacatac spike up left.</summary>
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardUpTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardUpTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardUpTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardUpTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardUpTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardUpTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardUpTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardUpTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and right, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardUpRightTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardRightTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardRightTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardRightTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardRightTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardRightTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardRightTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardRightTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying right, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardRightTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and right, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardDownRightTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardDownTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardDownTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardDownTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardDownTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardDownTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardDownTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardDownTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardDownTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying down and left, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardDownLeftTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardLeftTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardLeftTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardLeftTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardLeftTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardLeftTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardLeftTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardLeftTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying left, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardLeftTurned315,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 0 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned0,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 45 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned45,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 90 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned90,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 135 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned135,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 180 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned180,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 225 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned225,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 270 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned270,
+    /// <summary>A shard of Mother Brain's tank glass: a shard flying up and left, tumbled 315 degrees.</summary>
+    MotherBrainGlassShardUpLeftTurned315,
+    /// <summary>A sparkle of Mother Brain's tank glass: an upright cross.</summary>
+    MotherBrainGlassSparkleCross,
+    /// <summary>A sparkle of Mother Brain's tank glass: a small upright cross.</summary>
+    MotherBrainGlassSparkleCrossSmall,
+    /// <summary>A sparkle of Mother Brain's tank glass: a diagonal cross.</summary>
+    MotherBrainGlassSparkleDiagonal,
+    /// <summary>A sparkle of Mother Brain's tank glass: a faint diagonal cross.</summary>
+    MotherBrainGlassSparkleDiagonalFaint,
+    /// <summary>A Ki-Hunter's acid spit: a droplet flying left.</summary>
+    KiHunterAcidSpitLeftDroplet,
+    /// <summary>A Ki-Hunter's acid spit: a streak flying left.</summary>
+    KiHunterAcidSpitLeftStreak,
+    /// <summary>A Ki-Hunter's acid spit: a blob flying left.</summary>
+    KiHunterAcidSpitLeftBlob,
+    /// <summary>A Ki-Hunter's acid spit: a blob trailing drops to its right.</summary>
+    KiHunterAcidSpitLeftBlobTrailing,
+    /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it.</summary>
+    KiHunterAcidSpitLeftBlobSpattering,
+    /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it: the picture of KiHunterAcidSpitLeftBlobSpattering, as a frame of its own.</summary>
+    KiHunterAcidSpitLeftBlobSpatteringTwin,
+    /// <summary>A Ki-Hunter's acid spit: a round blob.</summary>
+    KiHunterAcidSpitLeftBall,
+    /// <summary>A Ki-Hunter's acid spit: a mound of acid.</summary>
+    KiHunterAcidSpitSplashMound,
+    /// <summary>A Ki-Hunter's acid spit: acid spreading.</summary>
+    KiHunterAcidSpitSplashSpreading,
+    /// <summary>A Ki-Hunter's acid spit: a wide splash.</summary>
+    KiHunterAcidSpitSplashWide,
+    /// <summary>A Ki-Hunter's acid spit: a flat splash.</summary>
+    KiHunterAcidSpitSplashFlat,
+    /// <summary>A Ki-Hunter's acid spit: a splash fading.</summary>
+    KiHunterAcidSpitSplashFading,
+    /// <summary>A Ki-Hunter's acid spit: a droplet flying right.</summary>
+    KiHunterAcidSpitRightDroplet,
+    /// <summary>A Ki-Hunter's acid spit: a streak flying right.</summary>
+    KiHunterAcidSpitRightStreak,
+    /// <summary>A Ki-Hunter's acid spit: a blob flying right.</summary>
+    KiHunterAcidSpitRightBlob,
+    /// <summary>A Ki-Hunter's acid spit: a blob trailing drops to its left.</summary>
+    KiHunterAcidSpitRightBlobTrailing,
+    /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it.</summary>
+    KiHunterAcidSpitRightBlobSpattering,
+    /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it: the picture of KiHunterAcidSpitRightBlobSpattering, as a frame of its own.</summary>
+    KiHunterAcidSpitRightBlobSpatteringTwin,
+    /// <summary>A Ki-Hunter's acid spit: a round blob.</summary>
+    KiHunterAcidSpitRightBall,
+    /// <summary>A Kago bug: curled up into a pale ball.</summary>
+    KagoBugCurledUp,
+    /// <summary>A Kago bug: crouched, legs tucked.</summary>
+    KagoBugCrouched,
+    /// <summary>A Kago bug: standing, legs out.</summary>
+    KagoBugStanding,
+    /// <summary>A Kago bug: standing, legs out: the picture of KagoBugStanding, as a frame of its own.</summary>
+    KagoBugStandingTwin,
+    /// <summary>A Kago bug: crouched, legs tucked: the picture of KagoBugCrouched, as a frame of its own.</summary>
+    KagoBugCrouchedTwin,
+    /// <summary>A Kago bug: standing, legs out: the picture of KagoBugStanding, as a frame of its own.</summary>
+    KagoBugStandingTwinB,
+    /// <summary>A Kago bug: leaping, legs stretched.</summary>
+    KagoBugLeaping,
+    /// <summary>A Kago bug bursting: a small spark.</summary>
+    KagoBugSpark,
+    /// <summary>A Kago bug bursting: a ball of light.</summary>
+    KagoBugFlareBall,
+    /// <summary>A Kago bug bursting: a ring of light around a burning core.</summary>
+    KagoBugFlareRingCored,
+    /// <summary>A Kago bug bursting: a ring of light.</summary>
+    KagoBugFlareRing,
+    /// <summary>A Kago bug bursting: a fading ring of light.</summary>
+    KagoBugFlareRingFading,
+    /// <summary>A Powamp's spike: a spiked star.</summary>
+    PowampSpikeStar,
+    /// <summary>A Powamp's spike: a cluster of spikes.</summary>
+    PowampSpikeCluster,
+    /// <summary>A Powamp's spike: one glowing point.</summary>
+    PowampSpikeGlow,
+    /// <summary>The work robot's laser: a glint of light.</summary>
+    WorkRobotLaserFlareGlint,
+    /// <summary>The work robot's laser: a small glow.</summary>
+    WorkRobotLaserFlareGlow,
+    /// <summary>The work robot's laser: a ball of light.</summary>
+    WorkRobotLaserFlareBall,
+    /// <summary>The work robot's laser: a ring of light around a burning core.</summary>
+    WorkRobotLaserFlareRingCored,
+    /// <summary>The work robot's laser: a ring of light.</summary>
+    WorkRobotLaserFlareRing,
+    /// <summary>The work robot's laser: a fading ring of light.</summary>
+    WorkRobotLaserFlareRingFading,
+    /// <summary>The work robot's laser: a ring of light: the picture of WorkRobotLaserFlareRing, as a frame of its own.</summary>
+    WorkRobotLaserFlareRingTwin,
+    /// <summary>The noob tube's crack: a crack 31 pixels across.</summary>
+    NoobTubeCrackAcross31,
+    /// <summary>The noob tube's crack: a crack 63 pixels across.</summary>
+    NoobTubeCrackAcross63,
+    /// <summary>The noob tube's crack: a crack 95 pixels across.</summary>
+    NoobTubeCrackAcross95,
+    /// <summary>The noob tube's crack: a crack 127 pixels across.</summary>
+    NoobTubeCrackAcross127,
+    /// <summary>The noob tube's crack: a crack 159 pixels across.</summary>
+    NoobTubeCrackAcross159,
+    /// <summary>The noob tube's crack: a branched crack 159 pixels across.</summary>
+    NoobTubeCrackAcross159Branched,
+    /// <summary>The noob tube's shards: six shards spread 111 pixels across.</summary>
+    NoobTubeShardsSpread111,
+    /// <summary>The noob tube's shards: six shards spread 143 pixels across.</summary>
+    NoobTubeShardsSpread143,
+    /// <summary>The noob tube's shards: six shards spread 175 pixels across.</summary>
+    NoobTubeShardsSpread175,
+    /// <summary>The noob tube's shards: six shards spread 207 pixels across.</summary>
+    NoobTubeShardsSpread207,
+    /// <summary>The noob tube's shards: six shards spread 223 pixels across.</summary>
+    NoobTubeShardsSpread223,
+    /// <summary>The noob tube's shards: six shards spread 235 pixels across.</summary>
+    NoobTubeShardsSpread235,
+    /// <summary>The noob tube's shards: six shards spread 243 pixels across.</summary>
+    NoobTubeShardsSpread243,
+    /// <summary>The noob tube's shards: six shards spread 247 pixels across.</summary>
+    NoobTubeShardsSpread247,
+    /// <summary>The noob tube's shards: six shards spread 251 pixels across.</summary>
+    NoobTubeShardsSpread251,
+    /// <summary>The noob tube's shards: six shards spread 255 pixels across.</summary>
+    NoobTubeShardsSpread255,
+    /// <summary>The noob tube's shards: six shards dropped 1 pixels.</summary>
+    NoobTubeShardsDropped1,
+    /// <summary>The noob tube's shards: six shards dropped 2 pixels.</summary>
+    NoobTubeShardsDropped2,
+    /// <summary>The noob tube's shards: six shards dropped 3 pixels.</summary>
+    NoobTubeShardsDropped3,
+    /// <summary>The noob tube's shards: six shards dropped 4 pixels.</summary>
+    NoobTubeShardsDropped4,
+    /// <summary>The noob tube's shards: six shards dropped 5 pixels.</summary>
+    NoobTubeShardsDropped5,
+    /// <summary>The noob tube's shards: six shards dropped 6 pixels.</summary>
+    NoobTubeShardsDropped6,
+    /// <summary>The noob tube's shards: six shards dropped 7 pixels.</summary>
+    NoobTubeShardsDropped7,
+    /// <summary>The noob tube's shards: six shards dropped 8 pixels.</summary>
+    NoobTubeShardsDropped8,
+    /// <summary>The noob tube's shards: six shards dropped 9 pixels.</summary>
+    NoobTubeShardsDropped9,
+    /// <summary>The noob tube's shards: six shards dropped 10 pixels.</summary>
+    NoobTubeShardsDropped10,
+    /// <summary>The noob tube's shards: six shards dropped 11 pixels.</summary>
+    NoobTubeShardsDropped11,
+    /// <summary>The noob tube's shards: six shards dropped 12 pixels.</summary>
+    NoobTubeShardsDropped12,
+    /// <summary>The noob tube's shards: six shards dropped 13 pixels.</summary>
+    NoobTubeShardsDropped13,
+    /// <summary>The noob tube's shards: six shards dropped 14 pixels.</summary>
+    NoobTubeShardsDropped14,
+    /// <summary>The noob tube's shards: six shards dropped 15 pixels.</summary>
+    NoobTubeShardsDropped15,
+    /// <summary>The noob tube's shards: six shards dropped 16 pixels.</summary>
+    NoobTubeShardsDropped16,
+    /// <summary>The noob tube's shards: six shards dropped 17 pixels.</summary>
+    NoobTubeShardsDropped17,
+    /// <summary>The noob tube's shards: six shards dropped 18 pixels.</summary>
+    NoobTubeShardsDropped18,
+    /// <summary>The noob tube's shards: six shards dropped 19 pixels.</summary>
+    NoobTubeShardsDropped19,
+    /// <summary>The noob tube's shards: six shards landed.</summary>
+    NoobTubeShardsLanded,
+    /// <summary>The noob tube's shards: six shards dropped 19 pixels: the picture of NoobTubeShardsDropped19, as a frame of its own.</summary>
+    NoobTubeShardsDropped19Twin,
+    /// <summary>A noob tube shard: its down outward piece.</summary>
+    NoobTubeShardDownOutward,
+    /// <summary>A noob tube shard: its down outward piece, mirrored.</summary>
+    NoobTubeShardDownOutwardMirrored,
+    /// <summary>A noob tube shard: its down outward piece: the picture of NoobTubeShardDownOutward, as a frame of its own.</summary>
+    NoobTubeShardDownOutwardTwin,
+    /// <summary>A noob tube shard: its down outward piece, mirrored: the picture of NoobTubeShardDownOutwardMirrored, as a frame of its own.</summary>
+    NoobTubeShardDownOutwardMirroredTwin,
+    /// <summary>A noob tube shard: its up outward piece.</summary>
+    NoobTubeShardUpOutward,
+    /// <summary>A noob tube shard: its up outward piece, mirrored.</summary>
+    NoobTubeShardUpOutwardMirrored,
+    /// <summary>A noob tube shard: its up outward piece: the picture of NoobTubeShardUpOutward, as a frame of its own.</summary>
+    NoobTubeShardUpOutwardTwin,
+    /// <summary>A noob tube shard: its up outward piece, mirrored: the picture of NoobTubeShardUpOutwardMirrored, as a frame of its own.</summary>
+    NoobTubeShardUpOutwardMirroredTwin,
+    /// <summary>A noob tube shard: its up steep piece.</summary>
+    NoobTubeShardUpSteep,
+    /// <summary>A noob tube shard: its up steep piece, mirrored.</summary>
+    NoobTubeShardUpSteepMirrored,
+    /// <summary>A noob tube shard: its up steep piece: the picture of NoobTubeShardUpSteep, as a frame of its own.</summary>
+    NoobTubeShardUpSteepTwin,
+    /// <summary>A noob tube shard: its up steep piece, mirrored: the picture of NoobTubeShardUpSteepMirrored, as a frame of its own.</summary>
+    NoobTubeShardUpSteepMirroredTwin,
+    /// <summary>A noob tube shard: its up diagonal inner piece.</summary>
+    NoobTubeShardUpDiagonalInner,
+    /// <summary>A noob tube shard: its up diagonal inner piece, mirrored.</summary>
+    NoobTubeShardUpDiagonalInnerMirrored,
+    /// <summary>A noob tube shard: its up diagonal inner piece: the picture of NoobTubeShardUpDiagonalInner, as a frame of its own.</summary>
+    NoobTubeShardUpDiagonalInnerTwin,
+    /// <summary>A noob tube shard: its up diagonal inner piece, mirrored: the picture of NoobTubeShardUpDiagonalInnerMirrored, as a frame of its own.</summary>
+    NoobTubeShardUpDiagonalInnerMirroredTwin,
+    /// <summary>A noob tube shard: its up diagonal outer piece.</summary>
+    NoobTubeShardUpDiagonalOuter,
+    /// <summary>A noob tube shard: its up diagonal outer piece, mirrored.</summary>
+    NoobTubeShardUpDiagonalOuterMirrored,
+    /// <summary>A noob tube shard: its up diagonal outer piece: the picture of NoobTubeShardUpDiagonalOuter, as a frame of its own.</summary>
+    NoobTubeShardUpDiagonalOuterTwin,
+    /// <summary>A noob tube shard: its up diagonal outer piece, mirrored: the picture of NoobTubeShardUpDiagonalOuterMirrored, as a frame of its own.</summary>
+    NoobTubeShardUpDiagonalOuterMirroredTwin,
+    /// <summary>A noob tube shard: its down diagonal piece.</summary>
+    NoobTubeShardDownDiagonal,
+    /// <summary>A noob tube shard: its down diagonal piece, mirrored.</summary>
+    NoobTubeShardDownDiagonalMirrored,
+    /// <summary>A noob tube shard: its down diagonal piece: the picture of NoobTubeShardDownDiagonal, as a frame of its own.</summary>
+    NoobTubeShardDownDiagonalTwin,
+    /// <summary>A noob tube shard: its down diagonal piece, mirrored: the picture of NoobTubeShardDownDiagonalMirrored, as a frame of its own.</summary>
+    NoobTubeShardDownDiagonalMirroredTwin,
+    /// <summary>A noob tube shard: its down outer piece.</summary>
+    NoobTubeShardDownOuter,
+    /// <summary>A noob tube shard: its down outer piece, mirrored.</summary>
+    NoobTubeShardDownOuterMirrored,
+    /// <summary>A noob tube shard: its down outer piece: the picture of NoobTubeShardDownOuter, as a frame of its own.</summary>
+    NoobTubeShardDownOuterTwin,
+    /// <summary>A noob tube shard: its down outer piece, mirrored: the picture of NoobTubeShardDownOuterMirrored, as a frame of its own.</summary>
+    NoobTubeShardDownOuterMirroredTwin,
+    /// <summary>A noob tube shard: its outward piece.</summary>
+    NoobTubeShardOutward,
+    /// <summary>A noob tube shard: its outward piece, mirrored.</summary>
+    NoobTubeShardOutwardMirrored,
+    /// <summary>A noob tube shard: its outward piece: the picture of NoobTubeShardOutward, as a frame of its own.</summary>
+    NoobTubeShardOutwardTwin,
+    /// <summary>A noob tube shard: its outward piece, mirrored: the picture of NoobTubeShardOutwardMirrored, as a frame of its own.</summary>
+    NoobTubeShardOutwardMirroredTwin,
+    /// <summary>A noob tube shard: its up piece.</summary>
+    NoobTubeShardUp,
+    /// <summary>A noob tube shard: its up piece: the picture of NoobTubeShardUp, as a frame of its own.</summary>
+    NoobTubeShardUpTwin,
+    /// <summary>A noob tube shard: its down inner piece.</summary>
+    NoobTubeShardDownInner,
+    /// <summary>A noob tube shard: its down inner piece, mirrored.</summary>
+    NoobTubeShardDownInnerMirrored,
+    /// <summary>A noob tube shard: its down inner piece: the picture of NoobTubeShardDownInner, as a frame of its own.</summary>
+    NoobTubeShardDownInnerTwin,
+    /// <summary>A noob tube shard: its down inner piece, mirrored: the picture of NoobTubeShardDownInnerMirrored, as a frame of its own.</summary>
+    NoobTubeShardDownInnerMirroredTwin,
+    /// <summary>The noob tube's dust: a cloud with a trail 16 pixels tall.</summary>
+    NoobTubeDustTrail16,
+    /// <summary>The noob tube's dust: a cloud with a trail 24 pixels tall.</summary>
+    NoobTubeDustTrail24,
+    /// <summary>The noob tube's dust: a cloud with a trail 32 pixels tall.</summary>
+    NoobTubeDustTrail32,
+    /// <summary>The noob tube's dust: a cloud with a trail 40 pixels tall.</summary>
+    NoobTubeDustTrail40,
+    /// <summary>The noob tube's dust: a cloud with a trail 40 pixels tall: the picture of NoobTubeDustTrail40, as a frame of its own.</summary>
+    NoobTubeDustTrail40Twin,
+    /// <summary>The noob tube's dust: the trail thinning.</summary>
+    NoobTubeDustTrailThinning,
+    /// <summary>The noob tube's dust: a thin trail.</summary>
+    NoobTubeDustTrailThin,
+    /// <summary>The noob tube's dust: the trail breaking into bubbles.</summary>
+    NoobTubeDustTrailBreaking,
+    /// <summary>The noob tube's dust: bubbles forming.</summary>
+    NoobTubeDustBubblesForming,
+    /// <summary>The noob tube's dust: bubbles.</summary>
+    NoobTubeDustBubbles,
+    /// <summary>The noob tube's dust: bubbles drifting.</summary>
+    NoobTubeDustBubblesDrifting,
+    /// <summary>The noob tube's dust: sparse bubbles.</summary>
+    NoobTubeDustBubblesSparse,
+    /// <summary>The noob tube's dust: bubbles bursting.</summary>
+    NoobTubeDustBubblesBursting,
+    /// <summary>The noob tube's dust: specks.</summary>
+    NoobTubeDustSpecks,
+    /// <summary>The noob tube's dust: faint specks.</summary>
+    NoobTubeDustSpecksFaint,
+    /// <summary>A Cacatac's spike: pointing left, a pixel higher.</summary>
+    CacatacSpikeLeftHigh,
+    /// <summary>A Cacatac's spike: pointing up and left.</summary>
     CacatacSpikeUpLeft,
-    /// <summary>The frame of the Cacatac spike up.</summary>
+    /// <summary>A Cacatac's spike: pointing up.</summary>
     CacatacSpikeUp,
-    /// <summary>The frame of the Cacatac spike up right.</summary>
+    /// <summary>A Cacatac's spike: pointing up and right.</summary>
     CacatacSpikeUpRight,
-    /// <summary>The frame of the Cacatac spike right facing up.</summary>
-    CacatacSpikeRightFacingUp,
-    /// <summary>The frame of the Cacatac spike left facing down.</summary>
-    CacatacSpikeLeftFacingDown,
-    /// <summary>The frame of the Cacatac spike down left.</summary>
+    /// <summary>A Cacatac's spike: pointing right, a pixel higher.</summary>
+    CacatacSpikeRightHigh,
+    /// <summary>A Cacatac's spike: pointing left, a pixel lower.</summary>
+    CacatacSpikeLeftLow,
+    /// <summary>A Cacatac's spike: pointing down and left.</summary>
     CacatacSpikeDownLeft,
-    /// <summary>The frame of the Cacatac spike down.</summary>
+    /// <summary>A Cacatac's spike: pointing down.</summary>
     CacatacSpikeDown,
-    /// <summary>The frame of the Cacatac spike down right.</summary>
+    /// <summary>A Cacatac's spike: pointing down and right.</summary>
     CacatacSpikeDownRight,
-    /// <summary>The frame of the Cacatac spike right facing down.</summary>
-    CacatacSpikeRightFacingDown,
-    /// <summary>The frame of the Spore Spawn spawner closed.</summary>
+    /// <summary>A Cacatac's spike: pointing right, a pixel lower.</summary>
+    CacatacSpikeRightLow,
+    /// <summary>Spore Spawn's spore spawner: closed.</summary>
     SporeSpawnSpawnerClosed,
-    /// <summary>The first frame of the Spore Spawn spawner release.</summary>
-    SporeSpawnSpawnerReleaseFirst,
-    /// <summary>The second frame of the Spore Spawn spawner release.</summary>
-    SporeSpawnSpawnerReleaseSecond,
-    /// <summary>The third frame of the Spore Spawn spawner release.</summary>
-    SporeSpawnSpawnerReleaseThird,
-    /// <summary>The fourth frame of the Spore Spawn spawner release.</summary>
-    SporeSpawnSpawnerReleaseFourth,
-    /// <summary>The fifth frame of the Spore Spawn spawner release.</summary>
-    SporeSpawnSpawnerReleaseFifth,
-    /// <summary>The first frame of the Spore Spawn Spore.</summary>
-    SporeSpawnSporeFirst,
-    /// <summary>The second frame of the Spore Spawn Spore.</summary>
-    SporeSpawnSporeSecond,
-    /// <summary>The third frame of the Spore Spawn Spore.</summary>
-    SporeSpawnSporeThird,
-    /// <summary>The frame of the Spore Spawn stalk.</summary>
+    /// <summary>Spore Spawn's spore spawner: closed: the picture of SporeSpawnSpawnerClosed, as a frame of its own.</summary>
+    SporeSpawnSpawnerClosedTwin,
+    /// <summary>Spore Spawn's spore spawner: opening.</summary>
+    SporeSpawnSpawnerOpening,
+    /// <summary>Spore Spawn's spore spawner: open.</summary>
+    SporeSpawnSpawnerOpen,
+    /// <summary>Spore Spawn's spore spawner: opening: the picture of SporeSpawnSpawnerOpening, as a frame of its own.</summary>
+    SporeSpawnSpawnerOpeningTwin,
+    /// <summary>Spore Spawn's spore spawner: closed: the picture of SporeSpawnSpawnerClosed, as a frame of its own.</summary>
+    SporeSpawnSpawnerClosedTwinB,
+    /// <summary>A Spore Spawn spore: glowing.</summary>
+    SporeSpawnSporeGlowing,
+    /// <summary>A Spore Spawn spore: dim.</summary>
+    SporeSpawnSporeDim,
+    /// <summary>A Spore Spawn spore: sparkling.</summary>
+    SporeSpawnSporeSparkling,
+    /// <summary>Spore Spawn's stalk: one segment.</summary>
     SporeSpawnStalk,
-    /// <summary>The first frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotFirst,
-    /// <summary>The second frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotSecond,
-    /// <summary>The third frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotThird,
-    /// <summary>The fourth frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotFourth,
-    /// <summary>The fifth frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotFifth,
-    /// <summary>The sixth frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotSixth,
-    /// <summary>The seventh frame of the Spore Spawn Spore shot.</summary>
-    SporeSpawnSporeShotSeventh,
-    /// <summary>The first frame of the Fune Namihe fireball left.</summary>
-    FuneNamiheFireballLeftFirst,
-    /// <summary>The second frame of the Fune Namihe fireball left.</summary>
-    FuneNamiheFireballLeftSecond,
-    /// <summary>The third frame of the Fune Namihe fireball left.</summary>
-    FuneNamiheFireballLeftThird,
-    /// <summary>The first frame of the Fune Namihe fireball right.</summary>
-    FuneNamiheFireballRightFirst,
-    /// <summary>The second frame of the Fune Namihe fireball right.</summary>
-    FuneNamiheFireballRightSecond,
-    /// <summary>The third frame of the Fune Namihe fireball right.</summary>
-    FuneNamiheFireballRightThird,
-    /// <summary>The frame of the Magdollite lava left.</summary>
+    /// <summary>A Spore Spawn spore bursting: a small spark.</summary>
+    SporeSpawnSporeBurstSpark,
+    /// <summary>A Spore Spawn spore bursting: a small spark: the picture of SporeSpawnSporeBurstSpark, as a frame of its own.</summary>
+    SporeSpawnSporeBurstSparkTwin,
+    /// <summary>A Spore Spawn spore bursting: a small fireball.</summary>
+    SporeSpawnSporeBurstFireballSmall,
+    /// <summary>A Spore Spawn spore bursting: a large fireball.</summary>
+    SporeSpawnSporeBurstFireballLarge,
+    /// <summary>A Spore Spawn spore bursting: a fireball opening into a flaming ring.</summary>
+    SporeSpawnSporeBurstFlamingRing,
+    /// <summary>A Spore Spawn spore bursting: a starburst of flame.</summary>
+    SporeSpawnSporeBurstStarburst,
+    /// <summary>A Spore Spawn spore bursting: scattering embers.</summary>
+    SporeSpawnSporeBurstEmbers,
+    /// <summary>A Fune's or Namihe's fireball: flying left, trailing flame.</summary>
+    FuneNamiheFireballLeftTrailing,
+    /// <summary>A Fune's or Namihe's fireball: flying left, round.</summary>
+    FuneNamiheFireballLeftRound,
+    /// <summary>A Fune's or Namihe's fireball: flying left, dissolving.</summary>
+    FuneNamiheFireballLeftDissolving,
+    /// <summary>A Fune's or Namihe's fireball: flying right, trailing flame.</summary>
+    FuneNamiheFireballRightTrailing,
+    /// <summary>A Fune's or Namihe's fireball: flying right, round.</summary>
+    FuneNamiheFireballRightRound,
+    /// <summary>A Fune's or Namihe's fireball: flying right, dissolving.</summary>
+    FuneNamiheFireballRightDissolving,
+    /// <summary>A Magdollite's lava: thrown left.</summary>
     MagdolliteLavaLeft,
-    /// <summary>The frame of the Magdollite lava right.</summary>
+    /// <summary>A Magdollite's lava: thrown right.</summary>
     MagdolliteLavaRight,
-    /// <summary>The first frame of the misc dust elbow charge particle.</summary>
-    MiscDustElbowChargeParticleFirst,
-    /// <summary>The second frame of the misc dust elbow charge particle.</summary>
-    MiscDustElbowChargeParticleSecond,
-    /// <summary>The third frame of the misc dust elbow charge particle.</summary>
-    MiscDustElbowChargeParticleThird,
-    /// <summary>The fourth frame of the misc dust elbow charge particle.</summary>
-    MiscDustElbowChargeParticleFourth,
-    /// <summary>The fifth frame of the misc dust elbow charge particle.</summary>
-    MiscDustElbowChargeParticleFifth,
-    /// <summary>The sixth frame of the misc dust elbow charge particle.</summary>
-    MiscDustElbowChargeParticleSixth,
-    /// <summary>The first frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergyFirst,
-    /// <summary>The second frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergySecond,
-    /// <summary>The third frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergyThird,
-    /// <summary>The fourth frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergyFourth,
-    /// <summary>The fifth frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergyFifth,
-    /// <summary>The sixth frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergySixth,
-    /// <summary>The seventh frame of the misc dust elbow charge energy.</summary>
-    MiscDustElbowChargeEnergySeventh,
-    /// <summary>The first frame of the misc dust small explosion.</summary>
-    MiscDustSmallExplosionFirst,
-    /// <summary>The second frame of the misc dust small explosion.</summary>
-    MiscDustSmallExplosionSecond,
-    /// <summary>The third frame of the misc dust small explosion.</summary>
-    MiscDustSmallExplosionThird,
-    /// <summary>The fourth frame of the misc dust small explosion.</summary>
-    MiscDustSmallExplosionFourth,
-    /// <summary>The fifth frame of the misc dust small explosion.</summary>
-    MiscDustSmallExplosionFifth,
-    /// <summary>The sixth frame of the misc dust small explosion.</summary>
-    MiscDustSmallExplosionSixth,
-    /// <summary>The first frame of the misc dust rainbow beam explosion.</summary>
-    MiscDustRainbowBeamExplosionFirst,
-    /// <summary>The second frame of the misc dust rainbow beam explosion.</summary>
-    MiscDustRainbowBeamExplosionSecond,
-    /// <summary>The third frame of the misc dust rainbow beam explosion.</summary>
-    MiscDustRainbowBeamExplosionThird,
-    /// <summary>The fourth frame of the misc dust rainbow beam explosion.</summary>
-    MiscDustRainbowBeamExplosionFourth,
-    /// <summary>The fifth frame of the misc dust rainbow beam explosion.</summary>
-    MiscDustRainbowBeamExplosionFifth,
-    /// <summary>The first frame of the misc dust dud shot.</summary>
-    MiscDustDudShotFirst,
-    /// <summary>The second frame of the misc dust dud shot.</summary>
-    MiscDustDudShotSecond,
-    /// <summary>The third frame of the misc dust dud shot.</summary>
-    MiscDustDudShotThird,
-    /// <summary>The fourth frame of the misc dust dud shot.</summary>
-    MiscDustDudShotFourth,
-    /// <summary>The fifth frame of the misc dust dud shot.</summary>
-    MiscDustDudShotFifth,
-    /// <summary>The sixth frame of the misc dust dud shot.</summary>
-    MiscDustDudShotSixth,
-    /// <summary>The first frame of the misc dust small dust cloud.</summary>
-    MiscDustSmallDustCloudFirst,
-    /// <summary>The second frame of the misc dust small dust cloud.</summary>
-    MiscDustSmallDustCloudSecond,
-    /// <summary>The third frame of the misc dust small dust cloud.</summary>
-    MiscDustSmallDustCloudThird,
-    /// <summary>The fourth frame of the misc dust small dust cloud.</summary>
-    MiscDustSmallDustCloudFourth,
-    /// <summary>The fifth frame of the misc dust small dust cloud.</summary>
-    MiscDustSmallDustCloudFifth,
-    /// <summary>The first frame of the misc dust corpse dust cloud.</summary>
-    MiscDustCorpseDustCloudFirst,
-    /// <summary>The second frame of the misc dust corpse dust cloud.</summary>
-    MiscDustCorpseDustCloudSecond,
-    /// <summary>The third frame of the misc dust corpse dust cloud.</summary>
-    MiscDustCorpseDustCloudThird,
-    /// <summary>The fourth frame of the misc dust corpse dust cloud.</summary>
-    MiscDustCorpseDustCloudFourth,
-    /// <summary>The first frame of the misc dust eye door smoke puff.</summary>
-    MiscDustEyeDoorSmokePuffFirst,
-    /// <summary>The second frame of the misc dust eye door smoke puff.</summary>
-    MiscDustEyeDoorSmokePuffSecond,
-    /// <summary>The third frame of the misc dust eye door smoke puff.</summary>
-    MiscDustEyeDoorSmokePuffThird,
-    /// <summary>The fourth frame of the misc dust eye door smoke puff.</summary>
-    MiscDustEyeDoorSmokePuffFourth,
-    /// <summary>The first frame of the misc dust smoke.</summary>
-    MiscDustSmokeFirst,
-    /// <summary>The second frame of the misc dust smoke.</summary>
-    MiscDustSmokeSecond,
-    /// <summary>The third frame of the misc dust smoke.</summary>
-    MiscDustSmokeThird,
-    /// <summary>The fourth frame of the misc dust smoke.</summary>
-    MiscDustSmokeFourth,
-    /// <summary>The first frame of the misc dust big explosion.</summary>
-    MiscDustBigExplosionFirst,
-    /// <summary>The second frame of the misc dust big explosion.</summary>
-    MiscDustBigExplosionSecond,
-    /// <summary>The third frame of the misc dust big explosion.</summary>
-    MiscDustBigExplosionThird,
-    /// <summary>The fourth frame of the misc dust big explosion.</summary>
-    MiscDustBigExplosionFourth,
-    /// <summary>The fifth frame of the misc dust big explosion.</summary>
-    MiscDustBigExplosionFifth,
-    /// <summary>The sixth frame of the misc dust big explosion.</summary>
-    MiscDustBigExplosionSixth,
-    /// <summary>The first frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesFirst,
-    /// <summary>The second frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesSecond,
-    /// <summary>The third frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesThird,
-    /// <summary>The fourth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesFourth,
-    /// <summary>The fifth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesFifth,
-    /// <summary>The sixth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesSixth,
-    /// <summary>The seventh frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesSeventh,
-    /// <summary>The eighth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesEighth,
-    /// <summary>The ninth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesNinth,
-    /// <summary>The tenth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesTenth,
-    /// <summary>The eleventh frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesEleventh,
-    /// <summary>The twelfth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesTwelfth,
-    /// <summary>The thirteenth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesThirteenth,
-    /// <summary>The fourteenth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesFourteenth,
-    /// <summary>The fifteenth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesFifteenth,
-    /// <summary>The sixteenth frame of the misc dust rock particles.</summary>
-    MiscDustRockParticlesSixteenth,
-    /// <summary>The first frame of the misc dust short big dust cloud.</summary>
-    MiscDustShortBigDustCloudFirst,
-    /// <summary>The second frame of the misc dust short big dust cloud.</summary>
-    MiscDustShortBigDustCloudSecond,
-    /// <summary>The third frame of the misc dust short big dust cloud.</summary>
-    MiscDustShortBigDustCloudThird,
-    /// <summary>The fourth frame of the misc dust short big dust cloud.</summary>
-    MiscDustShortBigDustCloudFourth,
-    /// <summary>The first frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudFirst,
-    /// <summary>The second frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudSecond,
-    /// <summary>The third frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudThird,
-    /// <summary>The fourth frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudFourth,
-    /// <summary>The fifth frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudFifth,
-    /// <summary>The sixth frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudSixth,
-    /// <summary>The seventh frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudSeventh,
-    /// <summary>The eighth frame of the misc dust big dust cloud.</summary>
-    MiscDustBigDustCloudEighth,
-    /// <summary>The first frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesFirst,
-    /// <summary>The second frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesSecond,
-    /// <summary>The third frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesThird,
-    /// <summary>The fourth frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesFourth,
-    /// <summary>The fifth frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesFifth,
-    /// <summary>The sixth frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesSixth,
-    /// <summary>The seventh frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesSeventh,
-    /// <summary>The eighth frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesEighth,
-    /// <summary>The ninth frame of the misc dust Draygon breath bubbles.</summary>
-    MiscDustDraygonBreathBubblesNinth,
-    /// <summary>The frame of the downward gate moving.</summary>
-    DownwardGateMoving,
-    /// <summary>The downward gate lowered one block frame.</summary>
-    DownwardGateLoweredOneBlock,
-    /// <summary>The downward gate lowered two blocks frame.</summary>
-    DownwardGateLoweredTwoBlocks,
-    /// <summary>The downward gate lowered three blocks frame.</summary>
-    DownwardGateLoweredThreeBlocks,
-    /// <summary>The downward gate closed frame.</summary>
-    DownwardGateClosed,
-    /// <summary>The downward gate rising frame.</summary>
-    DownwardGateRising,
-    /// <summary>The downward gate risen one block frame.</summary>
-    DownwardGateRisenOneBlock,
-    /// <summary>The downward gate risen two blocks frame.</summary>
-    DownwardGateRisenTwoBlocks,
-    /// <summary>The downward gate risen three blocks frame.</summary>
-    DownwardGateRisenThreeBlocks,
-    /// <summary>The first frame of the save station electricity start.</summary>
-    SaveStationElectricityStartFirst,
-    /// <summary>The second frame of the save station electricity start.</summary>
-    SaveStationElectricityStartSecond,
-    /// <summary>The third frame of the save station electricity start.</summary>
-    SaveStationElectricityStartThird,
-    /// <summary>The fourth frame of the save station electricity start.</summary>
-    SaveStationElectricityStartFourth,
-    /// <summary>The fifth frame of the save station electricity start.</summary>
-    SaveStationElectricityStartFifth,
-    /// <summary>The sixth frame of the save station electricity start.</summary>
-    SaveStationElectricityStartSixth,
-    /// <summary>The seventh frame of the save station electricity start.</summary>
-    SaveStationElectricityStartSeventh,
-    /// <summary>The eighth frame of the save station electricity start.</summary>
-    SaveStationElectricityStartEighth,
-    /// <summary>The first frame of the Botwoon body up left.</summary>
-    BotwoonBodyUpLeftFirst,
-    /// <summary>The second frame of the Botwoon body up left.</summary>
-    BotwoonBodyUpLeftSecond,
-    /// <summary>The third frame of the Botwoon body up left.</summary>
-    BotwoonBodyUpLeftThird,
-    /// <summary>The fourth frame of the Botwoon body up left.</summary>
-    BotwoonBodyUpLeftFourth,
-    /// <summary>The first frame of the Botwoon body left.</summary>
-    BotwoonBodyLeftFirst,
-    /// <summary>The second frame of the Botwoon body left.</summary>
-    BotwoonBodyLeftSecond,
-    /// <summary>The third frame of the Botwoon body left.</summary>
-    BotwoonBodyLeftThird,
-    /// <summary>The fourth frame of the Botwoon body left.</summary>
-    BotwoonBodyLeftFourth,
-    /// <summary>The first frame of the Botwoon body down left.</summary>
-    BotwoonBodyDownLeftFirst,
-    /// <summary>The second frame of the Botwoon body down left.</summary>
-    BotwoonBodyDownLeftSecond,
-    /// <summary>The third frame of the Botwoon body down left.</summary>
-    BotwoonBodyDownLeftThird,
-    /// <summary>The fourth frame of the Botwoon body down left.</summary>
-    BotwoonBodyDownLeftFourth,
-    /// <summary>The first frame of the Botwoon body down.</summary>
-    BotwoonBodyDownFirst,
-    /// <summary>The second frame of the Botwoon body down.</summary>
-    BotwoonBodyDownSecond,
-    /// <summary>The third frame of the Botwoon body down.</summary>
-    BotwoonBodyDownThird,
-    /// <summary>The fourth frame of the Botwoon body down.</summary>
-    BotwoonBodyDownFourth,
-    /// <summary>The first frame of the Botwoon body down right.</summary>
-    BotwoonBodyDownRightFirst,
-    /// <summary>The second frame of the Botwoon body down right.</summary>
-    BotwoonBodyDownRightSecond,
-    /// <summary>The third frame of the Botwoon body down right.</summary>
-    BotwoonBodyDownRightThird,
-    /// <summary>The fourth frame of the Botwoon body down right.</summary>
-    BotwoonBodyDownRightFourth,
-    /// <summary>The first frame of the Botwoon body right.</summary>
-    BotwoonBodyRightFirst,
-    /// <summary>The second frame of the Botwoon body right.</summary>
-    BotwoonBodyRightSecond,
-    /// <summary>The third frame of the Botwoon body right.</summary>
-    BotwoonBodyRightThird,
-    /// <summary>The fourth frame of the Botwoon body right.</summary>
-    BotwoonBodyRightFourth,
-    /// <summary>The first frame of the Botwoon body up right.</summary>
-    BotwoonBodyUpRightFirst,
-    /// <summary>The second frame of the Botwoon body up right.</summary>
-    BotwoonBodyUpRightSecond,
-    /// <summary>The third frame of the Botwoon body up right.</summary>
-    BotwoonBodyUpRightThird,
-    /// <summary>The fourth frame of the Botwoon body up right.</summary>
-    BotwoonBodyUpRightFourth,
-    /// <summary>The first frame of the Botwoon body up.</summary>
-    BotwoonBodyUpFirst,
-    /// <summary>The second frame of the Botwoon body up.</summary>
-    BotwoonBodyUpSecond,
-    /// <summary>The third frame of the Botwoon body up.</summary>
-    BotwoonBodyUpThird,
-    /// <summary>The fourth frame of the Botwoon body up.</summary>
-    BotwoonBodyUpFourth,
-    /// <summary>The frame of the Botwoon tail up.</summary>
+    /// <summary>Misc dust: four sparks closing in, 32 pixels across.</summary>
+    MiscDustSparksApart32,
+    /// <summary>Misc dust: four sparks closing in, 28 pixels across.</summary>
+    MiscDustSparksApart28,
+    /// <summary>Misc dust: four sparks closing in, 24 pixels across.</summary>
+    MiscDustSparksApart24,
+    /// <summary>Misc dust: four sparks closing in, 20 pixels across.</summary>
+    MiscDustSparksApart20,
+    /// <summary>Misc dust: four sparks closing in, 16 pixels across.</summary>
+    MiscDustSparksApart16,
+    /// <summary>Misc dust: four sparks closing in, 14 pixels across.</summary>
+    MiscDustSparksApart14,
+    /// <summary>Misc dust: four sparks set the other way round, closing in, 32 pixels across.</summary>
+    MiscDustSparksTwistedApart32,
+    /// <summary>Misc dust: four sparks set the other way round, closing in, 28 pixels across.</summary>
+    MiscDustSparksTwistedApart28,
+    /// <summary>Misc dust: four sparks set the other way round, closing in, 24 pixels across.</summary>
+    MiscDustSparksTwistedApart24,
+    /// <summary>Misc dust: four sparks set the other way round, closing in, 20 pixels across.</summary>
+    MiscDustSparksTwistedApart20,
+    /// <summary>Misc dust: four sparks set the other way round, closing in, 16 pixels across.</summary>
+    MiscDustSparksTwistedApart16,
+    /// <summary>Misc dust: four sparks set the other way round, closing in, 14 pixels across.</summary>
+    MiscDustSparksTwistedApart14,
+    /// <summary>Misc dust: a small spark.</summary>
+    MiscDustSpark,
+    /// <summary>Misc dust: a small spark: the picture of MiscDustSpark, as a frame of its own.</summary>
+    MiscDustSparkTwin,
+    /// <summary>Misc dust: a small fireball.</summary>
+    MiscDustFireballSmall,
+    /// <summary>Misc dust: a large fireball.</summary>
+    MiscDustFireballLarge,
+    /// <summary>Misc dust: a fireball opening into a flaming ring.</summary>
+    MiscDustFlamingRing,
+    /// <summary>Misc dust: a starburst of flame.</summary>
+    MiscDustStarburst,
+    /// <summary>Misc dust: scattering embers.</summary>
+    MiscDustEmbers,
+    /// <summary>Misc dust: a small green orb.</summary>
+    MiscDustGreenOrbSmall,
+    /// <summary>Misc dust: a green orb.</summary>
+    MiscDustGreenOrb,
+    /// <summary>Misc dust: a green ring around a dark green core.</summary>
+    MiscDustGreenRingCored,
+    /// <summary>Misc dust: a thick green ring around a dark green core.</summary>
+    MiscDustGreenRingThick,
+    /// <summary>Misc dust: a green ring.</summary>
+    MiscDustGreenRing,
+    /// <summary>Misc dust: a glint of light.</summary>
+    MiscDustFlareGlint,
+    /// <summary>Misc dust: a small glow.</summary>
+    MiscDustFlareGlow,
+    /// <summary>Misc dust: a ball of light.</summary>
+    MiscDustFlareBall,
+    /// <summary>Misc dust: a ring of light around a burning core.</summary>
+    MiscDustFlareRingCored,
+    /// <summary>Misc dust: a ring of light.</summary>
+    MiscDustFlareRing,
+    /// <summary>Misc dust: a fading ring of light.</summary>
+    MiscDustFlareRingFading,
+    /// <summary>Misc dust: a small puff of dust.</summary>
+    MiscDustPuff,
+    /// <summary>Misc dust: a cloud of dust.</summary>
+    MiscDustCloud,
+    /// <summary>Misc dust: a cloud of dust thinning.</summary>
+    MiscDustCloudThinning,
+    /// <summary>Misc dust: a thin cloud of dust.</summary>
+    MiscDustCloudThin,
+    /// <summary>Misc dust: a faint cloud of dust.</summary>
+    MiscDustCloudFaint,
+    /// <summary>Misc dust: a small puff of dust: the picture of MiscDustPuff, as a frame of its own.</summary>
+    MiscDustPuffTwin,
+    /// <summary>Misc dust: a smaller puff of dust.</summary>
+    MiscDustPuffSmall,
+    /// <summary>Misc dust: a thin puff of dust.</summary>
+    MiscDustPuffThin,
+    /// <summary>Misc dust: a faint puff of dust.</summary>
+    MiscDustPuffFaint,
+    /// <summary>Misc dust: a low puff of smoke.</summary>
+    MiscDustSmokePuffLow,
+    /// <summary>Misc dust: a puff of smoke rising in specks.</summary>
+    MiscDustSmokePuffRising,
+    /// <summary>Misc dust: a puff of smoke scattering.</summary>
+    MiscDustSmokePuffScattering,
+    /// <summary>Misc dust: a fading puff of smoke.</summary>
+    MiscDustSmokePuffFading,
+    /// <summary>Misc dust: a cloud of fire.</summary>
+    MiscDustFireCloud,
+    /// <summary>Misc dust: a cloud of fire spreading.</summary>
+    MiscDustFireCloudSpreading,
+    /// <summary>Misc dust: a cloud of fire breaking up.</summary>
+    MiscDustFireCloudBreaking,
+    /// <summary>Misc dust: the embers of a cloud of fire.</summary>
+    MiscDustFireCloudEmbers,
+    /// <summary>Misc dust: a small fireball: the picture of MiscDustFireballSmall, as a frame of its own.</summary>
+    MiscDustFireballSmallTwin,
+    /// <summary>Misc dust: a large fireball: the picture of MiscDustFireballLarge, as a frame of its own.</summary>
+    MiscDustFireballLargeTwin,
+    /// <summary>Misc dust: a fireball opening into a flaming ring: the picture of MiscDustFlamingRing, as a frame of its own.</summary>
+    MiscDustFlamingRingTwin,
+    /// <summary>Misc dust: a huge fireball with a ring inside it.</summary>
+    MiscDustFireballHuge,
+    /// <summary>Misc dust: a wide ring of fire.</summary>
+    MiscDustWideRing,
+    /// <summary>Misc dust: a wide, fading ring of fire.</summary>
+    MiscDustWideRingFading,
+    /// <summary>Misc dust: four glowing pebbles 16 pixels apart.</summary>
+    MiscDustPebblesGlowing16,
+    /// <summary>Misc dust: four glowing pebbles 20 pixels apart.</summary>
+    MiscDustPebblesGlowing20,
+    /// <summary>Misc dust: four glowing pebbles 26 pixels apart.</summary>
+    MiscDustPebblesGlowing26,
+    /// <summary>Misc dust: four glowing pebbles 30 pixels apart.</summary>
+    MiscDustPebblesGlowing30,
+    /// <summary>Misc dust: four glowing pebbles 34 pixels apart.</summary>
+    MiscDustPebblesGlowing34,
+    /// <summary>Misc dust: four glowing pebbles 36 pixels apart.</summary>
+    MiscDustPebblesGlowing36,
+    /// <summary>Misc dust: four cooling pebbles 40 pixels apart.</summary>
+    MiscDustPebblesCooling40,
+    /// <summary>Misc dust: four cooling pebbles 44 pixels apart.</summary>
+    MiscDustPebblesCooling44,
+    /// <summary>Misc dust: four cooling pebbles 48 pixels apart.</summary>
+    MiscDustPebblesCooling48,
+    /// <summary>Misc dust: four cooling pebbles 52 pixels apart.</summary>
+    MiscDustPebblesCooling52,
+    /// <summary>Misc dust: four ashen pebbles 54 pixels apart.</summary>
+    MiscDustPebblesAshen54,
+    /// <summary>Misc dust: four ashen pebbles 56 pixels apart.</summary>
+    MiscDustPebblesAshen56,
+    /// <summary>Misc dust: four ashen pebbles 58 pixels apart.</summary>
+    MiscDustPebblesAshen58,
+    /// <summary>Misc dust: four ashen pebbles 60 pixels apart.</summary>
+    MiscDustPebblesAshen60,
+    /// <summary>Misc dust: four ashen pebbles 62 pixels apart.</summary>
+    MiscDustPebblesAshen62,
+    /// <summary>Misc dust: four ashen pebbles 64 pixels apart.</summary>
+    MiscDustPebblesAshen64,
+    /// <summary>Misc dust: a small puff of dust up and to the left.</summary>
+    MiscDustPuffUpLeft,
+    /// <summary>Misc dust: a puff of dust and a smaller one.</summary>
+    MiscDustPuffPair,
+    /// <summary>Misc dust: three puffs of dust.</summary>
+    MiscDustPuffTrio,
+    /// <summary>Misc dust: dense clouds of dust.</summary>
+    MiscDustCloudsDense,
+    /// <summary>Misc dust: a small puff of dust up and to the left: the picture of MiscDustPuffUpLeft, as a frame of its own.</summary>
+    MiscDustPuffUpLeftTwin,
+    /// <summary>Misc dust: a puff of dust and a smaller one: the picture of MiscDustPuffPair, as a frame of its own.</summary>
+    MiscDustPuffPairTwin,
+    /// <summary>Misc dust: three puffs of dust: the picture of MiscDustPuffTrio, as a frame of its own.</summary>
+    MiscDustPuffTrioTwin,
+    /// <summary>Misc dust: dense clouds of dust: the picture of MiscDustCloudsDense, as a frame of its own.</summary>
+    MiscDustCloudsDenseTwin,
+    /// <summary>Misc dust: clouds of dust thinning.</summary>
+    MiscDustCloudsThinning,
+    /// <summary>Misc dust: thin clouds of dust.</summary>
+    MiscDustCloudsThin,
+    /// <summary>Misc dust: faint clouds of dust.</summary>
+    MiscDustCloudsFaint,
+    /// <summary>Misc dust: a faint cloud of dust to the right.</summary>
+    MiscDustCloudFaintRight,
+    /// <summary>Misc dust: a small bubble.</summary>
+    MiscDustBubbleSmall,
+    /// <summary>Misc dust: a cluster of bubbles.</summary>
+    MiscDustBubbles,
+    /// <summary>Misc dust: bubbles rising.</summary>
+    MiscDustBubblesRising,
+    /// <summary>Misc dust: bubbles spreading.</summary>
+    MiscDustBubblesSpreading,
+    /// <summary>Misc dust: scattered bubbles.</summary>
+    MiscDustBubblesScattered,
+    /// <summary>Misc dust: sparse bubbles.</summary>
+    MiscDustBubblesSparse,
+    /// <summary>Misc dust: a few bubbles.</summary>
+    MiscDustBubblesFew,
+    /// <summary>Misc dust: the last bubbles.</summary>
+    MiscDustBubblesLast,
+    /// <summary>Misc dust: one faint speck.</summary>
+    MiscDustSpeck,
+    /// <summary>A downward gate: one block tall.</summary>
+    DownwardGateOneBlockTall,
+    /// <summary>A downward gate: two blocks tall.</summary>
+    DownwardGateTwoBlocksTall,
+    /// <summary>A downward gate: three blocks tall.</summary>
+    DownwardGateThreeBlocksTall,
+    /// <summary>A downward gate: four blocks tall.</summary>
+    DownwardGateFourBlocksTall,
+    /// <summary>A downward gate: four blocks tall: the picture of DownwardGateFourBlocksTall, as a frame of its own.</summary>
+    DownwardGateFourBlocksTallTwin,
+    /// <summary>A downward gate: four blocks tall: the picture of DownwardGateFourBlocksTall, as a frame of its own.</summary>
+    DownwardGateFourBlocksTallTwinB,
+    /// <summary>A downward gate: three blocks tall: the picture of DownwardGateThreeBlocksTall, as a frame of its own.</summary>
+    DownwardGateThreeBlocksTallTwin,
+    /// <summary>A downward gate: two blocks tall: the picture of DownwardGateTwoBlocksTall, as a frame of its own.</summary>
+    DownwardGateTwoBlocksTallTwin,
+    /// <summary>A downward gate: one block tall: the picture of DownwardGateOneBlockTall, as a frame of its own.</summary>
+    DownwardGateOneBlockTallTwin,
+    /// <summary>A save station's electricity: a zigzag band 32 pixels up.</summary>
+    SaveStationElectricityRaised32,
+    /// <summary>A save station's electricity: a zigzag band 24 pixels up.</summary>
+    SaveStationElectricityRaised24,
+    /// <summary>A save station's electricity: a zigzag band 16 pixels up.</summary>
+    SaveStationElectricityRaised16,
+    /// <summary>A save station's electricity: a zigzag band 8 pixels up.</summary>
+    SaveStationElectricityRaised8,
+    /// <summary>A save station's electricity: a zigzag band level with its place.</summary>
+    SaveStationElectricityLevel,
+    /// <summary>A save station's electricity: a zigzag band 8 pixels down.</summary>
+    SaveStationElectricityLowered8,
+    /// <summary>A save station's electricity: a zigzag band 16 pixels down.</summary>
+    SaveStationElectricityLowered16,
+    /// <summary>A save station's electricity: a zigzag band 24 pixels down.</summary>
+    SaveStationElectricityLowered24,
+    /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyUpLeftRipple0,
+    /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyUpLeftRipple90,
+    /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyUpLeftRipple180,
+    /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyUpLeftRipple270,
+    /// <summary>A Botwoon body segment: facing left, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyLeftRipple0,
+    /// <summary>A Botwoon body segment: facing left, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyLeftRipple90,
+    /// <summary>A Botwoon body segment: facing left, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyLeftRipple180,
+    /// <summary>A Botwoon body segment: facing left, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyLeftRipple270,
+    /// <summary>A Botwoon body segment: facing down and left, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyDownLeftRipple0,
+    /// <summary>A Botwoon body segment: facing down and left, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyDownLeftRipple90,
+    /// <summary>A Botwoon body segment: facing down and left, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyDownLeftRipple180,
+    /// <summary>A Botwoon body segment: facing down and left, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyDownLeftRipple270,
+    /// <summary>A Botwoon body segment: facing down, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyDownRipple0,
+    /// <summary>A Botwoon body segment: facing down, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyDownRipple90,
+    /// <summary>A Botwoon body segment: facing down, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyDownRipple180,
+    /// <summary>A Botwoon body segment: facing down, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyDownRipple270,
+    /// <summary>A Botwoon body segment: facing down and right, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyDownRightRipple0,
+    /// <summary>A Botwoon body segment: facing down and right, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyDownRightRipple90,
+    /// <summary>A Botwoon body segment: facing down and right, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyDownRightRipple180,
+    /// <summary>A Botwoon body segment: facing down and right, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyDownRightRipple270,
+    /// <summary>A Botwoon body segment: facing right, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyRightRipple0,
+    /// <summary>A Botwoon body segment: facing right, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyRightRipple90,
+    /// <summary>A Botwoon body segment: facing right, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyRightRipple180,
+    /// <summary>A Botwoon body segment: facing right, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyRightRipple270,
+    /// <summary>A Botwoon body segment: facing up and right, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyUpRightRipple0,
+    /// <summary>A Botwoon body segment: facing up and right, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyUpRightRipple90,
+    /// <summary>A Botwoon body segment: facing up and right, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyUpRightRipple180,
+    /// <summary>A Botwoon body segment: facing up and right, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyUpRightRipple270,
+    /// <summary>A Botwoon body segment: facing up, its stripes rippled 0 degrees round their cycle.</summary>
+    BotwoonBodyUpRipple0,
+    /// <summary>A Botwoon body segment: facing up, its stripes rippled 90 degrees round their cycle.</summary>
+    BotwoonBodyUpRipple90,
+    /// <summary>A Botwoon body segment: facing up, its stripes rippled 180 degrees round their cycle.</summary>
+    BotwoonBodyUpRipple180,
+    /// <summary>A Botwoon body segment: facing up, its stripes rippled 270 degrees round their cycle.</summary>
+    BotwoonBodyUpRipple270,
+    /// <summary>A Botwoon tail segment: pointing up.</summary>
     BotwoonTailUp,
-    /// <summary>The frame of the Botwoon tail up left.</summary>
+    /// <summary>A Botwoon tail segment: pointing up and left.</summary>
     BotwoonTailUpLeft,
-    /// <summary>The frame of the Botwoon tail left.</summary>
+    /// <summary>A Botwoon tail segment: pointing left.</summary>
     BotwoonTailLeft,
-    /// <summary>The frame of the Botwoon tail down left.</summary>
+    /// <summary>A Botwoon tail segment: pointing down and left.</summary>
     BotwoonTailDownLeft,
-    /// <summary>The frame of the Botwoon tail down.</summary>
+    /// <summary>A Botwoon tail segment: pointing down.</summary>
     BotwoonTailDown,
-    /// <summary>The frame of the Botwoon tail down right.</summary>
+    /// <summary>A Botwoon tail segment: pointing down and right.</summary>
     BotwoonTailDownRight,
-    /// <summary>The frame of the Botwoon tail right.</summary>
+    /// <summary>A Botwoon tail segment: pointing right.</summary>
     BotwoonTailRight,
-    /// <summary>The frame of the Botwoon tail up right.</summary>
+    /// <summary>A Botwoon tail segment: pointing up and right.</summary>
     BotwoonTailUpRight,
-    /// <summary>The frame of the Botwoon hidden up.</summary>
-    BotwoonHiddenUp,
-    /// <summary>The first frame of the Botwoon spit up.</summary>
-    BotwoonSpitUpFirst,
-    /// <summary>The second frame of the Botwoon spit up.</summary>
-    BotwoonSpitUpSecond,
-    /// <summary>The third frame of the Botwoon spit up.</summary>
-    BotwoonSpitUpThird,
-    /// <summary>The fourth frame of the Botwoon spit up.</summary>
-    BotwoonSpitUpFourth,
-    /// <summary>The fifth frame of the Botwoon spit up.</summary>
-    BotwoonSpitUpFifth,
-    /// <summary>The frame of the Yapping Maw facing down.</summary>
+    /// <summary>A Botwoon segment: nothing; it draws no picture.</summary>
+    BotwoonBlank,
+    /// <summary>Botwoon's spit: a dim green ball.</summary>
+    BotwoonSpitDim,
+    /// <summary>Botwoon's spit: a bright green ball.</summary>
+    BotwoonSpitBright,
+    /// <summary>Botwoon's spit: a green ring.</summary>
+    BotwoonSpitRinged,
+    /// <summary>Botwoon's spit: a bright green ring.</summary>
+    BotwoonSpitRingedBright,
+    /// <summary>Botwoon's spit: a green ball dissolving.</summary>
+    BotwoonSpitDissolving,
+    /// <summary>A Yapping Maw body segment: facing down.</summary>
     YappingMawFacingDown,
-    /// <summary>The frame of the Yapping Maw facing up.</summary>
+    /// <summary>A Yapping Maw body segment: facing up.</summary>
     YappingMawFacingUp,
-    /// <summary>The frame of the enemy death respawn tail.</summary>
-    EnemyDeathRespawnTail,
-    /// <summary>The frame of the enemy death big explosion.</summary>
-    EnemyDeathBigExplosion,
-    /// <summary>The frame of the enemy death Mini Kraid explosion.</summary>
-    EnemyDeathMiniKraidExplosion,
-    /// <summary>The first frame of the enemy death normal explosion.</summary>
-    EnemyDeathNormalExplosionFirst,
-    /// <summary>The second frame of the enemy death normal explosion.</summary>
-    EnemyDeathNormalExplosionSecond,
-    /// <summary>The third frame of the enemy death normal explosion.</summary>
-    EnemyDeathNormalExplosionThird,
-    /// <summary>The fourth frame of the enemy death normal explosion.</summary>
-    EnemyDeathNormalExplosionFourth,
-    /// <summary>The fifth frame of the enemy death normal explosion.</summary>
-    EnemyDeathNormalExplosionFifth,
-    /// <summary>The sixth frame of the enemy death normal explosion.</summary>
-    EnemyDeathNormalExplosionSixth,
-    /// <summary>The first frame of the enemy death small explosion.</summary>
-    EnemyDeathSmallExplosionFirst,
-    /// <summary>The second frame of the enemy death small explosion.</summary>
-    EnemyDeathSmallExplosionSecond,
-    /// <summary>The third frame of the enemy death small explosion.</summary>
-    EnemyDeathSmallExplosionThird,
-    /// <summary>The fourth frame of the enemy death small explosion.</summary>
-    EnemyDeathSmallExplosionFourth,
-    /// <summary>The fifth frame of the enemy death small explosion.</summary>
-    EnemyDeathSmallExplosionFifth,
-    /// <summary>The sixth frame of the enemy death small explosion.</summary>
-    EnemyDeathSmallExplosionSixth,
-    /// <summary>The first frame of the enemy pickup small energy.</summary>
-    EnemyPickupSmallEnergyFirst,
-    /// <summary>The second frame of the enemy pickup small energy.</summary>
-    EnemyPickupSmallEnergySecond,
-    /// <summary>The third frame of the enemy pickup small energy.</summary>
-    EnemyPickupSmallEnergyThird,
-    /// <summary>The fourth frame of the enemy pickup small energy.</summary>
-    EnemyPickupSmallEnergyFourth,
-    /// <summary>The first frame of the enemy pickup big energy.</summary>
-    EnemyPickupBigEnergyFirst,
-    /// <summary>The second frame of the enemy pickup big energy.</summary>
-    EnemyPickupBigEnergySecond,
-    /// <summary>The third frame of the enemy pickup big energy.</summary>
-    EnemyPickupBigEnergyThird,
-    /// <summary>The fourth frame of the enemy pickup big energy.</summary>
-    EnemyPickupBigEnergyFourth,
-    /// <summary>The first frame of the enemy pickup Missiles.</summary>
-    EnemyPickupMissilesFirst,
-    /// <summary>The second frame of the enemy pickup Missiles.</summary>
-    EnemyPickupMissilesSecond,
-    /// <summary>The first frame of the enemy pickup Super Missiles.</summary>
-    EnemyPickupSuperMissilesFirst,
-    /// <summary>The second frame of the enemy pickup Super Missiles.</summary>
-    EnemyPickupSuperMissilesSecond,
-    /// <summary>The first frame of the enemy pickup Power Bombs.</summary>
-    EnemyPickupPowerBombsFirst,
-    /// <summary>The second frame of the enemy pickup Power Bombs.</summary>
-    EnemyPickupPowerBombsSecond,
-    /// <summary>The third frame of the enemy pickup Power Bombs.</summary>
-    EnemyPickupPowerBombsThird,
-    /// <summary>The fourth frame of the enemy pickup Power Bombs.</summary>
-    EnemyPickupPowerBombsFourth,
-    /// <summary>The first frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactFirst,
-    /// <summary>The second frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactSecond,
-    /// <summary>The third frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactThird,
-    /// <summary>The fourth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactFourth,
-    /// <summary>The fifth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactFifth,
-    /// <summary>The sixth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactSixth,
-    /// <summary>The seventh frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactSeventh,
-    /// <summary>The eighth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactEighth,
-    /// <summary>The ninth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactNinth,
-    /// <summary>The tenth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactTenth,
-    /// <summary>The eleventh frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactEleventh,
-    /// <summary>The twelfth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactTwelfth,
-    /// <summary>The thirteenth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactThirteenth,
-    /// <summary>The fourteenth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactFourteenth,
-    /// <summary>The fifteenth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactFifteenth,
-    /// <summary>The sixteenth frame of the enemy death killed by Samus contact.</summary>
-    EnemyDeathKilledBySamusContactSixteenth,
-    /// <summary>The first frame of the falling spark falling.</summary>
-    FallingSparkFallingFirst,
-    /// <summary>The second frame of the falling spark falling.</summary>
-    FallingSparkFallingSecond,
-    /// <summary>The third frame of the falling spark falling.</summary>
-    FallingSparkFallingThird,
-    /// <summary>The first frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorFirst,
-    /// <summary>The second frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorSecond,
-    /// <summary>The third frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorThird,
-    /// <summary>The fourth frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorFourth,
-    /// <summary>The fifth frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorFifth,
-    /// <summary>The sixth frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorSixth,
-    /// <summary>The seventh frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorSeventh,
-    /// <summary>The eighth frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorEighth,
-    /// <summary>The ninth frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorNinth,
-    /// <summary>The tenth frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorTenth,
-    /// <summary>The eleventh frame of the falling spark hit floor.</summary>
-    FallingSparkHitFloorEleventh,
-    /// <summary>The Ceres elevator pad first, one composed picture.</summary>
-    CeresElevatorPadFirst,
-    /// <summary>The Ceres elevator pad second, one composed picture.</summary>
-    CeresElevatorPadSecond,
+    /// <summary>An enemy's death: nothing; it draws no picture.</summary>
+    EnemyDeathBlank,
+    /// <summary>An enemy's death: nothing; it draws no picture: the picture of EnemyDeathBlank, as a frame of its own.</summary>
+    EnemyDeathBlankTwin,
+    /// <summary>An enemy's death: nothing; it draws no picture: the picture of EnemyDeathBlank, as a frame of its own.</summary>
+    EnemyDeathBlankTwinB,
+    /// <summary>An enemy's death: a small fireball.</summary>
+    EnemyDeathFireballSmall,
+    /// <summary>An enemy's death: a large fireball.</summary>
+    EnemyDeathFireballLarge,
+    /// <summary>An enemy's death: a fireball opening into a flaming ring.</summary>
+    EnemyDeathFlamingRing,
+    /// <summary>An enemy's death: a huge fireball with a ring inside it.</summary>
+    EnemyDeathFireballHuge,
+    /// <summary>An enemy's death: a wide ring of fire.</summary>
+    EnemyDeathWideRing,
+    /// <summary>An enemy's death: a wide, fading ring of fire.</summary>
+    EnemyDeathWideRingFading,
+    /// <summary>An enemy's death: a small spark.</summary>
+    EnemyDeathSpark,
+    /// <summary>An enemy's death: a small fireball: the picture of EnemyDeathFireballSmall, as a frame of its own.</summary>
+    EnemyDeathFireballSmallTwin,
+    /// <summary>An enemy's death: a large fireball: the picture of EnemyDeathFireballLarge, as a frame of its own.</summary>
+    EnemyDeathFireballLargeTwin,
+    /// <summary>An enemy's death: a fireball opening into a flaming ring: the picture of EnemyDeathFlamingRing, as a frame of its own.</summary>
+    EnemyDeathFlamingRingTwin,
+    /// <summary>An enemy's death: a starburst of flame.</summary>
+    EnemyDeathStarburst,
+    /// <summary>An enemy's death: scattering embers.</summary>
+    EnemyDeathEmbers,
+    /// <summary>An enemy's energy drop: a small dark orb.</summary>
+    EnemyPickupEnergySmallDark,
+    /// <summary>An enemy's energy drop: a small ringed orb.</summary>
+    EnemyPickupEnergySmallRinged,
+    /// <summary>An enemy's energy drop: a small bright orb.</summary>
+    EnemyPickupEnergySmallBright,
+    /// <summary>An enemy's energy drop: specks of energy.</summary>
+    EnemyPickupEnergyScattered,
+    /// <summary>An enemy's energy drop: a big bright orb.</summary>
+    EnemyPickupEnergyBigBright,
+    /// <summary>An enemy's energy drop: a big ringed orb.</summary>
+    EnemyPickupEnergyBigRinged,
+    /// <summary>An enemy's energy drop: a big dark orb.</summary>
+    EnemyPickupEnergyBigDark,
+    /// <summary>An enemy's energy drop: specks of energy: the picture of EnemyPickupEnergyScattered, as a frame of its own.</summary>
+    EnemyPickupEnergyScatteredTwin,
+    /// <summary>An enemy's missile drop: a missile.</summary>
+    EnemyPickupMissile,
+    /// <summary>An enemy's missile drop: a missile flashing white.</summary>
+    EnemyPickupMissileFlashing,
+    /// <summary>An enemy's super missile drop: a super missile.</summary>
+    EnemyPickupSuperMissile,
+    /// <summary>An enemy's super missile drop: a super missile flashing white.</summary>
+    EnemyPickupSuperMissileFlashing,
+    /// <summary>An enemy's power bomb drop: a bright power bomb.</summary>
+    EnemyPickupPowerBombBright,
+    /// <summary>An enemy's power bomb drop: a power bomb fading.</summary>
+    EnemyPickupPowerBombFading,
+    /// <summary>An enemy's power bomb drop: a dim power bomb.</summary>
+    EnemyPickupPowerBombDim,
+    /// <summary>An enemy's power bomb drop: a power bomb flashing white.</summary>
+    EnemyPickupPowerBombFlashing,
+    /// <summary>An enemy's death: a large fireball: the picture of EnemyDeathFireballLarge, as a frame of its own.</summary>
+    EnemyDeathFireballLargeTwinB,
+    /// <summary>An enemy's death: a fireball ringed by four smaller ones.</summary>
+    EnemyDeathFireballCluster,
+    /// <summary>An enemy's death: a starburst ringed by four fireballs.</summary>
+    EnemyDeathStarburstCluster,
+    /// <summary>An enemy's death: embers ringed by four fading fireballs.</summary>
+    EnemyDeathEmbersCluster,
+    /// <summary>An enemy's death: four fireballs amid embers.</summary>
+    EnemyDeathFourFireballsAmidEmbers,
+    /// <summary>An enemy's death: four fireballs amid ash.</summary>
+    EnemyDeathFourFireballsAmidAsh,
+    /// <summary>An enemy's death: four glowing embers 62 pixels apart.</summary>
+    EnemyDeathFourEmbersApart62,
+    /// <summary>An enemy's death: four glowing embers 70 pixels apart.</summary>
+    EnemyDeathFourEmbersApart70,
+    /// <summary>An enemy's death: four glowing embers 76 pixels apart.</summary>
+    EnemyDeathFourEmbersApart76,
+    /// <summary>An enemy's death: four glowing embers 80 pixels apart.</summary>
+    EnemyDeathFourEmbersApart80,
+    /// <summary>An enemy's death: four flecks of ash 86 pixels apart.</summary>
+    EnemyDeathFourAshApart86,
+    /// <summary>An enemy's death: four flecks of ash 94 pixels apart.</summary>
+    EnemyDeathFourAshApart94,
+    /// <summary>An enemy's death: four flecks of ash 98 pixels apart.</summary>
+    EnemyDeathFourAshApart98,
+    /// <summary>An enemy's death: four flecks of ash 106 pixels apart.</summary>
+    EnemyDeathFourAshApart106,
+    /// <summary>An enemy's death: four flecks of ash 118 pixels apart.</summary>
+    EnemyDeathFourAshApart118,
+    /// <summary>An enemy's death: four flecks of ash 130 pixels apart.</summary>
+    EnemyDeathFourAshApart130,
+    /// <summary>A falling spark: an upright cross.</summary>
+    FallingSparkUpright,
+    /// <summary>A falling spark: a diagonal cross.</summary>
+    FallingSparkDiagonal,
+    /// <summary>A falling spark: a small upright cross.</summary>
+    FallingSparkUprightSmall,
+    /// <summary>A falling spark: an upright cross: the picture of FallingSparkUpright, as a frame of its own.</summary>
+    FallingSparkUprightTwin,
+    /// <summary>A falling spark: nothing; it draws no picture.</summary>
+    FallingSparkBlank,
+    /// <summary>A falling spark: an upright cross: the picture of FallingSparkUpright, as a frame of its own.</summary>
+    FallingSparkUprightTwinB,
+    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
+    FallingSparkBlankTwin,
+    /// <summary>A falling spark: a diagonal cross: the picture of FallingSparkDiagonal, as a frame of its own.</summary>
+    FallingSparkDiagonalTwin,
+    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
+    FallingSparkBlankTwinB,
+    /// <summary>A falling spark: a diagonal cross: the picture of FallingSparkDiagonal, as a frame of its own.</summary>
+    FallingSparkDiagonalTwinB,
+    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
+    FallingSparkBlankTwinC,
+    /// <summary>A falling spark: a small upright cross: the picture of FallingSparkUprightSmall, as a frame of its own.</summary>
+    FallingSparkUprightSmallTwin,
+    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
+    FallingSparkBlankTwinD,
+    /// <summary>A falling spark: a small upright cross: the picture of FallingSparkUprightSmall, as a frame of its own.</summary>
+    FallingSparkUprightSmallTwinB,
+    /// <summary>The Ceres elevator pad: unlit.</summary>
+    CeresElevatorPadUnlit,
+    /// <summary>The Ceres elevator pad: lit.</summary>
+    CeresElevatorPadLit,
     /// <summary>The Ceres elevator platform, one composed picture.</summary>
     CeresElevatorPlatform,
 }

@@ -148,16 +148,16 @@ internal sealed class Walk
     /// </summary>
     public static readonly string[] ExcludedProjectileFrames =
     [
-        "Blank", "EnemyDeathRespawnTail", "EnemyDeathBigExplosion", "EnemyDeathMiniKraidExplosion", "FallingSparkHitFloorSecond", "FallingSparkHitFloorFourth",
-        "FallingSparkHitFloorSixth", "FallingSparkHitFloorEighth", "FallingSparkHitFloorTenth", "PhantoonRainImpactFifth", "PhantoonCasualFallingFourth", "PhantoonCasualFallingSixth",
-        "TorizoDroolFourFrameDelay", "TorizoDroolTwoFrameDelay", "GoldenTorizoEyeBeamFloorImpactLoopFirst", "TourianStatueEyeGlowTenth", "BotwoonHiddenUp",
+        "Blank", "EnemyDeathBlank", "EnemyDeathBlankTwin", "EnemyDeathBlankTwinB", "FallingSparkBlank", "FallingSparkBlankTwin",
+        "FallingSparkBlankTwinB", "FallingSparkBlankTwinC", "FallingSparkBlankTwinD", "PhantoonFlameBlank", "PhantoonFlameBlankTwin", "PhantoonFlameBlankTwinB",
+        "TorizoDroolBlank", "TorizoDroolBlankTwin", "GoldenTorizoEyeBeamBlank", "TourianStatueEyeGlowBlank", "BotwoonBlank",
     ];
 
     /// <summary>
     /// RoomEffectActorKind members that are Samus's weapon effects and on no enemy sheet (#1713): the burst her hit shows
     /// at an enemy it hurts, which her projectile sheets picture in her beams' colouring.
     /// </summary>
-    public static readonly string[] ExcludedEffectActors = ["EnemyHit"];
+    public static readonly string[] ExcludedEffectActors = ["HitBurst"];
 
 
     private readonly CoreModel _model;

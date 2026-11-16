@@ -413,7 +413,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
         internal bool ResolveRidleySamusContact(SamusState samus) =>
-            self.CeresRidleyBehavior.Hits.ResolveRidleyBodySamusContact(samus) ||
+            self.CeresRidleyBehavior.Hits.ResolveRidleyBodySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew()) ||
             self.RidleyTail.ResolveRidleyTailSamusContact(samus);
     }
 }

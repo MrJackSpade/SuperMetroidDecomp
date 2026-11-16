@@ -104,7 +104,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            Enemies.Drawing.DrawAsOam(oam, new(0, 0));
+            Enemies.Drawing.DrawAsOam(oam, new(0, 0), Samus);
             Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
@@ -113,7 +113,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal void DrawInto(SpriteFrameBuffer frame)
         {
             Enemies.Drawing.Advance(new(0, 0));
-            Enemies.Drawing.Draw(frame, new(0, 0));
+            Enemies.Drawing.Draw(frame, new(0, 0), Samus);
             Enemies.EffectActors.DrawRoomEffectActors(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);

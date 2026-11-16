@@ -157,7 +157,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
         // Definition damage is zero: contact still installs the common invincibility and knockback, while the steam's
         // definition takes no damage from any weapon or contact, so the Screw Attack or the Speed Booster cannot destroy it.
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context);
     }
 
     /// <summary>The reaction of the plume rectangle the frame shown has, when the probe overlaps it.</summary>

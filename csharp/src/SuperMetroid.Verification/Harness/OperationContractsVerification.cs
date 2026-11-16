@@ -30,9 +30,9 @@ internal static class OperationContractsVerification
         // Main AI's narrow frame is the enemy frame plus the counters the pass resolved once.
         AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(ClockedEnemyAiFrame)), "the pass's clocked frame satisfies main AI's frame");
         AssertTrue(MetadataShape.Properties(typeof(IEnemyAiFrame), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public).Select(property => property.Name).Order(StringComparer.Ordinal).SequenceEqual(
-            ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "Samus", "SamusProjectiles",
+            ["Camera", "Clock", "ControllerInput", "Level", "NewlyPressedControllerInput", "PseudoScrew", "Samus", "SamusProjectiles",
              "SharedProjectiles", "TurningFloor"]),
-            "main AI's frame exposes only the nine values main AI reads");
+            "main AI's frame exposes only the ten values main AI reads");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(EnemyLifecycle), nameof(EnemyLifecycle.RunMainAi), shared)[1],
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(GrappleBehavior), nameof(GrappleBehavior.RunCommonGrappleAi), instance)[1],

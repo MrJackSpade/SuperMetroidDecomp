@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -48,7 +49,7 @@ internal sealed class DraygonDeath
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
-                RoomEffectActorKind.DraygonSpiralFoam,
+                RoomEffectActorKind.DraygonFoam,
                 graphics: default);
         }
 
@@ -101,7 +102,8 @@ internal sealed class DraygonDeath
     /// <summary>Sinks the body past the room floor, then persists boss defeat and requests its drop.</summary>
     internal void SinkDraygonBelowTheRoom(
         DraygonEnemyState state,
-        int frameCounter)
+        int frameCounter,
+        SamusState samus)
     {
         SpawnDyingDraygonSmoke(frameCounter);
         MoveDraygonDeathEvirs(state);
@@ -120,7 +122,8 @@ internal sealed class DraygonDeath
             xBase: 128,
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
-            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
+            samus: samus);
         // The body is deleted, and the eye takes the body's properties.
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
         state.Eye.Contact = body.Contact;
@@ -142,7 +145,7 @@ internal sealed class DraygonDeath
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = new(DraygonRandomDefinitions.DeathSmokeX.Of(random) + 192, DraygonRandomDefinitions.DeathSmokeY.Of(random) + 400);
-        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.DustCloud, graphics: default);
+        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: default);
     }
 
     /// <summary>Ends every room effect actor and spawns six burial Evirs, each carrying the definition that moves it.</summary>
@@ -189,8 +192,8 @@ internal sealed class DraygonDeath
         {
             RoomEffectActor sprite = evir.Sprite;
             if (!sprite.IsActive || sprite.Kind is not (
-                    RoomEffectActorKind.DraygonIntroEvir or
-                    RoomEffectActorKind.DraygonDeathEvirFacingRight))
+                    RoomEffectActorKind.EvirFacingLeft or
+                    RoomEffectActorKind.EvirFacingRight))
             {
                 throw new InvalidDataException(
                     $"Draygon burial movement expected the burial Evir that started at {evir.Definition.Start} to be live.");

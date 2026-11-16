@@ -8,7 +8,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
 /// <summary>Checks every spawned room sprite-object kind's typed program against its native bank-$B4 list.</summary>
-internal static class RoomEffectActorDefinitionsVerification
+internal static class RoomEffectActorKindsVerification
 {
     /// <summary>The most updates each kind runs, well past every program's last change; a holding program stops earlier.</summary>
     private const int UpdatesPerKind = 0x8000 + 64;
@@ -18,13 +18,13 @@ internal static class RoomEffectActorDefinitionsVerification
     /// list ends or holds; a held list shows its frame for good, which the object's hold reproduces without the native
     /// list's countdown reload.
     /// </summary>
-    internal static void VerifyRoomEffectActorDefinitions(CartridgeImportAddressSpace rom)
+    internal static void VerifyRoomEffectActorKinds(CartridgeImportAddressSpace rom)
     {
         int kinds = 0, updates = 0;
-        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>().Distinct())
+        foreach (RoomEffectActorKind kind in Enum.GetValues<RoomEffectActorKind>())
         {
             ushort entry = RoomEffectActorNativeLists.Entry(rom, RoomEffectActorNativeWords.Kinds.Word(kind));
-            AssertEqual(entry, RoomEffectActorDefinitions.InstructionPointer(kind), $"room sprite object {kind} entry");
+            AssertEqual(entry, RoomEffectActorProgramAddresses.Entries[kind], $"room sprite object {kind} entry");
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEffectActor slot = enemies.EffectActors.SpawnRoomEffectActor(new(0x1000, 0x2000), kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertEqual(kind, slot.Kind, $"room sprite object {kind} identity");
@@ -51,9 +51,9 @@ internal static class RoomEffectActorDefinitionsVerification
 
     /// <summary>Dispatches the cartridge-backed room sprite-object verification command.</summary>
     [VerificationCommand("--room-sprite-object-definitions")]
-    internal static int RoomEffectActorDefinitionsCommand()
+    internal static int RoomEffectActorKindsCommand()
     {
-        Suite(nameof(VerifyRoomEffectActorDefinitions), () => VerifyRoomEffectActorDefinitions(
+        Suite(nameof(VerifyRoomEffectActorKinds), () => VerifyRoomEffectActorKinds(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }

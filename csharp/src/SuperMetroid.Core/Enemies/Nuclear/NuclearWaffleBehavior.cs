@@ -34,36 +34,39 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Nuclear Waffle.</summary>
     internal void InitializeNuclearWaffle(RoomEnemyPlace place)
     {
-        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting);
-        place.SetSpeciesState(state);
-
-        state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
-
         NuclearWaffleSpawnSettings settings = place.SpawnSettings<NuclearWaffleSpawnSettings>();
-        state.OrbitRadius = settings.OrbitRadius;
-        state.WaitingTimerReset = settings.WaitTime;
-        state.WaitingTimer = state.WaitingTimerReset;
-
         NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(settings.Direction);
-        state.SweepsForward = settings.Direction == NuclearWaffleSweepDirection.Forward;
-        state.SweepStartAngle = sweep.StartAngle;
-        state.SweepAngle = sweep.StartAngle;
-        state.SweepEndAngle = sweep.EndAngle;
-        state.SegmentSpacing = sweep.SegmentSpacing;
-        state.InterleavedSegmentOffset = sweep.InterleavedSegmentOffset;
-        state.RisingTurnThreshold = sweep.RisingTurnThreshold;
-        state.FallingTurnThreshold = sweep.FallingTurnThreshold;
+        bool sweepsForward = settings.Direction == NuclearWaffleSweepDirection.Forward;
 
-        // A backward sweep turns at the placement's angular speed, negated.
-        state.AngularSpeed = state.SweepsForward ? settings.AngularSpeed : -settings.AngularSpeed;
+        // The head starts on the orbit at the sweep's start angle around the placement, and every link spawns there.
+        Position16<RoomPixels> origin = place.Position.Whole;
+        place.Position = place.Position.WithWhole(NuclearWaffleOrbitPoint(origin, settings.OrbitRadius, sweep.StartAngle));
+        Position16<RoomPixels> initialHead = place.Position.Whole;
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(place);
 
-        state.Origin = place.Position.Whole;
-        PositionNuclearWaffleHead(place, state, state.SweepStartAngle);
-        state.InitialHead = place.Position.Whole;
-        state.Graphics = SpriteGraphics.SpawnedBy(place);
-
-        SpawnNuclearWaffleProjectileSegments(place, state);
-        SpawnNuclearWaffleSpriteSegments(place, state);
+        var state = new NuclearWaffleEnemyState(NuclearWaffleAction.Waiting)
+        {
+            ProjectileLinks = SpawnNuclearWaffleProjectileLinks(place, initialHead, graphics),
+            SpriteLinks = SpawnNuclearWaffleSpriteLinks(place, graphics),
+            OrbitRadius = settings.OrbitRadius,
+            WaitingTimerReset = settings.WaitTime,
+            WaitingTimer = settings.WaitTime,
+            SweepsForward = sweepsForward,
+            SweepStartAngle = sweep.StartAngle,
+            SweepAngle = sweep.StartAngle,
+            SweepEndAngle = sweep.EndAngle,
+            SegmentSpacing = sweep.SegmentSpacing,
+            InterleavedSegmentOffset = sweep.InterleavedSegmentOffset,
+            RisingTurnThreshold = sweep.RisingTurnThreshold,
+            FallingTurnThreshold = sweep.FallingTurnThreshold,
+            // A backward sweep turns at the placement's angular speed, negated.
+            AngularSpeed = sweepsForward ? settings.AngularSpeed : -settings.AngularSpeed,
+            Origin = origin,
+            InitialHead = initialHead,
+            Graphics = graphics,
+        };
+        place.SetSpeciesState(state);
+        state.Playback = EnemyAnimationPlayback.Start(place, NuclearWaffleAnimations.StartingWith(NuclearWaffleSegment.BodyLoop));
     }
 
     /// <summary>Runs the Nuclear Waffle's main AI.</summary>
@@ -96,9 +99,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WaitingTimer = state.WaitingTimerReset;
         state.SweepAngle = state.SweepStartAngle;
         state.Action = NuclearWaffleAction.Sweeping;
-        state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;
-        Array.Clear(state.ProjectileOrientationStates);
-        Array.Clear(state.SpriteOrientationStates);
+        state.RestartTurns();
         place.Processing = place.Processing.With(EnemyProcessing.OffScreen);
     }
 
@@ -130,14 +131,16 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Processing = place.Processing.Without(EnemyProcessing.OffScreen);
     }
 
-    /// <summary>Allocates the four damaging projectile links in association order.</summary>
-    private void SpawnNuclearWaffleProjectileSegments(
+    /// <summary>Allocates the four damaging projectile links in association order, each at the head's starting point.</summary>
+    private NuclearWaffleLink<EnemyProjectile>[] SpawnNuclearWaffleProjectileLinks(
         RoomEnemyPlace owner,
-        NuclearWaffleEnemyState state)
+        Position16<RoomPixels> initialHead,
+        SpriteGraphics graphics)
     {
         // Each of the four links is spawned for its own place along the waffle's arm, in the order the update later
         // walks them from the last.
-        for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
+        var links = new NuclearWaffleLink<EnemyProjectile>[NuclearWaffleDefinitions.ProjectileLinks];
+        for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
             EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();
             if (segment is null)
@@ -152,29 +155,32 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
                 EnemyProjectileBehavior.Still,
-                state.Graphics);
+                graphics);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial));
-            segment.Position = owner.Position.WithWhole(state.InitialHead);
+            segment.Position = owner.Position.WithWhole(initialHead);
             // The initializer makes these four links indestructible duds. Their
             // shot-blocking property admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot animation.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
-            state.ProjectileSegments[segmentIndex] = segment;
+            links[segmentIndex] = new NuclearWaffleLink<EnemyProjectile>(segment);
         }
+        return links;
     }
 
-    /// <summary>Allocates the noncolliding sprite links that interleave with projectile links.</summary>
-    private void SpawnNuclearWaffleSpriteSegments(
+    /// <summary>Allocates the noncolliding sprite links that interleave with projectile links, each at the head.</summary>
+    private NuclearWaffleLink<RoomEffectActor>[] SpawnNuclearWaffleSpriteLinks(
         RoomEnemyPlace place,
-        NuclearWaffleEnemyState state)
+        SpriteGraphics graphics)
     {
-        for (int segmentIndex = 0; segmentIndex < state.SpriteSegments.Length; segmentIndex++)
+        var links = new NuclearWaffleLink<RoomEffectActor>[NuclearWaffleDefinitions.SpriteLinks];
+        for (int segmentIndex = 0; segmentIndex < links.Length; segmentIndex++)
         {
-            state.SpriteSegments[segmentIndex] = _effectActors.SpawnRoomEffectActor(
+            links[segmentIndex] = new NuclearWaffleLink<RoomEffectActor>(_effectActors.SpawnRoomEffectActor(
                 place.Position.Whole,
                 RoomEffectActorKind.NuclearWaffleBody,
-                state.Graphics);
+                graphics));
         }
+        return links;
     }
 
     /// <summary>Runs the projectile-link loop.</summary>
@@ -182,19 +188,18 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         NuclearWaffleSweepAngle angle = state.CurrentAngle.TurnedBySteps(state.InterleavedSegmentOffset);
         bool finished = false;
-        for (int index = 0; index < state.ProjectileSegments.Length; index++)
+        foreach (NuclearWaffleLink<EnemyProjectile> link in state.ProjectileLinks)
         {
             angle = angle.TurnedBySteps(-state.SegmentSpacing);
-            EnemyProjectile segment = state.ProjectileSegments[index]
-                ?? throw new InvalidOperationException("Nuclear Waffle projectile link was not allocated.");
+            EnemyProjectile segment = link.Actor;
             NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
-            if (orientation.State != state.ProjectileOrientationStates[index])
+            if (orientation.State != link.TurnState)
             {
                 SpawnNuclearWaffleTurnEffects(
                     segment.Position.Whole,
                     state.Graphics,
                     orientation);
-                state.ProjectileOrientationStates[index] = orientation.State;
+                link.TurnState = orientation.State;
             }
 
             (NuclearWaffleSweepAngle clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
@@ -212,19 +217,18 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state)
     {
         NuclearWaffleSweepAngle angle = state.CurrentAngle;
-        for (int index = 0; index < state.SpriteSegments.Length; index++)
+        foreach (NuclearWaffleLink<RoomEffectActor> link in state.SpriteLinks)
         {
             angle = angle.TurnedBySteps(-state.SegmentSpacing);
-            RoomEffectActor segment = state.SpriteSegments[index]
-                ?? throw new InvalidOperationException("Nuclear Waffle effect-actor link was not allocated.");
+            RoomEffectActor segment = link.Actor;
             NuclearWaffleOrientation orientation = GetNuclearWaffleOrientation(state, angle);
-            if (orientation.State != state.SpriteOrientationStates[index])
+            if (orientation.State != link.TurnState)
             {
                 SpawnNuclearWaffleTurnEffects(
                     segment.Position.Whole,
                     state.Graphics,
                     orientation);
-                state.SpriteOrientationStates[index] = orientation.State;
+                link.TurnState = orientation.State;
             }
 
             (NuclearWaffleSweepAngle clampedAngle, _) = ClampNuclearWaffleAngle(state, angle);
@@ -287,13 +291,13 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _ = _effectActors.SpawnRoomEffectActor(
             position,
-            RoomEffectActorKind.NuclearWaffleTurnOverlay,
+            RoomEffectActorKind.NuclearWaffleSplash,
             graphics);
         _ = _effectActors.SpawnRoomEffectActor(
             position,
             orientation.Turn == RotationDirection.Counterclockwise
-                ? RoomEffectActorKind.NuclearWaffleTurnCounterClockwise
-                : RoomEffectActorKind.NuclearWaffleTurnClockwise,
+                ? RoomEffectActorKind.NuclearWaffleLeftExplosion
+                : RoomEffectActorKind.NuclearWaffleRightExplosion,
             graphics);
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.
@@ -315,7 +319,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// angle's direction within one turn.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, NuclearWaffleSweepAngle angle) =>
-        state.Origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), state.OrbitRadius);
+        NuclearWaffleOrbitPoint(state.Origin, state.OrbitRadius, angle);
+
+    /// <summary>
+    /// The whole-pixel point at <paramref name="angle"/> on the orbit of <paramref name="radius"/> around
+    /// <paramref name="origin"/>, wrapping at sixteen bits.
+    /// </summary>
+    private static Position16<RoomPixels> NuclearWaffleOrbitPoint(Position16<RoomPixels> origin, int radius, NuclearWaffleSweepAngle angle) =>
+        origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), radius);
 
     /// <summary>Advances the sweep angle by the angular speed, carrying from its fraction.</summary>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state) =>

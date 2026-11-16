@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonPresentation
 {
-    /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
 
 

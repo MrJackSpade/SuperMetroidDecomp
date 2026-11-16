@@ -439,12 +439,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(place.Position.X.Whole - SpacePirateMotionDefinitions.NinjaLandingDustSpread),
                 CoordinateAxis.Wrap(place.Position.Y.Whole + SpacePirateMotionDefinitions.NinjaLandingDustDrop)),
-            RoomEffectActorKind.NinjaPirateLandingDust,
+            RoomEffectActorKind.RisingDustPuff,
             graphics);
         _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(place.Position.X.Whole + SpacePirateMotionDefinitions.NinjaLandingDustSpread),
                 CoordinateAxis.Wrap(place.Position.Y.Whole + SpacePirateMotionDefinitions.NinjaLandingDustDrop)),
-            RoomEffectActorKind.NinjaPirateLandingDust,
+            RoomEffectActorKind.RisingDustPuff,
             graphics);
     }
 

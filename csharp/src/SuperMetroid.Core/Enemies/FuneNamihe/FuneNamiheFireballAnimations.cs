@@ -16,15 +16,15 @@ internal static class FuneNamiheFireballAnimations
     {
         [P.Left] =
         [
-            Show(EnemyProjectileFrameId.FuneNamiheFireballLeftFirst, 5),
-            Show(EnemyProjectileFrameId.FuneNamiheFireballLeftSecond, 5),
-            Show(EnemyProjectileFrameId.FuneNamiheFireballLeftThird, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballLeftTrailing, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballLeftRound, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballLeftDissolving, 5),
         ],
         [P.Right] =
         [
-            Show(EnemyProjectileFrameId.FuneNamiheFireballRightFirst, 5),
-            Show(EnemyProjectileFrameId.FuneNamiheFireballRightSecond, 5),
-            Show(EnemyProjectileFrameId.FuneNamiheFireballRightThird, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballRightTrailing, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballRightRound, 5),
+            Show(EnemyProjectileFrameId.FuneNamiheFireballRightDissolving, 5),
         ],
     });
 

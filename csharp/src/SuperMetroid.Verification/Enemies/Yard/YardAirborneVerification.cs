@@ -127,7 +127,7 @@ internal static class YardAirborneVerification
         state.Behavior = YardBehavior.NormalCrawling;
         samus.Position = samus.Position.WithWhole(actor.Position.Whole);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
-        AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LoadedLevelData, actor),
+        AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, actor),
             "the touch reaches the loaded room's Yard");
         AssertEqual(YardBehavior.Kicked, state.Behavior, "the touch kicks the Yard");
         AssertEqual(measured, state.AirborneVelocity.X, "the kicked Yard flies right at the camera's measure, fraction and all");

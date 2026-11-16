@@ -225,7 +225,7 @@ using static SuperMetroid.Verification.Enemies.Ripper.RipperBehaviorVerification
 using static SuperMetroid.Verification.Fx.RoomPaletteFxDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Fx.RoomShakeDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorDefinitionsVerification;
+using static SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorKindsVerification;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusArmCannonDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Drawing.SamusAtmosphericAnimationDefinitionsVerification;
@@ -537,7 +537,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEnemyDeathExplosionDefinitions), () => VerifyEnemyDeathExplosionDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyEnemyProjectileDefinitions), () => VerifyEnemyProjectileDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyRoomPaletteFxDefinitions), () => VerifyRoomPaletteFxDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyRoomEffectActorDefinitions), () => VerifyRoomEffectActorDefinitions(LoadRepositoryRom())),
+        new(nameof(VerifyRoomEffectActorKinds), () => VerifyRoomEffectActorKinds(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamDefinitions), () => VerifyCeresSteamDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresSteamAnimations), () => VerifyCeresSteamAnimations(LoadRepositoryRom())),
         new(nameof(SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability), () => SuperMetroid.Verification.Areas.Ceres.CeresSteamInvulnerabilityVerification.VerifyCeresSteamInvulnerability()),
@@ -679,7 +679,7 @@ internal static class EnemyTrigonometryVerification
         var fixedCosine = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleCosine(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var fixedNegative = new Func<ushort, ushort, SignedSixteenSixteen>((angle, radius) => EnemyMath.CircleNegativeSine(new TrigonometryAngle(unchecked((byte)angle)), radius));
         var sbugSigned = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateSignedSbugComponent(new TrigonometryAngle(angle), speed, TrigonometryAngle.Wrapped(phase)));
-        var sbugUnsigned = new Func<byte, byte, int, UnsignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateUnsignedSbugMagnitude(new TrigonometryAngle(angle), speed, TrigonometryAngle.Wrapped(phase)));
+        var sbugForward = new Func<byte, byte, int, SignedSixteenSixteen>((angle, speed, phase) => SbugBehavior.CalculateForwardSbugComponent(new TrigonometryAngle(angle), speed, TrigonometryAngle.Wrapped(phase)));
         var unsigned = new Func<ushort, ushort, ushort, int>((angle, magnitude, offset) => unchecked((int)EnemyMath.UnsignedSineSpeed(new TrigonometryAngle(unchecked((byte)angle)).TurnedBySteps(offset), magnitude).RawValue));
 
         int ExpectedPixel(int angle, int radius)
@@ -710,10 +710,10 @@ internal static class EnemyTrigonometryVerification
                     ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SixteenSixteen.FromEightEight(shiftedProduct) : -SixteenSixteen.FromEightEight(shiftedProduct)));
                     var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
                     var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
-                    var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
-                    uint magnitude = words[shiftedAngle & 127] * (uint)radius;
+                    var forwardActual = sbugForward((byte)angle, (byte)radius, phase);
+                    int magnitude = words[shiftedAngle & 127] * radius;
                     if (fixedActual != SignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SignedSixteenSixteen.FromParts(whole, fraction) ||
-                        unsignedActual.RawValue != magnitude)
+                        forwardActual.RawValue != (shiftedAngle < 128 ? magnitude : -magnitude))
                         throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");
                 }
             }

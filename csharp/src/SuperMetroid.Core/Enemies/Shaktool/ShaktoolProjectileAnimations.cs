@@ -16,31 +16,31 @@ internal static class ShaktoolProjectileAnimations
     {
         [P.Front] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrontFirst, 4),
-            Show(EnemyProjectileFrameId.ShaktoolFrontSecond, 4),
+            Show(EnemyProjectileFrameId.ShaktoolCircleFlareGlint, 4),
+            Show(EnemyProjectileFrameId.ShaktoolCircleFlareGlow, 4),
         ],
         [P.FrontLoop] =
         [
-            Hold(EnemyProjectileFrameId.ShaktoolFrontLoop),
+            Hold(EnemyProjectileFrameId.ShaktoolCircleFlareBall),
         ],
         [P.Middle] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolMiddleFirst, 6),
+            Show(EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwin, 6),
             Cue(ShaktoolCircleCue.StartTrailing),
-            Show(EnemyProjectileFrameId.ShaktoolMiddleSecond, 4),
+            Show(EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwinB, 4),
         ],
         [P.MiddleLoop] =
         [
-            Hold(EnemyProjectileFrameId.ShaktoolMiddleLoop),
+            Hold(EnemyProjectileFrameId.ShaktoolCircleFlareGlowTwin),
         ],
         [P.Back] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolBack, 10),
+            Show(EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwinC, 10),
             Cue(ShaktoolCircleCue.StartTrailing),
         ],
         [P.BackLoop] =
         [
-            Hold(EnemyProjectileFrameId.ShaktoolBackLoop),
+            Hold(EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwinD),
         ],
     });
 

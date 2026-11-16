@@ -29,8 +29,6 @@ internal sealed class NorfairRidleyCombat
     private readonly RidleyProjectiles _ridleyProjectiles;
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     private readonly EnemyRoomFx _roomFx;
-    /// <summary>The enemy pass's view of the frame, whose power bomb explosion Ridley dodges.</summary>
-    private readonly EnemyFrameContext _frameContext;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -43,7 +41,6 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail = dependencies.RidleyTail;
         _ridleyProjectiles = dependencies.RidleyProjectiles;
         _roomFx = dependencies.RoomFx;
-        _frameContext = dependencies.FrameContext;
     }
 
     /// <summary>
@@ -360,14 +357,19 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Lunges toward a grabbable Samus, ending on passage, boundary, height, or claw contact.</summary>
-    internal void TickNorfairRidleyGrabApproach(
+    /// <param name="place">Ridley's body.</param>
+    /// <param name="state">Ridley's state.</param>
+    /// <param name="samus">Samus, whom the lunge grabs.</param>
+    /// <param name="powerBomb">The power bomb explosion of the pass's bombs, which a missed lunge dodges.</param>
+    internal static void TickNorfairRidleyGrabApproach(
         RoomEnemyPlace place,
         RidleyEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        SamusPowerBombExplosionState powerBomb)
     {
         if (!SamusMovementUsesRidleyGrab(samus))
         {
-            HandleNorfairRidleyMissedLunge(place, state);
+            HandleNorfairRidleyMissedLunge(place, state, powerBomb);
             return;
         }
 
@@ -379,7 +381,7 @@ internal sealed class NorfairRidleyCombat
             (passedSamus && CoordinateAxis.Difference(Math.Abs(deltaX), RidleyLungeDefinitions.PassDistance) >= 0) ||
             CoordinateAxis.AsSigned(place.Position.Y.Whole + RidleyLungeDefinitions.ClawHeight - samus.Position.Y.Whole) >= 0)
         {
-            HandleNorfairRidleyMissedLunge(place, state);
+            HandleNorfairRidleyMissedLunge(place, state, powerBomb);
             return;
         }
 
@@ -565,7 +567,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Handles a missed lunge: death has priority over power-bomb dodge and ordinary retreat.</summary>
-    private void HandleNorfairRidleyMissedLunge(RoomEnemyPlace place, RidleyEnemyState state)
+    private static void HandleNorfairRidleyMissedLunge(RoomEnemyPlace place, RidleyEnemyState state, SamusPowerBombExplosionState powerBomb)
     {
         if (state.ZeroHealthLungeCount >= RidleyLungeDefinitions.DeathLungeLimit)
         {
@@ -573,10 +575,10 @@ internal sealed class NorfairRidleyCombat
             BeginNorfairRidleyDeathRoar(place, state);
             return;
         }
-        if (_frameContext.PowerBombExplosion is { IsArmed: true })
+        if (powerBomb.IsArmed)
         {
             state.Phase = RidleyPhase.NorfairPowerBombDodge;
-            TickNorfairRidleyPowerBombDodge(place, state);
+            TickNorfairRidleyPowerBombDodge(place, state, powerBomb);
             return;
         }
         state.Phase = RidleyPhase.NorfairHoverSetup;
@@ -584,9 +586,12 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Runs the power-bomb branch of missed-lunge recovery.</summary>
-    internal void TickNorfairRidleyPowerBombDodge(RoomEnemyPlace place, RidleyEnemyState state)
+    /// <param name="place">Ridley's body.</param>
+    /// <param name="state">Ridley's state.</param>
+    /// <param name="bomb">The power bomb explosion of the pass's bombs, which Ridley dodges while it is armed.</param>
+    internal static void TickNorfairRidleyPowerBombDodge(RoomEnemyPlace place, RidleyEnemyState state, SamusPowerBombExplosionState bomb)
     {
-        if (_frameContext.PowerBombExplosion is not { IsArmed: true } bomb)
+        if (!bomb.IsArmed)
         {
             state.FightMode = RidleyFightMode.Fighting;
             state.Phase = state.GrabState == RidleyGrabState.Released

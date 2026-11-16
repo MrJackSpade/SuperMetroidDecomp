@@ -49,9 +49,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// </summary>
     private RoomEnemyPlace? _topAwaitingSaveAnswer;
 
-    /// <summary>Binds the frame, room, and place owners used by the ship's three-part actor.</summary>
-    internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyPlaces places, EnemyFrameResultBuilder frameResults)
+    /// <summary>The room's enemy presentation, which shows the takeoff look once the engines are readied.</summary>
+    private readonly EnemyPresentation _presentation;
+
+    /// <summary>Binds the frame, room, place and presentation owners used by the ship's three-part actor.</summary>
+    internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyPlaces places, EnemyFrameResultBuilder frameResults,
+        EnemyPresentation presentation)
     {
+        _presentation = presentation;
         _frameResults = frameResults;
         _audio = audio;
         _projectiles = projectiles;
@@ -483,7 +488,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).EngineReadyingElapsed++;
         if (State(top).EngineReadyingElapsed >= GunshipTakeoffDefinitions.EngineReadyingDuration)
         {
-            _room.Session.Looks.Show(GunshipTakeoffDefinitions.TakeoffLook);
+            _presentation.ShowLook(GunshipTakeoffDefinitions.TakeoffLook);
             State(top).Phase = GunshipPhase.FireUpEngines;
             State(top).EngineReadyingElapsed = 0;
         }

@@ -996,6 +996,7 @@ internal sealed class RoomLoader
         {
             Session = _enemySession,
             Compatibility = compatibility,
+            Looks = scope.Looks,
             Definitions = CompiledRoomEnemyDefinitions.Instance,
             Services = areaServices,
             Area = room.Area,
@@ -1199,7 +1200,7 @@ internal sealed class RoomLoader
         if (RoomTurningFloors.ShowsShaftFloor(scope.Room.State.MainBehavior))
             return RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet);
         return scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, null,
-            new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, _enemySession.Looks), []);
+            new RoomAppearanceView(scope.Appearance, scope.ArtworkFrames, scope.Looks), []);
     }
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>

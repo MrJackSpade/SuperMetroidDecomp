@@ -168,7 +168,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             if (c.Enemy.Health != 0)
                 return;
             SkreeMetareeParticles.SpawnBurst(_projectiles, c.Enemy, SkreeParticleDefinitions.Burst);
-            _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, deathAnimation: EnemyDeathExplosion.Small);
+            _deathsAndDrops.StartGenericEnemyDeath(c.Enemy, EnemyDeathExplosion.Small, c.Samus);
         },
     };
 }

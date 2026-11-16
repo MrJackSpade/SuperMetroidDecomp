@@ -311,5 +311,5 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>
     internal void ReactToZebetiteTouch(EnemyTouchContext context) =>
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
 }

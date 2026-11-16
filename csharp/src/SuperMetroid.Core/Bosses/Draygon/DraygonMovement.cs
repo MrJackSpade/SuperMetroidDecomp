@@ -33,7 +33,7 @@ internal sealed class DraygonMovement
             return;
         _effectActors.SpawnRoomEffectActor(
             new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),
-            RoomEffectActorKind.DraygonBreathBubble,
+            RoomEffectActorKind.DraygonBreathBubbles,
             graphics: default);
     }
 

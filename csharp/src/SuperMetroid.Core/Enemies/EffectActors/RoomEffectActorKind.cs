@@ -1,56 +1,53 @@
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
-/// The room effect actor an owner spawns. Its values are arbitrary.
+/// A room effect actor, named for what it shows: each starts its own animation of
+/// <see cref="RoomEffectActorAnimations"/>, whatever spawns it. Its values are arbitrary.
 /// </summary>
 public enum RoomEffectActorKind
 {
-    /// <summary>Finite small explosion used by Spore Spawn, Draygon, and escape effects.</summary>
-    SporeSpawnDyingExplosion,
-    /// <summary>The same small explosion, as the generic enemy-death explosions spawn it.</summary>
-    SmallExplosion = SporeSpawnDyingExplosion,
-    /// <summary>Finite smoke the generic enemy-death explosions scatter.</summary>
+    /// <summary>A small explosion: a spark swelling into a fireball, a ring and scattering embers.</summary>
+    SmallExplosion,
+    /// <summary>Smoke rising and fading.</summary>
     Smoke,
-    /// <summary>Finite impact flash for shots rejected by enemies' collision responses.</summary>
-    EnemyProjectileDud,
-    /// <summary>Finite dust animation spawned at a Ninja Pirate's landing.</summary>
-    NinjaPirateLandingDust,
-    /// <summary>Small finite flash used as one of Botwoon's death-explosion variants.</summary>
-    BotwoonSmallExplosion,
-    /// <summary>Large finite explosion used by Botwoon's death sequence.</summary>
-    BotwoonLargeExplosion,
-    /// <summary>Finite cloud among the escape's explosions.</summary>
+    /// <summary>A dud shot's flash: a dot opening into a ring that thins and fades.</summary>
+    DudShot,
+    /// <summary>A puff of dust rising.</summary>
+    RisingDustPuff,
+    /// <summary>A small puff of smoke rising and fading.</summary>
+    SmokePuff,
+    /// <summary>A big explosion: a fireball opening into a wide ring that fades.</summary>
+    BigExplosion,
+    /// <summary>A big dust cloud's first half: a puff swelling until it billows.</summary>
     ShortBigDustCloud,
-    /// <summary>Finite cloud shared by impacts, burial smoke, and acid effects.</summary>
-    DustCloud,
-    /// <summary>The same big dust cloud, used for Crocomire's acid smoke.</summary>
-    CrocomireAcidSmoke = DustCloud,
-    /// <summary>Finite breath bubbles emitted during Draygon's flight.</summary>
-    DraygonBreathBubble,
-    /// <summary>Looping Nuclear Waffle body-segment art, positioned by the owning enemy.</summary>
+    /// <summary>A big dust cloud: a puff swelling, billowing, thinning and fading into wisps.</summary>
+    BigDustCloud,
+    /// <summary>Draygon's breath bubbles rising.</summary>
+    DraygonBreathBubbles,
+    /// <summary>A Nuclear Waffle body link turning round, looping, placed by the Nuclear Waffle that owns it.</summary>
     NuclearWaffleBody,
-    /// <summary>Finite right-turn burst selected for Nuclear Waffle turn variant zero.</summary>
-    NuclearWaffleTurnClockwise,
-    /// <summary>Finite left-turn burst selected for the other Nuclear Waffle turn variant.</summary>
-    NuclearWaffleTurnCounterClockwise,
-    /// <summary>Finite splash overlay spawned alongside the directional Nuclear Waffle turn burst.</summary>
-    NuclearWaffleTurnOverlay,
-    /// <summary>Finite afterimage left behind by a falling spark.</summary>
+    /// <summary>A Nuclear Waffle's explosion bursting to the right.</summary>
+    NuclearWaffleRightExplosion,
+    /// <summary>A Nuclear Waffle's explosion bursting to the left.</summary>
+    NuclearWaffleLeftExplosion,
+    /// <summary>A Nuclear Waffle's splash, which shows beside either explosion.</summary>
+    NuclearWaffleSplash,
+    /// <summary>A falling spark's fading afterimage.</summary>
     FallingSparkTrail,
-    /// <summary>Looping electrical outer-body art, allocated and repositioned by the Metroid owner.</summary>
+    /// <summary>A Metroid's electricity crackling round its body, looping after its first pass, placed by the Metroid.</summary>
     MetroidElectricity,
-    /// <summary>Looping shell layer paired with the Metroid's electrical effect actor.</summary>
+    /// <summary>A Metroid's shell, looping after its first pass, paired with its electricity.</summary>
     MetroidShell,
-    /// <summary>Held root art placed eight pixels above a Yapping Maw that reaches down.</summary>
-    YappingMawRootFacingDown,
-    /// <summary>Held root art placed eight pixels below a Yapping Maw that reaches up.</summary>
-    YappingMawRootFacingUp,
-    /// <summary>Looping left-facing Evir art used for both Draygon's opening dance and burial.</summary>
-    DraygonIntroEvir,
-    /// <summary>Looping right-facing Evir art moved by Draygon's burial sequence.</summary>
-    DraygonDeathEvirFacingRight,
-    /// <summary>Finite mouth-foam animation emitted during the carry spiral and fatal drift.</summary>
-    DraygonSpiralFoam,
-    /// <summary>Finite burst centred on an enemy a shot or bomb hurts while it is not frozen.</summary>
-    EnemyHit,
+    /// <summary>The base of a Yapping Maw that reaches down, held eight pixels above it.</summary>
+    YappingMawBaseFacingDown,
+    /// <summary>The base of a Yapping Maw that reaches up, held eight pixels below it.</summary>
+    YappingMawBaseFacingUp,
+    /// <summary>An Evir facing left, its legs cycling.</summary>
+    EvirFacingLeft,
+    /// <summary>An Evir facing right, its legs cycling.</summary>
+    EvirFacingRight,
+    /// <summary>Foam rising from Draygon's mouth.</summary>
+    DraygonFoam,
+    /// <summary>The hit burst on an enemy a shot or bomb hurts while it is not frozen.</summary>
+    HitBurst,
 }

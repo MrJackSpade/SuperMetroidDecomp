@@ -50,7 +50,7 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
-            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
             RipperBehavior.InitializeGrappleRipper(place);
@@ -61,7 +61,7 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
-            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), GrappleRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
             RipperBehavior.InitializeGrappleRipper(place);

@@ -293,7 +293,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }
         }
         // $86:D5F2 selects the second operand on this even frame; reflected X remains 128.
-        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, EnemyProjectileFrameId.NoobTubeShardDownOutwardFlyingMirrored, bus);
+        OamBuffer nativeShard = DrawReferenceProgramFrame(stock, EnemyProjectileFrameId.NoobTubeShardDownOutwardMirrored, bus);
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             NewEnemyProjectileVisualGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
@@ -538,10 +538,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static bool IsOnNoSheet(EnemyProjectileFrameId frame)
         {
             return SuperMetroid.Core.Enemies.Projectiles.Artwork.EnemyProjectileEmptyFrameDefinitions.EmptyFrames.Contains(frame)
-                || frame is EnemyProjectileFrameId.ShaktoolFrontFirst or EnemyProjectileFrameId.ShaktoolFrontSecond
-                    or EnemyProjectileFrameId.ShaktoolFrontLoop or EnemyProjectileFrameId.ShaktoolMiddleFirst
-                    or EnemyProjectileFrameId.ShaktoolMiddleSecond or EnemyProjectileFrameId.ShaktoolMiddleLoop
-                    or EnemyProjectileFrameId.ShaktoolBack or EnemyProjectileFrameId.ShaktoolBackLoop;
+                || frame is EnemyProjectileFrameId.ShaktoolCircleFlareGlint or EnemyProjectileFrameId.ShaktoolCircleFlareGlow
+                    or EnemyProjectileFrameId.ShaktoolCircleFlareBall or EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwin
+                    or EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwinB or EnemyProjectileFrameId.ShaktoolCircleFlareGlowTwin
+                    or EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwinC or EnemyProjectileFrameId.ShaktoolCircleFlareGlintTwinD;
         }
 
         static OamBuffer DrawReferenceProgramFrameWith(ushort operand, ISnesAddressSpace source, ushort word)

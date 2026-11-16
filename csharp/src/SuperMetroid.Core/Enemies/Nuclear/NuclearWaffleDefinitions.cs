@@ -3,6 +3,11 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// <summary>Compiled authored definitions for Puromi/Nuclear Waffle.</summary>
 internal static class NuclearWaffleDefinitions
 {
+    /// <summary>The persistent, damaging links of the waffle's body, each an enemy projectile (#2162).</summary>
+    internal const int ProjectileLinks = 4;
+
+    /// <summary>The persistent, cosmetic links interleaved with the projectile links, each an effect actor (#2162).</summary>
+    internal const int SpriteLinks = 3;
 
     /// <summary>The low thud a joint makes as it turns, queued at each turn but the silent falling one.</summary>
     internal static readonly SoundEffectId TurnSoundEffect = EnemySound.LowThud;

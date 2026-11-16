@@ -57,12 +57,12 @@ internal static class CrocomireAnimations
         {
             [CrocomireProjectileSegment.Mouth] =
             [
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthFirst, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthSecond, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthThird, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthFourth, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthFifth, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthSixth, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallSmall, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallMedium, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLarge, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLargest, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLargeTwin, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallMediumTwin, 3),
             ],
             [CrocomireProjectileSegment.BridgeFragment] =
                 [new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.HeldFrame(EnemyProjectileFrameId.CrocomireBridgeFragment)],
@@ -70,11 +70,11 @@ internal static class CrocomireAnimations
                 [new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.HeldFrame(EnemyProjectileFrameId.CrocomireSpikeWallPiece)],
             [CrocomireProjectileSegment.Shot] =
             [
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFirst, 4),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotSecond, 4),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotThird, 4),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFourth, 4),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFifth, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotSpark, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFlareBall, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFlareRingCored, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFlareRing, 4),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireShotFlareRingFading, 4),
                 new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Event(CrocomireProjectileCue.SpawnDrops),
                 new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.Event(CrocomireProjectileCue.Delete),
             ],

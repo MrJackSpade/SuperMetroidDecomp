@@ -44,7 +44,4 @@ internal sealed record RidleyBehaviorDependencies
     /// <summary>Room fx.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
 
-    /// <summary>The enemy pass's view of the frame, whose power bomb explosion Norfair Ridley dodges.</summary>
-    public required EnemyFrameContext FrameContext { get; init; }
-
 }

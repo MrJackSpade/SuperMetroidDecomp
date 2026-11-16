@@ -169,7 +169,7 @@ internal sealed class MotherBrainProjectiles
                     FlyMotherBrainOnionRing(projectile, context.Samus, context.Camera.X);
                     break;
                 case MotherBrainProjectileMotion.BombBouncing:
-                    BounceMotherBrainBomb(projectile, context.SamusBombs);
+                    BounceMotherBrainBomb(projectile, context.SamusBombs, context.Samus);
                     break;
                 case MotherBrainProjectileMotion.RainbowBeamCharging:
                     PinMotherBrainRainbowCharge(projectile);
@@ -265,11 +265,12 @@ internal sealed class MotherBrainProjectiles
         /// <summary>Moves the bomb.</summary>
         private void BounceMotherBrainBomb(
             EnemyProjectile bomb,
-            SamusBombProjectileSystem samusBombs)
+            SamusBombProjectileSystem samusBombs,
+            SamusState samus)
         {
             MotherBrainEnemyState state = dependencies.Encounter.MotherBrain ?? throw new InvalidOperationException(
                 "Mother Brain bomb ran without its multipart encounter state.");
-            if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs))
+            if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs, samus))
                 return;
 
             MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
@@ -300,7 +301,8 @@ internal sealed class MotherBrainProjectiles
         private bool TryDestroyMotherBrainBombWithSamusBomb(
             EnemyProjectile bomb,
             MotherBrainEnemyState state,
-            SamusBombProjectileSystem samusBombs)
+            SamusBombProjectileSystem samusBombs,
+            SamusState samus)
         {
             if (samusBombs.BombCounter == 0)
                 return false;
@@ -323,7 +325,8 @@ internal sealed class MotherBrainProjectiles
                 dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
-                    state.Head.DefinitionId);
+                    state.Head.DefinitionId,
+                    samus);
                 return true;
             }
 

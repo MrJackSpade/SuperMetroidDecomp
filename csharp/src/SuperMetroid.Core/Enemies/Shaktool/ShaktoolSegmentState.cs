@@ -29,10 +29,10 @@ public sealed class ShaktoolSegmentState
     /// </summary>
     public RotationAngle CurlProgress { get; internal set; }
     /// <summary>
-    /// The segment motion run by Shaktool's main AI; collision-response animations temporarily replace it with the idle
-    /// attack motion.
+    /// The segment motion run by Shaktool's main AI, its definition's from initialization; collision-response animations
+    /// temporarily replace it with the idle attack motion. A segment's state emptied by a kill does not move itself.
     /// </summary>
-    public ShaktoolSegmentMotion? Motion { get; internal set; }
+    public ShaktoolSegmentMotion Motion { get; internal set; } = ShaktoolSegmentMotion.Idle;
     /// <summary>The chain's reversal, straightening and orbit-direction flags, written to every segment together.</summary>
     internal ShaktoolMotionFlags MotionFlags { get; set; }
 

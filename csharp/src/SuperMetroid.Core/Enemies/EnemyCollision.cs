@@ -27,8 +27,6 @@ internal sealed class EnemyCollision
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Publishes hit-driven room shake requests.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Supplies the current enemy frame's timing and state to collision reactions.</summary>
-    private readonly EnemyFrameContext _frameContext;
     /// <summary>Connects collision outcomes to enemy-owned projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Defines enemy iteration order for the collision passes.</summary>
@@ -47,7 +45,6 @@ internal sealed class EnemyCollision
         _audio = dependencies.Audio;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _earthquake = dependencies.Earthquake;
-        _frameContext = dependencies.FrameContext;
         _projectiles = dependencies.Projectiles;
         _places = dependencies.Places;
     }
@@ -70,12 +67,14 @@ internal sealed class EnemyCollision
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass.</summary>
     /// <param name="samus">Live player state receiving the touch reaction.</param>
+    /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     /// <param name="controllerInput">Current held input used by touch responses.</param>
     /// <param name="level">Room terrain required by collision-aware touch responses.</param>
     /// <param name="onlyEnemy">The enemy the enemy pass is processing, or null for a standalone whole-list audit.</param>
     /// <param name="camera">The camera's position as the pass runs, which a reaction that starts a sound on screen reads; a standalone audit passes the room's top-left corner.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         GameplayAction controllerInput,
         RoomLevelData level,
         RoomEnemyPlace? onlyEnemy = null,
@@ -152,6 +151,7 @@ internal sealed class EnemyCollision
             touch.ReactToTouch(new EnemyTouchContext(
                 place,
                 samus,
+                pseudoScrew,
                 controllerInput,
                 level,
                 usesFrameHitboxes,
@@ -412,7 +412,8 @@ internal sealed class EnemyCollision
                         {
                             _deathsAndDrops.StartGenericEnemyDeath(
                                 enemy,
-                                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, projectileType, rule: ShotDeathAnimationRule.ByProjectile));
+                                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, projectileType, rule: ShotDeathAnimationRule.ByProjectile),
+                                samus);
                         }
                     }
                 }
@@ -562,7 +563,7 @@ internal sealed class EnemyCollision
                             ShowHitBurst(enemy);
                         }
                         if (hit != NormalBombHit.Dud && (reaction?.RunsGenericDeath ?? true))
-                            StartNormalBombDeathIfKilled(enemy);
+                            StartNormalBombDeathIfKilled(enemy, samus);
                         reaction?.AfterCommon?.Invoke(bombContext);
                     }
                 }
@@ -623,13 +624,14 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>The ordinary shot reaction's death tail after a bomb's damage: a killed enemy starts its death.</summary>
-    private void StartNormalBombDeathIfKilled(RoomEnemyPlace enemy)
+    private void StartNormalBombDeathIfKilled(RoomEnemyPlace enemy, SamusState samus)
     {
         if (enemy.Health != 0)
             return;
         _deathsAndDrops.StartGenericEnemyDeath(
             enemy,
-            EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, SamusBombProjectileSystem.NormalBombType));
+            EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, SamusBombProjectileSystem.NormalBombType),
+            samus);
     }
 
     /// <summary>
@@ -638,7 +640,7 @@ internal sealed class EnemyCollision
     /// drawn with the room's graphics, so it takes one of the room's effect-actor places as it spawns.
     /// </summary>
     private void ShowHitBurst(RoomEnemyPlace enemy) =>
-        _ = _effectActors.SpawnRoomEffectActor(enemy.Position.Whole, RoomEffectActorKind.EnemyHit, graphics: default);
+        _ = _effectActors.SpawnRoomEffectActor(enemy.Position.Whole, RoomEffectActorKind.HitBurst, graphics: default);
 
     /// <summary>What a normal bomb's common damage did to the enemy it reached.</summary>
     private enum NormalBombHit
@@ -735,7 +737,7 @@ internal sealed class EnemyCollision
                 if (reaction?.ReplacesGenericDeath is { } replaceDeath)
                     replaceDeath(context);
                 else
-                    _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
+                    _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, samus);
             }
 
             reaction?.AfterCommon?.Invoke(context);
@@ -921,13 +923,27 @@ internal sealed class EnemyCollision
         enemy.Entity?.Capabilities ?? EnemyCapabilities.None;
 
     /// <summary>
+    /// Handles the touch <paramref name="context"/> reached: the ordinary touch of its enemy by its Samus
+    /// (<see cref="ResolveNormalEnemyTouch(RoomEnemyPlace, SamusState, PseudoScrewCharge, TouchDeathAnimation)"/>).
+    /// </summary>
+    internal void ResolveNormalEnemyTouch(
+        EnemyTouchContext context,
+        TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play) =>
+        ResolveNormalEnemyTouch(context.Place, context.Samus, context.PseudoScrew, deathAnimation);
+
+    /// <summary>
     /// Handles Samus touching one already-overlapping ordinary actor. An ordinary touch, with no
     /// attacking contact, damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
     /// their own entries from the enemy's vulnerabilities and damage the actor.
     /// </summary>
+    /// <param name="enemy">The touched enemy.</param>
+    /// <param name="samus">Samus, who touched it.</param>
+    /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
+    /// <param name="deathAnimation">Whether a lethal touch starts the enemy's death here.</param>
     internal void ResolveNormalEnemyTouch(
         RoomEnemyPlace enemy,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play)
     {
         SamusBodyAttack bodyAttack = samus.HorizontalSpeed.BodyAttack;
@@ -957,10 +973,7 @@ internal sealed class EnemyCollision
             case SamusBodyAttack.PseudoScrew:
                 // The game consumes charge before checking vulnerability. Even immune
                 // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
-                SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
-                    ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
-                projectiles.Firing.ConsumePseudoScrewCharge(_frameContext.SamusColours
-                    ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires Samus's colours."), samus);
+                pseudoScrew.Spend(samus);
                 baseDamage = EnemyCollisionDefinitions.PseudoScrewContactDamage;
                 vulnerability = contact.PseudoScrew;
                 break;
@@ -991,7 +1004,7 @@ internal sealed class EnemyCollision
         if (deathAnimation == TouchDeathAnimation.Skip)
             return;
 
-        _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.SamusContact);
+        _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.SamusContact, samus);
     }
 
     /// <summary>Uses the strict radius test, excluding contact where either axis is only tangent.</summary>

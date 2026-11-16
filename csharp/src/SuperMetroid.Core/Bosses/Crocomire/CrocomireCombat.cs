@@ -108,7 +108,7 @@ internal sealed class CrocomireCombat
             switch (cue)
             {
                 case CrocomireProjectileCue.SpawnDrops:
-                    deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire);
+                    deathsAndDrops.SpawnEnemyDropFromDefinition(projectile.Position.Whole, EnemyDefinitionId.Crocomire, context.Samus);
                     return;
                 case CrocomireProjectileCue.Delete:
                     projectile.Delete();
@@ -214,7 +214,7 @@ internal sealed class CrocomireCombat
                 $"Crocomire has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(none)"}.");
         }
 
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context);
         // A claw's touch also pushes Samus back. The game latches the touch too, but only its unused claw attack
         // reads that latch, so it is not kept.
         if (context.HitboxTouch == CrocomireReactions.ClawTouch)

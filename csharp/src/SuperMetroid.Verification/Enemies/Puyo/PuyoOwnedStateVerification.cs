@@ -11,7 +11,7 @@ internal static class PuyoOwnedStateVerification
     /// <summary>
     /// Confirms a rising step landing on zero keeps rising, one that passes below zero restarts the fall at zero (the
     /// apex), a falling step that reaches $8000 restarts the fall at zero as the cartridge's sign test does, an
-    /// ordinary falling step accumulates, and a fresh Puyo has no airborne behaviour.
+    /// ordinary falling step accumulates.
     /// </summary>
     internal static void VerifyPuyoOwnedState()
     {
@@ -32,15 +32,6 @@ internal static class PuyoOwnedStateVerification
         hop.YSpeedCurvePlace = Place(0x7f00);
         hop.StepAirbornePlace(Place(0x00ff));
         AssertEqual(new VerifyPuyoOwnedStateCase(0x7fff, true), new VerifyPuyoOwnedStateCase(hop.YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark, hop.Falling), "a falling step to the last place before the sign bit keeps falling");
-
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Puyo, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.Puyo, 5);
-        PuyoBehavior.InitializePuyo(place);
-        PuyoEnemyState state = enemies.PuyoStates[0]
-            ?? throw new InvalidOperationException("The initialized Puyo has no state.");
-        AssertEqual(null, state.AirborneMovement, "a fresh Puyo has no airborne behaviour");
         Console.WriteLine("Puyo owned state: the apex and the overlong-fall restart match.");
     }
 

@@ -30,8 +30,8 @@ public sealed class PuyoEnemyState
     /// <summary>Whether the Puyo is grounded or airborne.</summary>
     public PuyoAction Action { get; internal set; }
 
-    /// <summary>The current hop's airborne behaviour.</summary>
-    public PuyoAirborneMovement? AirborneMovement { get; internal set; }
+    /// <summary>The current hop's airborne behaviour, chosen as each hop starts.</summary>
+    public PuyoAirborneMovement AirborneMovement { get; internal set; }
 
     /// <summary>
     /// The hop being made, whose definition drives the airborne motion; it is kept when a collision changes <see

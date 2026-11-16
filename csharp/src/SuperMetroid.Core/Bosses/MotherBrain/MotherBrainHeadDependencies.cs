@@ -20,11 +20,8 @@ internal sealed record MotherBrainHeadDependencies
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
-
-    /// <summary>Applies the encounter's damage and death/drop rules.</summary>
-    public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }

@@ -322,7 +322,7 @@ internal sealed class DraygonParts
 
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + 16)),
-            RoomEffectActorKind.DustCloud,
+            RoomEffectActorKind.BigDustCloud,
             graphics: default);
     }
 

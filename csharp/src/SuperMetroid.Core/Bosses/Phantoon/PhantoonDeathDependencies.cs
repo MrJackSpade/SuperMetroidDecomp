@@ -17,7 +17,7 @@ internal sealed record PhantoonDeathDependencies
     /// <summary>Applies body colours and the background changes.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
-    /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
 
     /// <summary>Handles Phantoon's damage, death, and flame drops.</summary>

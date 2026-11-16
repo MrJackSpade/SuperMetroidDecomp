@@ -15,11 +15,11 @@ internal static class DraygonBurialEvirDefinitions
     /// </summary>
     internal static IReadOnlyList<DraygonBurialEvirDefinition> InSpawnOrder { get; } =
     [
-        new(new(678, 229), new(24), RoomEffectActorKind.DraygonIntroEvir),
-        new(new(538, 89), new(40), RoomEffectActorKind.DraygonIntroEvir),
-        new(new(355, 13), new(56), RoomEffectActorKind.DraygonIntroEvir),
-        new(new(156, 13), new(72), RoomEffectActorKind.DraygonDeathEvirFacingRight),
-        new(new(-27, 89), new(88), RoomEffectActorKind.DraygonDeathEvirFacingRight),
-        new(new(-167, 229), new(104), RoomEffectActorKind.DraygonDeathEvirFacingRight),
+        new(new(678, 229), new(24), RoomEffectActorKind.EvirFacingLeft),
+        new(new(538, 89), new(40), RoomEffectActorKind.EvirFacingLeft),
+        new(new(355, 13), new(56), RoomEffectActorKind.EvirFacingLeft),
+        new(new(156, 13), new(72), RoomEffectActorKind.EvirFacingRight),
+        new(new(-27, 89), new(88), RoomEffectActorKind.EvirFacingRight),
+        new(new(-167, 229), new(104), RoomEffectActorKind.EvirFacingRight),
     ];
 }

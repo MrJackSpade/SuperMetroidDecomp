@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal abstract class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyDrawHooks, IEnemyPrivateShotReaction
+        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction
 {
     /// <summary>The Lower Norfair Ridley owner.</summary>
     protected RidleyBehavior NorfairRidley => ridley;
@@ -60,7 +60,8 @@ internal abstract class RidleyEntity(
     }
 
     /// <inheritdoc/>
-    public void ResolveAfterSamusContact(SamusState samus) => _ = Ceres.Hits.ResolveRidleyBodySamusContact(samus);
+    public void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
+        _ = Ceres.Hits.ResolveRidleyBodySamusContact(samus, pseudoScrew);
 
     /// <summary>Ridley's AI publishes the common writer's shading: its body, wings and tail share one latched phase (#1512).</summary>
     public PictureShading? CommonDrawShading() => encounter.Ridley?.CommonDrawShading;

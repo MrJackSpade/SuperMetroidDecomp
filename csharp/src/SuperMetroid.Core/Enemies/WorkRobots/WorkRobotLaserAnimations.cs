@@ -16,16 +16,16 @@ internal static class WorkRobotLaserAnimations
     {
         [P.Initial] =
         [
-            Show(EnemyProjectileFrameId.WorkRobotLaserInitialFirst, 4),
-            Show(EnemyProjectileFrameId.WorkRobotLaserInitialSecond, 4),
-            Show(EnemyProjectileFrameId.WorkRobotLaserInitialThird, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareGlint, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareGlow, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareBall, 4),
         ],
         [P.Loop] =
         [
-            Show(EnemyProjectileFrameId.WorkRobotLaserLoopFirst, 4),
-            Show(EnemyProjectileFrameId.WorkRobotLaserLoopSecond, 4),
-            Show(EnemyProjectileFrameId.WorkRobotLaserLoopThird, 4),
-            Show(EnemyProjectileFrameId.WorkRobotLaserLoopFourth, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareRingCored, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareRing, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareRingFading, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareRingTwin, 4),
         ],
     });
 

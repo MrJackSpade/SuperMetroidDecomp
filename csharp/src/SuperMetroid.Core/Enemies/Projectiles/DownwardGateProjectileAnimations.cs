@@ -19,19 +19,19 @@ internal static class DownwardGateProjectileAnimations
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: SignedEightEight.FromParts(1, 0))),
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
-            Show(EnemyProjectileFrameId.DownwardGateMoving, 1),
+            Show(EnemyProjectileFrameId.DownwardGateOneBlockTall, 1),
         ],
         [P.MovedOneBlock] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateLoweredOneBlock, 1),
+            Show(EnemyProjectileFrameId.DownwardGateTwoBlocksTall, 1),
         ],
         [P.MovedTwoBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateLoweredTwoBlocks, 1),
+            Show(EnemyProjectileFrameId.DownwardGateThreeBlocksTall, 1),
         ],
         [P.MovedThreeBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateLoweredThreeBlocks, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourBlocksTall, 1),
         ],
         [P.Stopping] =
         [
@@ -40,24 +40,24 @@ internal static class DownwardGateProjectileAnimations
         [P.Closed] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
-            Show(EnemyProjectileFrameId.DownwardGateClosed, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwin, 1),
         ],
         [P.Rising] =
         [
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
-            Show(EnemyProjectileFrameId.DownwardGateRising, 1),
+            Show(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwinB, 1),
         ],
         [P.RisenOneBlock] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateRisenOneBlock, 1),
+            Show(EnemyProjectileFrameId.DownwardGateThreeBlocksTallTwin, 1),
         ],
         [P.RisenTwoBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateRisenTwoBlocks, 1),
+            Show(EnemyProjectileFrameId.DownwardGateTwoBlocksTallTwin, 1),
         ],
         [P.RisenThreeBlocks] =
         [
-            Show(EnemyProjectileFrameId.DownwardGateRisenThreeBlocks, 1),
+            Show(EnemyProjectileFrameId.DownwardGateOneBlockTallTwin, 1),
         ],
         [P.Vanishing] =
         [

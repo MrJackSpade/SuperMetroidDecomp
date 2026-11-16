@@ -156,6 +156,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace place,
         MamaTurtleEnemyState state,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         RoomLevelData level,
         int frameCycle)
     {
@@ -171,25 +172,25 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case MamaTurtleAction.LeavingShell:
                 RunMamaTurtleLeavingShell(
-                    place, state, samus, level, frameCycle);
+                    place, state, samus, pseudoScrew, level, frameCycle);
                 return;
             case MamaTurtleAction.EnteringShell:
                 RunMamaTurtleEnteringShell(place, state, samus);
                 return;
             case MamaTurtleAction.RisingToHover:
-                RunMamaTurtleRisingToHover(place, state, samus, level);
+                RunMamaTurtleRisingToHover(place, state, samus, pseudoScrew, level);
                 return;
             case MamaTurtleAction.Hovering:
-                RunMamaTurtleHovering(place, state, samus, level);
+                RunMamaTurtleHovering(place, state, samus, pseudoScrew, level);
                 return;
             case MamaTurtleAction.RisingToPeak:
-                RunMamaTurtleRisingToPeak(place, state, samus);
+                RunMamaTurtleRisingToPeak(place, state, samus, pseudoScrew);
                 return;
             case MamaTurtleAction.HoveringAtPeak:
-                RunMamaTurtleHoveringAtPeak(place, state, samus);
+                RunMamaTurtleHoveringAtPeak(place, state, samus, pseudoScrew);
                 return;
             case MamaTurtleAction.Falling:
-                RunMamaTurtleFalling(place, state, samus, level);
+                RunMamaTurtleFalling(place, state, samus, pseudoScrew, level);
                 return;
             default:
                 throw new InvalidDataException(
@@ -257,10 +258,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         RoomLevelData level,
         int frameCycle)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus);
+        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
         if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
             return;
 
@@ -307,9 +309,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus);
+        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
         if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-MamaTurtleMotionDefinitions.RiseToHoverSpeed)))
             return;
 
@@ -334,9 +337,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus);
+        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
@@ -396,9 +400,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMamaTurtleRisingToPeak(
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus);
+        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
         if (CoordinateAxis.Difference(mama.Position.Y.Whole, MamaTurtleMotionDefinitions.RiddenAscentPeak) < 0)
         {
             state.ActionTimer = MamaTurtleMotionDefinitions.PeakPause;
@@ -422,9 +427,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMamaTurtleHoveringAtPeak(
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus);
+        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
         if (--state.ActionTimer == 0)
             state.Action = MamaTurtleAction.Falling;
     }
@@ -434,9 +440,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus);
+        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
 
         // The cap compares Mama's own fall speed.
         if (state.Velocity.Y.WholePixels < MamaTurtleMotionDefinitions.FastestFall)
@@ -658,11 +665,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveMamaTurtleTouch(
         RoomEnemyPlace mama,
         MamaTurtleEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
         if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
-        _collision.ResolveNormalEnemyTouch(mama, samus);
+        _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);
         state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithWholeY(MamaTurtleMotionDefinitions.KnockedDownFallSpeed);
     }
@@ -717,7 +725,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Mama's expanded private damage box.</summary>
     private void ResolveMamaTurtleExpandedContact(
         RoomEnemyPlace mama,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
         // The box is Mama's body grown on each side and shrunk at the top and bottom.
         int left = CoordinateAxis.Wrap(
@@ -746,7 +755,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(samusBottom, top) < 0 || !samus.InvincibilityTimer.IsZero)
             return;
 
-        _collision.ResolveNormalEnemyTouch(mama, samus);
+        _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);
     }
 
     /// <summary>The state of <paramref name="baby"/>'s Mama, rejecting a place no longer holding a Mama Turtle.</summary>
@@ -804,6 +813,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             place,
             place.RequireSpeciesState<MamaTurtleEnemyState>(),
             frame.Samus,
+            frame.PseudoScrew,
             frame.Level,
             frame.Clock.ShortCounter);
     }
@@ -850,7 +860,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>
     internal void ReactToMamaTurtleTouch(EnemyTouchContext context) =>
-        ResolveMamaTurtleTouch(context.Place, context.Place.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus);
+        ResolveMamaTurtleTouch(context.Place, context.Place.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus, context.PseudoScrew);
 
     /// <summary>Routes baby contact to separation and wake behavior.</summary>
     internal void ReactToBabyTurtleTouch(EnemyTouchContext context) =>

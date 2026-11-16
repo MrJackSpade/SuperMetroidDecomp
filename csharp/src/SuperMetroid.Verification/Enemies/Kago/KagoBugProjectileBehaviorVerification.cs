@@ -43,24 +43,24 @@ internal static class KagoBugProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyKagoBugWaitingPicture()
     {
-        AssertTrue(KagoBugProjectileAnimations.Segments.Beats(KagoBugProjectileSegment.Waiting) is [{ ShownFrame: EnemyProjectileFrameId.KagoBugWaiting }],
+        AssertTrue(KagoBugProjectileAnimations.Segments.Beats(KagoBugProjectileSegment.Waiting) is [{ ShownFrame: EnemyProjectileFrameId.KagoBugCurledUp }],
             "a waiting Kago bug holds its own waiting frame");
         SpawnedObjectSheet kago = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Kago),
             SpawnedObjectOwner.Of(EnemyDefinitionId.Kago));
         SpawnedObjectSheet kraid = InstalledFixtures.EnemySheets.Spawned(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Kraid), SpawnedObjectOwner.Shared);
-        string waiting = EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.KagoBugWaiting);
-        string resting = EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.KraidRock);
+        string waiting = EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.KagoBugCurledUp);
+        string resting = EnemySheetDefinitions.ProjectileFrameName(EnemyProjectileFrameId.KraidRockLarge);
         // Each sheet's finished pictures, those that show nothing included: the bug's colours may ink none of the pose.
         AssertTrue(Pictures(kago).Contains(waiting) && !Pictures(kago).Contains(resting),
             "the Kago's spawned pictures hold the waiting bug and no picture of Kraid's rock");
         AssertTrue(Pictures(kraid).Contains(resting) && !Pictures(kraid).Contains(waiting),
             "Kraid's shared pictures hold the resting rock and no picture of the Kago's bug");
         AssertTrue(!kraid.ShowsNothing(resting), "the resting rock shows its picture");
-        ushort shared = EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.KraidRock);
-        AssertEqual(shared, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.KagoBugWaiting), "the waiting bug and the resting rock draw one native operand");
-        AssertEqual(EnemyProjectileFrameId.KagoBugWaiting, EnemyProjectileProgramFrameOperands.Frame(shared, SpawnedObjectOwner.Of(EnemyDefinitionId.Kago)),
+        ushort shared = EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.KraidRockLarge);
+        AssertEqual(shared, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.KagoBugCurledUp), "the waiting bug and the resting rock draw one native operand");
+        AssertEqual(EnemyProjectileFrameId.KagoBugCurledUp, EnemyProjectileProgramFrameOperands.Frame(shared, SpawnedObjectOwner.Of(EnemyDefinitionId.Kago)),
             "the shared operand drawn from the Kago's sheet reads as the waiting bug");
-        AssertEqual(EnemyProjectileFrameId.KraidRock, EnemyProjectileProgramFrameOperands.Frame(shared, SpawnedObjectOwner.Shared),
+        AssertEqual(EnemyProjectileFrameId.KraidRockLarge, EnemyProjectileProgramFrameOperands.Frame(shared, SpawnedObjectOwner.Shared),
             "the shared operand drawn from the shared sheet reads as the resting rock");
         Console.WriteLine("  Kago bug waiting picture: its own frame among its Kago's pictures, apart from Kraid's resting rock.");
 

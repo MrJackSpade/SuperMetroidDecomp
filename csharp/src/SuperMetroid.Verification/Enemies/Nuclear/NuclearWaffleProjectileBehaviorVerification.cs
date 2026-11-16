@@ -25,7 +25,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         owner.Position = owner.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner);
         EnemyProjectile[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))
-            .ProjectileSegments.OfType<EnemyProjectile>()];
+            .ProjectileLinks.Select(link => link.Actor)];
         AssertEqual(4, links.Length, "the initializer spawns four body links");
         foreach (EnemyProjectile link in links)
         {

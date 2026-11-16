@@ -321,20 +321,21 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// scatters four pickups from the coordinates saved before the shot AI.
     /// The explosion therefore takes the first free projectile place.
     /// </summary>
-    private void KillFakeKraid(RoomEnemyPlace place)
+    private void KillFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         Position16<RoomPixels> origin = place.Position.Whole;
-        _deathsAndDrops.StartGenericEnemyDeath(place, deathAnimation: EnemyDeathExplosion.MiniKraid);
-        SpawnFakeKraidDeathDrops(origin);
+        _deathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.MiniKraid, samus);
+        SpawnFakeKraidDeathDrops(origin, samus);
     }
 
     /// <summary>Scatters four Mini-Kraid pickups around the position saved before death clears its place.</summary>
-    private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin)
+    private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin, SamusState samus)
     {
         _deathsAndDrops.SpawnEnemyDropScatterAround(
             EnemyDefinitionId.MiniKraid,
             count: 4,
-            origin);
+            origin,
+            samus);
     }
 
     /// <summary>Replaces generic bomb death with Mini-Kraid's death explosion and four-drop sequence.</summary>
@@ -350,7 +351,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             // The bomb selects the fake Kraid's own shot reaction, which its definition leaves to it, rather than the
             // empty frame's ordinary one.
             if (c.SelectedShot is null && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                KillFakeKraid(c.Enemy);
+                KillFakeKraid(c.Enemy, c.Samus);
         },
     };
 
@@ -413,7 +414,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Mini Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
         // death explosion.
-        ReplacesGenericDeath = c => KillFakeKraid(c.Enemy),
+        ReplacesGenericDeath = c => KillFakeKraid(c.Enemy, c.Samus),
     };
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
@@ -423,13 +424,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         ReplacesGenericDeath = c =>
         {
-            KillFakeKraid(c.Enemy);
+            KillFakeKraid(c.Enemy, c.Samus);
             return true;
         },
         AfterCommon = c =>
         {
             if (!c.Froze && !c.Enemy.IsFree && c.HealthBefore != 0 && c.Enemy.Health == 0)
-                SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole);
+                SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole, c.Samus);
         },
     };
 
@@ -437,8 +438,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ReactToFakeKraidTouch(EnemyTouchContext context)
     {
         int healthBefore = context.Place.Health;
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         if (healthBefore != 0 && context.Place.Health == 0)
-            KillFakeKraid(context.Place);
+            KillFakeKraid(context.Place, context.Samus);
     }
 }

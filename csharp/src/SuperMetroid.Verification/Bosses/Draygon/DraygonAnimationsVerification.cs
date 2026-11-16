@@ -283,7 +283,7 @@ internal static class DraygonAnimationsVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         enemies.Projectiles.AdvanceEnemyProjectileAnimations(goop, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertEqual<Enum?>(DraygonShotMotion.GoopStuckToSamus, goop.Motion, "the goop touch sticks the goop to Samus");
-        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopFirst), goop.PresentationOperandAddress,
+        AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.DraygonGoopSpiky), goop.PresentationOperandAddress,
             "the goop touch shows the goop's first frame in the same update");
         AssertEqual((ushort)10, goop.FrameHold.RawValue, "the goop's first frame lasts ten updates");
         Console.WriteLine("  Draygon projectile programs: goop, burst, touch, bloom and flight match bank $86; the touch sticks the goop at once.");

@@ -35,10 +35,10 @@ internal static class DraygonStateQuantitiesVerification
         (RoomEnemySystem enemies, _) = NewDraygon();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { XSpeedDivisor = 1 };
         EnemyProjectile goop = AttachedGoop(enemies, lifetime: 2);
-        enemies.DraygonBehavior.Shots.Goop.RunAttachedDraygonGoop(goop, samus);
+        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, InstalledFixtures.CreateBombSystem().PowerBombExplosion);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
         AssertEqual(1, goop.StateOf<DraygonGoopAttachedState>().Lifetime, "the first update leaves one update of lifetime");
-        enemies.DraygonBehavior.Shots.Goop.RunAttachedDraygonGoop(goop, samus);
+        DraygonShots.DraygonShotBehavior.RunAttachedDraygonGoop(goop, samus, InstalledFixtures.CreateBombSystem().PowerBombExplosion);
         AssertTrue(!goop.IsActive, "the goop falls off on the update its lifetime reaches zero");
         AssertEqual(0, samus.XSpeedDivisor, "the goop that falls off restores one X-speed divisor step");
     }

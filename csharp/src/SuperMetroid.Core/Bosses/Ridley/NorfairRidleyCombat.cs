@@ -94,6 +94,10 @@ internal sealed class NorfairRidleyCombat
         _ridleyEncounter.Ridley.Colours.ShowNorfairArrival();
     }
 
+    /// <summary>Lower Norfair Ridley's lift-off hands control to the fight: he flies into the arena.</summary>
+    /// <param name="state">Ridley's state.</param>
+    internal static void LiftOff(RidleyEnemyState state) => Ensure.NotNull(state).Phase = RidleyPhase.NorfairEnterArena;
+
     /// <summary>
     /// The arena reveal advances a Norfair-only fourteen-color fade every third update.
     /// The step after the last colour step activates the shared tail/wing composition.

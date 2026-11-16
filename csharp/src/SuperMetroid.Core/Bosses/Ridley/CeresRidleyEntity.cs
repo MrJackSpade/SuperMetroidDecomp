@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -20,6 +21,14 @@ internal sealed class CeresRidleyEntity(
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Ceres.RunCeresRidleyMainAi(Place, frame);
+
+    /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>
+    public override void LiftOff() => CeresRidleyFlight.LiftOff(Encounter.RequireCeresRidley(Place));
+
+    /// <summary>Ceres Ridley cuts his fireballing short when Samus is low on energy.</summary>
+    /// <param name="samus">Samus, whose energy decides the cut.</param>
+    public override RidleyBodySegment? CutFireballingShort(SamusState samus) =>
+        CeresRidleyFlight.CutFireballingShort(Encounter.RequireCeresRidley(Place), samus);
 
     /// <summary>Runs Ceres Ridley's own reaction to a bomb that selects his shot reaction, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>

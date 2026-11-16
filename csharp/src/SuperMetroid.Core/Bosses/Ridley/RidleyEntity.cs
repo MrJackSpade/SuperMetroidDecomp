@@ -17,13 +17,16 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal abstract class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction
+        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction, IRidleyBodyOwner
 {
     /// <summary>The Lower Norfair Ridley owner.</summary>
     protected RidleyBehavior NorfairRidley => ridley;
 
     /// <summary>The Ceres Ridley owner.</summary>
     protected CeresRidleyBehavior Ceres => ceres;
+
+    /// <summary>The shared Ridley encounter.</summary>
+    protected RidleyEncounter Encounter => encounter;
 
     /// <inheritdoc/>
     public abstract void Initialize();
@@ -32,7 +35,14 @@ internal abstract class RidleyEntity(
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => NorfairRidley.Animation.AdvanceRidleyBodyTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) =>
+        NorfairRidley.Animation.AdvanceRidleyBodyTypedAnimation(Place, context, this);
+
+    /// <inheritdoc/>
+    public abstract void LiftOff();
+
+    /// <inheritdoc/>
+    public abstract RidleyBodySegment? CutFireballingShort(SamusState samus);
 
     /// <summary>None: both Ridley bodies' definitions name the ordinary touch.</summary>
     public EnemyReaction? SpeciesTouch => null;

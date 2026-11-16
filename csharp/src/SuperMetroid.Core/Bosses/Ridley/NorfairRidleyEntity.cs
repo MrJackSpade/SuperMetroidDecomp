@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -20,6 +21,13 @@ internal sealed class NorfairRidleyEntity(
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => NorfairRidley.RunRidleyMainAi(Place, frame);
+
+    /// <summary>Lower Norfair Ridley's lift-off hands control to the fight: he flies into the arena.</summary>
+    public override void LiftOff() => NorfairRidleyCombat.LiftOff(Encounter.RequireNorfairRidley(Place));
+
+    /// <summary>Lower Norfair Ridley never cuts his fireballing short; he plays on.</summary>
+    /// <param name="samus">Samus.</param>
+    public override RidleyBodySegment? CutFireballingShort(SamusState samus) => null;
 
     /// <summary>
     /// Ridley's hurt behaviour for the post-hit window, which owns hurt frames instead of falling back to ordinary main AI:

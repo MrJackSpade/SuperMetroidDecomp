@@ -96,6 +96,25 @@ internal sealed class CeresRidleyFlight
         _ridleyEncounter.Ridley.Colours.ShowCeresArrival();
     }
 
+    /// <summary>Ceres Ridley's lift-off starts his rise toward his hover.</summary>
+    /// <param name="state">Ridley's state.</param>
+    internal static void LiftOff(RidleyEnemyState state) => Ensure.NotNull(state).Phase = RidleyPhase.CeresLiftoffAccelerating;
+
+    /// <summary>
+    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: he stores eight in his phase timer, cutting
+    /// the fireball hover short, and continues in the fireballing's end for the way he faces, which nothing in the
+    /// fireballing turns.
+    /// </summary>
+    /// <param name="state">Ridley's state.</param>
+    /// <param name="samus">Samus, whose energy decides the cut.</param>
+    internal static RidleyBodySegment? CutFireballingShort(RidleyEnemyState state, SamusState samus)
+    {
+        if (Ensure.NotNull(samus).Health >= 30)
+            return null;
+        Ensure.NotNull(state).PhaseTimer = 8;
+        return RidleyAnimations.FireballingEnd.For(state.FacingDirection);
+    }
+
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>
     internal static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemyPlace place,

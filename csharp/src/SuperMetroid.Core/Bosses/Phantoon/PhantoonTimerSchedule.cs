@@ -1,44 +1,43 @@
-using static SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerDefinitions;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Allocation-free calculated view of one eight-bucket Phantoon phase-timer table.</summary>
-public readonly struct PhantoonTimerSchedule : IReadOnlyList<int>
+/// <summary>
+/// One of Phantoon's eight-way random phase timers (#2262): its short, medium and long durations, and which of them
+/// each of its eight picks takes.
+/// </summary>
+public sealed class PhantoonTimerSchedule
 {
-    /// <summary>Selects which phase's buckets and duration scale this view exposes.</summary>
-    private readonly TimerKind kind;
-    /// <summary>Binds a calculated schedule to one Phantoon combat phase.</summary>
-    internal PhantoonTimerSchedule(TimerKind kind) => this.kind = kind;
-    /// <summary>Reads the authored short/medium/long permutation for this phase.</summary>
-    private DurationChoice[] Choices => PhantoonTimerDefinitions.Choices[kind];
-    /// <summary>Gets the eight random-selection buckets in the schedule.</summary>
-    public int Count => Choices.Length;
+    /// <summary>Keeps a timer's durations and its picks.</summary>
+    /// <param name="durations">The timer's short, medium and long durations, in updates.</param>
+    /// <param name="picks">The length each of the eight picks takes, in pick order.</param>
+    internal PhantoonTimerSchedule(PhantoonTimerDurations durations, ImmutableArray<PhantoonTimerLength> picks)
+    {
+        Durations = durations;
+        Picks = picks.Length == PickCount
+            ? picks
+            : throw new ArgumentException($"A Phantoon timer has {PickCount} picks, not {picks.Length}.", nameof(picks));
+    }
 
-    /// <summary>Calculates the selected phase duration in gameplay updates.</summary>
-    /// <param name="index">Bucket index from zero through seven, normally selected by masked RNG or frame bits.</param>
-    /// <returns>The exact short, medium, or long duration for this schedule.</returns>
-    public int this[int index]
+    /// <summary>The number of picks a random number chooses among.</summary>
+    internal const int PickCount = 8;
+
+    /// <summary>The timer's short, medium and long durations, in updates.</summary>
+    public PhantoonTimerDurations Durations { get; }
+
+    /// <summary>The length each pick takes, in pick order.</summary>
+    internal ImmutableArray<PhantoonTimerLength> Picks { get; }
+
+    /// <summary>The number of picks, eight.</summary>
+    public int Count => Picks.Length;
+
+    /// <summary>The duration, in updates, that pick <paramref name="pick"/>, zero through seven, takes.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pick"/> is outside zero through seven.</exception>
+    public int this[int pick] => Picks[Ensure.BetweenInclusive(0, PickCount - 1, pick)] switch
     {
-        get
-        {
-            DurationChoice choice = Choices[index];
-            int shortest = ShortestVulnerableExposureFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
-            int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
-            return choice switch
-            {
-                DurationChoice.Short => shortest,
-                DurationChoice.Medium => medium,
-                DurationChoice.Long => medium * TierDoubling,
-                _ => throw new InvalidOperationException(),
-            };
-        }
-    }
-    /// <summary>Enumerates all eight calculated durations in bucket order.</summary>
-    /// <returns>An enumerator over the phase durations.</returns>
-    public IEnumerator<int> GetEnumerator()
-    {
-        for (int index = 0; index < Count; index++) yield return this[index];
-    }
-    /// <summary>Exposes the same eight phase buckets to non-generic collection consumers.</summary>
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
+        PhantoonTimerLength.Short => Durations.Short,
+        PhantoonTimerLength.Medium => Durations.Medium,
+        PhantoonTimerLength.Long => Durations.Long,
+        _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonTimerLength)} {Picks[pick]}."),
+    };
 }

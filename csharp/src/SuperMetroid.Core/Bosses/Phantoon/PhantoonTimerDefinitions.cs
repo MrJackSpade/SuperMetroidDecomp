@@ -1,74 +1,39 @@
+using static SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerLength;
+
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon timer magnitudes and independently chosen random-bucket policy.</summary>
+/// <summary>
+/// Phantoon's phase durations: his first flame's delay, and each eight-way random phase timer's short, medium and long
+/// durations with the length each of its eight picks takes (#2262).
+/// </summary>
 public static class PhantoonTimerDefinitions
 {
     /// <summary>The initial flame countdown is 120 frames; the European release uses 96.</summary>
     public const int InitialFlameDelayFrames = 120;
 
-    /// <summary>Three selected exposure tiers used by the RNG-bucket policies.</summary>
-    internal enum DurationChoice
-    {
-        /// <summary>Shortest open-eye, closed-eye, or rain-hiding interval for its phase.</summary>
-        Short,
-        /// <summary>Middle interval, scaled from the phase's shortest exposure.</summary>
-        Medium,
-        /// <summary>Longest interval, twice the phase's middle exposure.</summary>
-        Long
-    }
-    /// <summary>Phantoon phases with independent eight-bucket duration tables.</summary>
-    internal enum TimerKind
-    {
-        /// <summary>Open-eye damage opportunity selected from RNG bits.</summary>
-        Vulnerable,
-        /// <summary>Closed-eye moving period selected from RNG or first-round frame-counter bits.</summary>
-        EyeClosed,
-        /// <summary>Hidden wait after flame-rain fading completes.</summary>
-        RainHiding
-    }
-
-    /// <summary>RNG&amp;7 selects the vulnerable window.</summary>
-    /// <remarks>The eight choices have no order in time or space: the list itself is how the random number chooses.</remarks>
-    internal static readonly DurationChoice[] VulnerableChoices =
-        [DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium,
-         DurationChoice.Long, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Long];
     /// <summary>
-    /// The eye-closed delay each random choice selects; for the first round,
-    /// <see cref="PhantoonCadenceDefinitions.FirstEyeClosedChoice"/> selects it.
+    /// The open-eye damage opportunity, picked from the random number. Its waiting phase has no movement-derived duration;
+    /// changing a pick changes the attack opportunity.
     /// </summary>
-    internal static readonly DurationChoice[] EyeClosedChoices =
-        [DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long,
-         DurationChoice.Medium, DurationChoice.Short, DurationChoice.Medium, DurationChoice.Long];
-    /// <summary>RNG&amp;7 selects the rain hiding delay.</summary>
-    internal static readonly DurationChoice[] RainHidingChoices =
-        [DurationChoice.Medium, DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium,
-         DurationChoice.Short, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Short];
+    /// <remarks>The eight picks have no order in time or space: the list itself is how the random number chooses.</remarks>
+    public static PhantoonTimerSchedule VulnerableWindow { get; } = new(
+        new PhantoonTimerDurations(Short: 15, Medium: 30, Long: 60),
+        [Long, Medium, Short, Medium, Long, Medium, Short, Long]);
 
-    /// <summary>Selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
-    internal const int ShortestVulnerableExposureFrames = 15;
-    /// <summary>Selected closed-eye moving phase lasts four exposure units, six times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
-    internal const int EyeShortScale = 4;
-    /// <summary>The medium closed-eye duration is six times the phase's short base.</summary>
-    internal const int EyeMediumScale = 6;
-    /// <summary>Selected hidden wait begins only after fading completes. Its shortest duration is two exposure units, with doubled medium/long tiers; the next location is chosen only on expiry, so neither fading nor travel determines this wait.</summary>
-    internal const int RainShortScale = 2;
-    /// <summary>Exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
-    internal const int TierDoubling = 2;
+    /// <summary>
+    /// The closed-eye moving phase, picked from the random number, or for the first round by
+    /// <see cref="PhantoonCadenceDefinitions.FirstEyeClosedChoice"/>. Expiry opens the eye at its current position,
+    /// independently of path completion.
+    /// </summary>
+    public static PhantoonTimerSchedule EyeClosed { get; } = new(
+        new PhantoonTimerDurations(Short: 60, Medium: 360, Long: 720),
+        [Long, Short, Medium, Long, Medium, Short, Medium, Long]);
 
-    /// <summary>Gets the eight random durations of Phantoon's open-eye damage opportunity.</summary>
-    public static PhantoonTimerSchedule VulnerableWindow => new(TimerKind.Vulnerable);
-
-    /// <summary>Gets the eight random and frame-chosen durations of the closed-eye moving phase.</summary>
-    public static PhantoonTimerSchedule EyeClosed => new(TimerKind.EyeClosed);
-
-    /// <summary>Gets the eight random durations of the hidden delay after the flame rain.</summary>
-    public static PhantoonTimerSchedule RainHiding => new(TimerKind.RainHiding);
-
-    /// <summary>Each phase's short/medium/long bucket permutation.</summary>
-    internal static readonly Dictionary<TimerKind, DurationChoice[]> Choices = new()
-    {
-        [TimerKind.Vulnerable] = VulnerableChoices,
-        [TimerKind.EyeClosed] = EyeClosedChoices,
-        [TimerKind.RainHiding] = RainHidingChoices,
-    };
+    /// <summary>
+    /// The hidden wait after the flame rain's fade-out completes, picked from the random number; the next location is
+    /// chosen only on expiry, so neither fading nor travel determines this wait.
+    /// </summary>
+    public static PhantoonTimerSchedule RainHiding { get; } = new(
+        new PhantoonTimerDurations(Short: 30, Medium: 60, Long: 120),
+        [Medium, Long, Short, Medium, Short, Medium, Short, Short]);
 }

@@ -35,12 +35,8 @@ internal enum RoomEffectActorSegment
     FallingSparkTrail,
     /// <summary>Metroid electricity animation.</summary>
     MetroidElectricity,
-    /// <summary>The Metroid electricity animation's loop, which it repeats after its first pass.</summary>
-    MetroidElectricityLoop,
     /// <summary>Metroid shell animation.</summary>
     MetroidShell,
-    /// <summary>The Metroid shell animation's loop, which it repeats after its first pass.</summary>
-    MetroidShellLoop,
     /// <summary>Yapping maw base facing down animation.</summary>
     YappingMawBaseFacingDown,
     /// <summary>Yapping maw base facing up animation.</summary>

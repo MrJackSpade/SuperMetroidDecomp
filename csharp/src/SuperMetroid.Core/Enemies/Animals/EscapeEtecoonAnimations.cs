@@ -18,9 +18,6 @@ internal static class EscapeEtecoonAnimations
         [P.RunningLeftLowTide] =
         [
             Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningLeftHighTide)),
-        ],
-        [P.RunningLeftLowTideLoop] =
-        [
             Show(EnemyFrameId.EscapeEtecoonRunningLeftStretched, 5),
             Show(EnemyFrameId.EscapeEtecoonRunningLeftBunched, 5),
             Show(EnemyFrameId.EscapeEtecoonRunningLeftPushingOff, 5),
@@ -36,9 +33,6 @@ internal static class EscapeEtecoonAnimations
         [P.RunningRightLowTide] =
         [
             Cue(new EscapeEtecoonCue.GoToIfAcidHigh(Target: P.RunningRightHighTide)),
-        ],
-        [P.RunningRightLowTideLoop] =
-        [
             Show(EnemyFrameId.EscapeEtecoonRunningRightStretched, 6),
             Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 6),
             Show(EnemyFrameId.EscapeEtecoonRunningRightPushingOff, 6),
@@ -54,9 +48,6 @@ internal static class EscapeEtecoonAnimations
         [P.RunningForEscape] =
         [
             Cue(new EscapeEtecoonCue.Signal(K.Escapes)),
-        ],
-        [P.RunningForEscapeLoop] =
-        [
             Show(EnemyFrameId.EscapeEtecoonRunningRightStretched, 3),
             Show(EnemyFrameId.EscapeEtecoonRunningRightBunched, 3),
             Show(EnemyFrameId.EscapeEtecoonRunningRightPushingOff, 3),
@@ -91,16 +82,13 @@ internal static class EscapeEtecoonAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
     {
-        [P.RunningLeftLowTide] = new([new(P.RunningLeftLowTide, 0, 1, 1), new(P.RunningLeftLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningLeftLowTideLoop] = new([new(P.RunningLeftLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftLowTide] = new([new(P.RunningLeftLowTide, 0, 1, 1), new(P.RunningLeftLowTide, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.RunningLeftHighTide] = new([new(P.RunningLeftHighTide, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRightLowTide] = new([new(P.RunningRightLowTide, 0, 1, 1), new(P.RunningRightLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningRightLowTideLoop] = new([new(P.RunningRightLowTideLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightLowTide] = new([new(P.RunningRightLowTide, 0, 1, 1), new(P.RunningRightLowTide, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.RunningRightHighTide] = new([new(P.RunningRightHighTide, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningForEscape] = new([new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscapeLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.RunningForEscapeLoop] = new([new(P.RunningForEscapeLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningForEscape] = new([new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscape, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.Stationary] = new([new(P.Stationary, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ExpressGratitudeThenEscape] = new([new(P.ExpressGratitudeThenEscape, 0, 1, 1), new(P.ExpressGratitudeThenEscapeLoop, 0, 8, 8), new(P.ExpressGratitudeThenEscapeLoop, 8, 2, 1), new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscapeLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(4)),
+        [P.ExpressGratitudeThenEscape] = new([new(P.ExpressGratitudeThenEscape, 0, 1, 1), new(P.ExpressGratitudeThenEscapeLoop, 0, 8, 8), new(P.ExpressGratitudeThenEscapeLoop, 8, 2, 1), new(P.RunningForEscape, 0, 1, 1), new(P.RunningForEscape, 1, 4, 1)], AnimationEnd.LoopsFrom(4)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

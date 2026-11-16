@@ -18,7 +18,6 @@ internal static class KagoBugProjectileNativeListAddresses
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Landed, 0xd03c),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Falling, 0xd04a),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.JumpStart, 0xd052),
-        new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.JumpLoop, 0xd05c),
         new NativeProgramEntry<KagoBugProjectileSegment>(KagoBugProjectileSegment.Shot, 0xd064),
     ];
 

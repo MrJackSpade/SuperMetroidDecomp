@@ -23,10 +23,7 @@ internal static class EyeDoorProjectileAnimations
             Show(EnemyProjectileFrameId.EyeDoorInitialThird, 2),
             Cue(new(K.AimAtSamus)),
             Cue(new(K.StartFlight)),
-        ],
-        [P.FlyingLoop] =
-        [
-            Show(EnemyProjectileFrameId.EyeDoorFlyingLoop, 16),
+            Hold(EnemyProjectileFrameId.EyeDoorFlyingLoop),
         ],
         [P.Impact] =
         [
@@ -49,8 +46,7 @@ internal static class EyeDoorProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>> StartingAt { get; } = new Dictionary<EyeDoorProjectileSegment, Animation<EyeDoorProjectileSegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 5, 1), new(P.FlyingLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.FlyingLoop] = new([new(P.FlyingLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Initial] = new([new(P.Initial, 0, 6, 1)], AnimationEnd.Holds),
         [P.Impact] = new([new(P.Impact, 0, 5, 1)], AnimationEnd.Holds),
         [P.Shot] = new([new(P.Shot, 0, 5, 1)], AnimationEnd.Holds),
     };
@@ -60,6 +56,9 @@ internal static class EyeDoorProjectileAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good: the flying shot rests on it until it hits or is shot (#2144).</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Cue(EyeDoorProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Event(cue);

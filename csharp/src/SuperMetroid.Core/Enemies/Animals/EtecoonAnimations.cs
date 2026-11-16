@@ -32,9 +32,6 @@ internal static class EtecoonAnimations
         [P.WallJumpLeft] =
         [
             Show(EnemyFrameId.EtecoonLeapingLeft, 8),
-        ],
-        [P.WallJumpLeftLoop] =
-        [
             Show(EnemyFrameId.EtecoonSpinningLeftTurned0, 3),
             Show(EnemyFrameId.EtecoonSpinningLeftTurned90, 3),
             Show(EnemyFrameId.EtecoonSpinningLeftTurned180, 3),
@@ -121,8 +118,7 @@ internal static class EtecoonAnimations
         [P.LookRightAtSamusAndRunLeft] = new([new(P.LookRightAtSamusAndRunLeft, 0, 1, 1)], AnimationEnd.Holds),
         [P.BeginRunningLeft] = new([new(P.BeginRunningLeft, 0, 1, 1), new(P.RunningLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.RunningLeft] = new([new(P.RunningLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WallJumpLeft] = new([new(P.WallJumpLeft, 0, 1, 1), new(P.WallJumpLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.WallJumpLeftLoop] = new([new(P.WallJumpLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.WallJumpLeft] = new([new(P.WallJumpLeft, 0, 1, 1), new(P.WallJumpLeft, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.HoppingFacingLeft] = new([new(P.HoppingFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
         [P.ContinueHoppingFacingLeft] = new([new(P.ContinueHoppingFacingLeft, 0, 5, 1)], AnimationEnd.Holds),
         [P.WallJumpLeftEligible] = new([new(P.WallJumpLeftEligible, 0, 1, 1)], AnimationEnd.Holds),

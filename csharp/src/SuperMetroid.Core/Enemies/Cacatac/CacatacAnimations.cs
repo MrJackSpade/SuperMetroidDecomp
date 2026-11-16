@@ -44,9 +44,6 @@ internal static class CacatacAnimations
         [P.UpsideDownIdle] =
         [
             Cue(new(K.RestorePatrol)),
-        ],
-        [P.UpsideDownIdleLoop] =
-        [
             Show(EnemyFrameId.CacatacUpsideDownSplayed, 8),
             Show(EnemyFrameId.CacatacUpsideDownDrawingIn, 8),
             Show(EnemyFrameId.CacatacUpsideDownDrawnIn, 8),
@@ -76,9 +73,8 @@ internal static class CacatacAnimations
     {
         [P.UpsideUpIdle] = new([new(P.UpsideUpIdle, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
         [P.UpsideUpAttack] = new([new(P.UpsideUpAttack, 0, 10, 1), new(P.UpsideUpIdle, 0, 9, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownIdle] = new([new(P.UpsideDownIdle, 0, 1, 1), new(P.UpsideDownIdleLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownIdleLoop] = new([new(P.UpsideDownIdleLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UpsideDownAttack] = new([new(P.UpsideDownAttack, 0, 10, 1), new(P.UpsideDownIdle, 0, 1, 1), new(P.UpsideDownIdleLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.UpsideDownIdle] = new([new(P.UpsideDownIdle, 0, 1, 1), new(P.UpsideDownIdle, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.UpsideDownAttack] = new([new(P.UpsideDownAttack, 0, 10, 1), new(P.UpsideDownIdle, 0, 1, 1), new(P.UpsideDownIdle, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

@@ -39,7 +39,7 @@ internal static class EnemyLinearSpeedsVerification
         // are present; Ripper does not need any bus for its speed setup.
         var cacatac = new Action<RoomEnemyPlace>(CacatacBehavior.InitializeCacatac);
         var owtch = new Action<RoomEnemyPlace>(OwtchBehavior.InitializeOwtch);
-        Action<RipperEnemyState, bool> ripper = RipperBehavior.LoadRipperVelocity;
+        Action<RipperEnemyState> ripper = RipperBehavior.Reverse;
         var place = enemies.Places.InUpdateOrder[0];
         for (int index = 0; index < EnemyLinearSpeedTable.RowCount; index++)
         {
@@ -55,10 +55,9 @@ internal static class EnemyLinearSpeedsVerification
             owtch(place);
             var o = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires o.");
             AssertEqual((positive, negative), (o.Speed, -o.Speed), "Owtch native speed setup, negated for moving left");
-            var ripperState = new RipperEnemyState() { Speeds = new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(index)) };
-            ripper(ripperState, true);
+            var ripperState = new RipperEnemyState() { Speeds = new EnemyLinearSpeed(EnemyLinearSpeedTable.Speed(index)), Heading = HorizontalDirection.Right };
             AssertEqual(positive, ripperState.XVelocity, "Ripper right speed");
-            ripper(ripperState, false);
+            ripper(ripperState);
             AssertEqual(negative, ripperState.XVelocity, "Ripper reversal speed");
         }
         Console.WriteLine("Compiled linear speeds: all 65 rows match both cartridge copies and four direct family callers without speed-table ROM reads.");

@@ -9,13 +9,13 @@ internal static class PlatformAnimationDefinitions
     /// </summary>
     internal static readonly Dictionary<PlatformPose, PlatformSegment> Animations = new()
     {
-        [new(true, Axis.Vertical, PlatformHorizontalMovement.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
-        [new(true, Axis.Vertical, PlatformHorizontalMovement.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
-        [new(true, Axis.Horizontal, PlatformHorizontalMovement.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
-        [new(true, Axis.Horizontal, PlatformHorizontalMovement.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
-        [new(false, Axis.Vertical, PlatformHorizontalMovement.Left)] = PlatformSegment.TripperMovingLeft,
-        [new(false, Axis.Vertical, PlatformHorizontalMovement.Right)] = PlatformSegment.TripperMovingRight,
-        [new(false, Axis.Horizontal, PlatformHorizontalMovement.Left)] = PlatformSegment.TripperStillMovingLeft,
-        [new(false, Axis.Horizontal, PlatformHorizontalMovement.Right)] = PlatformSegment.TripperStillMovingRight,
+        [new(true, Axis.Vertical, HorizontalDirection.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
+        [new(true, Axis.Vertical, HorizontalDirection.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
+        [new(true, Axis.Horizontal, HorizontalDirection.Left)] = PlatformSegment.SuspensorPlatformHeadingLeft,
+        [new(true, Axis.Horizontal, HorizontalDirection.Right)] = PlatformSegment.SuspensorPlatformHeadingRight,
+        [new(false, Axis.Vertical, HorizontalDirection.Left)] = PlatformSegment.TripperMovingLeft,
+        [new(false, Axis.Vertical, HorizontalDirection.Right)] = PlatformSegment.TripperMovingRight,
+        [new(false, Axis.Horizontal, HorizontalDirection.Left)] = PlatformSegment.TripperStillMovingLeft,
+        [new(false, Axis.Horizontal, HorizontalDirection.Right)] = PlatformSegment.TripperStillMovingRight,
     };
 }

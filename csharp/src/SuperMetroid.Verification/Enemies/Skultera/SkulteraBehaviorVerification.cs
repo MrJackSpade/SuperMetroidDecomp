@@ -38,7 +38,7 @@ internal static class SkulteraBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkulteraAnimations.Segments, loop, SkulteraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(SkulteraAnimations.Segments, loop)), $"Skultera {swim} loop");
 
-            SkulteraBehavior.BeginSkulteraTurn(place, state, startsLeft);
+            SkulteraBehavior.BeginSkulteraTurn(place, state, startsLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
             AssertEqual(new AnimationPlayback<SkulteraSegment>(SkulteraAnimations.StartingWith(turn), AnimationPlace.StartOfAnimation), state.Playback, $"Skultera {swim} begins {turn}");
             int[] holds = [13, 10, 8, 6, 6, 8, 10, 13];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkulteraAnimationsConstants.Spritemaps(turn), holds),

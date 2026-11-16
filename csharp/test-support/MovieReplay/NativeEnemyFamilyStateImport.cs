@@ -323,7 +323,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<BrinstarPipeBugState>() is { } brinstarPipeBug)
         {
             brinstarPipeBug.Action = PipeBugsNativeWords.BrinstarPipeBugActions.Decode(words.F, "recorded BrinstarPipeBugAction");
-            brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
+            brinstarPipeBug.Flight = CoordinateAxis.AsSigned(words.A) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
         }
         if (enemy.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
         {
@@ -498,8 +498,8 @@ internal static class NativeEnemyFamilyStateImport
         {
             verticalShutterRecord.Action = ShuttersNativeWords.DecodeVerticalShutterAction(words.A, verticalShutterRecord.TriggerMode);
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
-            verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
+            // The upward words are the speed reversed (#2278): the speed is the downward pair.
+            verticalShutterRecord.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
         }
         if (enemy.SpeciesState<CacatacEnemyState>() is { } cacatacRecord)
         {
@@ -679,8 +679,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.SkulteraStates[index] is { } skultera)
         {
             (skultera.Action, skultera.Heading) = SkulteraNativeWords.SkulteraActions.Decode(words.A, "recorded SkulteraAction");
-            skultera.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            skultera.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.E), words.D);
+            // The leftward words are the speed reversed (#2278): the speed is the rightward pair.
+            skultera.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.F));
         }
@@ -803,7 +803,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.WaverStates[index] is { } waver)
         {
-            waver.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
+
             // The record keeps the requested animation beside the installed one (#2145): Core keeps the Waver's facing,
             // which the requested animation shows, and only the playing animation, which this import does not read.
             RequirePlaying(waver.Playback, WaverAnimations.StartingWith(WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation")), "Waver");
@@ -811,6 +811,9 @@ internal static class NativeEnemyFamilyStateImport
             waver.Angle = RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.D));
             waver.SpinFinished = words.E != 0;
             waver.Facing = WaverAnimationChoicesConstants.Facing(WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation"));
+            // The Waver flies its one speed toward its facing (#2278): the recorded velocity must be that.
+            if (waver.XVelocity != SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A))
+                throw new InvalidDataException($"Recorded Waver velocity ${words.B:X4}.{words.A:X4} is not its speed toward its facing {waver.Facing}.");
         }
         if (enemy.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
         {
@@ -863,7 +866,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
-            ripperVariant.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
+            ripperVariant.Heading = unchecked((short)words.D) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             ripperVariant.Speeds = SuperMetroid.AssetExtraction.Enemies.EnemySpeedTableCodec.LinearSpeedAtOffset(words.E);
         }
         if (enemies.NorfairLavaJumpingEnemyStates[index] is { } lavaJumper)

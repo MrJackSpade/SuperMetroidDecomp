@@ -23,13 +23,11 @@ public sealed class VerticalShutterEnemyState
     /// it passes zero.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
-    /// <summary>Downward signed 1/65536-pixel velocity in pixels per update, one of the common linear speeds.</summary>
-    public SignedSixteenSixteen DownVelocity { get; internal set; }
+    /// <summary>The shutter's speed, 1/65536 pixels per update, one of the common linear speeds (#2278).</summary>
+    public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>
-    /// Upward velocity in 1/65536 pixels per update: <see cref="DownVelocity"/> reversed, fraction included.
-    /// </summary>
-    public SignedSixteenSixteen UpVelocity { get; internal set; }
+    /// <summary>The shutter's velocity moving toward <paramref name="direction"/>: its speed, reversed upward, fraction included.</summary>
+    public SignedSixteenSixteen VelocityToward(VerticalDirection direction) => direction == VerticalDirection.Up ? -Speed : Speed;
 
     /// <summary>The end the shutter first heads for, as its population entry names it.</summary>
     public ShutterHeading PrimaryDirection { get; internal set; }

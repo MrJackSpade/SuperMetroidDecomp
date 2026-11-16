@@ -26,9 +26,9 @@ public sealed class BrinstarPipeBugState
     public int EmergenceTopY { get; internal set; }
 
     /// <summary>
-    /// Whether the bug flies left, set from Samus's side of the bug every update it waits with Samus in its vertical band.
+    /// The way the bug flies, set from Samus's side of the bug every update it waits with Samus in its vertical band (#2278).
     /// </summary>
-    public bool FliesLeft { get; internal set; }
+    public HorizontalDirection Flight { get; internal set; }
 
     /// <summary>
     /// The respawn countdown, in AI updates: started at 48 when the bug leaves the screen, and expiring when a decrement

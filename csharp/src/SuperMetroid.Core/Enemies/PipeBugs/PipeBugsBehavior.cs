@@ -211,7 +211,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         if (deltaY is >= 0 or < -PipeBugDefinitions.BrinstarTriggerTop)
             return;
 
-        state.FliesLeft = (samus.Position.Whole - place.Position.Whole).X < 0;
+        state.Flight = (samus.Position.Whole - place.Position.Whole).X < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
         if (CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole) >=
             PipeBugDefinitions.BrinstarTriggerWidth)
         {
@@ -221,7 +221,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BrinstarPipeBugAction.Emerge;
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Rising(
-            IsStrong(place), state.FliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
+            IsStrong(place), state.Flight));
     }
 
     /// <summary>Rises (<see cref="PipeBugEmergenceRise"/>) until the bug is above Samus, then switches to horizontal flight.</summary>
@@ -239,7 +239,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The bug shoots facing the way it rose: toward the side Samus was on as it emerged.
         SelectBrinstarPipeBugAnimation(place, state, PipeBugAnimationChoices.Shooting(
-            IsStrong(place), state.FliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
+            IsStrong(place), state.Flight));
         state.Action = BrinstarPipeBugAction.FlyHorizontally;
     }
 
@@ -250,7 +250,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         int cameraX)
     {
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
-            (state.FliesLeft ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
+            (state.Flight == HorizontalDirection.Left ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
         // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(place, cameraX))
             return;
@@ -470,7 +470,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         HorizontalDirection direction)
     {
-        AddYellowPipeBugHorizontalVelocity(place, state, direction == HorizontalDirection.Left);
+        AddYellowPipeBugHorizontalVelocity(place, state, direction);
         if (ResetYellowPipeBugIfOffScreen(place, state, camera))
             return;
         if (state.ArcCompleted)
@@ -500,7 +500,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (ResetYellowPipeBugIfOffScreen(place, state, camera))
             return;
-        AddYellowPipeBugHorizontalVelocity(place, state, direction == HorizontalDirection.Left);
+        AddYellowPipeBugHorizontalVelocity(place, state, direction);
         if (state.ArcRising)
         {
             // The game moves the place back and ends the rise when it would pass the curve's start, holding it there; the
@@ -556,13 +556,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Applies the separately authored positive or negative 1/65536-pixel flight speed.</summary>
+    /// <summary>Moves the bug its 1/65536-pixel flight speed toward <paramref name="direction"/>.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemyPlace place,
         YellowPipeBugState state,
-        bool movingLeft)
+        HorizontalDirection direction)
     {
-        place.Position = place.Position.AdvanceX(movingLeft ? -state.FlightSpeed : state.FlightSpeed);
+        place.Position = place.Position.AdvanceX(direction == HorizontalDirection.Left ? -state.FlightSpeed : state.FlightSpeed);
     }
 
     /// <summary>Adds a linear-speed velocity to one axis, carrying the fraction into the whole.</summary>

@@ -24,7 +24,7 @@ internal static class PlatformOwnedStateVerification
         const int speedRecord = 5;
         const int accelerationCap = 3;
         place.SetSpawnParameter2(EnemyDefinitionId.Tripper, LittleEndianBytes.Word(speedRecord, accelerationCap));
-        place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = PlatformHorizontalMovement.Left });
+        place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = HorizontalDirection.Left });
         place.Position = place.Position.WithWholeY(ushort.MaxValue);
         PlatformsBehavior.InitializePlatform(place);
         PlatformEnemyState state = enemies.PlatformStates[0]

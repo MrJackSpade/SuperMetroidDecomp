@@ -80,10 +80,10 @@ internal static class PipeBugBehaviorVerification
             BrinstarPipeBugState state = place.RequireSpeciesState<BrinstarPipeBugState>();
             state.Action = BrinstarPipeBugAction.WaitForSamus;
             PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(28, 78)));
-            AssertTrue(state.FliesLeft, "Brinstar Pipe Bug flies left of Samus on her left");
+            AssertEqual(HorizontalDirection.Left, state.Flight, "Brinstar Pipe Bug flies left of Samus on her left");
             AssertEqual(BrinstarPipeBugAction.WaitForSamus, state.Action, "Brinstar Pipe Bug waits while Samus is 100 pixels away");
             PipeBugsBehavior.RunBrinstarPipeBugMainAi(place, Frame(new(148, 78)));
-            AssertTrue(!state.FliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
+            AssertEqual(HorizontalDirection.Right, state.Flight, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(BrinstarPipeBugAction.Emerge, state.Action, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
             AssertEqual(PipeBugSegment.ZebRisingRight, state.Playback.PlayingSegment, "Brinstar Pipe Bug emerges facing right");
         }

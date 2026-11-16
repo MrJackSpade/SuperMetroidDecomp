@@ -43,15 +43,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // The population entry names the patrol speed and the starting direction.
         GrappleRipperSpawnSettings settings = place.SpawnSettings<GrappleRipperSpawnSettings>();
         state.Speeds = new EnemyLinearSpeed(settings.Speed);
-        LoadRipperVelocity(state, settings.Direction switch
-        {
-            HorizontalDirection.Left => false,
-            HorizontalDirection.Right => true,
-            _ => throw new InvalidOperationException($"GrappleRipper start direction {settings.Direction} is not a direction."),
-        });
+        state.Heading = settings.Direction;
         SetRipperAnimation(
             place,
-            state.XVelocity.WholePixels < 0 ? RipperSegment.GrappleRipperMovingLeft : RipperSegment.GrappleRipperMovingRight);
+            state.Heading == HorizontalDirection.Left ? RipperSegment.GrappleRipperMovingLeft : RipperSegment.GrappleRipperMovingRight);
 
         // Unlike a wall, a patrol bound does not move the Ripper back flush with it: the
         // update that passes the bound keeps its overshoot, which shows again when the
@@ -71,11 +66,11 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             level,
             place,
             displacement);
-        if (!reverse && state.XVelocity.WholePixels < 0)
+        if (!reverse && state.Heading == HorizontalDirection.Left)
         {
             reverse = CoordinateAxis.Difference(place.Position.X.Whole, state.MinimumXPosition) < 0;
         }
-        if (!reverse && state.XVelocity.WholePixels >= 0)
+        if (!reverse && state.Heading == HorizontalDirection.Right)
         {
             reverse = CoordinateAxis.Difference(place.Position.X.Whole, state.MaximumXPosition) >= 0;
         }
@@ -95,9 +90,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speeds = new EnemyLinearSpeed(place.SpawnSettings<RipperSpawnSettings>().Speed);
 
         // The jet Ripper shows the grapple Ripper's animations, facing the way it flies (#1842).
-        bool movingPositive = place.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
-        LoadRipperVelocity(state, movingPositive);
-        SetRipperAnimation(place, movingPositive ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
+        state.Heading = place.SpawnSettings<RipperSpawnSettings>().Direction;
+        SetRipperAnimation(place, state.Heading == HorizontalDirection.Right ? RipperSegment.GrappleRipperMovingRight : RipperSegment.GrappleRipperMovingLeft);
     }
 
     /// <summary>Runs the jet Ripper's main AI.</summary>
@@ -118,14 +112,14 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The spawn's direction chooses the positive speed and the right-facing animation, or the negative speed and the
         // left-facing animation. Unlike a reversal, initialization keeps the population's frame timer.
-        bool movingRight = place.SpawnSettings<RipperSpawnSettings>().Direction == HorizontalDirection.Right;
+        HorizontalDirection heading = place.SpawnSettings<RipperSpawnSettings>().Direction;
         RipperEnemyState state = CreateRipperState(place);
         state.Playback = new(RipperAnimations.StartingWith(
-            movingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
+            heading == HorizontalDirection.Right ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft), AnimationPlace.StartOfAnimation);
 
-        // The state keeps the spawn speed because every reversal reverses it.
+        // The state keeps the spawn speed, which it flies toward its heading.
         state.Speeds = new EnemyLinearSpeed(place.SpawnSettings<RipperSpawnSettings>().Speed);
-        LoadRipperVelocity(state, movingRight);
+        state.Heading = heading;
     }
 
     /// <summary>Runs the Ripper's main AI.</summary>
@@ -139,17 +133,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             return;
 
-        bool wasMovingLeft = state.XVelocity.WholePixels < 0;
-        bool nowMovingRight = wasMovingLeft;
-        LoadRipperVelocity(state, nowMovingRight);
-        SetRipperAnimation(place, nowMovingRight ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft);
+        Reverse(state);
+        SetRipperAnimation(place, state.Heading == HorizontalDirection.Right ? RipperSegment.RipperMovingRight : RipperSegment.RipperMovingLeft);
     }
 
-    /// <summary>Sets a Ripper-family enemy's velocity from its spawn speed.</summary>
-    /// <param name="state">The enemy's state, whose spawn speed is read.</param>
-    /// <param name="movingRight">Whether the enemy flies right at its spawn speed rather than left.</param>
-    internal static void LoadRipperVelocity(RipperEnemyState state, bool movingRight) =>
-        state.XVelocity = movingRight ? state.Speeds.Positive : state.Speeds.Negative;
+    /// <summary>Turns a Ripper-family enemy round: it flies its spawn speed the other way (#2278).</summary>
+    internal static void Reverse(RipperEnemyState state) =>
+        state.Heading = state.Heading == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
 
     /// <summary>
     /// Runs the common post-shot tail. Normal shot AI owns health, death,
@@ -160,7 +150,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (place.FrozenTimer == 0)
             return;
-        place.Frame = place.RequireSpeciesState<RipperEnemyState>().XVelocity.WholePixels < 0
+        place.Frame = place.RequireSpeciesState<RipperEnemyState>().Heading == HorizontalDirection.Left
             ? EnemyFrameId.RipperFrozenFacingLeft
             : EnemyFrameId.RipperFrozenFacingRight;
     }
@@ -180,9 +170,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RipperSegment negativeSegment)
     {
         RipperEnemyState state = place.RequireSpeciesState<RipperEnemyState>();
-        bool wasMovingNegative = state.XVelocity.WholePixels < 0;
-        LoadRipperVelocity(state, movingRight: wasMovingNegative);
-        SetRipperAnimation(place, wasMovingNegative ? positiveSegment : negativeSegment);
+        Reverse(state);
+        SetRipperAnimation(place, state.Heading == HorizontalDirection.Right ? positiveSegment : negativeSegment);
     }
 
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>

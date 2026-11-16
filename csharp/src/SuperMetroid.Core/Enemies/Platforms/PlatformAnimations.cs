@@ -16,7 +16,7 @@ internal static class PlatformAnimations
     {
         [P.SuspensorPlatformHeadingLeft] =
         [
-            Cue(new(PlatformHorizontalMovement.Left)),
+            Cue(new(HorizontalDirection.Left)),
         ],
         [P.SuspensorPlatformLights] =
         [
@@ -27,11 +27,11 @@ internal static class PlatformAnimations
         ],
         [P.SuspensorPlatformHeadingRight] =
         [
-            Cue(new(PlatformHorizontalMovement.Right)),
+            Cue(new(HorizontalDirection.Right)),
         ],
         [P.TripperMovingLeft] =
         [
-            Cue(new(PlatformHorizontalMovement.Left)),
+            Cue(new(HorizontalDirection.Left)),
         ],
         [P.TripperHoveringLeft] =
         [
@@ -42,7 +42,7 @@ internal static class PlatformAnimations
         ],
         [P.TripperMovingRight] =
         [
-            Cue(new(PlatformHorizontalMovement.Right)),
+            Cue(new(HorizontalDirection.Right)),
         ],
         [P.TripperHoveringRight] =
         [
@@ -53,7 +53,7 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingLeft] =
         [
-            Cue(new(PlatformHorizontalMovement.Left)),
+            Cue(new(HorizontalDirection.Left)),
         ],
         [P.TripperThrustingLeft] =
         [
@@ -64,7 +64,7 @@ internal static class PlatformAnimations
         ],
         [P.TripperStillMovingRight] =
         [
-            Cue(new(PlatformHorizontalMovement.Right)),
+            Cue(new(HorizontalDirection.Right)),
         ],
         [P.TripperThrustingRight] =
         [

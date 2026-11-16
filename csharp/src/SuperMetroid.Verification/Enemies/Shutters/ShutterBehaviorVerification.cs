@@ -27,7 +27,7 @@ internal static class ShutterBehaviorVerification
             (enemies, place) =>
             {
                 place.SetSpawnSettings(new GrowingShutterSpawnSettings(
-                    Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, ActivationWait: 0,
+                    Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 144, ActivationWait: 0,
                     GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17)));
                 ShuttersBehavior.InitializeGrowingShutter(place);
             },
@@ -198,26 +198,11 @@ internal static class ShutterBehaviorVerification
             AssertEqual(expectedLowerY, state.LowerEndpointY, $"{context}: lower endpoint");
             SignedSixteenSixteen down = EnemyLinearSpeedTable.Speed(speedIndex);
             SignedSixteenSixteen up = -down;
-            AssertEqual(down, state.DownVelocity,
+            AssertEqual(down, state.VelocityToward(VerticalDirection.Down),
                 $"{context}: downward velocity is the speed record's first entry");
-            AssertEqual(up, state.UpVelocity,
+            AssertEqual(up, state.VelocityToward(VerticalDirection.Up),
                 $"{context}: upward velocity is the speed record's second entry");
         }
-    }
-
-    /// <summary>
-    /// The downward and upward 16.16 velocities each round-trip exactly through their own pair of slot words,
-    /// including a negative whole word and a full fraction, and writing one leaves the other unchanged.
-    /// </summary>
-    internal static void VerifyVerticalShutterVelocityWords()
-    {
-        var state = new VerticalShutterEnemyState(VerticalShutterAction.WaitForTimer);
-        SignedSixteenSixteen down = SignedSixteenSixteen.FromParts(-2, 40000);
-        SignedSixteenSixteen up = SignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
-        state.DownVelocity = down;
-        state.UpVelocity = up;
-        AssertEqual(down, state.DownVelocity, "downward velocity round-trips through its slot words");
-        AssertEqual(up, state.UpVelocity, "upward velocity round-trips through its own slot words");
     }
 
     /// <summary>Number of authored growing-shutter speed records.</summary>
@@ -232,7 +217,6 @@ internal static class ShutterBehaviorVerification
         Suite(nameof(VerifyGrowingShutterActivationTimer), () => VerifyGrowingShutterActivationTimer());
         Suite(nameof(VerifyGrowingShutterUpwardVelocity), () => VerifyGrowingShutterUpwardVelocity());
         Suite(nameof(VerifyVerticalShutterEndpoints), () => VerifyVerticalShutterEndpoints());
-        Suite(nameof(VerifyVerticalShutterVelocityWords), () => VerifyVerticalShutterVelocityWords());
         Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(rom));
         Suite(nameof(VerifyShutterExportFrames), () => VerifyShutterExportFrames(rom));
         return 0;

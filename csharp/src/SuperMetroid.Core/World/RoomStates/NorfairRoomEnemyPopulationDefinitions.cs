@@ -80,8 +80,8 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.IceBeamGate),
         [
-            new(EnemyDefinitionId.ShutterGrowing, new(1032, 600), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 240, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(14))),
-            new(EnemyDefinitionId.ShutterGrowing, new(1544, 600), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 104, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17))),
+            new(EnemyDefinitionId.ShutterGrowing, new(1032, 600), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 240, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(14))),
+            new(EnemyDefinitionId.ShutterGrowing, new(1544, 600), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: VerticalDirection.Down, ActivationDistance: 104, ActivationWait: 0, GrowthSpeed: SignedSixteenSixteen.FromSixteenthsOfPixel(17))),
             new(EnemyDefinitionId.Dessgeega, new(260, 943), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
             new(EnemyDefinitionId.Dessgeega, new(405, 863), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
             new(EnemyDefinitionId.Dessgeega, new(546, 946), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
@@ -212,7 +212,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugSpawnSettings(TriggerWidth: 0, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(48))),
             new(EnemyDefinitionId.Gamet, new(304, 456), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.RespawnsIfKilled, false, new NorfairPipeBugSpawnSettings(TriggerWidth: 0, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(48))),
             new(EnemyDefinitionId.GrappleRipper, new(256, 80), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), Direction: HorizontalDirection.Right, MinimumX: 232, MaximumX: 304)),
-            new(EnemyDefinitionId.SuspensorPlatform, new(344, 328), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
+            new(EnemyDefinitionId.SuspensorPlatform, new(344, 328), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.WorstRoomInTheGame),
         [
@@ -424,10 +424,10 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.GrappleRipper, new(408, 104), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), Direction: HorizontalDirection.Right, MinimumX: 360, MaximumX: 456)),
             new(EnemyDefinitionId.GrappleRipper, new(552, 152), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(32), Direction: HorizontalDirection.Right, MinimumX: 528, MaximumX: 616)),
             new(EnemyDefinitionId.GrappleRipper, new(864, 88), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), Direction: HorizontalDirection.Right, MinimumX: 768, MaximumX: 960)),
-            new(EnemyDefinitionId.SuspensorPlatform, new(176, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
-            new(EnemyDefinitionId.SuspensorPlatform, new(272, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
-            new(EnemyDefinitionId.SuspensorPlatform, new(368, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
-            new(EnemyDefinitionId.SuspensorPlatform, new(464, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
+            new(EnemyDefinitionId.SuspensorPlatform, new(176, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
+            new(EnemyDefinitionId.SuspensorPlatform, new(272, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
+            new(EnemyDefinitionId.SuspensorPlatform, new(368, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
+            new(EnemyDefinitionId.SuspensorPlatform, new(464, 664), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0), VerticalAccelerationUpdates: 40)),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.FrogSave),
         [
@@ -495,9 +495,9 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 8),
         new(nameof(RoomEnemyPopulationDefinitions.IceBeamAcid),
         [
-            new(EnemyDefinitionId.Tripper, new(400, 168), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 16)),
-            new(EnemyDefinitionId.Tripper, new(256, 168), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 16)),
-            new(EnemyDefinitionId.Tripper, new(112, 168), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 16)),
+            new(EnemyDefinitionId.Tripper, new(400, 168), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 16)),
+            new(EnemyDefinitionId.Tripper, new(256, 168), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 16)),
+            new(EnemyDefinitionId.Tripper, new(112, 168), EnemyContact.SolidToSamus, EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), VerticalAccelerationUpdates: 16)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.IceBeamTutorial),
         [
@@ -563,8 +563,8 @@ internal static class NorfairRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.SpikyPlatformsTunnel),
         [
-            new(EnemyDefinitionId.Tripper, new(640, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Right, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), VerticalAccelerationUpdates: 0)),
-            new(EnemyDefinitionId.Tripper, new(384, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), VerticalAccelerationUpdates: 7)),
+            new(EnemyDefinitionId.Tripper, new(640, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Right, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), VerticalAccelerationUpdates: 0)),
+            new(EnemyDefinitionId.Tripper, new(384, 168), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new PlatformSpawnSettings(Movement: HorizontalDirection.Left, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(24), VerticalAccelerationUpdates: 7)),
             new(EnemyDefinitionId.ShutterShootable, new(512, 8), EnemyContact.SolidToSamus, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new ShutterSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(16), PrimaryDirection: ShutterHeading.RightOrDown, TriggerMode: ShutterTriggerMode.Immediate, TravelDistance: 64, ProximityDistance: 0, WaitTime: 0, RestAfterMovingUp: ShutterRest.For(48), RestAfterMovingDown: ShutterRest.For(48))),
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.SpeedBooster),

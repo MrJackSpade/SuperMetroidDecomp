@@ -40,9 +40,9 @@ internal static class PlatformNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, PlatformNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9c6b] = new PlatformNativeListAddressesInstruction(new(PlatformHorizontalMovement.Left), ""),
-        [0x9c76] = new PlatformNativeListAddressesInstruction(new(PlatformHorizontalMovement.Right), ""),
-        [0x9c81] = new PlatformNativeListAddressesInstruction(new(PlatformHorizontalMovement.Left), ""),
-        [0x9c8c] = new PlatformNativeListAddressesInstruction(new(PlatformHorizontalMovement.Right), ""),
+        [0x9c6b] = new PlatformNativeListAddressesInstruction(new(HorizontalDirection.Left), ""),
+        [0x9c76] = new PlatformNativeListAddressesInstruction(new(HorizontalDirection.Right), ""),
+        [0x9c81] = new PlatformNativeListAddressesInstruction(new(HorizontalDirection.Left), ""),
+        [0x9c8c] = new PlatformNativeListAddressesInstruction(new(HorizontalDirection.Right), ""),
     };
 }

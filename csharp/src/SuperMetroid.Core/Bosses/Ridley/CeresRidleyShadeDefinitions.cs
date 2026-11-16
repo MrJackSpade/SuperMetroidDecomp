@@ -16,4 +16,7 @@ public static class CeresRidleyShadeDefinitions
 
     /// <summary>The getaway's zoom steps, selected by the whole part of the getaway zoom (zero to eight).</summary>
     public const int GetawayZoomStepCount = 9;
+
+    /// <summary>The steps of the self-destruct warning's alarm colour cycle, after whose last it starts again.</summary>
+    public const int AlarmStepCount = 16;
 }

@@ -59,13 +59,13 @@ internal sealed class CeresRidleyBabyScene
                 goto case CeresBabyAction.Dropped;
 
             case CeresBabyAction.Dropped:
-                // The falling speed only grows from zero and the fall ends at Y=192, so it stays a few pixels an
+                // The falling speed only grows from zero and the fall ends at the Baby's floor, so it stays a few pixels an
                 // update.
                 baby.VerticalVelocity += CeresBabyFallGravity;
                 baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
-                if (CoordinateAxis.Difference(baby.Position.Y.Whole, 192) >= 0)
+                if (CoordinateAxis.Difference(baby.Position.Y.Whole, CeresRidleyArenaDefinitions.BabyFloorY) >= 0)
                 {
-                    baby.Position = baby.Position.WithWholeY(192);
+                    baby.Position = baby.Position.WithWholeY(CeresRidleyArenaDefinitions.BabyFloorY);
                     baby.Action = CeresBabyAction.Idle;
                 }
                 return;

@@ -112,8 +112,8 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
             case CeresRidleyPhase.LiftoffAccelerating:
                 // The rising step adds -16 to the 1/256-pixel Y velocity before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
-                state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16));
-                if (CoordinateAxis.Difference(place.Position.Y.Whole, 112) < 0)
+                state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y - CeresRidleyFlightDefinitions.LiftoffClimbStep);
+                if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.LiftoffSlowingLineY) < 0)
                 {
                     state.Phase = CeresRidleyPhase.LiftoffDecelerating;
                     CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state);
@@ -139,7 +139,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
             case CeresRidleyPhase.LungeSetup:
                 RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.CeresLunge);
                 state.Phase = CeresRidleyPhase.LungeMain;
-                state.PhaseTimer.Count = 64;
+                state.PhaseTimer.Count = CeresRidleyFlightDefinitions.LungeUpdates;
                 CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
                 return true;
 
@@ -149,7 +149,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
 
             case CeresRidleyPhase.SwoopSetup:
                 state.Phase = CeresRidleyPhase.SwoopMoveToPosition;
-                state.PhaseTimer.Count = 10;
+                state.PhaseTimer.Count = CeresRidleyFlightDefinitions.SwoopDiveUpdates;
                 state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
                 state.Tail.IdleWhipEnabled = false;
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
@@ -164,9 +164,9 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     state,
                     turn: new RidleySwoopTurn(RotationAngle.FromSteps(0, 32), RotationDirection.Clockwise),
                     targetAngle: RotationAngle.Zero - RotationAngle.FromSteps(4),
-                    targetSpeed: SignedEightEight.FromPixels(3),
+                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
                     nextPhase: CeresRidleyPhase.SwoopDescendingAimingLeft,
-                    nextTimer: 36);
+                    nextTimer: CeresRidleyFlightDefinitions.SwoopSweepUpdates);
                 return true;
 
             case CeresRidleyPhase.SwoopDescendingAimingLeft:
@@ -174,9 +174,9 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     state,
                     turn: new RidleySwoopTurn(RotationAngle.FromSteps(2), RotationDirection.Clockwise),
                     targetAngle: RotationAngle.ThreeQuarterTurn,
-                    targetSpeed: SignedEightEight.FromPixels(3),
+                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
                     nextPhase: CeresRidleyPhase.SwoopAscendingAimingUp,
-                    nextTimer: 28);
+                    nextTimer: CeresRidleyFlightDefinitions.SwoopClimbUpdates);
                 if (state.Phase == CeresRidleyPhase.SwoopAscendingAimingUp)
                 {
                     // The swoop requests one aimed tail fling at the exact bottom
@@ -192,14 +192,14 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                     state,
                     turn: new RidleySwoopTurn(RotationAngle.FromSteps(2), RotationDirection.Clockwise),
                     targetAngle: RotationAngle.Zero - RidleyFlight.SwoopClimbTarget,
-                    targetSpeed: SignedEightEight.FromPixels(3),
+                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
                     nextPhase: CeresRidleyPhase.SwoopAscendingAimingUpFaster,
-                    nextTimer: 1);
+                    nextTimer: CeresRidleyFlightDefinitions.SwoopFinalClimbUpdates);
                 return true;
 
             case CeresRidleyPhase.SwoopAscendingAimingUpFaster:
                 RidleyFlight.UpdateSwoopVelocity(state.Flight, turn: new RidleySwoopTurn(RotationAngle.FromSteps(3), RotationDirection.Clockwise), targetAngle: RotationAngle.Zero - RidleyFlight.SwoopClimbTarget,
-                    targetSpeed: SignedEightEight.FromPixels(3));
+                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed);
                 if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Phase = CeresRidleyPhase.Hovering;

@@ -16,10 +16,11 @@ internal static class TorizoNamedHeadingsVerification
         {
             for (int spread = 0; spread < 16; spread++)
             {
+                HorizontalDirection facing = facingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
                 AssertSameAt(new TrigonometryAngle((facingRight ? 32 : 224) + spread - 8),
-                    TorizoAttacks.DroolHeading(facingRight, spread), $"drool heading facing right {facingRight}", spread);
+                    TorizoAttacks.DroolHeading(facing, spread), $"drool heading facing right {facingRight}", spread);
                 AssertSameAt(new TrigonometryAngle(spread - 8 + 96 + (facingRight ? 0 : 64)),
-                    TorizoAttacks.EyeBeamHeading(facingRight, spread), $"eye-beam heading facing right {facingRight}", spread);
+                    TorizoAttacks.EyeBeamHeading(facing, spread), $"eye-beam heading facing right {facingRight}", spread);
             }
         }
 

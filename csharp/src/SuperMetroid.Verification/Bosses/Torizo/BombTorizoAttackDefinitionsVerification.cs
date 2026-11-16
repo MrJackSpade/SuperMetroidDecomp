@@ -31,7 +31,7 @@ internal static class BombTorizoAttackDefinitionsVerification
         foreach (bool facingRight in new[] { true, false })
         {
             int row = (site == BombTorizoExplosionSite.Gut ? 0 : 3) + (facingRight ? 1 : 2);
-            Offset16<RoomPixels> definition = BombTorizoAttacks.LowHealthExplosion(site, facingRight);
+            Offset16<RoomPixels> definition = BombTorizoAttacks.LowHealthExplosion(site, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionXAddress + row * 2))),
                 definition.X,
                 $"Bomb Torizo explosion site {site} facing right {facingRight} X offset");
@@ -65,7 +65,7 @@ internal static class BombTorizoAttackDefinitionsVerification
             foreach (BombTorizoExplosionSite parameter in Enum.GetValues<BombTorizoExplosionSite>())
             {
                 Offset16<RoomPixels> expected =
-                    BombTorizoAttacks.LowHealthExplosion(parameter, facingRight);
+                    BombTorizoAttacks.LowHealthExplosion(parameter, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
                 (RoomEnemySystem enemies, RoomEnemyPlace torizo) =
                     CreateBombTorizoAttackFixture(facingRight);
                 enemies.TorizoBehavior.Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
@@ -83,10 +83,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)2, facingRight: true),
+            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)2, facing: HorizontalDirection.Right),
             "Bomb Torizo explosion site outside the gut and face");
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)(-1), facingRight: false),
+            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)(-1), facing: HorizontalDirection.Left),
             "Bomb Torizo negative explosion site");
 
         Console.WriteLine(

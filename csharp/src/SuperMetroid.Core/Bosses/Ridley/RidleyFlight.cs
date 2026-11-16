@@ -149,7 +149,7 @@ internal sealed class RidleyFlight
         if (flight.WingAnimationTimer >= 0)
             return;
 
-        flight.WingAnimationTimer = 32;
+        flight.WingAnimationTimer = RidleyWingDefinitions.BeatCountdown;
         flight.WingBeatStep = (flight.WingBeatStep + 1) % RidleySupplementalVisualDefinitions.WingBeatSteps;
     }
 }

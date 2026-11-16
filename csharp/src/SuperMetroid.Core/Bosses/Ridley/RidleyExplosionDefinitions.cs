@@ -88,22 +88,17 @@ internal static class RidleyExplosionDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>
-    /// The body-relative position and pose of each body fragment by facing, loaded by the breakup initializer; a
-    /// right-facing placement mirrors the left-facing one's X.
+    /// The body-relative position while Ridley faces left and the pose each way of each body fragment, loaded by the
+    /// breakup initializer; a right-facing placement mirrors the left-facing one's X.
     /// </summary>
-    internal static readonly FrozenDictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition> BodyParts =
-        new Dictionary<RidleyExplosionPartFacing, RidleyExplosionBodyPartDefinition>
+    internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition> BodyParts =
+        new Dictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition>
         {
-            [new(RidleyExplosionPart.Wings, false)] = new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft),
-            [new(RidleyExplosionPart.Wings, true)] = new(new(0, 0), RidleyBreakupFrame.WingsFacingRight),
-            [new(RidleyExplosionPart.Legs, false)] = new(new(15, 22), RidleyBreakupFrame.LegsFacingLeft),
-            [new(RidleyExplosionPart.Legs, true)] = new(new(-15, 22), RidleyBreakupFrame.LegsFacingRight),
-            [new(RidleyExplosionPart.OpenHeadAndNeck, false)] = new(new(-3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingLeft),
-            [new(RidleyExplosionPart.OpenHeadAndNeck, true)] = new(new(3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingRight),
-            [new(RidleyExplosionPart.Torso, false)] = new(new(16, 0), RidleyBreakupFrame.TorsoFacingLeft),
-            [new(RidleyExplosionPart.Torso, true)] = new(new(-16, 0), RidleyBreakupFrame.TorsoFacingRight),
-            [new(RidleyExplosionPart.Claw, false)] = new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft),
-            [new(RidleyExplosionPart.Claw, true)] = new(new(-8, 7), RidleyBreakupFrame.ClawFacingRight),
+            [RidleyExplosionPart.Wings] = new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft, RidleyBreakupFrame.WingsFacingRight),
+            [RidleyExplosionPart.Legs] = new(new(15, 22), RidleyBreakupFrame.LegsFacingLeft, RidleyBreakupFrame.LegsFacingRight),
+            [RidleyExplosionPart.OpenHeadAndNeck] = new(new(-3, -24), RidleyBreakupFrame.OpenHeadAndNeckFacingLeft, RidleyBreakupFrame.OpenHeadAndNeckFacingRight),
+            [RidleyExplosionPart.Torso] = new(new(16, 0), RidleyBreakupFrame.TorsoFacingLeft, RidleyBreakupFrame.TorsoFacingRight),
+            [RidleyExplosionPart.Claw] = new(new(8, 7), RidleyBreakupFrame.ClawFacingLeft, RidleyBreakupFrame.ClawFacingRight),
         }.ToFrozenDictionary();
 
     /// <summary>The drag a breakup fragment's sideways speed loses each update, stopping at rest.</summary>

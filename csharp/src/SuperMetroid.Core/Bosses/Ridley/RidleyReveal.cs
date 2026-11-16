@@ -146,8 +146,8 @@ internal sealed class RidleyReveal
     private static void TakeOff(RoomEnemyPlace place, RidleyEncounterState ridley)
     {
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.TransitionToFlying);
-        ridley.Flight.WingAnimationTimer = 8;
-        ridley.Flight.WingAnimationTimerDelta = 8;
+        ridley.Flight.WingAnimationTimer = RidleyWingDefinitions.TakeOffCountdown;
+        ridley.Flight.WingAnimationTimerDelta = RidleyWingDefinitions.TakeOffCountdown;
         foreach (RidleyTailLink link in ridley.Tail.Links)
             link.Active = true;
         ridley.Tail.Action = RidleyTailAction.Neutral;

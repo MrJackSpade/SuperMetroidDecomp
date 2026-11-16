@@ -10,8 +10,9 @@ public sealed class CeresRidleyState : RidleyEncounterState
     /// <param name="body">Where his body stands as he is placed.</param>
     internal CeresRidleyState(Position16<RoomPixels> body)
         : base(
-            new RidleyFlightState(RidleyFacing.Left, Position16<RoomPixels>.Wrapped(40, -32), new Position16<RoomPixels>(224, 176), wingBeatStep: 5),
-            new RidleyTailState(damage: 15))
+            new RidleyFlightState(RidleyFacing.Left, CeresRidleyArenaDefinitions.MovementMinimum, CeresRidleyArenaDefinitions.MovementMaximum,
+                wingBeatStep: RidleyWingDefinitions.CeresFirstBeatStep),
+            new RidleyTailState(damage: RidleyTailDefinitions.CeresTipDamage))
     {
         Baby = new CeresBaby(body + CeresRidleyBabyScene.CeresBabyArmsAnchor);
         // Ceres Ridley's tail starts whipping of its own; his swoop alone stops it.

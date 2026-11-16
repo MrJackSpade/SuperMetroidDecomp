@@ -88,9 +88,8 @@ internal sealed class TorizoChoices
         int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (distance < TorizoDecisionDefinitions.ForwardLeapDistance || !TorizoFacing.FacesSamus(torizo, samus))
             return null;
-        GameplayAction heldButtons = controllerInput;
         if (state.SamusSpaceJumpFrames <= TorizoDecisionDefinitions.SpaceJumpLeapFrames &&
-            (!heldButtons.HasAny(GameplayActions.HorizontalDirections) ||
+            (!controllerInput.HasAny(GameplayActions.HorizontalDirections) ||
                 TorizoRandomDefinitions.ForwardLeap.IsTakenBy(_room.Random.Generate())))
         {
             return null;

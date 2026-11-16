@@ -17,7 +17,7 @@ internal static class TorizoDeathDefinitions
     /// <summary>The updates a burst of low-health explosions flashes the Torizo, as long as its animation waits after it.</summary>
     internal const int LowHealthExplosionFlash = 40;
 
-    /// <summary>The updates a death explosion flashes the Torizo, as long as its animation waits after it.</summary>
+    /// <summary>The updates a death explosion flashes the Torizo, as long as its flicker waits after it.</summary>
     internal const int DeathExplosionFlash = 1;
 
     /// <summary>The drops a Torizo's death scatters.</summary>

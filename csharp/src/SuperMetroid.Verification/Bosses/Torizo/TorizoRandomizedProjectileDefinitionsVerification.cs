@@ -16,12 +16,12 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
     {
         TorizoRandomizedProjectileDefinitionsDefinition[] definitions =
         [
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac08, TorizoRandomizedProjectiles.BombChozoOrb(true), "Bomb orb right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac12, TorizoRandomizedProjectiles.BombChozoOrb(false), "Bomb orb left"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac99, TorizoRandomizedProjectiles.GoldenChozoOrb(true), "Golden orb right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86aca3, TorizoRandomizedProjectiles.GoldenChozoOrb(false), "Golden orb left"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b02f, TorizoRandomizedProjectiles.GoldenEgg(true), "Golden egg right"),
-            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b039, TorizoRandomizedProjectiles.GoldenEgg(false), "Golden egg left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac08, TorizoRandomizedProjectiles.BombChozoOrb(HorizontalDirection.Right), "Bomb orb right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac12, TorizoRandomizedProjectiles.BombChozoOrb(HorizontalDirection.Left), "Bomb orb left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86ac99, TorizoRandomizedProjectiles.GoldenChozoOrb(HorizontalDirection.Right), "Golden orb right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86aca3, TorizoRandomizedProjectiles.GoldenChozoOrb(HorizontalDirection.Left), "Golden orb left"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b02f, TorizoRandomizedProjectiles.GoldenEgg(HorizontalDirection.Right), "Golden egg right"),
+            new TorizoRandomizedProjectileDefinitionsDefinition(0x86b039, TorizoRandomizedProjectiles.GoldenEgg(HorizontalDirection.Left), "Golden egg left"),
         ];
 
         // The eye beam's launch tuple names its program and its offsets; its velocity words are written and then replaced
@@ -77,17 +77,17 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 nameof(TorizoAttacks.SpawnBombTorizoChozoOrb),
                 (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnBombTorizoChozoOrb(torizo),
                 facingRight,
-                TorizoRandomizedProjectiles.BombChozoOrb(facingRight));
+                TorizoRandomizedProjectiles.BombChozoOrb(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoChozoOrb),
                 (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoChozoOrb(torizo),
                 facingRight,
-                TorizoRandomizedProjectiles.GoldenChozoOrb(facingRight));
+                TorizoRandomizedProjectiles.GoldenChozoOrb(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEgg),
                 (enemies, torizo) => enemies.TorizoBehavior.Attacks.SpawnGoldenTorizoEgg(torizo),
                 facingRight,
-                TorizoRandomizedProjectiles.GoldenEgg(facingRight));
+                TorizoRandomizedProjectiles.GoldenEgg(facingRight ? HorizontalDirection.Right : HorizontalDirection.Left));
             VerifyGoldenEyeBeamSpawn(facingRight);
         }
 

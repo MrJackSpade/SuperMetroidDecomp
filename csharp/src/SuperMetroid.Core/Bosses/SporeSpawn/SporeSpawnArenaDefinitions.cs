@@ -50,4 +50,28 @@ internal static class SporeSpawnArenaDefinitions
     /// above his arena until he dies.
     /// </summary>
     internal const int LowestCameraY = 464;
+
+    /// <summary>Where his stalk hangs from as he is placed, above his body (#2232).</summary>
+    internal static readonly Offset16<RoomPixels> StalkAnchorAboveBody = new(0, -72);
+
+    /// <summary>The pixels his descent lowers him each update.</summary>
+    internal const int DescentSpeed = 1;
+
+    /// <summary>The angle step his sway takes each update once a hit low on health quickens it, either way.</summary>
+    internal const int FastSwingStep = 2;
+
+    /// <summary>How far left of and above his body the box his hardening's dust bursts scatter over starts.</summary>
+    internal static readonly Offset16<RoomPixels> HardeningDustCentring = new(64, 64);
+
+    /// <summary>How far left of and above his body the box his dying explosions scatter over starts.</summary>
+    internal static readonly Offset16<RoomPixels> DyingExplosionCentring = new(64, 32);
+
+    /// <summary>The drops his death scatters.</summary>
+    internal const int DeathDrops = 16;
+
+    /// <summary>The top-left corner of the stretch of his room his death's drops scatter over.</summary>
+    internal static readonly Position16<RoomPixels> DeathDropCorner = new(64, 528);
+
+    /// <summary>The bottom of his room, which a falling spore is deleted once it reaches.</summary>
+    internal const int SporeFloorY = 768;
 }

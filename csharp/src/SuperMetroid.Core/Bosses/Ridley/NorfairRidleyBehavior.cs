@@ -65,7 +65,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         SamusState samus = frame.Samus;
         SamusProjectileSystem samusProjectiles = frame.SamusProjectiles;
         SamusBombProjectileSystem sharedProjectiles = frame.SharedProjectiles;
-        state.HurtMovementClamp = Math.Max(0, state.HurtMovementClamp - 4);
+        state.HurtMovementClamp = Math.Max(0, state.HurtMovementClamp - NorfairRidleyMotionDefinitions.HurtCarryLagRecovery);
 
         RidleyInteractions.UpdateNorfairRidleyIntangibility(place, state, frame.Camera);
         NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
@@ -120,8 +120,8 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         switch (state.Phase)
         {
             case NorfairRidleyPhase.EnterArena:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, new Position16<RoomPixels>(64, 256), divisor: 2);
-                if (RidleyFlight.IsWithinRectangle(place, new(64, 256), new(8, 8)))
+                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, NorfairRidleyArenaDefinitions.ArenaEntry, divisor: NorfairRidleyMotionDefinitions.ArenaEntryDivisor);
+                if (RidleyFlight.IsWithinRectangle(place, NorfairRidleyArenaDefinitions.ArenaEntry, NorfairRidleyArenaDefinitions.FlightTargetReach))
                 {
                     state.FightMode = RidleyFightMode.Fighting;
                     state.Phase = NorfairRidleyPhase.SelectAttack;
@@ -135,7 +135,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.HoverSetup:
                 state.Phase = NorfairRidleyPhase.Hover;
-                state.PhaseTimer.Count = 128;
+                state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.HoverUpdates;
                 NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
                 return;
 
@@ -145,7 +145,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.SwoopSetup:
                 state.Phase = NorfairRidleyPhase.SwoopMoveToStart;
-                state.SwoopPhaseTimer = 10;
+                state.SwoopPhaseTimer = NorfairRidleyMotionDefinitions.SwoopSetupUpdates;
                 state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
                 NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(place, state);
                 return;
@@ -159,9 +159,9 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                     state,
                     SwoopTurn(state, RotationAngle.FromSteps(0, 32)),
                     SwoopTarget(state, RotationAngle.FromSteps(2)),
-                    SignedEightEight.FromParts(4, 128),
+                    NorfairRidleyMotionDefinitions.SwoopDiveSpeed,
                     NorfairRidleyPhase.SwoopAimSideways,
-                    20);
+                    NorfairRidleyMotionDefinitions.SwoopSweepUpdates);
                 return;
 
             case NorfairRidleyPhase.SwoopAimSideways:
@@ -169,9 +169,9 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                         state,
                         SwoopTurn(state, RotationAngle.FromSteps(1, 64)),
                         SwoopTarget(state, RotationAngle.QuarterTurn),
-                        SignedEightEight.FromPixels(5),
+                        NorfairRidleyMotionDefinitions.SwoopSweepSpeed,
                         NorfairRidleyPhase.SwoopAimUp,
-                        16))
+                        NorfairRidleyMotionDefinitions.SwoopTurnUpdates))
                 {
                     state.Tail.WhipRequested = true;
                 }
@@ -182,9 +182,9 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                     state,
                     SwoopTurn(state, RotationAngle.FromSteps(2)),
                     SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
-                    SignedEightEight.FromPixels(3),
+                    NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                     NorfairRidleyPhase.SwoopClimb,
-                    32);
+                    NorfairRidleyMotionDefinitions.SwoopClimbUpdates);
                 return;
 
             case NorfairRidleyPhase.SwoopClimb:
@@ -192,16 +192,16 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                         state,
                         SwoopTurn(state, RotationAngle.FromSteps(4)),
                         SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
-                        SignedEightEight.FromPixels(3),
+                        NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                         NorfairRidleyPhase.SwoopRecover,
-                        32))
+                        NorfairRidleyMotionDefinitions.SwoopRecoveryUpdates))
                 {
                     NorfairRidleyCombat.SelectNorfairRidleyFacingAnimation(place, state);
                 }
                 return;
 
             case NorfairRidleyPhase.SwoopRecover:
-                RidleyFlight.UpdateSwoopVelocity(state.Flight, RidleySwoopTurn.None, RotationAngle.HalfTurn, SignedEightEight.FromParts(1, 192));
+                RidleyFlight.UpdateSwoopVelocity(state.Flight, RidleySwoopTurn.None, RotationAngle.HalfTurn, NorfairRidleyMotionDefinitions.SwoopRecoverySpeed);
                 if (state.SwoopPhaseTimer != 0)
                 {
                     state.SwoopPhaseTimer--;
@@ -216,7 +216,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 state.Tail.IdealLinkSpacing = RidleyTailDefinitions.WallSweepLinkSpacing;
                 state.Tail.ExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Phase = NorfairRidleyPhase.SweepToWallBehind;
-                state.PhaseTimer.Count = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + 32;
+                state.PhaseTimer.Count = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.WallSweepFirstLegMinimum;
                 Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
@@ -257,11 +257,11 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 return;
 
             case NorfairRidleyPhase.CarryMoveToAnchor:
-                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, 16);
+                NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, NorfairRidleyMotionDefinitions.CarryDivisor);
                 if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Phase = NorfairRidleyPhase.CarryRise;
-                    state.PhaseTimer.Count = 32;
+                    state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.CarryRiseUpdates;
                 }
                 return;
 
@@ -272,10 +272,10 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                     state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Phase = NorfairRidleyPhase.CarryRelease;
-                    state.PhaseTimer.Count = 64;
+                    state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.CarryReleaseUpdates;
                 }
                 else
-                    NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target.WithY(256), 16);
+                    NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target.WithY(NorfairRidleyArenaDefinitions.FlightLineY), NorfairRidleyMotionDefinitions.CarryDivisor);
                 return;
 
             case NorfairRidleyPhase.CarryRelease:
@@ -288,7 +288,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 else
                 {
                     NorfairRidleyMovement.MoveNorfairRidleyToward(
-                        place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.Flight.FacingDirection), 224), 16);
+                        place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.CarryReleaseY), NorfairRidleyMotionDefinitions.CarryDivisor);
                 }
                 return;
 
@@ -349,11 +349,11 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             situation = RidleyAttackSituation.ZeroHealth;
             state.ZeroHealthLungeCount++;
         }
-        else if (place.Health < 14400)
+        else if (place.Health < NorfairRidleyMotionDefinitions.WoundedAttackHealth)
         {
             situation = RidleyAttackSituation.Ordinary;
         }
-        else if (samus.Position.Y.Whole >= 352)
+        else if (samus.Position.Y.Whole >= NorfairRidleyArenaDefinitions.PogoZoneTopY)
         {
             situation = RidleyAttackSituation.PogoZone;
         }
@@ -406,8 +406,8 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         RidleyBodyContact.UpdateHurtFlash(body, state, body.FrameCounter);
         RidleyInteractions.UpdateNorfairRidleyHealthBand(body, state);
 
-        state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);
-        if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= 8)
+        state.HurtMovementClamp = Math.Min(NorfairRidleyMotionDefinitions.HurtCarryLag, state.HurtMovementClamp + 1);
+        if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= NorfairRidleyMotionDefinitions.HurtCarryLag)
             NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
 

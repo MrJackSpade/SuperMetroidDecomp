@@ -70,8 +70,8 @@ internal sealed class CeresRidleyHits
         // Testing any other property of it (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt flash.
         place.FlashTimer = place.FlashTimer != 0 && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(place.FlashTimer)
-            ? 14
-            : 13;
+            ? CeresRidleyFightDefinitions.HurtFlashKeepingPhase
+            : CeresRidleyFightDefinitions.HurtFlash;
         ridley.HitCounter++;
 
         // The game draws the hurt flash from the enemy frame that just completed.
@@ -92,10 +92,10 @@ internal sealed class CeresRidleyHits
     /// </summary>
     internal static void UpdateCeresRidleyHealthBand(CeresRidleyState ridley)
     {
-        if (ridley.FightMode == RidleyFightMode.NotFighting || ridley.HitCounter < 50)
+        if (ridley.FightMode == RidleyFightMode.NotFighting || ridley.HitCounter < CeresRidleyFightDefinitions.FirstShadeHits)
             return;
 
-        int band = ridley.HitCounter < 70
+        int band = ridley.HitCounter < CeresRidleyFightDefinitions.LateShadeHits
             ? CeresRidleyShadeDefinitions.HealthMidBand
             : CeresRidleyShadeDefinitions.HealthLateBand;
         ridley.Colours.ShowHealth(band);

@@ -139,6 +139,12 @@ internal static class TorizoMotionDefinitions
     /// </summary>
     internal const int EyeBeamSpreadCentre = 8;
 
+    /// <summary>
+    /// The 256ths of a pixel a randomized projectile's jitter (<see cref="TorizoRandomDefinitions.VelocityJitter"/>) is
+    /// taken back by on each axis, so the jitter lies either side of its base speed (#2232).
+    /// </summary>
+    internal const int VelocityJitterCentre = 128;
+
     /// <summary>The eye beam's speed, eight pixels an update along its heading.</summary>
     internal static readonly SignedEightEight EyeBeamSpeed = SignedEightEight.FromPixels(8);
 

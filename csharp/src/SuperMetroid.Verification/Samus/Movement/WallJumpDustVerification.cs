@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;

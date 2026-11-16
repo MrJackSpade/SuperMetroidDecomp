@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Tooling;

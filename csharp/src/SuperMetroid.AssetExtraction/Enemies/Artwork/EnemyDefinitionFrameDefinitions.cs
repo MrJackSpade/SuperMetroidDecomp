@@ -411,6 +411,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MotherBrainBodyCrouched,
         EnemyFrameId.MotherBrainBodyUncrouching,
         EnemyFrameId.MotherBrainBodyLeaningDown,
+        EnemyFrameId.MotherBrainBrainHitArea,
         EnemyFrameId.MotherBrainBodyHandCurling,
         EnemyFrameId.MotherBrainBodyArmDrawnBack,
         EnemyFrameId.MotherBrainBodyArmFlungOut,
@@ -433,6 +434,7 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MotherBrainDarkHeadJawDropped,
         EnemyFrameId.MotherBrainHeadCorpseSlumping,
         EnemyFrameId.MotherBrainHeadCorpseSlumped,
+        EnemyFrameId.MotherBrainBrainHitArea,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainTubes</c>.</summary>

@@ -2229,6 +2229,7 @@ internal static class SpawnedObjectFrameDefinitions
     private static readonly RoomEffectActorKind[] PhantoonSharedEffectActors =
     [
         RoomEffectActorKind.BigDustCloud,
+        RoomEffectActorKind.DudShot,
         RoomEffectActorKind.SmallExplosion,
         RoomEffectActorKind.Smoke,
     ];

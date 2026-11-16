@@ -62,7 +62,7 @@ internal static class RidleyBreakupProgramsVerification
             ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
             RidleyExplosionFragmentState spawned = fragment.RequireSpeciesState<RidleyExplosionFragmentState>();
-            fragment.SetSpeciesState(new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Lifetime = spawned.Lifetime, Picture = frame });
+            fragment.SetSpeciesState(new RidleyExplosionFragmentState { Velocity = spawned.Velocity, Lifetime = { Count = spawned.Lifetime.Count }, Picture = frame });
             fragment.AnimationClock.StepOnNextUpdate();
             process(fragment, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");

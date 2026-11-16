@@ -65,7 +65,6 @@ internal sealed class SpawnAnalysis
         RequireMembers(model.EnemyProjectileFrameId, Walk.ExcludedProjectileFrames);
         RequireMembers(model.RoomEffectActorKind, Walk.ExcludedEffectActors);
         RequireEmptyFrames(model);
-        RequireSamusHitBursts(model);
         var analysis = new SpawnAnalysis(model);
         var scanner = new UnitScanner(model);
         var reached = new HashSet<Unit>();
@@ -312,37 +311,6 @@ internal sealed class SpawnAnalysis
         }
     }
 
-    /// <summary>
-    /// Requires the effect-actor kinds the generator excludes to be exactly those Core's
-    /// <c>RoomEffectActorVisualDefinitions.SamusHitBursts</c> lists as Samus's weapon effects (#1713), so a kind her
-    /// projectile sheets picture is on no enemy sheet and every other kind is on its sheet.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The catalog is missing or lists other kinds.</exception>
-    private static void RequireSamusHitBursts(CoreModel model)
-    {
-        INamedTypeSymbol[] catalogs = [.. model.Types.Where(type => type.Name == "RoomEffectActorVisualDefinitions")];
-        if (catalogs is not [var catalog] || catalog.GetMembers("SamusHitBursts") is not [IPropertySymbol property])
-            throw new InvalidDataException("Core declares no single RoomEffectActorVisualDefinitions.SamusHitBursts.");
-        var listed = new SortedSet<string>(StringComparer.Ordinal);
-        foreach (SyntaxReference reference in property.DeclaringSyntaxReferences)
-        {
-            if (reference.GetSyntax() is not PropertyDeclarationSyntax { Initializer.Value: var value })
-                continue;
-            SemanticModel semantic = model.ModelOf(value.SyntaxTree);
-            foreach (ExpressionSyntax expression in value.DescendantNodes().OfType<ExpressionSyntax>())
-            {
-                if (semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member
-                    && SymbolEqualityComparer.Default.Equals(member.ContainingType, model.RoomEffectActorKind))
-                    listed.Add(member.Name);
-            }
-        }
-        var excluded = new SortedSet<string>(Walk.ExcludedEffectActors, StringComparer.Ordinal);
-        if (!listed.SetEquals(excluded))
-        {
-            throw new InvalidDataException("The generator's excluded effect actors (" + string.Join(", ", excluded)
-                + ") are not the kinds RoomEffectActorVisualDefinitions.SamusHitBursts lists (" + string.Join(", ", listed) + ").");
-        }
-    }
 
     /// <summary>
     /// Requires each behaviour's own sheet and its sets' shared sheet to hold no spawned frame or effect actor in common

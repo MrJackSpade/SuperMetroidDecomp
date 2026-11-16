@@ -99,9 +99,9 @@ internal static class SamusBodyTransferContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Samus.Artwork;
             class SamusTransferConsumer {
-                void Inspect(InstalledSamusBodyArtwork body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, ushort frame) {
+                void Inspect(InstalledSamusBodyArtwork body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame frame) {
                     body.OriginRise(pose, frame);
-                    body.OriginRise(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, 0);
+                    body.OriginRise(SuperMetroid.Core.Samus.Poses.SamusPoseId.TallStillRightPose, SuperMetroid.Core.Samus.Poses.SamusAnimationFrame.Start);
                 }
             }
             """, path: "fixture-samus-transfer-consumer.cs");

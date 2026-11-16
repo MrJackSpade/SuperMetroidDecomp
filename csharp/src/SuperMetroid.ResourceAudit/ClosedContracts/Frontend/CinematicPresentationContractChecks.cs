@@ -38,11 +38,12 @@ internal static class CinematicPresentationContractChecks
                     EscapeTimerPresentation timer,
                     EscapeTimer countdown, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
-                    SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet) {
+                    SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet,
+                    SuperMetroid.Core.Assets.PictureShading titleShading) {
                     gradient.Resolve(SuperMetroid.Core.Spatial.FloorZoom.FromTwoHundredFiftySixths(ushort.MaxValue));
-                    TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
-                    TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
-                    TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, SuperMetroid.Core.Frontend.Title.Artwork.TitleSpriteColouring.Logo);
+                    TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, titleShading);
+                    TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, titleShading);
+                    TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, titleShading);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.CaretVisible, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));

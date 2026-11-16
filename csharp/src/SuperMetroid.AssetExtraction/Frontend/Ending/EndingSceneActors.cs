@@ -125,6 +125,6 @@ internal static class EndingSceneActors
     private static void AddRewardActor(EndingSheetDraws draws, EndingRewardActor actor)
     {
         EndingRewardActorDefinition record = EndingRewardActors.Get(actor);
-        draws.AddProgram(CinematicSpriteFamily.EndingReward, record.Animation, EndingRewardActors.GetInitialization(record.Initialization).Colouring);
+        draws.AddProgram(CinematicSpriteFamily.EndingReward, record.Animation, record.Start.Colouring);
     }
 }

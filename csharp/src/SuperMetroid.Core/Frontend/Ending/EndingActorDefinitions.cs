@@ -71,21 +71,21 @@ internal static class EndingActorDefinitions
         new(new(172, 160), EndingSpriteColouring.ClearTimeDigits, CinematicSpriteSegment.ClearTimeColon);
     /// <summary>Shared clear-time digit origin Y=160 screen pixels, aligned with the label and colon.</summary>
     public const int ClearTimeDigitY = 160;
-    /// <summary>Suitless idle-body actor: origin (120,136) pixels.</summary>
+    /// <summary>Suitless idle-body actor, at the suitless Samus's start.</summary>
     internal static readonly EndingSpriteDefinition SuitlessRewardBody =
-        new(new(120, 136), EndingSpriteColouring.SuitlessSamus, CinematicSpriteSegment.SuitlessIdle);
-    /// <summary>Suitless idle-legs actor at the shared origin (120,136) pixels.</summary>
+        new(EndingRewardStartDefinitions.Suitless.Position, EndingRewardStartDefinitions.Suitless.Colouring, CinematicSpriteSegment.SuitlessIdle);
+    /// <summary>Suitless idle-legs actor, at the suitless Samus's start, which the body shares.</summary>
     internal static readonly EndingSpriteDefinition SuitlessRewardLegs =
-        new(new(120, 136), EndingSpriteColouring.SuitlessSamus, CinematicSpriteSegment.SuitlessLegsIdle);
-    /// <summary>Suited idle-body actor: origin (120,152) pixels.</summary>
+        new(EndingRewardStartDefinitions.Suitless.Position, EndingRewardStartDefinitions.Suitless.Colouring, CinematicSpriteSegment.SuitlessLegsIdle);
+    /// <summary>Suited idle-body actor, at the suited body's start.</summary>
     internal static readonly EndingSpriteDefinition ArmoredRewardBody =
-        new(new(120, 152), EndingSpriteColouring.SuitedSamus, CinematicSpriteSegment.SuitedIdle);
-    /// <summary>Helmetless suited-head actor: origin (121,107) pixels.</summary>
+        new(EndingRewardStartDefinitions.SuitedBody.Position, EndingRewardStartDefinitions.SuitedBody.Colouring, CinematicSpriteSegment.SuitedIdle);
+    /// <summary>Helmetless suited-head actor, at the helmetless head's start.</summary>
     internal static readonly EndingSpriteDefinition HelmetlessRewardHead =
-        new(new(121, 107), EndingSpriteColouring.SuitlessSamus, CinematicSpriteSegment.HeadIdle);
-    /// <summary>Helmeted suited-head actor: origin (124,108) pixels.</summary>
+        new(EndingRewardStartDefinitions.HelmetlessHead.Position, EndingRewardStartDefinitions.HelmetlessHead.Colouring, CinematicSpriteSegment.HeadIdle);
+    /// <summary>Helmeted suited-head actor, at the helmeted head's start.</summary>
     internal static readonly EndingSpriteDefinition ArmoredRewardHead =
-        new(new(124, 108), EndingSpriteColouring.SuitedSamus, CinematicSpriteSegment.HelmetIdle);
+        new(EndingRewardStartDefinitions.HelmetedHead.Position, EndingRewardStartDefinitions.HelmetedHead.Colouring, CinematicSpriteSegment.HelmetIdle);
     /// <summary>The colouring the clear time's digits draw in, as the colon does.</summary>
     internal const EndingSpriteColouring ClearTimeDigitColouring = EndingSpriteColouring.ClearTimeDigits;
 

@@ -23,12 +23,12 @@ internal static class EndingRewardNativeWords
         [EndingRewardActor.JumpHelmetlessHead] = 0xef7b,
     });
 
-    /// <summary>The initialization routine word naming each <see cref="EndingRewardInitialization"/>.</summary>
-    internal static readonly NativeWordIdentities<EndingRewardInitialization> Initializations = new(new Dictionary<EndingRewardInitialization, ushort>
+    /// <summary>The initialization routine word giving each reward actor's <see cref="EndingRewardStart"/>.</summary>
+    internal static readonly NativeWordIdentities<EndingRewardStart> Starts = new(new Dictionary<EndingRewardStart, ushort>
     {
-        [EndingRewardInitialization.Suitless] = 0xf143,
-        [EndingRewardInitialization.SuitedBody] = 0xf156,
-        [EndingRewardInitialization.HelmetedHead] = 0xf169,
-        [EndingRewardInitialization.HelmetlessHead] = 0xf17c,
+        [EndingRewardStartDefinitions.Suitless] = 0xf143,
+        [EndingRewardStartDefinitions.SuitedBody] = 0xf156,
+        [EndingRewardStartDefinitions.HelmetedHead] = 0xf169,
+        [EndingRewardStartDefinitions.HelmetlessHead] = 0xf17c,
     });
 }

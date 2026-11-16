@@ -276,7 +276,7 @@ internal static class FrontendSheetColouringsVerification
         foreach (EndingRewardActor actor in actors)
         {
             EndingRewardActorDefinition record = EndingRewardActors.Get(actor);
-            AddProgram(sets, CinematicSpriteFamily.EndingReward, record.Animation, EndingRewardActors.GetInitialization(record.Initialization).Colouring);
+            AddProgram(sets, CinematicSpriteFamily.EndingReward, record.Animation, record.Start.Colouring);
         }
     }
 

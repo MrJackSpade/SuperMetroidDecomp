@@ -83,7 +83,7 @@ internal sealed class RidleyBodyAnimation
                 RidleyProjectiles.CalculateRidleyFireballVelocity(place, flight, samus);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithAfterburn }:
-                _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: 3);
+                _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: RidleyFireballDefinitions.AfterburnStages);
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.SpawnFireballWithoutAfterburn }:
                 _ridleyProjectiles.SpawnRidleyFireball(place, flight, afterburns: 0);

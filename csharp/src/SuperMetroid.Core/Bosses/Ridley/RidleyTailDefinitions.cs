@@ -71,6 +71,42 @@ internal static class RidleyTailDefinitions
     /// <summary>How many shaft links, counted from the tip inward, the pogo's floor check probes after the tip.</summary>
     internal const int FloorProbingShaftLinks = 4;
 
+    /// <summary>How far below the tip the pogo's floor check probes.</summary>
+    internal static readonly Offset16<RoomPixels> TipFloorProbe = new(0, 16);
+
+    /// <summary>How far below each probed shaft link the pogo's floor check probes.</summary>
+    internal static readonly Offset16<RoomPixels> ShaftFloorProbe = new(0, 18);
+
+    /// <summary>The damage Ceres Ridley's tail tip does Samus on touch.</summary>
+    internal const int CeresTipDamage = 15;
+
+    /// <summary>The damage Lower Norfair Ridley's tail tip does Samus on touch.</summary>
+    internal const int NorfairTipDamage = 120;
+
+    /// <summary>Where the tail's hip lies below Ridley's body.</summary>
+    internal static readonly Offset16<RoomPixels> HipBelowBody = new(0, 16);
+
+    /// <summary>How far behind his body the hip lies while Ridley faces left; facing right mirrors it, and facing the screen centres it.</summary>
+    internal static readonly Offset16<RoomPixels> HipBehindBodyFacingLeft = new(32, 0);
+
+    /// <summary>How near Samus Ridley must be horizontally, exclusive, for his tail to whip at her unprompted.</summary>
+    internal const int WhipRange = 128;
+
+    /// <summary>Where on Samus an aimed whip aims, below her position.</summary>
+    internal static readonly Offset16<RoomPixels> WhipAimOnSamus = new(0, 24);
+
+    /// <summary>How near the tip a missile's edge must come, on each axis, exclusive, for the whip to aim at the missile instead.</summary>
+    internal const int MissileWhipReach = 64;
+
+    /// <summary>How far past Samus's own reach, on each axis, the tip touches her.</summary>
+    internal const int TipTouchReach = 14;
+
+    /// <summary>The reach of the tip's armour against Samus's shots.</summary>
+    internal const int TipArmourReach = 14;
+
+    /// <summary>The reach of the inner joint's armour against Samus's shots.</summary>
+    internal const int InnerJointArmourReach = 10;
+
     /// <summary>Descending stab extension request: ten pixels.</summary>
     internal static SignedEightEight StabDistance { get; } = SignedEightEight.FromParts(10, 0);
     /// <summary>Bounce extension request: twelve pixels.</summary>

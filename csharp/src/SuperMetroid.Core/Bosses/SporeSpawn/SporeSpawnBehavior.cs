@@ -70,7 +70,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new SporeSpawnEnemyState
         {
             Movement = SporeSpawnMovement.Idle,
-            StalkAnchor = body.Position.Whole + new Offset16<RoomPixels>(0, -72),
+            StalkAnchor = body.Position.Whole + SporeSpawnArenaDefinitions.StalkAnchorAboveBody,
             MovementCenter = body.Position.Whole,
         };
         body.SetSpeciesState(state);
@@ -139,7 +139,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunSporeSpawnDescent(RoomEnemyPlace body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(body, state);
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + SporeSpawnArenaDefinitions.DescentSpeed);
         if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnArenaDefinitions.CentreY) >= 0)
         {
             state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.FightStarted), AnimationPlace.StartOfAnimation);
@@ -497,7 +497,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             // Low on health, a hit doubles his angle step while keeping its direction.
             if (SporeSpawnHealthBands.SwingsFast(body.Health))
             {
-                state.AngleDelta = state.AngleDelta < 0 ? -2 : 2;
+                state.AngleDelta = state.AngleDelta < 0 ? -SporeSpawnArenaDefinitions.FastSwingStep : SporeSpawnArenaDefinitions.FastSwingStep;
             }
 
             // Only the first damaging hit during an open phase reverses direction and
@@ -624,7 +624,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
         _projectiles.SpawnDustOrExplosion(
-            new(CoordinateAxis.Wrap(body.Position.X.Whole + SporeSpawnRandomDefinitions.HardeningDustX.Of(random) - 64), CoordinateAxis.Wrap(body.Position.Y.Whole + SporeSpawnRandomDefinitions.HardeningDustY.Of(random) - 64)),
+            new(CoordinateAxis.Wrap(body.Position.X.Whole + SporeSpawnRandomDefinitions.HardeningDustX.Of(random) - SporeSpawnArenaDefinitions.HardeningDustCentring.X), CoordinateAxis.Wrap(body.Position.Y.Whole + SporeSpawnRandomDefinitions.HardeningDustY.Of(random) - SporeSpawnArenaDefinitions.HardeningDustCentring.Y)),
             MiscDustAnimation.BigDustCloud);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.HardeningDust);
     }
@@ -634,19 +634,20 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
         _ = _effectActors.SpawnRoomEffectActor(
-            new(CoordinateAxis.Wrap(body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - 64), CoordinateAxis.Wrap(body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - 32)),
+            new(CoordinateAxis.Wrap(body.Position.X.Whole + SporeSpawnRandomDefinitions.DyingExplosionX.Of(random) - SporeSpawnArenaDefinitions.DyingExplosionCentring.X), CoordinateAxis.Wrap(body.Position.Y.Whole + SporeSpawnRandomDefinitions.DyingExplosionY.Of(random) - SporeSpawnArenaDefinitions.DyingExplosionCentring.Y)),
             RoomEffectActorKind.SmallExplosion,
             graphics: default);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }
 
-    /// <summary>Generates sixteen RNG-positioned boss drops.</summary>
+    /// <summary>Generates his death's randomly placed drops.</summary>
     private void RequestSporeSpawnDeathDrops(SamusState samus)
     {
-        for (int index = 0; index < 16; index++)
+        for (int index = 0; index < SporeSpawnArenaDefinitions.DeathDrops; index++)
         {
             int random = _room.Random.Generate();
-            Position16<RoomPixels> drop = new(SporeSpawnRandomDefinitions.DropX.Of(random) + 64, SporeSpawnRandomDefinitions.DropY.Of(random) + 528);
+            Position16<RoomPixels> drop = SporeSpawnArenaDefinitions.DeathDropCorner +
+                new Offset16<RoomPixels>(SporeSpawnRandomDefinitions.DropX.Of(random), SporeSpawnRandomDefinitions.DropY.Of(random));
             _deathsAndDrops.SpawnEnemyDropFromDefinition(drop, EnemyDefinitionId.SporeSpawn, samus);
         }
     }
@@ -696,7 +697,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int yDelta = movement.Y;
         spore.Position = spore.Position.WithWrappedWholeY(spore.Position.Y.Whole + yDelta + yDelta);
-        if (CoordinateAxis.Difference(spore.Position.Y.Whole, 768) >= 0)
+        if (CoordinateAxis.Difference(spore.Position.Y.Whole, SporeSpawnArenaDefinitions.SporeFloorY) >= 0)
             spore.Delete();
 
         drift.AdvancePath();

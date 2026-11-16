@@ -63,12 +63,12 @@ internal sealed class RidleyTail
         // The tail composition always composes positions, but only the selected tail controller
         // updates offsets. With no tail action, and on the stagger and stop returns, the offsets stay.
         RidleyTailLink tailBase = state.Tail.Base;
-        Position16<RoomPixels> tailRoot = place.Position.Whole + new Offset16<RoomPixels>(0, 16);
+        Position16<RoomPixels> tailRoot = place.Position.Whole + RidleyTailDefinitions.HipBelowBody;
         tailBase.Position = state.Flight.FacingDirection switch
         {
-            RidleyFacing.Left => tailRoot + new Offset16<RoomPixels>(32, 0) + tailBase.Offset,
+            RidleyFacing.Left => tailRoot + RidleyTailDefinitions.HipBehindBodyFacingLeft + tailBase.Offset,
             RidleyFacing.Turning => (tailRoot + tailBase.Offset).WithX(place.Position.X.Whole),
-            RidleyFacing.Right => tailRoot + new Offset16<RoomPixels>(-32, 0) + tailBase.Offset,
+            RidleyFacing.Right => tailRoot + RidleyTailDefinitions.HipBehindBodyFacingLeft.MirroredX() + tailBase.Offset,
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(RidleyFacing)} {state.Flight.FacingDirection}."),
         };
@@ -110,7 +110,7 @@ internal sealed class RidleyTail
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
                     AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: state.Tail.WhipRequested ? 0 : -1);
-                else if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < 128)
+                else if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < RidleyTailDefinitions.WhipRange)
                     AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: 0);
             }
 
@@ -153,14 +153,14 @@ internal sealed class RidleyTail
             return;
 
         RidleyTailLink root = state.Tail.Base;
-        Position16<RoomPixels> aim = samus.Position.Whole + new Offset16<RoomPixels>(0, 24);
+        Position16<RoomPixels> aim = samus.Position.Whole + RidleyTailDefinitions.WhipAimOnSamus;
         RidleyTailLink tip = state.Tail.Tip;
         SamusProjectile? missile = RidleyTailMissileTarget.Target(
             samusProjectiles.Pool.ShotCount.Count,
             samusProjectiles.Shots,
             projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
-                CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < 64 &&
-                CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < 64);
+                CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < RidleyTailDefinitions.MissileWhipReach &&
+                CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < RidleyTailDefinitions.MissileWhipReach);
         if (missile is not null)
             aim = missile.Position.Whole;
         TrigonometryAngle targetDirection = EnemyMath.CalculateBearing(aim - root.Position).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
@@ -335,7 +335,7 @@ internal sealed class RidleyTail
         RidleyTailLink tip = state.Tail.Tip;
         int dx = CoordinateAxis.Distance(samus.Position.X.Whole, tip.Position.X);
         int dy = CoordinateAxis.Distance(samus.Position.Y.Whole, tip.Position.Y);
-        if (dx >= samus.Kinematics.Radius.X + 14 || dy >= samus.Kinematics.Radius.Y + 14)
+        if (dx >= samus.Kinematics.Radius.X + RidleyTailDefinitions.TipTouchReach || dy >= samus.Kinematics.Radius.Y + RidleyTailDefinitions.TipTouchReach)
             return false;
         EnemyCollision.ApplyNormalEnemyTouchDamage(samus, state.Tail.Damage, tip.Position.X);
         return true;
@@ -350,11 +350,11 @@ internal sealed class RidleyTail
         RoomLevelData level)
     {
         // The tail's floor check samples the tip 16 pixels below it and each shaft link 18 pixels below it.
-        if (ProbeTouchesTerrain(tail.Tip.Position + new Offset16<RoomPixels>(0, 16), level))
+        if (ProbeTouchesTerrain(tail.Tip.Position + RidleyTailDefinitions.TipFloorProbe, level))
             return true;
         foreach (RidleyTailLink link in tail.Shaft.Reverse().Take(RidleyTailDefinitions.FloorProbingShaftLinks))
         {
-            if (ProbeTouchesTerrain(link.Position + new Offset16<RoomPixels>(0, 18), level))
+            if (ProbeTouchesTerrain(link.Position + RidleyTailDefinitions.ShaftFloorProbe, level))
                 return true;
         }
         return false;
@@ -395,7 +395,7 @@ internal sealed class RidleyTail
 
         if (TryBlockProjectileAtRidleyTailJoint(
                 tail.Tip,
-                radius: 14,
+                radius: RidleyTailDefinitions.TipArmourReach,
                 projectiles))
         {
             return;
@@ -403,7 +403,7 @@ internal sealed class RidleyTail
 
         _ = TryBlockProjectileAtRidleyTailJoint(
             tail.InnerJoint,
-            radius: 10,
+            radius: RidleyTailDefinitions.InnerJointArmourReach,
             projectiles);
     }
 
@@ -480,7 +480,7 @@ internal sealed class RidleyTail
     {
         if (state.Tail.Links.All(link => link.Active) &&
             (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()) ||
-             CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < 128) &&
+             CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < RidleyTailDefinitions.WhipRange) &&
             state.Tail.ClockwiseWhipTarget is null && state.Tail.CounterClockwiseWhipTarget is null)
         {
             state.Tail.ClockwiseWhipTarget = RidleyTailDefinitions.PogoWhipAngle;

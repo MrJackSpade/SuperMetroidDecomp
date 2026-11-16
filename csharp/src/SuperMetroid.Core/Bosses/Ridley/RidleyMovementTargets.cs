@@ -15,6 +15,24 @@ public static class RidleyMovementTargets
         _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
     };
 
+    /// <summary>Where Ridley hovers between attacks, by facing: left of centre unless he faces left.</summary>
+    public static int HoverX(RidleyFacing facing) => facing switch
+    {
+        RidleyFacing.Left => 192,
+        RidleyFacing.Turning => 96,
+        RidleyFacing.Right => 96,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
+    };
+
+    /// <summary>Where Ridley's swoop starts from, by facing: near the left wall unless he faces left.</summary>
+    public static int SwoopStartX(RidleyFacing facing) => facing switch
+    {
+        RidleyFacing.Left => 192,
+        RidleyFacing.Turning => 64,
+        RidleyFacing.Right => 64,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
+    };
+
     /// <summary>The side of the arena the pogo attack starts from, by facing.</summary>
     public static int PogoSideX(RidleyFacing facing) => facing switch
     {

@@ -10,8 +10,9 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     /// <summary>Begins Lower Norfair Ridley's encounter below his arena, facing right.</summary>
     internal NorfairRidleyState()
         : base(
-            new RidleyFlightState(RidleyFacing.Right, new Position16<RoomPixels>(64, 64), new Position16<RoomPixels>(224, 416), wingBeatStep: 0),
-            new RidleyTailState(damage: 120))
+            new RidleyFlightState(RidleyFacing.Right, NorfairRidleyArenaDefinitions.MovementMinimum, NorfairRidleyArenaDefinitions.MovementMaximum,
+                wingBeatStep: RidleyWingDefinitions.NorfairFirstBeatStep),
+            new RidleyTailState(damage: RidleyTailDefinitions.NorfairTipDamage))
     {
     }
 

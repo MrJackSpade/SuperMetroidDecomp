@@ -95,9 +95,9 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Floor.Finished = false;
         Floor.GetawayUpdate = 0;
         Floor.Angle = CeresRidleyGetawayDefinitions.InitialAngle;
-        Floor.Offset = new Offset16<FloorPixels>(-128, 32);
+        Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
-        Floor.Center = new Position16<FloorPixels>(64, 64);
+        Floor.Center = CeresRidleyGetawayDefinitions.InitialFloorCentre;
         Floor.CapsuleStep = 0;
         Floor.WingBeat = 0;
         _presentation.BossShadings.Show(BossShadingLayer.CeresEscape, this);
@@ -267,7 +267,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
                     // The warning setup also requests the escape music after showing the final static warning picture.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Escape));
                     Warning.Phase = CeresSelfDestructPhase.HoldingTitle;
-                    Warning.TextDelayTimer = 128;
+                    Warning.TextDelayTimer = CeresSelfDestructWarningDefinitions.TitleHoldUpdates;
                 }
                 return;
 
@@ -373,7 +373,7 @@ internal sealed class CeresEscape : IGameplayShadingSource
         if (!RidleyCadenceDefinitions.SelfDestructAlarmStepEveryFourthUpdate.IsDue(frameCounter))
             return;
 
-        Warning.AlarmStep = (Warning.AlarmStep + 1) % 16;
+        Warning.AlarmStep = (Warning.AlarmStep + 1) % CeresRidleyShadeDefinitions.AlarmStepCount;
         alarm = Warning.AlarmStep;
     }
 

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -60,7 +61,7 @@ internal sealed class NorfairRidleyDeath
         RoomEnemyPlace body,
         NorfairRidleyState state)
     {
-        NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, new Position16<RoomPixels>(128, 328),
+        NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, NorfairRidleyArenaDefinitions.DeathSpot,
             RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
         if (!state.PhaseTimer.StepRunsOut())
             return;
@@ -71,13 +72,13 @@ internal sealed class NorfairRidleyDeath
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
         state.Phase = NorfairRidleyPhase.DeathExplosions;
-        state.PhaseTimer.Count = 160;
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.DeathExplosionUpdates;
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
     /// <summary>
     /// Runs the death explosions. An authored-position small explosion appears every five calls while the
-    /// acid lowers. When its countdown of 160 runs out, Samus is released and Ridley's twelve
+    /// acid lowers. When its countdown runs out, Samus is released and Ridley's twelve
     /// independently moving body/tail breakup enemies are allocated from the real place pool.
     /// </summary>
     internal void TickNorfairRidleyDeathExplosions(
@@ -108,16 +109,16 @@ internal sealed class NorfairRidleyDeath
         state.MovementAnimationEnabled = false;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Phase = NorfairRidleyPhase.DeathWait;
-        state.PhaseTimer.Count = 32;
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.BreakupWaitUpdates;
     }
 
-    /// <summary>The breakup's deliberate wait, a countdown of 32, before the death's final countdown of 256.</summary>
+    /// <summary>The breakup's deliberate wait before the death's final countdown.</summary>
     internal static void TickNorfairRidleyBreakupWait(NorfairRidleyState state)
     {
         if (!state.PhaseTimer.StepRunsOut())
             return;
         state.Phase = NorfairRidleyPhase.DeathFinish;
-        state.PhaseTimer.Count = 256;
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.DeathFinishUpdates;
     }
 
     /// <summary>
@@ -137,16 +138,16 @@ internal sealed class NorfairRidleyDeath
 
         _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
 
-        // The death drops scatter sixteen pickups through Ridley's authored 128x64 arena
+        // The death drops scatter their pickups through Ridley's authored 128x64 arena
         // rectangle. The body is deleted immediately afterward, so the drop actors must
         // retain Ridley's definition themselves.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Ridley,
             samus: samus,
-            count: 16,
-            xBase: 64,
+            count: NorfairRidleyArenaDefinitions.DeathDrops,
+            xBase: NorfairRidleyArenaDefinitions.DeathDropCorner.X,
             xScatter: EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter,
-            yBase: 320,
+            yBase: NorfairRidleyArenaDefinitions.DeathDropCorner.Y,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
         _audio.RequestRidleyMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         body.Presence = body.Presence.With(EnemyPresence.Deleted);
@@ -164,9 +165,9 @@ internal sealed class NorfairRidleyDeath
             return;
         }
 
-        state.DeathExplosionTimer = 4;
+        state.DeathExplosionTimer = NorfairRidleyMotionDefinitions.DeathExplosionInterval;
         state.DeathExplosionCount++;
-        if (state.DeathExplosionCount >= 10)
+        if (state.DeathExplosionCount >= DeathExplosionScatterDefinitions.Count)
             state.DeathExplosionCount = 0;
 
         _ridleyProjectiles.SpawnRidleyDust(

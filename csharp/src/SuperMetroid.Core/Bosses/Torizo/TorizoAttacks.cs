@@ -590,7 +590,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>A randomized projectile's jitter on one axis: the random number's lowest 256-value field, less 128, in 256ths of a pixel.</summary>
     private static SignedEightEight VelocityJitter(int random) =>
-        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - 128);
+        SignedEightEight.FromTwoHundredFiftySixthsOfPixel(TorizoRandomDefinitions.VelocityJitter.Of(random) - TorizoMotionDefinitions.VelocityJitterCentre);
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
     internal void SpawnLandingDust(RoomEnemyPlace torizo, HorizontalDirection foot)

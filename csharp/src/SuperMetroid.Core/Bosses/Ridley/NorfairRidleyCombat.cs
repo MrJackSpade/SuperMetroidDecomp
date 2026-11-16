@@ -63,7 +63,7 @@ internal sealed class NorfairRidleyCombat
         // Ridley's body stops a Plasma Beam from passing through him.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-        place.Position = place.Position.WithWhole(new(96, 394));
+        place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
 
         var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
         place.SetSpeciesState(ridley);
@@ -89,7 +89,7 @@ internal sealed class NorfairRidleyCombat
         if (state.PhaseTimer.StepKeepsRunning())
             return false;
 
-        state.PhaseTimer.Count = 2;
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.ArenaRevealStepHold;
         NorfairArenaRevealProgress reveal = state.ArenaReveal;
         if (reveal.Step > NorfairRidleyRevealDefinitions.RevealStepCount)
             throw new InvalidDataException($"Norfair Ridley reveal step {reveal.Step} is past the reveal's end.");
@@ -113,26 +113,26 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        Position16<RoomPixels> target = new(state.Flight.FacingDirection != RidleyFacing.Left ? 96 : 192, 256);
+        Position16<RoomPixels> target = new(RidleyMovementTargets.HoverX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.FlightLineY);
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             place,
             state.Flight,
             target,
             ReadRidleyHealthMovementDivisor(state));
-        if (RidleyFlight.IsWithinRectangle(place, target, new(8, 8)))
+        if (RidleyFlight.IsWithinRectangle(place, target, NorfairRidleyArenaDefinitions.FlightTargetReach))
             state.Phase = NorfairRidleyPhase.SelectAttack;
     }
 
     /// <summary>Moves to the high side point and initializes the swoop angle timer.</summary>
     internal static void TickNorfairRidleySwoopMoveToStart(RoomEnemyPlace place, NorfairRidleyState state)
     {
-        Position16<RoomPixels> target = new(state.Flight.FacingDirection != RidleyFacing.Left ? 64 : 192, 128);
-        NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, target, divisor: 15);
-        if (!RidleyFlight.IsWithinRectangle(place, target, new(8, 8)))
+        Position16<RoomPixels> target = new(RidleyMovementTargets.SwoopStartX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.SwoopStartY);
+        NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, target, divisor: NorfairRidleyMotionDefinitions.SwoopStartDivisor);
+        if (!RidleyFlight.IsWithinRectangle(place, target, NorfairRidleyArenaDefinitions.FlightTargetReach))
             return;
 
         state.Phase = NorfairRidleyPhase.SwoopAimDown;
-        state.SwoopPhaseTimer = 32;
+        state.SwoopPhaseTimer = NorfairRidleyMotionDefinitions.SwoopDiveUpdates;
         state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
     }
 
@@ -173,7 +173,7 @@ internal sealed class NorfairRidleyCombat
             state.Flight,
             new Position16<RoomPixels>(
                 wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehindX(facing) : RidleyMovementTargets.WallAheadX(facing),
-                int.Min(samus.Position.Y.Whole, 352)),
+                int.Min(samus.Position.Y.Whole, NorfairRidleyArenaDefinitions.PogoZoneTopY)),
             ReadRidleyHealthMovementDivisor(state));
         state.Tail.WhipRequested = true;
 
@@ -193,7 +193,7 @@ internal sealed class NorfairRidleyCombat
         state.Phase = wall == RidleyWallSweepTarget.WallBehind
             ? NorfairRidleyPhase.SweepToWallAhead
             : NorfairRidleyPhase.SweepToWallBehind;
-        state.PhaseTimer.Count = 128;
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.WallSweepLegUpdates;
         SelectNorfairRidleyFacingAnimation(place, state);
     }
 
@@ -212,26 +212,26 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Difference(place.Position.Y.Whole, 288) < 0)
+        if (CoordinateAxis.Difference(place.Position.Y.Whole, NorfairRidleyArenaDefinitions.PogoHeightY) < 0)
         {
             SelectNorfairRidleyFacingAnimation(place, state);
             state.Phase = NorfairRidleyPhase.PogoMoveToHeight;
-            state.PhaseTimer.Count = 32;
+            state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.PogoSettleUpdates;
             TickNorfairRidleyPogoMoveToHeight(place, state, samus);
             return;
         }
 
         NorfairRidleyMovement.MoveNorfairRidleyToward(
-            place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.PogoSideX(state.Flight.FacingDirection), 288), divisor: 16);
+            place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.PogoSideX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.PogoHeightY), divisor: NorfairRidleyMotionDefinitions.PogoSetupDivisor);
     }
 
-    /// <summary>Settles at Y=288, sets the pogo tail, and starts the pogo's random time limit.</summary>
+    /// <summary>Settles at the pogo's height, sets the pogo tail, and starts the pogo's random time limit.</summary>
     internal void TickNorfairRidleyPogoMoveToHeight(
         RoomEnemyPlace place,
         NorfairRidleyState state,
         SamusState samus)
     {
-        NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, place.Position.Whole.WithY(288), divisor: 16);
+        NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, place.Position.Whole.WithY(NorfairRidleyArenaDefinitions.PogoHeightY), divisor: NorfairRidleyMotionDefinitions.PogoSetupDivisor);
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
@@ -239,7 +239,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail.TickRidleyPogoTail(place, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Phase = NorfairRidleyPhase.PogoFall;
-        state.PhaseTimer.Count = RidleyRandomDefinitions.PogoTimer.Of(_room.Random.Read()) + 128;
+        state.PhaseTimer.Count = RidleyRandomDefinitions.PogoTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.PogoMinimumUpdates;
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -250,7 +250,7 @@ internal sealed class NorfairRidleyCombat
         RoomLevelData level)
     {
         if (SamusMovementUsesRidleyGrab(samus) &&
-            RidleyClawOverlapsSamus(place, state, samus, new Extent16<RoomPixels>(4, 4)))
+            RidleyClawOverlapsSamus(place, state, samus, NorfairRidleyArenaDefinitions.PogoClawReach))
         {
             // Every acceleration clamps Ridley's speed to a few pixels an update, so it always has a magnitude.
             state.Flight.Velocity = state.Flight.Velocity.WithY(-SignedEightEight.Max(NorfairRidleyMotionDefinitions.GrabLiftMinimumSpeed, state.Flight.Velocity.Y.Magnitude()));
@@ -267,9 +267,9 @@ internal sealed class NorfairRidleyCombat
             return;
 
         RidleyTailLink tip = state.Tail.Tip;
-        _ridleyProjectiles.SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), MiscDustAnimation.SmallDustCloud);
+        _ridleyProjectiles.SpawnRidleyDust(tip.Position + NorfairRidleyArenaDefinitions.PogoDustBelowTip, MiscDustAnimation.SmallDustCloud);
         _audio.QueueEnemySound(EnemySound.Quake, priority: SoundRequestPriority.Normal);
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground), 4);
+        _earthquake.Start(NorfairRidleyArenaDefinitions.PogoBounceQuake, NorfairRidleyArenaDefinitions.PogoBounceQuakeUpdates);
         SetRidleyPogoHorizontalDirection(place, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         foreach (RidleyTailLink link in state.Tail.Links)
@@ -279,7 +279,7 @@ internal sealed class NorfairRidleyCombat
         }
         state.Tail.Action = RidleyTailAction.Pogo;
         state.PogoBounceCount++;
-        if (state.PogoBounceCount >= 2)
+        if (state.PogoBounceCount >= NorfairRidleyMotionDefinitions.PogoBouncesPerFireballing)
         {
             state.PogoBounceCount = 0;
             if (state.Flight.FacingDirection != RidleyFacing.Turning)
@@ -293,7 +293,7 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyState state,
         SamusState samus)
     {
-        if (samus.Position.Y.Whole < 352 || state.PhaseTimer.StepRunsOut())
+        if (samus.Position.Y.Whole < NorfairRidleyArenaDefinitions.PogoZoneTopY || state.PhaseTimer.StepRunsOut())
         {
             state.Tail.Action = RidleyTailAction.Neutral;
             state.Tail.SwingStep = RidleyTailDefinitions.SlowNeutralSwing;
@@ -362,14 +362,16 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        int sideOffset = state.Flight.FacingDirection != RidleyFacing.Left ? 16 : -16;
+        Offset16<RoomPixels> besideSamus = state.Flight.FacingDirection != RidleyFacing.Left
+            ? NorfairRidleyArenaDefinitions.LungeAimBesideSamus
+            : NorfairRidleyArenaDefinitions.LungeAimBesideSamus.MirroredX();
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             place,
             state.Flight,
-            samus.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(sideOffset), -4),
+            samus.Position.Whole + besideSamus,
             state.HealthBand.GrabDivisor);
 
-        if (RidleyClawOverlapsSamus(place, state, samus, new Extent16<RoomPixels>(8, 12)))
+        if (RidleyClawOverlapsSamus(place, state, samus, NorfairRidleyArenaDefinitions.LungeClawReach))
         {
             // The missed lunge reverses before the carry setup accelerates.
             state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y.Negated());
@@ -398,17 +400,17 @@ internal sealed class NorfairRidleyCombat
         BeginNorfairRidleyCarry(place, state);
     }
 
-    /// <summary>Chooses a facing-dependent carry anchor and starts Ridley's move, a countdown of 32 whose first step is this update.</summary>
+    /// <summary>Chooses a facing-dependent carry anchor and starts Ridley's move, a countdown whose first step is this update.</summary>
     internal static void BeginNorfairRidleyCarry(RoomEnemyPlace place, NorfairRidleyState state)
     {
         state.Target = new Position16<RoomPixels>(
             RidleyMovementTargets.CarryAnchorX(state.Flight.FacingDirection),
-            CoordinateAxis.Difference(place.Position.Y.Whole, 320) < 0
-                ? 256
-                : CoordinateAxis.Wrap(place.Position.Y.Whole - 64));
+            CoordinateAxis.Difference(place.Position.Y.Whole, NorfairRidleyArenaDefinitions.CarryHighLineY) < 0
+                ? NorfairRidleyArenaDefinitions.FlightLineY
+                : CoordinateAxis.Wrap(place.Position.Y.Whole - NorfairRidleyArenaDefinitions.CarryLift));
         state.Phase = NorfairRidleyPhase.CarryMoveToAnchor;
-        state.PhaseTimer.Count = 32;
-        NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, 16);
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.CarryToAnchorUpdates;
+        NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, NorfairRidleyMotionDefinitions.CarryDivisor);
         state.PhaseTimer.StepRunsOut();
     }
 
@@ -426,13 +428,13 @@ internal sealed class NorfairRidleyCombat
             state.GrabOffset);
     }
 
-    /// <summary>Moves one signed grab-offset component four pixels toward zero.</summary>
+    /// <summary>Moves one signed grab-offset component its decay toward zero.</summary>
     private static int DecayRidleyGrabOffset(int offset)
     {
         if (offset > 0)
-            return CoordinateAxis.AsSigned(Math.Max(0, offset - 4));
+            return CoordinateAxis.AsSigned(Math.Max(0, offset - NorfairRidleyMotionDefinitions.GrabOffsetDecay));
         if (offset < 0)
-            return CoordinateAxis.AsSigned(Math.Min(0, offset + 4));
+            return CoordinateAxis.AsSigned(Math.Min(0, offset + NorfairRidleyMotionDefinitions.GrabOffsetDecay));
         return 0;
     }
 
@@ -463,7 +465,7 @@ internal sealed class NorfairRidleyCombat
         // The facing test reads whether X lies in the right half of its 256-pixel screen,
         // not the sign of the full coordinate. Keep an inward
         // facing actor's current animation and timer untouched.
-        bool rightHalf = RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) >= 128;
+        bool rightHalf = RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) >= ScreenGeometry.ScreenWidthPixels / 2;
         if (state.Flight.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;
         RidleyFlight.StartAnimation(
@@ -520,27 +522,27 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Keeps the already-grabbed Samus attached while accelerating Ridley toward
-    /// the four-pixel rectangle centered at (128,328). Reaching it goes straight on to
+    /// the small rectangle centered on his death spot. Reaching it goes straight on to
     /// the roar setup instead of spending an extra transition frame.
     /// </summary>
     internal static void TickNorfairRidleyMoveToDeathSpot(
         RoomEnemyPlace body,
         NorfairRidleyState state)
     {
-        NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, new Position16<RoomPixels>(128, 328),
+        NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, NorfairRidleyArenaDefinitions.DeathSpot,
             RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
-        if (RidleyFlight.IsWithinRectangle(body, new(128, 328), new(4, 4)))
+        if (RidleyFlight.IsWithinRectangle(body, NorfairRidleyArenaDefinitions.DeathSpot, NorfairRidleyArenaDefinitions.DeathSpotReach))
             BeginNorfairRidleyDeathRoar(body, state);
     }
 
-    /// <summary>Selects the death-roar animation and arms its move, a countdown of 32.</summary>
+    /// <summary>Selects the death-roar animation and arms its move's countdown.</summary>
     internal static void BeginNorfairRidleyDeathRoar(
         RoomEnemyPlace body,
         NorfairRidleyState state)
     {
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.DeathRoar);
         state.Phase = NorfairRidleyPhase.DeathRoar;
-        state.PhaseTimer.Count = 32;
+        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.DeathRoarUpdates;
     }
 
     /// <summary>Handles a missed lunge: death has priority over power-bomb dodge and ordinary retreat.</summary>
@@ -588,7 +590,7 @@ internal sealed class NorfairRidleyCombat
     internal void SetRidleyPogoHorizontalDirection(RoomEnemyPlace place, NorfairRidleyState state, SamusState samus)
     {
         if (state.Flight.Velocity.X.IsZero)
-            state.Flight.Velocity = state.Flight.Velocity.WithX(RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) < 128 ? NorfairRidleyMotionDefinitions.PogoRestartSpeed : -NorfairRidleyMotionDefinitions.PogoRestartSpeed);
+            state.Flight.Velocity = state.Flight.Velocity.WithX(RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) < ScreenGeometry.ScreenWidthPixels / 2 ? NorfairRidleyMotionDefinitions.PogoRestartSpeed : -NorfairRidleyMotionDefinitions.PogoRestartSpeed);
         bool negative = state.Flight.Velocity.X.IsNegative;
         bool reverse;
         if (CoordinateAxis.Difference(place.Position.X.Whole, state.Flight.MovementMinimum.X) < 0) reverse = negative;

@@ -57,10 +57,9 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     /// <param name="samus">Samus, whom he aims at.</param>
     internal static void CalculateRidleyFireballVelocity(RoomEnemyPlace ridley, RidleyFlightState state, SamusState samus)
     {
-        int muzzleX = ridley.Position.X.Whole + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
-        int muzzleY = ridley.Position.Y.Whole - 43;
+        Position16<RoomPixels> muzzle = Muzzle(ridley, state);
         TrigonometryAngle angle = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzleX), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzleY))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, muzzle.X), CoordinateAxis.Difference(samus.Position.Y.Whole, muzzle.Y))).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         // Each facing keeps its aim within its own arc; an aim beyond the arc's far end, up to the split, takes that
         // end, and any other aim outside it takes the near end.
@@ -105,11 +104,16 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             FireballGraphics);
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
         ApplyRidleyProjectileAreaDamage(projectile);
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(ridley.Position.X.Whole +
-            (state.FacingDirection == RidleyFacing.Left ? -25 : 25)), CoordinateAxis.Wrap(ridley.Position.Y.Whole - 43)));
+        projectile.Position = projectile.Position.WithWhole(Muzzle(ridley, state));
         projectile.Velocity = state.FireballVelocity;
         projectile.State = new RidleyAfterburnChainState(afterburns);
     }
+
+    /// <summary>Ridley's mouth for the way he faces: facing right or the screen mirrors his left-facing mouth.</summary>
+    private static Position16<RoomPixels> Muzzle(RoomEnemyPlace ridley, RidleyFlightState state) =>
+        ridley.Position.Whole + (state.FacingDirection == RidleyFacing.Left
+            ? RidleyFireballDefinitions.MuzzleFacingLeft
+            : RidleyFireballDefinitions.MuzzleFacingLeft.MirroredX());
 
     /// <summary>Selects the damage row from the loaded room's area.</summary>
     private void ApplyRidleyProjectileAreaDamage(EnemyProjectile projectile) =>

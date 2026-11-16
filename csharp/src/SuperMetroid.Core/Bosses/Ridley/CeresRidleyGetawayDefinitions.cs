@@ -6,6 +6,12 @@ public static class CeresRidleyGetawayDefinitions
     /// <summary>The floor's zoom as the getaway sets it up, before its first update: eight floor pixels per screen pixel.</summary>
     internal static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(8);
 
+    /// <summary>The floor's scroll as the getaway sets it up, before its first update.</summary>
+    internal static Offset16<FloorPixels> InitialFloorOffset { get; } = new(-128, 32);
+
+    /// <summary>The point of the floor the getaway turns and zooms it about as it sets it up.</summary>
+    internal static Position16<FloorPixels> InitialFloorCentre { get; } = new(64, 64);
+
     /// <summary>The getaway floor's angle as it is set up: a 256th of a step past no turn.</summary>
     internal static RotationAngle InitialAngle { get; } = RotationAngle.FromSteps(0, 1);
 

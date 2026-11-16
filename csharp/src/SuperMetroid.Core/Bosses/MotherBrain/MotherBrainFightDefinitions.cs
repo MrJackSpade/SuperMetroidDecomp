@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -15,10 +16,9 @@ internal static class MotherBrainFightDefinitions
     /// <summary>The health her brain takes as her second phase sets up, before she rises.</summary>
     internal const int SecondPhaseHealth = 18000;
 
-    /// <summary>
-    /// The health her brain takes once the Baby has drained her to grey, for her third phase: twice her second phase's.
-    /// </summary>
-    internal const int ThirdPhaseHealth = 2 * SecondPhaseHealth;
+    /// <summary>The health her brain takes once the Baby has drained her to grey, for her third phase.</summary>
+    [SuppressMessage("Design", "SME6447", Justification = "Her third phase's health, a count of hit points; only its size makes this rule flag it (owner ruling, 2026-11-16).")]
+    internal const int ThirdPhaseHealth = 36000;
 
     /// <summary>The health at or above which her second phase chooses its moves at full strength.</summary>
     internal const int FullStrengthHealth = 4500;

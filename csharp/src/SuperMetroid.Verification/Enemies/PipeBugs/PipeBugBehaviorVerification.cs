@@ -130,7 +130,7 @@ internal static class PipeBugBehaviorVerification
         foreach (NorfairPipeBugRole role in new[] { PipeBugDefinitions.UpperNearRole, PipeBugDefinitions.UpperFarRole, PipeBugDefinitions.LowerNearRole, PipeBugDefinitions.LowerFarRole })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
             NorfairPipeBugState state = slot.RequireSpeciesState<NorfairPipeBugState>();

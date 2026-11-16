@@ -51,7 +51,7 @@ internal static class BullBehaviorVerification
     internal static void VerifyBullSpeedStaysInFlightRange()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         slot.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         enemies.BullBehavior.InitializeBull(slot);

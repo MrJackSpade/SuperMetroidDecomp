@@ -311,7 +311,7 @@ internal static class NativeEnemyFamilyStateImport
             brinstarPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.F, "recorded PipeBugAction");
             brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
         }
-        if (slot.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
+        if (enemy.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
         {
             // A member's stagger routine names its role's offset (#2071); every other routine names an action.
             if (PipeBugsNativeWords.FormationStaggers.TryDecode(words.A, out NorfairPipeBugRole? staggerRole) &&
@@ -325,7 +325,7 @@ internal static class NativeEnemyFamilyStateImport
                 norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
             }
         }
-        if (slot.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
+        if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
             yellowPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
         if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");

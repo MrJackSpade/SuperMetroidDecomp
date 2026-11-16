@@ -99,8 +99,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // deliberately replaces them with a symmetric pair derived from its acceleration
         // sum. That adjustment is why the final span can differ slightly from the post distance.
         int requestedLeft = startsAtLeft
-            ? slot.Position.X.Whole
-            : CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PostDistance);
+            ? place.Position.X.Whole
+            : CoordinateAxis.Wrap(place.Position.X.Whole - settings.PostDistance);
         int requestedHalfSpan = Ensure.BetweenInclusive(0, LongestPostHalfSpan, settings.PostDistance / 2);
         state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
 

@@ -75,7 +75,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) >= ChootActivationDistance)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootActivationDistance)
             return;
 
         state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay;

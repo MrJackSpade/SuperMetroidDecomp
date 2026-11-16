@@ -19,7 +19,7 @@ internal static class NinjaSpacePiratePostsVerification
     internal static void VerifyNinjaSpacePiratePosts()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace slot = enemies.Places.InUpdateOrder[0];
         slot.Bind(EnemyDefinitionId.PirateSilverNinja, slot.Definition);
         int cases = 0;
         foreach (int x in new[] { 256, 40 })

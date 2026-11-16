@@ -24,7 +24,7 @@ internal static class FallingSparkFloorProbeVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemySlot source = enemies.SlotTable.Slots[0];
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         RoomLevelData level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
         int cases = 0;
         for (int whole = 0; whole <= 4; whole++)

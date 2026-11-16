@@ -500,7 +500,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void UpdateMagdolliteHeadRadius(RoomEnemyPlace overlay)
     {
-        (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
+        (RoomEnemyPlace head, _, _) = RequireMagdolliteComposite(overlay);
         int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + MagdolliteMotionDefinitions.HeadReachPastOverlay);
         int smallest = MagdolliteMotionDefinitions.SmallestHeadRadius;
         head.Radius = head.Radius.WithY(CoordinateAxis.Precedes(radius, smallest) ? smallest : radius);
@@ -606,7 +606,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             }
             case MagdolliteCue.Move move:
-                slot.Position += move.Offset;
+                place.Position += move.Offset;
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SetAnimationBusy }:
                 state.AnimationBusy = true;
@@ -616,8 +616,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             case MagdolliteCue.MoveWithPillar moveWithPillar:
             {
-                RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.Position += moveWithPillar.Offset;
+                RoomEnemyPlace next = NextMagdollitePlace(place);
+                place.Position += moveWithPillar.Offset;
                 next.Position += moveWithPillar.Offset;
                 break;
             }
@@ -655,7 +655,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 place.Position = place.Position.WithWhole(PartState<MagdolliteOverlayState>(place).ThrowOrigin + shift.Offset);
                 break;
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.StartCooldown }:
-                PartState<MagdolliteOverlayState>(slot).AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
+                PartState<MagdolliteOverlayState>(place).AttackTimer = WrappingCountdown.Start(MagdolliteMotionDefinitions.AttackCooldown);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCue)} {cue}.");

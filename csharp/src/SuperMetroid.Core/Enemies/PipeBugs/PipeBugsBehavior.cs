@@ -182,8 +182,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case PipeBugAction.NorfairStagger:
-                RunNorfairPipeBugVerticalStagger(slot, state, state.StaggerOffset);
-                ResetNorfairPipeBugIfOffScreen(slot, state, camera);
+                RunNorfairPipeBugVerticalStagger(place, state, state.StaggerOffset);
+                ResetNorfairPipeBugIfOffScreen(place, state, camera);
                 return;
             case PipeBugAction.NorfairWaitForStagger:
                 RunNorfairPipeBugStaggerWait(place, state, samus);

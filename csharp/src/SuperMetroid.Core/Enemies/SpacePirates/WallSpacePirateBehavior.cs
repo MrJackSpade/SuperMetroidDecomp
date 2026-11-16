@@ -154,11 +154,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // Math rewrites both whole positions every frame and leaves
         // the fractions untouched. The jump ellipse is the jump span wide and
         // a quarter of it tall.
-        int span = slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
-        slot.Position = slot.Position.WithWrappedWholeX(
+        int span = place.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
+        place.Position = place.Position.WithWrappedWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.CircleNegativeSinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 2));
-        slot.Position = slot.Position.WithWrappedWholeY(
+        place.Position = place.Position.WithWrappedWholeY(
             state.WallJumpArcCenter.Y -
             EnemyMath.CircleCosinePixels(state.WallJumpArcAngle.ToTrigonometryAngle(), span / 4));
     }

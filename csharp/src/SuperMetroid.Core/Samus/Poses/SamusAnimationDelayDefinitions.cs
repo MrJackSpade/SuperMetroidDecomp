@@ -21,6 +21,12 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>The updates the neutral jump's rising picture is held for again each time it would end while Samus still rises.</summary>
     internal const int NeutralJumpRiseExtension = 4;
 
+    /// <summary>The extra updates each animation picture of Samus is held for under water without the Gravity Suit.</summary>
+    internal const int WaterAnimationDelay = 3;
+
+    /// <summary>The extra updates each animation picture of Samus is held for in lava or acid without the Gravity Suit.</summary>
+    internal const int LavaOrAcidAnimationDelay = 2;
+
     /// <summary>The animation <see cref="SamusPoseId.MovingRightNormalPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation RunningAnimation { get; } = new(
     [

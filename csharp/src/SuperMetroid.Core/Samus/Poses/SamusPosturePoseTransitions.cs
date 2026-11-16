@@ -122,7 +122,7 @@ internal static class SamusPosturePoseTransitions
         // initialization/collision but before the jump starts. It writes only current Y;
         // the desktop state has no separately exposed previous Y position to mirror.
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 10);
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, SamusPoseCollisionDefinitions.CrouchJumpLift);
 
         SamusPresentation.InitializeAnimation(samus);
         SamusAerialMovement.InitializeJump(samus);
@@ -528,7 +528,7 @@ internal static class SamusPosturePoseTransitions
         {
             samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1);
+            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.SecondBallBounceSpeed;
             return false;
         }
 
@@ -582,7 +582,7 @@ internal static class SamusPosturePoseTransitions
         {
             samus.MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1);
+            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.SecondBallBounceSpeed;
             return false;
         }
 

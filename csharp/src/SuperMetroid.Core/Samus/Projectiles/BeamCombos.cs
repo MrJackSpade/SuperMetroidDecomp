@@ -177,15 +177,13 @@ internal sealed class BeamCombos
         int distance = outward ? shot.ComboOrbitRadius : 32;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(shot.ComboAngle, distance);
         shot.Position = shot.Position.WithWrappedWholeX(samus.Position.X.Whole + orbit.X);
-        if (outward && (CoordinateAxis.AsSigned(shot.Position.X.Whole - camera.X + 32) < 0 ||
-                        CoordinateAxis.Difference(shot.Position.X.Whole - camera.X, 288) >= 0))
+        if (outward && LeftViewHorizontally(shot, camera))
         {
             _animation.ClearProjectile(shot);
             return null;
         }
         shot.Position = shot.Position.WithWrappedWholeY(samus.Position.Y.Whole + orbit.Y);
-        if (outward && (CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, 16) < 0 ||
-                        CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, 256) >= 0))
+        if (outward && LeftViewVertically(shot, camera))
         {
             _animation.ClearProjectile(shot);
             return null;
@@ -206,10 +204,26 @@ internal sealed class BeamCombos
                 sound = SamusSound.IceSpecialAttackEnd;
             }
         }
-        shared.SetSharedCooldown(2);
+        shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         return sound;
     }
+    /// <summary>
+    /// Whether a special attack particle has flown out of the view sideways: more than its margin left of the view's left
+    /// edge, or its reach or more right of it.
+    /// </summary>
+    private static bool LeftViewHorizontally(SamusProjectile shot, Position16<RoomPixels> camera) =>
+        CoordinateAxis.AsSigned(shot.Position.X.Whole - camera.X + BeamComboDefinitions.ViewLeftMargin) < 0 ||
+        CoordinateAxis.Difference(shot.Position.X.Whole - camera.X, BeamComboDefinitions.ViewRightReach) >= 0;
+
+    /// <summary>
+    /// Whether a special attack particle has flown out of the view up or down: above its top reach below the view's top
+    /// edge, or at its bottom reach or below.
+    /// </summary>
+    private static bool LeftViewVertically(SamusProjectile shot, Position16<RoomPixels> camera) =>
+        CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, BeamComboDefinitions.ViewTopReach) < 0 ||
+        CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, BeamComboDefinitions.ViewBottomReach) >= 0;
+
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
     internal void StepPlasmaCombo(SamusState samus,
         SamusProjectile shot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
@@ -221,7 +235,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(shot);
             return;
         }
-        shared.SetSharedCooldown(2);
+        shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
             shot.ComboAngle, shot.ComboOrbitRadius);
@@ -240,10 +254,7 @@ internal sealed class BeamCombos
             case PlasmaRingPhase.FinalExpansion:
                 // Only the final expansion checks visibility. The first two phases
                 // intentionally keep rings alive beyond the viewport, unlike Ice.
-                if (CoordinateAxis.AsSigned(shot.Position.X.Whole - camera.X + 32) < 0 ||
-                    CoordinateAxis.Difference(shot.Position.X.Whole - camera.X, 288) >= 0 ||
-                    CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, 16) < 0 ||
-                    CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, 256) >= 0)
+                if (LeftViewHorizontally(shot, camera) || LeftViewVertically(shot, camera))
                     _animation.ClearProjectile(shot);
                 else shot.ComboOrbitRadius = ComboRingCollapse.Grown(shot.ComboOrbitRadius, BeamComboDefinitions.PlasmaRadiusStep);
                 break;
@@ -303,7 +314,7 @@ internal sealed class BeamCombos
         {
             Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
                 shot.ComboAngle, shot.ComboOrbitRadius);
-            shot.Position = shot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + orbit.Y - (shot.SpazerPhase == SpazerComboPhase.Circling ? 0 : 114))));
+            shot.Position = shot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + orbit.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + orbit.Y - (shot.SpazerPhase == SpazerComboPhase.Circling ? 0 : BeamComboDefinitions.SpazerFlightCentreHeight))));
             switch (shot.SpazerPhase)
             {
                 case SpazerComboPhase.Circling:
@@ -330,7 +341,7 @@ internal sealed class BeamCombos
                             shot.SpazerTurnPerUpdate = TrigonometryAngle.Zero - SpazerTurn(PartOf(shot).SpazerTurn, BeamComboDefinitions.SpazerFlyingTurn);
                             shot.ComboAngle += TrigonometryAngle.HalfTurn;
                             shot.SpazerPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
-                            shared.SetSharedCooldown(2);
+                            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
                             _charge.ClearCount();
                             return PartOf(shot).VoicesSpazerConvergence ? SamusSound.SpazerSpecialAttackEnd : null;
                         }
@@ -349,7 +360,7 @@ internal sealed class BeamCombos
                 default: throw new InvalidOperationException($"Undefined {nameof(SpazerComboPhase)} {shot.SpazerPhase}.");
             }
         }
-        shared.SetSharedCooldown(2);
+        shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         return null;
     }
@@ -420,7 +431,7 @@ internal sealed class BeamCombos
         shot.Position = shot.Position.AdvanceX(shot.Velocity.X.ToSixteenSixteenDelta());
         shot.WaveComboVerticalSpeed = AccelerateWaveAxis(shot.WaveComboVerticalSpeed, CoordinateAxis.Difference(samus.Position.Y.Whole, shot.Position.Y.Whole));
         shot.Position = shot.Position.AdvanceY(shot.WaveComboVerticalSpeed.ToSixteenSixteenDelta());
-        shared.SetSharedCooldown(2);
+        shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.SpecialAttackHold);
         _charge.ClearCount();
         return PartOf(shot).VoicesWavePulse && oldXSpeed.IsNegative != shot.Velocity.X.IsNegative ? BeamComboDefinitions.WavePulseSound : null;
     }

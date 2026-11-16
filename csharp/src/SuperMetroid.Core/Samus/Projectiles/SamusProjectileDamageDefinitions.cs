@@ -8,6 +8,9 @@ internal static class SamusProjectileDamageDefinitions
     /// <summary>The damage a Shinespark echo starts with.</summary>
     internal const int ShinesparkEchoDamage = 4096;
 
+    /// <summary>The damage a Hyper Beam shot deals.</summary>
+    internal const int HyperBeamDamage = 1000;
+
     /// <summary>The beams each beam shot kind fires; Beam looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> Beams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
     {

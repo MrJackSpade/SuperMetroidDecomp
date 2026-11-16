@@ -474,17 +474,17 @@ public sealed class SamusProjectileSystem
             return hyper;
         }
 
-        // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
-        // the central flare; calls 30+ additionally draw both orbiting spark components. The Hyper Beam's flare counts
+        // Calls before the main flare is shown initialize or retain the hidden animation state; from then the central
+        // flare is drawn, and from the sparks' count both orbiting spark components too. The Hyper Beam's flare counts
         // no updates, so without the Hyper Beam equipped it shows nothing here.
         if (Charge.FlareCounter == 1)
         {
             Charge.StartChargeFlare();
         }
-        if (Charge.FlareCounter < 15)
+        if (Charge.FlareCounter < ChargeFlareAnimationDefinitions.MainFlareShownFrom)
             return ChargeFlareComponents.None;
 
-        ChargeFlareComponents shown = Charge.FlareCounter < 30 ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
+        ChargeFlareComponents shown = Charge.FlareCounter < ChargeFlareAnimationDefinitions.SparksShownFrom ? ChargeFlareComponents.MainFlareOnly : ChargeFlareComponents.FlareAndSparks;
         foreach (ChargeFlareComponent component in shown.DrawOrder)
             Animation.AdvanceFlareComponent(component);
         return shown;

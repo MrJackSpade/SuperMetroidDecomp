@@ -541,10 +541,10 @@ internal sealed class ProjectileTerrainCollision
             _earthquakes.RequestSuperMissileEarthquake(SuperMissileDefinitions.WallImpactEarthquake);
         }
 
-        // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary
+        // Only cooldowns past the cap are shortened to it. A missile's is shorter, so an ordinary
         // wall impact does not extend or replace its remaining fire delay.
-        if (sharedProjectiles.CooldownTimer >= 21)
-            sharedProjectiles.SetSharedCooldown(20);
+        if (sharedProjectiles.CooldownTimer > SamusProjectileCooldownDefinitions.WallImpactCooldownCap)
+            sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.WallImpactCooldownCap);
     }
     /// <summary>
     /// Scans the rows a Wave shot's leading edge spans for block reactions, one row per step from its top row; where the
@@ -567,7 +567,7 @@ internal sealed class ProjectileTerrainCollision
         // The game's check reads whether the whole coordinate is negative, not whether its pixel offset within the
         // screen is 128 or more. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
-        if (span >= 16 || CoordinateAxis.AsSigned(shot.Position.Y.Whole) < 0 ||
+        if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach || CoordinateAxis.AsSigned(shot.Position.Y.Whole) < 0 ||
             RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= RoomGridConversions.ScreensCovering(level.Size.Y) ||
             RoomGridConversions.PixelToScreen(targetX) >= RoomGridConversions.ScreensCovering(level.Size.X))
             return;

@@ -12,6 +12,20 @@ internal static class SamusPoseCollisionDefinitions
     /// </summary>
     internal const int SmallestUprightYRadius = 8;
 
+    /// <summary>Every pose's horizontal collision radius, in pixels: Samus is five pixels wide either side of her centre.</summary>
+    internal const int HorizontalRadius = 5;
+
+    /// <summary>The vertical collision radius of the front view, in pixels.</summary>
+    internal const int ForwardFacingYRadius = 24;
+
+    /// <summary>
+    /// The pixels the forward-facing setup raises Samus when she turns to face the screen from a pose of another height.
+    /// </summary>
+    internal const int ForwardFacingSetupLift = 3;
+
+    /// <summary>The pixels a jump started from a crouch raises Samus before the jump begins.</summary>
+    internal const int CrouchJumpLift = 10;
+
     /// <summary>The vertical collision radius of each authored pose, in pixels; <see cref="SamusPoseCollisionRadii.ReadVerticalRadius"/> looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, int> VerticalRadii = new Dictionary<SamusPoseId, int>
     {
@@ -246,7 +260,7 @@ internal static class SamusPoseCollisionDefinitions
         [SamusPoseId.StandingTransitionAimDiagonalUpLeftPose] = 21,
         [SamusPoseId.StandingTransitionAimDiagonalDownRightPose] = 21,
         [SamusPoseId.StandingTransitionAimDiagonalDownLeftPose] = 21,
-        [SamusPoseId.ForwardFacingPowerSuitPose] = 24,
-        [SamusPoseId.ForwardFacingSuitedPose] = 24,
+        [SamusPoseId.ForwardFacingPowerSuitPose] = ForwardFacingYRadius,
+        [SamusPoseId.ForwardFacingSuitedPose] = ForwardFacingYRadius,
     };
 }

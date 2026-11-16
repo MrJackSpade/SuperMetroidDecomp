@@ -25,4 +25,22 @@ public static class BeamComboDefinitions
     public static readonly SoundEffectId WaveRemovalSound = SamusSound.WaveSpecialAttackEnd;
     /// <summary>The Wave special beam attack: the sound of the oscillator's pulse.</summary>
     public static readonly SoundEffectId WavePulseSound = SamusSound.WaveSpecialAttack;
+
+    /// <summary>How far above Samus the Spazer special attack's particles centre their flight once they stop circling her.</summary>
+    public const int SpazerFlightCentreHeight = 114;
+
+    /// <summary>
+    /// How far left of the view an Ice or Plasma special attack particle may fly before it ends, in pixels; the view's
+    /// own left edge is at nothing.
+    /// </summary>
+    public const int ViewLeftMargin = 32;
+
+    /// <summary>How far right of the view's left edge an Ice or Plasma special attack particle ends, in pixels.</summary>
+    public const int ViewRightReach = 288;
+
+    /// <summary>How far below the view's top edge an Ice or Plasma special attack particle must stay, in pixels.</summary>
+    public const int ViewTopReach = 16;
+
+    /// <summary>How far below the view's top edge an Ice or Plasma special attack particle ends, in pixels.</summary>
+    public const int ViewBottomReach = 256;
 }

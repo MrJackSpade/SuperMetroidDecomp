@@ -30,4 +30,7 @@ public static class MorphBallBombDefinitions
     /// pixels over the <see cref="DownChargeTimeoutUpdates"/>.
     /// </summary>
     public const int DownChargeUpdatesPerLaunchPixel = 64;
+
+    /// <summary>The explosion count at which a bomb or Power Bomb launches a Samus it overlaps into a bomb jump.</summary>
+    public const int BombJumpExplosionCount = 8;
 }

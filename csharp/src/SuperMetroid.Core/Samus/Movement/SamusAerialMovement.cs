@@ -71,8 +71,6 @@ public static class SamusAerialMovement
         samus.Kinematics.YSpeed = SpeedBoosterJumpBonus.Boosted(samus.Kinematics.YSpeed, samus.HorizontalSpeed.ExtraRunSpeed);
     }
 
-    /// <summary>How far the spin wall-jump probe looks for a wall behind Samus, in pixels.</summary>
-    private const int WallJumpProbePixels = 8;
 
     /// <summary>
     /// Chooses Samus's vertical acceleration. The three adjacent
@@ -603,9 +601,9 @@ public static class SamusAerialMovement
         UnsignedSixteenSixteen oldSpeed = state.YSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {
-            // Tests equality with whole speed five. Values above five are not
+            // Tests equality with the terminal whole speed. Values above it are not
             // clamped; preserving that oddity matters for externally scripted velocities.
-            if (state.YSpeed.Whole != 5)
+            if (state.YSpeed.Whole != SamusVerticalMotionDefinitions.TerminalFallWholeSpeed)
                 state.YSpeed += state.YAcceleration;
         }
         else
@@ -707,7 +705,7 @@ public static class SamusAerialMovement
         // Test Left first and probe RIGHT; the mirror Right chord probes
         // LEFT. That counter-intuitive direction is deliberate: the button points away from
         // the wall behind the newly facing spin pose.
-        SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? WallJumpProbePixels : -WallJumpProbePixels, 0);
+        SignedSixteenSixteen requested = SignedSixteenSixteen.FromParts(heldLeft ? SamusMovementDefinitions.WallJumpReachPixels : -SamusMovementDefinitions.WallJumpReachPixels, 0);
         BlockMoveResult probe = SamusBlockCollision.ProbeWallHorizontal(
             level,
             samus.Kinematics, samus,
@@ -725,7 +723,7 @@ public static class SamusAerialMovement
         }
 
         bool jumpNew = (controllerNewInput & GameplayAction.Jump) != GameplayAction.None;
-        bool triggered = jumpNew && distance < 8;
+        bool triggered = jumpNew && distance < SamusMovementDefinitions.WallJumpReachPixels;
         if (triggered)
         {
             // Both successful exits converge on the same result: the solid-enemy

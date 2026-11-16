@@ -359,12 +359,9 @@ public sealed class SamusBombProjectileSystem
                 samus.AudioRequests.QueueSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }
-        if (samus.BeamCharge.HasCharged(ChargeSoundFlareThreshold))
+        if (samus.BeamCharge.HasCharged(BeamChargeDefinitions.ChargeSoundStartCounter))
             samus.AudioRequests.QueueSound(SamusSound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
-
-    /// <summary>The flare count from which a charging beam's loop is audible.</summary>
-    private const int ChargeSoundFlareThreshold = 16;
 
     /// <summary>Ticks the shared shot cooldown, or holds it at 32 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
@@ -636,7 +633,7 @@ public sealed class SamusBombProjectileSystem
         else if (!bomb.BombTimer.IsZero)
         {
             bomb.BombTimer = bomb.BombTimer.Decrement().Remaining;
-            if (bomb.BombTimer.IsAt(15))
+            if (bomb.BombTimer.IsAt(SamusPowerBombFuseData.FastAnimationTimer))
             {
                 // The slow and fast animations have identical four-frame layouts and differ by
                 // a fixed distance. Moving the live animation by it preserves phase.
@@ -788,7 +785,7 @@ public sealed class SamusBombProjectileSystem
         PowerBombRadius explosionRadius)
     {
         int horizontalRadius = explosionRadius.WholePixels;
-        int verticalRadius = (3 * horizontalRadius) >> 2;
+        int verticalRadius = PowerBombBlastOval.VerticalRadius(horizontalRadius);
 
         // The blast's reach is clipped to the room: before its first pixel and after its last block. A blast just left of
         // or above the room holds a coordinate near 65535, and its far edge would pass 65535, which PixelToBlock rejects,
@@ -1064,7 +1061,7 @@ public sealed class SamusBombProjectileSystem
             SamusProjectileFamily typeFamily = bomb.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
-                !bomb.BombTimer.IsAt(8))
+                !bomb.BombTimer.IsAt(MorphBallBombDefinitions.BombJumpExplosionCount))
                 continue;
 
             // Samus's X against the bomb's: equal is straight; Samus left of the bomb launches left;

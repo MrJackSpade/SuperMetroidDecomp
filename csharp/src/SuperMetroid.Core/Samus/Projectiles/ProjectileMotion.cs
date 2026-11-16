@@ -399,7 +399,7 @@ internal sealed class ProjectileMotion
         SignedEightEight velocity = axis == Axis.Vertical ? owner.Velocity.Y : owner.Velocity.X;
         int wholeMagnitude = velocity.MagnitudeWholePixels;
         bool ownerExploded = owner.Type.IsFamily(SamusProjectileFamily.MissileExplosion);
-        if (wholeMagnitude < 11)
+        if (wholeMagnitude < SuperMissileDefinitions.FastLinkSpeed)
         {
             // A slow link clears at once if the owner has already exploded,
             // otherwise it only follows the owner's center.
@@ -415,11 +415,11 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // A fast link samples ten pixels beyond the owner's previous
+        // A fast link samples its shortfall behind the owner's speed beyond the owner's previous
         // position to close the point-collision gap, and does so even when the owner has
         // just exploded; only then is it cleared. A missile that skips a door cap and
         // strikes the door behind it still opens the cap through its link.
-        int offset = wholeMagnitude - 10;
+        int offset = wholeMagnitude - SuperMissileDefinitions.FastLinkShortfall;
         int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
         int linkPosition = CoordinateAxis.Wrap(ownerPosition + (velocity.IsNegative ? offset : -offset));
         if (axis == Axis.Vertical)

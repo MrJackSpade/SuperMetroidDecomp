@@ -15,6 +15,12 @@ internal static class ChargeFlareAnimationDefinitions
     /// <summary>The main flare's first beat of its loop: beat 16, after which it repeats beats 16 through 29.</summary>
     internal const int MainFlareLoopStart = 16;
 
+    /// <summary>The flare count from which a charging beam's main flare is drawn.</summary>
+    internal const int MainFlareShownFrom = 15;
+
+    /// <summary>The flare count from which both spark rings are drawn around the main flare.</summary>
+    internal const int SparksShownFrom = 30;
+
     /// <summary>The updates each picture of the Hyper Beam's flare shows for as it plays the components' pictures backward.</summary>
     internal const int HyperBeamPictureUpdates = 3;
 

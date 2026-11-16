@@ -41,7 +41,7 @@ internal static class SamusPoseMetadata
     /// </summary>
     public static void RefreshCollisionRadii(SamusState samus)
     {
-        samus.Kinematics.Radius = new(5, ReadPoseYRadius(samus.Pose));
+        samus.Kinematics.Radius = new(SamusPoseCollisionDefinitions.HorizontalRadius, ReadPoseYRadius(samus.Pose));
     }
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
@@ -193,10 +193,10 @@ internal static class SamusPoseMetadata
         samus.CommitPoseHistory();
 
         // Compares the live radius, still the previous pose's, and
-        // lifts both current and previous Y by three unless it is already the front view's 24.
-        if (samus.Kinematics.Radius.Y != 24)
+        // lifts both current and previous Y unless it is already the front view's.
+        if (samus.Kinematics.Radius.Y != SamusPoseCollisionDefinitions.ForwardFacingYRadius)
         {
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 3);
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, SamusPoseCollisionDefinitions.ForwardFacingSetupLift);
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         }
 

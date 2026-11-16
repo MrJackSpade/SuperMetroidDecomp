@@ -41,12 +41,12 @@ internal sealed class SamusScrollCap
             samus.WritePreviousXPosition(cappedX);
     }
 
-    /// <summary>Returns a previous position twelve pixels from Samus when the signed-distance comparison reaches the camera cap.</summary>
+    /// <summary>Returns a previous position the camera cap from Samus when the signed-distance comparison reaches it.</summary>
     private static int? CappedPreviousPosition(int position, int previous)
     {
         int delta = CoordinateAxis.Difference(position, previous);
-        if (Math.Abs(delta) < 12)
+        if (Math.Abs(delta) < SamusCameraDefinitions.PreviousPositionCap)
             return null;
-        return CoordinateAxis.Wrap(position + (delta < 0 ? -12 : 12));
+        return CoordinateAxis.Wrap(position + (delta < 0 ? -SamusCameraDefinitions.PreviousPositionCap : SamusCameraDefinitions.PreviousPositionCap));
     }
 }

@@ -2070,7 +2070,7 @@ internal static class LookupStream4Verification
                 var guard = NewBotwoonColorReadGuard(rom);
                 Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
                 RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-                var state = new BotwoonEnemyState();
+                var state = new BotwoonEnemyState(body: []);
                 // Botwoon's sprites are pre-coloured in each band's colours over his row, the seventh (#1512).
                 IReadOnlyList<SheetShade> botwoonShades = BossSheetShades.OwnRow(artworkBosses, EnemyDefinitionId.Botwoon, 7 * 16);
                 ushort[] Shown() => BossShadeColours.Laid(state.BodyShading.Shades, botwoonShades, BossShadeColours.Sprites, 0x1234);

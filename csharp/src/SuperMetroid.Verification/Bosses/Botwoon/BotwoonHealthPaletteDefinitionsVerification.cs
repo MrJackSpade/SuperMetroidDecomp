@@ -44,7 +44,7 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { BotwoonColors = BotwoonColorFile.Read(colors) });
         Action<RoomEnemyPlace, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthBand;
         RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState();
+        var state = new BotwoonEnemyState(body: []);
 
         for (int phase = 0; phase < BotwoonHealthBandDefinitions.BandCount; phase++)
         {

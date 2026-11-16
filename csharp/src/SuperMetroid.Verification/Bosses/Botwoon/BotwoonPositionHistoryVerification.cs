@@ -24,8 +24,7 @@ internal static class BotwoonPositionHistoryVerification
 
         RoomEnemyPlace head = runtime.Enemies.Places.InUpdateOrder.Single(place =>
             place.DefinitionId == EnemyDefinitionId.Botwoon);
-        BotwoonEnemyState state = runtime.Enemies.Botwoon
-            ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
+        BotwoonEnemyState state = head.RequireSpeciesState<BotwoonEnemyState>();
         AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),
             "Botwoon's position history starts as Initialise_Enemies' zeroed RAM");
         AssertTrue(state.HeadHistory.All(position => position == head.Position.Whole),

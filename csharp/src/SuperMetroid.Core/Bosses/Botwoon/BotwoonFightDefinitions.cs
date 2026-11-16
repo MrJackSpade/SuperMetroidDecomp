@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>Botwoon's fight: its opening delay, its spit volleys and cooldown, the floor he dies on and his head's trail.</summary>
 internal static class BotwoonFightDefinitions
 {
+    /// <summary>The segments of his body, from the tail to the segment behind his head.</summary>
+    internal const int BodySegments = 13;
+
     /// <summary>The updates Botwoon waits in his hole before his first traversal.</summary>
     internal const int OpeningDelay = 256;
 

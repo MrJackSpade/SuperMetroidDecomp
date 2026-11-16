@@ -43,8 +43,8 @@ internal sealed class EndingFlyaway
     {
         // The flyaway's setup clears the explosion's whiteout from the sky.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
-        _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, SamusEquipmentFlags.None);
-        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, SamusEquipmentFlags.None);
+        _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.PlanetAfterglow);
+        _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.GunshipEmergence);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(EndingMotionDefinitions.PlanetEscapeFloorX),
             SignedSixteenSixteen.FromWholePixels(EndingMotionDefinitions.PlanetEscapeFloorY));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;

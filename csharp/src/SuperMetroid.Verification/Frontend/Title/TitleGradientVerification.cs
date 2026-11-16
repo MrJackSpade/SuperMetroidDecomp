@@ -276,8 +276,8 @@ internal static class TitleGradientVerification
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {
-            native.Start(definition.DefinitionPointer, 0);
-            installed.Start(definition.DefinitionPointer, 0);
+            native.StartScreen(definition.DefinitionPointer);
+            installed.StartScreen(definition.DefinitionPointer);
         }
 
         var nativeCgram = new SnesCgram();

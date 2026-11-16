@@ -124,8 +124,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.WaitForEscapeMusic:
                 if (!audio.HasQueuedMusic)
                 {
-                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Lava, SamusEquipmentFlags.None);
-                    Stage.ColourEffects.Start(EndingColourEffectDefinitions.Crust, SamusEquipmentFlags.None);
+                    Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Lava);
+                    Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Crust);
                     Stage.Fade.Show(0);
                     Stage.StartFastFade();
                     Stage.Phase = EndingCreditsPhase.FadeInSideCloudEscape;

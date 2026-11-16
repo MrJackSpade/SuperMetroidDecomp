@@ -282,7 +282,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                     // The logo starts its fade as it first shows; the effect shows its first shade when the colour
                     // effects step at the end of this update, so the logo first shows black.
-                    colourEffects.Start(TitleSequenceDefinitions.Fades.Logo, SamusEquipmentFlags.None);
+                    colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Logo);
                 }
                 break;
 
@@ -293,7 +293,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     // before arming the 900-update demo countdown.
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
-                    colourEffects.Start(TitleSequenceDefinitions.Fades.Copyright, SamusEquipmentFlags.None);
+                    colourEffects.StartScreen(TitleSequenceDefinitions.Fades.Copyright);
                 }
                 break;
 
@@ -379,8 +379,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void RestartColourEffects()
     {
         colourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, SamusEquipmentFlags.None);
-        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.FastLights, SamusEquipmentFlags.None);
+        colourEffects.StartScreen(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights);
+        colourEffects.StartScreen(TitleSequenceDefinitions.ConsoleColourEffects.FastLights);
     }
 
     /// <summary>

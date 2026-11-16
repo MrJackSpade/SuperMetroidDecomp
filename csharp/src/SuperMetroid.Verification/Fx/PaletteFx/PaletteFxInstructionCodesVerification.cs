@@ -124,7 +124,7 @@ internal static class PaletteFxInstructionCodesVerification
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
             paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-            paletteFx.Start(definitionPointer, 0);
+            paletteFx.StartScreen(definitionPointer);
             for (int step = 0;
                  step < NintendoLogoFadePaletteFxColorDefinitions.CycleFrames;
                  step++)
@@ -156,9 +156,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-        paletteFx.Start(
-            TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
-            0);
+        paletteFx.StartScreen(TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer);
         for (int step = 0;
              step < TitleLogoFadePaletteFxColorDefinitions.CycleFrames;
              step++)
@@ -201,9 +199,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-        paletteFx.Start(
-            PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
-            0);
+        paletteFx.StartScreen(PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer);
         for (int step = 0;
              step < PostCreditsIconGlarePaletteFxColorDefinitions.CycleFrames;
              step++)
@@ -264,9 +260,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-        paletteFx.Start(
-            ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
-            0);
+        paletteFx.StartScreen(ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer);
         for (int step = 0;
              step < ZebesExplosionGunshipPaletteFxColorDefinitions.CycleFrames;
              step++)
@@ -312,7 +306,7 @@ internal static class PaletteFxInstructionCodesVerification
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
             paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-            paletteFx.Start(definitionPointer, 0);
+            paletteFx.StartScreen(definitionPointer);
             for (int step = 0;
                  step <= ZebesExplosionWhiteoutPaletteFxColorDefinitions.CycleFrames;
                  step++)
@@ -341,9 +335,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-        paletteFx.Start(
-            ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
-            0);
+        paletteFx.StartScreen(ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer);
         for (int step = 0;
              step <= ZebesExplosionFinalePaletteFxColorDefinitions.CycleFrames;
              step++)
@@ -372,9 +364,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-        paletteFx.Start(
-            ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
-            0);
+        paletteFx.StartScreen(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer);
         for (int step = 0;
              step <= ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames;
              step++)
@@ -403,9 +393,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new ColourEffectSessionState();
         var paletteFx = new ColourEffectSystem(paletteFxSession);
         paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-        paletteFx.Start(
-            ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
-            0);
+        paletteFx.StartScreen(ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer);
         for (int step = 0;
              step <= ExplodingZebesFadePaletteFxColorDefinitions.CycleFrames;
              step++)
@@ -467,7 +455,7 @@ internal static class PaletteFxInstructionCodesVerification
             var paletteFxSession = new ColourEffectSessionState();
             var paletteFx = new ColourEffectSystem(paletteFxSession);
             paletteFx.BindAudioRequests(GameplayAudioRequests.Standalone());
-            paletteFx.Start(definitionPointer, 0);
+            paletteFx.StartScreen(definitionPointer);
             for (int step = 0; step <= cycleFrames; step++)
                 StepScreenShowing(paletteFx, new ReferencePaletteFxColorSource(guarded));
             AssertTrue(paletteFx.IsRunning(definitionPointer),

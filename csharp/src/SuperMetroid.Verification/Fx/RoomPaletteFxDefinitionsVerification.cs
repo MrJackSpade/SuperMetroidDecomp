@@ -93,6 +93,7 @@ internal static class RoomPaletteFxDefinitionsVerification
         Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(pointers));
         Suite(nameof(VerifyColourEffectTurnOrder), () => VerifyColourEffectTurnOrder());
         Suite(nameof(VerifyColourEffectConditionWatchedAfterFirstFrame), () => VerifyColourEffectConditionWatchedAfterFirstFrame());
+        Suite(nameof(VerifyColourEffectScreenStart), () => VerifyColourEffectScreenStart());
 
         for (int area = 0; area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count; area++)
         for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
@@ -207,9 +208,9 @@ internal static class RoomPaletteFxDefinitionsVerification
     {
         var system = new ColourEffectSystem(new ColourEffectSessionState());
         system.BindAudioRequests(GameplayAudioRequests.Standalone());
-        system.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
-        system.Start(ColourEffectId.FadeInSuperMetroidTitleLogo, 0);
-        system.Start(ColourEffectId.TitleScreenBabyMetroidTubeLight, 0);
+        system.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
+        system.StartScreen(ColourEffectId.FadeInSuperMetroidTitleLogo);
+        system.StartScreen(ColourEffectId.TitleScreenBabyMetroidTubeLight);
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.FadeInSuperMetroidTitleLogo, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
             "effects take turns in start order");
@@ -225,7 +226,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight]),
             "an ended effect leaves the turns");
 
-        system.Start(ColourEffectId.FadeInNintendoCopyright, 0);
+        system.StartScreen(ColourEffectId.FadeInNintendoCopyright);
         AssertTrue(system.effects.Select(effect => effect.Effect).SequenceEqual(
             [ColourEffectId.TitleScreenFlickeringDisplays, ColourEffectId.TitleScreenBabyMetroidTubeLight, ColourEffectId.FadeInNintendoCopyright]),
             "a later start joins after every running effect");
@@ -242,8 +243,45 @@ internal static class RoomPaletteFxDefinitionsVerification
         var many = new ColourEffectSystem(new ColourEffectSessionState());
         many.BindAudioRequests(GameplayAudioRequests.Standalone());
         for (int started = 0; started < 9; started++)
-            many.Start(ColourEffectId.TitleScreenFlickeringDisplays, 0);
+            many.StartScreen(ColourEffectId.TitleScreenFlickeringDisplays);
         AssertEqual(9, many.effects.Count, "any number of effects run at once");
+    }
+
+    /// <summary>
+    /// Checks the screen-only start (#2223): every effect a frontend screen can show starts on a screen without an invented
+    /// Samus and plays frame for frame as the gameplay start with no equipment played it, and every effect whose start
+    /// chooses from Samus's suit or the area's mini-boss, or which watches a condition, is refused loudly.
+    /// </summary>
+    internal static void VerifyColourEffectScreenStart()
+    {
+        const int Updates = 256;
+        int screenEffects = 0;
+        foreach (ColourEffectId effect in PaletteFxObjectAccess.All)
+        {
+            ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
+            var screen = new ColourEffectSystem(new ColourEffectSessionState());
+            if (definition.Start != ColourEffectStart.Plain || definition.Condition is not null)
+            {
+                AssertThrows<InvalidOperationException>(() => screen.StartScreen(effect),
+                    $"{effect}, which needs gameplay to start or watch, does not start on a screen");
+                continue;
+            }
+            screen.StartScreen(effect);
+            if (!ColourEffectScreenColourDefinitions.FrontendScreenGroups.Contains(definition.Colours))
+                continue;
+            screenEffects++;
+            var gameplay = new ColourEffectSystem(new ColourEffectSessionState());
+            gameplay.Start(effect, SamusEquipmentFlags.None);
+            for (int update = 0; update < Updates; update++)
+            {
+                screen.StepScreen();
+                gameplay.StepScreen();
+                AssertTrue(screen.Shown.SequenceEqual(gameplay.Shown), $"{effect} shows the same frame on update {update} from either start");
+                AssertEqual(gameplay.IsRunning(effect), screen.IsRunning(effect), $"{effect} runs as long from either start");
+            }
+        }
+        AssertTrue(screenEffects > 0, "the frontend screens' effects start on a screen");
+        Console.WriteLine($"  Screen start: {screenEffects} screen effects play as their gameplay start; gameplay-conditioned effects are refused.");
     }
 
     /// <summary>Enumerates native fixed-size definition records within one bank-$8D range.</summary>

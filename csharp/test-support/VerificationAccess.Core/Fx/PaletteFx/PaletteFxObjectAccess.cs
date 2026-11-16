@@ -93,6 +93,9 @@ internal static class PaletteFxObjectAccess
         internal void Start(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false) =>
             self.Start(FromNative(definition), equippedItems, areaMiniBossDefeated);
 
+        /// <summary>Starts the frontend screen's effect whose definition is at <paramref name="definition"/> (#2223).</summary>
+        internal void StartScreen(ushort definition) => self.StartScreen(FromNative(definition));
+
         /// <summary>
         /// Starts the Torizo belly glow whose definition is at <paramref name="definition"/> lighting <paramref name="torizo"/>,
         /// as the Torizo's fight start does (#1700).

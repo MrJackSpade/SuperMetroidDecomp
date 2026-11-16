@@ -289,8 +289,8 @@ internal sealed class IntroCeresFlightState
         flashIntensity = WhiteWash.Steps;
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
-        ColourEffects.Start(CeresFlightSceneDefinitions.GunshipEngineFlicker, SamusEquipmentFlags.None);
-        ColourEffects.Start(CeresFlightSceneDefinitions.NavigationLights, SamusEquipmentFlags.None);
+        ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);
+        ColourEffects.StartScreen(CeresFlightSceneDefinitions.NavigationLights);
     }
 
     /// <summary>Creates one cinematic actor at <paramref name="start"/> with its authored colouring and animation.</summary>

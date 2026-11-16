@@ -34,7 +34,7 @@ internal static class PaletteFxContractTests
         var fxSession = new ColourEffectSessionState();
         var fx = new ColourEffectSystem(fxSession);
         fx.BindAudioRequests(new GameplayAudioRequests(new NoSoundQueues()));
-        fx.Start(ColourEffectId.CutsceneGunshipEngineFlicker, 0);
+        fx.StartScreen(ColourEffectId.CutsceneGunshipEngineFlicker);
         fx.StepScreen();
         IReadOnlyList<ShownColourEffectFrame> shown = fx.Shown;
         var first = new ColourEffectFrame(ColourEffectId.CutsceneGunshipEngineFlicker, 0);

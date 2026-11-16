@@ -26,7 +26,7 @@ internal static class EndingSceneColoursVerification
         colours.Load(EndingColourLoad.Escape, escape);
         colours.Fade(EndingFade.ExplosionBackground, 3);
         colours.Flash(EndingFlash.SilhouetteBackdrop, black);
-        colours.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        colours.ColourEffects.StartScreen(EndingColourEffectDefinitions.GunshipEmergence);
         colours.ColourEffects.StepScreen();
         colours.Load(EndingColourLoad.Explosion, explosion);
         colours.ResetColourEffects();
@@ -42,7 +42,7 @@ internal static class EndingSceneColoursVerification
         AssertTrue(colours.Shades.SequenceEqual(restoredScene),
             "restoring the explosion's backgrounds ends the far background's fade-out and keeps the scene's other fades");
 
-        colours.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        colours.ColourEffects.StartScreen(EndingColourEffectDefinitions.GunshipEmergence);
         colours.ColourEffects.StepScreen();
         PictureShade gunshipRecord = ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion,
             colours.ColourEffects.FrameOf(ColourEffectColours.GunshipEmergingFromExplosion)
@@ -64,8 +64,8 @@ internal static class EndingSceneColoursVerification
         actors.Load(EndingColourLoad.Explosion, explosion);
         actors.Fade(EndingFade.ExplodingPlanet, 5);
         actors.Flash(EndingFlash.PlanetGlow, null);
-        actors.ColourEffects.Start(EndingColourEffectDefinitions.FadePlanet, 0);
-        actors.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        actors.ColourEffects.StartScreen(EndingColourEffectDefinitions.FadePlanet);
+        actors.ColourEffects.StartScreen(EndingColourEffectDefinitions.GunshipEmergence);
         actors.ColourEffects.StepScreen();
         PictureShade planetFadeOut = ColourEffectShades.Of(ColourEffectColours.ZoomedOutExplodingZebes,
             actors.ColourEffects.FrameOf(ColourEffectColours.ZoomedOutExplodingZebes)

@@ -432,7 +432,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         Backdrop = content.CeresFlight.Backdrop;
         // The setup clears the colour effects and starts the station's navigation lights (#1733).
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        ColourEffects.Start(CeresDestructionSceneDefinitions.NavigationLights, SamusEquipmentFlags.None);
+        ColourEffects.StartScreen(CeresDestructionSceneDefinitions.NavigationLights);
 
         actors.Clear();
         destructionActorRoles.Clear();
@@ -462,7 +462,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         FloorShot = CeresFloorShot.ZebesApproach;
         // The reveal clears the colour effects, ending the station's navigation lights, and starts the engine's flicker.
         ColourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        ColourEffects.Start(CeresDestructionSceneDefinitions.GunshipEngineFlicker, SamusEquipmentFlags.None);
+        ColourEffects.StartScreen(CeresDestructionSceneDefinitions.GunshipEngineFlicker);
 
         actors.Clear();
         Background = FixedVector<FloorPixels>.Zero;
@@ -711,12 +711,12 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             case CeresCue.FadeInZebesTitle:
                 // The caption starts fading in from black as it first shows (#1733).
-                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeIn, SamusEquipmentFlags.None);
+                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeIn);
                 return;
 
             case CeresCue.FadeOutZebesTitle:
                 // The caption fades out to black as its hold ends, and stays black (#1733).
-                ColourEffects.Start(CeresDestructionSceneDefinitions.ZebesTextFadeOut, SamusEquipmentFlags.None);
+                ColourEffects.StartScreen(CeresDestructionSceneDefinitions.ZebesTextFadeOut);
                 return;
 
             case CeresCue.SpawnJapaneseTitleIfNeeded:

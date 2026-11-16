@@ -120,7 +120,7 @@ internal sealed class EndingCreditsRoll
         CurrentRewardJump = null;
         sprites.Clear();
         _artwork.CurrentEndingLogo = new EndingLogo(_stage,
-            () => _stage.ColourEffects.Start(EndingLogoDefinitions.LandingColourEffect, SamusEquipmentFlags.None));
+            () => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect));
         _stage.Phase = EndingCreditsPhase.PostCreditsLogo;
     }
 

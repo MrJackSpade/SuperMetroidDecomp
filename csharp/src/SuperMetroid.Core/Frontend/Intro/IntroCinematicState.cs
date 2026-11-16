@@ -653,7 +653,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StartFightLightsIfSamusDrawsFirst(IntroSamusDisplay display)
     {
         if (display == IntroSamusDisplay.SamusFirst)
-            ColourEffects.Start(IntroCinematicDefinitions.FightLights, SamusEquipmentFlags.None);
+            ColourEffects.StartScreen(IntroCinematicDefinitions.FightLights);
     }
 
     /// <summary>Starts the second narration page while restoring its caret and fading back from gameplay colors.</summary>

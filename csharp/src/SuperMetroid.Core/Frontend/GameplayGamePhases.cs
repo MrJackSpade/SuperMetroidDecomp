@@ -21,7 +21,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.MadeItToCeresElevator"/>.</summary>
     internal void RunMadeItToCeresElevator(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The Ceres elevator state is only the departure hold. The arrival descent runs in
         // ordinary main gameplay while the elevator's enemy projectiles lock Samus.
@@ -41,7 +41,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     internal void RunReserveTanksAuto(ControllerButton controllerInput)
     {
         SamusReserveAutoRecoveryStep reserveStep = default;
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime), AfterFrameBoundary = () =>
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck, AfterFrameBoundary = () =>
             {
                 SamusState samus = session.GameplayRuntime.Player.Samus
                     ?? throw new InvalidOperationException(
@@ -75,7 +75,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The pausing state continues running ordinary gameplay while the screen darkens.
         // This matters for moving enemies/projectiles and is why pause cannot be
         // represented as a desktop-only frozen bitmap.
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The finished fade moves on from what this update started: the pause preparation,
         // or the next step of a door hit or time-up gameplay wrote on this final fade update.
@@ -115,7 +115,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.BlackoutFromCeres"/>.</summary>
     internal void RunBlackoutFromCeres(ControllerButton controllerInput)
     {
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
         session.SetDisplayBrightness(session.ceresDeparture.Brightness);
@@ -162,7 +162,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // The Zebes-escape state calls the complete main-gameplay coroutine before
         // the fade-out. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame.
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The fade-out reloads the counter from the screen fade's delay, which
         // the gunship zeroed, so the brightness falls one step on every call.
@@ -240,7 +240,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // frame. Retraction can restore normal input later in StepFrame, after
         // Samus's input phase has already passed pause-check.
         bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.InputLocked == true;
-        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(session.GameplayRuntime) });
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
         HandleSaveStationPersistence();
         session.display.PublishGameplay(session.GameplayRuntime);

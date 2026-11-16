@@ -1348,7 +1348,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))
         {
-            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _playerActions.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo });
             StepSamusLoadAppearance(room);
         }
 
@@ -1371,8 +1371,9 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             // Locked, elevator and appearance movement modes omit the low-energy check; the gunship setup
             // installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
-            if (frame.Mode.Movement is SamusMovementMode.Normal or SamusMovementMode.Gunship && !samus.Xray.OwnsSamusControl)
-                audio.CheckLowHealth?.Invoke();
+            if (frame.Mode.Movement is SamusMovementMode.Normal or SamusMovementMode.Gunship && !samus.Xray.OwnsSamusControl &&
+                audio.ChecksLowHealth)
+                samus.HealthWarning.Update(samus.Health, samus.AudioRequests);
         }
     }
 

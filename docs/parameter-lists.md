@@ -31,10 +31,9 @@ Exemptions are declared on the member, never per project:
   INoobTubeProjectileSpawner, ...`. Where a private child would see only one implementation, compose
   a narrow concrete value (`PaletteFxConditions`, `RuntimeFramePolicy`, `VerticalTerrainProbe`)
   instead of passing the whole parent.
-- Required capabilities are non-null and validated at construction (`RoomObjectRoom`,
-  `RuntimeFrameAudio.Gameplay`). Optional behaviour is a named scenario or null object
-  (a default `RuntimeFrameRequest`, `RuntimeFrameAudio.Deferred`, `HostGameplayOverrides.None`),
-  not a nullable delegate.
+- Required capabilities are non-null and validated at construction (`RoomObjectRoom`).
+  Optional behaviour is a named scenario or null object (a default `RuntimeFrameRequest`,
+  `RuntimeFrameAudio.WithoutLowHealthCheck`, `HostGameplayOverrides.None`), not a nullable delegate.
 - A cluster of callbacks that represents one service becomes one interface (`IDemoInputProgram`,
   `IRoomSamusAccess`, `IRoomEarthquakeWriter`).
 - Reuse existing domain values before adding new ones (`Mode7RenderRegisters`,

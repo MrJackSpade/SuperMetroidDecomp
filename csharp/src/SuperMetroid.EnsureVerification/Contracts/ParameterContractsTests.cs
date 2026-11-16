@@ -38,8 +38,8 @@ internal static class ParameterContractsTests
         // Runtime frames: the request composes its policy; audio scenarios are named, not delegates.
         VerifyContract("a runtime frame request composes its policy",
             "_ = new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } };");
-        VerifyContract("runtime frame audio has no public delegate members",
-            "_ = RuntimeFrameAudio.Deferred.QueueEchoSound;", "CS1061");
+        VerifyContract("runtime frame audio holds no callbacks (#2092)",
+            "_ = RuntimeFrameAudio.WithLowHealthCheck.QueueEchoSound;", "CS1061");
         VerifyContract("the gameplay runtime is reachable only from Core and its friends (#1327)",
             "SuperMetroidRuntime? hidden = null;", "CS0122");
 

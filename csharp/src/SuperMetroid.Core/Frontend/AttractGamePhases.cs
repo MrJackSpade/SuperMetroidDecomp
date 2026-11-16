@@ -45,7 +45,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
             case SuperMetroidGameState.StartingDemo:
                 // The demo's transition state runs one gameplay frame before revealing the room. Its
                 // extra frame does not decrement the demo-playing state's countdown.
-                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Attract(session.GameplayRuntime) });
+                session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithoutLowHealthCheck });
                 session.display.PublishGameplay(session.GameplayRuntime);
                 session.GameState = SuperMetroidGameState.PlayingDemo;
                 break;
@@ -63,7 +63,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 }
                 else
                 {
-                    session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = GameplayFrameAudio.Attract(session.GameplayRuntime) });
+                    session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithoutLowHealthCheck });
                     session.display.PublishGameplay(session.GameplayRuntime);
                     // The demo's movement phase has restored the physical controller pair at this point.
                     if (session.GameplayRuntime.PlayerActions.NewlyPressed != GameplayAction.None)

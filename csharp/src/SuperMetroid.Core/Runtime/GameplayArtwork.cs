@@ -48,85 +48,85 @@ internal sealed record GameplayArtwork
     /// <summary>The installed terrain of every room level; not overridable.</summary>
     public required InstalledRoomLevelStreams RoomLevelStreams { get; init; }
 
-    /// <summary>Room-object shot block visuals.</summary>
+    /// <summary>The pictures of the ordinary shot blocks' breakup and restoration frames, which their room objects draw.</summary>
     public required InstalledRoomObjectShotBlockVisuals RoomObjectShotBlockVisuals { get; init; }
 
-    /// <summary>Room-object grapple block visuals.</summary>
+    /// <summary>The pictures of the breakable Grapple block's frames, which its room object draws as it breaks and respawns.</summary>
     public required InstalledRoomObjectGrappleBlockVisuals RoomObjectGrappleBlockVisuals { get; init; }
 
-    /// <summary>Room-object station visuals.</summary>
+    /// <summary>The pictures of the map, refill and save stations' frames and their access arms' frames.</summary>
     public required InstalledRoomObjectStationVisuals RoomObjectStationVisuals { get; init; }
 
-    /// <summary>Room-object blue door visuals.</summary>
+    /// <summary>The pictures of the blue door caps' frames, closed, opening and closing.</summary>
     public required InstalledRoomObjectBlueDoorVisuals RoomObjectBlueDoorVisuals { get; init; }
 
-    /// <summary>Room-object colored door visuals.</summary>
+    /// <summary>The pictures of the coloured door caps' frames.</summary>
     public required InstalledRoomObjectColoredDoorVisuals RoomObjectColoredDoorVisuals { get; init; }
 
-    /// <summary>Room-object grey door visuals.</summary>
+    /// <summary>The pictures of the grey door caps' frames and their shared clear frames.</summary>
     public required InstalledRoomObjectGreyDoorVisuals RoomObjectGreyDoorVisuals { get; init; }
 
-    /// <summary>Room-object eye door visuals.</summary>
+    /// <summary>The pictures of the eye doors' eye, body, bottom and clearing frames.</summary>
     public required InstalledRoomObjectEyeDoorVisuals RoomObjectEyeDoorVisuals { get; init; }
 
-    /// <summary>Room-object mother brain glass visuals.</summary>
+    /// <summary>The pictures of the frames of Mother Brain's glass as it cracks and shatters.</summary>
     public required InstalledMotherBrainGlassFrames RoomObjectMotherBrainGlassVisuals { get; init; }
 
-    /// <summary>Room-object noob tube visuals.</summary>
+    /// <summary>The pictures of the n00b tube's frames as it cracks and breaks.</summary>
     public required InstalledRoomObjectNoobTubeVisuals RoomObjectNoobTubeVisuals { get; init; }
 
-    /// <summary>Room-object downward gate visuals.</summary>
+    /// <summary>The pictures of the downward gates' column frames and their coloured triggers.</summary>
     public required InstalledRoomObjectDownwardGateVisuals RoomObjectDownwardGateVisuals { get; init; }
 
-    /// <summary>Room-object elevator platform visuals.</summary>
+    /// <summary>The pictures of the elevator platform's looping frames.</summary>
     public required InstalledRoomObjectElevatorPlatformVisuals RoomObjectElevatorPlatformVisuals { get; init; }
 
-    /// <summary>Room-object escape gate visuals.</summary>
+    /// <summary>The pictures of the open, half-closed and closed frames of the gate in Mother Brain's escape room.</summary>
     public required InstalledEscapeGateFrames RoomObjectEscapeGateVisuals { get; init; }
 
-    /// <summary>Room-object bomb torizo hand visuals.</summary>
+    /// <summary>The pictures of Bomb Torizo's hand frames, which the hand shows as it opens and closes.</summary>
     public required InstalledRoomObjectBombTorizoHandVisuals RoomObjectBombTorizoHandVisuals { get; init; }
 
-    /// <summary>Room-object draygon cannon visuals.</summary>
+    /// <summary>The pictures of Draygon's wall cannons' frames, whole and destroyed.</summary>
     public required InstalledDraygonCannonFrames RoomObjectDraygonCannonVisuals { get; init; }
 
-    /// <summary>Room-object Phantoon door visuals.</summary>
+    /// <summary>The pictures of Phantoon's door frames: the fight's door and the restored door.</summary>
     public required InstalledPhantoonDoorFrames RoomObjectPhantoonDoorVisuals { get; init; }
 
-    /// <summary>Room-object chozo statue visuals.</summary>
+    /// <summary>The pictures of the Chozo hand's and its slope access's frames.</summary>
     public required InstalledRoomObjectChozoStatueVisuals RoomObjectChozoStatueVisuals { get; init; }
 
-    /// <summary>Room-object linked restore visuals.</summary>
+    /// <summary>The pictures of the bomb and contact-crumble blocks' restoration frames.</summary>
     public required InstalledRoomObjectLinkedRestoreVisuals RoomObjectLinkedRestoreVisuals { get; init; }
 
-    /// <summary>Room-object tourian access visuals.</summary>
+    /// <summary>The pictures of the Tourian access floor's frames: the empty row, the crumble rows and the clear.</summary>
     public required RoomObjectTourianAccessVisuals RoomObjectTourianAccessVisuals { get; init; }
 
-    /// <summary>Room-object speed booster visuals.</summary>
+    /// <summary>The picture of the Speed Booster block a bomb reveals.</summary>
     public required InstalledRoomObjectSpeedBoosterVisuals RoomObjectSpeedBoosterVisuals { get; init; }
 
-    /// <summary>Room-object maridia elevatube visuals.</summary>
+    /// <summary>The picture of the Maridia elevatube's block.</summary>
     public required InstalledRoomObjectMaridiaElevatubeVisuals RoomObjectMaridiaElevatubeVisuals { get; init; }
 
-    /// <summary>Room-object spore spawn ceiling visuals.</summary>
+    /// <summary>The pictures of Spore Spawn's ceiling frames as it crumbles and clears.</summary>
     public required InstalledRoomObjectSporeSpawnCeilingVisuals RoomObjectSporeSpawnCeilingVisuals { get; init; }
 
-    /// <summary>Room-object samus eater visuals.</summary>
+    /// <summary>The pictures of the Samus Eater plant's frames.</summary>
     public required InstalledRoomObjectSamusEaterVisuals RoomObjectSamusEaterVisuals { get; init; }
 
-    /// <summary>Room-object botwoon wall visuals.</summary>
+    /// <summary>The picture of the Botwoon wall's clear once it has crumbled.</summary>
     public required InstalledRoomObjectBotwoonWallVisuals RoomObjectBotwoonWallVisuals { get; init; }
 
-    /// <summary>Room-object kraid visuals.</summary>
+    /// <summary>The pictures of Kraid's room's ceiling and floor-spike frames.</summary>
     public required InstalledRoomObjectKraidVisuals RoomObjectKraidVisuals { get; init; }
 
-    /// <summary>Room-object crocomire visuals.</summary>
+    /// <summary>The pictures of Crocomire's bridge and invisible-wall frames.</summary>
     public required InstalledRoomObjectCrocomireVisuals RoomObjectCrocomireVisuals { get; init; }
 
-    /// <summary>Room-object mother brain fake death visuals.</summary>
+    /// <summary>The pictures of the room changes of Mother Brain's fake death: the wall fill, the escape door, the mural rows, the fill rows and the tube clears.</summary>
     public required InstalledMotherBrainFakeDeathFrames RoomObjectMotherBrainFakeDeathVisuals { get; init; }
 
-    /// <summary>Room-object collectible visuals.</summary>
+    /// <summary>The pictures of the items' and tanks' frames as they lie, are revealed and are collected.</summary>
     public required InstalledRoomObjectCollectibleVisuals RoomObjectCollectibleVisuals { get; init; }
 
     /// <summary>Room-object bombed-reveal, escape-passage, escape-shaft-wall and rescue-wall visuals.</summary>
@@ -138,7 +138,7 @@ internal sealed record GameplayArtwork
     /// <summary>X-ray reveal shapes and item and special-room overlays.</summary>
     public required InstalledXrayReveals XrayRevealVisuals { get; init; }
 
-    /// <summary>Timed projectile frame sprite choices.</summary>
+    /// <summary>The composition every frame of Samus's shots' animations draws.</summary>
     public required InstalledProjectileFrameBindings ProjectileFrameBindings { get; init; }
 
     /// <summary>The compatibility services reproducing what Samus's glitch paths read, decoded from the player's game data.</summary>
@@ -162,7 +162,7 @@ internal sealed record GameplayArtwork
     /// <summary>The compatibility services reproducing what enemies read past their authored data, decoded from the player's game data.</summary>
     public required EnemyOverreadServices EnemyOverreads { get; init; }
 
-    /// <summary>Charge-flare placement.</summary>
+    /// <summary>Where the beam's charge flare is drawn from Samus in each pose.</summary>
     public required ChargeFlarePlacements ChargeFlarePlacement { get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>

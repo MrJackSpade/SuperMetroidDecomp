@@ -594,7 +594,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
                 {
                     // Crystal Flash's ending clears its state, copies Samus's raised center into the
                     // shared explosion position, then spawns the Crystal Flash explosion. This movement
-                    // phase runs after the bombs' input phase, so the retained Crystal Flash slot
+                    // phase runs after the bombs' input phase, so the Crystal Flash's place among the bombs, still held,
                     // observes the released flag and deletes on the following frame.
                     room.BombProjectiles.PowerBombExplosion.BeginCrystalFlash(samus.Position.Whole);
                 }

@@ -110,7 +110,7 @@ internal sealed class SuperMetroidRuntime
     internal ActiveAssists Assists { get; }
 
     /// <summary>The installed pictures of the room objects' blocks, one set for each kind of room object.</summary>
-    internal RoomObjectVisuals ShotBlockVisuals { get; }
+    internal RoomObjectVisuals RoomObjectVisuals { get; }
 
     /// <summary>Draws Samus, her shots and grapple beam and the enemies each update.</summary>
     internal GameplayActorDrawing ActorDrawing { get; }
@@ -232,10 +232,10 @@ internal sealed class SuperMetroidRuntime
         LiquidWaveAndStatueDescent = new LiquidWaveAndStatueDescent(Freeze, System, LiquidWaveAndStatueDescentOrder);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing,  Display = Display, EnemyPhase = EnemyPhase, LiquidWaveAndStatueDescent = LiquidWaveAndStatueDescent, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
-        ShotBlockVisuals = new RoomObjectVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
-        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
+        RoomObjectVisuals = new RoomObjectVisuals();
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { AudioRequests = AudioRequests, EnemySession = EnemySession, BossArtwork = BossArtwork, ColourEffectSession = ColourEffectSession, TourianStatueDependencies = TourianStatueDependencies, RoomObjectVisuals = RoomObjectVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, PlayerActions = PlayerActions, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Assists = Assists, SamusOverreads = SamusOverreads, UnauthoredBoostCadence = UnauthoredBoostCadence, CameraFractions = CameraFractions, FadeStepCount = FadeStepCount, YardKickDistance = YardKickDistance });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { AttractSession = AttractSession, PlayerActions = PlayerActions, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System });
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { AudioRequests = AudioRequests, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
         RoomObjectPhase = new RoomObjectFramePhase(new RoomObjectFramePhaseDependencies { PlayerActions = PlayerActions, PlayerButtons = PlayerButtons, Options = Options, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Room = Room, SuitPickup = SuitPickup});
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Player = Player, Room = Room, System = System});
@@ -293,35 +293,35 @@ internal sealed class SuperMetroidRuntime
         Bind(a => a.RoomBlockSheets, value => Artwork.RoomBlockSheets = value);
         Bind(a => a.RoomVisualLayouts, value => Artwork.RoomVisualLayouts = value);
         Bind(a => a.RoomLevelStreams, value => Artwork.RoomLevelStreams = value);
-        Bind(a => a.RoomObjectShotBlockVisuals, value => ShotBlockVisuals.RoomObjectShotBlockVisuals = value);
-        Bind(a => a.RoomObjectGrappleBlockVisuals, value => ShotBlockVisuals.RoomObjectGrappleBlockVisuals = value);
-        Bind(a => a.RoomObjectStationVisuals, value => ShotBlockVisuals.RoomObjectStationVisuals = value);
-        Bind(a => a.RoomObjectBlueDoorVisuals, value => ShotBlockVisuals.RoomObjectBlueDoorVisuals = value);
-        Bind(a => a.RoomObjectColoredDoorVisuals, value => ShotBlockVisuals.RoomObjectColoredDoorVisuals = value);
-        Bind(a => a.RoomObjectGreyDoorVisuals, value => ShotBlockVisuals.RoomObjectGreyDoorVisuals = value);
-        Bind(a => a.RoomObjectEyeDoorVisuals, value => ShotBlockVisuals.RoomObjectEyeDoorVisuals = value);
-        Bind(a => a.RoomObjectMotherBrainGlassVisuals, value => ShotBlockVisuals.RoomObjectMotherBrainGlassVisuals = value);
-        Bind(a => a.RoomObjectNoobTubeVisuals, value => ShotBlockVisuals.RoomObjectNoobTubeVisuals = value);
-        Bind(a => a.RoomObjectDownwardGateVisuals, value => ShotBlockVisuals.RoomObjectDownwardGateVisuals = value);
-        Bind(a => a.RoomObjectElevatorPlatformVisuals, value => ShotBlockVisuals.RoomObjectElevatorPlatformVisuals = value);
-        Bind(a => a.RoomObjectEscapeGateVisuals, value => ShotBlockVisuals.RoomObjectEscapeGateVisuals = value);
-        Bind(a => a.RoomObjectBombTorizoHandVisuals, value => ShotBlockVisuals.RoomObjectBombTorizoHandVisuals = value);
-        Bind(a => a.RoomObjectDraygonCannonVisuals, value => ShotBlockVisuals.RoomObjectDraygonCannonVisuals = value);
-        Bind(a => a.RoomObjectPhantoonDoorVisuals, value => ShotBlockVisuals.RoomObjectPhantoonDoorVisuals = value);
-        Bind(a => a.RoomObjectChozoStatueVisuals, value => ShotBlockVisuals.RoomObjectChozoStatueVisuals = value);
-        Bind(a => a.RoomObjectLinkedRestoreVisuals, value => ShotBlockVisuals.RoomObjectLinkedRestoreVisuals = value);
-        Bind(a => a.RoomObjectTourianAccessVisuals, value => ShotBlockVisuals.RoomObjectTourianAccessVisuals = value);
-        Bind(a => a.RoomObjectSpeedBoosterVisuals, value => ShotBlockVisuals.RoomObjectSpeedBoosterVisuals = value);
-        Bind(a => a.RoomObjectMaridiaElevatubeVisuals, value => ShotBlockVisuals.RoomObjectMaridiaElevatubeVisuals = value);
-        Bind(a => a.RoomObjectSporeSpawnCeilingVisuals, value => ShotBlockVisuals.RoomObjectSporeSpawnCeilingVisuals = value);
-        Bind(a => a.RoomObjectSamusEaterVisuals, value => ShotBlockVisuals.RoomObjectSamusEaterVisuals = value);
-        Bind(a => a.RoomObjectBotwoonWallVisuals, value => ShotBlockVisuals.RoomObjectBotwoonWallVisuals = value);
-        Bind(a => a.RoomObjectKraidVisuals, value => ShotBlockVisuals.RoomObjectKraidVisuals = value);
-        Bind(a => a.RoomObjectCrocomireVisuals, value => ShotBlockVisuals.RoomObjectCrocomireVisuals = value);
-        Bind(a => a.RoomObjectMotherBrainFakeDeathVisuals, value => ShotBlockVisuals.RoomObjectMotherBrainFakeDeathVisuals = value);
-        Bind(a => a.RoomObjectCollectibleVisuals, value => ShotBlockVisuals.RoomObjectCollectibleVisuals = value);
-        Bind(a => a.RoomObjectRevealAndWallVisuals, value => ShotBlockVisuals.RoomObjectRevealAndWallVisuals = value);
-        Bind(a => a.RoomObjectSetupBlocks, value => ShotBlockVisuals.RoomObjectSetupBlocks = value);
+        Bind(a => a.RoomObjectShotBlockVisuals, value => RoomObjectVisuals.RoomObjectShotBlockVisuals = value);
+        Bind(a => a.RoomObjectGrappleBlockVisuals, value => RoomObjectVisuals.RoomObjectGrappleBlockVisuals = value);
+        Bind(a => a.RoomObjectStationVisuals, value => RoomObjectVisuals.RoomObjectStationVisuals = value);
+        Bind(a => a.RoomObjectBlueDoorVisuals, value => RoomObjectVisuals.RoomObjectBlueDoorVisuals = value);
+        Bind(a => a.RoomObjectColoredDoorVisuals, value => RoomObjectVisuals.RoomObjectColoredDoorVisuals = value);
+        Bind(a => a.RoomObjectGreyDoorVisuals, value => RoomObjectVisuals.RoomObjectGreyDoorVisuals = value);
+        Bind(a => a.RoomObjectEyeDoorVisuals, value => RoomObjectVisuals.RoomObjectEyeDoorVisuals = value);
+        Bind(a => a.RoomObjectMotherBrainGlassVisuals, value => RoomObjectVisuals.RoomObjectMotherBrainGlassVisuals = value);
+        Bind(a => a.RoomObjectNoobTubeVisuals, value => RoomObjectVisuals.RoomObjectNoobTubeVisuals = value);
+        Bind(a => a.RoomObjectDownwardGateVisuals, value => RoomObjectVisuals.RoomObjectDownwardGateVisuals = value);
+        Bind(a => a.RoomObjectElevatorPlatformVisuals, value => RoomObjectVisuals.RoomObjectElevatorPlatformVisuals = value);
+        Bind(a => a.RoomObjectEscapeGateVisuals, value => RoomObjectVisuals.RoomObjectEscapeGateVisuals = value);
+        Bind(a => a.RoomObjectBombTorizoHandVisuals, value => RoomObjectVisuals.RoomObjectBombTorizoHandVisuals = value);
+        Bind(a => a.RoomObjectDraygonCannonVisuals, value => RoomObjectVisuals.RoomObjectDraygonCannonVisuals = value);
+        Bind(a => a.RoomObjectPhantoonDoorVisuals, value => RoomObjectVisuals.RoomObjectPhantoonDoorVisuals = value);
+        Bind(a => a.RoomObjectChozoStatueVisuals, value => RoomObjectVisuals.RoomObjectChozoStatueVisuals = value);
+        Bind(a => a.RoomObjectLinkedRestoreVisuals, value => RoomObjectVisuals.RoomObjectLinkedRestoreVisuals = value);
+        Bind(a => a.RoomObjectTourianAccessVisuals, value => RoomObjectVisuals.RoomObjectTourianAccessVisuals = value);
+        Bind(a => a.RoomObjectSpeedBoosterVisuals, value => RoomObjectVisuals.RoomObjectSpeedBoosterVisuals = value);
+        Bind(a => a.RoomObjectMaridiaElevatubeVisuals, value => RoomObjectVisuals.RoomObjectMaridiaElevatubeVisuals = value);
+        Bind(a => a.RoomObjectSporeSpawnCeilingVisuals, value => RoomObjectVisuals.RoomObjectSporeSpawnCeilingVisuals = value);
+        Bind(a => a.RoomObjectSamusEaterVisuals, value => RoomObjectVisuals.RoomObjectSamusEaterVisuals = value);
+        Bind(a => a.RoomObjectBotwoonWallVisuals, value => RoomObjectVisuals.RoomObjectBotwoonWallVisuals = value);
+        Bind(a => a.RoomObjectKraidVisuals, value => RoomObjectVisuals.RoomObjectKraidVisuals = value);
+        Bind(a => a.RoomObjectCrocomireVisuals, value => RoomObjectVisuals.RoomObjectCrocomireVisuals = value);
+        Bind(a => a.RoomObjectMotherBrainFakeDeathVisuals, value => RoomObjectVisuals.RoomObjectMotherBrainFakeDeathVisuals = value);
+        Bind(a => a.RoomObjectCollectibleVisuals, value => RoomObjectVisuals.RoomObjectCollectibleVisuals = value);
+        Bind(a => a.RoomObjectRevealAndWallVisuals, value => RoomObjectVisuals.RoomObjectRevealAndWallVisuals = value);
+        Bind(a => a.RoomObjectSetupBlocks, value => RoomObjectVisuals.RoomObjectSetupBlocks = value);
         Bind(a => a.XrayRevealVisuals, value => Xray.XrayRevealVisuals = value);
 
         Bind(a => a.ProjectileFrameBindings, value => Artwork.ProjectileFrameBindings = value);
@@ -405,7 +405,10 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
 
-    /// <summary>Active room's enemy system.</summary>
+    /// <summary>
+    /// The enemy side of the game session: the enemy state that outlives each room, and what every room's enemies are
+    /// built over.
+    /// </summary>
     public EnemySession EnemySession { get; }
 
     /// <summary>The installed boss artwork every room's bosses read.</summary>

@@ -75,8 +75,8 @@ internal sealed class RoomLoader
     private readonly SamusFrameState _player;
     /// <summary>The session's kept scroll cells; they outlive each room, so an implicit layout keeps the previous room's cells past its own.</summary>
     private readonly ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> _scrollCells;
-    /// <summary>Constructs room objects after persistent state has been restored.</summary>
-    private readonly RoomObjectVisuals _shotBlockVisuals;
+    /// <summary>The installed pictures of the room objects' blocks, which each room's room-object system draws with.</summary>
+    private readonly RoomObjectVisuals _roomObjectVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly BeamChargeState _beamCharge;
     /// <summary>The runtime's audio requests, which every room system and every Samus built here queue theirs into.</summary>
@@ -131,7 +131,7 @@ internal sealed class RoomLoader
         _doorFrameCounting = Ensure.NotNull(dependencies.DoorFrameCounting);
         _options = dependencies.Options;
         _player = dependencies.Player;
-        _shotBlockVisuals = dependencies.ShotBlockVisuals;
+        _roomObjectVisuals = dependencies.RoomObjectVisuals;
         _beamCharge = dependencies.BeamCharge;
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
@@ -943,7 +943,7 @@ internal sealed class RoomLoader
         // Each room's room objects get their own collectible block pairs, the room's first collectible that shows its own
         // picture taking the first pair, and their own places, every one free; a cap a shot opened consults the Landing
         // Site's green door before it closes behind Samus.
-        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _shotBlockVisuals, new CollectibleBlockPairs(),
+        var roomObjects = new RoomObjectSystem(roomObjectRoom, roomObjectBindings, _roomObjectVisuals, new CollectibleBlockPairs(),
             new RoomObjectPlaces(),
             new ShotOpenedCapClosing<LockedDoor>(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft),
             _audioRequests);

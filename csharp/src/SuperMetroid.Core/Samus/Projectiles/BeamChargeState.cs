@@ -62,9 +62,6 @@ internal sealed class BeamChargeState
         internal set => field = Ensure.BetweenInclusive(0, SamusChargeShadeDefinitions.ChargeSteps - 1, value);
     }
 
-    /// <summary>The most recent charged-shot colour step result, which survives room loads.</summary>
-    internal SamusBeamChargeGlowStep LastBeamChargeGlowStep { get; set; }
-
     /// <summary>
     /// The picture each flare component shows, in <see cref="ChargeFlareComponent"/> order: a place of its animation, or,
     /// after the Hyper Beam's backward count has run a component past its first picture, the 0 through 65535 place the

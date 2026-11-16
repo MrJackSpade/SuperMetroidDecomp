@@ -109,9 +109,8 @@ internal sealed class EnemyFramePhase
             }
             if (result.DraygonDiscardedSamusPoseRequests)
             {
-                // The grab and release discard the transitions
-                // the input phase chose for the old pose, including the no-input fallback that shares the
-                // prospective-pose slot.
+                // The grab and release discard the transitions the input phase chose for the old pose, including the
+                // no-input fallback kept beside the prospective pose.
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
@@ -142,9 +141,9 @@ internal sealed class EnemyFramePhase
                 room.FxOverlay.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {
-                // The elevator clears every one of Samus's shots and their counters. Ordinary
-                // beam/missile slots were reset inside the actor call; bombs and the shared
-                // cooldown live in this companion owner and complete that same operation.
+                // The elevator clears every one of Samus's shots and their counters. Her beam and missile shots' places
+                // were reset inside the actor call; bombs and the shared cooldown live in this companion owner and
+                // complete that same operation.
                 room.BombProjectiles.Reset();
             }
             // Ceres Ridley draws the Baby and door over every enemy only once his animation

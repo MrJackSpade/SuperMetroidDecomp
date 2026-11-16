@@ -41,17 +41,17 @@ internal static class DraygonCannonObjectDrawDefinitions
     /// <summary>The block shape each of the twelve reachable cannon frames draws.</summary>
     internal static readonly Dictionary<DraygonCannonDraw, RoomBlockShape> Shapes = new()
     {
-        [DraygonCannonDraw.RightShieldA] = RightShield,
-        [DraygonCannonDraw.RightShieldB] = RightShield,
-        [DraygonCannonDraw.RightDamagedA] = RightDamaged,
-        [DraygonCannonDraw.RightDamagedB] = RightDamaged,
-        [DraygonCannonDraw.RightDamagedC] = RightDamaged,
-        [DraygonCannonDraw.RightDamagedD] = RightDamaged,
-        [DraygonCannonDraw.LeftShieldA] = LeftShield,
-        [DraygonCannonDraw.LeftShieldB] = LeftShield,
-        [DraygonCannonDraw.LeftDamagedA] = LeftDamaged,
-        [DraygonCannonDraw.LeftDamagedB] = LeftDamaged,
-        [DraygonCannonDraw.LeftDamagedC] = LeftDamaged,
-        [DraygonCannonDraw.LeftDamagedD] = LeftDamaged,
+        [DraygonCannonDraw.RightShield] = RightShield,
+        [DraygonCannonDraw.RightShieldFlash] = RightShield,
+        [DraygonCannonDraw.RightSparksPeakingAt11And20] = RightDamaged,
+        [DraygonCannonDraw.RightSparksPeakingAt3And28] = RightDamaged,
+        [DraygonCannonDraw.RightSparksPeakingAt6And25] = RightDamaged,
+        [DraygonCannonDraw.RightSparksFlat] = RightDamaged,
+        [DraygonCannonDraw.LeftShield] = LeftShield,
+        [DraygonCannonDraw.LeftShieldFlash] = LeftShield,
+        [DraygonCannonDraw.LeftSparksPeakingAt11And20] = LeftDamaged,
+        [DraygonCannonDraw.LeftSparksPeakingAt3And28] = LeftDamaged,
+        [DraygonCannonDraw.LeftSparksPeakingAt6And25] = LeftDamaged,
+        [DraygonCannonDraw.LeftSparksFlat] = LeftDamaged,
     };
 }

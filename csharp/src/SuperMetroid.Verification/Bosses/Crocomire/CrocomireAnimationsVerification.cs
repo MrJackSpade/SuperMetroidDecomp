@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -173,7 +174,7 @@ internal static class CrocomireAnimationsVerification
         state.Phase = CrocomirePhase.Dormant;
         Start(state, CrocomireBodySegment.Initial);
         Pass(enemies, state);
-        AssertEqual(CrocomireBodyFramesTooling.Spritemap(CrocomireBodyFrame.Initial), state.Body.SpritemapPointer,
+        AssertEqual(CrocomireBodyFramesTooling.Spritemap(EnemyFrameId.CrocomireBodyArmUprightMouthOpen), state.Body.SpritemapPointer,
             "the sleeping body shows its initial frame");
         AssertEqual((ushort)1, state.Body.AnimationClock.Hold.RawValue, "the initial frame lasts one update");
 
@@ -181,7 +182,7 @@ internal static class CrocomireAnimationsVerification
         samus.Position = samus.Position.WithWholeX(state.Body.Position.X.Whole);
         Pass(enemies, state, samus);
         AssertEqual(CrocomirePhase.WaitingForFirstDamage, state.Phase, "Samus within range wakes Crocomire");
-        AssertEqual(CrocomireBodyFramesTooling.Spritemap(CrocomireBodyFrame.WaitForFirstSecondDamageFirst), state.Body.SpritemapPointer,
+        AssertEqual(CrocomireBodyFramesTooling.Spritemap(EnemyFrameId.CrocomireBodyArmUprightMouthShut), state.Body.SpritemapPointer,
             "the redirect shows the damage wait's first frame in the same update");
         AssertEqual((ushort)34, state.Body.AnimationClock.Hold.RawValue, "the damage wait's first frame lasts 34 updates");
         AssertEqual(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.WaitForFirstSecondDamage), state.BodyPlayback.Animation, "the damage wait animation plays");
@@ -320,7 +321,7 @@ internal static class CrocomireAnimationsVerification
     internal static IEnumerable<ushort> TypedBodySpritemaps(bool skeleton) =>
         Enum.GetValues<CrocomireBodySegment>()
             .SelectMany(segment => CrocomireBodyAnimations.Segments.Beats(segment))
-            .Select(beat => beat.ShownFrame).OfType<CrocomireBodyFrame>().Where(frame => CrocomireBodyFramesToolingConstants.IsSkeleton(frame) == skeleton)
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>().Where(frame => CrocomireBodyFramesToolingConstants.IsSkeleton(frame) == skeleton)
             .Select(frame => CrocomireBodyFramesTooling.Spritemap(frame))
             .Distinct();
 

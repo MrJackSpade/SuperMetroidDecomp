@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -158,7 +159,7 @@ internal sealed class DraygonParts
         AnimationPlayback<DraygonSegment> playback = state.Playback(part);
         Animation<DraygonSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        AnimationShown<DraygonSegment, DraygonFrame> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place,
+        AnimationShown<DraygonSegment, EnemyFrameId> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place,
             cue =>
             {
                 ApplyDraygonCue(state, part, samus, cue);
@@ -166,20 +167,20 @@ internal sealed class DraygonParts
             });
         switch (shown)
         {
-            case AnimationShown<DraygonSegment, DraygonFrame>.Frame frame:
+            case AnimationShown<DraygonSegment, EnemyFrameId>.Frame frame:
                 state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
-                part.Frame = DraygonFrameDefinitions.ShownFrames.Of(frame.Shown);
+                part.Frame = frame.Shown;
                 part.AnimationClock.Show(frame.Duration);
                 return;
-            case AnimationShown<DraygonSegment, DraygonFrame>.Paused paused:
+            case AnimationShown<DraygonSegment, EnemyFrameId>.Paused paused:
                 state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
                 part.AnimationClock.Pause(paused.Duration);
                 return;
-            case AnimationShown<DraygonSegment, DraygonFrame>.Held:
+            case AnimationShown<DraygonSegment, EnemyFrameId>.Held:
                 // A rest: the timer wraps from zero and the last frame stays.
                 state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
                 return;
-            case AnimationShown<DraygonSegment, DraygonFrame>.Ended:
+            case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
                 // The end deletes the part and leaves its animation's place unwritten.
                 part.Presence = part.Presence.With(EnemyPresence.Deleted);
                 return;

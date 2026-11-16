@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -32,7 +33,7 @@ public sealed class CrocomireEnemyState
         new(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Initial), AnimationPlace.StartOfAnimation);
 
     /// <summary>The body frame shown last, or null before the first frame.</summary>
-    internal CrocomireBodyFrame? BodyFrame { get; set; }
+    internal EnemyFrameId? BodyFrame { get; set; }
 
     /// <summary>
     /// The segment the body's animation rests in. Resting after the last beat of a segment its animation plays on from

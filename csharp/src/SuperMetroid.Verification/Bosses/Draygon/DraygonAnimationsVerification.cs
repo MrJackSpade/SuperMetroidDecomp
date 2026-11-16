@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
@@ -74,7 +75,7 @@ internal static class DraygonAnimationsVerification
     /// </summary>
     private static NativeEnemyList<DraygonSegment> ReadList(IImportCartridgeSource cartridge, DraygonSegment segment, ushort entry, HashSet<ushort> drawn)
     {
-        IReadOnlyList<AnimationBeat<DraygonFrame, DraygonCue>> beats = DraygonAnimations.Segments.Beats(segment);
+        IReadOnlyList<AnimationBeat<EnemyFrameId, DraygonCue>> beats = DraygonAnimations.Segments.Beats(segment);
         var addresses = new List<ushort>();
         var controls = new List<NativeEnemyControl<DraygonSegment>>();
         // The beat the reading stood before at each place it reached, the HUD-split callbacks it skips included (#2166).
@@ -98,7 +99,7 @@ internal static class DraygonAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    var frame = AssertIs<AnimationBeat<DraygonFrame, DraygonCue>.Frame>(Beat(beat, at), $"{at}: frame");
+                    var frame = AssertIs<AnimationBeat<EnemyFrameId, DraygonCue>.Frame>(Beat(beat, at), $"{at}: frame");
                     AssertEqual(word, frame.Duration, $"{at}: duration");
                     AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(frame.Shown), $"{at}: spritemap");
                     drawn.Add(operand);
@@ -134,7 +135,7 @@ internal static class DraygonAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
-                    var pause = AssertIs<AnimationBeat<DraygonFrame, DraygonCue>.Pause>(Beat(beat, at), $"{at}: wait");
+                    var pause = AssertIs<AnimationBeat<EnemyFrameId, DraygonCue>.Pause>(Beat(beat, at), $"{at}: wait");
                     AssertEqual(operand, pause.Duration, $"{at}: wait length");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
@@ -145,7 +146,7 @@ internal static class DraygonAnimationsVerification
                     var operands = new ushort[count];
                     for (int operandIndex = 0; operandIndex < count; operandIndex++)
                         operands[operandIndex] = cartridge.ReadCartridgeWord(address + 2 + 2 * operandIndex);
-                    var raised = AssertIs<AnimationBeat<DraygonFrame, DraygonCue>.Event>(Beat(beat, at), $"{at}: callback");
+                    var raised = AssertIs<AnimationBeat<EnemyFrameId, DraygonCue>.Event>(Beat(beat, at), $"{at}: callback");
                     AssertEqual(CueOf(word, operands), raised.Raised, $"{at}: cue");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 2 + 2 * count));
@@ -162,7 +163,7 @@ internal static class DraygonAnimationsVerification
             return new NativeEnemyList<DraygonSegment>([.. addresses], [.. controls]);
         }
 
-        AnimationBeat<DraygonFrame, DraygonCue> Beat(int beat, string at) => beat < beats.Count
+        AnimationBeat<EnemyFrameId, DraygonCue> Beat(int beat, string at) => beat < beats.Count
             ? beats[beat]
             : throw new InvalidDataException($"{at}: the native list holds more beats than Draygon {segment}.");
     }
@@ -229,7 +230,7 @@ internal static class DraygonAnimationsVerification
             AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
-        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(DraygonFrame.BodyFacingRightReset), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
+        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(EnemyFrameId.DraygonBodyFacingRightJawShutTwin), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeAction?>(DraygonEyeAction.Tracking, state.Eye.SpeciesState<DraygonEyeState>()?.Action, "the reset gives the eye its tracking function");
         AssertEqual<HorizontalDirection?>(HorizontalDirection.Right, state.Eye.SpeciesState<DraygonEyeState>()?.Facing, "the reset's tracking eye faces right (#2165)");
     }

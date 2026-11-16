@@ -18,4 +18,14 @@ internal sealed record StationAccessRule(
     StationAccessBehavior RightBehavior,
     StationAccessBehavior LeftBehavior,
     StationAnimation Animation,
-    StationAnimation? AcquiredAnimation);
+    StationAnimation? AcquiredAnimation)
+{
+    /// <summary>
+    /// The columns from the access block Samus makes <paramref name="access"/> at back to the station block: the
+    /// reverse of the step the station's setup took to place it; null when the access is none of this station's.
+    /// </summary>
+    internal int? ColumnsToStationFrom(StationAccessBehavior access) =>
+        access == RightBehavior ? -RightOffset
+        : access == LeftBehavior ? -LeftOffset
+        : null;
+}

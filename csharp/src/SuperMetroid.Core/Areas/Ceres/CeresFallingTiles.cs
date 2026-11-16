@@ -14,9 +14,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 internal sealed class CeresFallingTiles
 {
-    /// <summary>A falling tile's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight Gravity = SignedEightEight.FromParts(0, 16);
-
     /// <summary>The loaded room the tiles fall in.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>
@@ -55,15 +52,15 @@ internal sealed class CeresFallingTiles
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Behavior, graphics);
-        projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
-        projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.FromParts(0, 16));
+        projectile.Position = projectile.Position.WithWhole(new(xPosition, CeresFallingDebrisDefinitions.StartingY));
+        projectile.Velocity = new(SignedEightEight.Zero, CeresFallingDebrisDefinitions.StartingFallSpeed);
         projectile.StartAnimation(animation);
     }
 
     /// <summary>Drops a tile, accelerating, and raises dust and sounds its fall where it strikes the room.</summary>
     private void Drop(EnemyProjectile projectile, RoomLevelData level)
     {
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + Gravity);
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + CeresFallingDebrisDefinitions.FallAcceleration);
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             Position16<RoomPixels> impact = projectile.Position.Whole;

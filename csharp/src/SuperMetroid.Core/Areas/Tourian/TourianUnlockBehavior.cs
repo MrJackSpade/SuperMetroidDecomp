@@ -37,15 +37,6 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         _statue = statue;
     }
 
-    /// <summary>How many pixels above the water surface a splash sits.</summary>
-    private const int SplashHeightAboveSurface = 4;
-
-    /// <summary>The upward acceleration of a rising statue soul each update.</summary>
-    private static readonly SignedEightEight SoulRiseAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(128);
-
-    /// <summary>The gravity a falling statue particle gains each update.</summary>
-    private static readonly SignedEightEight ParticleGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
-
     /// <summary>The room line of the statue room's water surface, which the particles cross and their splashes ride.</summary>
     /// <exception cref="InvalidOperationException">The room's effect names no water surface.</exception>
     private int WaterSurface => _room.Services.TourianStatueRoom.WaterSurface ??
@@ -57,13 +48,10 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     /// </summary>
     private bool IsBelowWaterSurface(EnemyProjectile projectile) =>
         CoordinateAxis.Difference(WaterSurface, projectile.Position.Y.Whole) < 0;
-    /// <summary>The point the descending statue's dust puffs return to whenever they restart.</summary>
-    private static readonly Position16<RoomPixels> TourianDescentDustAnchor = new(128, 188);
-
-    /// <summary>Creates four fixed-position dust actors for the descending Tourian statue sequence.</summary>
+    /// <summary>Creates the descending Tourian statue's fixed-position dust puffs.</summary>
     internal void SpawnTourianDescentDust()
     {
-        for (int count = 0; count < 4; count++)
+        for (int count = 0; count < TourianStatueSequenceDefinitions.DescentDustPuffs; count++)
         {
             var projectile = _projectiles.AllocateEnemyProjectile();
             if (projectile is null) continue;
@@ -73,7 +61,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
                 Effects,
                 _statue.SceneGraphics);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
-            projectile.State = new AnchoredProjectileState(TourianDescentDustAnchor);
+            projectile.State = new AnchoredProjectileState(TourianStatueSequenceDefinitions.DescentDustAnchor);
         }
     }
 
@@ -88,7 +76,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     public void SpawnTourianSoul(TourianStatueEye eye)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, TourianStatueProjectileSegment.Soul, eye) is not { } soul) return;
-        soul.Velocity = soul.Velocity.WithY(SignedEightEight.FromPixels(-4));
+        soul.Velocity = soul.Velocity.WithY(TourianStatueSoulDefinitions.LaunchSpeed);
     }
 
     /// <summary>
@@ -121,10 +109,11 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
-            projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - SplashHeightAboveSurface);
+            projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
-        TrigonometryAngle angle = TrigonometryAngle.Wrapped(_room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - 32);
+        TrigonometryAngle angle = TrigonometryAngle.Wrapped(
+            _room.Random.Next(TourianStatueParticleDefinitions.LaunchAngle) - TourianStatueParticleDefinitions.LaunchAngleCentring);
         // The samples lie within one pixel either way, so four times one stays within four. The vertical speed is the
         // sine a quarter turn back: the angle's negative cosine.
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(Trigonometry.SignedSine(angle)));
@@ -134,7 +123,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
     /// <summary>Holds a splash at the water surface.</summary>
     private void HoldTourianStatueSplash(EnemyProjectile projectile) =>
-        projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - SplashHeightAboveSurface);
+        projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
 
     /// <summary>Raises a soul, accelerating upward, and deletes it once it rises above the room's top.</summary>
     internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)
@@ -144,7 +133,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         }
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - SoulRiseAcceleration);
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y - TourianStatueSoulDefinitions.RiseAcceleration);
     }
 
     /// <summary>
@@ -163,7 +152,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         {
             projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Delete));
         }
-        else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + ParticleGravity);
+        else projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + TourianStatueParticleDefinitions.Gravity);
     }
 
     /// <summary>

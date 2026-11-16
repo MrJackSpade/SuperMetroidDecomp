@@ -139,15 +139,15 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,
                 TourianStatueProjectileSegment.BaseDecoration,
-                position: new(120, 184));
+                TourianStatueDecorationDefinitions.BaseDecoration);
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueRidley,
                 TourianStatueProjectileSegment.Ridley,
-                position: new(142, 85));
+                TourianStatueDecorationDefinitions.RidleyStatue);
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatuePhantoon,
                 TourianStatueProjectileSegment.Phantoon,
-                position: new(132, 136));
+                TourianStatueDecorationDefinitions.PhantoonStatue);
         }
 
         // Statue initialization selects the common sprite colours, which the import colours the statue's sheets in, and

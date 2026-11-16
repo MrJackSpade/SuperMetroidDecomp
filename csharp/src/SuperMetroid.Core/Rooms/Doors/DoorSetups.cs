@@ -8,7 +8,7 @@ public static class DoorSetups
     {
         /// <summary>
         /// True only for the door into the Ceres elevator shaft, whose setup shows the room as a turning floor,
-        /// unrotated, about room point (128, 1008).
+        /// unrotated, about the shaft's rotation centre.
         /// </summary>
         public bool EntersCeresElevatorShaft => door.Setup.RoomEvent == DoorRoomEvent.ShowsTurningFloor;
     }

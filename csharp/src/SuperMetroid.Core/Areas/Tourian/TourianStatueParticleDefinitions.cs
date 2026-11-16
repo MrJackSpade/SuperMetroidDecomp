@@ -1,6 +1,9 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>How the particles the Tourian statue scene throws off choose their direction and where they end (#1548).</summary>
+/// <summary>
+/// How the particles the Tourian statue scene throws off choose their direction, how they fall and splash, and where they
+/// end (#1548).
+/// </summary>
 internal static class TourianStatueParticleDefinitions
 {
     /// <summary>
@@ -8,6 +11,18 @@ internal static class TourianStatueParticleDefinitions
     /// turn in all.
     /// </summary>
     internal static readonly RandomSampleField LaunchAngle = new(0, 6);
+
+    /// <summary>
+    /// The angle steps a selected launch angle is turned back by, half the selection's 64, centring the launch on the zero
+    /// angle: an eighth of a turn either side of it.
+    /// </summary>
+    internal const int LaunchAngleCentring = 32;
+
+    /// <summary>The downward speed a falling particle gains each update: a sixteenth of a pixel per update.</summary>
+    internal static readonly SignedEightEight Gravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);
+
+    /// <summary>How many pixels above the water surface a particle's splash sits.</summary>
+    internal const int SplashHeightAboveSurface = 4;
 
     /// <summary>
     /// The room line, the bottom of the statues' screen beneath the water, a falling particle is deleted at once it sinks

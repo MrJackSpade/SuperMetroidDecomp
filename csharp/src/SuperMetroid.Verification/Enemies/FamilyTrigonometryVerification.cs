@@ -1,5 +1,5 @@
 using SuperMetroid.Verification.Harness;
-using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification;
+using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitSineVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Enemies;
@@ -43,7 +43,7 @@ internal static class FamilyTrigonometryVerification
         var bullMove = new Action<RoomEnemyPlace, BullEnemyState>(BullBehavior.MoveBull);
         var mawX = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawX(new TrigonometryAngle(unchecked((byte)angle)), length)));
         var mawY = new Func<ushort, ushort, int>((angle, length) => CoordinateAxis.Wrap(YappingMawBehavior.CalculateYappingMawY(new TrigonometryAngle(unchecked((byte)angle)), length)));
-        Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
+        Suite(nameof(VerifyShaktoolOrbitSine), () => VerifyShaktoolOrbitSine(rom));
 
         ushort MawReference(int angle, int length)
         {

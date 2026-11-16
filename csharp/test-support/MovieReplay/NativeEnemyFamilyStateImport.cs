@@ -671,7 +671,7 @@ internal static class NativeEnemyFamilyStateImport
             // Every segment's owner is the chain's leading saw, the first enemy its room lists.
             if (SlotIndex(words.E, "Shaktool owner") != 0)
                 throw new InvalidDataException($"Recorded Shaktool owner ${words.E:X4} does not name the first enemy, where the chain's saw is placed.");
-            segment.Motion = words.F == 0 ? null : ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
+            segment.Motion = ShaktoolNativeWords.DecodeMotion(words.F, "recorded ShaktoolSegmentMotion");
         }
         if (enemies.ChootStates[index] is { } choot)
         {
@@ -900,7 +900,12 @@ internal static class NativeEnemyFamilyStateImport
             puyo.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Index(words.A, short.MaxValue, "Puyo speed index"));
             puyo.HopCooldownTimer = unchecked((short)words.B);
             puyo.Action = PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
-            puyo.AirborneMovement = words.D == 0 ? null : PuyoNativeWords.PuyoAirborneMovements.Decode(words.D, "recorded PuyoAirborneMovement");
+            // A Puyo that has not hopped yet records no airborne behaviour; the port chooses one as each hop starts, so a
+            // grounded Puyo's is not read before its next hop writes it.
+            if (words.D != 0)
+                puyo.AirborneMovement = PuyoNativeWords.PuyoAirborneMovements.Decode(words.D, "recorded PuyoAirborneMovement");
+            else if (puyo.Action != PuyoAction.Grounded)
+                throw new InvalidDataException($"Recorded {puyo.Action} Puyo has no airborne behaviour.");
             puyo.CurrentHop = PuyoNativeWords.HopRecordOffsets.Decode(words.E, "recorded Puyo hop record offset");
         }
     }

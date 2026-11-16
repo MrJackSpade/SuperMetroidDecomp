@@ -30,8 +30,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Initializes the Polyp.</summary>
     internal void InitializePolyp(RoomEnemyPlace place)
     {
-        Action<int> setRandomNumber = _room.Random.Seed;
-
         place.AnimationClock.Restart();
         var state = new PolypEnemyState(PolypAction.WaitingForSamus)
         {
@@ -43,7 +41,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Polyp initializer writes 17 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it
         // as actor-local randomness would produce a different launch sequence.
-        setRandomNumber(PolypLaunchDefinitions.RandomSeed);
+        _room.Random.Seed(PolypLaunchDefinitions.RandomSeed);
     }
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>

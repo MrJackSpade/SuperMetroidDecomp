@@ -59,10 +59,10 @@ public sealed class SbugEnemyState
     /// <summary>How the Sbug moves once activated, as its placement names it.</summary>
     public SbugActivationBehavior ActivationBehavior { get; }
 
-    /// <summary>Spawn-computed unsigned 1/65536-pixel horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
-    public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }
-    /// <summary>Spawn-computed unsigned 1/65536-pixel vertical magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
-    public UnsignedSixteenSixteen ForwardYVelocity { get; internal set; }
+    /// <summary>Spawn-computed signed 1/65536-pixel horizontal displacement in pixels per AI update along the spawn heading, used by forward movement.</summary>
+    public SignedSixteenSixteen ForwardXVelocity { get; internal set; }
+    /// <summary>Spawn-computed signed 1/65536-pixel vertical displacement in pixels per AI update along the spawn heading, used by forward movement.</summary>
+    public SignedSixteenSixteen ForwardYVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 1/65536-pixel horizontal displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftXVelocity { get; internal set; }
     /// <summary>Spawn-computed signed 1/65536-pixel vertical displacement for angle <c>InitialAngle - 32</c>, used by the left zigzag leg.</summary>

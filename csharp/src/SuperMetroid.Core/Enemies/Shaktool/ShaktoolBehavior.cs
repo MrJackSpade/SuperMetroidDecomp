@@ -112,8 +112,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Shaktool has no motion " +
-                    $"{state.Motion?.ToString() ?? "none"}.");
+                    $"Shaktool has no motion {state.Motion}.");
         }
     }
 
@@ -127,8 +126,16 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The segment placement reads the preceding segment's place without testing it. A lethal shot clears the
         // struck segment and deletes the chain, but the later segments still run this update; their final orbit uses
         // the cleared coordinates.
-        place.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToTrigonometryAngle()));
+        place.Position = previous.Position.Advance(OrbitDisplacement(state.OrbitAngle.ToTrigonometryAngle()));
     }
+
+    /// <summary>
+    /// A segment's place from the one before it at <paramref name="angle"/>: the orbit's sine
+    /// (<see cref="ShaktoolOrbitDefinitions.OrbitSine"/>) at the angle across, and at the angle a quarter turn behind down.
+    /// </summary>
+    internal static FixedVector<RoomPixels> OrbitDisplacement(TrigonometryAngle angle) => new(
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle)),
+        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(ShaktoolOrbitDefinitions.OrbitSine.At(angle - TrigonometryAngle.QuarterTurn)));
 
     /// <summary>Runs the common orbit step.</summary>
     private void AdvanceShaktoolOrbit(RoomEnemyPlace place, ShaktoolSegmentState state)

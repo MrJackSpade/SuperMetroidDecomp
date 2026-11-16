@@ -225,7 +225,7 @@ using static SuperMetroid.Verification.Samus.Palettes.SamusFullBodyCycleColorsVe
 using static SuperMetroid.Verification.Samus.Palettes.SamusHurtColorsVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
-using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitAlgorithmVerification;
+using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolOrbitSineVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.ShotBlockObjectProgramsVerification;
@@ -3928,8 +3928,8 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(orbitOracle.Rom)),
             "Shaktool oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(orbitOracle));
-        Console.WriteLine("Shaktool orbit: all320 words, rounding intervals,256 displacement pairs and bounds pass.");
+        Suite(nameof(VerifyShaktoolOrbitSine), () => VerifyShaktoolOrbitSine(orbitOracle));
+        Console.WriteLine("Shaktool orbit: all 320 words match the authored sine and all 256 displacement pairs pass.");
         return 0;
     }
 

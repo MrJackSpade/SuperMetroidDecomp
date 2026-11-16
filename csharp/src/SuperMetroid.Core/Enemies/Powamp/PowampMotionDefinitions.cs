@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>Powamp balloon motion and clockwise spike acceleration.</summary>
-public static class PowampMotionDefinitions
+internal static class PowampMotionDefinitions
 {
     /// <summary>Twelve phases of the signed three-pixel triangle wave.</summary>
-    public const int WigglePhaseCount = 12;
+    internal const int WigglePhaseCount = 12;
 
     /// <summary>The triangle wave's offset at each phase, centered at phases zero and six.</summary>
     internal static readonly int[] WiggleOffsets = [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1];

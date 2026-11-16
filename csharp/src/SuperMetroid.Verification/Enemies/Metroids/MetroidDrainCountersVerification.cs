@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Verification.Enemies.Metroids;
@@ -8,8 +9,9 @@ internal static class MetroidDrainCountersVerification
 {
     /// <summary>
     /// A Metroid's drain takes an energy exactly when its fraction exceeds what is held over, which then holds the rest
-    /// of the energy taken; a Mochtroid's attachment count wraps after 65535, and its damage check compares the signed word
-    /// difference, so a count past the sign bit does not reach the period until it wraps.
+    /// of the energy taken; a Mochtroid's attachment count reaches its period on the 80th attached update, and every body
+    /// attack, the only touch that counts without the check, deals at least the Mochtroid's whole health, so the count
+    /// cannot grow far past the period (#2169).
     /// </summary>
     internal static void VerifyMetroidDrainCounters()
     {
@@ -28,12 +30,18 @@ internal static class MetroidDrainCountersVerification
         AssertTrue(!mochtroid.HasReachedDamagePeriod(80), "79 attached updates do not reach the period");
         mochtroid.CountAttachedUpdate();
         AssertTrue(mochtroid.HasReachedDamagePeriod(80), "the 80th attached update reaches the period");
-        mochtroid.AttachmentDamageTimer = 0x8050;
-        AssertTrue(!mochtroid.HasReachedDamagePeriod(80), "a count past the sign bit compares as negative");
-        mochtroid.AttachmentDamageTimer = ushort.MaxValue;
-        mochtroid.CountAttachedUpdate();
-        AssertEqual(0, mochtroid.AttachmentDamageTimer, "the count wraps after 65535");
-        Console.WriteLine("Metroid drain counters: the drain borrow, the attachment wrap and its signed check match.");
+        RoomEnemyDefinition definition = RoomEnemyDefinitionCatalog.ById[EnemyDefinitionId.Mochtroid];
+        EnemyContactVulnerability contact = EnemyVulnerabilities.Of(definition).Contact;
+        (string Attack, int Damage)[] bodyAttacks =
+        [
+            ("Speed Booster", contact.SpeedBooster.DamageFrom(EnemyCollisionDefinitions.SpeedBoosterContactDamage)),
+            ("Shinespark", contact.Shinespark.DamageFrom(EnemyCollisionDefinitions.ShinesparkContactDamage)),
+            ("Screw Attack", contact.ScrewAttack.DamageFrom(EnemyCollisionDefinitions.ScrewAttackContactDamage)),
+            ("Pseudo Screw", contact.PseudoScrew.DamageFrom(EnemyCollisionDefinitions.PseudoScrewContactDamage)),
+        ];
+        foreach ((string attack, int damage) in bodyAttacks)
+            AssertTrue(damage >= definition.Health, $"{attack} contact deals {damage}, at least the Mochtroid's {definition.Health} health");
+        Console.WriteLine("Metroid drain counters: the drain borrow and the attachment period match, and every body attack kills a Mochtroid.");
     }
 
     /// <summary>Runs the focused Metroid drain-counter check.</summary>

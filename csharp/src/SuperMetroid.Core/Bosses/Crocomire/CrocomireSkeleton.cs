@@ -203,7 +203,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
     internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state, SamusState samus)
     {
-        if (!CrocomireBodyAnimationGroups.SkeletonAtRest.Contains(state.BodyResidentAnimation))
+        if (!state.SkeletonHasCollapsed)
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationTwoFiftySixths: 16, maximumWhole: 6);
             return;

@@ -35,29 +35,11 @@ public sealed class CrocomireEnemyState
     internal CrocomireBodyFrame? BodyFrame { get; set; }
 
     /// <summary>
-    /// The segment the body's animation rests in. Resting after the last beat of a segment its animation plays on from
-    /// into another, it already rests in that next segment.
+    /// Whether his skeleton's collapse has shown its last picture (#2180): the collapse's end, or the stable skeleton it
+    /// rests on after. The death waits on this before it lays his dead skeleton down.
     /// </summary>
-    internal CrocomireBodySegment BodyResidentAnimation =>
-        ResidentSegment(BodyPlayback);
-
-    /// <summary>
-    /// The segment <paramref name="playback"/>, a body animation, rests in (#1938): its playing phase's segment, or,
-    /// resting after the last beat of a segment its animation plays on from, the segment of the animation's next phase.
-    /// Before its first play it rests in the segment its animation starts at.
-    /// </summary>
-    internal static CrocomireBodySegment ResidentSegment(AnimationPlayback<CrocomireBodySegment> playback)
-    {
-        Animation<CrocomireBodySegment> animation = Ensure.NotNull(playback.Animation);
-        if (animation.Phases.Count == 0 || playback.Place == AnimationPlace.StartOfAnimation)
-            return CrocomireBodyAnimations.StartingAt.Single(pair => ReferenceEquals(pair.Value, animation)).Key;
-        int phaseIndex = playback.Place.Phase;
-        AnimationPhase<CrocomireBodySegment> phase = animation.Phases[phaseIndex];
-        // A hold rests after the phase's last beat, as the end of its play does.
-        bool pastSegmentEnd = playback.Place.Beat >= phase.BeatCount
-            && phase.FirstBeat + phase.BeatCount == CrocomireBodyAnimations.Segments.Beats(phase.Segment).Count;
-        return pastSegmentEnd && phaseIndex + 1 < animation.Phases.Count ? animation.Phases[phaseIndex + 1].Segment : phase.Segment;
-    }
+    internal bool SkeletonHasCollapsed =>
+        BodyFrame == CrocomireBodyFrame.SkeletonFallsApartEighteenth || BodyFrame == CrocomireBodyFrame.SkeletonStable;
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =

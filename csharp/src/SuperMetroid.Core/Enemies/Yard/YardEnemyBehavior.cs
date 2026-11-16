@@ -50,11 +50,15 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of the Yard's animations. Repeating the previous pose continues <paramref name="playing"/> at the
-    /// pose shown just before the cue, as the cue steps the animation back one pose; every other cue plays on.
+    /// Performs one cue of the Yard's animations. The end of an update of its closed shell may hold the shell closed for
+    /// another (#2180); every other cue plays on.
     /// </summary>
+    /// <param name="place">The Yard.</param>
+    /// <param name="state">The Yard's state.</param>
+    /// <param name="cue">The cue to perform.</param>
+    /// <param name="playing">Where the play stands just past the cue.</param>
     private AnimationContinuation<YardSegment>? ApplyYardCue(
-        RoomEnemyPlace place, YardEnemyState state, YardCue cue, Animation<YardSegment> playing)
+        RoomEnemyPlace place, YardEnemyState state, YardCue cue, AnimationPlayback<YardSegment> playing)
     {
         switch (cue)
         {
@@ -81,40 +85,21 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             case YardCue.MoveBy moveBy:
                 place.Position += moveBy.Offset;
                 return null;
-            case YardCue.Signal { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing }:
-                if (state.Behavior != YardBehavior.Hiding && !YardDecisions.RepeatPreviousPose.IsSetIn(_room.Random.Generate()))
+            case YardCue.Signal { Kind: YardCueKind.ShellClosedUpdateEnds }:
+                if (state.Behavior != YardBehavior.Hiding && !YardDecisions.HoldShellClosedAgain.IsSetIn(_room.Random.Generate()))
                     return null;
-                return new AnimationContinuation<YardSegment>(playing, PoseBeforeRepeatCue(playing));
+                return HoldShellClosedAgain(playing);
             default:
                 throw new InvalidOperationException($"Undefined {nameof(YardCueKind)} {cue}.");
         }
     }
 
     /// <summary>
-    /// The place of <paramref name="playing"/> whose next beat is the pose just before its repeat cue: the animation plays
-    /// one phase with that cue, and the pose sits immediately before it in every authored segment.
+    /// Holds the Yard's shell closed for another update (#2180): the phase its closed shell and the cue ending that update
+    /// make up, which <paramref name="playing"/> has just played, plays again from its start.
     /// </summary>
-    /// <exception cref="InvalidDataException">The animation has no single repeat cue, or the cue does not follow a pose.</exception>
-    private static AnimationPlace PoseBeforeRepeatCue(Animation<YardSegment> playing)
-    {
-        AnimationPlace? found = null;
-        for (int phase = 0; phase < playing.Phases.Count; phase++)
-        {
-            AnimationPhase<YardSegment> run = playing.Phases[phase];
-            IReadOnlyList<AnimationBeat<EnemyFrameId, YardCue>> beats = YardAnimations.Segments.Beats(run.Segment);
-            for (int beat = 0; beat < run.BeatCount; beat++)
-            {
-                if (beats[run.FirstBeat + beat] is not AnimationBeat<EnemyFrameId, YardCue>.Event { Raised: YardCue.Signal { Kind: YardCueKind.RepeatPreviousPoseUnlessContinuing } })
-                    continue;
-                if (found is not null)
-                    throw new InvalidDataException($"A Yard animation through {run.Segment} has more than one repeat cue.");
-                if (beat == 0 || beats[run.FirstBeat + beat - 1] is not AnimationBeat<EnemyFrameId, YardCue>.Frame)
-                    throw new InvalidDataException($"Yard repeat cue in {run.Segment} does not follow a pose.");
-                found = new AnimationPlace(phase, beat - 1);
-            }
-        }
-        return found ?? throw new InvalidDataException("A Yard animation raised a repeat cue it does not play.");
-    }
+    private static AnimationContinuation<YardSegment> HoldShellClosedAgain(AnimationPlayback<YardSegment> playing) =>
+        new(playing.Animation, AnimationPlace.StartOf(playing.Place.Phase));
 
     /// <summary>Initializes the Yard.</summary>
     internal static void InitializeYard(RoomEnemyPlace place)
@@ -645,10 +630,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         var state = place.RequireSpeciesState<YardEnemyState>();
         AnimationPlayback<YardSegment> playback = state.Playback;
-        // Only the repeat cue continues elsewhere, and it continues in the animation already playing.
-        Animation<YardSegment> playing = playback.Animation;
         EnemyAnimationPlayback.Play(place, YardAnimations.Segments, ref playback,
-            cue => ApplyYardCue(place, state, cue, playing));
+            (cue, playing) => ApplyYardCue(place, state, cue, playing));
         state.Playback = playback;
     }
 

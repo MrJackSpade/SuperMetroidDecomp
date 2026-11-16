@@ -173,12 +173,9 @@ internal sealed class CrocomireFight
         Position16<RoomPixels> placedAt = body.Position.Whole;
         Animation<CrocomireBodySegment> animation = state.BodyPlayback.Animation;
         AnimationPlace place = state.BodyPlayback.Place;
-        // Each cue's reaction reads where the play stands just past the cue, which the play has written to these
-        // locals by then: the fight AI compares the segment the body then rests in.
         AnimationShown<CrocomireBodySegment, CrocomireBodyFrame> outcome = CrocomireBodyAnimations.Segments.PlayToNextFrame(
             ref animation, ref place,
-            cue => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue,
-                    CrocomireEnemyState.ResidentSegment(new AnimationPlayback<CrocomireBodySegment>(animation, place))) is { } started
+            cue => ApplyCrocomireBodyCue(state, samus, level, cameraX, cue) is { } started
                 ? new AnimationContinuation<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
                 : null);
         state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(animation, place);
@@ -222,15 +219,13 @@ internal sealed class CrocomireFight
     /// <param name="level">The room's collision level, which the movement cues require.</param>
     /// <param name="cameraX">The camera's X, which the on-screen movement tests use.</param>
     /// <param name="cue">The cue to perform.</param>
-    /// <param name="continuation">The segment the body's animation rests in just past the cue, which the fight AI compares.</param>
     /// <returns>The segment whose animation starts, or null to continue after the cue.</returns>
     private CrocomireBodySegment? ApplyCrocomireBodyCue(
         CrocomireEnemyState state,
         SamusState samus,
         RoomLevelData level,
         int cameraX,
-        CrocomireBodyCue cue,
-        CrocomireBodySegment continuation)
+        CrocomireBodyCue cue)
     {
         RoomEnemyPlace body = state.Body;
         switch (cue)
@@ -245,7 +240,7 @@ internal sealed class CrocomireFight
                 _access.SpawnCrocomireDust(state, dust.Offset);
                 return null;
             case CrocomireBodyCue.Signal signal:
-                return ApplyCrocomireBodySignal(state, samus, level, signal.Kind, continuation);
+                return ApplyCrocomireBodySignal(state, samus, level, signal.Kind);
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCue)} {cue}.");
         }
@@ -265,14 +260,13 @@ internal sealed class CrocomireFight
         CrocomireEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        CrocomireBodyCueKind kind,
-        CrocomireBodySegment continuation)
+        CrocomireBodyCueKind kind)
     {
         RoomEnemyPlace body = state.Body;
         switch (kind)
         {
             case CrocomireBodyCueKind.FightAi:
-                return RunCrocomireFightCue(state, samus, continuation);
+                return RunCrocomireFightCue(state, samus);
 
             case CrocomireBodyCueKind.MaybeStartProjectileAttack:
                 if (RollsProjectileAttack(_access.ReadCrocomireRandom()))
@@ -320,11 +314,13 @@ internal sealed class CrocomireFight
     private static bool CrocomireBodyIsOnScreen(RoomEnemyPlace body, int cameraX) =>
         CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
 
-    /// <summary>Runs Crocomire's fight AI for the phase his fight is in.</summary>
+    /// <summary>
+    /// Runs Crocomire's fight AI for the phase his fight is in. Each phase is entered as the animation it plays starts, so
+    /// the phase alone says what his body is doing (#2180).
+    /// </summary>
     private CrocomireBodySegment? RunCrocomireFightCue(
         CrocomireEnemyState state,
-        SamusState samus,
-        CrocomireBodySegment continuation)
+        SamusState samus)
     {
         switch (state.Phase)
         {
@@ -353,9 +349,8 @@ internal sealed class CrocomireFight
                     state.Phase = CrocomirePhase.NearSpikeWallCharge;
                     return CrocomireBodySegment.NearSpikeWallCharge;
                 }
-                return !CrocomireBodyAnimationGroups.StepForwardInProgress.Contains(continuation)
-                    ? CrocomireBodySegment.StepForward
-                    : null;
+                // The phase starts with his step forward, which loops on its own until another phase takes over.
+                return null;
 
             case CrocomirePhase.ProjectileAttack:
                 if (state.DamageReactionPending)
@@ -403,13 +398,11 @@ internal sealed class CrocomireFight
             case CrocomirePhase.WaitingForFirstDamage:
                 return RunCrocomireWaitingForDamage(
                     state,
-                    continuation,
                     CrocomirePhase.WaitingForSecondDamage);
 
             case CrocomirePhase.WaitingForSecondDamage:
                 return RunCrocomireWaitingForDamage(
                     state,
-                    continuation,
                     CrocomirePhase.SteppingBack);
 
             case CrocomirePhase.PowerBombCharge:
@@ -433,21 +426,19 @@ internal sealed class CrocomireFight
         }
     }
 
-    /// <summary>Holds the damage-reaction cue until its timer permits the next step.</summary>
+    /// <summary>
+    /// Waits for a hit while the damage wait roars: a hit steps him back into <paramref name="damagedDestination"/>;
+    /// otherwise his roar plays on, the damage wait's animation roaring again each time his mouth has closed.
+    /// </summary>
     private static CrocomireBodySegment? RunCrocomireWaitingForDamage(
         CrocomireEnemyState state,
-        CrocomireBodySegment continuation,
         CrocomirePhase damagedDestination)
     {
-        if (state.DamageReactionPending)
-        {
-            state.DamageReactionPending = false;
-            state.Phase = damagedDestination;
-            return CrocomireBodySegment.StepBack;
-        }
-        return !CrocomireBodyAnimationGroups.RoarYetToCloseMouth.Contains(continuation)
-            ? CrocomireBodySegment.Roar
-            : null;
+        if (!state.DamageReactionPending)
+            return null;
+        state.DamageReactionPending = false;
+        state.Phase = damagedDestination;
+        return CrocomireBodySegment.StepBack;
     }
 
     /// <summary>Moves Crocomire through ordinary ignore-slopes collision with 1/65536-pixel displacement.</summary>

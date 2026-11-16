@@ -521,6 +521,8 @@ internal static class TorizoAnimationsVerification
                         break;
                     case NativeEnemyControlKind.LoopStart:
                         throw new InvalidDataException("The Torizo list reader reads no goto back into a list's own beats (#2144).");
+                    case NativeEnemyControlKind.PoseShownAgain:
+                        throw new InvalidDataException("The Torizo list reader reads no instruction that shows a pose again (#2180).");
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");
                 }

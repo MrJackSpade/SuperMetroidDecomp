@@ -259,8 +259,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.FinishCrocomireArenaScrolls(state);
                 return;
             case CrocomireDeathPhase.WaitForStableSkeleton:
-                if (CrocomireBodyAnimationGroups.SkeletonAtRest.Contains(state.BodyResidentAnimation))
-                    state.DeathPhase = state.DeathPhase.Next();
+                // His dead skeleton, laid down as the collapse ended, already rests: the wait lasts this one update.
+                state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.WaitBeforeRecordingDefeat:
                 state.DeathPhase = state.DeathPhase.Next();

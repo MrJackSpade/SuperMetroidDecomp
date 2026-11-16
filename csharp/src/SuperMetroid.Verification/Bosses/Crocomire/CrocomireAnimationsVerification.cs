@@ -27,7 +27,7 @@ internal static class CrocomireAnimationsVerification
     /// <summary>
     /// Every body segment's beats equal the native list: frames by spritemap and duration, and callbacks as cues; every
     /// body animation follows the lists' gotos, sleeps and runs on into the list authored next. The real body runner then
-    /// plays the skeleton collapse, a fight-AI redirect and the roar's resident-segment test beside the native list.
+    /// plays the skeleton collapse, a fight-AI redirect and the damage wait's repeated roar beside the native list.
     /// </summary>
     internal static void VerifyCrocomireBodyAnimations(CartridgeImportAddressSpace rom)
     {
@@ -45,17 +45,17 @@ internal static class CrocomireAnimationsVerification
             new NativeEnemyCueRules<CrocomireBodyCue>(
                 word => BodyCallbacks.ContainsKey(word) ? 0 : null,
                 (word, _, cue, at) => AssertEqual(BodyCallbacks[word], cue, $"{at}: cue")));
-        // The closed-mouth loop is no animation of its own (#2166): the roar's mouth closing runs on into it, and the fight
-        // AI tells the two apart where it tests whether the roar has closed his mouth.
+        // The closed-mouth loop is no animation of its own (#2166): the roar's mouth closing runs on into it, and the
+        // damage wait roars again from it (#2180).
         NativeEnemyAnimationOracle.CompareAnimations(lists, WithNativeRoarRunOn(lists),
             onlyRunOnInto: new HashSet<CrocomireBodySegment> { CrocomireBodySegment.RoarCloseMouthLoop });
         AssertTrue(lists.Values.All(list => list.Controls.All(control =>
                 control.Kind is NativeEnemyControlKind.Goto or NativeEnemyControlKind.Sleep or NativeEnemyControlKind.RunOnIntoNext
                     or NativeEnemyControlKind.LoopStart)),
             "Crocomire's body lists use no stops, counters or waits");
-        // Each list that runs on into the list authored next is followed by that list wherever an animation plays on from
-        // it (#1938), which is where the body's resting segment moves on; the closed-mouth loop's run-on into the Power
-        // Bomb reaction is the one the animations drop.
+        // Each list that runs on into the list authored next is followed by that list wherever an animation plays it to its
+        // end and on (#1938); the closed-mouth loop's run-on into the Power Bomb reaction is the one the animations drop,
+        // since they roar again from the loop's first fight cue.
         foreach (CrocomireBodySegment segment in NativeEnemyAnimationOracle.RunsOnIntoNextAfterLastBeat(lists))
         {
             CrocomireBodySegment? next = lists[segment].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target;
@@ -63,7 +63,8 @@ internal static class CrocomireAnimationsVerification
             {
                 for (int phase = 0; phase + 1 < animation.Phases.Count; phase++)
                 {
-                    if (animation.Phases[phase].Segment == segment)
+                    AnimationPhase<CrocomireBodySegment> played = animation.Phases[phase];
+                    if (played.Segment == segment && played.FirstBeat + played.BeatCount == lists[segment].BeatAddresses.Length)
                         AssertEqual(next, (CrocomireBodySegment?)animation.Phases[phase + 1].Segment, $"{segment} runs on into the list authored next");
                 }
             }
@@ -73,16 +74,17 @@ internal static class CrocomireAnimationsVerification
 
         VerifySkeletonCollapse(cartridge);
         VerifyFightAiRedirect();
-        VerifyRoarResidentProgram();
+        VerifyRoarRepeats();
         Console.WriteLine($"  Crocomire body animations: {lists.Count} segments and {lists.Values.Sum(list => list.BeatAddresses.Length)} beats match bank $A4, " +
             "and every animation its lists' control flow; the runner matches the skeleton collapse and fight-AI redirects.");
     }
 
     /// <summary>
-    /// The body animations as the native lists run them (#1938): the step back and the damage wait run on from the roar's
-    /// closed-mouth loop into the Power Bomb reaction authored after it. The fight cues of that loop always start the roar
-    /// again or step back first (<see cref="VerifyRoarResidentProgram"/>), so the animations end in the loop; the oracle
-    /// compares them with the native lists with that unreachable tail restored.
+    /// The body animations as the native lists run them (#1938, #2180): the step back and the damage wait run on from the
+    /// roar's closed-mouth loop into the Power Bomb reaction authored after it. The first fight cue of that loop always
+    /// starts the roar again or steps him back (<see cref="VerifyRoarRepeats"/>), so the animations play the loop only to
+    /// that cue and then roar again; the oracle compares them with the native lists with the unreachable rest of the loop
+    /// and the tail after it restored.
     /// </summary>
     private static Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> WithNativeRoarRunOn(
         Dictionary<CrocomireBodySegment, NativeEnemyList<CrocomireBodySegment>> lists)
@@ -90,14 +92,28 @@ internal static class CrocomireAnimationsVerification
         AssertEqual((CrocomireBodySegment?)CrocomireBodySegment.PowerBombReactionMouthFullyOpen,
             lists[CrocomireBodySegment.RoarCloseMouthLoop].Controls.Single(control => control.Kind == NativeEnemyControlKind.RunOnIntoNext).Target,
             "the roar's closed-mouth loop runs on into the Power Bomb reaction");
+        int loopBeats = lists[CrocomireBodySegment.RoarCloseMouthLoop].BeatAddresses.Length;
+        var playedLoop = new AnimationPhase<CrocomireBodySegment>(CrocomireBodySegment.RoarCloseMouthLoop, 0, 2, 1);
+        AssertTrue(CrocomireBodyAnimations.Segments.Beats(CrocomireBodySegment.RoarCloseMouthLoop)[1] is AnimationBeat<CrocomireBodyFrame, CrocomireBodyCue>.Event
+            { Raised: CrocomireBodyCue.Signal { Kind: CrocomireBodyCueKind.FightAi } }, "the closed-mouth loop's second beat is its first fight cue");
+        Animation<CrocomireBodySegment> roar = CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Roar);
         Animation<CrocomireBodySegment> reaction = CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.PowerBombReactionMouthFullyOpen);
         AnimationEnd.Loop reactionLoop = AssertIs<AnimationEnd.Loop>(reaction.End, "the Power Bomb reaction's end");
         var native = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>();
         foreach ((CrocomireBodySegment start, Animation<CrocomireBodySegment> animation) in CrocomireBodyAnimations.StartingAt)
         {
-            native[start] = animation.Phases[^1].Segment == CrocomireBodySegment.RoarCloseMouthLoop
-                ? new([.. animation.Phases, .. reaction.Phases], AnimationEnd.LoopsFrom(animation.Phases.Count + reactionLoop.Phase))
-                : animation;
+            int closed = animation.Phases.ToList().IndexOf(playedLoop);
+            if (closed < 0)
+            {
+                native[start] = animation;
+                continue;
+            }
+            // After the loop's first fight cue the animation roars again: it goes on into the roar animation's phases.
+            AnimationEnd.Loop again = AssertIs<AnimationEnd.Loop>(animation.End, $"{start}'s end");
+            AssertTrue(animation.Phases.Skip(again.Phase).SequenceEqual(roar.Phases) && roar.End == AnimationEnd.LoopsFrom(0),
+                $"{start} roars again once its roar has closed his mouth");
+            native[start] = new([.. animation.Phases.Take(closed), playedLoop with { BeatCount = loopBeats }, .. reaction.Phases],
+                AnimationEnd.LoopsFrom(closed + 1 + reactionLoop.Phase));
         }
         return native;
     }
@@ -137,8 +153,8 @@ internal static class CrocomireAnimationsVerification
 
     /// <summary>
     /// The skeleton falls apart and settles exactly as the native list does, update by update: timer, spritemap,
-    /// new-frame flag and sounds. The death phase's test sees the stable skeleton as soon as the last collapse frame
-    /// shows, because the native cursor then already points at the stable list.
+    /// new-frame flag and sounds. The death phase's test sees the collapse ended as soon as its last frame shows, where the
+    /// native cursor already points at the stable list.
     /// </summary>
     private static void VerifySkeletonCollapse(IImportCartridgeSource cartridge)
     {
@@ -157,10 +173,10 @@ internal static class CrocomireAnimationsVerification
             AssertEqual(native.NewFrame, state.Body.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
             AssertEqual(EnemyAudioQueueAccess.SoundList(callbacks.Select(BodySound).OfType<SoundEffectId>()), enemies.Audio.QueuedSoundList,
                 $"{at}: every sound the native list queues, in its order");
-            AssertEqual(HasReached(native, CrocomireBodySegment.SkeletonStable), state.BodyResidentAnimation >= CrocomireBodySegment.SkeletonStable,
-                $"{at}: the stable-skeleton test reads the native cursor");
+            AssertEqual(HasReached(native, CrocomireBodySegment.SkeletonStable), state.SkeletonHasCollapsed,
+                $"{at}: the collapse has ended once the native cursor reaches the stable skeleton");
         }
-        AssertEqual(CrocomireBodySegment.SkeletonStable, state.BodyResidentAnimation, "the collapse settles on the stable skeleton");
+        AssertTrue(state.SkeletonHasCollapsed, "the collapse settles on the stable skeleton");
     }
 
     /// <summary>
@@ -188,10 +204,10 @@ internal static class CrocomireAnimationsVerification
     }
 
     /// <summary>
-    /// While waiting for damage, the fight AI restarts the roar only once the cursor has reached the closing loop:
-    /// the cues in the closing program continue, and the first cue of the loop starts the roar.
+    /// While waiting for damage, the roar plays again only once it has closed his mouth: the cues while it closes play on,
+    /// and after the closed mouth's first cue the roar shows again in the same update.
     /// </summary>
-    private static void VerifyRoarResidentProgram()
+    private static void VerifyRoarRepeats()
     {
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         state.Phase = CrocomirePhase.WaitingForFirstDamage;
@@ -205,7 +221,8 @@ internal static class CrocomireAnimationsVerification
                 $"roar close frame {index}");
             AssertEqual((ushort)expected[index].Duration, state.Body.AnimationClock.Hold.RawValue, $"roar close duration {index}");
         }
-        AssertEqual(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.Roar), state.BodyPlayback.Animation, "the closing loop's fight-AI cue restarts the roar");
+        AssertEqual(CrocomireBodySegment.Roar, state.BodyPlayback.Animation.Phases[state.BodyPlayback.Place.Phase].Segment,
+            "the closed mouth's fight cue is followed by the roar again");
     }
 
     /// <summary>Each tongue program plays its native list update by update through the production interpreter.</summary>

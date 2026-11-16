@@ -228,7 +228,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideUpFacingLeftLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideUpFacingLeftShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
         [P.HiddenUpsideUpMovingLeft] =
         [
@@ -240,7 +240,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideDownFacingLeftLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
             Show(EnemyFrameId.YardUpsideDownFacingLeftShellClosedTwin, 48),
             Show(EnemyFrameId.YardUpsideDownFacingLeftLegsTuckingShiftedLeft2, 16),
         ],
@@ -249,7 +249,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideDownFacingRightLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideDownFacingRightShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
             Show(EnemyFrameId.YardUpsideDownFacingRightShellClosedTwin, 48),
             Show(EnemyFrameId.YardUpsideDownFacingRightLegsTuckingShiftedRight2, 16),
         ],
@@ -258,7 +258,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideUpFacingRightLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideUpFacingRightShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
         ],
         [P.HiddenUpsideUpMovingRight] =
         [
@@ -270,7 +270,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideRightFacingUpLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideRightFacingUpShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
             Show(EnemyFrameId.YardUpsideRightFacingUpShellClosedTwin, 48),
             Show(EnemyFrameId.YardUpsideRightFacingUpLegsTuckingFurther, 16),
         ],
@@ -279,7 +279,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideLeftFacingUpLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
             Show(EnemyFrameId.YardUpsideLeftFacingUpShellClosedTwin, 48),
             Show(EnemyFrameId.YardUpsideLeftFacingUpLegsTuckingShiftedUp2, 16),
         ],
@@ -288,7 +288,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideLeftFacingDownLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
             Show(EnemyFrameId.YardUpsideLeftFacingDownShellClosedTwin, 48),
             Show(EnemyFrameId.YardUpsideLeftFacingDownLegsTuckingShiftedDown2, 16),
         ],
@@ -297,7 +297,7 @@ internal static class YardAnimations
             Cue(new YardCue.Signal(K.BeginHiding)),
             Show(EnemyFrameId.YardUpsideRightFacingDownLegsTucking, 5),
             Show(EnemyFrameId.YardUpsideRightFacingDownShellClosed, 1),
-            Cue(new YardCue.Signal(K.RepeatPreviousPoseUnlessContinuing)),
+            Cue(new YardCue.Signal(K.ShellClosedUpdateEnds)),
             Show(EnemyFrameId.YardUpsideRightFacingDownShellClosedTwin, 48),
             Show(EnemyFrameId.YardUpsideRightFacingDownLegsTuckingShiftedDown2, 16),
         ],
@@ -319,7 +319,10 @@ internal static class YardAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. A hiding animation's closed shell and the
+    /// cue ending its update are a phase of their own, which the Yard plays again while it holds its shell closed (#2180).
+    /// </summary>
     internal static IReadOnlyDictionary<YardSegment, Animation<YardSegment>> StartingAt { get; } = new Dictionary<YardSegment, Animation<YardSegment>>
     {
         [P.OutsideTurnUpsideRightMovingUp] = new([new(P.OutsideTurnUpsideRightMovingUp, 0, 6, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
@@ -346,16 +349,16 @@ internal static class YardAnimations
         [P.InsideTurnUpsideLeftMovingUp] = new([new(P.InsideTurnUpsideLeftMovingUp, 0, 5, 1), new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
         [P.InsideTurnUpsideDownMovingLeft] = new([new(P.InsideTurnUpsideDownMovingLeft, 0, 5, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
         [P.InsideTurnUpsideRightMovingDown] = new([new(P.InsideTurnUpsideRightMovingDown, 0, 5, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideUpMovingLeft] = new([new(P.HidingUpsideUpMovingLeft, 0, 4, 1), new(P.HiddenUpsideUpMovingLeft, 0, 2, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.HidingUpsideUpMovingLeft] = new([new(P.HidingUpsideUpMovingLeft, 0, 2, 1), new(P.HidingUpsideUpMovingLeft, 2, 2, 1), new(P.HiddenUpsideUpMovingLeft, 0, 2, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
         [P.HiddenUpsideUpMovingLeft] = new([new(P.HiddenUpsideUpMovingLeft, 0, 2, 1), new(P.CrawlingUpsideUpMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideDownMovingLeft] = new([new(P.HidingUpsideDownMovingLeft, 0, 6, 1), new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideDownMovingRight] = new([new(P.HidingUpsideDownMovingRight, 0, 6, 1), new(P.CrawlingUpsideDownMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideUpMovingRight] = new([new(P.HidingUpsideUpMovingRight, 0, 4, 1), new(P.HiddenUpsideUpMovingRight, 0, 2, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.HidingUpsideDownMovingLeft] = new([new(P.HidingUpsideDownMovingLeft, 0, 2, 1), new(P.HidingUpsideDownMovingLeft, 2, 2, 1), new(P.HidingUpsideDownMovingLeft, 4, 2, 1), new(P.CrawlingUpsideDownMovingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.HidingUpsideDownMovingRight] = new([new(P.HidingUpsideDownMovingRight, 0, 2, 1), new(P.HidingUpsideDownMovingRight, 2, 2, 1), new(P.HidingUpsideDownMovingRight, 4, 2, 1), new(P.CrawlingUpsideDownMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.HidingUpsideUpMovingRight] = new([new(P.HidingUpsideUpMovingRight, 0, 2, 1), new(P.HidingUpsideUpMovingRight, 2, 2, 1), new(P.HiddenUpsideUpMovingRight, 0, 2, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
         [P.HiddenUpsideUpMovingRight] = new([new(P.HiddenUpsideUpMovingRight, 0, 2, 1), new(P.CrawlingUpsideUpMovingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideRightMovingUp] = new([new(P.HidingUpsideRightMovingUp, 0, 6, 1), new(P.CrawlingUpsideRightMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideLeftMovingUp] = new([new(P.HidingUpsideLeftMovingUp, 0, 6, 1), new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideLeftMovingDown] = new([new(P.HidingUpsideLeftMovingDown, 0, 6, 1), new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HidingUpsideRightMovingDown] = new([new(P.HidingUpsideRightMovingDown, 0, 6, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.HidingUpsideRightMovingUp] = new([new(P.HidingUpsideRightMovingUp, 0, 2, 1), new(P.HidingUpsideRightMovingUp, 2, 2, 1), new(P.HidingUpsideRightMovingUp, 4, 2, 1), new(P.CrawlingUpsideRightMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.HidingUpsideLeftMovingUp] = new([new(P.HidingUpsideLeftMovingUp, 0, 2, 1), new(P.HidingUpsideLeftMovingUp, 2, 2, 1), new(P.HidingUpsideLeftMovingUp, 4, 2, 1), new(P.CrawlingUpsideLeftMovingUp, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.HidingUpsideLeftMovingDown] = new([new(P.HidingUpsideLeftMovingDown, 0, 2, 1), new(P.HidingUpsideLeftMovingDown, 2, 2, 1), new(P.HidingUpsideLeftMovingDown, 4, 2, 1), new(P.CrawlingUpsideLeftMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
+        [P.HidingUpsideRightMovingDown] = new([new(P.HidingUpsideRightMovingDown, 0, 2, 1), new(P.HidingUpsideRightMovingDown, 2, 2, 1), new(P.HidingUpsideRightMovingDown, 4, 2, 1), new(P.CrawlingUpsideRightMovingDown, 0, 6, 1)], AnimationEnd.LoopsFrom(3)),
         [P.AirborneFacingLeft] = new([new(P.AirborneFacingLeft, 0, 2, 1), new(P.AirborneFacingLeft, 2, 3, 1)], AnimationEnd.LoopsFrom(1)),
         [P.AirborneFacingRight] = new([new(P.AirborneFacingRight, 0, 2, 1), new(P.AirborneFacingRight, 2, 3, 1)], AnimationEnd.LoopsFrom(1)),
     };

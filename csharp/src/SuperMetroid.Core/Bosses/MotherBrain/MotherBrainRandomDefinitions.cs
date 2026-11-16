@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainRandomDefinitions
 {
-    /// <summary>The roll most of her chances read: the sample modulo 4096, 0 through 4095.</summary>
+    /// <summary>The roll most of her chances read: the sample's lowest 4096-value field, 0 through 4095.</summary>
     private static readonly RandomSampleField RollOf4096 = new(0, 12);
 
-    /// <summary>The roll her posture and phase-three attack chances read: the sample modulo 256, 0 through 255.</summary>
+    /// <summary>The roll her posture and phase-three attack chances read: the sample's lowest 256-value field, 0 through 255.</summary>
     private static readonly RandomSampleField RollOf256 = new(0, 8);
 
     /// <summary>The baby metroid's ambient cry on its way to Samus: the top 96 of the 4096 rolls, 4000 and over, cry.</summary>
@@ -143,7 +143,7 @@ internal static class MotherBrainRandomDefinitions
         new(5, MotherBrainDeathExplosionAnimation.Smoke),
         new(1, MotherBrainDeathExplosionAnimation.BigExplosion));
 
-    /// <summary>A fired hand beam's scatter turn, in 256ths of a turn: the sample modulo 256.</summary>
+    /// <summary>A fired hand beam's scatter turn, in 256ths of a turn: the sample's lowest 256-value field.</summary>
     internal static readonly RandomSampleField HandBeamScatterTurn = new(0, 8);
 
     /// <summary>A turret's wait before it chooses another direction, raised to its minimum: 0 through 255 from the sample.</summary>

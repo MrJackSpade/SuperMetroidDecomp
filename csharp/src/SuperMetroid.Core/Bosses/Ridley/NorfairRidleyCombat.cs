@@ -541,7 +541,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Keeps the already-grabbed Samus attached while accelerating Ridley toward
-    /// the four-pixel rectangle centered at (128,328). Reaching it immediately tail-calls
+    /// the four-pixel rectangle centered at (128,328). Reaching it goes straight on to
     /// the roar setup instead of spending an extra transition frame.
     /// </summary>
     internal static void TickNorfairRidleyMoveToDeathSpot(

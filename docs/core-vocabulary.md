@@ -282,6 +282,18 @@ particle voices the attack's sound`) stays English. In comments it reads a word 
 `hold3`, `contains100`), a garbled numeral or a label of the original; a file extension (`.ps1`) and a name Core's code
 spells stay legal.
 
+Outside hardware owners SME6454 also reads the original program's structure and machine arithmetic (#2080), spaced or
+hyphenated: a parameter table (`calls through its parameter table`), a tail call in any word form (`tail-calls the
+initializer`), a short multiply or multiplication, an extension array (`the enemy extension arrays`), a rotting table
+(`the corpse's rotting table`) and a value modulo 256 (`Y modulo 256 reaches 240`). Core says what runs next and names
+the circle product, the species state, the rot schedule, the sample's lowest 256-value field or the place within a
+screen. It reads the display's colour math and screen designation (#2089): a fixed colour in either spelling (`the
+fixed-colour flash`), the main-screen designation `TM`, read case-sensitively, and a per-line effect (`the update's
+per-line effects`); Core names the flash, the wash, the endpoint colour, the page shown or the effect itself. It reads a
+type by number, hyphenated (`the ordinary type-6 fall`, #2089), and, in every type, a review cited under its ticket with
+or without its number sign (`reviewed under 1165`). A table of settings, Ridley's tail whip, a multiplication, a rotting
+corpse, a value modulo another number, a fixed set of colours, a per-line scroll or window and a type alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

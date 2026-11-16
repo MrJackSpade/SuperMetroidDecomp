@@ -25,13 +25,13 @@ internal static class RidleyRandomDefinitions
     internal static readonly RandomSampleField TailCurliness = new(0, 4);
 
     /// <summary>
-    /// Norfair Ridley fireballing during his wall sweep (#1619): the top 128 of the 256 values of the sample modulo 256,
+    /// Norfair Ridley fireballing during his wall sweep (#1619): the top 128 of the 256 values of the sample's lowest field,
     /// half of them, start the fireballs.
     /// </summary>
     internal static readonly RandomChance WallSweepFireballs = RandomChance.Highest(128, new RandomSampleField(0, 8));
 
     /// <summary>
-    /// Ridley's unrequested tail whip (#1619): the top 16 of the 256 values of the sample modulo 256, 240 and over, whip.
+    /// Ridley's unrequested tail whip (#1619): the top 16 of the 256 values of the sample's lowest field, 240 and over, whip.
     /// </summary>
     internal static readonly RandomChance TailWhips = RandomChance.Highest(16, new RandomSampleField(0, 8));
 

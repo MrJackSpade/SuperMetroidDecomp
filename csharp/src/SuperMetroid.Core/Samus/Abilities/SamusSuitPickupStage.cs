@@ -9,7 +9,7 @@ public enum SamusSuitPickupStage
     /// <summary>The beam's left and right edges move apart uniformly.</summary>
     UniformWidening,
 
-    /// <summary>The beam widens along the authored curve while the fixed colour brightens to white.</summary>
+    /// <summary>The beam widens along the authored curve while its colour brightens to white.</summary>
     CurvedWidening,
 
     /// <summary>The suit is equipped and revealed: suited pose, history and shade.</summary>
@@ -21,6 +21,6 @@ public enum SamusSuitPickupStage
     /// <summary>Only the centre row remains and narrows from both sides.</summary>
     LightBeamDissipates,
 
-    /// <summary>The window and fixed colour are cleared and Samus's input is released.</summary>
+    /// <summary>The beam's window and colour are cleared and Samus's input is released.</summary>
     Finish,
 }

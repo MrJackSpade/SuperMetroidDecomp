@@ -309,7 +309,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpeedCurvePlace += QuadraticSpeedCurvePlace.OneMark;
     }
 
-    /// <summary>Waits after retraction, including the expiry past zero on frame 65.</summary>
+    /// <summary>Waits out the hold after retraction (<see cref="YappingMawAttackDefinitions.RetractedHold"/>), then releases Samus unless she is dying.</summary>
     private void WaitAfterYappingMawRetraction(
         RoomEnemyPlace mouth,
         YappingMawEnemyState state,
@@ -318,8 +318,10 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HasGrabbedSamus)
             PositionSamusInYappingMaw(mouth, state, samus);
 
-        state.RetractedDelayTimer--;
-        if (state.RetractedDelayTimer >= 0 || samus.DeathSequence.IsActive)
+        // A hold that has run out stays at zero while Samus's death keeps the Maw waiting.
+        if (state.RetractedDelayTimer > 0)
+            state.RetractedDelayTimer--;
+        if (state.RetractedDelayTimer > 0 || samus.DeathSequence.IsActive)
             return;
 
         samus.Control.Unlock();

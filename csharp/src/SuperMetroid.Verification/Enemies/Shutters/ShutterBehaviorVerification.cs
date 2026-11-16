@@ -135,20 +135,18 @@ internal static class ShutterBehaviorVerification
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address.Value);
 
     /// <summary>
-    /// The growing shutter's timer-mode wait tests for expiry before it decrements: a wait of two activates on the
-    /// third call, and an expired wait stays at zero (activating again) instead of wrapping to a 65535-update wait.
+    /// The growing shutter's timer-mode wait holds its true duration (#2281): a placement's wait of two activates on the
+    /// third call, the one that takes it to zero.
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {
         var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitToGrowUpForTimer, spawnY: 0, VerticalDirection.Up);
-        state.ActivationTimer = 2;
+        state.ActivationTimer = 2 + EnemyWaitDefinitions.RunOutUpdate;
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
-        AssertEqual(1, state.ActivationTimer, "the first call counts the wait down by one");
+        AssertEqual(2, state.ActivationTimer, "the first call counts the wait down by one");
         AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its second call");
         AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait activates on its third call");
-        AssertEqual(0, state.ActivationTimer, "activation leaves the wait expired");
-        AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "an expired wait activates again rather than wrapping");
-        AssertEqual(0, state.ActivationTimer, "an expired wait stays zero");
+        AssertEqual(0, state.ActivationTimer, "activation leaves the wait run out");
     }
 
     /// <summary>

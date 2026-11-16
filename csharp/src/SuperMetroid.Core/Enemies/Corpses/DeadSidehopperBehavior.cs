@@ -158,7 +158,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAction.PostLandingDelay:
-                if (--state.StateTimer >= 0)
+                if (--state.StateTimer > 0)
                     return;
 
                 if (state.HasBegunDraining)

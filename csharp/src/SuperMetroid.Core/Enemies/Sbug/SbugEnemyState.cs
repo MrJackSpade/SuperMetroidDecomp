@@ -44,7 +44,7 @@ public sealed class SbugEnemyState
     internal void TurnCustomHeading(RotationAngle turn) =>
         CustomHeading += turn;
 
-    /// <summary>The 32-frame segment/wait countdown.</summary>
+    /// <summary>The updates left in the current leg, the one it ends on included (<see cref="SbugMovementDefinitions.LegDuration"/>, #2281).</summary>
     public int MovementTimer { get; internal set; }
 
     /// <summary>The speed the heading's sine and cosine scale, as the Sbug's placement names it.</summary>

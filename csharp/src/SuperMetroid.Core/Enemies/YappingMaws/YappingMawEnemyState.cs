@@ -73,7 +73,7 @@ public sealed class YappingMawEnemyState
     /// </summary>
     internal EnemySpeedSign QuadraticSpeedSign { get; set; }
 
-    /// <summary>64-frame hold after the tongue fully retracts.</summary>
+    /// <summary>The updates left in the hold after the tongue fully retracts, the one it releases Samus on included (#2281).</summary>
     public int RetractedDelayTimer { get; internal set; }
 
     /// <summary>

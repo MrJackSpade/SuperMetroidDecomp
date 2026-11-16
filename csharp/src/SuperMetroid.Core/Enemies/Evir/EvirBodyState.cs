@@ -10,8 +10,9 @@ public sealed class EvirBodyState : EvirPartState
     internal RoomEnemyPlace Spit { get; }
 
     /// <summary>
-    /// The body's bobbing countdown, decremented every update and expiring when it steps below zero, which reverses
-    /// the bobbing and restarts it at the body's <see cref="DirectionChangePeriod"/>.
+    /// The updates left in the body's current half of the bobbing, the one it turns on included: the step that takes it to
+    /// zero reverses the bobbing and restarts it at the body's <see cref="DirectionChangePeriod"/> and the update it runs
+    /// out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
     /// </summary>
     public int MovementTimer { get; internal set; }
 

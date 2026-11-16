@@ -9,6 +9,9 @@ internal static class FlyMotionDefinitions
     /// <summary>How far a circling fly turns each update: sixteen 256ths of a turn.</summary>
     internal const int CircleTurnSteps = 16;
 
+    /// <summary>How many updates longer than its dive a fly retreats: the retreat's last update is the one it turns back on.</summary>
+    internal const int RetreatBeyondDive = 1;
+
     /// <summary>How long a fly that has retreated circles before it can dive again, in updates.</summary>
     internal const int AttackCooldown = 24;
 

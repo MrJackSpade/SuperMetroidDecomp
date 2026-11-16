@@ -74,7 +74,8 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(new Position16<RoomBlocks>(1, 0), MaridiaElevatubeDefinitions.RoomObjectBlock, "elevatube PLM block");
 
         // TourianStatueRomData and TourianStatuePaletteRomData.
-        AssertEqual(300, TourianStatueSequenceDefinitions.DescentDelay, "descent delay");
+        // The cartridge's hold of 300 runs out on the call below zero, which the port holds as its true duration (#2281).
+        AssertEqual(300 + 1, TourianStatueSequenceDefinitions.DescentDelay, "descent delay");
         AssertEqual(SignedSixteenSixteen.FromWholePixels(1), TourianStatueSequenceDefinitions.DescentStep * 4, "the descent steps a quarter pixel");
         AssertEqual(240, TourianStatueSequenceDefinitions.DescentDistance, "descent distance");
         AssertEqual(13, NativeEarthquakeTypes.TypeOf(TourianStatueSequenceDefinitions.DescentEarthquake), "descent earthquake");

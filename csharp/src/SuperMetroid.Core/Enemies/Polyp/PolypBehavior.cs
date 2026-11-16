@@ -67,7 +67,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypAction.Cooldown:
-                if (--state.CooldownTimer < 0)
+                if (--state.CooldownTimer <= 0)
                     state.Action = PolypAction.WaitingForSamus;
                 return;
 

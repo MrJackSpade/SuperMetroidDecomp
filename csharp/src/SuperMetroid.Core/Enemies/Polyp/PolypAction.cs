@@ -10,6 +10,6 @@ public enum PolypAction
     WaitingForSamus,
     /// <summary>Consumes separate shared-RNG samples for horizontal velocity, the rock's first place on the speed curve, and cooldown; requests one lava rock and enters cooldown even if the projectile pool is full.</summary>
     ShootingRock,
-    /// <summary>Decrements the cooldown once per AI update and rearms proximity checking only when the signed result is negative, so an initial nonnegative count N waits N+1 updates.</summary>
+    /// <summary>Waits out the cooldown its launch chose (<see cref="PolypLaunchDefinitions.Cooldowns"/>), then rearms proximity checking.</summary>
     Cooldown,
 }

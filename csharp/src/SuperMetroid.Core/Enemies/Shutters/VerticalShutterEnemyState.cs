@@ -19,10 +19,16 @@ public sealed class VerticalShutterEnemyState
     public VerticalShutterAction Action { get; internal set; }
 
     /// <summary>
-    /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes once
-    /// it passes zero.
+    /// The timer-triggered shutter's first wait, a wrapping AI-update countdown that activates at zero: a wait of zero
+    /// wraps and waits the countdown's whole range.
     /// </summary>
     public WrappingCountdown ActionTimer { get; internal set; }
+
+    /// <summary>
+    /// The AI updates left in an endpoint rest, the one the shutter moves on included: the rest's updates and the update
+    /// it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
+    /// </summary>
+    public int RestTimer { get; internal set; }
     /// <summary>Downward signed 1/65536-pixel velocity in pixels per update, one of the common linear speeds.</summary>
     public SignedSixteenSixteen DownVelocity { get; internal set; }
 

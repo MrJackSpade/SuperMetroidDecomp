@@ -36,7 +36,7 @@ public enum BeetomAction
     StartDropping,
     /// <summary>Resets the downward speed-curve place to zero after Samus shakes the Beetom off.</summary>
     StartBeingFlung,
-    /// <summary>Decrements the idle timer until its signed result is negative, then requests a new action.</summary>
+    /// <summary>Waits out the idle (<see cref="BeetomMotionDefinitions.IdleDuration"/>), then requests a new action.</summary>
     Idling,
     /// <summary>Moves left one quarter pixel per frame, reversing at a wall or failed eight-pixel-ahead ledge probe.</summary>
     CrawlingLeft,

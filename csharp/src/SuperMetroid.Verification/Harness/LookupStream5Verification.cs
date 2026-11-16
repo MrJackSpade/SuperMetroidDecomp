@@ -143,7 +143,7 @@ internal static class LookupStream5Verification
             var place = system.Places.InUpdateOrder[0];
             place.BindCeresDoorOrWall(EnemyDefinitionId.CeresElevatorDoor, EnemySpawnSettings.None);
             place.Position = place.Position.WithWhole(origin);
-            var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, RumbleCallsLeft = 48 };
+            var doorState = new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Exploding, RumbleCallsLeft = 49, ExplosionIntervalLeft = 1 };
             place.SetSpeciesState(doorState);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;

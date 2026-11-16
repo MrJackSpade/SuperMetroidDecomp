@@ -91,7 +91,7 @@ internal static class ChootPatternDefinitionsVerification
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingPatternFrame = 0;
-            fallState.FallingPatternLoopCounter = 1;
+            fallState.FallingPatternLoopCounter = 2;
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
@@ -113,7 +113,7 @@ internal static class ChootPatternDefinitionsVerification
             runFall(fallPlace, fallState);
             AssertEqual(0, fallState.FallingPatternFrame,
                 $"Choot production loop cursor reset {patternIndex}");
-            AssertEqual(0, fallState.FallingPatternLoopCounter,
+            AssertEqual(1, fallState.FallingPatternLoopCounter,
                 $"Choot production loop counter {patternIndex}");
             AssertEqual(unchecked((ushort)(0x5000 + loopYDistance)),
                 fallState.FallingOrigin.Y,

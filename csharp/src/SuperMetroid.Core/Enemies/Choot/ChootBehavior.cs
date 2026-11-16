@@ -68,14 +68,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootMotionDefinitions.ActivationDistance)
             return;
 
-        state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay;
+        state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay + EnemyWaitDefinitions.RunOutUpdate;
         state.Action = ChootAction.PreparingJump;
     }
 
-    /// <summary>Decrements the delay until it turns negative, then starts the jumping animation.</summary>
+    /// <summary>Waits out the jump delay, then starts the jumping animation.</summary>
     internal static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
-        if (--state.JumpDelayTimer >= 0)
+        if (--state.JumpDelayTimer > 0)
             return;
 
         SetChootAnimation(place, state, ChootSegment.Jumping);
@@ -99,8 +99,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        // A population loop count of zero starts below zero, so the fall ends at the first loop's end as a count of one does.
-        state.FallingPatternLoopCounter = place.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
+        // A population loop count of zero falls one loop, as a count of one does.
+        state.FallingPatternLoopCounter = Math.Max(1, place.SpawnSettings<ChootSpawnSettings>().PatternLoops);
         SetChootAnimation(place, state, ChootSegment.Falling);
         state.Action = ChootAction.Falling;
     }
@@ -114,7 +114,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(
                 state.FallingOrigin.Y + state.FallingPatternYDistance));
             state.FallingPatternFrame = 0;
-            if (--state.FallingPatternLoopCounter >= 0)
+            if (--state.FallingPatternLoopCounter > 0)
                 return;
 
             // The last loop's end restores exact spawn coordinates/subpositions, reinstalls

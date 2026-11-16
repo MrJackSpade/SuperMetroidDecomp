@@ -10,7 +10,11 @@ public sealed class FlyEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FlySegment> Playback { get; set; }
 
-    /// <summary>Counts up per attack update, down below zero during retreat, and then down from <see cref="FlyMotionDefinitions.AttackCooldown"/> to gate another idle attack.</summary>
+    /// <summary>
+    /// The fly's dive and retreat clock (#2281): it counts the dive's updates, then the retreat's updates left, the dive's
+    /// and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, to zero, and then the circling updates left from
+    /// <see cref="FlyMotionDefinitions.AttackCooldown"/> before another dive.
+    /// </summary>
     public int RetreatTimer { get; internal set; }
 
     /// <summary>

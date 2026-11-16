@@ -43,7 +43,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PuyoEnemyState(PuyoAction.Grounded)
         {
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
-            HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown,
+            HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate,
             CurrentHop = PuyoHopType.NormalSmall,
             HopType = PuyoHopType.NormalSmall,
             HoppingAnimationActive = false,
@@ -82,13 +82,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the grounded Puyo.</summary>
     private void RunGroundedPuyo(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
-        // The cooldown counts down before it is tested: a cooldown of N keeps the Puyo grounded for N updates and it hops
-        // on the next, so a zero cooldown hops at once.
-        if (--state.HopCooldownTimer >= 0)
+        // A placement's cooldown of N keeps the Puyo grounded for N updates and it hops on the next, so a zero cooldown hops
+        // at once.
+        if (--state.HopCooldownTimer > 0)
             return;
 
         state.Action = PuyoAction.Airborne;
-        state.HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown;
+        state.HopCooldownTimer = place.SpawnSettings<PuyoSpawnSettings>().HopCooldown + EnemyWaitDefinitions.RunOutUpdate;
         state.HoppingAnimationActive = true;
         InitiatePuyoHop(place, state, samus);
     }

@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <summary>How long a Dragon rises, sinks and waits, and how many fireballs one attack spits (#2279).</summary>
 internal static class DragonTimingDefinitions
 {
-    /// <summary>The count a Dragon's rise or sink starts its timer at.</summary>
-    internal const int RiseOrSinkCount = 48;
+    /// <summary>How long a Dragon rises or sinks, in updates, a pixel each: 49, the last the one its rise or sink ends on.</summary>
+    internal const int RiseOrSinkDuration = 49;
 
     /// <summary>The fireballs one attack spits.</summary>
     internal const int ShotsPerAttack = 3;
@@ -12,6 +12,9 @@ internal static class DragonTimingDefinitions
     /// <summary>How long a Dragon waits after its attack before it sinks, in updates.</summary>
     internal const int WaitBeforeSink = 96;
 
-    /// <summary>The count a Dragon's wait beneath the lava before its next rise starts its timer at.</summary>
-    internal const int WaitBeforeRiseCount = 128;
+    /// <summary>
+    /// How long a Dragon waits beneath the lava before its next rise, in updates: 129, the last the one it turns to Samus on.
+    /// A Dragon placed in the room starts with its wait already run out and rises at once.
+    /// </summary>
+    internal const int WaitBeforeRise = 129;
 }

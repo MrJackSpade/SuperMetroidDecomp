@@ -12,9 +12,9 @@ public enum DeadSidehopperAction
     ActivatedMovement,
     /// <summary>Lands: main AI waits while the landing animation runs, until its end-hop cue selects what follows.</summary>
     Landing,
-    /// <summary>Selects the post-landing idle state and initializes the action timer to 64.</summary>
+    /// <summary>Selects the post-landing idle state and starts its pause (<see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/>).</summary>
     BeginPostLandingDelay,
-    /// <summary>Decrements the timer through zero into signed-negative expiry, then resumes hopping or begins the drain.</summary>
+    /// <summary>Waits out the pause, then resumes hopping or begins the drain.</summary>
     PostLandingDelay,
     /// <summary>Steps Shitroid's drain every eight AI calls; once the victim is fully drained, shows the solid corpse with a 12-pixel Y radius.</summary>
     Draining,

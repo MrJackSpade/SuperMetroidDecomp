@@ -182,10 +182,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Moves straight through its signed countdown, then returns to the proximity wait.</summary>
+    /// <summary>Moves straight for its leg, then returns to the proximity wait.</summary>
     private static void RunSbugForwardThenWait(RoomEnemyPlace place, SbugEnemyState state)
     {
-        if (--state.MovementTimer < 0)
+        if (--state.MovementTimer <= 0)
         {
             state.Action = SbugAction.WaitForSamus;
             return;
@@ -200,7 +200,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         RoomLevelData level)
     {
-        if (--state.MovementTimer < 0)
+        if (--state.MovementTimer <= 0)
         {
             state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
             return;
@@ -230,7 +230,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.StraightMovementTimer = state.StraightMovementTimer.Decrement().Remaining;
         if (!state.StraightMovementTimer.IsNegative)
         {
-            if (--state.MovementTimer < 0)
+            if (--state.MovementTimer <= 0)
             {
                 state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
                 return;

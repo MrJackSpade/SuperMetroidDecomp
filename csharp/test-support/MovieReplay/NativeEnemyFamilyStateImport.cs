@@ -165,8 +165,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)
         {
             elevatorDoorRecord.Phase = CeresNativeWords.ElevatorDoorPhases.Decode(words.A, "recorded Ceres elevator door phase");
-            elevatorDoorRecord.RumbleCallsLeft = words.D;
-            elevatorDoorRecord.ExplosionIntervalLeft = words.E;
+            elevatorDoorRecord.RumbleCallsLeft = TrueDuration(words.D);
+            elevatorDoorRecord.ExplosionIntervalLeft = TrueDuration(words.E);
             elevatorDoorRecord.LastExplosionPlace = words.F;
         }
         else if (enemy.SpeciesState<CeresDoorAnimationState>() is not null && words.A != CeresNativeWords.MainBehaviourWord(enemy))
@@ -257,7 +257,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             deadSidehopperRecord.Action = CorpsesNativeWords.DeadSidehopperActions.Decode(words.A, "recorded DeadSidehopperAction");
             deadSidehopperRecord.PreRotDelayCounter = words.B;
-            deadSidehopperRecord.StateTimer = unchecked((short)words.F);
+            deadSidehopperRecord.StateTimer = TrueDuration(words.F);
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
@@ -380,7 +380,7 @@ internal static class NativeEnemyFamilyStateImport
             sbugRecord.StraightMovementTimer = WrappingCountdown.Start(words.A);
             sbugRecord.Action = SbugNativeWords.SbugActions.Decode(words.B, "recorded SbugAction");
             sbugRecord.FaceCustomHeading(RotationAngle.FromSteps(LittleEndianBytes.LowByte(words.C)));
-            sbugRecord.MovementTimer = unchecked((short)words.F);
+            sbugRecord.MovementTimer = TrueDuration(words.F);
         }
         if (enemy.SpeciesState<KiHunterBodyState>() is { } kiHunterBodyRecord)
         {
@@ -498,6 +498,9 @@ internal static class NativeEnemyFamilyStateImport
         {
             verticalShutterRecord.Action = ShuttersNativeWords.DecodeVerticalShutterAction(words.A, verticalShutterRecord.TriggerMode);
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
+            // The cartridge rests at an end in the same word as the first wait; the port keeps the rest's own duration.
+            if (verticalShutterRecord.Action is VerticalShutterAction.StoppedAfterMovingUp or VerticalShutterAction.StoppedAfterMovingDown)
+                verticalShutterRecord.RestTimer = TrueDuration(words.B);
             verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
         }
@@ -649,7 +652,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             beetom.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(Index(words.B, short.MaxValue, "Beetom speed index"));
             beetom.Action = BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
-            beetom.ActionTimer = unchecked((short)words.D);
+            beetom.ActionTimer = TrueDuration(words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
             beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
         }
@@ -672,7 +675,7 @@ internal static class NativeEnemyFamilyStateImport
             choot.FallingPatternFrame = (words.C & 0xff) == 0
                 ? words.C >> 8
                 : throw new InvalidDataException($"Recorded Choot falling cursor ${words.C:X4} is not a whole frame.");
-            choot.FallingPatternLoopCounter = unchecked((short)words.D);
+            choot.FallingPatternLoopCounter = TrueDuration(words.D);
             PrivateState.Set(choot, nameof(ChootEnemyState.FallingPath), ChootNativeWords.ChootFallingPaths.Decode(words.E, "recorded Choot falling pattern"));
             choot.FallingPatternYDistance = words.F;
         }
@@ -728,12 +731,12 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
-            waffle.WaitingTimer = unchecked((short)words.B);
+            waffle.WaitingTimer = TrueDuration(words.B);
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Polyp && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Action = PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
-            polyp.CooldownTimer = unchecked((short)words.B);
+            polyp.CooldownTimer = TrueDuration(words.B);
         }
         // The halves reuse the same words for different values, each half into its own state (#1845).
         if (enemy.DefinitionId == EnemyDefinitionId.Powamp && enemy.SpeciesState<PowampBalloonState>() is { } powampBalloon)
@@ -814,7 +817,6 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
         {
-            fly.RetreatTimer = unchecked((short)words.A);
             fly.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             fly.TargetY = words.D;
             // The phase word is an even byte offset into the 256-entry table, nine bits wide.
@@ -822,15 +824,18 @@ internal static class NativeEnemyFamilyStateImport
                 ? RotationAngle.FromSteps(checked((byte)(Index(words.E, 510, "fly phase") / 2)))
                 : throw new InvalidDataException($"Recorded fly phase ${words.E:X4} is odd.");
             fly.Action = FliesNativeWords.FlyActions.Decode(words.F, "recorded FlyAction");
+            // The word counts the dive up and its retreat down past zero; the port's retreat holds its true duration.
+            fly.RetreatTimer = fly.Action == FlyAction.Retreat ? TrueDuration(words.A) : unchecked((short)words.A);
         }
         if (enemies.DragonStates[index] is { } dragon)
         {
             // Only the direction word's sign bit, the facing, is ever read.
             dragon.FacingLeft = (words.A & 0x8000) != 0;
             // One record word serves the motion timer and the shot counter in turn; whichever phase is current reads it.
-            dragon.ActionTimer = unchecked((short)words.D);
-            dragon.AttackCounter = unchecked((short)words.D);
             dragon.Action = DragonNativeWords.DragonActions.Decode(words.F, "recorded DragonAction");
+            // The wait before sinking runs out at zero in the cartridge too; its other waits run past zero.
+            dragon.ActionTimer = dragon.Action == DragonAction.WaitToSink ? unchecked((short)words.D) : TrueDuration(words.D);
+            dragon.AttackCounter = unchecked((short)words.D);
         }
         if (enemies.ElevatorStates[index] is { } elevator)
             elevator.RestingY = words.A;
@@ -889,7 +894,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.PuyoStates[index] is { } puyo)
         {
             puyo.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(Index(words.A, short.MaxValue, "Puyo speed index"));
-            puyo.HopCooldownTimer = unchecked((short)words.B);
+            puyo.HopCooldownTimer = TrueDuration(words.B);
             puyo.Action = PuyoNativeWords.PuyoActions.Decode(words.C, "recorded PuyoAction");
             // A Puyo that has not hopped yet records no airborne behaviour; the port chooses one as each hop starts, so a
             // grounded Puyo's is not read before its next hop writes it.
@@ -1003,6 +1008,13 @@ internal static class NativeEnemyFamilyStateImport
         -4 => HorizontalDirection.Left,
         _ => throw new InvalidDataException($"Recorded Fake Kraid {meaning} ${word:X4} is neither four pixels right nor left."),
     };
+
+    /// <summary>
+    /// A cartridge countdown that runs out on the step that takes it below zero, as the port's true duration (#2281): the
+    /// updates it has left, the one it runs out on included. A count the cartridge already ran below zero has none left.
+    /// </summary>
+    /// <param name="word">The recorded countdown, read as signed.</param>
+    private static int TrueDuration(ushort word) => Math.Max(0, unchecked((short)word) + 1);
 
     /// <summary>Decodes a recorded enemy byte offset into the slot it names.</summary>
     /// <param name="word">The recorded byte offset, the start of an enemy record.</param>

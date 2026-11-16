@@ -109,7 +109,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
         state.BobbingSpeed = settings.Speed;
         state.DirectionChangePeriod = settings.DirectionChangePeriod;
-        state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance);
+        state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate;
         state.MovingDown = false;
         state.ShowsSpawnAnimation = true;
     }
@@ -175,11 +175,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.AdvanceY(state.MovingDown ? state.BobbingSpeed : -state.BobbingSpeed);
 
-        // The countdown expires through zero, so zero expires immediately into -1. Every later reset uses the
-        // whole authored direction-change period, whatever first half-cycle initialization's aliasing bug chose.
-        if (--state.MovementTimer < 0)
+        // Every later half-cycle lasts the whole authored direction-change period and the update it turns on, whatever
+        // first half-cycle initialization's aliasing bug chose.
+        if (--state.MovementTimer <= 0)
         {
-            state.MovementTimer = state.DirectionChangePeriod;
+            state.MovementTimer = state.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
             state.MovingDown = !state.MovingDown;
         }
     }

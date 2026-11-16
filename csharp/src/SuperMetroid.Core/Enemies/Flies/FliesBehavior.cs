@@ -56,7 +56,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case FlyAction.Retreat:
                 MoveFlyAccordingToVelocities(place, state);
-                if (--state.RetreatTimer < 0)
+                if (--state.RetreatTimer <= 0)
                 {
                     state.RetreatTimer = FlyMotionDefinitions.AttackCooldown;
                     state.Action = FlyAction.ClockwiseCircle;
@@ -122,6 +122,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Velocity = state.Velocity.ReversedY();
+        state.RetreatTimer += FlyMotionDefinitions.RetreatBeyondDive;
         state.Action = FlyAction.Retreat;
     }
 

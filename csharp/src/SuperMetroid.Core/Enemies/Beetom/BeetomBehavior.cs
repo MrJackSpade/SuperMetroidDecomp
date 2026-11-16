@@ -146,7 +146,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = BeetomAction.BeingFlung;
                 return;
             case BeetomAction.Idling:
-                if (--state.ActionTimer < 0)
+                if (--state.ActionTimer <= 0)
                     state.Action = BeetomAction.DecideAction;
                 return;
             case BeetomAction.CrawlingLeft:
@@ -287,7 +287,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Probes eight pixels ahead for a ledge, then crawls or reverses at terrain.</summary>
     private void RunBeetomCrawl(RoomEnemyPlace place, BeetomEnemyState state, RoomLevelData level, HorizontalDirection direction)
     {
-        if (--state.ActionTimer < 0)
+        if (--state.ActionTimer <= 0)
         {
             state.ActionTimer = BeetomMotionDefinitions.CrawlDuration;
             state.Action = BeetomAction.DecideAction;

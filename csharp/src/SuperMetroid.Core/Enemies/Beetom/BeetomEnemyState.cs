@@ -35,7 +35,10 @@ public sealed class BeetomEnemyState
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
     /// <summary>The per-update behaviour, including separate decision and setup updates.</summary>
     public BeetomAction Action { get; internal set; }
-    /// <summary>Idle/crawl countdown in gameplay updates; it expires when a step takes it below zero, not on reaching zero.</summary>
+    /// <summary>
+    /// The updates left in the idle or crawl, the one it runs out on included: a step that takes it to zero ends the idle or
+    /// crawl, and one at zero ends it on its next step (#2281).
+    /// </summary>
     public int ActionTimer { get; internal set; }
     /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
     public int ButtonCounter { get; internal set; }

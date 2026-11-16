@@ -16,35 +16,12 @@ namespace SuperMetroid.Core.World;
 [RoomLifetime]
 internal sealed class RoomObjectPopulationLoader
 {
-    /// <summary>Handles the Bomb Torizo hand's boss-state setup.</summary>
-    private readonly BombTorizoHandObjects _bombTorizoHand;
-    /// <summary>Sets up permanent items and their dynamic graphics.</summary>
-    private readonly CollectibleObjects _collectibleObjects;
-    /// <summary>Sets up eye-door objects once they have taken their room-object places.</summary>
-    private readonly EyeDoorObjects _eyeDoors;
-    /// <summary>Sets up downward gates and their collision changes.</summary>
-    private readonly GateObjects _gates;
-    /// <summary>Initializes the Mother Brain glass room object.</summary>
-    private readonly MotherBrainGlassObjects _motherBrainGlass;
-    /// <summary>The room's places, which population and runtime spawns take in update order.</summary>
-    private readonly RoomObjectPlaceList _places;
-    /// <summary>Sets up Maridia's glass tube.</summary>
-    private readonly NoobTubeObjects _noobTube;
-    /// <summary>Initializes the Speed Booster escape object when its definition appears.</summary>
-    private readonly SpeedBoosterEscapeObjects _speedBoosterEscape;
+    /// <summary>The room-object families whose setups keep state of their own, and the room's places.</summary>
+    private readonly RoomObjectPopulationLoaderDependencies _families;
 
     /// <summary>Connects setup-family services and the room's places for one room-object system.</summary>
-    internal RoomObjectPopulationLoader(RoomObjectPopulationLoaderDependencies dependencies)
-    {
-        _bombTorizoHand = dependencies.BombTorizoHand;
-        _collectibleObjects = dependencies.CollectibleObjects;
-        _eyeDoors = dependencies.EyeDoors;
-        _gates = dependencies.Gates;
-        _motherBrainGlass = dependencies.MotherBrainGlass;
-        _places = dependencies.Places;
-        _speedBoosterEscape = dependencies.SpeedBoosterEscape;
-        _noobTube = dependencies.NoobTube;
-    }
+    internal RoomObjectPopulationLoader(RoomObjectPopulationLoaderDependencies dependencies) =>
+        _families = Ensure.NotNull(dependencies);
     /// <summary>
     /// Places one room-object population exactly once, in its placements' order. Each
     /// placement takes its place before its setup runs, as the game's room-object spawn
@@ -64,7 +41,8 @@ internal sealed class RoomObjectPopulationLoader
         {
             RoomObjectPlacement placement = population.Placements.Span[placementIndex];
             RoomObjectKind objectKind = placement.Kind;
-            if (DraygonCannonObjects.IsDraygonCannonKind(objectKind) != placement.Cannon.HasValue)
+            RoomObjectSetup setup = RoomObjectSetups.Of(objectKind);
+            if (setup is RoomObjectSetup.DraygonCannon != placement.Cannon.HasValue)
                 throw new InvalidDataException(
                     $"Room-object population {population.Name} placement {placementIndex} ({objectKind}) must name the Draygon wall cannon it controls exactly when it is a Draygon cannon.");
             var placed = new PlacedRoomObject(
@@ -96,155 +74,25 @@ internal sealed class RoomObjectPopulationLoader
             if (place is null)
                 continue; // No room object spawns while all forty places are held.
 
-            if (!TryRunRoomPopulationSetup(room, services.Bosses, placed, place, placement))
+            // The placement's kind names its family's setup, which runs with what the placement gave the object (#2091, #2288).
+            setup.SetUp(new RoomObjectSetupContext
             {
-                // Do not leave the preallocated but unsupported actor resident. The load is
-                // intentionally loud and includes every value needed to locate the exact authored
-                // record without relying on a room-name special case.
-                place.Delete();
-                throw new NotSupportedException(
-                    $"Room-object population {population.Name} placement {placementIndex} " +
-                    $"uses unsupported room-object kind " +
-                    $"{objectKind} at block ({placed.Block.X},{placed.Block.Y}) " +
-                    $"with argument {placed.Argument}.");
-            }
+                Room = room,
+                Bosses = services.Bosses,
+                Place = place,
+                Placement = placement,
+                Families = _families,
+            });
         }
     }
 
     /// <summary>Claims the highest free place, which resets whatever it held, and installs the record's block before setup runs.</summary>
     private RoomObjectPlace? AllocateRoomPopulationPlace(Position16<RoomBlocks> block)
     {
-        if (_places.Spawn() is not { } place)
+        if (_families.Places.Spawn() is not { } place)
             return null;
 
         place.Block = block;
         return place;
-    }
-
-    /// <summary>
-    /// Hands room-population definitions to their family setup, with what the placement gave the object (#2091); returns
-    /// false for an unsupported definition so loading can fail with record context.
-    /// </summary>
-    private bool TryRunRoomPopulationSetup(
-        RoomObjectRoom room,
-        IAreaBossFlagReader bosses,
-        PlacedRoomObject placed,
-        RoomObjectPlace place,
-        RoomObjectPlacement placement)
-    {
-        RoomLevelData level = room.Level;
-        SharedGameState system = room.System;
-        AreaId area = room.Area;
-        RoomObjectKind objectKind = placed.Kind;
-        if (DoorObjects.TryIdentifyColoredDoor(
-                objectKind,
-                out ColoredDoorColor color,
-                out ColoredDoorOrientation coloredOrientation))
-        {
-            DoorObjects.SetupColoredDoor(level, place, color, coloredOrientation, placed.Argument as LockedDoorArgument);
-            return true;
-        }
-
-        if (GreyDoorObjects.TryIdentifyGreyDoor(objectKind, out ColoredDoorOrientation greyOrientation))
-        {
-            GreyDoorObjects.SetupGreyDoor(level, place,
-                new GreyDoorVariant(greyOrientation, BombTorizo: objectKind == RoomObjectKind.BombTorizoGreyDoor),
-                placed.Argument as GreyDoorArgument);
-            return true;
-        }
-
-        if (objectKind is RoomObjectKind.ScrollTrigger or
-            RoomObjectKind.RightwardsScrollExtension or
-            RoomObjectKind.LeftwardsScrollExtension or
-            RoomObjectKind.DownwardsScrollExtension or
-            RoomObjectKind.UpwardsScrollExtension)
-        {
-            ScrollObjects.SetupScroll(level, place, objectKind, placement.ScrollChange, placement.CompiledScrollChange);
-            return true;
-        }
-
-        if (CollectibleObjects.TryIdentifyPermanentCollectible(
-                objectKind,
-                out InWorldCollectibleKind kind,
-                out CollectiblePresentation presentation))
-        {
-            _collectibleObjects.SetupCollectible(room, place, kind, presentation, placed.Argument as CollectedItemArgument);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.MotherBrainGlass)
-        {
-            _motherBrainGlass.SetupMotherBrainGlass(level, place);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.BombTorizoHand)
-        {
-            _bombTorizoHand.SetupBombTorizoHand(place, bosses);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.MetroidRoomClearance)
-        {
-            TourianObjects.SetupMetroidsCleared(place, placed.Argument as MetroidRoomArgument);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.SpeedBoosterEscape)
-        {
-            _speedBoosterEscape.SetupSpeedBoosterEscape(place);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.WreckedShipAttic)
-        {
-            // The no-op setup changes nothing. Keeping an explicit branch matters: the object must still hold its
-            // place instead of being mistaken for an unknown definition.
-            place.Become(new WreckedShipAtticObject());
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.NoobTube)
-        {
-            _noobTube.SetupNoobTube(level, place);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.MotherBrainEscapeRoomGate)
-        {
-            DoorObjects.SetupPassableBlock(level, place);
-            place.Become(new MotherBrainEscapeGateObject(MotherBrainEscapeGateDefinitions.Shut));
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.DownwardGate)
-        {
-            _gates.SetupDownwardGate(level, place);
-            return true;
-        }
-
-        if (objectKind == RoomObjectKind.DownwardGateShotBlock)
-        {
-            GateObjects.SetupDownwardGateShotBlock(level, place, placed.Argument as GateTriggerArgument);
-            return true;
-        }
-
-        if (EyeDoorObjects.IsEyeDoorKind(objectKind))
-        {
-            _eyeDoors.SetupEyeDoor(level, place, objectKind, placed.Argument as LockedDoorArgument);
-            return true;
-        }
-
-        if (DraygonCannonObjects.SetupOf(objectKind) is { } cannonSetup)
-        {
-            DraygonCannonObjects.SetupDraygonCannon(level, place, cannonSetup, placement.Cannon
-                ?? throw new InvalidDataException($"Draygon cannon placement {objectKind} names no Draygon wall cannon."));
-            return true;
-        }
-
-        if (StationObjects.TrySetupStationOrElevator(level, system, area, place, objectKind, placed.Argument as SaveStationArgument))
-            return true;
-
-        return false;
     }
 }

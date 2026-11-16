@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
 using System.Collections.Immutable;
@@ -531,9 +532,12 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The Tourian statue sequence's operations.</summary>
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
 
-    /// <summary>The enemies' colour effect glows and flashes the room's colour effects show.</summary>
-    internal IEnemyColourEffectShows ColourEffectShows => field ??= new EnemyColourEffectShows(TourianEntranceStatueBehavior,
-        Places);
+    /// <summary>
+    /// Shows <paramref name="frame"/> of the escape's shutter flash on the destroyable shutters the room holds, and on
+    /// nothing once both are destroyed (#1512, #2288). Mother Brain's exploded door's fragments are pre-coloured in their
+    /// own colours and do not show it (#1544).
+    /// </summary>
+    internal void ShowEscapeShutterFlash(ColourEffectFrame frame) => ShuttersBehavior.ShowEscapeShutterFlash(Places.InUpdateOrder, frame);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
     internal IEnemyDisplaySources DisplaySources => this;

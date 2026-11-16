@@ -1,10 +1,11 @@
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// The enemy whose placement started a glow among the room's colour effects (#1733), which shows every frame of that glow on
-/// its own draws: the gunship, whose lights glow. The enemy hands itself to the glow it starts, and the glow keeps it for as
-/// long as the room's colour effects run the glow (#1783): the glow lives until the room's colour effects are cleared, as
-/// the original's does, and each of its frames reaches the enemy that started it, never whichever enemies the room holds then.
+/// The enemy a colour effect among the room's colour effects shows on (#1733, #2288), which shows every frame of that effect
+/// on its own draws: the gunship, whose lights glow, a Torizo, whose belly glows, and the entrance statue's Ridley and
+/// Phantoon statues, which grey out. Whatever starts the effect hands it the enemy, and the effect keeps it for as long as
+/// the room's colour effects run it (#1783): each of its frames reaches that enemy, never whichever enemies the room holds
+/// then.
 /// </summary>
 public interface IGlowingEnemy
 {

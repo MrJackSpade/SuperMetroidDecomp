@@ -651,10 +651,11 @@ internal sealed class SuperMetroidRuntime
             // Her heat glow and her suit's loading show over her suit as the frames that wrote it (#1512).
             foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.SuitShown)
                 Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
-            // The enemies' groups show over their owners' own colours as the frames that wrote them (#1512).
-            foreach ((ColourEffectColours colours, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.EnemyShown)
-                Room.LoadedScope.Enemies.ColourEffectShows.Show(colours, frame);
-            // An enemy's own glow shows on the enemy that started it, for as long as the room's colour effects run it (#1783).
+            // The escape's shutter flash shows on the room's destroyable shutters as the frames that wrote it (#1512).
+            foreach (ColourEffectFrame frame in Room.LoadedScope.ColourEffects.ShutterFlashShown)
+                Room.LoadedScope.Enemies.ShowEscapeShutterFlash(frame);
+            // An effect an enemy shows shows on the enemy its start handed it, for as long as the room's colour effects run
+            // it (#1783, #2288).
             foreach ((IGlowingEnemy enemy, ColourEffectFrame frame) in Room.LoadedScope.ColourEffects.GlowsShown)
                 enemy.ShowGlow(frame);
         }

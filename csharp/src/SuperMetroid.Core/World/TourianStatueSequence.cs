@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.World;
 
@@ -237,7 +238,7 @@ public sealed class TourianStatueSequence
                     statue.SpawnSoul(definition.Eye);
                     return null;
                 case TourianStatueBlockCueKind.SpawnGreyColourEffect:
-                    _roomColourEffects.Start(definition.ColourEffect, _player.IntroducedSamus.EquippedItems);
+                    StartGreyOut(definition, statue);
                     return null;
                 case TourianStatueBlockCueKind.SetGreyEvent:
                     _system.SetEvent(definition.GreyEvent);
@@ -251,6 +252,26 @@ public sealed class TourianStatueSequence
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueBlockCueKind)} {cue.Kind}.");
+            }
+        }
+
+        // A statue drawn in the room's background greys out on the room's pictures; a sprite statue greys out on its sprite,
+        // which the grey-out hands its frames to (#2288).
+        void StartGreyOut(TourianStatueAnimationDefinition definition, ITourianStatueActors statue)
+        {
+            SamusEquipmentFlags equipped = _player.IntroducedSamus.EquippedItems;
+            switch (definition.GreyOutSite)
+            {
+                case TourianStatueGreyOutSite.RoomBackground:
+                    _roomColourEffects.Start(definition.ColourEffect, equipped);
+                    return;
+                case TourianStatueGreyOutSite.EntranceStatue:
+                    _roomColourEffects.StartShownOn(definition.ColourEffect,
+                        statue.SpriteStatueGreyOut(ColourEffectAnimations.Definition(definition.ColourEffect).Colours), equipped);
+                    return;
+                default:
+                    throw new InvalidOperationException(
+                        $"Tourian statue {definition.Statue} greys out at undefined {nameof(TourianStatueGreyOutSite)} {definition.GreyOutSite}.");
             }
         }
 

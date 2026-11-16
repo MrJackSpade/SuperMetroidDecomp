@@ -2,6 +2,8 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx.ColourEffects;
+using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.World;
@@ -32,14 +34,16 @@ internal static class TorizoOwnershipVerification
     }
 
     /// <summary>
-    /// The glow shows on the Torizo that lit it, in whichever place it stands (#2240), and never through the room's enemies.
+    /// The glow shows on the Torizo that lit it, in whichever place it stands (#2240), and never starts without the Torizo
+    /// that shows it (#2288).
     /// </summary>
     private static void VerifyBellyGlowShowsOnItsTorizo()
     {
         RoomEnemySystem enemies = NewEnemies();
         var frame = new ColourEffectFrame(ColourEffectId.BombTorizoBelly, 0);
-        AssertThrows<InvalidOperationException>(() => enemies.ColourEffectShows.Show(ColourEffectColours.TorizoBelly, frame),
-            "the room's enemies show no belly glow");
+        AssertThrows<InvalidOperationException>(
+            () => new ColourEffectSystem(new ColourEffectSessionState()).Start(ColourEffectId.BombTorizoBelly, SamusEquipmentFlags.None),
+            "the belly glow never starts without the Torizo that shows it");
         RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[3];
         TorizoEnemyState state = torizo.BindTorizoFixtureState(0);
         TorizoBody.LoadTorizoBodyColours(torizo, state, new TorizoLook(TorizoLookKind.Normal));

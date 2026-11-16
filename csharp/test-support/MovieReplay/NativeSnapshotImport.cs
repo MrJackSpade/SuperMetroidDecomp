@@ -125,12 +125,16 @@ internal static class NativeSnapshotImport
                 ? runtime.Enemies.Places.InUpdateOrder.Select(enemy => enemy.Entity).OfType<TorizoEntity>().SingleOrDefault()
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
-            // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783).
+            // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783), a
+            // Torizo's belly glow on the Torizo it lights (#2240), and a sprite statue's grey-out on the entrance statue's
+            // statue it greys (#2288).
             IGlowingEnemy? glowingEnemy = effect == ColourEffectId.GunshipGlow
                 ? runtime.Enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>())
                     .OfType<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>().SingleOrDefault()
                     ?? throw new InvalidDataException("The native snapshot runs the gunship's glow in a room with no gunship.")
-                : null;
+                : effect is ColourEffectId.GreyOutTourianStatueRidley or ColourEffectId.GreyOutTourianStatuePhantoon
+                    ? runtime.Enemies.TourianStatue.SpriteStatueGreyOut(ColourEffectAnimations.Definition(effect).Colours)
+                    : litTorizo;
             var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo, glowingEnemy)
             {
                 Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectId>(resumed.Animation, resumed.Place),
@@ -447,8 +451,11 @@ internal static class NativeSnapshotImport
                 continue;
             if (ColourEffectSamusColourDefinitions.SuitColours.Contains(colours))
                 runtime.Player.Colours.LayOverSuit(ColourEffectShades.Of(colours, frame));
+            else if (colours == ColourEffectEnemyColourDefinitions.EscapeShutterColours)
+                runtime.Enemies.ShowEscapeShutterFlash(frame);
             else if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(colours))
-                runtime.Enemies.ColourEffectShows.Show(colours, frame);
+                (effect.GlowingEnemy ?? throw new InvalidOperationException(
+                    $"Imported colour effect {effect.Effect} shows on an enemy but holds none.")).ShowGlow(frame);
             else
                 throw new InvalidOperationException($"Imported colour effect {effect.Effect} showed {colours}, which no gameplay picture shows.");
         }

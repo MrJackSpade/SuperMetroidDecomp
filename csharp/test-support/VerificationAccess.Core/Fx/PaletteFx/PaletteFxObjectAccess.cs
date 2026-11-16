@@ -89,9 +89,18 @@ internal static class PaletteFxObjectAccess
     /// <summary>Starting and querying effects by definition address.</summary>
     extension(ColourEffectSystem self)
     {
-        /// <summary>Starts the effect whose definition is at <paramref name="definition"/>.</summary>
-        internal void Start(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false) =>
-            self.Start(FromNative(definition), equippedItems, areaMiniBossDefeated);
+        /// <summary>
+        /// Starts the effect whose definition is at <paramref name="definition"/>: an effect an enemy shows on an enemy that
+        /// shows nothing, since the oracles read each frame from the colour effects themselves (#2288); every other plainly.
+        /// </summary>
+        internal void Start(ushort definition, SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated = false)
+        {
+            ColourEffectId effect = FromNative(definition);
+            if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(ColourEffectAnimations.Definition(effect).Colours))
+                self.StartShownOn(effect, UnwatchedEnemy.Instance, equippedItems);
+            else
+                self.Start(effect, equippedItems, areaMiniBossDefeated);
+        }
 
         /// <summary>Starts the frontend screen's effect whose definition is at <paramref name="definition"/> (#2223).</summary>
         internal void StartScreen(ushort definition) => self.StartScreen(FromNative(definition));

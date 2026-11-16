@@ -263,7 +263,7 @@ internal sealed class MotherBrainFakeDeath
                 $"{population.DefinitionId}, not the falling tube.");
         }
 
-        // SpawnEnemy silently fails when all 32 enemy places are occupied.
+        // A spawn quietly does nothing when all 32 enemy places are occupied.
         // Each tube holds the encounter that spawned it from its setup (#2218).
         _ = _lifecycle.SpawnEnemyJoining(population, state);
     }

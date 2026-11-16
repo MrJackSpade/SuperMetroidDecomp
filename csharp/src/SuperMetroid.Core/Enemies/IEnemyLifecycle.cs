@@ -16,16 +16,10 @@ internal interface IEnemyLifecycle
     void RunInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings);
 
     /// <summary>
-    /// Installs <paramref name="population"/> in the first free place, runs its
-    /// initialization AI, starts its animation when it runs one and extends the live enemy range.
+    /// Installs <paramref name="population"/> in the first free place, giving the new occupant <paramref name="encounter"/>,
+    /// the encounter it joins, as its species state before its initialization runs, so it holds the encounter from its setup
+    /// (#2218); then runs its initialization AI, starts its animation when it runs one and extends the live enemy range.
     /// Returns null without spawning when every place is occupied.
-    /// </summary>
-    RoomEnemyPlace? SpawnEnemy(RoomEnemyPlacement population);
-
-    /// <summary>
-    /// Spawns <paramref name="population"/> as <see cref="SpawnEnemy"/> does, giving the new occupant
-    /// <paramref name="encounter"/>, the encounter it joins, as its species state before its initialization runs, so it
-    /// holds the encounter from its setup (#2218). Returns null without spawning when every place is occupied.
     /// </summary>
     /// <typeparam name="TEncounter">The encounter's type, under which the occupant finds it.</typeparam>
     RoomEnemyPlace? SpawnEnemyJoining<TEncounter>(RoomEnemyPlacement population, TEncounter encounter) where TEncounter : class;

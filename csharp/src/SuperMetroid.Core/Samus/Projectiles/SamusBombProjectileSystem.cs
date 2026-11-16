@@ -519,7 +519,7 @@ public sealed class SamusBombProjectileSystem
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunches.ForPlace(place);
             bomb.BombTimer = WrappingCountdown.Start(launch.FuseTimer);
-            bomb.BombSpreadHorizontal = launch.XVelocity;
+            bomb.BombSpreadHorizontalVelocity = launch.XVelocity;
             // The held charge adds up to three whole pixels of upward launch speed.
             bomb.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
                 -(launch.YSpeed.Whole + verticalModifier), launch.YSpeed.Fraction);
@@ -721,14 +721,13 @@ public sealed class SamusBombProjectileSystem
 
         int previousX = bomb.Position.X.Whole;
         int previousXSub = bomb.Position.X.Fraction;
-        // Rightward travel adds the speed with the fraction carrying into the whole pixels; leftward travel subtracts
-        // it, borrowing from them. Both wrap after 65535 whole pixels, the signed 1/65536-pixel value's wrapping addition.
-        bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontal.Displacement);
+        // The velocity moves the bomb with the fraction carrying into, or borrowing from, the whole pixels.
+        bomb.Position = bomb.Position.AdvanceX(bomb.BombSpreadHorizontalVelocity);
         if (!BombSpreadCollides(level, bomb))
             return;
 
         bomb.Position = bomb.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        bomb.BombSpreadHorizontal = bomb.BombSpreadHorizontal.Reversed();
+        bomb.BombSpreadHorizontalVelocity = -bomb.BombSpreadHorizontalVelocity;
     }
 
     /// <summary>Tests the bomb center against room bounds, extension parents, solid blocks and the game's non-square slope heights.</summary>

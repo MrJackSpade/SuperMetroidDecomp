@@ -634,9 +634,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The detached wing's speed along its orbit each update: its curve mark's coarse speed in the direction it turns,
-    /// in 256ths of a pixel, 0 through 65535. The orbit turns a 256th of a step for each 256th of a pixel of it, so its
-    /// whole pixels turn whole steps; a speed toward decreasing coordinates is the speed's value continued around the
-    /// turn, so it turns the orbit back.
+    /// in 256ths of a pixel. The orbit turns a 256th of a step for each 256th of a pixel of it, so its whole pixels turn
+    /// whole steps; a speed toward decreasing coordinates is negative and turns the orbit back.
     /// </summary>
     internal static int DetachedWingCoarseSpeed(QuadraticSpeedCurvePlace place, EnemySpeedSign sign)
     {

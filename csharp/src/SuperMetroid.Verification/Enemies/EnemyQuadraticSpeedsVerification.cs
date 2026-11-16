@@ -23,7 +23,7 @@ internal static class EnemyQuadraticSpeedsVerification
             AssertEqual(EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row), speeds, "quadratic speed row");
             AssertEqual(EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, row), speeds, "quadratic projectile copy row");
             foreach (EnemySpeedSign sign in signs)
-                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), speeds.CoarseToward(sign), "quadratic coarse speed");
+                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), (int)unchecked((ushort)speeds.CoarseToward(sign)), "quadratic coarse speed");
         }
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");
@@ -97,7 +97,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         for (int low = 0; low < 256; low++)
         foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(index * 256 + low), sign),
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), (int)unchecked((ushort)wings(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(index * 256 + low), sign)),
                 "KiHunter high-byte index and coarse wing orbit speed");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);

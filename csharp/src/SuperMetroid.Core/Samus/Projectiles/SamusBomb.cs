@@ -62,8 +62,8 @@ public sealed class SamusBomb
     /// <summary>Whether the bomb is one of a bomb spread's five.</summary>
     public bool IsBombSpread { get; internal set; }
 
-    /// <summary>The spread bomb's horizontal travel; a wall reverses its direction.</summary>
-    public BombSpreadHorizontalVelocity BombSpreadHorizontal { get; internal set; }
+    /// <summary>The spread bomb's horizontal velocity, negative leftward; a wall reverses it.</summary>
+    public SignedSixteenSixteen BombSpreadHorizontalVelocity { get; internal set; }
 
     /// <summary>The spread bomb's signed 1/65536-pixel vertical velocity; Samus's gravity accelerates it every frame.</summary>
     public SignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
@@ -95,7 +95,7 @@ public sealed class SamusBomb
         Radius = Extent16<RoomPixels>.Zero;
         BombTimer = WrappingCountdown.Start(0);
         IsBombSpread = false;
-        BombSpreadHorizontal = default;
+        BombSpreadHorizontalVelocity = SignedSixteenSixteen.Zero;
         BombSpreadVerticalVelocity = SignedSixteenSixteen.Zero;
         BombSpreadLaunchVelocity = SignedSixteenSixteen.Zero;
     }

@@ -806,7 +806,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     // negative bounce velocity rather than freezing or reusing generic Samus collision.
     SamusBomb bouncingSpread = spreadBombs.Bombs[2];
     bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
-    bouncingSpread.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(0);
+    bouncingSpread.BombSpreadHorizontalVelocity = SignedSixteenSixteen.Zero;
     bouncingSpread.BombSpreadVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
     bouncingSpread.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(-2, 0x8000);
     spreadBombs.StepFrame(new SamusTerrain { Level = floor, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, 0, 0);

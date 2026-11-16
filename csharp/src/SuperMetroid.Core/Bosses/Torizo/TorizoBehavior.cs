@@ -195,7 +195,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces Torizo's posture, keeping the rest of its state.</summary>
-    private static void SetPosture(RoomEnemyPlace torizo, TorizoPostureFlags posture) =>
+    private static void SetPosture(RoomEnemyPlace torizo, TorizoPosture posture) =>
         torizo.RequireSpeciesState<TorizoEnemyState>().Posture = posture;
 
     /// <summary>Clears <paramref name="flags"/>.</summary>
@@ -379,21 +379,17 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.SetTurningAround }:
-                SetPosture(torizo, TorizoFacing.Posture(torizo) | TorizoPostureFlags.TurningAround);
+                SetPosture(torizo, TorizoFacing.Posture(torizo).TurningAround);
                 return null;
 
             case TorizoCue.Stepped stepped:
-                // The step replaces all three posture latches: the way it faces, and which leg leads.
-                SetPosture(torizo, TorizoFacing.AfterStep(stepped.Direction, stepped.Foot));
+                // The step replaces the whole posture: the way it faces, the foot it leads with, and any turn.
+                SetPosture(torizo, TorizoPosture.AfterStep(stepped.Direction, stepped.Foot));
                 state.CountDecisionStep();
                 return null;
 
-            case TorizoCue.Posture { Kind: TorizoPostureKind.StandUp } posture:
-                ApplyTorizoPosture(torizo, posture.Displacement, move: TorizoPostureMove.StandUp);
-                return null;
-
-            case TorizoCue.Posture { Kind: TorizoPostureKind.SitDown } posture:
-                ApplyTorizoPosture(torizo, posture.Displacement, move: TorizoPostureMove.SitDown);
+            case TorizoCue.Posture posture:
+                ApplyTorizoPosture(torizo, posture.Displacement, posture.Kind);
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
@@ -594,8 +590,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyTorizoPosture(
         RoomEnemyPlace torizo,
         Offset16<RoomPixels> displacement,
-        TorizoPostureMove move) =>
-        torizo.Position += move == TorizoPostureMove.SitDown ? -displacement : displacement;
+        TorizoPostureKind kind) =>
+        torizo.Position += kind == TorizoPostureKind.SitDown ? -displacement : displacement;
 
     /// <summary>Queues the Torizo's music change as the Torizo makes it, after the update's earlier music requests.</summary>
     private void RequestTorizoMusic(MusicRequest request) =>

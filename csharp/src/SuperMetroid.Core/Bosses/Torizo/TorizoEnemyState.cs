@@ -15,8 +15,8 @@ public sealed class TorizoEnemyState
         IsGolden = isGolden;
     }
 
-    /// <summary>Which way Torizo faces, which leg is forward and whether it is turning around.</summary>
-    internal TorizoPostureFlags Posture { get; set; }
+    /// <summary>Which way Torizo faces, which foot leads and whether it is turning around (#2237).</summary>
+    internal TorizoPosture Posture { get; set; }
 
     /// <summary>The behaviour latches: a caught Super Missile, a stun, and Bomb Torizo's blown-up face and gut.</summary>
     internal TorizoBehaviorFlags Behavior { get; set; }

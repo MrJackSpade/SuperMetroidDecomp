@@ -319,7 +319,7 @@ internal sealed class TorizoAttacks
                 TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
             // Every branch stores a zero X velocity.
             int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
-            projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
+            projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo).IsTurning
                 ? jitteredX
                 : TorizoFacing.FacesRight(torizo)
                     ? jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset
@@ -332,7 +332,7 @@ internal sealed class TorizoAttacks
 
         // The recurring low-health drool launches in a random direction: a turning Torizo's any of the turn's, a facing
         // one's spread about its facing's heading.
-        TrigonometryAngle heading = TorizoFacing.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
+        TrigonometryAngle heading = TorizoFacing.Posture(torizo).IsTurning
             ? new(TorizoRandomDefinitions.DroolTurningAngle.Of(random))
             : DroolHeading(TorizoFacing.FacesRight(torizo), TorizoRandomDefinitions.DroolFacingSpread.Of(random));
         projectile.Velocity = VelocityAlong(TorizoMotionDefinitions.DroolLaunchSpeed, heading);
@@ -520,12 +520,12 @@ internal sealed class TorizoAttacks
             SpriteGraphics.SpawnedBy(torizo));
 
         TorizoEnemyState state = torizo.RequireSpeciesState<TorizoEnemyState>();
-        projectile.State = new GoldenTorizoEggState(facingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight));
+        projectile.State = new GoldenTorizoEggState(facingRight: state.Posture.Facing == HorizontalDirection.Right);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,
             TorizoRandomizedProjectiles.GoldenEgg(
-                movingRight: state.Posture.HasFlag(TorizoPostureFlags.FacingRight)));
+                movingRight: state.Posture.Facing == HorizontalDirection.Right));
     }
 
     /// <summary>Attaches a caught super missile above the active hand and selects its facing-dependent animation.</summary>

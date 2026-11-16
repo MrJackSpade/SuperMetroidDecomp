@@ -9,8 +9,8 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 
 /// <summary>
 /// Checks Torizo's widened state: a stepping cue counts a decision step, the space-jump count wraps to zero past 65535
-/// (#1945), the animation lock follows its cues, the jump acceleration changes only the vertical velocity, and the
-/// posture and behaviour cues replace or add only the latches they name.
+/// (#1945), the animation lock follows its cues, and the posture and behaviour cues replace or add only what they name:
+/// a step the whole posture, the turning cue the turn alone (#2237).
 /// </summary>
 internal static class TorizoStateQuantitiesVerification
 {
@@ -44,17 +44,13 @@ internal static class TorizoStateQuantitiesVerification
         Apply(TorizoCueKind.UnlockAnimation);
         AssertTrue(!state.AnimationLocked, "the unlock cue unlocks the animation");
 
-        var jump = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-768, -16) + EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(0, 40);
-        AssertEqual(-768, jump.X.InTwoHundredFiftySixthsOfPixel, "the jump acceleration leaves the horizontal velocity unchanged");
-        AssertEqual(24, jump.Y.InTwoHundredFiftySixthsOfPixel, "the jump acceleration adds to the vertical velocity across zero");
-
-        state.Posture = TorizoPostureFlags.TurningAround;
+        state.Posture = TorizoPosture.Initial.TurningAround;
         ApplyCue(new TorizoCue.Stepped(HorizontalDirection.Right, Foot: HorizontalDirection.Left));
-        AssertEqual(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, state.Posture,
-            "a stepping cue replaces all three posture latches");
+        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left), state.Posture,
+            "a stepping cue replaces the whole posture: its facing, its leading foot and the turn");
         Apply(TorizoCueKind.SetTurningAround);
-        AssertEqual(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward | TorizoPostureFlags.TurningAround,
-            state.Posture, "the turning cue adds its posture latch alone");
+        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left).TurningAround,
+            state.Posture, "the turning cue sets the turn alone");
 
         state.Behavior = TorizoBehaviorFlags.Stunned | TorizoBehaviorFlags.FaceBlownUp;
         Apply(TorizoCueKind.UnmarkStunned);
@@ -62,7 +58,7 @@ internal static class TorizoStateQuantitiesVerification
         Apply(TorizoCueKind.MarkFaceBlownUp);
         AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "setting a held latch leaves the word unchanged");
 
-        Console.WriteLine("Torizo state quantities: decision count, space-jump count wrap, animation lock, jump acceleration and posture and behaviour latches pass.");
+        Console.WriteLine("Torizo state quantities: decision count, space-jump count wrap, animation lock, posture and behaviour latches pass.");
     }
 
     /// <summary>Runs Torizo's state quantity checks.</summary>

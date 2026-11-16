@@ -58,7 +58,7 @@ internal static class TorizoOwnershipVerification
         EnemyProjectile missile = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
 
         torizo.Position = torizo.Position.WithWhole(new(300, 350));
-        state.Posture = TorizoPostureFlags.FacingRight;
+        state.Posture = TorizoPosture.AfterStep(HorizontalDirection.Right, foot: HorizontalDirection.Right);
         enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
         AssertEqual(new Position16<RoomPixels>(300, 350) + TorizoProjectilePlacementDefinitions.HeldSuperMissile, missile.Position.Whole,
             "the held Super Missile stays at the hand of the Golden Torizo that caught it");

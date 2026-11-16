@@ -45,7 +45,7 @@ internal sealed class TorizoMovement
         var state = new TorizoEnemyState(isGolden)
         {
             // Every Torizo population entry starts it standing, with no behaviour latch set.
-            Posture = TorizoPostureFlags.None,
+            Posture = TorizoPosture.Initial,
             Behavior = TorizoBehaviorFlags.None,
         };
         torizo.SetSpeciesState(state);

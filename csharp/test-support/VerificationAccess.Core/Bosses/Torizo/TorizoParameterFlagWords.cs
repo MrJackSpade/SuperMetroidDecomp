@@ -13,13 +13,14 @@ internal static class TorizoParameterFlagWords
     /// <summary>One latch and the parameter-word bit that holds it.</summary>
     internal readonly record struct LatchBit<TFlags>(TFlags Flag, int Bit) where TFlags : struct, Enum;
 
-    /// <summary>Each posture latch's bit in parameter 1.</summary>
-    internal static readonly LatchBit<TorizoPostureFlags>[] PostureBits =
-    [
-        new(TorizoPostureFlags.OppositeLegForward, 1 << 13),
-        new(TorizoPostureFlags.TurningAround, 1 << 14),
-        new(TorizoPostureFlags.FacingRight, 1 << 15),
-    ];
+    /// <summary>The parameter-1 bit set when the Torizo leads with the foot away from its facing side.</summary>
+    internal const int FarFootLeadsBit = 1 << 13;
+
+    /// <summary>The parameter-1 bit set while the Torizo turns around.</summary>
+    internal const int TurningBit = 1 << 14;
+
+    /// <summary>The parameter-1 bit set while the Torizo faces right.</summary>
+    internal const int FacingRightBit = 1 << 15;
 
     /// <summary>Each behaviour latch's bit in parameter 2; its other bits name no behaviour.</summary>
     internal static readonly LatchBit<TorizoBehaviorFlags>[] BehaviorBits =
@@ -30,14 +31,12 @@ internal static class TorizoParameterFlagWords
         new(TorizoBehaviorFlags.GutBlownUp, 1 << 15),
     ];
 
-    /// <summary>The posture latches of an authored parameter-1 word.</summary>
-    internal static TorizoPostureFlags PostureOf(int parameterWord)
+    /// <summary>The posture of an authored parameter-1 word (#2237).</summary>
+    internal static TorizoPosture PostureOf(int parameterWord)
     {
-        TorizoPostureFlags posture = TorizoPostureFlags.None;
-        foreach ((TorizoPostureFlags flag, int bit) in PostureBits)
-            if ((parameterWord & bit) != 0)
-                posture |= flag;
-        return posture;
+        HorizontalDirection facing = (parameterWord & FacingRightBit) != 0 ? HorizontalDirection.Right : HorizontalDirection.Left;
+        HorizontalDirection farFoot = facing == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right;
+        return new TorizoPosture(facing, (parameterWord & FarFootLeadsBit) != 0 ? farFoot : facing) { IsTurning = (parameterWord & TurningBit) != 0 };
     }
 
     /// <summary>The low thirteen bits of an authored parameter-1 word.</summary>

@@ -35,7 +35,7 @@ internal static class BombTorizoMovementDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
-            TorizoBehavior.ApplyTorizoPosture(place, displacement, sitDown ? TorizoPostureMove.SitDown : TorizoPostureMove.StandUp);
+            TorizoBehavior.ApplyTorizoPosture(place, displacement, sitDown ? TorizoPostureKind.SitDown : TorizoPostureKind.StandUp);
             int sign = sitDown ? -1 : 1;
             AssertEqual(unchecked((ushort)(1000 + sign * displacement.X)), place.Position.X.Whole, $"Torizo posture X {displacement} sit {sitDown}");
             AssertEqual(unchecked((ushort)(500 + sign * displacement.Y)), place.Position.Y.Whole, $"Torizo posture Y {displacement} sit {sitDown}");

@@ -236,7 +236,7 @@ internal sealed class TorizoCombat
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
-                    enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
+                    enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.Posture(enemy).LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward

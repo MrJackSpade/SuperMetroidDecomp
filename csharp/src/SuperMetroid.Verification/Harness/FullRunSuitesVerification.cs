@@ -658,6 +658,8 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks()),
         new(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud()),
         new(nameof(VerifyDoorMusicTiming), () => VerifyDoorMusicTiming()),
+        new(nameof(SuperMetroid.Verification.Runtime.DoorFadeSamusLitVerification.VerifyDoorFadeKeepsSamusLit),
+            () => SuperMetroid.Verification.Runtime.DoorFadeSamusLitVerification.VerifyDoorFadeKeepsSamusLit()),
         new(nameof(VerifyDoorAlignmentParity), () => VerifyDoorAlignmentParity()),
         new(nameof(VerifyDoorOpeningTrajectories), () => VerifyDoorOpeningTrajectories()),
         new(nameof(VerifyCreditsObjectInterpreter), () => VerifyCreditsObjectInterpreter()),

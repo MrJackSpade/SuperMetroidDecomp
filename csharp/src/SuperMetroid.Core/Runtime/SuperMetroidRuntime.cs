@@ -200,6 +200,7 @@ internal sealed class SuperMetroidRuntime
         System = new SharedGameState(session.GameState.Random, session.GameState.EarthquakeSoundDelay, session.GameState.StoredExploredMaps);
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
+        DoorFade = new DoorFade(Player.Colours);
         Room = new ActiveRoomState();
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
@@ -387,7 +388,7 @@ internal sealed class SuperMetroidRuntime
     public ColourEffectSessionState ColourEffectSession { get; } = new();
 
     /// <summary>The colours a door's fades show, which the door transition steps (#1512).</summary>
-    internal DoorFade DoorFade { get; } = new();
+    internal DoorFade DoorFade { get; }
 
     /// <summary>
     /// The death fade and the time-up whiteout of the whole display, which their game states step (#1512), on the runtime's

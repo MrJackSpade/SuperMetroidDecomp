@@ -8,18 +8,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Effect">The fade's colour effect.</param>
 /// <param name="Spares">What the fade leaves in its own colours.</param>
-/// <param name="OverSamus">
-/// Samus's shades whose colours were written over the faded display, in the order written, which the fade leaves as
-/// they are; empty when none were.
+/// <param name="LitOnSamus">
+/// Samus's shades the fade keeps lit (#2093): their colours stay lit on her draws over the fade, in order, as a door's
+/// fade in keeps her beams and visor lit; empty for none.
 /// </param>
-public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, ImmutableArray<PictureShade> OverSamus = default)
+public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares Spares, ImmutableArray<PictureShade> LitOnSamus = default)
 {
-    /// <summary>Samus's shades written over the faded display, in the order written.</summary>
-    public ImmutableArray<PictureShade> OverSamus { get; } = OverSamus.IsDefault ? [] : OverSamus;
+    /// <summary>Samus's shades the fade keeps lit on her draws, in order.</summary>
+    public ImmutableArray<PictureShade> LitOnSamus { get; } = LitOnSamus.IsDefault ? [] : LitOnSamus;
 
-    /// <summary>Whether both fades show the same effect, spare the same pictures and leave the same shades of Samus's.</summary>
+    /// <summary>Whether both fades show the same effect, spare the same pictures and keep the same shades of Samus's lit.</summary>
     public bool Equals(GameplayDisplayFade? other) =>
-        other is not null && Effect == other.Effect && Spares == other.Spares && OverSamus.SequenceEqual(other.OverSamus);
+        other is not null && Effect == other.Effect && Spares == other.Spares && LitOnSamus.SequenceEqual(other.LitOnSamus);
 
     /// <summary>Hashes what <see cref="Equals(GameplayDisplayFade)"/> compares.</summary>
     public override int GetHashCode()
@@ -27,7 +27,7 @@ public sealed record GameplayDisplayFade(ColourEffect Effect, GameplayFadeSpares
         var hash = new HashCode();
         hash.Add(Effect);
         hash.Add(Spares);
-        foreach (PictureShade shade in OverSamus)
+        foreach (PictureShade shade in LitOnSamus)
             hash.Add(shade);
         return hash.ToHashCode();
     }

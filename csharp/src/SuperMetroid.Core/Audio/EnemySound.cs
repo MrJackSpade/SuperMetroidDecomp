@@ -130,8 +130,8 @@ public enum EnemySound
     DachoraStoredShinespark,
     /// <summary>An Owtch, Viola, Ripper, Tripper, suspensor platform, Yard, yapping maw or Atomic hit.</summary>
     ShotRipper,
-    /// <summary>An Alcoon spitting, Fake Kraid's lint, or a ninja pirate's spin jump.</summary>
-    AlcoonSpit,
+    /// <summary>A rushing whoosh (#2079): an Alcoon spitting fire, Fake Kraid's lint launching, a ninja pirate's spin jump.</summary>
+    Whoosh,
     /// <summary>A boulder bouncing.</summary>
     BoulderBounce,
     /// <summary>A boulder exploding.</summary>

@@ -3,13 +3,13 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>Botwoon's body-segment phases, each naming the behaviour it runs; the segment's state holds the member (#1413).</summary>
 internal enum BotwoonBodyPhase
 {
-    /// <summary>Enemy projectile behaviour: botwoons body, main.</summary>
+    /// <summary>The living body: the segment shows its picture for its angle and the head's hurt flash.</summary>
     Main,
-    /// <summary>Enemy projectile behaviour: botwoons body, dying, set delay.</summary>
+    /// <summary>Botwoon has died: the segment starts its delay before falling, then waits it out.</summary>
     BeginDying,
-    /// <summary>Enemy projectile behaviour: botwoons body, dying, delay.</summary>
+    /// <summary>The segment waits out its delay before falling, flashing.</summary>
     DyingDelay,
-    /// <summary>Enemy projectile behaviour: botwoons body, dying, falling.</summary>
+    /// <summary>The segment falls to the floor.</summary>
     Falling,
     /// <summary>The inert state after a body segment lands.</summary>
     Landed,

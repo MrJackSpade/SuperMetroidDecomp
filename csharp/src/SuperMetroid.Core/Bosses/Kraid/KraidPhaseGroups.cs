@@ -10,12 +10,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidPhaseGroups
 {
     /// <summary>
-    /// The phases in which Kraid fights: combat, growth and his parts' own behaviour. Only in these does his body's touch
-    /// hurt Samus and a mouth hit that leaves him without health start his death; his death sequence and his rise through
-    /// the floor lie outside it.
+    /// The phases in which Kraid fights: combat, growth and his parts' own behaviour, their rest included. Only in these
+    /// does his body's touch hurt Samus and a mouth hit that leaves him without health start his death; his death
+    /// sequence and his rise through the floor lie outside it.
     /// </summary>
     internal static readonly FrozenSet<KraidPhase> Fighting = new[]
     {
+        KraidPhase.Resting,
         KraidPhase.GrowBreakCeilingPlatforms,
         KraidPhase.GrowBringBodyInFront, KraidPhase.GrowSettleParts, KraidPhase.GrowShowRoomBackdrop,
         KraidPhase.GrowFadeInRoomBackground, KraidPhase.MainloopThinking, KraidPhase.SecondPhaseThinking,

@@ -29,19 +29,19 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Carries out one cue of the Hibashi's eruption: its sound, an eruption frame's hitbox, or finishing.</summary>
     private HibashiSegment? ApplyHibashiCue(RoomEnemyPlace place, HibashiCue cue)
     {
-        switch (cue.Kind)
+        switch (cue)
         {
-            case HibashiCueKind.PlayEruptionSound:
+            case HibashiCue.Signal { Kind: HibashiCueKind.PlayEruptionSound }:
                 PlayHibashiEruptionSound();
                 break;
-            case HibashiCueKind.EruptionStep:
-                ApplyHibashiEruptionStep(place, cue.Step ?? throw new InvalidOperationException("A Hibashi rising cue names no eruption step."));
+            case HibashiCue.EruptionStep step:
+                ApplyHibashiEruptionStep(place, step.Step);
                 break;
-            case HibashiCueKind.FinishActivity:
+            case HibashiCue.Signal { Kind: HibashiCueKind.FinishActivity }:
                 FinishHibashiActivity(place);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(HibashiCueKind)} {cue.Kind}.");
+                throw new InvalidOperationException($"Undefined Hibashi cue {cue}.");
         }
         return null;
     }

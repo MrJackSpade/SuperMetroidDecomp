@@ -4,8 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolAnimationDefinitions
 {
     /// <summary>
-    /// The head animation of each eighth-turn
-    /// direction bucket. The direction buckets start at up; animation storage starts two eighth-turns earlier at left.
+    /// The head animation of each of the eight directions, an eighth of a turn apart, the head aims in.
     /// </summary>
     internal static readonly Dictionary<CompassDirection, ShaktoolSegment> OrientationAnimations = new()
     {
@@ -18,19 +17,4 @@ internal static class ShaktoolAnimationDefinitions
         [CompassDirection.Left] = ShaktoolSegment.HeadAimingLeft,
         [CompassDirection.UpLeft] = ShaktoolSegment.HeadAimingUpLeft,
     };
-
-    /// <summary>
-    /// Collision and dormant-attack behavior by body part: primary saw, rear arm, front arm,
-    /// head, front arm, rear arm, final saw.
-    /// </summary>
-    internal static readonly ShaktoolSegmentAnimationDefinition[] SegmentAnimations =
-    [
-        new(ShaktoolSegment.SawHandHeadBobPrimaryPiece),
-        new(ShaktoolSegment.ArmPieceHeadBobBack),
-        new(ShaktoolSegment.ArmPieceHeadBobFront),
-        new(ShaktoolSegment.HeadHeadBob),
-        new(ShaktoolSegment.ArmPieceHeadBobFront),
-        new(ShaktoolSegment.ArmPieceHeadBobBack),
-        new(ShaktoolSegment.SawHandHeadBobFinalPiece),
-    ];
 }

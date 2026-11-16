@@ -16,9 +16,9 @@ internal sealed class EndingLogo
     /// <summary>The lower S half.</summary>
     private readonly MovingHalf lowerS;
     /// <summary>The upper circle.</summary>
-    private readonly IntroDiscoverySprite upperCircle;
+    private readonly CinematicActor upperCircle;
     /// <summary>The lower circle.</summary>
-    private readonly IntroDiscoverySprite lowerCircle;
+    private readonly CinematicActor lowerCircle;
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; internal set; }
     /// <summary>Number of crossfade steps already shown.</summary>
@@ -41,7 +41,7 @@ internal sealed class EndingLogo
     }
 
     /// <summary>The actors in the order they spawned, which is the order they step and draw in.</summary>
-    private IEnumerable<IntroDiscoverySprite> Actors => [upperS.Actor, lowerS.Actor, upperCircle, lowerCircle];
+    private IEnumerable<CinematicActor> Actors => [upperS.Actor, lowerS.Actor, upperCircle, lowerCircle];
 
     /// <summary>Shows the pending crossfade step before moving actors and running their next cues.</summary>
     /// <param name="colours">The ending's colours, which show the crossfade's step.</param>
@@ -77,12 +77,12 @@ internal sealed class EndingLogo
     {
         Ensure.NotNull(destination);
         if (!Completed)
-            foreach (IntroDiscoverySprite actor in Actors)
+            foreach (CinematicActor actor in Actors)
                 actor.Draw(destination, EndingLogoDefinitions.Camera, installedArt);
     }
 
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>
-    private static IntroDiscoverySprite Create(EndingLogoActorDefinition definition) =>
+    private static CinematicActor Create(EndingLogoActorDefinition definition) =>
         new(definition.Origin, EndingShades.Drawn(EndingLogoDefinitions.Colouring), definition.Animation);
 
     /// <summary>
@@ -93,7 +93,7 @@ internal sealed class EndingLogo
     /// <param name="Landing">Where the half comes to rest.</param>
     /// <param name="Direction">The half's horizontal direction: minus one moves it left and down, one right and up.</param>
     /// <param name="Landed">Called as the half lands, or null for none.</param>
-    private sealed record MovingHalf(IntroDiscoverySprite Actor, Offset16<ScreenPixels> Landing, int Direction, Action? Landed)
+    private sealed record MovingHalf(CinematicActor Actor, Offset16<ScreenPixels> Landing, int Direction, Action? Landed)
     {
         /// <summary>The half's speed on each axis, in pixels per update.</summary>
         private int speed = EndingLogoDefinitions.InitialSpeed;

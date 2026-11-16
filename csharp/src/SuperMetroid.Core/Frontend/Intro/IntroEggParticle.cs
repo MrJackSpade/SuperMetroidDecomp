@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
-    internal readonly IntroDiscoverySprite sprite;
+    internal readonly CinematicActor sprite;
 
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;
@@ -32,7 +32,7 @@ internal sealed class IntroEggParticle
         this.fragment = fragment;
         // The compiled start of each fragment matches all twelve authored values,
         // so this spawn does not read game data.
-        sprite = new IntroDiscoverySprite(
+        sprite = new CinematicActor(
             IntroEggMotion.FragmentInitialPosition(fragment),
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: definition.Animation);
@@ -67,7 +67,7 @@ internal sealed class IntroEggParticle
 
     /// <summary>Adds a compiled signed whole/fraction velocity to one axis without changing the other coordinate.</summary>
     private static void AddSixteenSixteenVelocity(
-        IntroDiscoverySprite sprite,
+        CinematicActor sprite,
         Axis axis,
         SignedSixteenSixteen velocity)
     {

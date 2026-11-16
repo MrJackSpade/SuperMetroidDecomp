@@ -46,10 +46,10 @@ internal static class NinjaSpacePiratePostsVerification
             int widened = covered >> 8;
 
             string context = $"ninja at {x} starting at the {start} post {distance} pixels from the other";
-            AssertEqual(middle, state.PostsMidpoint.X, $"{context}: posts' midpoint");
-            AssertEqual((middle + widened) & ushort.MaxValue, state.RightPost.X, $"{context}: right post");
-            AssertEqual((middle - widened) & ushort.MaxValue, state.LeftPost.X, $"{context}: left post");
-            AssertEqual(startsAtLeft ? state.LeftPost.X : state.RightPost.X, slot.Position.X.Whole, $"{context}: starts at its post");
+            AssertEqual(middle, state.PostsMidpointX, $"{context}: posts' midpoint");
+            AssertEqual((middle + widened) & ushort.MaxValue, state.RightPostX, $"{context}: right post");
+            AssertEqual((middle - widened) & ushort.MaxValue, state.LeftPostX, $"{context}: left post");
+            AssertEqual(startsAtLeft ? state.LeftPostX : state.RightPostX, slot.Position.X.Whole, $"{context}: starts at its post");
             cases++;
         }
         Console.WriteLine($"  Ninja Space Pirate posts: {cases} setups place their posts as the original's arithmetic does.");

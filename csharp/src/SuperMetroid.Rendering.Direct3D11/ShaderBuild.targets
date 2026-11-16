@@ -2,7 +2,15 @@
   <PropertyGroup>
     <ShaderCompiler>$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.26100.0\x64\fxc.exe</ShaderCompiler>
   </PropertyGroup>
-  <Target Name="CompileDisplayShaders" BeforeTargets="PrepareForBuild">
+  <ItemGroup>
+    <!-- Every shader source and include, whose change compiles the shaders again. -->
+    <DisplayShaderSource Include="$(MSBuildProjectDirectory)\Shaders\*.hlsl;$(MSBuildProjectDirectory)\Shaders\*.hlsli" />
+  </ItemGroup>
+  <!-- Incremental: the shaders compile again only when a shader source or this file changes, so a build or a design-time
+       load of an unchanged project does not run the compiler seven times. A skipped target still adds its items. -->
+  <Target Name="CompileDisplayShaders" BeforeTargets="PrepareForBuild"
+          Inputs="@(DisplayShaderSource);$(MSBuildThisFileFullPath)"
+          Outputs="$(IntermediateOutputPath)Shaders\ScreenGradient.cso;$(IntermediateOutputPath)Shaders\Solid.cso;$(IntermediateOutputPath)Shaders\Tiles.cso;$(IntermediateOutputPath)Shaders\SpriteVertex.cso;$(IntermediateOutputPath)Shaders\SpritePixel.cso;$(IntermediateOutputPath)Shaders\DisplayVertex.cso;$(IntermediateOutputPath)Shaders\DisplayPixel.cso">
     <Error Condition="!Exists('$(ShaderCompiler)')" Text="Install Windows SDK 10.0.26100.0 x64 shader compiler; see D3D11_BUILD.md." />
     <MakeDir Directories="$(IntermediateOutputPath)Shaders" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E ScreenGradientMain /Fo &quot;$(IntermediateOutputPath)Shaders\ScreenGradient.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\ScreenGradient.hlsl&quot;" />

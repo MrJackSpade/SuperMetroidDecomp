@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.CodeAnalysis;
 using SuperMetroid.ReachabilityAudit.SolutionLoading;
 using SuperMetroid.TestSupport.WindowsConsole;
 
@@ -46,22 +47,36 @@ internal static class Program
                 ["--solution", var path, "--prune-stale-reviews"] => new AuditArguments(path, AuditMode.PruneStaleReviews),
                 _ => throw new ArgumentException(Usage),
             };
-            var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-            var entries = TypeInventory.Collect(solution);
-            return mode switch
-            {
-                AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(entries), solution.RepositoryRoot),
-                AuditMode.Findings => CheckFindings(solution, entries),
-                AuditMode.Check => CheckInventories(solution, entries, write: false),
-                AuditMode.Write => CheckInventories(solution, entries, write: true),
-                _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
-            };
+            using var workspace = await SolutionLoader.OpenAsync(Path.GetFullPath(solutionPath));
+            return await RunAsync(workspace.CurrentSolution, SolutionLoader.RepositoryRoot(solutionPath), mode);
         }
         catch (Exception exception)
         {
             Console.Error.WriteLine(exception.ToString());
             return 1;
         }
+    }
+
+    /// <summary>
+    /// Runs the chosen mode on a loaded solution; returns the exit code. The command line hands over the solution it has
+    /// just opened; the asynchronous cleanup (tools/cleanup/README.md), which loads the solution once for all of its
+    /// steps, hands over the solution as its steps left it.
+    /// </summary>
+    internal static async Task<int> RunAsync(Solution solution, string repositoryRoot, AuditMode mode) =>
+        Run(await SolutionLoader.CompileAsync(solution, repositoryRoot), mode);
+
+    /// <summary>Runs the chosen mode on a compiled solution; returns the exit code.</summary>
+    private static int Run(LoadedSolution solution, AuditMode mode)
+    {
+        var entries = TypeInventory.Collect(solution);
+        return mode switch
+        {
+            AuditMode.PruneStaleReviews => StaleReviewPruner.Prune(StaleReviews(entries), solution.RepositoryRoot),
+            AuditMode.Findings => CheckFindings(solution, entries),
+            AuditMode.Check => CheckInventories(solution, entries, write: false),
+            AuditMode.Write => CheckInventories(solution, entries, write: true),
+            _ => throw new InvalidOperationException($"Unknown audit mode {mode}."),
+        };
     }
 
     /// <summary>

@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// </summary>
 public enum VerticalShutterAction
 {
-    /// <summary>Calls the trigger-mode table entry during this same AI update until activation replaces the action.</summary>
-    Initial,
     /// <summary>Decrements the initial timer and activates on zero, restoring the configured wait value.</summary>
     WaitForTimer,
     /// <summary>Waits for Samus's strict horizontal proximity threshold.</summary>

@@ -32,7 +32,7 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemyPlace place, Ene
                 species.RunEvirMainAi(Place, frame);
                 break;
             case EvirPart.Projectile:
-                species.RunEvirProjectileMainAi(Place, frame);
+                EvirBehavior.RunEvirProjectileMainAi(Place, frame);
                 break;
             default:
                 throw new InvalidOperationException($"Evir entity bound to {Place.DefinitionId}.");
@@ -40,7 +40,20 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemyPlace place, Ene
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceEvirTypedAnimation(Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context)
+    {
+        switch (EvirPartDefinitions.Parts[Place.DefinitionId])
+        {
+            case EvirPart.Evir:
+                EvirBehavior.AdvanceEvirBodyOrArmsTypedAnimation(Place);
+                break;
+            case EvirPart.Projectile:
+                species.AdvanceEvirSpitTypedAnimation(Place);
+                break;
+            default:
+                throw new InvalidOperationException($"Evir entity bound to {Place.DefinitionId}.");
+        }
+    }
 
     /// <summary>
     /// Whether the occupant is an Evir's arms, which share the Evir's definition but take neither its touch nor its shot

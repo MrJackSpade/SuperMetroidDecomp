@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Associates a live cinematic actor with its role and role-specific motion.</summary>
-internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRole Role)
+internal sealed record EndingSprite(CinematicActor Sprite, EndingSpriteRole Role)
 {
     /// <summary>The explosion stars' flyaway motion, or null for an actor the flyaway does not move.</summary>
     public EndingStarsMotion? StarsMotion { get; set; }

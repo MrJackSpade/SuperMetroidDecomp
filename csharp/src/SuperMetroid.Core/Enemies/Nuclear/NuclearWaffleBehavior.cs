@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puromi];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.NuclearWaffle];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new NuclearWaffleEntity(this, place, common);
@@ -135,8 +135,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyPlace owner,
         NuclearWaffleEnemyState state)
     {
-        // The four spawn parameters each select one segment's association.
-        // Keep array order identical to the later descending update loop.
+        // Each of the four links is spawned for its own place along the waffle's arm, in the order the update later
+        // walks them from the last.
         for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
         {
             EnemyProjectile? segment = _projectiles.AllocateEnemyProjectile();

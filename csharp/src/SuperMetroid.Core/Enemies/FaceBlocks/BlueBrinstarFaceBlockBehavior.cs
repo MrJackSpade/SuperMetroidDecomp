@@ -87,8 +87,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         BlueBrinstarFaceBlockEnemyState state,
         SamusState samus)
     {
-        // The collected items, not the equipped ones, gate both the glow and waking. A null Samus owner means no Samus has
-        // been supplied, so leaving the block dormant is the only non-invented behaviour until a gameplay update does.
+        // The collected items, not the equipped ones, gate both the glow and waking.
         if (!HasCollectedMorphBall(samus))
             return;
 
@@ -119,7 +118,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
-    private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState samus) =>
+    private static bool HasCollectedMorphBall(SamusState samus) =>
         samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall);
 
     /// <summary>
@@ -154,18 +153,12 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         }
     }
 
-    /// <summary>Rejects running the AI of a face block that was not initialized on room load.</summary>
-    internal static BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
-        RoomEnemyPlace place) =>
-        place.SpeciesState<BlueBrinstarFaceBlockEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy place {place.Ordinal} has no initialized Blue Brinstar face-block state.");
-
     /// <summary>Advances the blue Brinstar face block's typed animation.</summary>
     internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
     {
         if (!place.AnimationClock.Expire())
             return;
-        var state = RequireBlueBrinstarFaceBlockState(place);
+        var state = place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>();
         AnimationPlayback<BlueBrinstarFaceBlockSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, BlueBrinstarFaceBlockAnimations.Segments, ref playback,
             static cue => throw new InvalidOperationException($"A cue-free blue Brinstar face block animation raised {cue}."));
@@ -183,7 +176,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     {
         RunBlueBrinstarFaceBlockMain(
             place,
-            RequireBlueBrinstarFaceBlockState(place),
+            place.RequireSpeciesState<BlueBrinstarFaceBlockEnemyState>(),
             frame.Samus);
     }
 }

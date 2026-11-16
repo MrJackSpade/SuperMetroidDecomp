@@ -12,25 +12,30 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 public sealed class BotwoonEnemyState
 {
     /// <summary>
-    /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression.
+    /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression; the fight
+    /// starts in its opening delay.
     /// </summary>
-    public BotwoonPhase? Phase { get; internal set; }
-
-    /// <summary>The independent movement behaviour, choosing direct hole movement or an authored path.</summary>
-    public BotwoonMovement? Movement { get; internal set; }
+    public BotwoonPhase Phase { get; internal set; } = BotwoonPhase.InitialDelay;
 
     /// <summary>
-    /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown.
+    /// The independent movement behaviour, choosing direct hole movement or an authored path; he starts moving toward
+    /// his target hole.
     /// </summary>
-    public BotwoonHeadAction? HeadAction { get; internal set; }
+    public BotwoonMovement Movement { get; internal set; } = BotwoonMovement.MoveTowardHole;
+
+    /// <summary>
+    /// The independent head behaviour, controlling movement orientation, aiming, spit-frame admission, and cooldown; the
+    /// head starts animating from his movement.
+    /// </summary>
+    public BotwoonHeadAction HeadAction { get; internal set; } = BotwoonHeadAction.AnimateFromMovement;
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
     /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
     public int SegmentSpacingEntries { get; internal set; }
-    /// <summary>Frames left of the opening delay, seeded to 256 and counted down to zero before normal traversal begins.</summary>
+    /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
     public int InitialDelayTimer { get; internal set; }
-    /// <summary>Frames left of the spit-action cooldown, seeded to 48 for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
+    /// <summary>Frames left of the spit-action cooldown, seeded from <see cref="BotwoonFightDefinitions.HiddenSpitCooldown"/> for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
     public int AttackTimer { get; internal set; }
     /// <summary>
     /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
@@ -130,6 +135,6 @@ public sealed class BotwoonEnemyState
     /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];
 
-    /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
-    internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
+    /// <summary>The head's delayed positions, newest first, the oldest of which chooses the visible head orientation.</summary>
+    internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[BotwoonFightDefinitions.HeadHistoryLength];
 }

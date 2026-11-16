@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <summary>The room blocks, block behaviours and heights the Chozo statues' hands, slopes and acid use.</summary>
 internal static class ChozoStatueRoomDefinitions
 {
-    /// <summary>The base height the Wrecked Ship statue's draining acid settles at, in room pixels.</summary>
+    /// <summary>The base height the Lower Norfair statue's lowered acid settles at, in room pixels.</summary>
     public const int LoweredAcidY = 722;
 
     /// <summary>

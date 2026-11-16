@@ -265,6 +265,20 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateLaserSound);
     }
 
+    /// <summary>The action main AI runs for the cling, attack or jump a cue of <paramref name="kind"/> begins.</summary>
+    internal static WallSpacePirateAction ActionBegunBy(WallSpacePirateCueKind kind) => kind switch
+    {
+        WallSpacePirateCueKind.ClingToLeftWall => WallSpacePirateAction.ClimbingLeftWall,
+        WallSpacePirateCueKind.ClingToRightWall => WallSpacePirateAction.ClimbingRightWall,
+        WallSpacePirateCueKind.Attack => WallSpacePirateAction.Attacking,
+        WallSpacePirateCueKind.JumpToLeftWall => WallSpacePirateAction.WallJumpingLeft,
+        WallSpacePirateCueKind.JumpToRightWall => WallSpacePirateAction.WallJumpingRight,
+        WallSpacePirateCueKind.ChooseLeftWallDirection or WallSpacePirateCueKind.ChooseRightWallDirection or WallSpacePirateCueKind.FireLaserLeft or
+            WallSpacePirateCueKind.FireLaserRight or WallSpacePirateCueKind.PlayAttackSound or WallSpacePirateCueKind.PrepareJumpLeft or
+            WallSpacePirateCueKind.PrepareJumpRight or _ =>
+            throw new InvalidOperationException($"A wall Space Pirate {kind} cue begins no cling, attack or jump."),
+    };
+
     /// <summary>
     /// Carries out one cue of the wall Space Pirates' animations. A climb continues at the opposite climb after terrain
     /// contact and a random direction choice always continues at the chosen climb, as the cues return those
@@ -295,8 +309,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.FireLaserRight }:
                 FireWallSpacePirateLaser(place, direction: HorizontalDirection.Right);
                 return null;
-            case WallSpacePirateCue.SetAction setAction:
-                state.Action = setAction.Action;
+            case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.ClingToLeftWall or WallSpacePirateCueKind.ClingToRightWall
+                or WallSpacePirateCueKind.Attack or WallSpacePirateCueKind.JumpToLeftWall or WallSpacePirateCueKind.JumpToRightWall } begun:
+                state.Action = ActionBegunBy(begun.Kind);
                 return null;
             case WallSpacePirateCue.Signal { Kind: WallSpacePirateCueKind.PlayAttackSound }:
                 _walkingSpacePirateBehavior.RequestSpacePirateSound(EnemySoundEffectDefinitions.WallPirateJumpSound);

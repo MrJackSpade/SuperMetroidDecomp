@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 public enum NinjaSpacePirateAction
 {
-    /// <summary>Stands while its animation moves and poses it.</summary>
-    FollowingAnimation,
+    /// <summary>Stands still, its main AI idle, while its animation poses it: a claw throw, a kick, a flinch or a landing.</summary>
+    StandingStill,
     /// <summary>Waits for Samus to enter activation range.</summary>
     Initial,
     /// <summary>Chooses flinch, kick, jump, or claw attacks.</summary>

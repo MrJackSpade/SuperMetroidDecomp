@@ -41,9 +41,9 @@ internal sealed class KraidLimbs
         }
         _access.AttachKraidPart(arm, state);
         arm.Shading = _parts.Body.Shading;
-        state.ArmState.Phase = null;
+        state.ArmState.Phase = KraidPhase.Resting;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmRisingOrSinking);
-        state.ArmState.PhaseToResume = null;
+        state.ArmState.PhaseToResume = KraidPhase.Resting;
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
@@ -58,8 +58,8 @@ internal sealed class KraidLimbs
         _access.AttachKraidPart(foot, state);
         foot.Shading = _parts.Body.Shading;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Phase = null;
-        state.FootState.PhaseToResume = null;
+        state.FootState.Phase = KraidPhase.Resting;
+        state.FootState.PhaseToResume = KraidPhase.Resting;
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ internal sealed class KraidLimbs
 
         RoomEnemyPlace foot = _parts.Foot;
         _access.StartKraidPartAnimation(foot, KraidPartSegment.FootInitial);
-        state.FootState.Phase = null;
+        state.FootState.Phase = KraidPhase.Resting;
         RoomEnemyPlace arm = _parts.Arm;
         _access.StartKraidPartAnimation(arm, KraidPartSegment.ArmNormal);
         foreach (RoomEnemyPlace lint in _parts.Lints)
@@ -220,7 +220,7 @@ internal sealed class KraidLimbs
         KraidFootState part = state.FootState;
         switch (state.FootState.Phase)
         {
-            case null:
+            case KraidPhase.Resting:
                 return;
             case KraidPhase.FootFirstPhaseThinking:
                 if (TryBeginKraidGrowth(body, state))

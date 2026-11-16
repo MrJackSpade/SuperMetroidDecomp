@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Verification.Harness;
@@ -26,7 +27,7 @@ internal static class RoomObjectPlacesVerification
             AssertTrue(ReferenceEquals(table.InUpdateOrder[spawn], place), $"spawn {spawn} takes the next place in update order");
             AssertTrue(place.Active, $"spawn {spawn}'s place holds its object");
             place.Block = new Position16<RoomBlocks>(spawn, 0);
-            place.Argument = MetroidRoomArgument.ObservesNothing;
+            place.Become(new MetroidRoomClearanceObject(cleared: null));
         }
         AssertTrue(table.IsFull && places.IsFull, "forty spawns fill the room");
         AssertEqual(RoomObjectPlaces.PlaceCount, table.ActiveCount, "every place holds an object");
@@ -36,7 +37,6 @@ internal static class RoomObjectPlacesVerification
         removed.Delete();
         AssertTrue(!removed.Active && !table.IsFull, "an object that leaves frees its place");
         AssertEqual(default, removed.Block, "a freed place keeps no block");
-        AssertEqual<RoomObjectRoomArgument?>(null, removed.Argument, "a freed place keeps nothing its object was placed with");
         AssertEqual<RoomObjectBehaviour?>(null, removed.Behaviour, "a freed place holds no typed object");
         AssertTrue(ReferenceEquals(removed, table.Spawn()), "the next spawn takes the freed place, updating where the removed object did");
         AssertTrue(table.IsFull, "the spawn fills the room again");

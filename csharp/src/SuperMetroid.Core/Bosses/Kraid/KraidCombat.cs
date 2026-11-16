@@ -116,7 +116,7 @@ internal sealed class KraidCombat
     /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
     private bool KraidSinkingSkipsProjectileCollision(RoomEnemyPlace body) =>
-        _access.Part(body).Phase is { } phase && !KraidPhaseGroups.ShotsCollide.Contains(phase);
+        !KraidPhaseGroups.ShotsCollide.Contains(_access.Part(body).Phase);
 
     /// <summary>
     /// Resolves projectile hits on Kraid's mouth. Projectile
@@ -264,8 +264,8 @@ internal sealed class KraidCombat
         return CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom) < 0;
     }
 
-    /// <summary>Whether Kraid fights in <paramref name="phase"/>: a fighting phase, or none while his body runs no phase.</summary>
-    private static bool IsFighting(KraidPhase? phase) => phase is not { } running || KraidPhaseGroups.Fighting.Contains(running);
+    /// <summary>Whether Kraid fights in <paramref name="phase"/>, his body's phase.</summary>
+    private static bool IsFighting(KraidPhase phase) => KraidPhaseGroups.Fighting.Contains(phase);
 
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
     private void BeginKraidDeath(KraidEnemyState state)

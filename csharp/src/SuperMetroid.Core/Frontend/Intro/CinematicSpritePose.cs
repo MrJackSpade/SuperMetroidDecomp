@@ -57,7 +57,7 @@ public enum CinematicSpritePose
     ExaminedBabyNarrowing,
     /// <summary>The examined Baby Metroid drawn in narrow.</summary>
     ExaminedBabyNarrow,
-    /// <summary>Caret visible.</summary>
+    /// <summary>The narration's green typing caret, shown.</summary>
     CaretVisible,
     /// <summary>The pose that draws nothing.</summary>
     Blank,
@@ -73,19 +73,19 @@ public enum CinematicSpritePose
     ConfusedBabyRound,
     /// <summary>The confused Baby Metroid squashed wide, its legs spread.</summary>
     ConfusedBabySquashed,
-    /// <summary>Station under attack large asteroid.</summary>
+    /// <summary>The large asteroids drifting past Ceres as the station is destroyed.</summary>
     StationUnderAttackLargeAsteroid,
-    /// <summary>Station under attack.</summary>
+    /// <summary>Ceres station as the gunship sees it in space.</summary>
     StationUnderAttack,
-    /// <summary>Small asteroid.</summary>
+    /// <summary>A field of small asteroids drifting through space.</summary>
     SmallAsteroid,
-    /// <summary>Vortex even.</summary>
-    VortexEven,
-    /// <summary>Vortex odd.</summary>
-    VortexOdd,
-    /// <summary>Planet zebes.</summary>
+    /// <summary>The swirling purple vortex in space, its first drawing, alternating with its second every update.</summary>
+    VortexFirst,
+    /// <summary>The swirling purple vortex in space, its second drawing, alternating with its first every update.</summary>
+    VortexSecond,
+    /// <summary>Planet Zebes, as the gunship flies to it after Ceres.</summary>
     PlanetZebes,
-    /// <summary>Planet zebes title.</summary>
+    /// <summary>The PLANET ZEBES caption.</summary>
     PlanetZebesTitle,
     /// <summary>Zebes's Japanese title.</summary>
     ZebesJapaneseTitle,
@@ -121,7 +121,7 @@ public enum CinematicSpritePose
     EggShellRight,
     /// <summary>The piece at the bottom of the egg's shell.</summary>
     EggShellLower,
-    /// <summary>Slime moving.</summary>
+    /// <summary>A drop of slime falling from the Metroid egg.</summary>
     SlimeMoving,
     /// <summary>A slime drop splashing into a crown on the floor.</summary>
     SlimeSplashCrown,
@@ -131,15 +131,15 @@ public enum CinematicSpritePose
     SlimeSplashSinking,
     /// <summary>The flat puddle a slime splash leaves.</summary>
     SlimePuddle,
-    /// <summary>Zebes stars upper left.</summary>
+    /// <summary>The stars of the upper left of the sky around Zebes.</summary>
     ZebesStarsUpperLeft,
-    /// <summary>Zebes stars upper right.</summary>
+    /// <summary>The stars of the upper right of the sky around Zebes.</summary>
     ZebesStarsUpperRight,
-    /// <summary>Zebes stars lower left.</summary>
+    /// <summary>The stars of the lower left of the sky around Zebes.</summary>
     ZebesStarsLowerLeft,
-    /// <summary>Zebes stars lower right.</summary>
+    /// <summary>The stars of the lower right of the sky around Zebes.</summary>
     ZebesStarsLowerRight,
-    /// <summary>Flight stars.</summary>
+    /// <summary>The starfield the gunship flies through on its way to Ceres.</summary>
     FlightStars,
     /// <summary>A big explosion's opening spark.</summary>
     BigExplosionSpark,
@@ -171,7 +171,7 @@ public enum CinematicSpritePose
     StationBlastRing,
     /// <summary>A station blast's thin ring fading, its last picture.</summary>
     StationBlastFadingRing,
-    /// <summary>Large asteroid.</summary>
+    /// <summary>The large asteroids drifting past on the gunship's flight to Ceres.</summary>
     LargeAsteroid,
     /// <summary>Zebes rumbling, its lower half in deep shadow.</summary>
     PlanetRumbleDeepShadow,
@@ -195,15 +195,15 @@ public enum CinematicSpritePose
     PlanetGlowSpreadingHalo,
     /// <summary>The exploding planet's glow with its widest halo.</summary>
     PlanetGlowWideHalo,
-    /// <summary>Ending starfield.</summary>
+    /// <summary>The starfield around Zebes as it explodes.</summary>
     EndingStarfield,
     /// <summary>The planet's molten core, dark at its edge.</summary>
     PlanetLavaDark,
     /// <summary>The planet's molten core, bright throughout.</summary>
     PlanetLavaBright,
-    /// <summary>Planet silhouette.</summary>
+    /// <summary>Zebes's dark silhouette ringed by the explosion's radiating rays.</summary>
     PlanetSilhouette,
-    /// <summary>Planet afterglow.</summary>
+    /// <summary>The glowing cloud Zebes leaves after it explodes.</summary>
     PlanetAfterglow,
     /// <summary>THE OPERATION WAS typed as far as "T".</summary>
     OperationTypedT,
@@ -295,27 +295,27 @@ public enum CinematicSpritePose
     ClearTimeTypedClearTim,
     /// <summary>CLEAR TIME typed as far as "CLEAR TIME".</summary>
     ClearTimeTypedClearTime,
-    /// <summary>Clear time digit 0.</summary>
+    /// <summary>The clear time's digit zero.</summary>
     ClearTimeDigit0,
-    /// <summary>Clear time digit 1.</summary>
+    /// <summary>The clear time's digit one.</summary>
     ClearTimeDigit1,
-    /// <summary>Clear time digit 2.</summary>
+    /// <summary>The clear time's digit two.</summary>
     ClearTimeDigit2,
-    /// <summary>Clear time digit 3.</summary>
+    /// <summary>The clear time's digit three.</summary>
     ClearTimeDigit3,
-    /// <summary>Clear time digit 4.</summary>
+    /// <summary>The clear time's digit four.</summary>
     ClearTimeDigit4,
-    /// <summary>Clear time digit 5.</summary>
+    /// <summary>The clear time's digit five.</summary>
     ClearTimeDigit5,
-    /// <summary>Clear time digit 6.</summary>
+    /// <summary>The clear time's digit six.</summary>
     ClearTimeDigit6,
-    /// <summary>Clear time digit 7.</summary>
+    /// <summary>The clear time's digit seven.</summary>
     ClearTimeDigit7,
-    /// <summary>Clear time digit 8.</summary>
+    /// <summary>The clear time's digit eight.</summary>
     ClearTimeDigit8,
-    /// <summary>Clear time digit 9.</summary>
+    /// <summary>The clear time's digit nine.</summary>
     ClearTimeDigit9,
-    /// <summary>Clear time colon.</summary>
+    /// <summary>The colon between the clear time's hours and minutes.</summary>
     ClearTimeColon,
     /// <summary>The animals' escape pod with a short trail.</summary>
     EscapePodShortTrail,
@@ -333,9 +333,9 @@ public enum CinematicSpritePose
     RightSideCloud,
     /// <summary>The cloud passing on the left of the side-cloud escape.</summary>
     LeftSideCloud,
-    /// <summary>Suitless idle upper.</summary>
+    /// <summary>Suitless Samus standing at rest, the picture her upper body's actor shows.</summary>
     SuitlessIdleUpper,
-    /// <summary>Suitless lower.</summary>
+    /// <summary>Suitless Samus's legs, which her lower body's actor shows while she lets her hair down.</summary>
     SuitlessLower,
     /// <summary>Suitless Samus, her hair tied in its ponytail and her arms lowered.</summary>
     SuitlessPonytailTied,
@@ -353,27 +353,27 @@ public enum CinematicSpritePose
     SuitlessHairSweptBack,
     /// <summary>Suitless Samus's hair flowing, settling after the sweep.</summary>
     SuitlessHairFlowing,
-    /// <summary>Suitless standing.</summary>
+    /// <summary>Suitless Samus standing, before her jump.</summary>
     SuitlessStanding,
-    /// <summary>Suitless prepare jump.</summary>
+    /// <summary>Suitless Samus crouching to jump.</summary>
     SuitlessPrepareJump,
-    /// <summary>Suitless jumping.</summary>
+    /// <summary>Suitless Samus leaping, her arms raised.</summary>
     SuitlessJumping,
-    /// <summary>Samus falling.</summary>
+    /// <summary>Suited Samus dropping in, her arm cannon raised.</summary>
     SamusFalling,
-    /// <summary>Samus landing.</summary>
+    /// <summary>Suited Samus touching down, her knees bent.</summary>
     SamusLanding,
-    /// <summary>Samus landed.</summary>
+    /// <summary>Suited Samus standing after her landing.</summary>
     SamusLanded,
-    /// <summary>Samus shooting.</summary>
+    /// <summary>Suited Samus firing her arm cannon toward the viewer.</summary>
     SamusShooting,
-    /// <summary>Suited idle body.</summary>
+    /// <summary>Suited Samus standing still.</summary>
     SuitedIdleBody,
-    /// <summary>Suited helmet head.</summary>
+    /// <summary>Suited Samus's helmet, facing forward.</summary>
     SuitedHelmetHead,
     /// <summary>Samus's helmetless head at rest.</summary>
     HelmetlessHeadResting,
-    /// <summary>Suited headless body.</summary>
+    /// <summary>Suited Samus's body without her head, whose helmet is drawn on its own as she takes it off.</summary>
     SuitedHeadlessBody,
     /// <summary>The suited arm lowered at Samus's side.</summary>
     SuitedArmLowered,
@@ -397,19 +397,19 @@ public enum CinematicSpritePose
     HelmetlessHeadSmileWidening,
     /// <summary>Samus's helmetless head smiling.</summary>
     HelmetlessHeadSmiling,
-    /// <summary>Suited prepare jump.</summary>
+    /// <summary>Suited Samus crouching to jump.</summary>
     SuitedPrepareJump,
-    /// <summary>Suited jumping.</summary>
+    /// <summary>Suited Samus leaping, her arm raised.</summary>
     SuitedJumping,
     /// <summary>The jumping suited helmet held level, as it leaves the ground.</summary>
     SuitedHelmetJumpLevel,
     /// <summary>The jumping suited helmet tilted in flight.</summary>
     SuitedHelmetJumpTilted,
-    /// <summary>Helmetless jump head.</summary>
+    /// <summary>Samus's helmetless head as she jumps.</summary>
     HelmetlessJumpHead,
-    /// <summary>Logo s upper.</summary>
+    /// <summary>The upper half of the logo's S.</summary>
     LogoSUpper,
-    /// <summary>Logo s lower.</summary>
+    /// <summary>The lower half of the logo's S.</summary>
     LogoSLower,
     /// <summary>The logo's right circle drawn as far as its tip.</summary>
     LogoRightCircleTip,

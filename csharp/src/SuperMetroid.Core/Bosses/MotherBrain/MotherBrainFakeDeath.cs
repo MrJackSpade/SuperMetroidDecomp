@@ -70,7 +70,7 @@ internal sealed class MotherBrainFakeDeath
             }
         }
 
-        // The grey fade's last step is an unconditional tail-call. Tube sequencing and dust therefore
+        // Every update of the grey fade also runs the tube collapse and the explosion, so tube sequencing and dust
         // begin during the grey fade rather than waiting for the eighth fade step.
         RunMotherBrainTubeCollapse(state);
         RunMotherBrainFakeDeathExplosion(state);
@@ -277,12 +277,11 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
-        var state = new MotherBrainFallingTubeState
+        var state = new MotherBrainFallingTubeState(piece == MotherBrainTubePiece.Main
+            ? MotherBrainTubeAction.WaitingToFall
+            : MotherBrainTubeAction.NonMainTube)
         {
             Playback = MotherBrainTubeAnimations.Starting(piece),
-            Action = piece == MotherBrainTubePiece.Main
-                ? MotherBrainTubeAction.WaitingToFall
-                : MotherBrainTubeAction.NonMainTube,
             FloorY = tubeBody.Floor,
             FallDelay = settings.FallDelay,
         };
@@ -293,7 +292,7 @@ internal sealed class MotherBrainFakeDeath
     internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        switch (tubeState.Action ?? throw new InvalidDataException("A falling tube has no action."))
+        switch (tubeState.Action)
         {
             case MotherBrainTubeAction.NonMainTube:
                 FallMotherBrainSideTube(tube);

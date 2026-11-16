@@ -16,11 +16,9 @@ internal static class SkulteraNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<SkulteraSegment>[] Entries =
     [
-        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingLeft, 0x902a),
-        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingLeftLoop, 0x902c),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingLeft, 0x902c),
         new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.TurningRight, 0x903c),
-        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingRight, 0x9060),
-        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingRightLoop, 0x9062),
+        new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.SwimmingRight, 0x9062),
         new NativeProgramEntry<SkulteraSegment>(SkulteraSegment.TurningLeft, 0x9072),
     ];
 

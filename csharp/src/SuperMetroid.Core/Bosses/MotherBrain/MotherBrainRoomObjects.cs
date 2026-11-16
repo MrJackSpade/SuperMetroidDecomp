@@ -32,8 +32,14 @@ internal sealed class MotherBrainRoomObjects(RoomObjectPlaceList places)
             // The escape door's setup installs the door block and its extensions at once, before the first draw changes
             // their artwork. Each block is written once, so the order of the writes is unobservable.
             foreach (RoomBlockShapeCell cell in EscapeDoorSetup.Cells)
-                RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, place.Block + cell.Cell, cell.Collision,
-                    EscapeDoorSetupBehaviors[cell.Collision]);
+            {
+                Position16<RoomBlocks> block = place.Block + cell.Cell;
+                if (cell.Collision == RoomCollisionType.DoorBlock)
+                    RoomObjectLevelWrites.WriteDoorBlock(level, block, MotherBrainDeathDefinitions.EscapeDoor);
+                else
+                    RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, block, cell.Collision,
+                        EscapeDoorSetupBehaviors[cell.Collision]);
+            }
         }
         return true;
     }

@@ -19,6 +19,22 @@ internal static class ShuttersNativeWords
         [GrowingShutterAction.GrowUp] = 0xec13,
     });
 
+    /// <summary>
+    /// The routine word of the vertical shutter's initial dispatch, which calls its trigger mode's entry every update
+    /// until activation replaces it. Core installs that entry's action at initialization instead (#2075), so a recorded
+    /// dispatch decodes to <see cref="ShuttersBehavior.InitialAction"/> of the shutter's trigger.
+    /// </summary>
+    internal const ushort VerticalShutterTriggerDispatch = 0xef09;
+
+    /// <summary>
+    /// The vertical shutter action a recorded routine word names: the trigger dispatch decodes to the action its
+    /// <paramref name="triggerMode"/> selects, every other word through <see cref="VerticalShutterActions"/>.
+    /// </summary>
+    internal static VerticalShutterAction DecodeVerticalShutterAction(ushort word, ShutterTriggerMode triggerMode) =>
+        word == VerticalShutterTriggerDispatch
+            ? ShuttersBehavior.InitialAction(triggerMode)
+            : VerticalShutterActions.Decode(word, "recorded VerticalShutterAction");
+
     /// <summary>The routine word naming each <see cref="VerticalShutterAction"/>.</summary>
     /// <remarks>
     /// <see cref="VerticalShutterAction.Still"/> has two: the reaction-triggered shutter's initial wait and the permanent
@@ -26,7 +42,6 @@ internal static class ShuttersNativeWords
     /// </remarks>
     internal static readonly NativeWordIdentities<VerticalShutterAction> VerticalShutterActions = new(new Dictionary<ushort, VerticalShutterAction>
     {
-        [0xef09] = VerticalShutterAction.Initial,
         [0xef15] = VerticalShutterAction.WaitForTimer,
         [0xef28] = VerticalShutterAction.WaitForHorizontalProximity,
         [0xef39] = VerticalShutterAction.Activate,

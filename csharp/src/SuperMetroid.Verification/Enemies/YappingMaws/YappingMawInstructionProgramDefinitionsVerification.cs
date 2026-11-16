@@ -183,7 +183,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
         place.AnimationClock.StepOnNextUpdate();
-        var state = new YappingMawEnemyState(place) { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
+        var state = new YappingMawEnemyState { Playback = new(YappingMawAnimations.StartingWith(entry), AnimationPlace.StartOfAnimation) };
         place.SetSpeciesState(state);
         return new NewInitializedYappingMawResult(enemies, place, state);
     }

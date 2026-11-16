@@ -76,7 +76,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Falling = false;
         state.AttachedToSamus = false;
         state.ButtonCounter = BeetomMashCount;
-        state.PreviousController1Input = controllerInput;
+        state.LastSeenPlayerActions = controllerInput;
 
         // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
         _room.Random.Seed(BeetomRandomDefinitions.Seed);
@@ -384,9 +384,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ButtonCounter != 0)
         {
             place.Position = place.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole - 4)));
-            if (controllerInput != state.PreviousController1Input)
+            if (controllerInput != state.LastSeenPlayerActions)
             {
-                state.PreviousController1Input = controllerInput;
+                state.LastSeenPlayerActions = controllerInput;
                 state.ButtonCounter--;
             }
             return;

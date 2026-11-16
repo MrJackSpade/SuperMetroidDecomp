@@ -92,7 +92,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 8),
             Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
         ],
-        [P.WreckedShipActivatedLoop2] =
+        [P.WreckedShipWalkingWithSamus] =
         [
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.StridePlant))),
             Cue(new ChozoStatueCue.Footstep(OffsetX: -8)),
@@ -151,7 +151,7 @@ internal static class ChozoStatueAnimations
         [P.LowerNorfairInitial] = new([new(P.LowerNorfairInitial, 0, 2, 1)], AnimationEnd.Holds),
         [P.LowerNorfairActivated] = new([new(P.LowerNorfairActivated, 0, 16, 1), new(P.LowerNorfairActivatedLoop, 0, 6, 5), new(P.LowerNorfairActivatedLoop, 6, 11, 1)], AnimationEnd.Holds),
         [P.WreckedShipInitial] = new([new(P.WreckedShipInitial, 0, 2, 1)], AnimationEnd.Holds),
-        [P.WreckedShipActivated] = new([new(P.WreckedShipActivated, 0, 15, 1), new(P.WreckedShipActivatedLoop, 0, 6, 4), new(P.WreckedShipActivatedLoop, 6, 1, 1), new(P.WreckedShipActivatedLoop2, 0, 26, 16), new(P.WreckedShipActivatedLoop2, 26, 22, 1)], AnimationEnd.Holds),
+        [P.WreckedShipActivated] = new([new(P.WreckedShipActivated, 0, 15, 1), new(P.WreckedShipActivatedLoop, 0, 6, 4), new(P.WreckedShipActivatedLoop, 6, 1, 1), new(P.WreckedShipWalkingWithSamus, 0, 26, 16), new(P.WreckedShipWalkingWithSamus, 26, 22, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

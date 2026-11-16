@@ -31,7 +31,7 @@ public sealed class LoadedRoomAssets
         Pictures = tileset.Pictures;
     }
 
-    /// <summary>Selected room definition and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not run its room setup.</summary>
+    /// <summary>Selected room definition and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door blocks; loading these assets does not run its room setup.</summary>
     public SelectedRoom Room { get; }
     /// <summary>The room's grid: terrain, behaviours and appearances, with the terrain beyond the room; its rows may exceed the visible screens.</summary>
     public RoomLevelData LevelData { get; }
@@ -58,7 +58,7 @@ public sealed class LoadedRoomAssets
         // The terrain, behaviours and terrain beyond the room come from the stock-only installed level; only what the
         // blocks initially show comes from the separately replaceable layout catalog.
         RoomLevelData levelData = LoadLevelData(room, catalogs.LevelStreams.Get(room.State.Level),
-            visualLayouts.Get(room.State.Level));
+            catalogs.LevelStreams.DoorBlocks(room.Definition, room.State.Level), visualLayouts.Get(room.State.Level));
         RoomScrollGrid scrolls = LoadScrolls(scrollCells, room);
         return new LoadedRoomAssets(
             room,
@@ -83,7 +83,8 @@ public sealed class LoadedRoomAssets
     /// a shipped Wrecked Ship room is a counterexample: its 6x3 camera owns a 6x4-screen level. Room objects and enemy
     /// collision may reach those extra rows, so the grid keeps them.
     /// </remarks>
-    private static RoomLevelData LoadLevelData(SelectedRoom room, InstalledRoomLevel level, RoomLevelArtwork visualLayout)
+    private static RoomLevelData LoadLevelData(SelectedRoom room, InstalledRoomLevel level,
+        IReadOnlyCollection<RoomDoorBlock> doorBlocks, RoomLevelArtwork visualLayout)
     {
         Extent16<RoomBlocks> visibleSize = room.Size.ToRoomBlocks();
         if (level.Size.X != visibleSize.X || level.Size.Y < visibleSize.Y)
@@ -99,7 +100,7 @@ public sealed class LoadedRoomAssets
             new RoomLevelPlanes(level.Foreground.AsSpan(), behaviors, level.Background.AsSpan()),
             new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.Following, level.BeyondCount,
                 RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None),
-            room.Doors, visualLayout);
+            doorBlocks, visualLayout);
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>

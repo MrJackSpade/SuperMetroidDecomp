@@ -37,6 +37,12 @@ internal static class EnemyCollisionDefinitions
     /// </summary>
     internal const int WeaponHurtFlashExtension = 8;
 
+    /// <summary>
+    /// The hurt flash's updates still to run from which an enemy keeps its hurt AI state; the enemy pass clears the state
+    /// once fewer remain.
+    /// </summary>
+    internal const int HurtStateMinimumFlashUpdates = 8;
+
     /// <summary>The updates Samus is invincible after an enemy's touch hurts her.</summary>
     internal const int SamusTouchInvincibilityUpdates = 96;
 

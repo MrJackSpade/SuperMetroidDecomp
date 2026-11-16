@@ -16,7 +16,7 @@ internal static class EndingCloudMotionVerification
         {
             bool side = role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing or EndingSpriteRole.SideCloudLeftLeading or EndingSpriteRole.SideCloudLeftTrailing;
             bool negative = role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing or EndingSpriteRole.BottomCloudEdge or EndingSpriteRole.BottomCloudPattern;
-            var sprite = new IntroDiscoverySprite(new(200, 200), EndingShades.Drawn(EndingSpriteColouring.Clouds), 0);
+            var sprite = new CinematicActor(new(200, 200), EndingShades.Drawn(EndingSpriteColouring.Clouds), 0);
             var wrapper = new EndingSprite(sprite, role);
             EndingCloudMotion.Step(wrapper, FloorZoom.FromTwoHundredFiftySixths(side ? 95 : 176));
             AssertTrue(!wrapper.CloudMoving, "cloud waits for native zoom threshold");

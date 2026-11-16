@@ -18,7 +18,8 @@ namespace SuperMetroid.AssetExtraction;
 /// <item>a slope: the low five bits number the shape (<see cref="SlopeShapeOf"/>), bit six mirrors it left to right and bit
 /// seven top to bottom;</item>
 /// <item>an extension: the whole byte, two's complement, is the signed offset;</item>
-/// <item>a door: the low seven bits are the door-list entry.</item>
+/// <item>a door: the low seven bits are the position in the room's door list where the door block leads
+/// (<see cref="DoorLinkOf"/>), which the import resolves through the room's list (#2090), so no kept behaviour holds it.</item>
 /// </list>
 /// Only the import, the generator of the kept behaviours and checks that compare the game's own bytes convert through it:
 /// the installation holds each block's behaviour as the reading its collision kind takes, and the X-ray reveals' rules by
@@ -144,8 +145,16 @@ public static class RoomBlockBehaviorCodec
             areaTable ? AreaSpecialOf(area, entry) : SpecialOf(entry),
             areaTable ? AreaSpecialAirOf(area, entry) : SpecialAirOf(entry),
             SpikeOf(areaTable, entry), GrappleOf(areaTable, entry), new SlopeGeometry(SlopeShapeOf(value & SlopeShapeMask), mirroring),
-            unchecked((sbyte)value), entry);
+            unchecked((sbyte)value));
     }
+
+    /// <summary>
+    /// The position in its room's door list a door block with behaviour byte <paramref name="value"/> leads through: the
+    /// byte's low seven bits (#2090).
+    /// </summary>
+    /// <param name="value">The byte, 0 through 255.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
+    public static int DoorLinkOf(int value) => Ensure.BetweenInclusive(0, byte.MaxValue, value) & EntryMask;
 
     /// <summary>The shot, bomb and grapple dispatchers' table entry for a shootable block, or none past their tables.</summary>
     private static ShootableReaction? ShootableOf(bool area, int entry) => new TableEntry(area, entry) switch

@@ -25,10 +25,10 @@ internal static class SkreeMetareeParticles
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(burst);
-        SpawnParticle(projectiles, source, burst.DownRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
-        SpawnParticle(projectiles, source, burst.UpRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
-        SpawnParticle(projectiles, source, burst.DownLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
-        SpawnParticle(projectiles, source, burst.UpLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
+        SpawnParticle(projectiles, source, burst.OuterRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(320, -769));
+        SpawnParticle(projectiles, source, burst.InnerRight, burst.Look, 6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(96, -1025));
+        SpawnParticle(projectiles, source, burst.OuterLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-320, -769));
+        SpawnParticle(projectiles, source, burst.InnerLeft, burst.Look, -6, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(-96, -1025));
     }
 
     /// <summary>Flies a particle under gravity, removing it once it leaves the view, whose right and bottom edges are already outside.</summary>

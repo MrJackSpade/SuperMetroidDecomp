@@ -92,7 +92,13 @@ internal static class NativeSnapshotImport
         for (int index = 0; index < level.Size.Area; index++)
         {
             Position16<RoomBlocks> block = level.Size.CellAtRowMajorIndex(index);
-            level.SetTerrain(block, RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort))));
+            RoomTerrainBlock terrain = RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort)));
+            level.SetTerrain(block, terrain);
+            // A door block's behaviour byte is its place in the room's door list, which the installation already resolved
+            // to the door it leads through (#2090); writing the byte as a behaviour would clear that door. A native door
+            // block where the installed room has none fails loudly at its first touch, as an unresolved door does.
+            if (terrain.Collision == RoomCollisionType.DoorBlock && level.Exits[index] is not null)
+                continue;
             level.SetBehavior(block, RoomBlockBehaviorCodec.Decode(runtime.Room.LoadedRoom.Area, memory[NativeSnapshotMemory.Bts + index]));
         }
 
@@ -121,7 +127,11 @@ internal static class NativeSnapshotImport
                     ?? throw new InvalidDataException("The native snapshot runs a Torizo's belly glow in a room with no Torizo.")
                 : null;
             // The gunship's glow shows on the room's gunship, whose placement during the room's load started it (#1783).
-            IGlowingEnemy? glowingEnemy = effect == ColourEffectId.GunshipGlow ? runtime.Enemies.GunshipBehavior : null;
+            IGlowingEnemy? glowingEnemy = effect == ColourEffectId.GunshipGlow
+                ? runtime.Enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>())
+                    .OfType<SuperMetroid.Core.Enemies.Gunship.GunshipPieces>().SingleOrDefault()
+                    ?? throw new InvalidDataException("The native snapshot runs the gunship's glow in a room with no gunship.")
+                : null;
             var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo, glowingEnemy)
             {
                 Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectId>(resumed.Animation, resumed.Place),

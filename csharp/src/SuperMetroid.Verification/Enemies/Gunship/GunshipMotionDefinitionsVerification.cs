@@ -29,8 +29,11 @@ internal static class GunshipMotionDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemyPlace, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
-            // The top hull finds the bottom hull and pad listed after it as production places it.
-            enemies.GunshipBehavior.InitializeGunshipTop(top);
+            // The top hull finds the bottom hull and pad listed after it as production places it; each piece keeps its own
+            // animation, which the bounce restarts on the pad.
+            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.Places.InUpdateOrder[1].SetSpeciesState(new GunshipPieceState(default));
+            enemies.Places.InUpdateOrder[2].SetSpeciesState(new GunshipPieceState(default));
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             var part = new GunshipState(GunshipPhase.ApplyLandingBrakes);
             top.SetSpeciesState(part);
@@ -58,10 +61,10 @@ internal static class GunshipMotionDefinitionsVerification
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: new GunshipMotionFixtureGuard(rom));
-            var stepBob = new Action<RoomEnemyPlace>(enemies.GunshipBehavior.StepGunshipBob);
+            var stepBob = new Action<RoomEnemyPlace>(GunshipBehavior.StepGunshipBob);
             RoomEnemyPlace top = enemies.Places.InUpdateOrder[0];
             // The top hull finds the bottom hull and pad listed after it as production places it.
-            enemies.GunshipBehavior.InitializeGunshipTop(top);
+            enemies.GunshipBehavior.InitializeGunshipTop(top, RoomEnemyFrameFixtures.StandaloneSamus());
             var part = new GunshipState(GunshipPhase.Idle);
             top.SetSpeciesState(part);
             part.BobPhase = phase;

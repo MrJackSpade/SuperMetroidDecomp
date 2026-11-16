@@ -291,10 +291,10 @@ internal static class DoorDefinitionsAccess
         internal static ushort PointerOf(DoorDefinition door) => DoorHeaderSourcesConstants.PointerOf(door);
 
         /// <summary>Resolves a type-$9 BTS byte through the door list at <paramref name="listPointer"/>, as bank $94 does.</summary>
-        internal static DoorListEntry Resolve(ushort listPointer, int behavior)
+        internal static DoorBlockExit Resolve(ushort listPointer, int behavior)
         {
-            IReadOnlyList<DoorListEntry> doors = RoomDoorListDefinitions.ForListPointer(listPointer);
-            int index = RoomBlockBehaviorCodec.Decode(behavior).DoorLink;
+            IReadOnlyList<DoorBlockExit> doors = RoomDoorListDefinitions.ForListPointer(listPointer);
+            int index = RoomBlockBehaviorCodec.DoorLinkOf(behavior);
             return index < doors.Count
                 ? doors[index]
                 : throw new InvalidDataException($"Door index {index} is outside the {doors.Count}-entry list $8F:{listPointer:X4}.");
@@ -305,7 +305,7 @@ internal static class DoorDefinitionsAccess
     extension(RoomDoorListDefinitions)
     {
         /// <summary>The door list of the room whose list is at <paramref name="listPointer"/>.</summary>
-        internal static IReadOnlyList<DoorListEntry> ForListPointer(ushort listPointer) =>
+        internal static IReadOnlyList<DoorBlockExit> ForListPointer(ushort listPointer) =>
             RoomByListPointer.TryGetValue(listPointer, out RoomDefinition? room)
                 ? RoomDoorListDefinitions.ByRoom[room]
                 : throw new ArgumentOutOfRangeException(nameof(listPointer), listPointer, "Pointer is not one of the 261 retail room door lists.");
@@ -323,7 +323,7 @@ internal static class DoorDefinitionsAccess
     }
 
     /// <summary>The door-list word of an entry.</summary>
-    extension(DoorListEntry self)
+    extension(DoorBlockExit self)
     {
         /// <summary>The word the cartridge's door list stores for this entry's physical door, or null for the elevator pseudo-door.</summary>
         internal ushort? Pointer => self.Door is { } door ? DoorHeaderSourcesConstants.PointerOf(door) : null;

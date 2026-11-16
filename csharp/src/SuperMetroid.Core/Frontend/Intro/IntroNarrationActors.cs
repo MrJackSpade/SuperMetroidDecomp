@@ -40,7 +40,7 @@ internal sealed class IntroNarrationActors
     /// <summary>Whether page six entered its final 128-frame caret hold.</summary>
     private bool narrationFinalHoldStarted;
     /// <summary>The persistent text-caret actor, running its typed animation (#641); <see cref="Caret"/> places it.</summary>
-    private readonly IntroDiscoverySprite caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroTextCaret);
+    private readonly CinematicActor caretSprite = new(default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroTextCaret);
     /// <summary>
     /// Whether the press that turns the page has been accepted since the arrow's last update: the page-turn setup starts
     /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
@@ -97,7 +97,7 @@ internal sealed class IntroNarrationActors
     private bool caretHidden;
 
     /// <summary>The Japanese text's next-page arrow while it shows (#1655); null with English text and between input waits.</summary>
-    internal IntroDiscoverySprite? NextPageArrow { get; private set; }
+    internal CinematicActor? NextPageArrow { get; private set; }
 
     /// <summary>
     /// Records that a page's input wait accepted the press that turns the page (#1655). The page-turn setup starts the
@@ -271,7 +271,7 @@ internal sealed class IntroNarrationActors
             {
                 audio.QueueSound(
                     IntroCinematicDefinitions.Sounds.Typewriter,
-                    priority: IntroCinematicDefinitions.Sounds.MaximumQueuedSounds);
+                    priority: IntroCinematicDefinitions.Sounds.SoundPriority);
             }
             text.Type(character);
             narrationCharacterIndex++;
@@ -366,7 +366,7 @@ internal sealed class IntroNarrationActors
     {
         if (NextPageArrow is not null)
             throw new InvalidOperationException("The narration spawned a next-page arrow while one was still showing.");
-        NextPageArrow = new IntroDiscoverySprite(
+        NextPageArrow = new CinematicActor(
             new(IntroCinematicDefinitions.NarrationLayout.NextPageArrowX, IntroCinematicDefinitions.NarrationLayout.NextPageArrowY),
             IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors), CinematicSpriteSegment.IntroNextPageArrow);
     }

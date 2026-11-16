@@ -114,7 +114,7 @@ internal static class SymbolRelocator
         var renames = new RenameMap(plan.Names, identity);
         var refusals = new Dictionary<ISymbol, string>(plan.Refusals, SymbolEqualityComparer.Default);
         foreach (var (symbol, reason) in PromotionRules.Refusals(collected.Widened, [.. collected.SetterPromotions.OfType<IPropertySymbol>()],
-                     member => renames.NewName(member) ?? member.Name, types, tree => compilationOf[tree].GetSemanticModel(tree), identity))
+                     member => renames.NewName(member) ?? member.Name, types, tree => SemanticModels.Of(compilationOf[tree], tree), identity))
             refusals.TryAdd(symbol, reason);
         if (refusals.Count > 0)
             return new PromotionDecision(collected, renames, Refused(collected, identity, refusals));

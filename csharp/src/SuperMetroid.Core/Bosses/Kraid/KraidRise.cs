@@ -242,6 +242,7 @@ internal sealed class KraidRise
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
+            case KraidPhase.Resting:
             default:
                 throw new InvalidOperationException($"Kraid body phase {state.BodyState.Phase} is not a growth phase.");
         }
@@ -307,7 +308,7 @@ internal sealed class KraidRise
         KraidEnemyState state,
         SamusState samus)
     {
-        KraidPhase? phase = state.BodyState.Phase;
+        KraidPhase phase = state.BodyState.Phase;
         switch (phase)
         {
             case KraidPhase.RestrictSamusToFirstScreen:
@@ -425,6 +426,7 @@ internal sealed class KraidRise
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
+            case KraidPhase.Resting:
             default:
                 throw new InvalidDataException(
                     $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");

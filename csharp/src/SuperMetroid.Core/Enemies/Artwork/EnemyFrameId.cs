@@ -1432,34 +1432,34 @@ public enum EnemyFrameId
     BlueBrinstarFaceBlockGlancingRight,
     /// <summary>The blue Brinstar face block: looking right.</summary>
     BlueBrinstarFaceBlockLookingRight,
-    /// <summary>The Morph Ball eye: open, its pupil toward 330 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward330,
-    /// <summary>The Morph Ball eye: open, its pupil toward 15 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward15,
-    /// <summary>The Morph Ball eye: open, its pupil toward 45 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward45,
-    /// <summary>The Morph Ball eye: open, its pupil toward 75 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward75,
-    /// <summary>The Morph Ball eye: open, its pupil toward 105 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward105,
-    /// <summary>The Morph Ball eye: open, its pupil toward 135 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward135,
-    /// <summary>The Morph Ball eye: open, its pupil toward 165 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward165,
-    /// <summary>The Morph Ball eye: open, its pupil toward 195 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward195,
-    /// <summary>The Morph Ball eye: open, its pupil toward 225 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward225,
-    /// <summary>The Morph Ball eye: open, its pupil toward 255 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward255,
-    /// <summary>The Morph Ball eye: open, its pupil toward 285 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward285,
-    /// <summary>The Morph Ball eye: open, its pupil toward 300 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward300,
-    /// <summary>The Morph Ball eye: open, its pupil toward 345 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward345,
-    /// <summary>The Morph Ball eye: open, its pupil toward 30 degrees clockwise from straight up.</summary>
-    MorphBallEyeLookingToward30,
+    /// <summary>The Morph Ball eye open, looking up and a little right.</summary>
+    MorphBallEyeLookingUpUpRight,
+    /// <summary>The Morph Ball eye open, looking up and to the right.</summary>
+    MorphBallEyeLookingUpRight,
+    /// <summary>The Morph Ball eye open, looking right and a little up.</summary>
+    MorphBallEyeLookingRightUpRight,
+    /// <summary>The Morph Ball eye open, looking straight right.</summary>
+    MorphBallEyeLookingRight,
+    /// <summary>The Morph Ball eye open, looking right and a little down.</summary>
+    MorphBallEyeLookingRightDownRight,
+    /// <summary>The Morph Ball eye open, looking down and to the right.</summary>
+    MorphBallEyeLookingDownRight,
+    /// <summary>The Morph Ball eye open, looking down and a little right.</summary>
+    MorphBallEyeLookingDownDownRight,
+    /// <summary>The Morph Ball eye open, looking down and a little left.</summary>
+    MorphBallEyeLookingDownDownLeft,
+    /// <summary>The Morph Ball eye open, looking down and to the left.</summary>
+    MorphBallEyeLookingDownLeft,
+    /// <summary>The Morph Ball eye open, looking left and a little down.</summary>
+    MorphBallEyeLookingLeftDownLeft,
+    /// <summary>The Morph Ball eye open, looking straight left.</summary>
+    MorphBallEyeLookingLeft,
+    /// <summary>The Morph Ball eye open, looking left and a little up.</summary>
+    MorphBallEyeLookingLeftUpLeft,
+    /// <summary>The Morph Ball eye open, looking up and to the left.</summary>
+    MorphBallEyeLookingUpLeft,
+    /// <summary>The Morph Ball eye open, looking up and a little left.</summary>
+    MorphBallEyeLookingUpUpLeft,
     /// <summary>The Morph Ball eye: turned right, half open.</summary>
     MorphBallEyeFacingRightHalfOpen,
     /// <summary>The Morph Ball eye: turned right, closed.</summary>

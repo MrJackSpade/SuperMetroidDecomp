@@ -90,8 +90,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the grounded Puyo.</summary>
     private void RunGroundedPuyo(RoomEnemyPlace place, PuyoEnemyState state, SamusState samus)
     {
-        // Decrementing and then testing for a non-negative count means a zero cooldown waits one frame and then wraps to 65535
-        // before hopping. This is not equivalent to a conventional "if timer != 0" test.
+        // The cooldown counts down before it is tested: a cooldown of N keeps the Puyo grounded for N updates and it hops
+        // on the next, so a zero cooldown hops at once.
         if (--state.HopCooldownTimer >= 0)
             return;
 

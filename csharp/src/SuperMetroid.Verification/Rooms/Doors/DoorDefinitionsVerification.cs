@@ -7,6 +7,11 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.World.RoomStates;
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
 
@@ -22,28 +27,66 @@ internal static class DoorDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Door header oracle revision");
         Suite(nameof(VerifyRetailDoorHeaders), () => VerifyRetailDoorHeaders(bus));
         Suite(nameof(VerifyRetailDoorListMapping), () => VerifyRetailDoorListMapping(bus));
-        Suite(nameof(VerifyCompiledDoorListCollision), () => VerifyCompiledDoorListCollision());
+        Suite(nameof(VerifyDoorBlockCollision), () => VerifyDoorBlockCollision());
+        Suite(nameof(VerifySharedLevelDoorBlocks), () => VerifySharedLevelDoorBlocks());
         Console.WriteLine("Doors: all596 physical headers, full elevator overlap and261 room lists match original ROM; collision resolves without native reads.");
     }
 
-    /// <summary>Confirms Landing Site door collision resolves the compiled BTS-indexed transition.</summary>
-    internal static void VerifyCompiledDoorListCollision()
+    /// <summary>
+    /// Confirms a door block leads where its room names (#2090): Samus's collision publishes the door its block leads through,
+    /// a behaviour write takes the door away so the block leads nowhere, and Mother Brain's escape-door write leads its block
+    /// into the escape.
+    /// </summary>
+    internal static void VerifyDoorBlockCollision()
     {
-        IReadOnlyList<DoorListEntry> landingDoors = RoomDoorListDefinitions.ByRoom[RoomDefinitions.LandingSite];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air)], [RoomBlockBehavior.None], [RoomBlockAppearance.Of(0)]), RoomLevelData.NothingBeyondGrid(), doors: landingDoors);
-        DoorDefinition resolved = (level.ResolveDoorCollision(
-            behavior: RoomBlockBehavior.None, samusPose: SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision()).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0.ForRoomCollision(), samusPose: 0).Door."));
-        AssertEqual(landingDoors[0].Door, resolved,
-            "production collision resolves compiled BTS index without a bus read");
-        AssertEqual(resolved, level.PendingDoorTransition,
-            "compiled collision publishes the selected transition");
+        var at = new Position16<RoomBlocks>(0, 0);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1),
+            new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock)], [RoomBlockBehavior.None], [RoomBlockAppearance.Of(0)]),
+            RoomLevelData.NothingBeyondGrid(), [new RoomDoorBlock(at, DoorBlockExit.Physical(CrateriaDoorDefinitions.LandingSiteToParlor))]);
+        SamusCollisionPose pose = SamusPoseId.ForwardFacingPowerSuitPose.ForRoomCollision();
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.ResolveDoorCollision(level.GetCollisionBlock(at), pose).Door,
+            "the door block leads through the door its room names");
+        AssertEqual(CrateriaDoorDefinitions.LandingSiteToParlor, level.PendingDoorTransition,
+            "the collision publishes the door's transition");
 
-        // #1896: a door block named by its door leads through that door: Mother Brain's escape door into the escape.
-        RoomBlockBehavior escape = RoomBlockBehavior.LinkingDoor(RoomDefinitions.MotherBrain, TourianDoorDefinitions.MotherBrainToTourianEscape1);
-        AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1, RoomDoorListDefinitions.ByRoom[RoomDefinitions.MotherBrain][escape.DoorLink].Door,
-            "a door block named by its door selects that door from its room's list");
-        AssertThrows<ArgumentException>(() => RoomBlockBehavior.LinkingDoor(RoomDefinitions.MotherBrain, TourianDoorDefinitions.RinkaShaftToMotherBrain),
-            "a door the room does not list leads nowhere from it");
+        level.SetBehavior(at, RoomBlockBehavior.None);
+        AssertThrows<InvalidDataException>(() => level.ResolveDoorCollision(level.GetCollisionBlock(at), pose, publishDoorSideEffects: false),
+            "a behaviour write takes the block's door away");
+
+        RoomObjectLevelWrites.WriteDoorBlock(level, at, MotherBrainDeathDefinitions.EscapeDoor);
+        AssertEqual(RoomCollisionType.DoorBlock, level.GetCollisionBlock(at).CollisionType, "the escape door's write makes a door block");
+        AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1,
+            level.ResolveDoorCollision(level.GetCollisionBlock(at), pose, publishDoorSideEffects: false).Door,
+            "Mother Brain's escape door block leads into the escape's first room");
+    }
+
+    /// <summary>
+    /// Confirms the installation leads a level several rooms share through each room's own doors (#2090): a save or map
+    /// room's level holds the same door blocks in every room using it, and the rooms lead some of them through different
+    /// doors.
+    /// </summary>
+    internal static void VerifySharedLevelDoorBlocks()
+    {
+        InstalledRoomLevelStreams streams = InstalledFixtures.RoomAssets.LevelStreams;
+        var shared = RetailRooms.All
+            .SelectMany(room => RoomStateLists.GetStates(room).Select(state => new RoomLevelUse(room, state.Level)))
+            .Distinct()
+            .GroupBy(use => use.Level)
+            .Where(group => group.Count() > 1)
+            .ToList();
+        AssertTrue(shared.Count > 0, "rooms share levels");
+        int differing = 0;
+        foreach (var level in shared)
+        {
+            List<IReadOnlyList<RoomDoorBlock>> rooms = [.. level.Select(use => streams.DoorBlocks(use.Room, use.Level))];
+            if (rooms.All(blocks => blocks.Count == 0))
+                continue;
+            HashSet<string> exits = [.. rooms.Select(blocks => string.Join(";", blocks.OrderBy(block => block.Block.Y).ThenBy(block => block.Block.X)
+                .Select(block => $"{block.Block}:{block.Exit}")))];
+            AssertTrue(exits.Count > 1, $"the rooms sharing level {level.Key} lead its door blocks through their own doors");
+            differing++;
+        }
+        AssertTrue(differing > 0, "some shared level has door blocks");
     }
 
     /// <summary>

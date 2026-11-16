@@ -130,7 +130,7 @@ internal static class IntroNextPageArrowVerification
     /// <summary>Requires the Japanese page's arrow spawned as its text ended, at its place, not yet updated.</summary>
     private static void RequireSpawned(IntroNarrationActors japanese, string page)
     {
-        IntroDiscoverySprite arrow = japanese.NextPageArrow
+        CinematicActor arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"Japanese {page} spawned no next-page arrow as its text ended.");
         AssertEqual(ArrowPosition, arrow.ScreenPlace, $"Japanese {page}'s next-page arrow shows at the screen's middle below the text");
         AssertTrue(arrow.Pose is null, $"Japanese {page}'s next-page arrow first updates on the update after its spawn");
@@ -170,7 +170,7 @@ internal static class IntroNextPageArrowVerification
     /// <summary>Requires the Japanese arrow present and showing <paramref name="expected"/>.</summary>
     private static void AssertArrowShows(IntroNarrationActors japanese, CinematicSpritePose expected, string at)
     {
-        IntroDiscoverySprite arrow = japanese.NextPageArrow
+        CinematicActor arrow = japanese.NextPageArrow
             ?? throw new InvalidOperationException($"The Japanese next-page arrow is gone at {at}.");
         AssertEqual<CinematicSpritePose?>(expected, arrow.Pose, $"the Japanese next-page arrow's pose at {at}");
     }

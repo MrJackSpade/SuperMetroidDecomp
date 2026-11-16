@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </remarks>
 internal sealed class DoorOpeningScrollState
 {
-    /// <summary>Pixels the camera and the background move per scroll update.</summary>
-    private const int LayerStepPixels = 4;
 
     /// <summary>Captures the directional setup positions, Samus's step, and the exact destination positions.</summary>
     private DoorOpeningScrollState(DoorOpeningScrollSetup setup)
@@ -47,8 +45,11 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
-    /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first frames.</summary>
+    /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first updates.</summary>
     public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
+
+    /// <summary>The scroll updates advanced so far.</summary>
+    private int _updatesAdvanced;
 
     /// <summary>
     /// Builds the setup position and the scroll's trajectory from a door and its destination camera and background
@@ -63,32 +64,14 @@ internal sealed class DoorOpeningScrollState
         DoorDirection direction = door.Orientation.Direction;
         FixedPosition<RoomPixels> samus = RebaseSamus(door, ApplySetupMovement(door, sourceSamus));
 
-        // The background starts as far before its endpoint as the setup camera does before the
-        // destination, except upward doors: their background begins 220 pixels (not 251) below it.
-        Offset16<BackgroundPixels> backgroundSetup = direction switch
-        {
-            DoorDirection.Right => new(-252, 0),
-            DoorDirection.Left => new(252, 0),
-            DoorDirection.Down => new(0, -224), // A downward door's first update only readies the row below the screen.
-            DoorDirection.Up => new(0, 220),
-            _ => throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction."),
-        };
+        Offset16<BackgroundPixels> backgroundSetup = Ensure.Listed(DoorOpeningScrollDefinitions.SetupBackgroundOffsets, direction);
 
         return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), RemainingFrames = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), BackgroundPosition = finalBackground + backgroundSetup, SamusPosition = samus, FinalCameraPosition = finalCamera });
     }
 
-    /// <summary>
-    /// The scroll updates that remain after setup: a right or left setup takes the first step
-    /// before placement (63 remain), down's first update only readies a row (56 remain), and an
-    /// upward door's placement correction leaves its first moving step to setup (55 remain).
-    /// </summary>
-    internal static int MovingScrollUpdates(DoorDirection direction) => direction switch
-    {
-        DoorDirection.Right or DoorDirection.Left => 63,
-        DoorDirection.Down => 56,
-        DoorDirection.Up => 55,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined door direction."),
-    };
+    /// <summary>The scroll updates that remain after setup (<see cref="DoorOpeningScrollDefinitions.MovingScrollUpdates"/>).</summary>
+    internal static int MovingScrollUpdates(DoorDirection direction) =>
+        Ensure.Listed(DoorOpeningScrollDefinitions.MovingScrollUpdates, direction);
 
     /// <summary>The room-pixel origin of the door's destination screen.</summary>
     internal static Position16<RoomPixels> GetDestination(DoorDefinition door) =>
@@ -96,18 +79,11 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>Camera origin after the directional setup's initial call.</summary>
     internal static Position16<RoomPixels> GetSetupCamera(DoorDefinition door) =>
-        GetDestination(door) + door.Orientation.Direction switch
-        {
-            DoorDirection.Right => new Offset16<RoomPixels>(-252, 0),
-            DoorDirection.Left => new Offset16<RoomPixels>(252, 0),
-            DoorDirection.Down => new Offset16<RoomPixels>(0, -224),
-            DoorDirection.Up => new Offset16<RoomPixels>(0, 251),
-            _ => throw new ArgumentOutOfRangeException(nameof(door), door.Orientation.Direction, "Undefined door direction."),
-        };
+        GetDestination(door) + Ensure.Listed(DoorOpeningScrollDefinitions.SetupCameraOffsets, door.Orientation.Direction);
 
     /// <summary>
-    /// The door setup replaces both whole coordinates with the foreground plus the
-    /// position modulo 256, preserving the fractions and deferring final nudges.
+    /// The door setup places Samus at the setup camera plus her place within the screen she stood in, on both axes,
+    /// preserving her fractions and deferring final nudges.
     /// </summary>
     internal static FixedPosition<RoomPixels> RebaseSamus(DoorDefinition door, FixedPosition<RoomPixels> setup)
     {
@@ -145,14 +121,14 @@ internal sealed class DoorOpeningScrollState
         DoorDefinition door, FixedPosition<RoomPixels> source) =>
         door.Orientation.Direction == DoorDirection.Down ? source : AdvanceSamus(door, source);
 
-    /// <summary>The signed four-pixel layer step of one scroll update along the travel axis.</summary>
-    private static Offset16<TSpace> LayerStep<TSpace>(DoorDirection direction)
+    /// <summary>The signed layer step of one scroll update along the travel axis.</summary>
+    internal static Offset16<TSpace> LayerStep<TSpace>(DoorDirection direction)
         where TSpace : ISpatialSpace => direction switch
         {
-            DoorDirection.Right => new(LayerStepPixels, 0),
-            DoorDirection.Left => new(-LayerStepPixels, 0),
-            DoorDirection.Down => new(0, LayerStepPixels),
-            DoorDirection.Up => new(0, -LayerStepPixels),
+            DoorDirection.Right => new(DoorOpeningScrollDefinitions.LayerStepPixels, 0),
+            DoorDirection.Left => new(-DoorOpeningScrollDefinitions.LayerStepPixels, 0),
+            DoorDirection.Down => new(0, DoorOpeningScrollDefinitions.LayerStepPixels),
+            DoorDirection.Up => new(0, -DoorOpeningScrollDefinitions.LayerStepPixels),
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
 
@@ -162,13 +138,14 @@ internal sealed class DoorOpeningScrollState
         if (RemainingFrames <= 0)
             return true;
 
-        int frameCounter = Direction == DoorDirection.Up ? 57 - RemainingFrames : 0;
         CameraPosition += LayerStep<RoomPixels>(Direction);
         BackgroundPosition += LayerStep<BackgroundPixels>(Direction);
         SamusPosition = SamusPosition.Advance(SamusScrollStep);
 
         RemainingFrames--;
-        RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up || frameCounter >= 5;
+        _updatesAdvanced++;
+        RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up ||
+            _updatesAdvanced > DoorOpeningScrollDefinitions.UpwardUpdatesBeforeScrollRecalculation;
         return RemainingFrames == 0;
     }
 

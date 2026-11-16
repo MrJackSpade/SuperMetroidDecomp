@@ -75,7 +75,7 @@ internal sealed class EndingStage
         int rank = SoleActorRank(role);
         if (rank >= 0)
             sprites.RemoveAll(actor => actor.Role == role);
-        var added = new EndingSprite(new IntroDiscoverySprite(position, EndingShades.Drawn(colouring), segment), role);
+        var added = new EndingSprite(new CinematicActor(position, EndingShades.Drawn(colouring), segment), role);
         // A sole actor stands before the first sole actor ranked after it; any other actor before the first sole actor.
         int place = sprites.FindIndex(actor => SoleActorRank(actor.Role) > rank && SoleActorRank(actor.Role) >= 0);
         sprites.Insert(place >= 0 ? place : sprites.Count, added);
@@ -128,7 +128,7 @@ internal sealed class EndingStage
     /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
     internal void StepEndingSpriteMotion(EndingSprite wrapper)
     {
-        IntroDiscoverySprite sprite = wrapper.Sprite;
+        CinematicActor sprite = wrapper.Sprite;
         switch (wrapper.Role)
         {
             case EndingSpriteRole.AnimalEscape:
@@ -184,7 +184,7 @@ internal sealed class EndingStage
     /// <summary>Starts starfield motion at flyaway and advances its velocity, which slows on every update.</summary>
     private void StepFlyawayStars(EndingSprite stars, EndingStarsMotion motion)
     {
-        IntroDiscoverySprite sprite = stars.Sprite;
+        CinematicActor sprite = stars.Sprite;
         switch (motion)
         {
             case EndingStarsMotion.WaitingForFlyaway:

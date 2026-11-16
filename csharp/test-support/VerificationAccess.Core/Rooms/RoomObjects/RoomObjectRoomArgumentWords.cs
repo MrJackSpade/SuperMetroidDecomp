@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Progression;
@@ -161,14 +162,58 @@ internal static class RoomObjectRoomArgumentWords
             : (ushort)0);
 
     /// <summary>
-    /// The native word of a live object's argument (#1691): the hit count for a cannon or the glass once set up, else its
-    /// typed argument's word, else the scroll program's place for a scroll trigger. A live object that holds none of these
-    /// has no word here: the cartridge's is its placement's filler or its spawner's, which names no state the port keeps.
+    /// The native word of a live object's argument (#1691): the hit count for a cannon or the glass once set up, else the
+    /// word of what its placement gave it, which it holds (#2091), else the scroll program's place for a scroll trigger. A
+    /// live object that holds none of these has no word here: the cartridge's is its placement's filler or its spawner's,
+    /// which names no state the port keeps.
     /// </summary>
     private static ushort? HeldWord(RoomObjectPlace place) =>
         HitWord(place) is { } hits ? unchecked((ushort)hits)
-        : ArgumentWord(place.Argument)
+        : PlacedWord(place.Behaviour)
             ?? ((place.Behaviour as ScrollTriggerObject)?.Change is { } program ? (ushort?)RoomScrollProgramNative.Addresses[program] : null);
+
+    /// <summary>
+    /// The native word of what a live object's placement gave it, as the object holds it: a door object's door (its spent
+    /// mark once it recorded the door opened, or the cleared word a shot-opened cap keeps), an item's location, a save
+    /// station's load station, a clearance watch's event, or a gate trigger's shot block; null for none.
+    /// </summary>
+    private static ushort? PlacedWord(RoomObjectBehaviour? behaviour) => behaviour switch
+    {
+        // A shot-opened cap's argument is the cleared word, which names the door its closing rule consults.
+        BlueDoorCapObject { OpenedByShot: true } => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft)),
+        DoorCapObject cap => DoorWord(cap.Door),
+        EyeDoorEyeObject eye => DoorWord(eye.Door),
+        EyeDoorPartObject part => DoorWord(part.Door),
+        CollectibleObject { Location: { } location } => ArgumentWord(new CollectedItemArgument(location)),
+        StationObject { SavedAt: { } station } => ArgumentWord(new SaveStationArgument(station)),
+        MetroidRoomClearanceObject watch => ArgumentWord(new MetroidRoomArgument(watch.Cleared)),
+        TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } shotBlock =>
+            ArgumentWord(new GateTriggerArgument(shotBlock)),
+        _ => null,
+    };
+
+    /// <summary>The gate trigger whose shot block <paramref name="change"/> draws, or null for any other terrain change.</summary>
+    private static DownwardGateShotBlockDefinition? GateTriggerDrawing(TerrainChange change)
+    {
+        foreach (DownwardGateShotBlockDefinition trigger in GateTriggersInTableOrder)
+        {
+            if (trigger.Change == change)
+                return trigger;
+        }
+        return null;
+    }
+
+    /// <summary>The native word of a door object's door: its spent mark once it recorded the door opened, else its door's.</summary>
+    private static ushort? DoorWord(PlacedDoor? door) => door is null ? null : door.Spent ? SpentMark : ArgumentWord(door.Placed);
+
+    /// <summary>Whether a live object is a door object that recorded its door opened for good, whose word keeps only its spent mark.</summary>
+    internal static bool IsSpentDoor(RoomObjectBehaviour? behaviour) => behaviour switch
+    {
+        DoorCapObject cap => cap.Door?.Spent == true,
+        EyeDoorEyeObject eye => eye.Door?.Spent == true,
+        EyeDoorPartObject part => part.Door?.Spent == true,
+        _ => false,
+    };
 
     /// <summary>The native word of a typed argument, or null for none.</summary>
     private static ushort? ArgumentWord(RoomObjectRoomArgument? argument) =>
@@ -178,9 +223,6 @@ internal static class RoomObjectRoomArgumentWords
             DoorBitArgument door => checked((ushort)(SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(door.Door) | (door.Persists ? 0 : NeverPersists))),
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (Array.IndexOf(GreyDoorConditionsInTableOrder, grey.Condition) << GreyConditionShift) | SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(grey.Door.Door))),
-            SpentDoorArgument => SpentMark,
-            // A shot-opened cap's argument is the cleared word, which names the door its closing rule consults.
-            ShotOpenedCapArgument => checked((ushort)SuperMetroid.AssetExtraction.Progression.RoomPlacementNumbers.Number(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft)),
             SaveStationArgument saved => checked((ushort)SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Number(saved.Station)),
             MetroidRoomArgument { Cleared: { } cleared } =>
                 checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, cleared)) * 2)),

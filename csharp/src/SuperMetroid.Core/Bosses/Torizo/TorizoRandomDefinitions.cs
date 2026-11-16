@@ -27,7 +27,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>
-    /// A turning Torizo's drool angle, any of the 256 steps of a turn: the selection divided by two, modulo 256.
+    /// A turning Torizo's drool angle, any of the 256 steps of a turn: the selection divided by two, within one turn.
     /// </summary>
     internal static readonly RandomSampleField DroolTurningAngle = new(1, 8);
 

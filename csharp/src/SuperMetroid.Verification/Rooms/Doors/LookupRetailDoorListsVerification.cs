@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -38,7 +39,7 @@ internal static class LookupRetailDoorListsVerification
                 referenced.Add(target);
                 if (target is 0x88fc or 0xa18a) elevatorReferences++;
             }
-            IReadOnlyList<DoorListEntry> actual = RoomDoorListDefinitions.ByRoom[RoomDefinitions.Get(room)];
+            IReadOnlyList<DoorBlockExit> actual = RoomDoorListDefinitions.ByRoom[RoomDefinitions.Get(room)];
             AssertEqual(pointer, RoomDoorListDefinitions.ListPointerOf(RoomDefinitions.Get(room)), "Door list keeps its room's source identity");
             AssertTrue(actual.Select(entry => entry.Pointer).SequenceEqual(original.Select(DoorDefinitionsAccess.DoorPointerOf)),
                 $"Door list {pointer:X4} count and all original targets match");

@@ -23,9 +23,6 @@ internal static class BullAnimations
         ],
         [P.Shot] =
         [
-        ],
-        [P.ShotLoop] =
-        [
             Show(EnemyFrameId.BullTentaclesUpright, 3),
             Show(EnemyFrameId.BullTentaclesTilted, 3),
             Show(EnemyFrameId.BullTentaclesUpright, 3),
@@ -37,8 +34,10 @@ internal static class BullAnimations
     internal static IReadOnlyDictionary<BullSegment, Animation<BullSegment>> StartingAt { get; } = new Dictionary<BullSegment, Animation<BullSegment>>
     {
         [P.Normal] = new([new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Shot] = new([new(P.ShotLoop, 0, 4, 5), new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
     };
+
+    /// <summary>The reaction to an immune shot (#2061): five quick cycles of its poses, then its normal cycle for good.</summary>
+    internal static Animation<BullSegment> Shot { get; } = new([new(P.Shot, 0, 4, 5), new(P.Normal, 0, 4, 1)], AnimationEnd.LoopsFrom(1));
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BullSegment> StartingWith(BullSegment segment) => StartingAt[segment];

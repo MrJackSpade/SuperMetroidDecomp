@@ -70,7 +70,6 @@ internal sealed class TorizoMovement
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
-        state.Phase = TorizoPhase.Falling;
         state.Motion = null;
         state.Velocity = EightEightVector<RoomPixels>.Zero;
         state.FallAtRestingSpeed();

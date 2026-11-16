@@ -18,9 +18,7 @@ internal static class YappingMawAnimationsVerification
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
                 (word, operands, cue, at) =>
                 {
-                    var instruction = Instructions[word];
-                    AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
-                    AssertEqual(instruction.Aim, cue.Aim, $"{at}: cue aim");
+                    AssertEqual(Instructions[word].Cue, cue, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 }));
         Console.WriteLine($"  Yapping Maw animations: {Entries.Length} segments ({beats} beats) and {YappingMawAnimations.StartingAt.Count} animations match bank $A8.");

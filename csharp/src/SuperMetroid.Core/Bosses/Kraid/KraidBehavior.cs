@@ -94,7 +94,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
         Combat.ResolveKraidBodyContact(body, state, samus);
-        if (state.BodyState.Phase is { } phase && KraidPhaseGroups.Rising.Contains(phase))
+        if (KraidPhaseGroups.Rising.Contains(state.BodyState.Phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);
             return;
@@ -301,6 +301,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.RaiseRocksEvery16Frames:
             case KraidPhase.RaiseRocksEvery8Frames:
             case KraidPhase.RaiseBody:
+            case KraidPhase.Resting:
             default:
                 throw new InvalidDataException(
                     $"Kraid body has no behaviour for phase {state.BodyState.Phase}.");

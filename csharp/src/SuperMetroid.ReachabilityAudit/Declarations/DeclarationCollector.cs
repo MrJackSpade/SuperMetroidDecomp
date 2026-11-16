@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ReachabilityAudit.Analysis;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 
 namespace SuperMetroid.ReachabilityAudit.Declarations;
 
@@ -15,7 +16,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
     {
         foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
         {
-            var model = compilation.GetSemanticModel(tree);
+            var model = SemanticModels.Of(compilation, tree);
             foreach (var node in tree.GetRoot().DescendantNodes())
             {
                 if (SymbolIdentity.Normalize(DeclaredSymbol(model, node)) is not { } symbol || identity.Key(symbol) is not { } key)

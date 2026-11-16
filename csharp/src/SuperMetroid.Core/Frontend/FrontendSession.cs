@@ -270,10 +270,6 @@ internal sealed class FrontendSession
             audio.QueueSound(RoomSound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
     /// <summary>
-    /// The state-publication half of Samus running out of health and the game timer. The
-    /// runtime's main-gameplay update has already completed its room-main and clock work when this is called.
-    /// </summary>
-    /// <summary>
     /// The gunship writes the liftoff game state only after the top hull has crossed
     /// Y=256, zeroing the screen fade's delay and counter. It does not freeze time: the liftoff state keeps
     /// running full gameplay, so Samus and the RNG advance behind the fade. The main-gameplay

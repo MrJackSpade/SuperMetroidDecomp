@@ -122,7 +122,7 @@ internal static class EnemyBombShotReactionVerification
         bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: bus, services: new StandaloneRoomEnemyServices(() => 0));
-        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)) });
+        enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Mellow, definition);
         place.Position = FixedPosition<RoomPixels>.FromWhole(Place);

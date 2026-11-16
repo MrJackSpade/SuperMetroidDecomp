@@ -38,9 +38,6 @@ public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings S
     /// <summary>Whether door transitions into or out of this room hide the foreground and drop the colours of the door, item and block pictures every room shares.</summary>
     public bool UsesIsolatedDoorTransition => Definition.UsesIsolatedDoorTransition;
 
-    /// <summary>The entries the room's door blocks select by index.</summary>
-    public IReadOnlyList<DoorListEntry> Doors => RoomDoorListDefinitions.ByRoom[Definition];
-
     /// <summary>Selects <paramref name="room"/>'s state for <paramref name="selection"/> from the compiled room definitions.</summary>
     public static SelectedRoom LoadUsingCompiledSelection(
         RoomDefinition room,

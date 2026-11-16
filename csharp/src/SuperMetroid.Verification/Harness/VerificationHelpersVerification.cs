@@ -209,7 +209,7 @@ internal static class VerificationHelpersVerification
         ReadOnlySpan<RoomTerrainBlock> foreground,
         ReadOnlySpan<RoomBlockBehavior> behavior,
         ReadOnlySpan<RoomBlockAppearance> background = default,
-        IReadOnlyList<DoorListEntry>? doors = null)
+        IReadOnlyCollection<RoomDoorBlock>? doorBlocks = null)
     {
         int blockCount = checked(size.X * size.Y);
         RoomBlockAppearance[] clearedBackground = background.IsEmpty
@@ -221,7 +221,7 @@ internal static class VerificationHelpersVerification
         var beyond = new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>([],
             Math.Max(0, RoomLevelSpaceDefinitions.PrefilledWordCount - blockCount), RoomTerrainBlocks.EdgeSolid,
             RoomBlockBehavior.None);
-        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), beyond, doors ?? []);
+        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), beyond, doorBlocks ?? []);
     }
 
     /// <summary>

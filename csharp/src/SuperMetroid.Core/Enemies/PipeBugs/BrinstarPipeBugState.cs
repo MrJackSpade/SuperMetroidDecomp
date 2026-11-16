@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 public sealed class BrinstarPipeBugState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal BrinstarPipeBugState(PipeBugAction action) => Action = action;
+    internal BrinstarPipeBugState(BrinstarPipeBugAction action) => Action = action;
 
     /// <summary>The animation the bug plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<PipeBugSegment> Playback { get; set; }
 
     /// <summary>The current action, one of the Brinstar actions.</summary>
-    public PipeBugAction Action { get; internal set; }
+    public BrinstarPipeBugAction Action { get; internal set; }
 
     /// <summary>The whole-pixel spawn position the bug returns to after leaving the screen.</summary>
     public Position16<RoomPixels> SpawnPosition { get; internal set; }

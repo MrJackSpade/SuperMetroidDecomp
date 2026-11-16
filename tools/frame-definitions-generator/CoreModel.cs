@@ -155,7 +155,7 @@ internal sealed class CoreModel
     /// <summary>Whose spawned-object sheet a spawned object draws from.</summary>
     public INamedTypeSymbol SpawnedObjectOwner { get; }
 
-    /// <summary>A room enemy place.</summary>
+    /// <summary>An enemy place (#1961).</summary>
     public INamedTypeSymbol RoomEnemyPlace { get; }
 
     /// <summary>

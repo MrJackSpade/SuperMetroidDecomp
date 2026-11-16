@@ -494,7 +494,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Executes the attack setup's zero-health tail call into the rainbow beam's setup. Setup happens on the
+    /// Goes straight on from the attack setup, at zero health, into the rainbow beam's setup. Setup happens on the
     /// same body-AI call, but the freshly installed rainbow timer is not decremented until
     /// Mother Brain's next enemy turn.
     /// </summary>

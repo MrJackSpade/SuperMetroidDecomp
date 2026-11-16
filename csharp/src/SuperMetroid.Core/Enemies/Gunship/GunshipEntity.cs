@@ -5,18 +5,18 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public void Initialize()
+    public void Initialize(EnemySpawnSurroundings surroundings)
     {
         switch (GunshipPartDefinitions.Parts[Place.DefinitionId])
         {
             case GunshipPart.ShipTop:
-                species.InitializeGunshipTop(Place);
+                species.InitializeGunshipTop(Place, surroundings.IntroducedSamus);
                 break;
             case GunshipPart.ShipBottomEntrance:
-                species.InitializeGunshipBottom(Place);
+                species.InitializeGunshipBottom(Place, surroundings.IntroducedSamus);
                 break;
             default:
                 throw new InvalidOperationException($"Gunship entity bound to {Place.DefinitionId}.");
@@ -40,5 +40,5 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemyPlace plac
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => species.AdvanceGunshipAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => GunshipBehavior.AdvanceGunshipAnimation(Place);
 }

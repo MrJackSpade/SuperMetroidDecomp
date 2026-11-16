@@ -13,7 +13,6 @@ internal static class MagdolliteLavaNativeListAddresses
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<MagdolliteLavaSegment>[] Entries =
     [
-        new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.SharedDelete, 0x84fc),
         new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.Left, 0xdfd8),
         new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.Right, 0xdfde),
         new NativeProgramEntry<MagdolliteLavaSegment>(MagdolliteLavaSegment.Shot, 0xdfe4),

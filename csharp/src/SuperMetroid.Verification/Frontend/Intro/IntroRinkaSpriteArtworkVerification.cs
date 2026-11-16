@@ -27,7 +27,7 @@ internal static class IntroRinkaSpriteArtworkVerification
     /// Draws a live intro actor from cartridge spritemap data as the native dispatcher does: it admits only signed origin
     /// rows -128 through 382, and draws an origin at or past row 256 through the off-screen loader.
     /// </summary>
-    internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
+    internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, CinematicActor actor)
     {
         ushort spritemap = CinematicSpritePoseSpritemaps.Of(actor.Pose);
         if (!actor.IsActive || spritemap == 0) return;
@@ -87,7 +87,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         stockOam.FinalizeFrame();
         var nativeLiveOam = new OamBuffer();
         nativeLiveOam.BeginFrame();
-        foreach (IntroDiscoverySprite actor in rinkas.LiveRinkas)
+        foreach (CinematicActor actor in rinkas.LiveRinkas)
             DrawImportedCinematicActor(bus, nativeLiveOam, actor);
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),

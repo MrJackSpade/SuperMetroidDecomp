@@ -166,6 +166,13 @@ animations (`SpawnStatueAnimations`). `Object` alone stays the game's own: the r
 places, sets up and runs (`RoomObject`, `BlueDoorCapObject`, `DeleteObject`), and an object in plain English
 (`SpaceObjects`, `SpawnedObjectOwner`).
 
+A name that says `Controller` with a port number names the console's controller port and is reported too (#2079,
+`CoreVocabularyAnalyzer.ControllerPort`), in any case (`_controller1`, `PreviousController1Input`, `controller2`). The
+cartridge read the player's actions from its first controller port. Core names the player's actions (`_playerActions`,
+`LastSeenPlayerActions`). `Controller` alone or before another word stays the game's own: a controller, a controller's
+input. A name that says `Bts` names the level data's block type secondary, the byte a block's behaviour was stored in,
+and is reported as a hardware word (#2079); Core names the block's behaviour (`behavior`).
+
 SME6454 also reads the original's numbering of the game (#1769). In every type it reports a numbered routine or variable
 label (`Func126`, `Func139–142`, `var4`). Outside hardware owners it reports a game state, load station or area by
 number (`game state eight`, `station 18`, `area six`, `area-zero`); a pose by the original's number, in hexadecimal or as
@@ -281,6 +288,18 @@ release`); Core names the sound library, the looping sound and the clip's fade, 
 particle voices the attack's sound`) stays English. In comments it reads a word run on to a number (#2018: `counter16`,
 `hold3`, `contains100`), a garbled numeral or a label of the original; a file extension (`.ps1`) and a name Core's code
 spells stay legal.
+
+Outside hardware owners SME6454 also reads the original program's structure and machine arithmetic (#2080), spaced or
+hyphenated: a parameter table (`calls through its parameter table`), a tail call in any word form (`tail-calls the
+initializer`), a short multiply or multiplication, an extension array (`the enemy extension arrays`), a rotting table
+(`the corpse's rotting table`) and a value modulo 256 (`Y modulo 256 reaches 240`). Core says what runs next and names
+the circle product, the species state, the rot schedule, the sample's lowest 256-value field or the place within a
+screen. It reads the display's colour math and screen designation (#2089): a fixed colour in either spelling (`the
+fixed-colour flash`), the main-screen designation `TM`, read case-sensitively, and a per-line effect (`the update's
+per-line effects`); Core names the flash, the wash, the endpoint colour, the page shown or the effect itself. It reads a
+type by number, hyphenated (`the ordinary type-6 fall`, #2089), and, in every type, a review cited under its ticket with
+or without its number sign (`reviewed under 1165`). A table of settings, Ridley's tail whip, a multiplication, a rotting
+corpse, a value modulo another number, a fixed set of colours, a per-line scroll or window and a type alone stay English.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

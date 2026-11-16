@@ -47,7 +47,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the shutter compositions.</summary>
     internal static int PreShutterFrameCount => FramesBefore(EnemyFrameId.ShutterTenPixelsLong);
     /// <summary>Frames the document lists before the Morph Ball eye artwork.</summary>
-    internal static int PreMorphBallEyeFrameCount => FramesBefore(EnemyFrameId.MorphBallEyeLookingToward330);
+    internal static int PreMorphBallEyeFrameCount => FramesBefore(EnemyFrameId.MorphBallEyeLookingUpUpRight);
     /// <summary>Frames the document lists before the face block's visual frames.</summary>
     internal static int PreFaceBlockFrameCount => FramesBefore(EnemyFrameId.FaceBlockNeutral);
     /// <summary>Frames the document lists before the Kago's visual frames.</summary>

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A gradual fade between the colour an ink shows and one fixed colour (#1512, #1544), as the game's shared gradual colour
+/// A gradual fade between the colour an ink shows and one endpoint colour (#1512, #1544), as the game's shared gradual colour
 /// change moves colours: each step moves every fade level (<see cref="FadeLevelColour"/>) by its remaining distance over
 /// the steps left, in 256ths, step zero changes nothing and the step after the last reaches the far colour
 /// exactly. Every colour between is the game's own step, the colour of the levels it reaches. The fade keeps the step
@@ -11,9 +11,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed record GradualColourFade : ColourEffect
 {
-    /// <summary>Keeps a fade's fixed colour, direction, length and the steps it has taken.</summary>
-    /// <param name="endpoint">The fixed colour: the one faded toward, or the one faded in from.</param>
-    /// <param name="direction">Whether the colour shown fades toward the fixed colour or in from it.</param>
+    /// <summary>Keeps a fade's endpoint colour, direction, length and the steps it has taken.</summary>
+    /// <param name="endpoint">The endpoint colour: the one faded toward, or the one faded in from.</param>
+    /// <param name="direction">Whether the colour shown fades toward the endpoint colour or in from it.</param>
     /// <param name="denominator">The fade's length: its last moving step is this one, one through <see cref="LongestDenominator"/>.</param>
     /// <param name="steps">The step counter's value at each step taken, in order.</param>
     public GradualColourFade(RgbColor endpoint, GradualFadeDirection direction, int denominator, ImmutableArray<int> steps)
@@ -26,7 +26,7 @@ public sealed record GradualColourFade : ColourEffect
         Steps = steps.IsDefault ? [] : steps;
     }
 
-    /// <summary>The fixed colour: the one faded toward, or the one faded in from.</summary>
+    /// <summary>The endpoint colour: the one faded toward, or the one faded in from.</summary>
     public RgbColor Endpoint { get; }
 
     /// <summary>Whether the colour shown fades toward <see cref="Endpoint"/> or in from it.</summary>

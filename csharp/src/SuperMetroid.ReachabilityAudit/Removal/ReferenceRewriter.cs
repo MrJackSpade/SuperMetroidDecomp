@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.ReachabilityAudit.Declarations;
+using SuperMetroid.ReachabilityAudit.SolutionLoading;
 using static SuperMetroid.ReachabilityAudit.Removal.RelocationSymbols;
 
 namespace SuperMetroid.ReachabilityAudit.Removal;
@@ -101,11 +102,12 @@ internal sealed class ReferenceRewriter
             throw new InvalidOperationException("A reference rewriter collects once.");
         foreach (var (tree, compilation, assembly) in trees)
         {
-            var model = compilation.GetSemanticModel(tree);
             bool shipped = shippedAssemblies.Contains(assembly);
             var root = tree.GetRoot();
             foreach (var node in root.DescendantNodes(descendIntoTrivia: true))
             {
+                // Each node is read from the model that bound it (SemanticModels).
+                var model = SemanticModels.At(compilation, tree, node);
                 // Moved code constructing a staying type needs the constructor visible from the target.
                 if (node is BaseObjectCreationExpressionSyntax creation && EnclosingMove(tree, creation) is { Placement: not RelocationPlacement.WholeType } constructing &&
                     SymbolIdentity.Normalize(model.GetSymbolInfo(creation).Symbol) is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor &&
@@ -259,7 +261,7 @@ internal sealed class ReferenceRewriter
             foreach (var baseList in root.DescendantNodes().OfType<BaseListSyntax>())
             {
                 if (InMovedSpan(tree, baseList.Span)) continue;
-                var kept = baseList.Types.Where(t => model.GetTypeInfo(t.Type).Type is not INamedTypeSymbol bt ||
+                var kept = baseList.Types.Where(t => SemanticModels.At(compilation, tree, t.Type).GetTypeInfo(t.Type).Type is not INamedTypeSymbol bt ||
                     identity.Key(bt.OriginalDefinition) is not { } baseKey || !moves.MovedInterfaceKeys.Contains(baseKey)).ToList();
                 if (kept.Count == baseList.Types.Count) continue;
                 var previous = baseList.GetFirstToken().GetPreviousToken();
@@ -274,7 +276,7 @@ internal sealed class ReferenceRewriter
             foreach (var syntax in DeclarationsOf(identity, field))
                 if (syntax is VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax { Variables.Count: > 1 } shared })
                     foreach (var sibling in shared.Variables)
-                        if (SymbolIdentity.Normalize(compilationOf[sibling.SyntaxTree].GetSemanticModel(sibling.SyntaxTree).GetDeclaredSymbol(sibling)) is { } other)
+                        if (SymbolIdentity.Normalize(SemanticModels.Of(compilationOf[sibling.SyntaxTree], sibling.SyntaxTree).GetDeclaredSymbol(sibling)) is { } other)
                             {
                                 widened.Add(other);
                                 Reached(other, reachedBy[field]);
@@ -308,10 +310,9 @@ internal sealed class ReferenceRewriter
     {
         foreach (var (tree, compilation, _) in trees)
         {
-            var model = compilation.GetSemanticModel(tree);
             var written = edits.TryGetValue(tree, out var list) ? list : [];
             foreach (var reference in tree.GetRoot().DescendantNodes(descendIntoTrivia: true).OfType<IdentifierNameSyntax>())
-                if (reference.Identifier.ValueText.StartsWith('_') && RenamedTo(SymbolIdentity.Normalize(model.GetSymbolInfo(reference).Symbol)) is not null &&
+                if (reference.Identifier.ValueText.StartsWith('_') && RenamedTo(SymbolIdentity.Normalize(SemanticModels.At(compilation, tree, reference).GetSymbolInfo(reference).Symbol)) is not null &&
                     !written.Any(edit => edit.Span.Contains(reference.Span)))
                     throw new InvalidOperationException($"The reference to {reference} at {reference.GetLocation().GetLineSpan()} was not " +
                         "written with the member's new name.");

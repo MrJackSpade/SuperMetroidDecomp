@@ -42,6 +42,16 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         _projectiles = projectiles;
     }
 
+    /// <summary>The action main AI runs for the stand or walk a cue of <paramref name="kind"/> begins.</summary>
+    internal static WalkingSpacePirateAction ActionBegunBy(WalkingSpacePirateCueKind kind) => kind switch
+    {
+        WalkingSpacePirateCueKind.StandStill => WalkingSpacePirateAction.StandingStill,
+        WalkingSpacePirateCueKind.WalkLeft => WalkingSpacePirateAction.WalkingLeft,
+        WalkingSpacePirateCueKind.WalkRight => WalkingSpacePirateAction.WalkingRight,
+        WalkingSpacePirateCueKind.ChooseMovement or _ =>
+            throw new InvalidOperationException($"A walking Space Pirate {kind} cue begins no stand or walk."),
+    };
+
     /// <summary>
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
     /// animation it selects, as the cue returns that animation; every other cue runs on.
@@ -50,11 +60,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         switch (cue)
         {
-            case WalkingSpacePirateCue.SetAction setAction:
-                // The pirate animation does not jump to the cue's action. It stores that action
-                // for main AI to run next frame, then runs on.
-                RequireWalkingSpacePirateState(place).Action = setAction.Action;
-                return null;
             case WalkingSpacePirateCue.FireLaserLeft fireLaserLeft:
                 SpawnWalkingSpacePirateLaser(place, direction: HorizontalDirection.Left, fireLaserLeft.LaserHeight);
                 return null;
@@ -63,6 +68,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 return null;
             case WalkingSpacePirateCue.Signal { Kind: WalkingSpacePirateCueKind.ChooseMovement }:
                 return SelectWalkingSpacePirateMovement(place, samus);
+            case WalkingSpacePirateCue.Signal begun:
+                // The pirate animation does not jump to the stand or walk it begins: main AI runs it from the next
+                // frame, as the animation runs on.
+                RequireWalkingSpacePirateState(place).Action = ActionBegunBy(begun.Kind);
+                return null;
             default:
                 throw new InvalidOperationException($"The walking Space Pirates' animations have no {cue} cue.");
         }
@@ -109,7 +119,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Initializes the walking Space Pirate.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemyPlace place)
     {
-        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.FollowingAnimation);
+        var state = new WalkingSpacePirateEnemyState(WalkingSpacePirateAction.StandingStill);
         place.SetSpeciesState(state);
 
         // The facing option alone selects the initial facing. The slow-laser option is an
@@ -124,8 +134,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // The posts wrap across the room's coordinate seam, as the game's additions do, so a modded patrol
         // reach can straddle it; the patrol compares positions by their signed difference, which still
         // sees each post on its own side of the pirate.
-        state.RightPost = new(CoordinateAxis.Wrap(place.Position.X.Whole + settings.PatrolReach), 0);
-        state.LeftPost = new(CoordinateAxis.Wrap(place.Position.X.Whole - settings.PatrolReach), 0);
+        state.RightPostX = CoordinateAxis.Wrap(place.Position.X.Whole + settings.PatrolReach);
+        state.LeftPostX = CoordinateAxis.Wrap(place.Position.X.Whole - settings.PatrolReach);
     }
 
     /// <summary>Runs the walking Space Pirate's main AI.</summary>
@@ -138,7 +148,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         switch (state.Action)
         {
-            case WalkingSpacePirateAction.FollowingAnimation:
+            case WalkingSpacePirateAction.StandingStill:
                 break;
 
             case WalkingSpacePirateAction.WalkingLeft:
@@ -197,7 +207,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 place,
                 displacement: WalkingPirateLeftStepDisplacement);
             if (!hitWall &&
-                (place.Position.Whole - state.LeftPost).X >= 0)
+                CoordinateAxis.Difference(place.Position.X.Whole, state.LeftPostX) >= 0)
             {
                 return;
             }
@@ -236,7 +246,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 level,
                 place,
                 displacement: WalkingPirateRightStepDisplacement) &&
-            (place.Position.Whole - state.RightPost).X < 0)
+            CoordinateAxis.Precedes(place.Position.X.Whole, state.RightPostX))
         {
             return;
         }

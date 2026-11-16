@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <param name="InitialAnimation">The animation the segment starts.</param>
 /// <param name="Motion">The segment's motion.</param>
 /// <param name="AngularVelocity">The turn the segment curls by each update.</param>
+/// <param name="CollisionAnimation">The head bob the segment plays as the chain recovers from striking a wall.</param>
 internal readonly record struct ShaktoolSegmentDefinition(
     EnemyProcessing Processing,
     EnemyContact Contact,
@@ -15,4 +16,5 @@ internal readonly record struct ShaktoolSegmentDefinition(
     RotationAngle InitialOrbitAngle,
     ShaktoolSegment InitialAnimation,
     ShaktoolSegmentMotion Motion,
-    RotationAngle AngularVelocity);
+    RotationAngle AngularVelocity,
+    ShaktoolSegment CollisionAnimation);

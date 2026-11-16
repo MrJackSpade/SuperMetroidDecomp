@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
 /// The Yapping Maw's eight attack bites and six cooldown animations (#641). Each
-/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YappingMawCue"/> naming what it does.
+/// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="YappingMawCue"/> with the values it acts on.
 /// </summary>
 internal static class YappingMawAnimations
 {
@@ -19,7 +19,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingUpJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingUpJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
         ],
@@ -27,7 +27,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingUpRightJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingUpRightJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingUpRightJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingUpRightJawsClosing, 3),
         ],
@@ -35,7 +35,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingRightJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingRightJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingRightJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingRightJawsClosing, 3),
         ],
@@ -43,7 +43,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingDownRightJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingDownRightJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingDownRightJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingDownRightJawsClosing, 3),
         ],
@@ -51,7 +51,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingDownJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingDownJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
         ],
@@ -59,7 +59,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsClosing, 3),
         ],
@@ -67,7 +67,7 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingLeftJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingLeftJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingLeftJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingLeftJawsClosing, 3),
         ],
@@ -75,18 +75,18 @@ internal static class YappingMawAnimations
         [
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsShut, 80),
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsClosing, 3),
         ],
         [P.CooldownUpRight] =
         [
-            Cue(new(K.HoldSamus, YappingMawAim.UpRight)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.UpRight)),
             Show(EnemyFrameId.YappingMawFacingUpRightJawsShut, 4),
         ],
         [P.CooldownUp] =
         [
-            Cue(new(K.HoldSamus, YappingMawAim.Up)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.Up)),
         ],
         [P.CooldownUpLoop] =
         [
@@ -94,13 +94,13 @@ internal static class YappingMawAnimations
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
             Show(EnemyFrameId.YappingMawFacingUpJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
         ],
         [P.CooldownUpLeft] =
         [
-            Cue(new(K.HoldSamus, YappingMawAim.UpLeft)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.UpLeft)),
             Show(EnemyFrameId.YappingMawFacingUpLeftJawsShut, 4),
-            Cue(new(K.HoldSamus, YappingMawAim.Up)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.Up)),
         ],
         [P.CooldownUpLeftLoop] =
         [
@@ -108,16 +108,16 @@ internal static class YappingMawAnimations
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
             Show(EnemyFrameId.YappingMawFacingUpJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingUpJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
         ],
         [P.CooldownDownRight] =
         [
-            Cue(new(K.HoldSamus, YappingMawAim.DownRight)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.DownRight)),
             Show(EnemyFrameId.YappingMawFacingDownRightJawsShut, 4),
         ],
         [P.CooldownDown] =
         [
-            Cue(new(K.HoldSamus, YappingMawAim.Down)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.Down)),
         ],
         [P.CooldownDownLoop] =
         [
@@ -125,13 +125,13 @@ internal static class YappingMawAnimations
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
             Show(EnemyFrameId.YappingMawFacingDownJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
         ],
         [P.CooldownDownLeft] =
         [
-            Cue(new(K.HoldSamus, YappingMawAim.DownLeft)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.DownLeft)),
             Show(EnemyFrameId.YappingMawFacingDownLeftJawsShut, 4),
-            Cue(new(K.HoldSamus, YappingMawAim.Down)),
+            Cue(new YappingMawCue.HoldSamus(YappingMawAim.Down)),
         ],
         [P.CooldownDownLeftLoop] =
         [
@@ -139,7 +139,7 @@ internal static class YappingMawAnimations
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
             Show(EnemyFrameId.YappingMawFacingDownJawsWide, 5),
             Show(EnemyFrameId.YappingMawFacingDownJawsClosing, 3),
-            Cue(new(K.PlayBiteSound)),
+            Cue(new YappingMawCue.Signal(K.PlayBiteSound)),
         ],
     });
 

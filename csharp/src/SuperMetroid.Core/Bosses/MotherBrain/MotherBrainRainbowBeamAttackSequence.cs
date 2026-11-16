@@ -62,7 +62,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Current angle, in 256ths of a turn, of the rainbow beam's per-line effect.
+    /// Current angle, in 256ths of a turn, of the rainbow beam's cone.
     /// Exposing the movement owner's angle lets the live room adapter publish the
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>
@@ -212,10 +212,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
         Ensure.NotNull(samus);
-        if (State.Phase is null)
-            throw new InvalidOperationException("The active rainbow-beam sequence has not started.");
-
-        MotherBrainBodyPhase? phaseBefore = State.Phase;
+        MotherBrainBodyPhase phaseBefore = State.Phase;
         uint headAnimationScriptRequestSerialBefore = State.HeadAnimationRequestSerial;
         var requests = new MotherBrainRainbowBeamStepRequests();
 
@@ -470,7 +467,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyPhase.SecondPhaseLaserPositionHeadSlowlyAndFire:
                 case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
                 case MotherBrainBodyPhase.SecondPhaseHandBeam:
-                case null:
                 default:
                     throw new InvalidOperationException($"Unsupported rainbow-beam phase {State.Phase}.");
             }

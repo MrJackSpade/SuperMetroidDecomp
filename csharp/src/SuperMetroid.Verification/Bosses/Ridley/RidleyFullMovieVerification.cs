@@ -126,7 +126,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley);
         var body = runtime.Enemies.Places.InUpdateOrder[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
-        runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
+        runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.IntroducedSamus);
         (state ?? throw new InvalidOperationException("Verification requires state.")).Phase = RidleyPhase.NorfairDeathFinish; state.PhaseTimer = 0;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         AssertEqual(RidleyPhase.NorfairDeathComplete, state.Phase, "death finish selects native C600 return");
@@ -732,9 +732,9 @@ internal static class RidleyFullMovieVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+            var door = level.ResolveDoorCollision(block, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
             if (door.Door?.DestinationRoom != RoomDefinitions.Ridley) continue;
-            level.ResolveDoorCollision(block.Behavior, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), true);
+            level.ResolveDoorCollision(block, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), true);
             found = true;
         }
         AssertTrue(found, "native Ridley entry door");

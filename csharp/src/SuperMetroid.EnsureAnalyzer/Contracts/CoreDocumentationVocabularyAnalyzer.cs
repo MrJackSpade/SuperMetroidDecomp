@@ -52,7 +52,10 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// animation interpreter's sleep, stream and bytecode. #1971, #1998 and #2018 add the review trail, read in every type:
 /// review and investigation citations, proofs, pinned reference data, release pins and commit hashes; and, outside
 /// hardware owners, the original's table, entry, slot, parameter and program numbering, its callers and calls, its
-/// dispatch, the sound chip's voices and key-off, and words run on to a number.
+/// dispatch, the sound chip's voices and key-off, and words run on to a number. #2080 adds, outside hardware owners, the
+/// original's parameter tables, tail calls, short multiplies, extension arrays, rotting tables and arithmetic modulo 256,
+/// and #2089 its fixed colour, main-screen designation and per-line effects, a type by number and, in every type, a
+/// review cited under its ticket.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -246,7 +249,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>
     /// The display's memory and its line tables in prose (#1632): video, display or graphics memory, and a per-line or
     /// scanline table. Core publishes pictures, layers and sampled waves; it owns no display memory and fills no table
-    /// the display reads line by line. A per-line effect, scroll or window is the effect itself and stays legal.
+    /// the display reads line by line. A per-line scroll or window is the effect itself and stays legal; a per-line effect
+    /// is <see cref="DisplayEffectProse"/>'s.
     /// </summary>
     private static readonly Regex DisplayMemoryProse = new(
         @"\b(?:video|display|graphics)[-\s]+memor(?:y|ies)\b" +
@@ -356,7 +360,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The original's numbering of Samus's movement in prose (#1856), outside hardware owners, spaced or hyphenated, in
-    /// digits or words: a movement type by number (movement type zero, movement-type 6), a mode by number (mode one, modes
+    /// digits or words: a movement type by number (movement type zero, movement-type 6), a type by number hyphenated (the
+    /// ordinary type-6 fall, #2089), a mode by number (mode one, modes
     /// one and two, acceleration mode 2), a collision result by number (collision result one) and a status by number (the
     /// elevator's status from one to two, status 0). The original numbered each pose's movement type, Samus's acceleration
     /// modes, her collision results and the elevator's status; Core names each one and cites it with <c>see cref</c>.
@@ -365,6 +370,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static readonly Regex MovementNumberProse = new(
         @"\bmovement[-\s]+types?[-\s]+" + NumberWord + @"\b" + CountedNoun +
+        @"|\btypes?-" + NumberWord + @"\b" +
         @"|\bmodes?[-\s]+" + NumberWord + @"\b" + CountedNoun +
         @"|\bcollision[-\s]+results?[-\s]+" + NumberWord + @"\b" + CountedNoun +
         @"|\bstatus(?:es)?[-\s]+(?:from[-\s]+)?" + NumberWord + @"\b" + CountedNoun,
@@ -590,9 +596,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
 
     /// <summary>
     /// The review trail in prose (#1971, #1998, #2018), read in every Core type: a review, check, verification, audit or
-    /// investigation cited by its ticket (reviewed for #1165, #1165 independently confirms, the #1165 research, Issue
-    /// #1039:), anything independently reviewed, checked, verified, audited or confirmed, a pair of ticket citations
-    /// (#625 / #643), an investigation in any word form, a proof, data pinned for reference (the pinned retail data, the
+    /// investigation cited by its ticket (reviewed for #1165, reviewed under 1165 (#2089), #1165 independently confirms,
+    /// the #1165 research, Issue #1039:), anything independently reviewed, checked, verified, audited or confirmed, a
+    /// pair of ticket citations (#625 / #643), an investigation in any word form, a proof, data pinned for reference (the pinned retail data, the
     /// pinned cartridge's sine words, its pinned room states), a release pinned by its version (<c>v1.0</c>) and a
     /// commit hash (<c>db3aa8b3bb</c>). Core states what the game does; how a value was reviewed, which ticket checked it
     /// and which commit fixed it are the repository's history, not the game's. English stays legal: a ticket cited for
@@ -600,7 +606,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// mouth), a check the game itself makes, and a decimal number.
     /// </summary>
     private static readonly Regex ReviewTrailProse = new(
-        @"\b(?:reviewed|checked|verified|audited|confirmed|investigated)\s+(?:for|in|by|under)\s+#[0-9]+" +
+        @"\b(?:reviewed|checked|verified|audited|confirmed|investigated)\s+(?:(?:for|in|by)\s+#|under\s+#?)[0-9]+" +
         @"|\bindependently\s+(?:re-?)?(?:review|check|verif|audit|confirm)\w*" +
         @"|#[0-9]+\s+(?:research|independently|review\w*|audit\w*|investigation)\b|\bissue\s+#[0-9]+" +
         @"|#[0-9]+\s*/\s*#[0-9]+" +
@@ -660,6 +666,37 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// </summary>
     private static readonly Regex SoundChipProse = new(
         @"\bvoice[sd]?\b(?!\s+(?:the|its|their|a|an|each|every)\b)|\bkey[-\s]?offs?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program's structure and machine arithmetic in prose (#2080), outside hardware owners, spaced or
+    /// hyphenated: a parameter table (calls through its parameter table), a tail call in any word form (tail-calls the
+    /// initializer, a tail call into the setup, tail-calling the mover), a short multiply or multiplication, an extension
+    /// array (the enemy extension arrays), a rotting table (the corpse's rotting table, a rotting-table row) and a value
+    /// taken modulo 256 or mod 256 (Y modulo 256 reaches 240, the sample modulo 256). The original read its routines'
+    /// settings from parameter tables, jumped on into another routine, multiplied by a byte, kept species state in
+    /// arrays beside each enemy, rotted corpses row by row from a table and kept a value's low byte; Core says what
+    /// runs next, names the circle product, the state, the rot schedule and the roll or place within a screen. A
+    /// compatibility service describes the arithmetic it reproduces. English stays legal: a table of settings, a tail
+    /// (Ridley's tail whip) or a call alone, a multiplication, a rotting corpse, and a value taken modulo another number.
+    /// </summary>
+    private static readonly Regex ProgramStructureProse = new(
+        @"\bparameter[-\s]+tables?\b|\btail[-\s]?call\w*|\bshort[-\s]+multipl\w*|\bextension[-\s]+arrays?\b" +
+        @"|\brotting[-\s]+tables?\b|\bmod(?:ulo)?[-\s]+256\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The display's colour math and screen designation in prose (#2089), outside hardware owners: a fixed colour, spaced
+    /// or hyphenated, in either spelling (the fixed-colour flash, fades fixed color), the main-screen designation
+    /// <c>TM</c>, read case-sensitively (switches TM back to text), and a per-line or per-scanline effect (the update's
+    /// per-line effects, the rainbow beam's per-line effect). The original added a fixed colour to the picture, chose the
+    /// main screen's layers by a register and drew its beams, hazes and waves by rewriting the display line by line;
+    /// Core names the flash, the wash, the endpoint colour, the page shown and the effect itself (the beam's cone, the
+    /// haze, the sky's bands). English stays legal: a colour that is fixed (a fixed set of colours), a lower-case tm, and
+    /// a per-line scroll or window.
+    /// </summary>
+    private static readonly Regex DisplayEffectProse = new(
+        @"\bfixed[-\s]+colou?rs?\b|(?-i:\bTM\b)|\bper[-\s]+(?:scan)?line\s+effects?\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -862,6 +899,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : OriginalNumberingProse.Match(Markup.Replace(text, " ")) is { Success: true } originalNumbering ? originalNumbering.Value
             : CallerProse.Match(Markup.Replace(text, " ")) is { Success: true } caller ? caller.Value
             : SoundChipProse.Match(Markup.Replace(text, " ")) is { Success: true } soundChip ? soundChip.Value
+            : ProgramStructureProse.Match(Markup.Replace(text, " ")) is { Success: true } programStructure ? programStructure.Value
+            : DisplayEffectProse.Match(Markup.Replace(text, " ")) is { Success: true } displayEffect ? displayEffect.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

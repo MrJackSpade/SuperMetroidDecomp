@@ -311,7 +311,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (fade.Brighten())
                 {
                     Phase = IntroCinematicPhase.LastMetroidIsInCaptivity;
-                    timer = 60;
+                    timer = IntroCinematicDefinitions.Timing.FirstLineHold;
                 }
                 break;
 
@@ -320,7 +320,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 {
                     audio.QueueMusic(MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.CaptivityLineSong));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
-                    timer = 200;
+                    timer = IntroCinematicDefinitions.Timing.CaptivityLineHold;
                 }
                 break;
 
@@ -343,7 +343,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 if (MusicQueueFinished())
                 {
                     Phase = IntroCinematicPhase.FourSecondHold;
-                    timer = 240;
+                    timer = IntroCinematicDefinitions.Timing.FourSecondHold;
                 }
                 break;
 
@@ -609,10 +609,10 @@ public sealed class IntroCinematicState : IFrontendScreen
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
+            Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
             SelectedHudItem = HudItem.Missile,
-            Missiles = 900,
-            MaxMissiles = 900,
+            Missiles = IntroCinematicDefinitions.Flashback.Missiles,
+            MaxMissiles = IntroCinematicDefinitions.Flashback.Missiles,
         };
         // Samus's shared frame phases read the active cinematic phase to select
         // intro colour restoration and suppress gameplay-only sound/landing effects.
@@ -747,7 +747,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     private void StepPageThreeCrossfade()
     {
         // The reverse crossfade is shared by pages two and three. The named outer phase keeps
-        // rendering the SR388 actors until its final decrement switches TM back to text.
+        // showing the SR388 actors until its final step shows the text page alone again.
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
@@ -946,8 +946,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
             // When knockback ends humanoid knockback it selects the right or left falling pose and restores
-            // normal movement. The following frames therefore execute the ordinary type-6
-            // fall until the room's collision reports the laboratory floor.
+            // normal movement. The following frames therefore run Samus's ordinary fall until the room's
+            // collision reports the laboratory floor.
             fallingMovement = SamusAerialMovement.StepFalling(
 
                 level,
@@ -985,8 +985,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             transitionAccepted = true;
         }
 
-        // The intro demo's movement phase consumes the timer published by Rinka zero on the preceding cinematic-
-        // sprite pass. Keeping this after animation matches Samus's update during the intro demo:
+        // The intro demo's movement phase consumes the knockback timer the first Rinka's hit published on the
+        // preceding cinematic-sprite pass. Keeping this after animation matches Samus's update during the intro demo:
         // the hit frame finishes its standing animation before the knockback start installs the knockback pose.
         if (!samus.KnockbackActive &&
             samus.KnockbackTimer != 0 &&

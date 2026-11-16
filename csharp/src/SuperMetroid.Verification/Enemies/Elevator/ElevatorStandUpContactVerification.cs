@@ -24,13 +24,14 @@ internal static class ElevatorStandUpContactVerification
         const int Width = 4, Height = 6, DoorRow = 4;
         var blocks = new RoomTerrainBlock[Width * Height];
         var behaviors = new RoomBlockBehavior[Width * Height];
+        var doorBlocks = new List<RoomDoorBlock>();
         for (int x = 0; x < Width; x++)
         {
-            // Tourian's elevator list: behaviour 2 is the solid pseudo-door that arms the actor.
+            // Tourian's elevator room: the elevator's door blocks lead to the solid pseudo-door that arms the actor.
             blocks[DoorRow * Width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.DoorBlock);
-            behaviors[DoorRow * Width + x] = RoomBlockBehaviorCodec.Decode(2);
+            doorBlocks.Add(new RoomDoorBlock(new(x, DoorRow), DoorDefinitions.Resolve(0xdad5, 2)));
         }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[Width * Height]), RoomLevelData.NothingBeyondGrid(), doors: RoomDoorListDefinitions.ForListPointer(0xdad5));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[Width * Height]), RoomLevelData.NothingBeyondGrid(), doorBlocks);
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(24, 0)) };
         SamusPoseMetadata.RefreshCollisionRadii(samus);

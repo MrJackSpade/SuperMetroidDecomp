@@ -66,7 +66,7 @@ internal sealed record RoomLoaderDependencies
     public required SamusFrameState Player { get; init; }
 
     /// <summary>The host's installed room-object artwork each room's room-object system draws with.</summary>
-    public required RoomObjectVisuals ShotBlockVisuals { get; init; }
+    public required RoomObjectVisuals RoomObjectVisuals { get; init; }
 
     /// <summary>The held beam charge, flare and charge colouring, which each room's projectile system shares.</summary>
     public required BeamChargeState BeamCharge { get; init; }

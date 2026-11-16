@@ -22,7 +22,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
     /// <summary>Bank $B2, which holds the Space Pirates' code and frames.</summary>
     private const byte SpacePirateFrameBank = 0xb2;
 
-    /// <summary>Checks all compiled Pirate frame and list bytes against the cartridge, then compares collision callbacks and hits through the production walker.</summary>
+    /// <summary>
+    /// Checks every compiled Pirate frame's hitboxes against the cartridge's frame, whose components place shared hitbox
+    /// lists, then compares collision callbacks and hits through the production walker.
+    /// </summary>
     internal static void VerifySpacePirateCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -34,39 +37,60 @@ internal static class SpacePirateCollisionDefinitionsVerification
         var ninjaFramePointers = new HashSet<ushort>();
         AssertEqual(132, SpacePirateCollisionDefinitions.FrameCount,
             "compiled Space Pirate extended-frame count");
-        AssertEqual(147, SpacePirateCollisionDefinitions.ListCount,
-            "compiled Space Pirate hitbox-list count");
-        CollisionRecordRuns<EnemyCollisionHitbox> nativeLists = NativeHitboxLists();
         int componentCount = 0;
+        int hitboxCount = 0;
+        var nativeLists = new HashSet<ushort>();
+        int rectangleCount = 0;
         var nativeRanges = new HashSet<int>();
         for (int index = 0; index < SpacePirateCollisionDefinitions.FrameCount;
              index++)
         {
             SpacePirateCollisionFrame frame =
                 SpacePirateCollisionDefinitions.Frame(index);
-            int native = 0xb20000 | frame.Pointer;
-            AssertEqual(rom.ReadCartridgeByte(native), frame.Components.Length,
-                $"Space Pirate frame $B2:{frame.Pointer:X4} component count");
-            Block(frame.Pointer, 2 + frame.Components.Length * 8);
-            for (int componentIndex = 0;
-                 componentIndex < frame.Components.Length; componentIndex++)
+            // The cartridge's frame places hitbox lists it shares between frames: each component is an offset from the
+            // Pirate's origin and a list, so a frame's hitboxes are its components' lists, each moved by its offset, in order.
+            int components = rom.ReadCartridgeByte(0xb20000 | frame.Pointer);
+            Block(frame.Pointer, 2 + components * 8);
+            int hitbox = 0;
+            for (int componentIndex = 0; componentIndex < components; componentIndex++)
             {
-                EnemyCollisionComponent component =
-                    frame.Components[componentIndex];
-                ushort record = unchecked((ushort)(frame.Pointer + 2 +
-                    componentIndex * 8));
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | record)), component.Offset.X,
-                    "Space Pirate native collision-component X");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(record + 2))))),
-                    component.Offset.Y, "Space Pirate native collision-component Y");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(record + 6)))),
-                    NativeListPointer(nativeLists, component.Hitboxes),
-                    "Space Pirate native component hitbox identity");
+                ushort record = unchecked((ushort)(frame.Pointer + 2 + componentIndex * 8));
+                short offsetX = unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | record));
+                short offsetY = unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(record + 2))));
+                ushort list = rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(record + 6)));
+                int rectangles = rom.ReadCartridgeWordFixedBank(0xb20000 | list);
+                Block(list, 2 + rectangles * 12);
+                if (nativeLists.Add(list))
+                    rectangleCount += rectangles;
+                for (int rectangle = 0; rectangle < rectangles; rectangle++, hitbox++)
+                {
+                    ushort address = unchecked((ushort)(list + 2 + rectangle * 12));
+                    AssertTrue(hitbox < frame.Hitboxes.Length,
+                        $"Space Pirate frame $B2:{frame.Pointer:X4} has its native hitbox {hitbox}");
+                    EnemyCollisionHitbox expected = frame.Hitboxes[hitbox];
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | address)) + offsetX, expected.Left,
+                        $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox {hitbox} left");
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(address + 2)))) + offsetY,
+                        expected.Top, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox {hitbox} top");
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(address + 4)))) + offsetX,
+                        expected.Right, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox {hitbox} right");
+                    AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(address + 6)))) + offsetY,
+                        expected.Bottom, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox {hitbox} bottom");
+                    AssertEqual(EnemyReactionAccess.Of(0xb2, rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(address + 8))), shot: false),
+                        (EnemyReaction?)expected.Touch, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox {hitbox} touch callback");
+                    AssertEqual(EnemyReactionAccess.Of(0xb2, rom.ReadCartridgeWordFixedBank(0xb20000 | unchecked((ushort)(address + 10))), shot: true),
+                        (EnemyReaction?)expected.Shot, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox {hitbox} shot callback");
+                }
                 componentCount++;
             }
+            AssertEqual(hitbox, frame.Hitboxes.Length, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox count");
+            hitboxCount += hitbox;
         }
         AssertEqual(229, componentCount,
-            "Space Pirate compiled collision-component count");
+            "Space Pirate native collision-component count");
+        AssertEqual(147, nativeLists.Count, "Space Pirate native hitbox-list count");
+        AssertEqual(155, rectangleCount, "Space Pirate native collision-rectangle count");
+        AssertEqual(237, hitboxCount, "Space Pirate compiled hitbox count");
         AssertTrue(EnemyExtendedFrameDefinitions.Frames.Any(
                 frame => frame.Bank != EnemyExtendedFrameDefinitions.Bank),
             "shared extended artwork catalog also contains non-Pirate boss frames");
@@ -77,58 +101,28 @@ internal static class SpacePirateCollisionDefinitionsVerification
             // not to this bank-$B2 Space Pirate collision catalog.
             if (frame.Bank != EnemyExtendedFrameDefinitions.Bank)
                 continue;
-            AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(frame.Pointer).Length > 0,
+            AssertTrue(SpacePirateCollisionDefinitions.HitboxesAt(frame.Pointer).Length > 0,
                 $"installed Pirate frame {frame.Name} has fixed collision");
         }
         foreach (ushort pointer in WallSpacePirateAnimationsConstants.Spritemaps(Enum.GetValues<WallSpacePirateSegment>()))
-            AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
+            AssertTrue(SpacePirateCollisionDefinitions.HitboxesAt(pointer).Length > 0,
                 $"wall-Pirate shown frame $B2:{pointer:X4} has fixed collision");
         foreach (ushort pointer in NinjaSpacePirateAnimationsConstants.Spritemaps(Enum.GetValues<NinjaSpacePirateSegment>()))
         {
             ninjaFramePointers.Add(pointer);
-            AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(pointer).Length > 0,
+            AssertTrue(SpacePirateCollisionDefinitions.HitboxesAt(pointer).Length > 0,
                 $"ninja-Pirate shown frame $B2:{pointer:X4} has fixed collision");
         }
         AssertEqual(76, ninjaFramePointers.Count,
             "distinct ninja-Pirate collision-frame identities");
-        AssertTrue(SpacePirateCollisionDefinitions.ComponentsAt(
+        AssertTrue(SpacePirateCollisionDefinitions.HitboxesAt(
                 EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap).Length > 0,
             "Space Pirate initializer's common empty frame has fixed collision");
-        int rectangleCount = 0;
-        for (int index = 0; index < SpacePirateCollisionDefinitions.ListCount;
-             index++)
-        {
-            SpacePirateCollisionList list = new(nativeLists.PointerAt(index), nativeLists.RecordAt(index));
-            AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | list.Pointer), list.Rectangles.Length,
-                $"Space Pirate hitbox $B2:{list.Pointer:X4} rectangle count");
-            Block(list.Pointer, 2 + list.Rectangles.Length * 12);
-            for (int rectangle = 0; rectangle < list.Rectangles.Length; rectangle++)
-            {
-                EnemyCollisionHitbox expected = list.Rectangles[rectangle];
-                ushort address = unchecked((ushort)(list.Pointer + 2 +
-                    rectangle * 12));
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | address)), expected.Left,
-                    "Space Pirate native hitbox left");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 2))))),
-                    expected.Top, "Space Pirate native hitbox top");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 4))))),
-                    expected.Right, "Space Pirate native hitbox right");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 6))))),
-                    expected.Bottom, "Space Pirate native hitbox bottom");
-                AssertEqual(EnemyReactionAccess.Of(0xb2, rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 8)))), shot: false),
-                    (EnemyReaction?)expected.Touch, "Space Pirate native touch callback");
-                AssertEqual(EnemyReactionAccess.Of(0xb2, rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 10)))), shot: true),
-                    (EnemyReaction?)expected.Shot, "Space Pirate native shot callback");
-                rectangleCount++;
-            }
-        }
-        AssertEqual(155, rectangleCount,
-            "Space Pirate compiled collision-rectangle count");
         AssertThrows<InvalidDataException>(
-            () => SpacePirateCollisionDefinitions.ComponentsAt(0x8000),
+            () => SpacePirateCollisionDefinitions.HitboxesAt(0x8000),
             "unknown Space Pirate frame rejects instead of reading ROM");
         ushort warmedFrame = SpacePirateCollisionDefinitions.Frame(0).Pointer;
-        _ = SpacePirateCollisionDefinitions.ComponentsAt(warmedFrame).Length;
+        _ = SpacePirateCollisionDefinitions.HitboxesAt(warmedFrame).Length;
         _ = MeasureLookupAllocation(warmedFrame);
         (long allocated, int lookupChecksum) = MeasureLookupAllocation(warmedFrame);
         AssertTrue(lookupChecksum > 0, "Space Pirate lookup probe consumes data");
@@ -145,9 +139,9 @@ internal static class SpacePirateCollisionDefinitionsVerification
             int checksum = 0;
             for (int index = 0; index < 65536; index++)
             {
-                ReadOnlySpan<EnemyCollisionComponent> components = SpacePirateCollisionDefinitions.ComponentsAt(frame);
-                checksum += components.Length;
-                checksum += components[0].Hitboxes.Count;
+                ReadOnlySpan<EnemyCollisionHitbox> hitboxes = SpacePirateCollisionDefinitions.HitboxesAt(frame);
+                checksum += hitboxes.Length;
+                checksum += hitboxes[0].Right - hitboxes[0].Left + 1;
             }
             return new MeasureLookupAllocationResult(GC.GetAllocatedBytesForCurrentThread() - before, checksum);
         }
@@ -167,43 +161,37 @@ internal static class SpacePirateCollisionDefinitionsVerification
                     originY, compiledPirate: false);
                 var compiled = CreateSystem(guard, frame.Pointer, originX,
                     originY, compiledPirate: true);
-                foreach (EnemyCollisionComponent component in
-                         frame.Components)
+                foreach (EnemyCollisionHitbox hitbox in frame.Hitboxes)
                 {
-                    foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
+                    ushort left = unchecked((ushort)(originX + hitbox.Left));
+                    ushort right = unchecked((ushort)(originX + hitbox.Right));
+                    ushort top = unchecked((ushort)(originY + hitbox.Top));
+                    ushort bottom = unchecked((ushort)(originY + hitbox.Bottom));
+                    ushort[] xs = [unchecked((ushort)(left - 1)), left,
+                        unchecked((ushort)(left + 1)),
+                        unchecked((ushort)(right - 1)), right,
+                        unchecked((ushort)(right + 1))];
+                    ushort[] ys = [unchecked((ushort)(top - 1)), top,
+                        unchecked((ushort)(top + 1)),
+                        unchecked((ushort)(bottom - 1)), bottom,
+                        unchecked((ushort)(bottom + 1))];
+                    for (int xi = 0; xi < xs.Length; xi++)
+                    for (int yi = 0; yi < ys.Length; yi++)
+                    foreach (bool mode in (bool[])[false, true])
                     {
-                        ushort componentX = unchecked((ushort)(originX + component.Offset.X));
-                        ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
-                        ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                        ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                        ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                        ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                        ushort[] xs = [unchecked((ushort)(left - 1)), left,
-                            unchecked((ushort)(left + 1)),
-                            unchecked((ushort)(right - 1)), right,
-                            unchecked((ushort)(right + 1))];
-                        ushort[] ys = [unchecked((ushort)(top - 1)), top,
-                            unchecked((ushort)(top + 1)),
-                            unchecked((ushort)(bottom - 1)), bottom,
-                            unchecked((ushort)(bottom + 1))];
-                        for (int xi = 0; xi < xs.Length; xi++)
-                        for (int yi = 0; yi < ys.Length; yi++)
-                        foreach (bool mode in (bool[])[false, true])
-                        {
-                            ushort radiusX = unchecked((ushort)((xi + yi) & 1));
-                            ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
-                            (bool nativeHit, EnemyReaction? nativeReaction) = Invoke(
-                                native.Enemies, native.Place, xs[xi], ys[yi],
-                                radiusX, radiusY, mode);
-                            (bool compiledHit, EnemyReaction? compiledReaction) = Invoke(
-                                compiled.Enemies, compiled.Place, xs[xi], ys[yi],
-                                radiusX, radiusY, mode);
-                            AssertEqual(nativeHit, compiledHit,
-                                $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
-                            AssertEqual(nativeReaction, compiledReaction,
-                                $"Space Pirate frame $B2:{frame.Pointer:X4} native reaction");
-                            probes++;
-                        }
+                        ushort radiusX = unchecked((ushort)((xi + yi) & 1));
+                        ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
+                        (bool nativeHit, EnemyReaction? nativeReaction) = Invoke(
+                            native.Enemies, native.Place, xs[xi], ys[yi],
+                            radiusX, radiusY, mode);
+                        (bool compiledHit, EnemyReaction? compiledReaction) = Invoke(
+                            compiled.Enemies, compiled.Place, xs[xi], ys[yi],
+                            radiusX, radiusY, mode);
+                        AssertEqual(nativeHit, compiledHit,
+                            $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
+                        AssertEqual(nativeReaction, compiledReaction,
+                            $"Space Pirate frame $B2:{frame.Pointer:X4} native reaction");
+                        probes++;
                     }
                 }
             }
@@ -261,32 +249,6 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 ? ExtendedHitboxWalker.NativeReaction(SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Reaction(arguments));
         }
-    }
-
-    /// <summary>Lays the catalog's hitbox lists over the oracle's native runs, so each list's bank-$B2 address derives from its run.</summary>
-    private static CollisionRecordRuns<EnemyCollisionHitbox> NativeHitboxLists()
-    {
-        var runs = new List<CollisionRecordRun<EnemyCollisionHitbox>>();
-        int first = 0;
-        foreach ((ushort start, int count) in SpacePirateHitboxListNativeAddresses.Runs)
-        {
-            runs.Add(new(start, SpacePirateCollisionDefinitions.HitboxLists[first..(first + count)]));
-            first += count;
-        }
-        AssertEqual(SpacePirateCollisionDefinitions.HitboxLists.Length, first,
-            "native Space Pirate hitbox-list runs cover every catalog list");
-        return CollisionRecordRuns<EnemyCollisionHitbox>.HitboxLists([.. runs]);
-    }
-
-    /// <summary>The native bank-$B2 address of the catalog hitbox list a collision component references.</summary>
-    private static ushort NativeListPointer(
-        CollisionRecordRuns<EnemyCollisionHitbox> nativeLists,
-        IReadOnlyList<EnemyCollisionHitbox> hitboxes)
-    {
-        int index = Array.FindIndex(SpacePirateCollisionDefinitions.HitboxLists, list => ReferenceEquals(list, hitboxes));
-        return index >= 0
-            ? nativeLists.PointerAt(index)
-            : throw new InvalidDataException("A Space Pirate collision component references a list outside the catalog.");
     }
 
     /// <summary>Rejects runtime reads of the exact native frame and list byte ranges already compiled into the Pirate catalog.</summary>

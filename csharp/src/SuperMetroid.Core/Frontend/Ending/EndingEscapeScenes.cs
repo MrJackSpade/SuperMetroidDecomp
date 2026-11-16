@@ -80,7 +80,7 @@ internal sealed class EndingEscapeScenes
     {
         foreach (EndingSprite wrapper in sprites)
         {
-            IntroDiscoverySprite sprite = wrapper.Sprite;
+            CinematicActor sprite = wrapper.Sprite;
             EndingCloudMotion.Step(wrapper, _stage.FloorZoom);
             sprite.Step();
         }
@@ -153,7 +153,7 @@ internal sealed class EndingEscapeScenes
                 // The scene hides the sprite layer without deleting the actors: the stars must still
                 // advance and become visible again when the flyaway starts.
                 screen.Colours.Flash(EndingFlash.ExplosionWhiteout, EndingScreenDefinitions.WhiteColor);
-                _stage.PhaseTimer = 120;
+                _stage.PhaseTimer = EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames;
                 _stage.Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
 

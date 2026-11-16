@@ -205,8 +205,6 @@ internal sealed class DoorTransitionState
                 // door's scroll finishes. The room constructor performs that setup
                 // atomically; the following updates run the scroll's real coordinate path.
                 runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
-                // The destination's load writes the entering beam's colours into the dark display's.
-                runtime.DoorFade.WriteSamusColours(runtime.Player.Colours.Beams);
                 runtime.LiquidWaveAndStatueDescentOrder.ResumeAfterRoomLoad();
                 // The load re-asserted the door's gates over the destination's enemies:
                 // elevator AI stays frozen through the final colour fade. The destination stays dark until its fade in
@@ -242,7 +240,7 @@ internal sealed class DoorTransitionState
                     // room state here; deferring them to the first ordinary gameplay frame
                     // exposes the room as it was before they ran.
                     runtime.Player.Colours.ShowVisor(SuperMetroid.Core.Samus.Colours.SamusShades.DoorCompletionVisor);
-                    runtime.DoorFade.WriteSamusColours(SuperMetroid.Core.Samus.Colours.SamusShades.DoorCompletionVisor);
+                    runtime.DoorFade.DoorOpened();
                     runtime.RoomObjectPhase.RunRoomObjectsForDoor(runtime.Room.LoadedScope.RoomObjects, runtime.Room.LoadedScope.BombProjectiles, runtime.Room.LoadedScope);
                     Phase = DoorTransitionPhase.AlignSamusWithDoorway;
                 }

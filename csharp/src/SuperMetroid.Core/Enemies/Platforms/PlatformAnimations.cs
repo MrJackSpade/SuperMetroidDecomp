@@ -76,20 +76,18 @@ internal static class PlatformAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at; the loops only run on from the
+    /// animations that start them (#2061).
+    /// </summary>
     internal static IReadOnlyDictionary<PlatformSegment, Animation<PlatformSegment>> StartingAt { get; } = new Dictionary<PlatformSegment, Animation<PlatformSegment>>
     {
         [P.SuspensorPlatformHeadingLeft] = new([new(P.SuspensorPlatformHeadingLeft, 0, 1, 1), new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SuspensorPlatformLoop] = new([new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.SuspensorPlatformHeadingRight] = new([new(P.SuspensorPlatformHeadingRight, 0, 1, 1), new(P.SuspensorPlatformLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.TripperMovingLeft] = new([new(P.TripperMovingLeft, 0, 1, 1), new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingLeftLoop] = new([new(P.TripperMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TripperMovingRight] = new([new(P.TripperMovingRight, 0, 1, 1), new(P.TripperMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperMovingRightLoop] = new([new(P.TripperMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TripperStillMovingLeft] = new([new(P.TripperStillMovingLeft, 0, 1, 1), new(P.TripperStillMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingLeftLoop] = new([new(P.TripperStillMovingLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.TripperStillMovingRight] = new([new(P.TripperStillMovingRight, 0, 1, 1), new(P.TripperStillMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.TripperStillMovingRightLoop] = new([new(P.TripperStillMovingRightLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

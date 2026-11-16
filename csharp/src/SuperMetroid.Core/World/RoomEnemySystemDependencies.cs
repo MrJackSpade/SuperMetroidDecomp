@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
@@ -33,6 +34,12 @@ internal sealed record RoomEnemySystemDependencies
 
     /// <summary>The room's room objects that show its enemy-breakable blocks breaking, which live as long as the room.</summary>
     public required EnemyBreakableTerrainObjects BreakableTerrain { get; init; }
+
+    /// <summary>
+    /// The room's effect state, which lives as long as the room: the liquid Ridley and the Chozo statue move, and the
+    /// acid surface Crocomire's smoke rises from (#2062).
+    /// </summary>
+    public required RoomFxOverlayState RoomFx { get; init; }
 
     /// <summary>
     /// Samus's passage through a door, during which the elevator, Zebetites, Etecoons, face blocks' glow and Ridley's

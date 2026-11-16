@@ -90,7 +90,7 @@ internal sealed class RuntimeArtwork
     /// </summary>
     internal SamusArtworkBinding SamusArtwork { get; }
 
-    /// <summary>Rebinds authored visual frame choices to both projectile slot owners.</summary>
+    /// <summary>The composition every frame of Samus's shots' and bombs' animations draws, which a rebinding hands to both.</summary>
     public InstalledProjectileFrameBindings ProjectileFrameBindings { get; set; }
 
     /// <summary>Installed visual-only charge-flare offsets selected by pose movement and direction.</summary>

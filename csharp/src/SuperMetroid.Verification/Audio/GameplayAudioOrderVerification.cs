@@ -41,7 +41,7 @@ internal static class GameplayAudioOrderVerification
         SoundRequestsMark samusLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
 
-        runtime.StepFrame(ControllerButton.X, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(runtime) });
+        runtime.StepFrame(ControllerButton.X, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
 
         SoundEffectId missile = SamusProjectileSoundRoutingDefinitions.MissileRequest;
         SoundEffectId[] observed = [.. runtime.AudioRequests.SoundRequests.Select(request => request.SoundEffect)
@@ -66,13 +66,13 @@ internal static class GameplayAudioOrderVerification
         (SuperMetroidRuntime runtime, AudioQueues audio) = KiHunterRoomWithSessionAudio();
         RoomEnemyPlace kiHunter = KiHunterAtItsSpit(runtime);
         SoundRequestsMark enemyLibrary = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        runtime.StepFrame(0, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(runtime) });
+        runtime.StepFrame(0, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
         AssertTrue(runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
             "the first update records the Ki Hunter's spit");
 
         // The Ki Hunter's next step lies far ahead, so the second update's enemies request nothing.
         kiHunter.AnimationClock.HoldFor(200);
-        runtime.StepFrame(0, new RuntimeFrameRequest { Audio = GameplayFrameAudio.Gameplay(runtime) });
+        runtime.StepFrame(0, new RuntimeFrameRequest { Audio = RuntimeFrameAudio.WithLowHealthCheck });
 
         AssertTrue(!runtime.AudioRequests.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
             "the second update's record holds none of the first update's requests");
@@ -93,9 +93,8 @@ internal static class GameplayAudioOrderVerification
         samus.LiquidPhysics.CinematicActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         audio.AdvanceFrame(default);
-        RuntimeFrameAudio frameAudio = GameplayFrameAudio.Gameplay(runtime);
-        Func<SoundQueueAdmission> echo = frameAudio.QueueEchoSound
-            ?? throw new InvalidOperationException("Gameplay frames request the echo themselves.");
+        // The echo Samus's animation requests at its cue joins her audio requests (#2092).
+        SoundQueueAdmission echo() => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal);
 
         samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(samus,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));

@@ -16,7 +16,7 @@ internal enum EnemyDeathProjectileCueKind
     /// <summary>Queues the small-explosion sound.</summary>
     PlaySmallExplosionSound,
     /// <summary>Spawns the effect actor up to 16 pixels from the explosion.</summary>
-    SpawnSpriteWithin16,
+    SpawnEffectActorWithin16,
     /// <summary>Spawns the effect actor up to 32 pixels from the explosion.</summary>
-    SpawnSpriteWithin32,
+    SpawnEffectActorWithin32,
 }

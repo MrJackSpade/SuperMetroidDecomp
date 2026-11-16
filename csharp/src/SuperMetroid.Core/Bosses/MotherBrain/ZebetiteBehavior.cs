@@ -96,9 +96,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.AnimationClock.Restart();
         place.Shading = PulseShading;
-        state.Action = state.IsSecondaryHalf
-            ? ZebetiteAction.WaitForDoorTransition
-            : ZebetiteAction.SpawnLinkedHalf;
 
         int generation = _room.Services.ZebetiteProgress.ZebetitesDestroyed;
         state.Generation = generation;
@@ -136,7 +133,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Zebetite has no behaviour for action {state.Action?.ToString() ?? "none"}.");
+                    $"Zebetite has no behaviour for action {state.Action}.");
         }
     }
 

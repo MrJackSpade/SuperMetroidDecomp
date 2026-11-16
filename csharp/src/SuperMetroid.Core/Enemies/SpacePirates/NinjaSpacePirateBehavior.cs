@@ -78,7 +78,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Initializes the Ninja Space Pirate.</summary>
     internal static void InitializeNinjaSpacePirate(RoomEnemyPlace place)
     {
-        var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.FollowingAnimation);
+        var state = new NinjaSpacePirateEnemyState(NinjaSpacePirateAction.StandingStill);
         place.SetSpeciesState(state);
 
         NinjaSpacePirateSpawnSettings settings = place.SpawnSettings<NinjaSpacePirateSpawnSettings>();
@@ -102,7 +102,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             ? place.Position.X.Whole
             : CoordinateAxis.Wrap(place.Position.X.Whole - settings.PostDistance);
         int requestedHalfSpan = Ensure.BetweenInclusive(0, LongestPostHalfSpan, settings.PostDistance / 2);
-        state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
+        state.PostsMidpointX = CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan);
 
         // The spin's speed grows until the distance it covers reaches the half-span; it runs at least once, so posts no
         // distance apart still spin.
@@ -116,10 +116,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
         while (covered < requestedDistance);
 
-        var halfSpan = new Offset16<RoomPixels>(covered.WholePixels, 0);
-        state.RightPost = state.PostsMidpoint + halfSpan;
-        state.LeftPost = state.PostsMidpoint - halfSpan;
-        place.Position = place.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
+        int adjustedHalfSpan = covered.WholePixels;
+        state.RightPostX = CoordinateAxis.Wrap(state.PostsMidpointX + adjustedHalfSpan);
+        state.LeftPostX = CoordinateAxis.Wrap(state.PostsMidpointX - adjustedHalfSpan);
+        place.Position = place.Position.WithX(new(startsAtLeft ? state.LeftPostX : state.RightPostX, 0));
         state.SpawnPosition = place.Position.Whole;
     }
 
@@ -133,7 +133,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         switch (state.Action)
         {
-            case NinjaSpacePirateAction.FollowingAnimation:
+            case NinjaSpacePirateAction.StandingStill:
                 return;
             case NinjaSpacePirateAction.Initial:
                 RunNinjaPirateInitial(place, state, samus, samusProjectiles);
@@ -276,7 +276,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if (Math.Abs((state.PostsMidpoint - samus.Position.Whole).X) >=
+        if (CoordinateAxis.Distance(state.PostsMidpointX, samus.Position.X.Whole) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return false;
@@ -285,7 +285,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         StartNinjaPirateAnimation(
             place,
             state,
-            place.Position.X.Whole == state.LeftPost.X
+            place.Position.X.Whole == state.LeftPostX
                 ? NinjaSpacePirateSegment.SpinJumpRight
                 : NinjaSpacePirateSegment.SpinJumpLeft);
         return true;
@@ -300,7 +300,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!NinjaSpacePirateCadenceDefinitions.ClawAttackEverySixtyFourthUpdate.IsDue(place.FrameCounter))
             return;
 
-        if (place.Position.X.Whole == state.LeftPost.X)
+        if (place.Position.X.Whole == state.LeftPostX)
         {
             if (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0)
                 return;
@@ -332,7 +332,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        if (Math.Abs((state.PostsMidpoint - samus.Position.Whole).X) >=
+        if (CoordinateAxis.Distance(state.PostsMidpointX, samus.Position.X.Whole) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return;
@@ -349,7 +349,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         StartNinjaPirateAnimation(
             place,
             state,
-            place.Position.X.Whole == state.LeftPost.X
+            place.Position.X.Whole == state.LeftPostX
                 ? NinjaSpacePirateSegment.DivekickRightJump
                 : NinjaSpacePirateSegment.DivekickLeftJump);
     }
@@ -370,8 +370,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         {
             state.ChangeSpeed(NinjaPirateSpinSpeedChange);
             bool crossedMidpoint = direction == HorizontalDirection.Right
-                ? (place.Position.Whole - state.PostsMidpoint).X >= 0
-                : (place.Position.Whole - state.PostsMidpoint).X < 0;
+                ? CoordinateAxis.Difference(place.Position.X.Whole, state.PostsMidpointX) >= 0
+                : CoordinateAxis.Precedes(place.Position.X.Whole, state.PostsMidpointX);
             if (crossedMidpoint)
             {
                 state.Action = direction == HorizontalDirection.Right
@@ -385,8 +385,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if (!state.Speed.IsZero)
             return;
 
-        state.Action = NinjaSpacePirateAction.FollowingAnimation;
-        place.Position = place.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
+        state.Action = NinjaSpacePirateAction.StandingStill;
+        place.Position = place.Position.WithWholeX(direction == HorizontalDirection.Right ? state.RightPostX : state.LeftPostX);
         StartNinjaPirateAnimation(
             place,
             state,
@@ -471,19 +471,19 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
             (direction == HorizontalDirection.Right ? NinjaPirateReturnWalkPixels : -NinjaPirateReturnWalkPixels));
         bool reachedPost = direction == HorizontalDirection.Right
-            ? (place.Position.Whole - state.RightPost).X >= 0
-            : (place.Position.Whole - state.LeftPost).X < 0;
+            ? CoordinateAxis.Difference(place.Position.X.Whole, state.RightPostX) >= 0
+            : CoordinateAxis.Precedes(place.Position.X.Whole, state.LeftPostX);
         if (!reachedPost)
             return;
 
-        place.Position = place.Position.WithWholeX((direction == HorizontalDirection.Right ? state.RightPost : state.LeftPost).X);
+        place.Position = place.Position.WithWholeX(direction == HorizontalDirection.Right ? state.RightPostX : state.LeftPostX);
         StartNinjaPirateAnimation(
             place,
             state,
             direction == HorizontalDirection.Right
                 ? NinjaSpacePirateSegment.LandFacingRight
                 : NinjaSpacePirateSegment.LandFacingLeft);
-        state.Action = NinjaSpacePirateAction.FollowingAnimation;
+        state.Action = NinjaSpacePirateAction.StandingStill;
     }
 
     /// <summary>Spawns a dust cloud on each side of the landing position.</summary>
@@ -545,6 +545,25 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             projectile.Delete();
     }
 
+    /// <summary>The action main AI runs for the move a cue of <paramref name="kind"/> begins.</summary>
+    internal static NinjaSpacePirateAction ActionBegunBy(NinjaSpacePirateCueKind kind) => kind switch
+    {
+        NinjaSpacePirateCueKind.StandStill => NinjaSpacePirateAction.StandingStill,
+        NinjaSpacePirateCueKind.WaitForSamus => NinjaSpacePirateAction.Initial,
+        NinjaSpacePirateCueKind.ChooseAttack => NinjaSpacePirateAction.Active,
+        NinjaSpacePirateCueKind.SpinJumpLeft => NinjaSpacePirateAction.SpinJumpLeftRising,
+        NinjaSpacePirateCueKind.SpinJumpRight => NinjaSpacePirateAction.SpinJumpRightRising,
+        NinjaSpacePirateCueKind.ReadyDivekick => NinjaSpacePirateAction.ReadyToDivekick,
+        NinjaSpacePirateCueKind.JumpToDivekickLeft => NinjaSpacePirateAction.DivekickLeftJump,
+        NinjaSpacePirateCueKind.JumpToDivekickRight => NinjaSpacePirateAction.DivekickRightJump,
+        NinjaSpacePirateCueKind.DiveLeft => NinjaSpacePirateAction.DivekickLeftDive,
+        NinjaSpacePirateCueKind.DiveRight => NinjaSpacePirateAction.DivekickRightDive,
+        NinjaSpacePirateCueKind.WalkBackToLeftPost => NinjaSpacePirateAction.DivekickLeftWalkToPost,
+        NinjaSpacePirateCueKind.WalkBackToRightPost => NinjaSpacePirateAction.DivekickRightWalkToPost,
+        NinjaSpacePirateCueKind.ResetSpeed or NinjaSpacePirateCueKind.StartActive or NinjaSpacePirateCueKind.StartDivekick or _ =>
+            throw new InvalidOperationException($"A ninja Space Pirate {kind} cue begins no move."),
+    };
+
     /// <summary>
     /// Carries out one cue of the ninja Space Pirates' animations. Becoming active continues at the active stance facing
     /// Samus, as the cue returns that animation; every other cue runs on.
@@ -554,9 +573,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state = place.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue)
         {
-            case NinjaSpacePirateCue.SetAction setAction:
-                state.Action = setAction.Action;
-                return null;
             case NinjaSpacePirateCue.SetShading setShading:
                 place.Shading = setShading.Shading;
                 return null;
@@ -581,6 +597,11 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 return null;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.StartDivekick }:
                 InitializeNinjaPirateDive(state);
+                return null;
+            case NinjaSpacePirateCue.Signal begun:
+                // The animation does not jump to the move it begins: main AI runs it from the next update, as the
+                // animation runs on.
+                state.Action = ActionBegunBy(begun.Kind);
                 return null;
             default:
                 throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue} cue.");

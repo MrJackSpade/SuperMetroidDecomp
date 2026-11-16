@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroEggSlimeDrop
 {
     /// <summary>Discovery sprite owning this drop's position and impact animation.</summary>
-    internal readonly IntroDiscoverySprite sprite;
+    internal readonly CinematicActor sprite;
     /// <summary>How the drop flies: its sideways drift and its vertical speed for each update it has flown.</summary>
     private readonly IntroEggSlimeLaunch launch;
     /// <summary>
@@ -26,7 +26,7 @@ internal sealed class IntroEggSlimeDrop
         this.launch = launch;
 
         // Every drop starts where the confused Baby is.
-        sprite = new IntroDiscoverySprite(
+        sprite = new CinematicActor(
             babyPosition,
             colouring: IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
             segment: definition.Animation);

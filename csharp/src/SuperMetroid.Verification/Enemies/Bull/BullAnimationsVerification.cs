@@ -17,7 +17,8 @@ internal static class BullAnimationsVerification
             BullAnimations.Segments, BullAnimations.StartingAt, BullFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
-                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")));
+                (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")),
+            countedEntries: [new NativeCountedEntry<BullSegment>("the shot reaction", BullAnimations.Shot, ShotStart)]);
         Console.WriteLine($"  Bull animations: {Entries.Length} segments ({beats} beats) and {BullAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

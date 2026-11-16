@@ -61,9 +61,8 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.SetSpawnParameter1(EnemyDefinitionId.Rinka, special ? (ushort)1 : (ushort)0);
         rinka.AnimationClock.StepOnNextUpdate();
 
-        var state = new RinkaEnemyState()
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport)
         {
-            Action = RinkaAction.WatchForLeavingViewport,
             Playback = new(RinkaAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.Places.InUpdateOrder[0].SetSpeciesState(state);

@@ -15,6 +15,18 @@ internal static class IntroMotherBrainDefinitions
     public static IntroMotherBrainActorDefinition SmallExplosionActor =>
         new(CinematicSpriteSegment.IntroMotherBrainExplosionSmall);
 
+    /// <summary>The Missile hits that make Mother Brain explode.</summary>
+    public const int MissileHitsToExplode = 4;
+
+    /// <summary>The updates each Missile hit flashes her.</summary>
+    public const int HurtFlashUpdates = 8;
+
+    /// <summary>The updates she explodes before the page turns to its second page.</summary>
+    public const int ExplodingUpdates = 128;
+
+    /// <summary>How far her room shakes up and down from its scroll while she explodes, in pixels.</summary>
+    public const int RoomShakePixels = 4;
+
     /// <summary>Mother Brain starts at the cinematic origin (56,111).</summary>
     public static Offset16<ScreenPixels> MotherBrainOrigin => new(56, 111);
 

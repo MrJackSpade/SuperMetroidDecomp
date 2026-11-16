@@ -199,7 +199,8 @@ internal sealed class EnemyDrawList
             return place.Shading.With(EnemyShades.HurtFlash);
 
         if (place.FrozenTimer != 0 &&
-            (place.FrozenTimer >= 90 || EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(place.FrozenTimer)))
+            (place.FrozenTimer >= EnemyDrawPhaseDefinitions.FrozenColoursSteadyUpdates ||
+             EnemyDrawPhaseDefinitions.FrozenColoursShown.IsSetIn(place.FrozenTimer)))
         {
             return place.Shading.With(EnemyShades.Frozen);
         }

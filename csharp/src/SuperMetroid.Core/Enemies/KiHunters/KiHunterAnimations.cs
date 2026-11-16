@@ -125,13 +125,16 @@ internal static class KiHunterAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. A flight ends at its return-to-flying
+    /// cue, which always restarts the flight for the body's direction (#2061).
+    /// </summary>
     internal static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {
-        [P.FlyingLeft] = new([new(P.FlyingLeft, 0, 4, 1), new(P.SwoopLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SwoopLeft] = new([new(P.SwoopLeft, 0, 6, 1), new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FlyingRight] = new([new(P.FlyingRight, 0, 4, 1), new(P.SwoopRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SwoopRight] = new([new(P.SwoopRight, 0, 6, 1), new(P.FlyingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FlyingLeft] = new([new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.Holds),
+        [P.SwoopLeft] = new([new(P.SwoopLeft, 0, 6, 1), new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.Holds),
+        [P.FlyingRight] = new([new(P.FlyingRight, 0, 4, 1)], AnimationEnd.Holds),
+        [P.SwoopRight] = new([new(P.SwoopRight, 0, 6, 1), new(P.FlyingRight, 0, 4, 1)], AnimationEnd.Holds),
         [P.WingsLeft] = new([new(P.WingsLeft, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.WingsRight] = new([new(P.WingsRight, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
         [P.DetachedWings] = new([new(P.DetachedWings, 0, 1, 1)], AnimationEnd.Holds),

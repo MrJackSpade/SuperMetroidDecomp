@@ -8,11 +8,14 @@ public sealed class RinkaEnemyState
     /// <summary>The typed animation (#641, #1600) and where it stands.</summary>
     internal AnimationPlayback<RinkaSegment> Playback { get; set; } = new(RinkaAnimations.StartingWith(default), AnimationPlace.StartOfAnimation);
 
+    /// <summary>Starts the state in <paramref name="action"/>.</summary>
+    internal RinkaEnemyState(RinkaAction action) => Action = action;
+
     /// <summary>
     /// The behaviour the Rinka runs each update, changed by initialization, the fire step, aim completion, or the special
     /// death tail.
     /// </summary>
-    public RinkaAction? Action { get; internal set; }
+    public RinkaAction Action { get; internal set; }
 
     /// <summary>Signed 1/256-pixel velocity: X produced by the sine multiply, Y by the cosine multiply.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }

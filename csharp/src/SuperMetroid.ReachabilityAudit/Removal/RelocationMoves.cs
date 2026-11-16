@@ -44,7 +44,12 @@ internal sealed class RelocationMoves
             .Select(m => (INamedTypeSymbol)m.Symbol).ToHashSet<INamedTypeSymbol>(Comparer);
         MovedInterfaceKeys = MovedInterfaces.Select(identity.Key).OfType<string>().ToHashSet();
         MovedSpans = All.GroupBy(m => m.Tree).ToDictionary(g => g.Key, g => g.Select(m => m.Node.FullSpan).ToList());
+        movesByTree = All.GroupBy(m => m.Tree).ToDictionary(g => g.Key, g => g.ToList());
     }
+
+    /// <summary>Each tree's moves, in the order of <see cref="All"/>: the rewriter asks for the move enclosing nearly every
+    /// node of every tree, which a scan of every move made cost the number of nodes times the number of moves.</summary>
+    private readonly Dictionary<SyntaxTree, List<RelocationMove>> movesByTree;
 
     /// <summary>Every move, in the order the selection found them.</summary>
     public IReadOnlyList<RelocationMove> All { get; }
@@ -73,7 +78,7 @@ internal sealed class RelocationMoves
 
     /// <summary>The move whose declaration holds a node, or null.</summary>
     public RelocationMove? EnclosingMove(SyntaxTree tree, SyntaxNode node) =>
-        All.FirstOrDefault(m => m.Tree == tree && m.Node.FullSpan.Contains(node.Span));
+        movesByTree.TryGetValue(tree, out var moves) ? moves.FirstOrDefault(m => m.Node.FullSpan.Contains(node.Span)) : null;
 
     /// <summary>Whether an owner implements an interface that moves whole.</summary>
     public bool ImplementsMovedInterface(INamedTypeSymbol owner) => owner.Interfaces.Any(i => MovedInterfaces.Contains(i.OriginalDefinition));

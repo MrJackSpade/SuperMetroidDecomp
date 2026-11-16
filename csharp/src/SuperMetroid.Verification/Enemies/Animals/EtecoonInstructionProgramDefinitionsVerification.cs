@@ -45,7 +45,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         {
             // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
             (RoomEnemySystem enemies, RoomEnemyPlace place, EtecoonEnemyState state) = NewEtecoon();
-            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.Flexing), AnimationPlace.StartOfAnimation);
+            state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             _ = EnemyInstructionRunner.ShownFrames(place, 4 * 6 * 8 + 2 * 32);
             AnimationPlayback<EtecoonSegment> held = state.Playback;
@@ -57,7 +57,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             _ = EnemyInstructionRunner.ShownFrames(place, 8);
             AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
                 "Etecoon flex stays asleep");
-            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.FlexingLoop).Last(), place.SpritemapPointer, "Etecoon flex ends on its last pose");
+            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.Flexing).Last(), place.SpritemapPointer, "Etecoon flex ends on its last pose");
         }
 
         AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonSegment>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(

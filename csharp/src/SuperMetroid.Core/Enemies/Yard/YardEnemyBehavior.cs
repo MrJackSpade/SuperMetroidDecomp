@@ -463,9 +463,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             SetYardAirborneLists(place, state);
         }
 
-        // Yard deliberately tail-calls the common crawler initializer after landing, but
-        // retains its own state and main AI. Reproduce only its velocity: the live crawl
-        // speed on both axes, the horizontal one reversed for a block on Yard's right.
+        // After landing, Yard starts crawling as a new crawler does, but keeps its own state and main AI. Only the
+        // crawler's starting velocity carries over: the live crawl speed on both axes, the horizontal one reversed for
+        // a block on Yard's right.
         state.BlockSide = state.AirborneFacingDirection == YardAirborneFacing.Right
             ? CrawlerSurfaceOrientation.UpsideLeft
             : CrawlerSurfaceOrientation.UpsideRight;

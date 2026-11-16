@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies;
@@ -6,15 +7,11 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyDeathExplosions
 {
     /// <summary>The death animation <paramref name="explosion"/> starts.</summary>
-    internal static EnemyDeathProjectileSegment Animation(EnemyDeathExplosion explosion) => explosion switch
-    {
-        EnemyDeathExplosion.Small => EnemyDeathProjectileSegment.SmallExplosion,
-        EnemyDeathExplosion.SamusContact => EnemyDeathProjectileSegment.KilledBySamusContact,
-        EnemyDeathExplosion.Normal => EnemyDeathProjectileSegment.NormalExplosion,
-        EnemyDeathExplosion.MiniKraid => EnemyDeathProjectileSegment.MiniKraidExplosion,
-        EnemyDeathExplosion.Big => EnemyDeathProjectileSegment.BigExplosion,
-        _ => throw new ArgumentOutOfRangeException(nameof(explosion), explosion, "Undefined enemy death explosion."),
-    };
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="explosion"/> is no death explosion.</exception>
+    internal static Animation<EnemyDeathProjectileSegment> Animation(EnemyDeathExplosion explosion) =>
+        EnemyDeathProjectileAnimations.Explosions.TryGetValue(explosion, out Animation<EnemyDeathProjectileSegment>? animation)
+            ? animation
+            : throw new ArgumentOutOfRangeException(nameof(explosion), explosion, "Undefined enemy death explosion.");
 
     /// <summary>
     /// The explosion a Super Missile kill raises <paramref name="explosion"/> to: the small, contact and normal

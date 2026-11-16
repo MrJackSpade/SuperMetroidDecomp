@@ -25,10 +25,12 @@ internal static class ChozoTourianDustBehaviorVerification
         // The scatter draws again while a candidate falls below its center, so the fixture's random sequence advances.
         ushort random = 0;
         enemies.VerificationServices().NextRandom = () => random = unchecked((ushort)(random + 4951));
-        foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustSegment program) in new VerifyChozoTourianDustBehaviorCase[]
+        foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustSegment program, ushort nativeStart) in new VerifyChozoTourianDustBehaviorCase[]
                  {
-                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustSegment.Footsteps),
-                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.TourianStatueDescentDust, ChozoTourianDustSegment.TourianDescentDust),
+                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustSegment.Footsteps,
+                         ChozoTourianDustNativeListAddresses.Entry(ChozoTourianDustSegment.Footsteps)),
+                     new VerifyChozoTourianDustBehaviorCase(RoomEnemyProjectileKind.TourianStatueDescentDust, ChozoTourianDustSegment.TourianDescentDust,
+                         ChozoTourianDustNativeListAddresses.DescentDustStart),
                  })
         {
             EnemyProjectile dust = enemies.Projectiles.EnemyProjectiles[0];
@@ -36,7 +38,7 @@ internal static class ChozoTourianDustBehaviorVerification
             FamilyProjectileStarts.Initialize(enemies, dust, kind, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
             dust.State = new AnchoredProjectileState(new(128, 96));
             AssertTrue(dust.Animation is ChozoTourianDustAnimation animation && animation.PlayingSegment == program, $"{kind} starts {program}");
-            (bool deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, dust, ChozoTourianDustNativeListAddresses.Entry(program), 600, kind.ToString());
+            (bool deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, dust, nativeStart, 600, kind.ToString());
             AssertTrue(deleted, $"{kind} deletes itself after its program, at update {updates}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the dust's native list bytes");

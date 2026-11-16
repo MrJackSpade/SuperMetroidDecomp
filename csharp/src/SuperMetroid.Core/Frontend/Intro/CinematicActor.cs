@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue
 /// fails rather than being skipped.
 /// </remarks>
-internal sealed class IntroDiscoverySprite
+internal sealed class CinematicActor
 {
     /// <summary>
     /// Updates before the animation plays on to its next frame, one or more while it plays; setup may stagger the first
@@ -27,7 +27,7 @@ internal sealed class IntroDiscoverySprite
     /// Creates an actor at a whole-pixel screen place with the drawn shade of the colouring it starts drawing in (#1512) and
     /// its animation.
     /// </summary>
-    public IntroDiscoverySprite(
+    public CinematicActor(
         Offset16<ScreenPixels> place,
         PictureShade colouring,
         CinematicSpriteSegment segment)

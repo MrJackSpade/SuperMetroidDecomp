@@ -48,9 +48,6 @@ internal static class EtecoonAnimations
         [
             Show(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, 12),
             Show(EnemyFrameId.EtecoonHopArmsUpFacingLeft, 12),
-        ],
-        [P.HitCeiling] =
-        [
             Show(EnemyFrameId.EtecoonHopArmsFlungFacingLeft, 6),
             Show(EnemyFrameId.EtecoonHopArmsUpFacingLeft, 12),
             Show(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, 12),
@@ -107,9 +104,6 @@ internal static class EtecoonAnimations
         ],
         [P.Flexing] =
         [
-        ],
-        [P.FlexingLoop] =
-        [
             Show(EnemyFrameId.EtecoonHopCrouchFacingRight, 8),
             Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 8),
             Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 8),
@@ -130,8 +124,7 @@ internal static class EtecoonAnimations
         [P.WallJumpLeft] = new([new(P.WallJumpLeft, 0, 1, 1), new(P.WallJumpLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
         [P.WallJumpLeftLoop] = new([new(P.WallJumpLeftLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
         [P.HoppingFacingLeft] = new([new(P.HoppingFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ContinueHoppingFacingLeft] = new([new(P.ContinueHoppingFacingLeft, 0, 2, 1), new(P.HitCeiling, 0, 3, 1)], AnimationEnd.Holds),
-        [P.HitCeiling] = new([new(P.HitCeiling, 0, 3, 1)], AnimationEnd.Holds),
+        [P.ContinueHoppingFacingLeft] = new([new(P.ContinueHoppingFacingLeft, 0, 5, 1)], AnimationEnd.Holds),
         [P.WallJumpLeftEligible] = new([new(P.WallJumpLeftEligible, 0, 1, 1)], AnimationEnd.Holds),
         [P.LookLeftAtSamusAndRunRight] = new([new(P.LookLeftAtSamusAndRunRight, 0, 1, 1)], AnimationEnd.Holds),
         [P.BeginRunningRight] = new([new(P.BeginRunningRight, 0, 1, 1), new(P.RunningRight, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
@@ -142,8 +135,16 @@ internal static class EtecoonAnimations
         [P.ContinueHoppingFacingRight] = new([new(P.ContinueHoppingFacingRight, 0, 5, 1)], AnimationEnd.Holds),
         [P.WallJumpRightEligible] = new([new(P.WallJumpRightEligible, 0, 1, 1)], AnimationEnd.Holds),
         [P.Initial] = new([new(P.Initial, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Flexing] = new([new(P.FlexingLoop, 0, 6, 4), new(P.FlexingLoop, 6, 2, 1)], AnimationEnd.Holds),
     };
+
+    /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>
+    internal static Animation<EtecoonSegment> Flexing { get; } = new([new(P.Flexing, 0, 6, 4), new(P.Flexing, 6, 2, 1)], AnimationEnd.Holds);
+
+    /// <summary>
+    /// The left hop entered at its crest (#2061), as hitting a ceiling enters it: the crest, then the way down.
+    /// </summary>
+    internal static AnimationPlayback<EtecoonSegment> LeftHopFromCrest { get; } = new(StartingAt[P.ContinueHoppingFacingLeft],
+        Segments.PlaceOfFrame(StartingAt[P.ContinueHoppingFacingLeft], P.ContinueHoppingFacingLeft, EnemyFrameId.EtecoonHopArmsFlungFacingLeft));
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EtecoonSegment> StartingWith(EtecoonSegment segment) => StartingAt[segment];

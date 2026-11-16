@@ -21,7 +21,7 @@ internal static class ShaktoolProjectileAnimations
         ],
         [P.FrontLoop] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolFrontLoop, 119),
+            Hold(EnemyProjectileFrameId.ShaktoolFrontLoop),
         ],
         [P.Middle] =
         [
@@ -31,7 +31,7 @@ internal static class ShaktoolProjectileAnimations
         ],
         [P.MiddleLoop] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolMiddleLoop, 119),
+            Hold(EnemyProjectileFrameId.ShaktoolMiddleLoop),
         ],
         [P.Back] =
         [
@@ -40,7 +40,7 @@ internal static class ShaktoolProjectileAnimations
         ],
         [P.BackLoop] =
         [
-            Show(EnemyProjectileFrameId.ShaktoolBackLoop, 119),
+            Hold(EnemyProjectileFrameId.ShaktoolBackLoop),
         ],
     });
 
@@ -60,6 +60,9 @@ internal static class ShaktoolProjectileAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, ShaktoolCircleCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, ShaktoolCircleCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2068): a circle rests on its final pose.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, ShaktoolCircleCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, ShaktoolCircleCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, ShaktoolCircleCue> Cue(ShaktoolCircleCue cue) => new AnimationBeat<EnemyProjectileFrameId, ShaktoolCircleCue>.Event(cue);

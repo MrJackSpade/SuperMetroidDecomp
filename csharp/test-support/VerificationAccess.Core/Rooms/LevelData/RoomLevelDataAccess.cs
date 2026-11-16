@@ -12,6 +12,16 @@ internal static class RoomLevelDataAccess
         /// <summary>Each foreground block's behaviour, row by row.</summary>
         internal ReadOnlySpan<RoomBlockBehavior> BehaviorGrid => self.Behaviors;
 
+        /// <summary>The first block of the grid, in reading order, that leads through <paramref name="exit"/> as a door block.</summary>
+        /// <exception cref="InvalidOperationException">No door block of the grid leads through it.</exception>
+        internal RoomCollisionBlock DoorBlockLeadingThrough(Doors.DoorBlockExit exit)
+        {
+            int place = Array.IndexOf(self.Exits, exit);
+            return place >= 0 && self.Terrain[place].Collision == RoomCollisionType.DoorBlock
+                ? self.GetCollisionBlock(self.Size.CellAtRowMajorIndex(place))
+                : throw new InvalidOperationException($"No door block of the room leads through {exit}.");
+        }
+
         /// <summary>Whether this grid's terrain and behaviours, which gameplay reads, equal <paramref name="other"/>'s.</summary>
         internal bool SameTerrainAs(RoomLevelData other) =>
             self.Size == Ensure.NotNull(other).Size &&
@@ -26,7 +36,6 @@ internal static class RoomLevelDataAccess
         {
             Ensure.NotNull(source);
             if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
-                !ReferenceEquals(source.Doors, self.Doors) ||
                 source.BeyondRoom.Count != self.BeyondRoom.Count)
                 throw new ArgumentException("A level can only be restored from one with the same layout.", nameof(source));
             // A terrain write whose terrain and shown picture the block already holds, byte for byte, changes nothing but
@@ -41,6 +50,7 @@ internal static class RoomLevelDataAccess
                     NextDifference(self.ShownForeground, source.ShownForeground, index + 1));
             }
             source.Behaviors.AsSpan().CopyTo(self.Behaviors);
+            source.Exits.AsSpan().CopyTo(self.Exits);
             for (int beyond = 0; beyond < source.BeyondRoom.Count; beyond++)
             {
                 self.BeyondRoom.SetTerrain(beyond, source.BeyondRoom.TerrainAt(beyond));

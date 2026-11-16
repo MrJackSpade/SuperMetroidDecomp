@@ -37,9 +37,9 @@ internal static class HopperNativeListAddresses
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, HopperNativeListAddressesInstruction> Instructions = new()
     {
-        [0x8173] = new HopperNativeListAddressesInstruction(HopperCueKind.ProcessOffScreen, ""),
-        [0x817d] = new HopperNativeListAddressesInstruction(HopperCueKind.StopProcessingOffScreen, ""),
-        [0xaa68] = new HopperNativeListAddressesInstruction(HopperCueKind.PlaySound, "V"),
-        [0xaafe] = new HopperNativeListAddressesInstruction(HopperCueKind.ReadyToHop, ""),
+        [0x8173] = new HopperNativeListAddressesInstruction(new HopperCue.Signal(HopperCueKind.ProcessOffScreen), ""),
+        [0x817d] = new HopperNativeListAddressesInstruction(new HopperCue.Signal(HopperCueKind.StopProcessingOffScreen), ""),
+        [0xaa68] = new HopperNativeListAddressesInstruction(null, "V"),
+        [0xaafe] = new HopperNativeListAddressesInstruction(new HopperCue.Signal(HopperCueKind.ReadyToHop), ""),
     };
 }

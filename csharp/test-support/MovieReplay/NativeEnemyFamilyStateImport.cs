@@ -122,9 +122,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.FigureEight.Stage = PhantoonFigureEightStageWords.Decode(words.D);
                 phantoon.PhaseTimer = CoordinateAxis.AsSigned(words.E);
                 if (words.F != 0)
-                    phantoon.Phase = words.F == PhantoonNativeWords.NoPhase
-                        ? null
-                        : PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
+                    phantoon.Phase = PhantoonNativeWords.Phases.Decode(words.F, "recorded PhantoonPhase");
             }
             else
             {
@@ -134,8 +132,9 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
             bool deathWait = KraidNativeWords.DeathWaitUpdatesLeft.TryGetValue(words.A, out int deathWaitLeft);
-            kraidPartRecord.Phase = words.A is 0 or KraidNativeWords.NoPhase
-                ? null
+            // A part whose setup has not given it a phase records no word; it rests.
+            kraidPartRecord.Phase = words.A == 0
+                ? KraidPhase.Resting
                 : deathWait ? KraidPhase.DeathWaitBeforeFadeIn : KraidNativeWords.Phases.Decode(words.A, "recorded KraidPhase");
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part's own state takes its own.
@@ -209,7 +208,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<MotherBrainFallingTubeState>() is { } fallingTubeRecord)
         {
-            fallingTubeRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.MotherBrainTubeActions.Decode(words.A, "recorded MotherBrainTubeAction");
+            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
+            if (words.A != 0)
+                fallingTubeRecord.Action = MotherBrainNativeWords.MotherBrainTubeActions.Decode(words.A, "recorded MotherBrainTubeAction");
             fallingTubeRecord.FloorY = words.B;
             fallingTubeRecord.FallSpeed = new SignedEightEight(words.C);
             fallingTubeRecord.SmokeDelay = CoordinateAxis.AsSigned(words.D);
@@ -245,7 +246,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
         {
-            draygonEyeRecord.Action = words.A == 0 ? null : DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
+            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
+            if (words.A != 0)
+                draygonEyeRecord.Action = DraygonNativeWords.EyeActions.Decode(words.A, "recorded DraygonEyeAction");
             // The game compares only the look angle's low byte, the bearing it stored.
             draygonEyeRecord.LookAngle = new Bearing(words.F & byte.MaxValue);
         }
@@ -253,8 +256,10 @@ internal static class NativeEnemyFamilyStateImport
         {
             crocomireRecord.DeathPhase = CrocomireNativeWords.DeathPhases.Decode(words.A, "recorded Crocomire death phase");
             crocomireRecord.DamageReactionPending = CrocomireNativeWords.DamageReactionPending(words.B);
-            // The fight table's first entry, which no live fight selects, stands for no fight under way (#1939).
-            crocomireRecord.Phase = words.C == 0 ? null : CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
+            // The fight table's first entry, which no live fight selects, stands for a defeated room's corpse, which keeps its
+            // constructed phase and never runs it (#1939).
+            if (words.C != 0)
+                crocomireRecord.Phase = CrocomireNativeWords.Phases.Decode(words.C, "recorded Crocomire fight function");
             // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
             CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
@@ -268,13 +273,19 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<BotwoonEnemyState>() is { } botwoonRecord)
         {
-            botwoonRecord.Phase = words.D == 0 ? null : BotwoonNativeWords.Phases.Decode(words.D, "recorded BotwoonPhase");
-            botwoonRecord.Movement = words.E == 0 ? null : BotwoonNativeWords.Movements.Decode(words.E, "recorded BotwoonMovement");
-            botwoonRecord.HeadAction = words.F == 0 ? null : BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
+            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
+            if (words.D != 0)
+                botwoonRecord.Phase = BotwoonNativeWords.Phases.Decode(words.D, "recorded BotwoonPhase");
+            if (words.E != 0)
+                botwoonRecord.Movement = BotwoonNativeWords.Movements.Decode(words.E, "recorded BotwoonMovement");
+            if (words.F != 0)
+                botwoonRecord.HeadAction = BotwoonNativeWords.HeadActions.Decode(words.F, "recorded BotwoonHeadAction");
         }
         if (enemy.SpeciesState<ShitroidEnemyState>() is { } shitroidRecord)
         {
-            shitroidRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
+            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
+            if (words.A != 0)
+                shitroidRecord.Action = MotherBrainNativeWords.ShitroidActions.Decode(words.A, "recorded ShitroidAction");
             shitroidRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             shitroidRecord.MembranePulsePhase = LittleEndianBytes.LowByte(words.D);
             shitroidRecord.ColourTimer = LittleEndianBytes.HighByte(words.D);
@@ -308,25 +319,25 @@ internal static class NativeEnemyFamilyStateImport
         // bugs keep their action in word A.
         if (enemy.SpeciesState<BrinstarPipeBugState>() is { } brinstarPipeBug)
         {
-            brinstarPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.F, "recorded PipeBugAction");
+            brinstarPipeBug.Action = PipeBugsNativeWords.BrinstarPipeBugActions.Decode(words.F, "recorded BrinstarPipeBugAction");
             brinstarPipeBug.FliesLeft = CoordinateAxis.AsSigned(words.A) < 0;
         }
         if (enemy.SpeciesState<NorfairPipeBugState>() is { } norfairPipeBug)
         {
             // A member's stagger routine names its role's offset (#2071); every other routine names an action.
             if (PipeBugsNativeWords.FormationStaggers.TryDecode(words.A, out NorfairPipeBugRole? staggerRole) &&
-                staggerRole.PostRiseAction == PipeBugAction.NorfairStagger)
+                staggerRole.PostRiseAction == NorfairPipeBugAction.Stagger)
             {
-                norfairPipeBug.Action = PipeBugAction.NorfairStagger;
+                norfairPipeBug.Action = NorfairPipeBugAction.Stagger;
                 norfairPipeBug.StaggerOffset = staggerRole.StaggerOffset;
             }
             else
             {
-                norfairPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+                norfairPipeBug.Action = PipeBugsNativeWords.NorfairPipeBugActions.Decode(words.A, "recorded NorfairPipeBugAction");
             }
         }
         if (enemy.SpeciesState<YellowPipeBugState>() is { } yellowPipeBug)
-            yellowPipeBug.Action = PipeBugsNativeWords.PipeBugActions.Decode(words.A, "recorded PipeBugAction");
+            yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
         if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
         if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteBodyState magdolliteBody)
@@ -367,7 +378,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<ZebetiteEnemyState>() is { } zebetiteRecord)
         {
-            zebetiteRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.ZebetiteActions.Decode(words.A, "recorded ZebetiteAction");
+            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
+            if (words.A != 0)
+                zebetiteRecord.Action = MotherBrainNativeWords.ZebetiteActions.Decode(words.A, "recorded ZebetiteAction");
             zebetiteRecord.Generation = words.D;
             zebetiteRecord.Form = MotherBrainNativeWords.DecodeBarrierForm(words.F);
         }
@@ -438,10 +451,11 @@ internal static class NativeEnemyFamilyStateImport
             growingShutterRecord.Action = ShuttersNativeWords.GrowingShutterActions.Decode(words.A, "recorded GrowingShutterAction");
             ushort[] originRows = [words.B, words.C, words.D, words.E];
             for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                growingShutterRecord.SetSectionOrigin(level, new(0, originRows[level]));
+                growingShutterRecord.SetSectionOriginY(level, originRows[level]);
             growingShutterRecord.GrowthLevel = words.F;
         }
-        if (enemy.SpeciesState<FirefleaEnemyState>() is { } firefleaRecord)
+        // A bobbing Fireflea keeps none of these words.
+        if (enemy.SpeciesState<FirefleaEnemyState>() is { Flight: CirclingFirefleaState firefleaRecord })
         {
             firefleaRecord.AngularSpeed = SuperMetroid.AssetExtraction.Enemies.EnemySpawnSelectors.FirefleaTurnPerUpdate(SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A));
             firefleaRecord.Radius = words.C;
@@ -450,7 +464,7 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<VerticalShutterEnemyState>() is { } verticalShutterRecord)
         {
-            verticalShutterRecord.Action = ShuttersNativeWords.VerticalShutterActions.Decode(words.A, "recorded VerticalShutterAction");
+            verticalShutterRecord.Action = ShuttersNativeWords.DecodeVerticalShutterAction(words.A, verticalShutterRecord.TriggerMode);
             verticalShutterRecord.ActionTimer = WrappingCountdown.Start(words.B);
             verticalShutterRecord.DownVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             verticalShutterRecord.UpVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.F), words.E);
@@ -513,9 +527,9 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<NinjaSpacePirateEnemyState>() is { } ninjaSpacePirateRecord)
         {
             ninjaSpacePirateRecord.Action = SpacePiratesNativeWords.NinjaSpacePirateActions.Decode(words.A, "recorded NinjaSpacePirateAction");
-            ninjaSpacePirateRecord.PostsMidpoint = new(words.D, 0);
-            ninjaSpacePirateRecord.LeftPost = new(words.E, 0);
-            ninjaSpacePirateRecord.RightPost = new(words.F, 0);
+            ninjaSpacePirateRecord.PostsMidpointX = words.D;
+            ninjaSpacePirateRecord.LeftPostX = words.E;
+            ninjaSpacePirateRecord.RightPostX = words.F;
         }
         if (enemy.SpeciesState<SkreeEnemyState>() is { } skreeRecord)
         {
@@ -541,7 +555,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
-            rinkaRecord.Action = words.A == 0 ? null : MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
+            // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
+            if (words.A != 0)
+                rinkaRecord.Action = MotherBrainNativeWords.RinkaActions.Decode(words.A, "recorded RinkaAction");
             rinkaRecord.Velocity = new(new SignedEightEight(words.B), new SignedEightEight(words.C));
             rinkaRecord.HeldSpawnPoint = words.D == 0 ? null : MotherBrainNativeWords.RinkaSpawnPoints.Decode(words.D, "recorded RinkaSpawnPoint");
             rinkaRecord.DelayTimer = CoordinateAxis.AsSigned(words.F);
@@ -586,7 +602,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.Action = BeetomNativeWords.BeetomActions.Decode(words.C, "recorded BeetomAction");
             beetom.ActionTimer = unchecked((short)words.D);
             beetom.ButtonCounter = unchecked((short)words.E);
-            beetom.PreviousController1Input = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
+            beetom.LastSeenPlayerActions = GameplayActionWordCodec.FromJoypadWord(words.F, "native Beetom previous controller input");
         }
         if (enemy.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {
@@ -632,8 +648,8 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
         {
             walkingPirate.Action = SpacePiratesNativeWords.WalkingSpacePirateActions.Decode(words.A, "recorded WalkingSpacePirateAction");
-            walkingPirate.LeftPost = new(words.E, 0);
-            walkingPirate.RightPost = new(words.F, 0);
+            walkingPirate.LeftPostX = words.E;
+            walkingPirate.RightPostX = words.F;
         }
         if (enemy.EntityState<MultiviolaEntity, MultiviolaEnemyState>() is { } multiviola)
             multiviola.Velocity = FixedVector<RoomPixels>.FromStoredParts(words.C, words.D, words.E, words.F);
@@ -646,7 +662,6 @@ internal static class NativeEnemyFamilyStateImport
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             holtz.Action = RiosNativeWords.LowerNorfairRioActions.Decode(words.F, "recorded LowerNorfairRioAction");
-            holtz.IsFollower = enemy.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
         }
         if (enemy.DefinitionId == EnemyDefinitionId.EtecoonEscape && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
@@ -657,12 +672,12 @@ internal static class NativeEnemyFamilyStateImport
         {
             faceBlock.Activated = words.A != 0;
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.Puromi && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
+        if (enemy.DefinitionId == EnemyDefinitionId.NuclearWaffle && enemy.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Action = NuclearNativeWords.NuclearWaffleActions.Decode(words.A, "recorded NuclearWaffleAction");
             waffle.WaitingTimer = unchecked((short)words.B);
         }
-        if (enemy.DefinitionId == EnemyDefinitionId.LavaRocks && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
+        if (enemy.DefinitionId == EnemyDefinitionId.Polyp && enemy.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Action = PolypNativeWords.PolypActions.Decode(words.A, "recorded PolypAction");
             polyp.CooldownTimer = unchecked((short)words.B);
@@ -764,19 +779,31 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemies.ElevatorStates[index] is { } elevator)
             elevator.RestingY = words.A;
-        if (enemies.FuneNamiheStates[index] is { } funeNamihe)
+        // A Fune reads no wake distance and a Namihe no cooldown; each takes only its own species' words.
+        if (enemies.FuneStates[index] is { } fune)
         {
-            funeNamihe.Action = FuneNamiheNativeWords.FuneNamiheActions.Decode(words.B, "recorded FuneNamiheAction");
-            funeNamihe.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
-            if ((Index(words.D, 15, "Fune/Namihe behaviour") != 0) != funeNamihe.IsNamihe)
-                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names the other species.");
-            funeNamihe.CooldownTimer = words.E;
-            funeNamihe.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
+            fune.Action = FuneNamiheNativeWords.FuneActions.Decode(words.B, "recorded FuneAction");
+            if (Index(words.D, 15, "Fune/Namihe behaviour") != 0)
+                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Namihe.");
+            fune.CooldownTimer = words.E;
+            fune.CooldownTime = Index(words.F, byte.MaxValue, "Fune cooldown time");
             (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
-            if (namihe != funeNamihe.IsNamihe)
-                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names the other species.");
-            funeNamihe.ShowsActiveAnimation = active;
-            funeNamihe.FacingRight = right;
+            if (namihe)
+                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Namihe.");
+            fune.ShowsActiveAnimation = active;
+            fune.FacingRight = right;
+        }
+        if (enemies.NamiheStates[index] is { } namiheState)
+        {
+            namiheState.Action = FuneNamiheNativeWords.NamiheActions.Decode(words.B, "recorded NamiheAction");
+            namiheState.YProximity = Index(words.C, byte.MaxValue, "Namihe wake distance");
+            if (Index(words.D, 15, "Fune/Namihe behaviour") == 0)
+                throw new InvalidDataException($"Recorded Fune/Namihe behaviour ${words.D:X4} names a Fune.");
+            (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(words.A);
+            if (!namihe)
+                throw new InvalidDataException($"Recorded Fune/Namihe selector ${words.A:X4} names a Fune.");
+            namiheState.ShowsActiveAnimation = active;
+            namiheState.FacingRight = right;
         }
         if (enemy.DefinitionId is EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.JetRipper &&
             enemy.SpeciesState<RipperEnemyState>() is { } ripperVariant)

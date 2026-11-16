@@ -127,7 +127,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
             new(EnemyDefinitionId.Namihe),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Pillar), [
-            new(EnemyDefinitionId.Puromi),
+            new(EnemyDefinitionId.NuclearWaffle),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.CrocomireEscape), [
             new(EnemyDefinitionId.Dragon),
@@ -266,7 +266,7 @@ internal static class NorfairRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.Volcano), [
             new(EnemyDefinitionId.Fune),
-            new(EnemyDefinitionId.LavaRocks),
+            new(EnemyDefinitionId.Polyp),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.UpperNorfairFarming), [
             new(EnemyDefinitionId.Fune),

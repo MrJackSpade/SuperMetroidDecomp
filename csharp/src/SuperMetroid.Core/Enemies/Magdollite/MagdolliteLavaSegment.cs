@@ -6,12 +6,10 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 internal enum MagdolliteLavaSegment
 {
-    /// <summary>The shared delete animation.</summary>
-    SharedDelete,
     /// <summary>The left animation.</summary>
     Left,
     /// <summary>The right animation.</summary>
     Right,
-    /// <summary>The shot animation.</summary>
+    /// <summary>The shot animation: the lava spawns its drops and is deleted.</summary>
     Shot,
 }

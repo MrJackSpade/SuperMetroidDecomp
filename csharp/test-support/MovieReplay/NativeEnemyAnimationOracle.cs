@@ -472,12 +472,18 @@ internal static class NativeEnemyAnimationOracle
                 case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
                 {
                     // A typed held frame stands for the list's longest frame followed at once by its sleep (#1607): the
-                    // frame shows for good, which the sleep after it reads as the same rest.
-                    VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
+                    // frame shows for good, which the sleep after it reads as the same rest. It stands too for a list's
+                    // only frame followed by a goto back to the list (#2068): the list shows that frame again and again,
+                    // for good, whatever duration it names.
                     VerificationAssertions.AssertEqual(operand, spritemap(held.Shown), $"{at}: held frame's spritemap");
-                    ushort afterHeld = cartridge.ReadCartridgeWord((int)new SnesAddress(bank, unchecked((ushort)(cursor + 4))));
-                    VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(afterHeld),
-                        $"{at}: a held frame's native frame is followed by its sleep");
+                    int afterHeld = (int)new SnesAddress(bank, unchecked((ushort)(cursor + 4)));
+                    NativeEnemyListDefinitions.WordKind followedBy = NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(afterHeld));
+                    bool loopsAlone = beat == 0 && cursor == entry && followedBy == NativeEnemyListDefinitions.WordKind.GoTo
+                        && cartridge.ReadCartridgeWord(afterHeld + 2) == entry;
+                    VerificationAssertions.AssertTrue(followedBy == NativeEnemyListDefinitions.WordKind.Sleep || loopsAlone,
+                        $"{at}: a held frame's native frame is followed by its sleep, or by a goto back to the list it alone makes");
+                    if (!loopsAlone)
+                        VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;

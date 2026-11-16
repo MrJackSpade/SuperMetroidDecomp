@@ -316,16 +316,18 @@ internal static class NativeEnemyProjectileProgramOracle
                 beats[firstBeat + addresses.Count] is AnimationBeat<TFrame, TEvent>.HeldFrame held)
             {
                 // A typed held frame stands for the list's longest frame followed at once by its sleep, or by a goto to its
-                // own list's entry when it is the list's only frame, which shows the same frame again (#1607).
-                bool firstOfList = addresses.Count == 0;
+                // own list's entry when it is the list's only frame, which shows the same frame again and again for good,
+                // whatever duration it names (#1607, #2068).
+                bool firstOfList = addresses.Count == 0 && cursor == entry;
                 _ = Next("held frame");
-                VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                 VerificationAssertions.AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(held.Shown), $"{at}: held frame's presentation key");
                 var afterHeld = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
                 ushort afterHeldOperand = cartridge.ReadCartridgeWord(address + 6);
-                VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep ||
-                    (afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == entry && firstOfList),
+                bool loopsAlone = afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == entry && firstOfList;
+                VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep || loopsAlone,
                     $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
+                if (!loopsAlone)
+                    VerificationAssertions.AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held frame's native duration");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

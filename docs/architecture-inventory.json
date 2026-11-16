@@ -43509,32 +43509,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.SetEyeAction",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.SetOwnEyeAction",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.ShiftBodyPicture",
       "kind": "record",
       "scope": "product",
@@ -43588,6 +43562,32 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.TailWhipHit",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.TrackWithEye",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCue.TrackWithOwnEye",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -53209,6 +53209,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodyCue.Flip",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyBodyCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyBodyCue.GoToIfCeresAndSamusLowEnergy",
       "kind": "record",
       "scope": "product",
@@ -55817,6 +55830,19 @@
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoCue.Signal",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoCue.Stepped",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -72691,6 +72717,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperFollowerEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperFollowerEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperFollowerState",
       "kind": "class",
       "scope": "product",
@@ -72777,6 +72816,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumps.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LeadingPartPlacement",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/LeadingPartPlacement.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -74635,6 +74690,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeMountEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountSide",
       "kind": "enum",
       "scope": "product",
@@ -74646,6 +74714,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeMountState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeMountState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeNativeWords",
@@ -77872,6 +77953,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Rios.LowerNorfairRioFollowerEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioFollowerEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Rios.LowerNorfairRioFollowerState",
       "kind": "class",
       "scope": "product",
@@ -78000,6 +78094,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioFollowerEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioFollowerEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -80615,6 +80722,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCue.BeginHeading",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateCue.PlaySound",
       "kind": "record",
       "scope": "product",
@@ -81211,6 +81331,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCue.BeginHeading",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateCue.FireLaser",
       "kind": "record",
       "scope": "product",
@@ -81410,6 +81543,19 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateCue.Begin",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateCue.BeginOnWall",
       "kind": "record",
       "scope": "product",
       "assemblies": [
@@ -158908,6 +159054,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotAnimationsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotBombRejectionVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/WorkRobots/WorkRobotBombRejectionVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

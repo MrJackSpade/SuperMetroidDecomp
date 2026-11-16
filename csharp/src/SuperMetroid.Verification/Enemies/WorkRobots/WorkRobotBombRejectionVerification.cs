@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;

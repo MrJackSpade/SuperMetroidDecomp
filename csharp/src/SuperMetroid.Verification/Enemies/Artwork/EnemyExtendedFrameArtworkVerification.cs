@@ -106,7 +106,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         (string Name, byte Bank, ushort Pointer)[] drawnFrames =
         [
             .. EnemyExtendedFrameDefinitions.Frames.Select(frame => (frame.Name, frame.Bank, frame.Pointer)),
-            .. SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPartFrameToolingDefinitions.LimbSpritemaps
+            .. SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPartFrameToolingDefinitionsConstants.LimbSpritemaps
                 .Where(record => !EnemyExtendedFrameDefinitions.Frames.Any(frame => frame.Bank == SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualToolingDefinitions.Bank && frame.Pointer == record))
                 .Select(record => ($"Kraid record ${record:X4}", SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualToolingDefinitions.Bank, record)),
         ];

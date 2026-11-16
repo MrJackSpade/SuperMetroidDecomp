@@ -79,7 +79,7 @@ internal static class KraidAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame when Beat(beat, at) is AnimationBeat<KraidPartPose, KraidPartCue>.HeldFrame held:
                     // A held pose (#1627) stands for the list's longest frame followed at once by its sleep.
                     AssertEqual(NativeHeldFrameDuration, word, $"{at}: a held pose's native duration");
-                    AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitions.PoseAt(operand), held.Shown, $"{at}: the held pose its native spritemap stores");
+                    AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitionsConstants.PoseAt(operand), held.Shown, $"{at}: the held pose its native spritemap stores");
                     AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)),
                         $"{at}: a held pose's native frame is followed by its sleep");
                     addresses.Add(cursor);
@@ -88,7 +88,7 @@ internal static class KraidAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     var frame = AssertIs<AnimationBeat<KraidPartPose, KraidPartCue>.Frame>(Beat(beat, at), $"{at}: frame");
                     AssertEqual(word, frame.Duration, $"{at}: duration");
-                    AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitions.PoseAt(operand), frame.Shown, $"{at}: the pose its native spritemap stores");
+                    AssertEqual<KraidPartPose?>(KraidPartFrameToolingDefinitionsConstants.PoseAt(operand), frame.Shown, $"{at}: the pose its native spritemap stores");
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;

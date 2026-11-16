@@ -18,7 +18,7 @@ internal static class EnemyProjectileProgramFrameOperands
     /// </summary>
     private static readonly ILookup<ushort, EnemyProjectileFrameId> Frames =
         EnemyProjectileProgramFrameDefinitions.Operands.Select(pair => (Operand: pair.Value, Frame: pair.Key))
-            .Concat(EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
+            .Concat(EnemyProjectileProgramFrameDefinitionsConstants.AlsoStoredAt.Select(pair => (Operand: pair.Key, Frame: pair.Value)))
             .ToLookup(entry => entry.Operand, entry => entry.Frame);
 
     /// <summary>Whether bank-$86 operand <paramref name="operand"/> stores an installed program frame.</summary>

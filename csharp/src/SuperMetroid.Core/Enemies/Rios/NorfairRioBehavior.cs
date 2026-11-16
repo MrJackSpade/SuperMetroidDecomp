@@ -63,6 +63,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             AnimationSignal = false,
             FollowerYOffset = 0,
             Playback = new(NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle), AnimationPlace.StartOfAnimation),
+            Idles = true,
         });
     }
 
@@ -93,10 +94,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     if (state.AnimationSignal)
                     {
                         state.AnimationSignal = false;
-                        StartNorfairRioAnimation(
-                            place,
-                            state,
-                            NorfairRioSegment.Idle);
+                        RestNorfairRio(place, state);
                     }
                     return;
                 }
@@ -107,7 +105,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     RioLaunches.NorfairYVelocity(random));
                 if (CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0)
                     state.Velocity = state.Velocity.ReversedX();
-                StartNorfairRioAnimation(
+                StartNorfairRioSwoopAnimation(
                     place,
                     state,
                     NorfairRioSegment.StartDescending);
@@ -118,7 +116,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.AnimationSignal)
                     return;
                 state.AnimationSignal = false;
-                StartNorfairRioAnimation(
+                StartNorfairRioSwoopAnimation(
                     place,
                     state,
                     NorfairRioSegment.Descending);
@@ -157,7 +155,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.AnimationSignal)
                 {
                     state.AnimationSignal = false;
-                    StartNorfairRioAnimation(
+                    StartNorfairRioSwoopAnimation(
                         place,
                         state,
                         NorfairRioSegment.Ascending);
@@ -231,7 +229,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         NorfairRioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(-SignedEightEight.FromParts(0, 1));
-        StartNorfairRioAnimation(
+        StartNorfairRioSwoopAnimation(
             place,
             state,
             NorfairRioSegment.StartAscending);
@@ -253,12 +251,25 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Restarts a parent's animation only when it changes (#2145).</summary>
-    private static void StartNorfairRioAnimation(
+    /// <summary>Returns a parent to its idle animation, restarting it only when it changes (#2145), and hides its flames (#2168).</summary>
+    private static void RestNorfairRio(RoomEnemyPlace place, NorfairRioEnemyState state)
+    {
+        state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle));
+        state.Idles = true;
+    }
+
+    /// <summary>
+    /// Starts one of a parent's swoop animations, restarting it only when it changes (#2145); its flames show while it
+    /// plays (#2168).
+    /// </summary>
+    private static void StartNorfairRioSwoopAnimation(
         RoomEnemyPlace place,
         NorfairRioEnemyState state,
-        NorfairRioSegment segment) =>
+        NorfairRioSegment segment)
+    {
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, NorfairRioAnimations.StartingWith(segment));
+        state.Idles = false;
+    }
 
     /// <summary>Restarts a flame follower's animation only when it changes (#2145).</summary>
     private static void StartNorfairRioAnimation(

@@ -136,7 +136,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The body turns to face Samus, and the idle body and its flapping wing each turn to that side.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
-        StartDragonAnimation(body, bodyState, DragonPhases.Idle(facingLeft));
+        StartDragonIdle(body, bodyState);
         StartDragonAnimation(wing, wingState, DragonPhases.Wings(facingLeft));
     }
 
@@ -162,9 +162,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The attack faces the way the body turned before rising. The update after each fireball, the attack its spit
         // played out starts over: that restart is what spaces the three fireballs by a whole attack animation (#2145).
         Animation<DragonSegment> attack = DragonAnimations.StartingWith(DragonPhases.Attacking(bodyState.FacingLeft));
-        bodyState.Playback = ReferenceEquals(bodyState.Playback.Animation, attack) && bodyState.Playback.HasShownPhaseEnd && !bodyState.AnimationFinished
+        bodyState.Playback = bodyState.PlaysAttack && bodyState.Playback.HasShownPhaseEnd && !bodyState.AnimationFinished
             ? EnemyAnimationPlayback.Start(body, attack)
             : EnemyAnimationPlayback.StartUnlessPlaying(body, bodyState.Playback, attack);
+        bodyState.PlaysAttack = true;
         if (!bodyState.AnimationFinished)
             return;
 
@@ -189,7 +190,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.ActionTimer = DragonRiseOrSinkFrames;
         bodyState.Action = DragonAction.Sinking;
-        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.FacingLeft));
+        StartDragonIdle(body, bodyState);
     }
 
     /// <summary>Sinks back into the lava.</summary>
@@ -227,6 +228,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         following.FlashTimer = actor.FlashTimer;
         following.FrozenTimer = actor.FrozenTimer;
         following.AiStates = actor.AiStates;
+    }
+
+    /// <summary>Starts the body's idle pose for the side it faces unless it already plays it; the body no longer attacks (#2168).</summary>
+    private static void StartDragonIdle(RoomEnemyPlace body, DragonEnemyState bodyState)
+    {
+        StartDragonAnimation(body, bodyState, DragonPhases.Idle(bodyState.FacingLeft));
+        bodyState.PlaysAttack = false;
     }
 
     /// <summary>Starts <paramref name="segment"/>'s animation unless the part already plays it, restarting its frame timer.</summary>

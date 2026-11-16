@@ -10,8 +10,11 @@ public sealed class NorfairRioEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<NorfairRioSegment> Playback { get; set; }
 
-    /// <summary>Whether the Rio rests in its idle animation, during which its flames stay hidden (#2145).</summary>
-    internal bool Idles => ReferenceEquals(Playback.Animation, NorfairRioAnimations.StartingWith(NorfairRioSegment.Idle));
+    /// <summary>
+    /// Whether the Rio rests in its idle animation, during which its flames stay hidden (#2145): set where the idle
+    /// animation starts and cleared where a swoop animation starts (#2168).
+    /// </summary>
+    internal bool Idles { get; set; }
 
     /// <summary>Animation handshake set by the swoop-start-finished cue.</summary>
     public bool AnimationSignal { get; internal set; }

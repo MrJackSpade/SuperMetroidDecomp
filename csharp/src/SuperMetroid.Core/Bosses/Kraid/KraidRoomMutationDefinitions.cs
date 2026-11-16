@@ -14,21 +14,24 @@ internal static class KraidRoomMutationDefinitions
     /// <summary>One block to the right: the spike crumble's step to its next column.</summary>
     private static readonly Offset16<RoomBlocks> NextColumn = new(1, 0);
 
-    /// <summary>One crumble image or final block, shown for the crumble's frame duration.</summary>
-    private static TerrainChangeFrame Shown(KraidRoomDraw draw) => new(KraidRoomObjectDraws.Family.Of(draw), CrumbleFrameDuration);
+    /// <summary>One stage of a crumbling block or the picture it leaves, shown for the crumble's frame duration.</summary>
+    private static TerrainChangeFrame Shown(RoomObjectDraw draw) => new(draw, CrumbleFrameDuration);
 
-    /// <summary>The three crumble images and then <paramref name="final"/>, the first image drawn after <paramref name="moveBefore"/>.</summary>
+    /// <summary>The picture a crumbled block leaves, shown for the crumble's frame duration.</summary>
+    private static TerrainChangeFrame Shown(KraidRoomDraw draw) => Shown(KraidRoomObjectDraws.Family.Of(draw));
+
+    /// <summary>The rock, pieces and dust of a crumbling block and then <paramref name="final"/>, the rock drawn after <paramref name="moveBefore"/>.</summary>
     private static TerrainChangeFrame[] CrumbleInto(KraidRoomDraw final, Offset16<RoomBlocks> moveBefore) =>
     [
-        Shown(KraidRoomDraw.CrumbleFirst) with { MoveBefore = moveBefore },
-        Shown(KraidRoomDraw.CrumbleSecond),
-        Shown(KraidRoomDraw.CrumbleThird),
+        Shown(KraidRoomObjectDraws.Crumble(BlockBreakupStage.Rock)) with { MoveBefore = moveBefore },
+        Shown(KraidRoomObjectDraws.Crumble(BlockBreakupStage.Pieces)),
+        Shown(KraidRoomObjectDraws.Crumble(BlockBreakupStage.Dust)),
         Shown(final),
     ];
 
     /// <summary>A spike pass after the first: its two columns, each one block right of the column before.</summary>
     private static readonly TerrainChangeFrame[] LaterSpikePass =
-        [.. CrumbleInto(KraidRoomDraw.SpikeFirst, NextColumn), .. CrumbleInto(KraidRoomDraw.SpikeSecond, NextColumn)];
+        [.. CrumbleInto(KraidRoomDraw.SpikeBackgroundLeftColumn, NextColumn), .. CrumbleInto(KraidRoomDraw.SpikeBackgroundRightColumn, NextColumn)];
 
     /// <summary>
     /// The change each mutation makes: a ceiling block crumbles into its background; a platform variant only sets its
@@ -46,8 +49,8 @@ internal static class KraidRoomMutationDefinitions
             [KraidRoomMutation.ClearSpikes] = TerrainChange.DrawnOnce(KraidRoomObjectDraws.Family.Of(KraidRoomDraw.ClearSpikes)),
             [KraidRoomMutation.CrumbleSpikes] = new(1,
             [
-                .. CrumbleInto(KraidRoomDraw.SpikeFirst, Offset16<RoomBlocks>.Zero),
-                .. CrumbleInto(KraidRoomDraw.SpikeSecond, NextColumn),
+                .. CrumbleInto(KraidRoomDraw.SpikeBackgroundLeftColumn, Offset16<RoomBlocks>.Zero),
+                .. CrumbleInto(KraidRoomDraw.SpikeBackgroundRightColumn, NextColumn),
                 .. Enumerable.Repeat(LaterSpikePass, SpikePassCount - 1).SelectMany(pass => pass),
             ]),
         };

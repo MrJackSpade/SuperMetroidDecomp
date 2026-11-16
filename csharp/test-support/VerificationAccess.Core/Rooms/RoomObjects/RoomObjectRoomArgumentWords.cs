@@ -38,12 +38,12 @@ internal static class RoomObjectRoomArgumentWords
     /// The shot-block triggers in the order of the cartridge's trigger tables (blue, red, green, yellow; left then right),
     /// which a gate trigger's word indexes in steps of two.
     /// </summary>
-    internal static IReadOnlyList<DownwardGateShotBlockDefinition> GateTriggersInTableOrder { get; } =
+    internal static IReadOnlyList<DownwardGateTriggerBehavior> GateTriggersInTableOrder { get; } =
     [
-        DownwardGateShotBlockDefinitions.BlueLeft, DownwardGateShotBlockDefinitions.BlueRight,
-        DownwardGateShotBlockDefinitionsConstants.RedLeft, DownwardGateShotBlockDefinitionsConstants.RedRight,
-        DownwardGateShotBlockDefinitions.GreenLeft, DownwardGateShotBlockDefinitions.GreenRight,
-        DownwardGateShotBlockDefinitionsConstants.YellowLeft, DownwardGateShotBlockDefinitionsConstants.YellowRight,
+        DownwardGateTriggerBehavior.BlueLeft, DownwardGateTriggerBehavior.BlueRight,
+        DownwardGateTriggerBehavior.RedLeft, DownwardGateTriggerBehavior.RedRight,
+        DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight,
+        DownwardGateTriggerBehavior.YellowLeft, DownwardGateTriggerBehavior.YellowRight,
     ];
 
     /// <summary>The entries of the cartridge's Metroids-cleared table, which a clearance watch's word indexes in steps of two.</summary>
@@ -187,17 +187,17 @@ internal static class RoomObjectRoomArgumentWords
         CollectibleObject { Location: { } location } => ArgumentWord(new CollectedItemArgument(location)),
         StationObject { SavedAt: { } station } => ArgumentWord(new SaveStationArgument(station)),
         MetroidRoomClearanceObject watch => ArgumentWord(new MetroidRoomArgument(watch.Cleared)),
-        TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } shotBlock =>
-            ArgumentWord(new GateTriggerArgument(shotBlock)),
+        TerrainChangeObject { Change: var change } when GateTriggerDrawing(change) is { } trigger =>
+            ArgumentWord(new GateTriggerArgument(trigger)),
         _ => null,
     };
 
     /// <summary>The gate trigger whose shot block <paramref name="change"/> draws, or null for any other terrain change.</summary>
-    private static DownwardGateShotBlockDefinition? GateTriggerDrawing(TerrainChange change)
+    private static DownwardGateTriggerBehavior? GateTriggerDrawing(TerrainChange change)
     {
-        foreach (DownwardGateShotBlockDefinition trigger in GateTriggersInTableOrder)
+        foreach (DownwardGateTriggerBehavior trigger in GateTriggersInTableOrder)
         {
-            if (trigger.Change == change)
+            if (DownwardGateTriggerDefinitions.Changes[trigger] == change)
                 return trigger;
         }
         return null;
@@ -228,20 +228,20 @@ internal static class RoomObjectRoomArgumentWords
                 checked((ushort)((MetroidRoomNoOpEntryCount + Array.IndexOf(MetroidRoomQuotaObserverEvents, cleared)) * 2)),
             // A watch that observes nothing keeps none of the no-op entries' words.
             MetroidRoomArgument => null,
-            GateTriggerArgument gate => checked((ushort)(GateTriggerIndex(gate.ShotBlock) * 2)),
+            GateTriggerArgument gate => checked((ushort)(GateTriggerIndex(gate.Trigger) * 2)),
             null => null,
             _ => throw new InvalidOperationException($"Undefined room argument {argument}."),
         };
 
     /// <summary>The trigger's place in the cartridge's trigger tables.</summary>
-    private static int GateTriggerIndex(DownwardGateShotBlockDefinition shotBlock)
+    private static int GateTriggerIndex(DownwardGateTriggerBehavior trigger)
     {
         for (int index = 0; index < GateTriggersInTableOrder.Count; index++)
         {
-            if (GateTriggersInTableOrder[index] == shotBlock)
+            if (GateTriggersInTableOrder[index] == trigger)
                 return index;
         }
-        throw new InvalidOperationException($"Downward gate trigger {shotBlock.Trigger} is not in the trigger tables.");
+        throw new InvalidOperationException($"Downward gate trigger {trigger} is not in the trigger tables.");
     }
 
     /// <summary>

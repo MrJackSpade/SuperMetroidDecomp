@@ -11,10 +11,10 @@ internal static class ElevatorPlatformObjectDefinitions
     /// <summary>The platform's loop, which it plays from its first update for as long as it stays: each layout four updates, there and back.</summary>
     internal static IReadOnlyList<TerrainChangeFrame> Cycle { get; } =
     [
-        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.First), 4),
-        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Second), 4),
-        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Third), 4),
-        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Second), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Dim), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Glowing), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Bright), 4),
+        new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Glowing), 4),
     ];
 
     /// <summary>
@@ -31,8 +31,8 @@ internal static class ElevatorPlatformObjectDefinitions
     /// <summary>The block shape each of the three frames draws: the same platform, whose pictures differ.</summary>
     internal static readonly Dictionary<ElevatorPlatformDraw, RoomBlockShape> Shapes = new()
     {
-        [ElevatorPlatformDraw.First] = Platform,
-        [ElevatorPlatformDraw.Second] = Platform,
-        [ElevatorPlatformDraw.Third] = Platform,
+        [ElevatorPlatformDraw.Dim] = Platform,
+        [ElevatorPlatformDraw.Glowing] = Platform,
+        [ElevatorPlatformDraw.Bright] = Platform,
     };
 }

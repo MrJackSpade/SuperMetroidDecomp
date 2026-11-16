@@ -139,7 +139,7 @@ internal static class DownwardGateObjectsVerification
             "first resident slot holds the closed downward gate");
         AssertEqual(1, places[1].UpdatePosition, "shot block is processed next");
         AssertTrue(places[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
-                && triggerChange == DownwardGateShotBlockDefinitions.BlueLeft.Change,
+                && triggerChange == DownwardGateTriggerDefinitions.Changes[DownwardGateTriggerBehavior.BlueLeft],
             "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
@@ -188,8 +188,8 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Frame: null },
-            "a gate that has not moved shows no image of a movement (#1627)");
+                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true, StepsShown: 1 },
+            "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
         AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
@@ -198,7 +198,7 @@ internal static class DownwardGateObjectsVerification
             "power beam reaches the sleeping blue gate");
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.Reopening, Frame: 0 },
+                DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false, StepsShown: 1 },
             "the waking update shows the reopening's first image (#1627)");
         DownwardGateProjectileRequest wake = roomObjects.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,

@@ -76,8 +76,6 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomBlockAppearance.Of(0x180), InstalledRoomObjectMaridiaElevatubeVisuals.Stock().Image(MaridiaElevatubeObjectDefinitions.BlockDraw).At(new(0, 0)),
             "elevatube block picture");
 
-        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, DownwardGateShotBlockDefinitions.BlueLeft.LeftCollision, "blue-left gate trigger collision");
-        AssertEqual((RoomCollisionType?)RoomCollisionType.ShootableBlock, DownwardGateShotBlockDefinitionsConstants.YellowRight.RightCollision, "yellow-right gate trigger collision");
         // A restoration's geometry holds its collision; what it shows is its installed picture (#1557).
         InstalledRoomObjectLinkedRestoreVisuals restorations = InstalledRoomObjectLinkedRestoreVisuals.Stock();
         var bombHorizontal = new LinkedRestoreObjectFamily.Draw(RoomObjectRestoreShape.Horizontal, LinkedRestoreObjectFamily.BombBlock);

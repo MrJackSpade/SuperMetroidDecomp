@@ -13,16 +13,16 @@ internal static class KraidRoomVisualSelectionVerification
         // Independent published pointer/ID/shape contract, not production enumeration.
         KraidRoomVisualSelectionDefinition[] definitions =
         [
-            new KraidRoomVisualSelectionDefinition(0x9367, "crumble-first", 1), new KraidRoomVisualSelectionDefinition(0x936d, "crumble-second", 1),
-            new KraidRoomVisualSelectionDefinition(0x9373, "crumble-third", 1), new KraidRoomVisualSelectionDefinition(0x9379, "ceiling-background-left-edge", 1),
+            new KraidRoomVisualSelectionDefinition(0x9367, "crumble-rock", 1), new KraidRoomVisualSelectionDefinition(0x936d, "crumble-pieces", 1),
+            new KraidRoomVisualSelectionDefinition(0x9373, "crumble-dust", 1), new KraidRoomVisualSelectionDefinition(0x9379, "ceiling-background-left-edge", 1),
             new KraidRoomVisualSelectionDefinition(0x937f, "ceiling-background-odd-column", 1), new KraidRoomVisualSelectionDefinition(0x9385, "ceiling-background-even-column", 1),
-            new KraidRoomVisualSelectionDefinition(0x9391, "spike-first", 1), new KraidRoomVisualSelectionDefinition(0x9397, "spike-second", 1),
+            new KraidRoomVisualSelectionDefinition(0x9391, "spike-background-left-column", 1), new KraidRoomVisualSelectionDefinition(0x9397, "spike-background-right-column", 1),
             new KraidRoomVisualSelectionDefinition(0x939d, "clear-ceiling", 15), new KraidRoomVisualSelectionDefinition(0x93bf, "clear-spikes", 22),
         ];
         InstalledRoomObjectKraidVisuals stock = InstalledRoomObjectKraidVisuals.Stock();
         foreach (var definition in definitions)
         {
-            RoomObjectDraw draw = NativeObjectDraws.At<KraidRoomDraw>(definition.Pointer);
+            RoomObjectDraw draw = KraidRoomDrawsAt.Draw(definition.Pointer);
             AssertEqual(definition.Id, RoomObjectKraidVisualFiles.Family.Ids[draw], "Kraid visual role's published name");
             RoomObjectFrameImage image = stock.Image(draw);
             AssertEqual(definition.Count, image.Cells.Count, "Kraid visual role covers its blocks");
@@ -31,10 +31,10 @@ internal static class KraidRoomVisualSelectionVerification
         }
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (definitions.All(definition => definition.Pointer != pointer))
-                AssertThrows<InvalidDataException>(() => stock.Image(NativeObjectDraws.At<KraidRoomDraw>((ushort)pointer)),
+                AssertThrows<InvalidDataException>(() => stock.Image(KraidRoomDrawsAt.Draw((ushort)pointer)),
                     "Kraid visual selector rejects holes and neighboring draws");
         foreach (ushort pointer in new ushort[] { 0, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => stock.Image(NativeObjectDraws.At<KraidRoomDraw>(pointer)),
+            AssertThrows<InvalidDataException>(() => stock.Image(KraidRoomDrawsAt.Draw(pointer)),
                 "Kraid visual selector rejects distant pointers");
         Console.WriteLine("Kraid room visual selection: ten roles, their cells and the pointer bounds pass.");
     }

@@ -115,9 +115,9 @@ internal static class RoomObjectDrawSourceDefinitions
     /// <summary>The address of each <see cref="ElevatorPlatformDraw"/>.</summary>
     internal static IReadOnlyDictionary<ElevatorPlatformDraw, SnesAddress> ElevatorPlatform { get; } = new Dictionary<ElevatorPlatformDraw, SnesAddress>
     {
-        [ElevatorPlatformDraw.First] = new(Bank, 0xaa97),
-        [ElevatorPlatformDraw.Second] = new(Bank, 0xaaaf),
-        [ElevatorPlatformDraw.Third] = new(Bank, 0xaac7),
+        [ElevatorPlatformDraw.Dim] = new(Bank, 0xaa97),
+        [ElevatorPlatformDraw.Glowing] = new(Bank, 0xaaaf),
+        [ElevatorPlatformDraw.Bright] = new(Bank, 0xaac7),
     };
 
     /// <summary>The address of each <see cref="EscapeAnimalDraw"/>.</summary>
@@ -129,17 +129,22 @@ internal static class RoomObjectDrawSourceDefinitions
         [EscapeAnimalDraw.Blank] = new(Bank, 0x9279),
     };
 
+    /// <summary>The address of each stage of a Kraid room block's crumble (<see cref="KraidRoomObjectDraws.CrumbleDraw"/>).</summary>
+    internal static IReadOnlyDictionary<BlockBreakupStage, SnesAddress> KraidCrumble { get; } = new Dictionary<BlockBreakupStage, SnesAddress>
+    {
+        [BlockBreakupStage.Rock] = new(Bank, 0x9367),
+        [BlockBreakupStage.Pieces] = new(Bank, 0x936d),
+        [BlockBreakupStage.Dust] = new(Bank, 0x9373),
+    };
+
     /// <summary>The address of each <see cref="KraidRoomDraw"/>.</summary>
     internal static IReadOnlyDictionary<KraidRoomDraw, SnesAddress> KraidRoom { get; } = new Dictionary<KraidRoomDraw, SnesAddress>
     {
-        [KraidRoomDraw.CrumbleFirst] = new(Bank, 0x9367),
-        [KraidRoomDraw.CrumbleSecond] = new(Bank, 0x936d),
-        [KraidRoomDraw.CrumbleThird] = new(Bank, 0x9373),
         [KraidRoomDraw.CeilingBackgroundLeftEdge] = new(Bank, 0x9379),
         [KraidRoomDraw.CeilingBackgroundOddColumn] = new(Bank, 0x937f),
         [KraidRoomDraw.CeilingBackgroundEvenColumn] = new(Bank, 0x9385),
-        [KraidRoomDraw.SpikeFirst] = new(Bank, 0x9391),
-        [KraidRoomDraw.SpikeSecond] = new(Bank, 0x9397),
+        [KraidRoomDraw.SpikeBackgroundLeftColumn] = new(Bank, 0x9391),
+        [KraidRoomDraw.SpikeBackgroundRightColumn] = new(Bank, 0x9397),
         [KraidRoomDraw.ClearCeiling] = new(Bank, 0x939d),
         [KraidRoomDraw.ClearSpikes] = new(Bank, 0x93bf),
     };
@@ -197,12 +202,10 @@ internal static class RoomObjectDrawSourceDefinitions
     internal static IReadOnlyDictionary<NoobTubeDraw, SnesAddress> NoobTube { get; } = new Dictionary<NoobTubeDraw, SnesAddress>
     {
         [NoobTubeDraw.Intact] = new(Bank, 0x98d1),
-        [NoobTubeDraw.Damaged] = new(Bank, 0x98d7),
+        [NoobTubeDraw.Cracking] = new(Bank, 0x98d7),
         [NoobTubeDraw.Opened] = new(Bank, 0x98dd),
-        [NoobTubeDraw.Cleared] = new(Bank, 0x98e3),
-        [NoobTubeDraw.BrokenLate] = new(Bank, 0x9953),
-        [NoobTubeDraw.OpenedRows] = new(Bank, 0x9991),
-        [NoobTubeDraw.BrokenFull] = new(Bank, 0x99e5),
+        [NoobTubeDraw.UpperRowsOpen] = new(Bank, 0x9991),
+        [NoobTubeDraw.LowerRowsOpen] = new(Bank, 0x99e5),
     };
 
     /// <summary>The address of each <see cref="RoomObjectBombedRevealDraw"/>.</summary>
@@ -310,14 +313,14 @@ internal static class RoomObjectDrawSourceDefinitions
         [CollectibleDraw.SuperMissileTankBright] = new(Bank, 0xa2fd),
         [CollectibleDraw.PowerBombTankBright] = new(Bank, 0xa303),
         [CollectibleDraw.PowerBombTankDim] = new(Bank, 0xa309),
-        [CollectibleDraw.FirstBlockPairFirstFrame] = new(Bank, 0xa30f),
-        [CollectibleDraw.FirstBlockPairSecondFrame] = new(Bank, 0xa315),
-        [CollectibleDraw.SecondBlockPairFirstFrame] = new(Bank, 0xa31b),
-        [CollectibleDraw.SecondBlockPairSecondFrame] = new(Bank, 0xa321),
-        [CollectibleDraw.ThirdBlockPairFirstFrame] = new(Bank, 0xa327),
-        [CollectibleDraw.ThirdBlockPairSecondFrame] = new(Bank, 0xa32d),
-        [CollectibleDraw.FourthBlockPairFirstFrame] = new(Bank, 0xa333),
-        [CollectibleDraw.FourthBlockPairSecondFrame] = new(Bank, 0xa339),
+        [CollectibleDraw.FirstBlockPairPrimaryLook] = new(Bank, 0xa30f),
+        [CollectibleDraw.FirstBlockPairAlternateLook] = new(Bank, 0xa315),
+        [CollectibleDraw.SecondBlockPairPrimaryLook] = new(Bank, 0xa31b),
+        [CollectibleDraw.SecondBlockPairAlternateLook] = new(Bank, 0xa321),
+        [CollectibleDraw.ThirdBlockPairPrimaryLook] = new(Bank, 0xa327),
+        [CollectibleDraw.ThirdBlockPairAlternateLook] = new(Bank, 0xa32d),
+        [CollectibleDraw.FourthBlockPairPrimaryLook] = new(Bank, 0xa333),
+        [CollectibleDraw.FourthBlockPairAlternateLook] = new(Bank, 0xa339),
         [CollectibleDraw.ShotBlockIntact] = new(Bank, 0xa3dd),
         [CollectibleDraw.ShotBlockCracking] = new(Bank, 0xa3e3),
         [CollectibleDraw.ShotBlockDust] = new(Bank, 0xa3e9),

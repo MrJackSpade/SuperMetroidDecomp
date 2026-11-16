@@ -35,6 +35,7 @@ internal static class NativeObjectDraws
             .Concat(Enum.GetValues<ElevatorPlatformDraw>().Select(ElevatorPlatformDraws.Family.Of))
             .Concat(Enum.GetValues<EscapeAnimalDraw>().Select(EscapeAnimalWalls.Family.Of))
             .Concat(Enum.GetValues<KraidRoomDraw>().Select(KraidRoomObjectDraws.Family.Of))
+            .Concat(new[] { BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust }.Select(KraidRoomObjectDraws.Crumble))
             .Concat(Enum.GetValues<MotherBrainEscapeGateDraw>().Select(MotherBrainEscapeGateDraws.Family.Of))
             .Concat(Enum.GetValues<MotherBrainFakeDeathDraw>().Select(MotherBrainFakeDeathDraws.Family.Of))
             .Concat(Enum.GetValues<MotherBrainGlassDraw>().Select(MotherBrainGlassDraws.Family.Of))

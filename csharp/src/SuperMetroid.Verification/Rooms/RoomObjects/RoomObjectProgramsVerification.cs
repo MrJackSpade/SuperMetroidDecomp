@@ -280,8 +280,10 @@ internal static class RoomObjectProgramsVerification
     {
         ArgumentNullException.ThrowIfNull(gate);
         downwardGateAddresses ??= DownwardGateAddresses(rom);
+        // A moving gate ends every update showing an image of its movement: the waking update shows the first.
         int frame = gate.Phase is DownwardGatePhase.Closing or DownwardGatePhase.Reopening
-            ? gate.Frame ?? throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image.")
+            ? (gate.StepsShown > 0 ? gate.StepsShown - 1
+                : throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image."))
             : 0;
         return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
             ? address
@@ -300,10 +302,10 @@ internal static class RoomObjectProgramsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
-        void AssertShown(int cursor, TerrainChangeFrame frame, string at)
+        void AssertShown(int cursor, DownwardGateImage image, string at)
         {
-            AssertEqual(frame.Updates, (int)Word(cursor), $"{at} updates");
-            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(frame.Draw), (int)Word(cursor + 2), $"{at} image");
+            AssertEqual(image.Updates, (int)Word(cursor), $"{at} updates");
+            AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(image.Draw), (int)Word(cursor + 2), $"{at} image");
         }
         void AssertMovementSound(int cursor, string at)
         {
@@ -314,9 +316,31 @@ internal static class RoomObjectProgramsVerification
         }
         // Each resting list: its image for one update, the trigger cleared, its wake armed, the sleep; the continuation
         // after the sleep follows it.
-        int Resting(int list, RoomObjectDraw image, DownwardGatePhase showing, DownwardGatePhase resting, Dictionary<GateState, ushort> into)
+        // An image that starts a movement follows the instructions that start it: the projectile's wake or spawn, then the
+        // movement sound. Returns the image's place.
+        int Starting(int cursor, DownwardGateImage image, string at)
         {
-            AssertShown(list, new TerrainChangeFrame(image, 1), $"{showing}");
+            switch (image.Starts)
+            {
+                case DownwardGateMovement.None:
+                    return cursor;
+                case DownwardGateMovement.Rising:
+                    AssertEqual(RoomObjectInstruction.WakeDownwardGateProjectile, At(cursor), $"{at} wakes the gate projectile");
+                    break;
+                case DownwardGateMovement.Lowering:
+                    AssertEqual(RoomObjectInstruction.SpawnDownwardGateProjectile, At(cursor), $"{at} spawns the moving gate");
+                    AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), Word(cursor + 2), $"{at} moving projectile");
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(DownwardGateMovement)} {image.Starts}.");
+            }
+            AssertMovementSound(cursor + 4, at);
+            return cursor + 7;
+        }
+        int Resting(int list, DownwardGateImage image, DownwardGatePhase showing, DownwardGatePhase resting, Dictionary<GateState, ushort> into)
+        {
+            AssertEqual(DownwardGateMovement.None, image.Starts, $"{showing} starts no movement");
+            AssertShown(list, image, $"{showing}");
             AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"{resting} clears the trigger");
             AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"{resting} arms its wake");
             AssertEqual(resting, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"{resting} wake");
@@ -329,28 +353,19 @@ internal static class RoomObjectProgramsVerification
         var addresses = new Dictionary<GateState, ushort>();
         int closed = Word(RoomObjectNativeWords.Word(RoomObjectKind.DownwardGate) + 2);
         addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
-        int reopen = Resting(closed, DownwardGateMovementDefinitions.ClosedImage, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
-        AssertEqual(RoomObjectInstruction.WakeDownwardGateProjectile, At(reopen), "reopening wakes the gate projectile");
-        AssertMovementSound(reopen + 4, "reopening");
-        int cursor = reopen + 7;
+        int cursor = Resting(closed, DownwardGateMovementDefinitions.Closed, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
         for (int index = 0; index < DownwardGateMovementDefinitions.Reopening.Count; index++, cursor += 4)
         {
+            cursor = Starting(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
             AssertShown(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
             addresses[new GateState(DownwardGatePhase.Reopening, index)] = checked((ushort)(cursor + 4));
         }
         AssertEqual(RoomObjectInstruction.Goto, At(cursor), "reopening goes on to the open gate");
         int open = Word(cursor + 2);
-        int close = Resting(open, DownwardGateMovementDefinitions.OpenImage, DownwardGatePhase.ShowingOpen, DownwardGatePhase.RestingOpen, addresses);
-        cursor = close;
+        cursor = Resting(open, DownwardGateMovementDefinitions.Open, DownwardGatePhase.ShowingOpen, DownwardGatePhase.RestingOpen, addresses);
         for (int index = 0; index < DownwardGateMovementDefinitions.Closing.Count; index++, cursor += 4)
         {
-            if (index == DownwardGateMovementDefinitions.ClosingMovementStart)
-            {
-                AssertEqual(RoomObjectInstruction.SpawnDownwardGateProjectile, At(cursor), "closing spawns the moving gate");
-                AssertEqual(EnemyProjectileNativeWords.Kinds.Word(RoomEnemyProjectileKind.DownwardGateMoving), Word(cursor + 2), "downward gate moving projectile");
-                AssertMovementSound(cursor + 4, "closing");
-                cursor += 7;
-            }
+            cursor = Starting(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
             AssertShown(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
             addresses[new GateState(DownwardGatePhase.Closing, index)] = checked((ushort)(cursor + 4));
         }

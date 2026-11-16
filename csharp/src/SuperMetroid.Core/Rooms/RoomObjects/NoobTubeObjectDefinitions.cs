@@ -46,9 +46,9 @@ public static class NoobTubeObjectDefinitions
     /// <summary>The tube's cracking, image by image, before it shatters.</summary>
     internal static IReadOnlyList<TerrainChangeFrame> Cracking { get; } =
     [
-        new(NoobTubeObjectDraws.Family.Of(NoobTubeDraw.Damaged), CrackedDuration),
-        new(NoobTubeObjectDraws.Family.Of(NoobTubeDraw.OpenedRows), 1),
-        new(NoobTubeObjectDraws.Family.Of(NoobTubeDraw.BrokenFull), 1),
+        new(NoobTubeObjectDraws.Family.Of(NoobTubeDraw.Cracking), CrackedDuration),
+        new(NoobTubeObjectDraws.Family.Of(NoobTubeDraw.UpperRowsOpen), 1),
+        new(NoobTubeObjectDraws.Family.Of(NoobTubeDraw.LowerRowsOpen), 1),
     ];
 
     /// <summary>The shattered, open tube, shown with the break sound, the debris and the earthquake.</summary>

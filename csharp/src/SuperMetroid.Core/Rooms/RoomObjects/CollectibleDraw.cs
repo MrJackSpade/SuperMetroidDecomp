@@ -45,29 +45,29 @@ internal enum CollectibleDraw
     /// <summary>A Power Bomb Tank dimmed, the second of its two frames.</summary>
     PowerBombTankDim,
 
-    /// <summary>The first block pair's block under an item's own picture in the picture's first frame.</summary>
-    FirstBlockPairFirstFrame,
+    /// <summary>The first block pair's block under an item's own picture while the picture shows its primary look.</summary>
+    FirstBlockPairPrimaryLook,
 
-    /// <summary>The first block pair's block under an item's own picture in the picture's second frame.</summary>
-    FirstBlockPairSecondFrame,
+    /// <summary>The first block pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    FirstBlockPairAlternateLook,
 
-    /// <summary>The second block pair's block under an item's own picture in the picture's first frame.</summary>
-    SecondBlockPairFirstFrame,
+    /// <summary>The second block pair's block under an item's own picture while the picture shows its primary look.</summary>
+    SecondBlockPairPrimaryLook,
 
-    /// <summary>The second block pair's block under an item's own picture in the picture's second frame.</summary>
-    SecondBlockPairSecondFrame,
+    /// <summary>The second block pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    SecondBlockPairAlternateLook,
 
-    /// <summary>The third block pair's block under an item's own picture in the picture's first frame.</summary>
-    ThirdBlockPairFirstFrame,
+    /// <summary>The third block pair's block under an item's own picture while the picture shows its primary look.</summary>
+    ThirdBlockPairPrimaryLook,
 
-    /// <summary>The third block pair's block under an item's own picture in the picture's second frame.</summary>
-    ThirdBlockPairSecondFrame,
+    /// <summary>The third block pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    ThirdBlockPairAlternateLook,
 
-    /// <summary>The fourth block pair's block under an item's own picture in the picture's first frame.</summary>
-    FourthBlockPairFirstFrame,
+    /// <summary>The fourth block pair's block under an item's own picture while the picture shows its primary look.</summary>
+    FourthBlockPairPrimaryLook,
 
-    /// <summary>The fourth block pair's block under an item's own picture in the picture's second frame.</summary>
-    FourthBlockPairSecondFrame,
+    /// <summary>The fourth block pair's block under an item's own picture while the picture shows its alternate look.</summary>
+    FourthBlockPairAlternateLook,
 
     /// <summary>A shot block whole, as a concealed item's reveal begins and its hiding ends.</summary>
     ShotBlockIntact,

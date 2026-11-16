@@ -794,7 +794,8 @@ by this appearance file. Malformed content fails loudly.
 
 The n00b-tube break-apart frames are installed as
 `game/room-object-noob-tube/noob-tube.json`. In the installed file, edit only the
-cells' `block` and `mirroring`, and restart. Keep all seven frame IDs and their cells; run placement,
+cells' `block` and `mirroring`, and restart. Keep all five frame IDs (`intact`, `cracking`, `opened`,
+`upper-rows-open` and `lower-rows-open`) and their cells; run placement,
 physical blocks, the power-bomb trigger, shards, and event timing remain
 compiled. The tube's two reachable instruction branches are compiled as
 engine behavior too. The active room's tile definitions supply the actual art.
@@ -828,7 +829,8 @@ not replaced by this resource. Invalid data fails loudly.
 
 Elevator-platform PLM frames are installed as
 `game/room-object-elevator-platforms/elevator-platforms.json`. In the installed file, edit only
-the cells' `block` and `mirroring`, then restart. Keep all three named frames
+the cells' `block` and `mirroring`, then restart. Keep all three named frames, the
+post lights `dim`, `glowing` and `bright`,
 and their run lengths. Each word selects a visual block from the active room
 tileset; the four-step frame loop, draw offsets, and physical collision words
 remain compiled. Invalid edits fail loudly.

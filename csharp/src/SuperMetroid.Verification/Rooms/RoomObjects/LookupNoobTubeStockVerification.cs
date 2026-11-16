@@ -10,11 +10,11 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 /// <summary>Checks stock and installed Noob Tube visual words against native PLM draw lists.</summary>
 internal static class LookupNoobTubeStockVerification
 {
-    /// <summary>Compares the seven tube frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
+    /// <summary>Compares the five tube frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     internal static void VerifyNoobTubeStockMapping(CartridgeImportAddressSpace rom,
         InstalledRoomObjectNoobTubeVisuals installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x98d1,"intact"),new LookupEscapeGateStockFrame(0x98d7,"damaged"),new LookupEscapeGateStockFrame(0x98dd,"opened"),new LookupEscapeGateStockFrame(0x98e3,"cleared"),new LookupEscapeGateStockFrame(0x9953,"broken-late"),new LookupEscapeGateStockFrame(0x9991,"opened-rows"),new LookupEscapeGateStockFrame(0x99e5,"broken-full")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x98d1,"intact"),new LookupEscapeGateStockFrame(0x98d7,"cracking"),new LookupEscapeGateStockFrame(0x98dd,"opened"),new LookupEscapeGateStockFrame(0x9991,"upper-rows-open"),new LookupEscapeGateStockFrame(0x99e5,"lower-rows-open")];
         foreach (InstalledRoomObjectNoobTubeVisuals pictures in new[] { InstalledRoomObjectNoobTubeVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectNoobTubeVisualFiles.Family, frames, WrittenCells(RoomObjectNoobTubeVisualFiles.Family));

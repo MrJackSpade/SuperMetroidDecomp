@@ -4,18 +4,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The collectible draws' groups and frames (#1762). Each frame writes one block; what a frame shows is its installed picture
-/// (#1557), except a block pair's frame, which writes its own block number under the item's picture.
+/// (#1557), except a block pair's frame, which writes the block its pair writes under the item's picture
+/// (<see cref="CollectibleBlockPairs.BlocksOf"/>, #2125).
 /// </summary>
 internal static class RoomObjectCollectibleDrawDefinitions
 {
-    /// <summary>
-    /// The block of the first block pair's first frame, which an item that shows its own picture writes under the picture;
-    /// it is a special block, and each later frame writes the next block. The number is gameplay terrain, not a picture:
-    /// a Wave shot's straddled read past the room's ceiling takes its collision family from the block number a block
-    /// pair's collectible wrote (<see cref="CollectibleBlockPairs"/>), so the game writes exactly it.
-    /// </summary>
-    internal const int OwnPictureFirstBlock = 142;
-
     /// <summary>The six kinds of collectible draw, in the order their frames are published; each kind's blocks collide alike.</summary>
     internal enum DrawGroup
     {
@@ -62,25 +55,9 @@ internal static class RoomObjectCollectibleDrawDefinitions
     internal static readonly IReadOnlyDictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks =
         new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
         {
-            [CollectibleBlockPairs.Pair.First] = new(Primary: D.FirstBlockPairFirstFrame, Alternate: D.FirstBlockPairSecondFrame),
-            [CollectibleBlockPairs.Pair.Second] = new(Primary: D.SecondBlockPairFirstFrame, Alternate: D.SecondBlockPairSecondFrame),
-            [CollectibleBlockPairs.Pair.Third] = new(Primary: D.ThirdBlockPairFirstFrame, Alternate: D.ThirdBlockPairSecondFrame),
-            [CollectibleBlockPairs.Pair.Fourth] = new(Primary: D.FourthBlockPairFirstFrame, Alternate: D.FourthBlockPairSecondFrame),
+            [CollectibleBlockPairs.Pair.First] = new(Primary: D.FirstBlockPairPrimaryLook, Alternate: D.FirstBlockPairAlternateLook),
+            [CollectibleBlockPairs.Pair.Second] = new(Primary: D.SecondBlockPairPrimaryLook, Alternate: D.SecondBlockPairAlternateLook),
+            [CollectibleBlockPairs.Pair.Third] = new(Primary: D.ThirdBlockPairPrimaryLook, Alternate: D.ThirdBlockPairAlternateLook),
+            [CollectibleBlockPairs.Pair.Fourth] = new(Primary: D.FourthBlockPairPrimaryLook, Alternate: D.FourthBlockPairAlternateLook),
         };
-
-    /// <summary>
-    /// The block each block pair's frame writes under the item's own picture: from <see cref="OwnPictureFirstBlock"/>, each
-    /// pair's two frames after the previous pair's, in the turn the room's collectibles take the pairs in.
-    /// </summary>
-    internal static readonly IReadOnlyDictionary<D, int> BlockPairBlocks = new Dictionary<D, int>
-    {
-        [D.FirstBlockPairFirstFrame] = OwnPictureFirstBlock,
-        [D.FirstBlockPairSecondFrame] = OwnPictureFirstBlock + 1,
-        [D.SecondBlockPairFirstFrame] = OwnPictureFirstBlock + 2,
-        [D.SecondBlockPairSecondFrame] = OwnPictureFirstBlock + 3,
-        [D.ThirdBlockPairFirstFrame] = OwnPictureFirstBlock + 4,
-        [D.ThirdBlockPairSecondFrame] = OwnPictureFirstBlock + 5,
-        [D.FourthBlockPairFirstFrame] = OwnPictureFirstBlock + 6,
-        [D.FourthBlockPairSecondFrame] = OwnPictureFirstBlock + 7,
-    };
 }

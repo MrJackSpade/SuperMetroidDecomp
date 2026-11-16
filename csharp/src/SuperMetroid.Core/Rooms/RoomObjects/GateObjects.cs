@@ -56,32 +56,20 @@ internal sealed class GateObjects
             place.Block));
     }
 
-    /// <summary>Installs the side trigger its placement (<paramref name="placed"/>) selects and its authored neighboring shot block.</summary>
+    /// <summary>
+    /// Installs the trigger its placement (<paramref name="placed"/>) selects: its shot-block draw, and the block on the
+    /// trigger's own side of the gate made a shootable block whose reaction sets the trigger off. The block keeps what it
+    /// shows (#1580): the trigger's shot-block draw covers it on the object's first update.
+    /// </summary>
     /// <exception cref="InvalidDataException">The placement selected no trigger.</exception>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, RoomObjectPlace place, GateTriggerArgument? placed)
     {
-        DownwardGateShotBlockDefinition definition = (placed
-            ?? throw new InvalidDataException($"Downward gate shot block at block {place.Block} was placed without its trigger.")).ShotBlock;
-        place.Become(new TerrainChangeObject(definition.Change));
-
-        // The setup performs independent left and right writes even though every authored row installs exactly one
-        // side. Preserve that ordering instead of deriving the side from the trigger.
-        if (definition.LeftCollision is { } left)
-            WriteDownwardGateShotBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(-1, 0)), left, definition.Trigger);
-        if (definition.RightCollision is { } right)
-            WriteDownwardGateShotBlock(level, level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(1, 0)), right, definition.Trigger);
-    }
-
-    /// <summary>
-    /// Gives one block inside the room a trigger's collision kind and its gate-trigger behaviour, keeping what the block
-    /// shows (#1580): the trigger's shot-block draw covers it on the object's first update.
-    /// </summary>
-    /// <remarks>The trigger's reaction selects its color and side.</remarks>
-    private static void WriteDownwardGateShotBlock(RoomLevelData level, Position16<RoomBlocks> block, RoomCollisionType collision,
-        DownwardGateTriggerBehavior trigger)
-    {
-        _ = level.GetCollisionBlock(block);
-        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, block, collision,
+        DownwardGateTriggerBehavior trigger = (placed
+            ?? throw new InvalidDataException($"Downward gate shot block at block {place.Block} was placed without its trigger.")).Trigger;
+        place.Become(new TerrainChangeObject(DownwardGateTriggerDefinitions.Changes[trigger]));
+        Position16<RoomBlocks> triggerBlock = level.ObjectBlockStep(place.Block, new Offset16<RoomBlocks>(IsLeftTrigger(trigger) ? -1 : 1, 0));
+        _ = level.GetCollisionBlock(triggerBlock);
+        RoomObjectLevelWrites.WriteObjectCollisionAndBehavior(level, triggerBlock, DownwardGateDefinitions.TriggerCollision,
             RoomBlockBehavior.Reacting(BlockReactionDefinitions.DownwardGateTriggers.ReactionFor(trigger)));
     }
 
@@ -163,8 +151,8 @@ internal sealed class GateObjects
             rowsBelowGateTop >= 0 && rowsBelowGateTop < DownwardGateDefinitions.GateHeightInBlocks;
     }
 
-    /// <summary>Whether <paramref name="trigger"/> is a left-side trigger.</summary>
-    private static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
+    /// <summary>Whether <paramref name="trigger"/> lies left of its gate; every other trigger lies right of it.</summary>
+    internal static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
         trigger is DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.RedLeft or
             DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.YellowLeft;
 

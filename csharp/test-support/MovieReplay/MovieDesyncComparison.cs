@@ -272,7 +272,7 @@ internal static class MovieDesyncComparison
     /// counting.
     /// </summary>
     private static Position16<RoomPixels> NativeWholePosition(RoomEnemyPlace actor) =>
-        actor.SpeciesState<SuperMetroid.Core.Bosses.Phantoon.PhantoonEnemyState>() is { Phase: SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead } phantoon &&
+        actor.SpeciesState<SuperMetroid.Core.Bosses.Phantoon.PhantoonPart>() is { Phantoon: { Phase: SuperMetroid.Core.Bosses.Phantoon.PhantoonPhase.Dead } phantoon } &&
         (ReferenceEquals(actor, phantoon.Body) || phantoon.PhaseTimer != ClearedPhantoonPowerDelay)
             ? ClearedPhantoonNativePlace
             : actor.Position.Whole;

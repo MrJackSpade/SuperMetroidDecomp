@@ -20,8 +20,8 @@ internal static class InstalledFileSelectMapVerification
         var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
         snapshot.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
         snapshot.Progress.UsedStations.Add(LoadStationDefinitions.GlassTunnelSave);
-        saves.SaveSlot(0, snapshot);
-        var slot = saves.ReadSlot(0);
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        var slot = saves.ReadSlot(SaveSlot.A);
         var control = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
         var installed = new FileSelectMapMenuState(AudioQueues.Standalone(), new SharedRandom(), slot, 0, original, MenuSheetFixtures.For(original));
 

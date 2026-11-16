@@ -49,7 +49,7 @@ internal static class CeresSaveStartupVerification
             GameTimeFrames = 44,
         };
         var saves = new SaveSlotStore(RetailPresentationFixture());
-        saves.SaveSlot(0, departure);
+        saves.SaveSlot(SaveSlot.A, departure);
         var game = new SuperMetroidGame(saves);
         Action<SuperMetroidGame, bool> bind = BindInstalledArtwork(InstalledFixtures.GameArtwork, enemyArtwork: null);
         bind(game, true);
@@ -104,7 +104,7 @@ internal static class CeresSaveStartupVerification
         });
         SetState(fresh, SuperMetroidGameState.SetUpNewGame);
         fresh.Step(0);
-        var arrivalSlot = fresh.Saves.ReadSlot(0);
+        var arrivalSlot = fresh.Saves.ReadSlot(SaveSlot.A);
         AssertEqual(SaveLoadingGameState.CeresElevatorArrival, (arrivalSlot ?? throw new InvalidOperationException("Verification requires arrivalSlot.")).StartupRoute,
             "#1153 initial automatic save records native mode $1F");
         AssertEqual(DefeatedBosses.None, arrivalSlot.Progression.BossesDefeatedIn(AreaId.Ceres),
@@ -185,8 +185,8 @@ internal static class CeresSaveStartupVerification
         // Exercise the same atomic saver used at the escape blackout. A boss flag
         // must be captured alongside $22, not erased to manufacture a fresh station.
         loaded.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
-        AutomaticCheckpointSaver.SaveCeresDeparture(reloadSaves, loaded, 0);
-        var escapeSlot = reloadSaves.ReadSlot(0);
+        AutomaticCheckpointSaver.SaveCeresDeparture(reloadSaves, loaded, SaveSlot.A);
+        var escapeSlot = reloadSaves.ReadSlot(SaveSlot.A);
         AssertEqual(SaveLoadingGameState.CeresDestruction, (escapeSlot ?? throw new InvalidOperationException("Verification requires escapeSlot.")).StartupRoute,
             "#1153 escape-blackout saver records native mode $22");
         AssertEqual(DefeatedBosses.AreaBoss, escapeSlot.Progression.BossesDefeatedIn(AreaId.Ceres),
@@ -195,9 +195,9 @@ internal static class CeresSaveStartupVerification
         // Stub only the already-reported landing event, not an entire flight.
         // The production landing saver must reset $22 to $05 for later saves.
         loaded.Enemies.FrameResults.Gunship = GunshipFrameEvent.LandingCompleted;
-        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, 0),
+        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, SaveSlot.A),
             "#1153 landing checkpoint uses the production event saver");
-        var landingSlot = reloadSaves.ReadSlot(0);
+        var landingSlot = reloadSaves.ReadSlot(SaveSlot.A);
         AssertEqual(SaveLoadingGameState.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).StartupRoute,
             "#1153 Zebes landing saver records native mode $05");
         AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, landingSlot.Checkpoint),
@@ -205,7 +205,7 @@ internal static class CeresSaveStartupVerification
 
         // Do not infer a cinematic mode from area/boss flags in malformed old saves.
         // Preserve the persisted word and follow its dispatcher branch literally.
-        saves.SaveSlot(0, departure with
+        saves.SaveSlot(SaveSlot.A, departure with
         {
             StartupRoute = SaveLoadingGameState.MainGame,
         });
@@ -223,7 +223,7 @@ internal static class CeresSaveStartupVerification
         AssertEqual(SuperMetroidGameState.FileSelectMap, unmodified.GameState,
             "#1153 mode $05 is not reinterpreted using an inferred compatibility rule");
         AssertEqual(SaveLoadingGameState.MainGame,
-            (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).StartupRoute,
+            (saves.ReadSlot(SaveSlot.A) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(SaveSlot.A).")).StartupRoute,
             "#1153 malformed legacy slot is not silently rewritten");
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }

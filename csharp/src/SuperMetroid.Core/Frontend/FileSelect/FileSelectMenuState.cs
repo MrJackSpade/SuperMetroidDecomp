@@ -75,8 +75,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         this.saves = Ensure.NotNull(saves);
         foreach (SaveSlot slot in SaveSlots.All)
-            saveSlots[slot] = saves.ReadSlot(SaveSlots.StoreNumber(slot));
-        SelectedItem = FileSelectItemRows.ForSaveSlot(SaveSlots.AtStoreNumber(saves.ReadSelectedSlot()));
+            saveSlots[slot] = saves.ReadSlot(slot);
+        SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
 
         ShowMainPage();
 
@@ -468,7 +468,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 if (pressed != ControllerButton.None)
                 {
                     QueueCursorSound();
-                    SelectedItem = FileSelectItemRows.ForSaveSlot(SaveSlots.AtStoreNumber(saves.ReadSelectedSlot()));
+                    SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
                     Phase = FileSelectPhase.FadeOutToMain;
                 }
                 break;
@@ -586,15 +586,15 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (mode == FileSelectDataMode.Copy)
         {
-            saves.CopySlot(SaveSlots.StoreNumber(operationSourceSlot), SaveSlots.StoreNumber(copyTargetSlot));
-            saveSlots[copyTargetSlot] = saves.ReadSlot(SaveSlots.StoreNumber(copyTargetSlot))
+            saves.CopySlot(operationSourceSlot, copyTargetSlot);
+            saveSlots[copyTargetSlot] = saves.ReadSlot(copyTargetSlot)
                 ?? throw new InvalidDataException("The copied save slot did not read back as a valid save.");
             ShowPage(FileSelectPage.CopyCompleted);
             Phase = FileSelectPhase.CopyCompleted;
         }
         else
         {
-            saves.ClearSlot(SaveSlots.StoreNumber(operationSourceSlot));
+            saves.ClearSlot(operationSourceSlot);
             ClearedSaveThisFrame = true;
             saveSlots[operationSourceSlot] = null;
             ShowPage(FileSelectPage.ClearCompleted);

@@ -101,7 +101,7 @@ try
     {
         for (int frame = 0; frame < 90; frame++)
             romFreeSession.Game.StepCaptured(0);
-        string saved = romFreeSession.SaveSlot(0);
+        string saved = romFreeSession.SaveSlot(SaveSlot.A);
         Check(saved.Contains("slot 0", StringComparison.OrdinalIgnoreCase),
             "an installed session boots from extracted assets with no ROM copy and saves a debugger state");
     }

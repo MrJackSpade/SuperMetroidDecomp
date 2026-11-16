@@ -146,11 +146,11 @@ internal sealed class FrontendSession
     /// <summary>Door approach and destination loading state across gameplay states.</summary>
     internal readonly DoorTransitionState doorTransition = new();
     /// <summary>The save slot the frontend has selected.</summary>
-    internal int SelectedSaveSlot { get; private set; }
+    internal SaveSlot SelectedSaveSlot { get; private set; }
     /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
     internal bool LoadingExistingSave { get; set; }
     /// <summary>Selects <paramref name="slot"/>, which holds a save to load when <paramref name="existing"/>.</summary>
-    internal void SelectSaveSlot(int slot, bool existing)
+    internal void SelectSaveSlot(SaveSlot slot, bool existing)
     {
         SelectedSaveSlot = slot;
         LoadingExistingSave = existing;

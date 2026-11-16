@@ -44,10 +44,13 @@ public static class SaveRamCodec
     {
         Ensure.LengthEqual(image, SaveRamLayout.ImageByteCount);
         Ensure.NotNull(maps);
-        var slots = new SuperMetroidSaveSlot?[SaveRamLayout.SlotCount];
-        for (int slot = 0; slot < slots.Length; slot++)
-            slots[slot] = IsSlotValid(image, slot) ? DecodeSlot(image, slot, maps) : null;
-        return SaveSlotStore.Imported(slots, ReadSelectedSlot(image), HasCompletedGame(image), HasCorruptMarker(image),
+        var saved = new List<SuperMetroidSaveSlot>();
+        for (int slot = 0; slot < SaveRamLayout.SlotCount; slot++)
+        {
+            if (IsSlotValid(image, slot))
+                saved.Add(DecodeSlot(image, slot, maps));
+        }
+        return SaveSlotStore.Imported(saved, SlotAt(ReadSelectedSlot(image)), HasCompletedGame(image), HasCorruptMarker(image),
             MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length))
                 ? PowerOnEarthquakeSoundDelay.OneFrame
                 : PowerOnEarthquakeSoundDelay.None,
@@ -62,12 +65,12 @@ public static class SaveRamCodec
         Ensure.NotNull(store);
         Ensure.NotNull(maps);
         var image = new byte[SaveRamLayout.ImageByteCount];
-        for (int slot = 0; slot < SaveRamLayout.SlotCount; slot++)
+        foreach (SaveSlot slot in SaveSlots.All)
         {
             if (store.ReadSlot(slot) is { } saved)
-                WriteSlot(image, slot, EncodePayload(ToSnapshot(saved), maps));
+                WriteSlot(image, SlotNumber(slot), EncodePayload(ToSnapshot(saved), maps));
         }
-        WriteSelectedSlot(image, store.ReadSelectedSlot());
+        WriteSelectedSlot(image, SlotNumber(store.ReadSelectedSlot()));
         if (store.CorruptMarkerWritten)
             WriteMarker(image, SaveRamLayout.CorruptSramMarker);
         else
@@ -110,7 +113,7 @@ public static class SaveRamCodec
         if (!GameTimeState.IsInDomain(frames, seconds, minutes, hours))
             throw new InvalidDataException($"Save slot {slot}'s clock words {hours}:{minutes}:{seconds}.{frames} are not a reading of the game clock.");
         return new SuperMetroidSaveSlot(
-            Slot: slot,
+            Slot: SlotAt(slot),
             EquippedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.EquippedItemsOffset)),
             CollectedItems: SamusEquipmentWordCodec.FromSavedEquipmentWord(ReadWord(payload, SaveRamLayout.CollectedItemsOffset)),
             EquippedBeams: SamusEquipmentWordCodec.FromSavedBeamWord(ReadWord(payload, SaveRamLayout.EquippedBeamsOffset)),
@@ -353,6 +356,23 @@ public static class SaveRamCodec
         ValidateSlot(slot);
         WriteWord(image, SaveRamLayout.SelectedSlotOffset, unchecked((ushort)slot));
         WriteWord(image, SaveRamLayout.SelectedSlotOffset + 2, unchecked((ushort)~slot));
+    }
+
+    /// <summary>The slot whose save the image keeps at place <paramref name="slot"/> of its directories, A first.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The image keeps no slot at that place.</exception>
+    internal static SaveSlot SlotAt(int slot)
+    {
+        ValidateSlot(slot);
+        return SaveSlots.All[slot];
+    }
+
+    /// <summary>The place of <paramref name="slot"/>'s save in the image's directories, A first.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="slot"/> names no save slot.</exception>
+    internal static int SlotNumber(SaveSlot slot)
+    {
+        for (int number = 0; number < SaveSlots.All.Count; number++)
+            if (SaveSlots.All[number] == slot) return number;
+        throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot.");
     }
 
     /// <summary>Rejects slot numbers outside the cartridge's A, B, and C directories.</summary>

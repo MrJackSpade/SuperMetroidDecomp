@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -90,8 +91,11 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
     /// <summary>Runs the glass tube's scripted break and sound sequence.</summary>
     internal NoobTubeObjects NoobTube { get; }
 
-    /// <summary>Advances Wrecked Ship treadmill block animations.</summary>
+    /// <summary>Spawns the Wrecked Ship entrance treadmills.</summary>
     internal WreckedShipTreadmillObjects WreckedShipTreadmill { get; }
+
+    /// <summary>Spawns the object that starts a Maridia elevatube ride.</summary>
+    internal MaridiaElevatubeObjects MaridiaElevatube { get; }
 
     /// <summary>Opens and closes colored gates after their matching triggers.</summary>
     internal GateObjects Gates { get; }
@@ -140,6 +144,7 @@ public sealed class RoomObjectSystem : ISamusRoomObjects, IBossRoomObjects
         Quicksand = new QuicksandObjects(Places);
         Scrolls = new ScrollObjects(Places);
         WreckedShipTreadmill = new WreckedShipTreadmillObjects(Places, Drawing);
+        MaridiaElevatube = new MaridiaElevatubeObjects(Places);
         Shaktool = new ShaktoolObjects(services.Samus, services.Events, Places);
         SamusEater = new SamusEaterObjects(services.Samus, Places);
         EscapeAnimals = new EscapeAnimalObjects(services.Events, Places, Drawing);

@@ -28,7 +28,7 @@ internal static class MaridiaElevatubeObjectVerification
 
         RoomLevelData level = CreateRoom(new(4, 4), new RoomTerrainBlock[16], new RoomBlockBehavior[16]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
+        AssertTrue(roomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");
         var guarded = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
         int blockIndex = level.GetBlockIndex(MaridiaElevatubeDefinitions.RoomObjectBlock);

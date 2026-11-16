@@ -27,7 +27,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     /// <summary>Owns the forced Samus movement during beam capture and the later drain sequence.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
     internal MotherBrainLateFightState State { get; }
 
     /// <summary>Mother Brain's rainbow-beam attack: charging, firing, pinning and draining Samus, letting her fall and deciding what comes next.</summary>
@@ -50,32 +50,28 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
 
     /// <summary>
-    /// Builds the sequence's phases over one shared late-fight state, reading and writing the walk credit and the burst
-    /// cycle of the encounter it is attached to.
+    /// Builds the sequence's phases over <paramref name="encounter"/>, whose body, brain, phase, neck and flags they read
+    /// and write in place (#2209), with its walk credit and burst cycle.
     /// </summary>
-    /// <param name="walk">The encounter's walk credit, which phase three walks on and the shot reactions spend.</param>
-    /// <param name="bursts">
-    /// The encounter's burst cycle, which her ascent's dust left and the death explosions and the escape door's dust
-    /// continue (#1872).
+    /// <param name="encounter">
+    /// The encounter the sequence runs: its walk credit is the one phase three walks on and the shot reactions spend, and
+    /// its burst cycle is the one her ascent's dust left and the death explosions and the escape door's dust continue
+    /// (#1872).
     /// </param>
-    internal MotherBrainRainbowBeamAttackSequence(MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
+    internal MotherBrainRainbowBeamAttackSequence(MotherBrainEnemyState encounter)
     {
-        Walk = Ensure.NotNull(walk);
-        Bursts = Ensure.NotNull(bursts);
-        State = new MotherBrainLateFightState();
+        Encounter = Ensure.NotNull(encounter);
+        State = new MotherBrainLateFightState(encounter);
         RainbowAttack = new MotherBrainRainbowAttackPhases(_movement, State);
         FinishSamusOff = new MotherBrainFinishSamusOffPhases(State);
         DrainedByBaby = new MotherBrainDrainedByBabyPhases(State);
         Revival = new MotherBrainRevivalPhases(State);
-        ThirdPhaseFight = new MotherBrainThirdPhaseFight(State, Walk);
-        ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State, Bursts);
+        ThirdPhaseFight = new MotherBrainThirdPhaseFight(State, encounter.Walk);
+        ThirdPhaseDeath = new MotherBrainThirdPhaseDeath(State, encounter.Bursts);
     }
 
-    /// <summary>The walk credit the sequence reads and writes, its encounter's.</summary>
-    internal MotherBrainWalkCounter Walk { get; }
-
-    /// <summary>The burst cycle the death explosions and the escape door's dust step, its encounter's.</summary>
-    internal MotherBrainBurstCycle Bursts { get; }
+    /// <summary>The encounter the sequence runs, the one owner of the state its phases read and write.</summary>
+    internal MotherBrainEnemyState Encounter { get; }
 
     /// <summary>
     /// Current angle, in 256ths of a turn, of the rainbow beam's cone.
@@ -95,49 +91,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Takes the room's Mother Brain enemies' state before one update of the fight. The room's enemy animation moves
-    /// the body, and its resulting state is fed back here.
-    /// This deliberately does not copy animation positions or timers: there must be only
-    /// one visible animation runner in a live room.
-    /// </summary>
-    internal void SynchronizeLiveActor(MotherBrainLiveActorSnapshot actor)
-    {
-        State.Body.Position = actor.Body;
-        State.Body.Pose = actor.BodyPose;
-        State.Body.Form = actor.Form;
-        ThirdPhaseDeath.BodyContact = actor.BodyContact;
-        ThirdPhaseDeath.BodyProcessing = actor.BodyProcessing;
-        ThirdPhaseDeath.BodyPresence = actor.BodyPresence;
-        ThirdPhaseDeath.BodyCollidesByFrameHitboxes = actor.BodyCollidesByFrameHitboxes;
-        ThirdPhaseDeath.BodyShowsNewFrame = actor.BodyShowsNewFrame;
-        State.BrainPosition = actor.Brain;
-        State.BrainHealth = actor.BrainHealth;
-        ThirdPhaseDeath.BrainContact = actor.BrainContact;
-        ThirdPhaseDeath.BrainProcessing = actor.BrainProcessing;
-        ThirdPhaseDeath.BrainPresence = actor.BrainPresence;
-        ThirdPhaseDeath.BrainCollidesByFrameHitboxes = actor.BrainCollidesByFrameHitboxes;
-        ThirdPhaseDeath.BrainShowsNewFrame = actor.BrainShowsNewFrame;
-        State.NeckMovementEnabled = actor.NeckMovementEnabled;
-        State.LowerNeckMovement = actor.LowerNeckMovement;
-        State.UpperNeckMovement = actor.UpperNeckMovement;
-        ThirdPhaseDeath.HitboxesEnabled = actor.HitboxesEnabled;
-    }
-
-    /// <summary>
-    /// The animation most recently requested by the fight's body step. The room's body enemy starts
-    /// this animation only when the step result reports a walk or posture request; the fight never
-    /// advances this request's animation itself.
-    /// </summary>
-    internal MotherBrainBodySegment? RequestedBodyAnimation => State.Body.Animation;
-
-    /// <summary>
     /// Carries out the cross-enemy phase write. The Baby actor
     /// installs the taken-aback step after it has reached the brain; Mother Brain executes that new
     /// phase on her next enemy-AI turn rather than inside the Baby's current turn.
     /// </summary>
     public void InterruptFinalBeamForBabyDrain()
     {
-        State.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback;
+        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTakenAback;
         State.RainbowBeamSoundPlaying = true; // The Baby's drain writes the shared SFX flag.
     }
 
@@ -147,14 +107,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// walk; the later Baby route decides when to replace this phase with the final attack.
     /// </summary>
     public void PrepareForFinalBabyMetroidAttack() =>
-        State.Phase = MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack;
+        Encounter.Phase = MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack;
 
     /// <summary>
     /// Runs the Baby's cross-enemy write. Mother Brain installs one last
     /// four-ring head animation and then leaves her body phase at the empty holding step.
     /// </summary>
     public void ExecuteFinalBabyMetroidAttack() =>
-        State.Phase = MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack;
+        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack;
 
     /// <summary>
     /// Applies the head's attack-counter step; the counter stops at twelve.
@@ -172,7 +132,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void BeginPhase3RecoveryFromBabyCutscene()
     {
-        State.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance;
+        Encounter.Phase = MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance;
 
         // Clears only the Baby's spawned flag, which head attack selection reads after the
         // Baby has deleted itself.
@@ -191,39 +151,38 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // projectile type so nothing can accidentally smuggle a larger
         // value past that domain.
         MotherBrainShotReactionResult reaction =
-            MotherBrainShotReaction.Resolve(State.Body.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);
+            MotherBrainShotReaction.Resolve(Encounter.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);
         ThirdPhaseFight.Phase3WalkCounter = reaction.WalkCredit;
         if (reaction.HyperBeamRecoil)
         {
             // The neck phase itself runs on Mother Brain's next ordinary phase-three
             // main call.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
-            State.PhaseTimer.Count = 0;
+            Encounter.PhaseTimer.Count = 0;
         }
     }
 
     /// <summary>
     /// Makes Mother Brain stumble backwards as the Baby strikes her: her quickest backwards walk, toward a pixel left of
-    /// where her body stands.
+    /// where her body stands. The Baby runs after her body's animation pass, so the walk starts on her next update.
     /// </summary>
-    public bool RequestBabyStumbleBackward()
+    public void RequestBabyStumbleBackward()
     {
-        int targetX = CoordinateAxis.Wrap(State.Body.Position.X - 1);
-        return State.MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallyFast).Requested;
+        int targetX = CoordinateAxis.Wrap(State.BodyPosition.X - 1);
+        State.MakeBodyWalkBackwards(targetX, MotherBrainBodySegment.WalkBackwardReallyFast);
     }
 
     /// <summary>Executes one call through the current Mother Brain body phase.</summary>
     public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
         Ensure.NotNull(samus);
-        MotherBrainBodyPhase phaseBefore = State.Phase;
-        uint headAnimationScriptRequestSerialBefore = State.HeadAnimationRequestSerial;
+        MotherBrainBodyPhase phaseBefore = Encounter.Phase;
         var requests = new MotherBrainRainbowBeamStepRequests();
 
         bool handsOver;
         do
         {
-            switch (State.Phase)
+            switch (Encounter.Phase)
             {
                 case MotherBrainBodyPhase.SecondPhaseRainbowExtendNeck:
                     handsOver = RainbowAttack.RunSecondPhaseRainbowExtendNeck();
@@ -232,7 +191,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = RainbowAttack.RunSecondPhaseRainbowStartCharging();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseRainbowRetractNeck:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowRetractNeck(requests);
+                    handsOver = RainbowAttack.RunSecondPhaseRainbowRetractNeck();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseRainbowWaitForCharge:
                     handsOver = RainbowAttack.RunSecondPhaseRainbowWaitForCharge(requests);
@@ -268,13 +227,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = RainbowAttack.RunSecondPhaseRainbowLowerHead();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseRainbowDecideNextAction:
-                    handsOver = RainbowAttack.RunSecondPhaseRainbowDecideNextAction(samus, requests);
+                    handsOver = RainbowAttack.RunSecondPhaseRainbowDecideNextAction(samus);
                     break;
                 case MotherBrainBodyPhase.SecondPhaseFinishSamusOff:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOff(samus, frame, requests);
+                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOff(samus, frame);
                     break;
                 case MotherBrainBodyPhase.SecondPhaseFinishSamusOffStandUp:
-                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffStandUp(requests);
+                    handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffStandUp();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseFinishSamusOffAdmire:
                     handsOver = FinishSamusOff.RunSecondPhaseFinishSamusOffAdmire();
@@ -301,13 +260,13 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyFiringRainbowBeam(requests);
                     break;
                 case MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyRainbowBeamRunOut(requests);
+                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyRainbowBeamRunOut();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyMoveToBackOfRoom(requests);
+                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyMoveToBackOfRoom();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode:
-                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(requests);
+                    handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyGoIntoLowPowerMode();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey:
                     handsOver = DrainedByBaby.RunSecondPhaseDrainedByBabyPrepareTransitionToGrey();
@@ -325,28 +284,28 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = Revival.RunSecondPhaseReviveTransitionFromGrey(requests);
                     break;
                 case MotherBrainBodyPhase.SecondPhaseReviveWakeUp:
-                    handsOver = Revival.RunSecondPhaseReviveWakeUp(requests);
+                    handsOver = Revival.RunSecondPhaseReviveWakeUp();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseReviveWakeUpStretch:
                     handsOver = Revival.RunSecondPhaseReviveWakeUpStretch();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseReviveWalkUpToBaby:
-                    handsOver = Revival.RunSecondPhaseReviveWalkUpToBaby(requests);
+                    handsOver = Revival.RunSecondPhaseReviveWalkUpToBaby();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseRevivePrepareNeckForBabyDeath:
                     handsOver = Revival.RunSecondPhaseRevivePrepareNeckForBabyDeath();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseReviveFinishPreparingForBabyDeath:
-                    handsOver = Revival.RunSecondPhaseReviveFinishPreparingForBabyDeath(requests);
+                    handsOver = Revival.RunSecondPhaseReviveFinishPreparingForBabyDeath();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseMurderBabyAttack:
-                    handsOver = Revival.RunSecondPhaseMurderBabyAttack(frame, requests);
+                    handsOver = Revival.RunSecondPhaseMurderBabyAttack(frame);
                     break;
                 case MotherBrainBodyPhase.SecondPhaseMurderBabyAttackCooldown:
                     handsOver = Revival.RunSecondPhaseMurderBabyAttackCooldown();
                     break;
                 case MotherBrainBodyPhase.SecondPhasePrepareForFinalBabyAttack:
-                    handsOver = Revival.RunSecondPhasePrepareForFinalBabyAttack(requests);
+                    handsOver = Revival.RunSecondPhasePrepareForFinalBabyAttack();
                     break;
                 case MotherBrainBodyPhase.SecondPhaseExecuteFinalBabyAttack:
                     handsOver = Revival.RunSecondPhaseExecuteFinalBabyAttack();
@@ -355,19 +314,19 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     handsOver = MotherBrainRevivalPhases.RunSecondPhaseFinalBabyAttackHolding();
                     break;
                 case MotherBrainBodyPhase.ThirdPhaseRecoverMakeSomeDistance:
-                    handsOver = ThirdPhaseFight.RunThirdPhaseRecoverMakeSomeDistance(requests);
+                    handsOver = ThirdPhaseFight.RunThirdPhaseRecoverMakeSomeDistance();
                     break;
                 case MotherBrainBodyPhase.ThirdPhaseRecoverSetupForFighting:
                     handsOver = ThirdPhaseFight.RunThirdPhaseRecoverSetupForFighting();
                     break;
                 case MotherBrainBodyPhase.ThirdPhaseFightingMain:
-                    handsOver = ThirdPhaseFight.RunThirdPhaseFightingMain(frame, requests);
+                    handsOver = ThirdPhaseFight.RunThirdPhaseFightingMain(frame);
                     break;
                 case MotherBrainBodyPhase.ThirdPhaseFightingAttackCooldown:
                     handsOver = ThirdPhaseFight.RunThirdPhaseFightingAttackCooldown();
                     break;
                 case MotherBrainBodyPhase.ThirdPhaseDeathMoveToBackOfRoom:
-                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathMoveToBackOfRoom(requests);
+                    handsOver = ThirdPhaseDeath.RunThirdPhaseDeathMoveToBackOfRoom();
                     break;
                 case MotherBrainBodyPhase.ThirdPhaseDeathIdleWhilstExploding:
                     handsOver = ThirdPhaseDeath.RunThirdPhaseDeathIdleWhilstExploding(frame, requests);
@@ -467,11 +426,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
                 case MotherBrainBodyPhase.SecondPhaseHandBeam:
                 default:
-                    throw new InvalidOperationException($"Unsupported rainbow-beam phase {State.Phase}.");
+                    throw new InvalidOperationException($"Unsupported rainbow-beam phase {Encounter.Phase}.");
             }
         }
         while (handsOver);
 
-        return requests.ToResult(phaseBefore, State.Phase, State.HeadAnimationRequestSerial != headAnimationScriptRequestSerialBefore);
+        return requests.ToResult(phaseBefore, Encounter.Phase);
     }
 }

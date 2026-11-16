@@ -53,7 +53,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
+        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
 
         enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);

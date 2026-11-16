@@ -61,8 +61,8 @@ internal static class MotherBrainPlasmaImpactVerification
         AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
         head.InvincibilityTimer = 0;
         state.Form = MotherBrainForm.ThirdPhase;
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
-        state.RainbowBeamSequence.State.Body.Form = MotherBrainForm.ThirdPhase;
+        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state);
+        state.RainbowBeamSequence.Encounter.Form = MotherBrainForm.ThirdPhase;
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;
         SeedChargedPlasma();

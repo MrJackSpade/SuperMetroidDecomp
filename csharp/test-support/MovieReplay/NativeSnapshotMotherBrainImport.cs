@@ -117,9 +117,8 @@ internal static class NativeSnapshotMotherBrainImport
         // The game reads only the low byte of each aim angle, the byte angle it stored.
         state.HandBeamNextAngle = new TrigonometryAngle(W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue);
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
-        state.RainbowBeamAngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         if (RainbowSequencePhases.Contains(state.Phase))
-            ImportNativeMotherBrainRainbowSequence(state, state.Phase, W);
+            ImportNativeMotherBrainRainbowSequence(state, W);
     }
 
     /// <summary>
@@ -208,37 +207,23 @@ internal static class NativeSnapshotMotherBrainImport
     ];
 
     /// <summary>
-    /// Rebuilds the rainbow-beam sequence that owns phase two from the beam onward. The
-    /// sequence keeps its own copies of native words; live actor words are re-synchronized
-    /// before each step, so only the sequence-owned words are imported here.
+    /// Rebuilds the rainbow-beam sequence that runs phase two from the beam onward. It runs over the imported encounter,
+    /// whose phase, neck and flags were imported above (#2209), so only what the late fight alone keeps is imported here.
     /// </summary>
-    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state,
-        MotherBrainBodyPhase phase, Func<int, ushort> W)
+    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state, Func<int, ushort> W)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
-        sequence.State.Phase = phase;
-        sequence.State.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
         sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
         sequence.RainbowAttack.SoundQueueCount = CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount));
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
-        sequence.State.BrainMainShakeTimer = W(MotherBrainMemory.BrainMainShakeTimer);
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
-        sequence.State.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        sequence.State.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
-        sequence.State.GreyTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
         sequence.Revival.BabyMetroidAttackCounter = W(MotherBrainMemory.BabyMetroidAttackCounter);
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction)));
-        sequence.State.NeckTurnPerUpdate = RotationAngleConstants.FromRaw(W(MotherBrainMemory.NeckAngleDelta));
-        sequence.State.NeckMovementEnabled = W(MotherBrainMemory.NeckMovementEnabled) != 0;
-        sequence.State.LowerNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
-            W(MotherBrainMemory.LowerNeckMovementIndex), "Mother Brain lower neck movement index");
-        sequence.State.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
-            W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.RainbowBeamSequence = sequence;
     }
 

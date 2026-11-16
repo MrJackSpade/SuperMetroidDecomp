@@ -13,8 +13,8 @@ internal static class BabyMetroidHeadTargetVerification
 {
     /// <summary>
     /// Confirms the Baby latches to Enemy[1]'s current head position after head AI moves
-    /// in the same frame. The 100% movie exposed the stale rainbow-sequence copy at
-    /// ($7E,$5B-$18) rather than the updated ($7D,$5D-$18) position.
+    /// in the same frame. The 100% movie exposed a stale rainbow-sequence copy at
+    /// ($7E,$5B-$18) rather than the updated ($7D,$5D-$18) position; the sequence now keeps no copy (#2209).
     /// </summary>
     internal static void VerifyBabyMetroidHeadTarget()
     {
@@ -26,7 +26,7 @@ internal static class BabyMetroidHeadTargetVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts) { State = { BrainPosition = new(0x007e, 0x005b) } };
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         state.RainbowBeamSequence = sequence;
         runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
         RoomEnemyPlace place = (state.BabyMetroidPlace ?? throw new InvalidOperationException("Verification requires state.BabyMetroidSlot."));

@@ -84,7 +84,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { FrameResults = _frameResults, Lifecycle = dependencies.Lifecycle, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, MotherBrainEncounter = _motherBrainEncounter, Access = Access, ProjectileAttacks = Projectiles });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter);
         RainbowAndDeath = new MotherBrainRainbowAndDeath(new MotherBrainRainbowAndDeathDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
-        Attacks = new MotherBrainAttacks(_room, RainbowAndDeath);
+        Attacks = new MotherBrainAttacks(_room);
         Combat = new MotherBrainCombat(_room, dependencies.Projectiles, dependencies.Audio, dependencies.Collision);
     }
 
@@ -502,7 +502,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 MotherBrainAscent.FinishMotherBrainStretching(state);
                 return;
             case MotherBrainBodyPhase.SecondPhaseThinking:
-                Attacks.RunMotherBrainSecondPhaseThinking(state, samus, sharedProjectiles);
+                Attacks.RunMotherBrainSecondPhaseThinking(state);
                 return;
             case MotherBrainBodyPhase.SecondPhaseTryAttack:
                 Attacks.RunMotherBrainSecondPhaseTryAttack(state, samus);
@@ -531,7 +531,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 MotherBrainAttacks.PositionMotherBrainHeadSlowlyAndFireLaser(state);
                 return;
             case MotherBrainBodyPhase.SecondPhaseLaserFinishAttack:
-                Attacks.FinishMotherBrainLaserAttack(state, samus, sharedProjectiles);
+                Attacks.FinishMotherBrainLaserAttack(state);
                 return;
             case MotherBrainBodyPhase.SecondPhaseHandBeam:
                 MotherBrainAttacks.RunMotherBrainHandBeamAttack(state);

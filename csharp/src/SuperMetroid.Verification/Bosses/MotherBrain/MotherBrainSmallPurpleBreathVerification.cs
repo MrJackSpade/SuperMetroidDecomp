@@ -60,13 +60,6 @@ internal static class MotherBrainSmallPurpleBreathVerification
                 samusBombs: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateBombSystem(), frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");
         AssertTrue(!state.SmallPurpleBreathActive, "its last instruction clears the active flag");
-
-        // The brain-list opcode $A9:9F8E also clears generation. Publishing the rainbow body's
-        // state must not restore the flag unless the body itself wrote it (#1269).
-        state.SmallPurpleBreathGenerationEnabled = false;
-        runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, runtime.BombProjectiles);
-        AssertTrue(!state.SmallPurpleBreathGenerationEnabled,
-            "an unwritten rainbow-body flag leaves the brain-list clear in place");
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");
     }
 

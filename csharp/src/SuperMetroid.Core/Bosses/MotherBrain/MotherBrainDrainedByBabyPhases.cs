@@ -3,8 +3,11 @@
 /// <summary>Mother Brain drained by the Baby Metroid: taken aback, firing back, running out, retreating and turning gray.</summary>
 internal sealed class MotherBrainDrainedByBabyPhases
 {
-    /// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+    /// <summary>The late fight's own state, with the walking and posture helpers every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
+
+    /// <summary>The encounter the late fight runs, the one owner of the state these phases read and write.</summary>
+    private MotherBrainEnemyState Encounter => _state.Encounter;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainDrainedByBabyPhases(MotherBrainLateFightState state)
@@ -26,7 +29,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     public bool PainfulWalkingForward { get; internal set; }
 
     /// <summary>Alternates painful forward and backward walk requests, advancing the stage only after its pause expires.</summary>
-    internal bool StepPainfulWalking()
+    internal void StepPainfulWalking()
     {
         // The game keeps four separate phases (request forward, wait forward,
         // request backward, wait backward). Two booleans express the same state without
@@ -38,7 +41,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
                 PainfulWalkingStage++;
                 PainfulWalkingForward = !PainfulWalkingForward;
             }
-            return false;
+            return;
         }
 
         MotherBrainWalkResult walk = PainfulWalkingForward
@@ -49,7 +52,6 @@ internal sealed class MotherBrainDrainedByBabyPhases
             int timerIndex = Math.Min(PainfulWalkingStage, 7);
             PainfulWalkingPauseTimer = MotherBrainPainfulWalking.PauseTimer(timerIndex);
         }
-        return walk.Requested;
     }
 
     /// <summary>
@@ -61,12 +63,12 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
         // actor turn, changes form/neck geometry, seeds 48, and falls through so
         // that this first regain-balance call immediately decrements it to 47.
-        _state.Body.Form = MotherBrainForm.DrainedByBabyMetroid;
-        _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
-        _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
-        _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
-        _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance;
-        _state.PhaseTimer.Count = 48;
+        Encounter.Form = MotherBrainForm.DrainedByBabyMetroid;
+        Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+        Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
+        Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
+        Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRegainBalance;
+        Encounter.PhaseTimer.Count = 48;
         return true;
     }
 
@@ -77,15 +79,15 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
         requests.ColoursRequested = true;
-        if (_state.PhaseTimer.StepRunsOut())
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
             PainfulWalkingPauseTimer = 0;
-            _state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
-            _state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam;
+            Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
+            Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
+            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyFiringRainbowBeam;
         }
         return false;
     }
@@ -99,10 +101,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The rainbow step refreshes the shake timer only if another subsystem has cleared it.
         // The head animation owns any decrement; retaining the write gate avoids
         // fabricating a body-side countdown that does not exist in this step.
-        if (_state.BrainMainShakeTimer == 0)
-            _state.BrainMainShakeTimer = 50;
+        if (Encounter.BrainMainShakeTimer == 0)
+            Encounter.BrainMainShakeTimer = 50;
         requests.ColoursRequested = true;
-        requests.BodyWalkRequested = StepPainfulWalking();
+        StepPainfulWalking();
 
         // The outer phase updates delay and neck delta after every step of the painful walk, so the sixth step is seen
         // on the update that ends the pause before it, before its forward walk has begun.
@@ -110,12 +112,12 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             PainfulWalkingAnimationDelay =
                 MotherBrainPainfulWalking.AnimationDelay(PainfulWalkingStage);
-            _state.NeckTurnPerUpdate = MotherBrainPainfulWalking.NeckTurn(PainfulWalkingStage);
+            Encounter.NeckTurnPerUpdate = MotherBrainPainfulWalking.NeckTurn(PainfulWalkingStage);
         }
         if (PainfulWalkingStage == 6)
         {
             _state.RainbowBeamSoundPlaying = false;
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut;
+            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyRainbowBeamRunOut;
             requests.SoundQueued = true; // The rainbow-drain sound stops as the beam runs out.
         }
         return false;
@@ -125,16 +127,16 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// Runs the second phase drained by baby rainbow beam run out body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut()
     {
-        requests.BodyWalkRequested = StepPainfulWalking();
+        StepPainfulWalking();
         if (PainfulWalkingStage >= 8)
         {
-            _state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
-            _state.LowerNeckMovement = MotherBrainNeckMovement.Raise;
-            _state.UpperNeckMovement = MotherBrainNeckMovement.Raise;
+            Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
+            Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+            Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
             _state.SetHeadAnimation(MotherBrainHeadSegment.DyingDrool);
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom;
+            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyMoveToBackOfRoom;
             return true;
         }
         return false;
@@ -144,15 +146,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// Runs the second phase drained by baby move to back of room body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom()
     {
         // The walk back is the really-slow backward walk, the painful walk's last animation.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
-        requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)
         {
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode;
-            _state.UpperNeckMovement = MotherBrainNeckMovement.None;
+            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyGoIntoLowPowerMode;
+            Encounter.UpperNeckMovement = MotherBrainNeckMovement.None;
             return true;
         }
         return false;
@@ -162,20 +163,19 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// Runs the second phase drained by baby go into low power mode body phase. True when it moves to the next body phase and the game runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode()
     {
         // The brain enemy advances the one-way neck raises on its own. The body
         // clears drool once both indices reach zero, before waiting for its pose.
-        if (_state.LowerNeckMovement == MotherBrainNeckMovement.None &&
-            _state.UpperNeckMovement == MotherBrainNeckMovement.None)
+        if (Encounter.LowerNeckMovement == MotherBrainNeckMovement.None &&
+            Encounter.UpperNeckMovement == MotherBrainNeckMovement.None)
         {
-            _state.DroolGenerationEnabled = false;
-            if (_state.Body.Pose != MotherBrainBodyPose.Standing)
+            Encounter.DroolGenerationEnabled = false;
+            if (Encounter.Pose != MotherBrainBodyPose.Standing)
                 return false;
-            _state.Body.SetAnimation(MotherBrainBodySegment.CrouchFast);
-            requests.BodyPostureRequested = true;
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
-            _state.PhaseTimer.Count = 64;
+            _state.SetBodyAnimation(MotherBrainBodySegment.CrouchFast);
+            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
+            Encounter.PhaseTimer.Count = 64;
         }
         return false;
     }
@@ -186,11 +186,11 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
     {
-        if (_state.PhaseTimer.StepRunsOut())
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
-            _state.GreyTransitionCounter = 0;
-            _state.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey;
-            _state.PhaseTimer.Count = 16;
+            Encounter.GrayTransitionCounter = 0;
+            Encounter.Phase = MotherBrainBodyPhase.SecondPhaseDrainedByBabyTransitionToGrey;
+            Encounter.PhaseTimer.Count = 16;
             return true;
         }
         return false;
@@ -202,22 +202,22 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)
     {
-        if (_state.PhaseTimer.StepRunsOut())
+        if (Encounter.PhaseTimer.StepRunsOut())
         {
-            _state.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.Count = 16;
 
             // The body greys over eight steps, one each time the timer runs out; the ninth finishes the transition
             // without new colours.
-            int greyStep = _state.GreyTransitionCounter;
-            _state.GreyTransitionCounter++;
+            int greyStep = Encounter.GrayTransitionCounter;
+            Encounter.GrayTransitionCounter++;
             requests.ColoursRequested = greyStep < 8;
             if (greyStep >= 8)
             {
-                _state.BrainHealth = 36000;
+                Encounter.Head.Health = 36000;
                 _state.Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
-                _state.DisableSmallPurpleBreathGeneration();
-                _state.Body.Form = MotherBrainForm.SecondPhase;
-                _state.Phase = MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey;
+                Encounter.SmallPurpleBreathGenerationEnabled = false;
+                Encounter.Form = MotherBrainForm.SecondPhase;
+                Encounter.Phase = MotherBrainBodyPhase.SecondPhaseReviveInanimateGrey;
             }
         }
         return false;

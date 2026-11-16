@@ -193,7 +193,7 @@ public sealed class BabyMetroidCutsceneState
 
         BabyMetroidCutscenePhase phaseBefore = Phase;
         bool brainCollision;
-        bool bodyStumbleRequested = false;
+
         bool latchSoundQueued = false;
         // The release emits three independent dust allocations when the Baby
         // finally lets go. Keep the individual room coordinates and animations instead of
@@ -282,7 +282,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack:
                 // The drain step passes animation-delay index two and target Body.X-1. With a
                 // standing body this always starts the really-fast backward animation.
-                bodyStumbleRequested = motherBrain.RequestBabyStumbleBackward();
+                motherBrain.RequestBabyStumbleBackward();
                 Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
                 goto case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
 
@@ -680,7 +680,6 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidCutsceneStepResult(
             phaseBefore,
             Phase,
-            bodyStumbleRequested,
             latchSoundQueued,
             releaseDustClouds.ToArray(),
             ambientCrySoundQueued,

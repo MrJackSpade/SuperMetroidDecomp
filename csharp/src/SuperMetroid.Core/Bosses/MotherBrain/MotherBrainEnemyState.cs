@@ -111,7 +111,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal AnimationPlayback<MotherBrainBodySegment> HeadPlayback { get; set; } =
         new(MotherBrainAnimations.BodyStartingWith(MotherBrainBodySegment.InitialDummy), AnimationPlace.StartOfAnimation);
 
-    /// <summary>Earthquake timer copied into the head-shake timer after the glass event.</summary>
+    /// <summary>
+    /// How many more of her brain's draws shake it, counted down by each draw: the glass event's earthquake loads it, and
+    /// the brain's shake cue, the Hyper Beam recoil and the drained beam's refresh load fifty.
+    /// </summary>
     public int BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Shared flag that asks Mother Brain Rinkas and turrets to remove themselves.</summary>
@@ -198,8 +201,6 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
-    /// <summary>One-shot latch for her death clearing her body.</summary>
-    public bool DeathBodyLayerCleared { get; internal set; }
     /// <summary>Live escape message owner installed by the escape setup.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
@@ -209,7 +210,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainBurstCycle Bursts { get; }
 
-    /// <summary>Zero-based colour step used while leaving fake-death grey.</summary>
+    /// <summary>
+    /// The step her colours' current transition has reached, counting from zero: leaving the fake death's grey, greying
+    /// as the Baby drains her, reviving from it, and her final death's fades.
+    /// </summary>
     public int GrayTransitionCounter { get; internal set; }
 
     /// <summary>Allows the head animation's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
@@ -292,20 +296,18 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }
 
     /// <summary>
-    /// The rainbow, finish-off, Baby and phase-three state machine, attached to
-    /// the real body/head pair only after phase-two health reaches zero. Physical actor
-    /// coordinates and animations remain owned by this room system; this object owns the long
-    ///  phase chain and forced-Samus calculations.
+    /// The rainbow, finish-off, Baby and phase-three phases, attached once phase-two health reaches zero. They run over
+    /// this encounter, reading and writing its body, brain, phase, neck and flags in place (#2209), and keep only what the
+    /// late fight alone needs: the beam, the forced Samus movement, the Baby's arrival and her death's progress.
     /// </summary>
     public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
     {
         get;
         internal set
         {
-            // An attached sequence reads and writes the encounter's own walk credit, and its death explosions and the
-            // escape door's dust continue the encounter's bursts (#1872): it is built over both.
-            if (value is not null && (!ReferenceEquals(value.Walk, Walk) || !ReferenceEquals(value.Bursts, Bursts)))
-                throw new InvalidOperationException("A rainbow-beam sequence attached to Mother Brain's encounter is built over its walk credit and burst cycle.");
+            // An attached sequence runs this encounter: its walk credit, its bursts (#1872) and its state are this one's.
+            if (value is not null && !ReferenceEquals(value.Encounter, this))
+                throw new InvalidOperationException("A rainbow-beam sequence attached to Mother Brain's encounter is built over that encounter.");
             field = value;
         }
     }
@@ -335,30 +337,20 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>Whether body AI currently shows the rainbow beam.</summary>
-    public bool RainbowBeamActive { get; internal set; }
     /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
-    /// <summary>Current angular aim published from the beam's forced-movement owner and consumed by the rainbow beam effect.</summary>
-    public RotationAngle RainbowBeamAngle { get; internal set; }
-    /// <summary>Rainbow-beam angular width, published by body AI as the beam widens or narrows; independent of pixel width at a given screen row.</summary>
-    public RotationAngle RainbowBeamAngularWidth { get; internal set; }
 
     /// <summary>
-    /// Last brain animation copied from the rainbow state machine into the brain.
-    /// The brain cursor advances away from the animation start, so comparing against it
-    /// would reinstall the animation and reset its timer every frame. This separate
-    /// producer-owned latch mirrors the fact that the brain-animation request runs only when body AI
-    /// explicitly requests a different brain animation.
+    /// Advances her rainbow beam's effect for this update from her brain at <paramref name="head"/>: it shows while the
+    /// late fight's attack holds the beam, aimed and as wide as the attack has it, and is hidden otherwise.
     /// </summary>
-    internal MotherBrainHeadSegment? RainbowAppliedHeadAnimation { get; set; }
-
-    /// <summary>
-    /// Last <see cref="MotherBrainLateFightState.SmallPurpleBreathGenerationWriteCount"/>
-    /// published to <see cref="SmallPurpleBreathGenerationEnabled"/>, so a brain-animation clear
-    /// survives until the body next writes the flag.
-    /// </summary>
-    internal uint RainbowAppliedSmallPurpleBreathWrites { get; set; }
+    internal void StepRainbowBeam(Position16<RoomPixels> head)
+    {
+        if (RainbowBeamSequence is { RainbowAttack.BeamActive: true } beam)
+            RainbowBeam.Show(head, beam.RainbowBeamAngle, beam.RainbowAttack.AngularWidth);
+        else
+            RainbowBeam.Hide();
+    }
 
 
     /// <summary>

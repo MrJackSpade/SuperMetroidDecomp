@@ -25,11 +25,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the charge sound was queued.</summary>
     internal bool ChargeSoundQueued { get; set; }
 
-    /// <summary>Whether the body was asked to walk.</summary>
-    internal bool BodyWalkRequested { get; set; }
-
-    /// <summary>Whether the body was asked to change posture.</summary>
-    internal bool BodyPostureRequested { get; set; }
+    /// <summary>Whether her faded body has just gone, so her body's picture on the background is cleared (#1466).</summary>
+    internal bool BodyClearRequested { get; set; }
 
     /// <summary>Whether the Baby Metroid's spawn was requested.</summary>
     internal bool BabySpawnRequested { get; set; }
@@ -108,9 +105,9 @@ internal sealed class MotherBrainRainbowBeamStepRequests
 
     /// <summary>The call's result, from the phases it started and ended in.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult(
-        MotherBrainBodyPhase phaseBefore, MotherBrainBodyPhase phaseAfter, bool headAnimationScriptRequested) =>
-        new(phaseBefore, phaseAfter, Movement, SoundQueued, ColoursRequested, Explosion, ChargeSoundQueued, BodyWalkRequested,
-            headAnimationScriptRequested, BodyPostureRequested, BabySpawnRequested, FinalBeamSoundQueued,
+        MotherBrainBodyPhase phaseBefore, MotherBrainBodyPhase phaseAfter) =>
+        new(phaseBefore, phaseAfter, Movement, SoundQueued, ColoursRequested, Explosion, ChargeSoundQueued,
+            BodyClearRequested, BabySpawnRequested, FinalBeamSoundQueued,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeMusicTrackQueued, EscapeColourEffectRequests,
             EscapeTypewriterSetupRequested, TimeBombSetSubtitleSpawnRequested, EscapeDoorExplosion, GetUpReleaseRequested,

@@ -1,46 +1,30 @@
 ﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The state every late-fight phase reads and writes: the body phase and its timer, the neck and head animations and the brain's flags, with the walking and posture requests they share.</summary>
+/// <summary>
+/// What only the late fight keeps (the brain's fall, the beam's sound, the health colours, the corpse and the Baby's
+/// arrival), over the encounter whose body, brain, phase, neck and flags every late-fight phase reads and writes in place
+/// (#2209): the encounter is their one owner, so nothing is copied in before a step or published after it.
+/// </summary>
 internal sealed class MotherBrainLateFightState
 {
-
-    /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainLateFightState()
+    /// <summary>Builds the late fight's own state over <paramref name="encounter"/>.</summary>
+    internal MotherBrainLateFightState(MotherBrainEnemyState encounter)
     {
+        Encounter = Ensure.NotNull(encounter);
     }
 
-    /// <summary>
-    /// The body enemy's animation state. The fight advances its animation stage
-    /// after <see cref="MotherBrainRainbowBeamAttackSequence.Step"/>, matching the AI-then-animation order.
-    /// </summary>
-    public MotherBrainBodyAnimationState Body { get; } = new();
+    /// <summary>The encounter the late fight runs: her body, her brain and the state they share.</summary>
+    internal MotherBrainEnemyState Encounter { get; }
 
-    /// <summary>
-    /// Current body phase. The sequence starts at the rainbow attack's charge, where the live fight's attack cycle begins
-    /// it.
-    /// </summary>
-    public MotherBrainBodyPhase Phase { get; internal set; } = MotherBrainBodyPhase.SecondPhaseRainbowStartCharging;
+    /// <summary>Where her body stands in the room.</summary>
+    internal Position16<RoomPixels> BodyPosition => Encounter.Body.Position.Whole;
 
-    /// <summary>Mother Brain's brain's room position used by the final beam's aim vector.</summary>
-    public Position16<RoomPixels> BrainPosition { get; set; }
+    /// <summary>Where her brain lies in the room.</summary>
+    internal Position16<RoomPixels> BrainPosition => Encounter.Head.Position.Whole;
 
-    /// <summary>Current brain animation installed through the brain-animation request, or null before the first request.</summary>
-    public MotherBrainHeadSegment? HeadAnimation { get; private set; }
-
-    /// <summary>How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>).</summary>
-    public RotationAngle NeckTurnPerUpdate { get; internal set; }
-
-    /// <summary>Whether the neck's two angles turn on the brain's turn.</summary>
-    public bool NeckMovementEnabled { get; internal set; }
-
-    /// <summary>The lower neck movement selected by the current actor phase.</summary>
-    public MotherBrainNeckMovement LowerNeckMovement { get; internal set; }
-
-    /// <summary>The upper neck movement selected by the current actor phase.</summary>
-    public MotherBrainNeckMovement UpperNeckMovement { get; internal set; }
-
-    /// <summary>Body phase timer.</summary>
-    public MotherBrainCountdown PhaseTimer { get; } = new();
+    /// <summary>Moves her brain to <paramref name="position"/>, keeping the fractions of a pixel it holds.</summary>
+    internal void MoveBrainTo(Position16<RoomPixels> position) =>
+        Encounter.Head.Position = Encounter.Head.Position.WithWhole(position);
 
     /// <summary>
     /// The speed her severed brain falls at once she has realized her decapitation (#1890, #2016): none as it starts to
@@ -51,46 +35,17 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Rainbow-beam SFX-playing flag.</summary>
     public bool RainbowBeamSoundPlaying { get; internal set; }
 
-    /// <summary>Main brain-shake timer seeded to fifty by the rainbow step when clear.</summary>
-    public int BrainMainShakeTimer { get; internal set; }
-
-    /// <summary>Drool generation flag cleared as Mother Brain enters low-power mode.</summary>
-    public bool DroolGenerationEnabled { get; internal set; } = true;
-
-    /// <summary>Small-purple-breath flag cleared when the grey corpse is published.</summary>
-    public bool SmallPurpleBreathGenerationEnabled { get; internal set; } = true;
-
-    /// <summary>
-    /// Count of body-AI writes to <see cref="SmallPurpleBreathGenerationEnabled"/>. The live
-    /// flag has a second writer, a brain-animation cue, so the live state
-    /// publishes this flag only when the body actually wrote it.
-    /// </summary>
-    public uint SmallPurpleBreathGenerationWriteCount { get; internal set; }
-
-    /// <summary>Stops the small purple breath, counting the write as <see cref="MotherBrainRevivalPhases.EnableSmallPurpleBreathGeneration"/> does.</summary>
-    internal void DisableSmallPurpleBreathGeneration()
-    {
-        SmallPurpleBreathGenerationEnabled = false;
-        SmallPurpleBreathGenerationWriteCount++;
-    }
-
     /// <summary>
     /// Whether Mother Brain's whole body shows her health band's colours. Revival enables it only after
     /// the walk to X 80 has really completed, and disabling her brain's effects as she dies ends it.
     /// </summary>
     public bool HealthColoursEnabled { get; internal set; }
 
-    /// <summary>The step her colours' transition to grey has reached.</summary>
-    public int GreyTransitionCounter { get; internal set; }
-
     /// <summary>
     /// Whether Mother Brain lies as a corpse, which the Baby watches for: <see cref="MotherBrainPhase2CorpseState.Corpse"/>
     /// once she has faded fully grey, then <see cref="MotherBrainPhase2CorpseState.Revived"/>.
     /// </summary>
     public MotherBrainPhase2CorpseState Phase2CorpseState { get; internal set; }
-
-    /// <summary>The brain's health, set to 36,000 when she becomes a <see cref="MotherBrainPhase2CorpseState.Corpse"/>.</summary>
-    public int BrainHealth { get; internal set; } = 3000;
 
     /// <summary>
     /// The updates the finish-off has spent readying the Baby Metroid's arrival so far.
@@ -101,23 +56,22 @@ internal sealed class MotherBrainLateFightState
     /// <summary>True once the final beam's Baby spawn has requested the cutscene Baby enemy population entry.</summary>
     public bool BabyMetroidSpawned { get; internal set; }
 
-    /// <summary>Restarts the separate brain animation and publishes a new head-animation request serial.</summary>
-    internal void SetHeadAnimation(MotherBrainHeadSegment segment)
-    {
-        // The brain-animation request restarts the separate brain animation and its timer. Unlike ordinary
-        // enemy animations it has no loop-counter write here.
-        HeadAnimation = segment;
-        HeadAnimationRequestSerial++;
-    }
+    /// <summary>Restarts her brain on <paramref name="segment"/>, with its timer; unlike an ordinary enemy animation it keeps no loop count.</summary>
+    internal void SetHeadAnimation(MotherBrainHeadSegment segment) =>
+        MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(Encounter, segment);
+
+    /// <summary>Starts her body on <paramref name="segment"/>; the body's animation pass, later in the enemy update, plays it.</summary>
+    internal void SetBodyAnimation(MotherBrainBodySegment segment) =>
+        MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(Encounter, segment);
 
     /// <summary>Sets the neck angle and opposed raise/lower indices for retreat after the attack.</summary>
     internal void RetractHead()
     {
         // The Japanese and North American release takes 80; the European release takes 99.
-        NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
-        NeckMovementEnabled = true;
-        LowerNeckMovement = MotherBrainNeckMovement.Raise;
-        UpperNeckMovement = MotherBrainNeckMovement.Lower;
+        Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Rising;
+        Encounter.NeckMovementEnabled = true;
+        Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
+        Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
     }
 
     /// <summary>Selects the forward body animation for the animation delay and applies the forward target rules.</summary>
@@ -160,17 +114,17 @@ internal sealed class MotherBrainLateFightState
     /// Makes the body walk forwards. A signed overshoot of the target reports it reached first; at
     /// equality the walk is still requested. A body still mid-pose then reports it waiting,
     /// ahead of the 128 arena limit that also reports the target reached. Only a standing body
-    /// inside both limits installs the walk.
+    /// inside both limits starts the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodySegment segment)
     {
-        if (CoordinateAxis.Difference(targetX, Body.Position.X) < 0)
+        if (CoordinateAxis.Difference(targetX, BodyPosition.X) < 0)
             return MotherBrainWalkResult.Reached;
-        if (Body.Pose != MotherBrainBodyPose.Standing)
+        if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (AtLeastBySignedDifference(Body.Position.X, 128))
+        if (AtLeastBySignedDifference(BodyPosition.X, 128))
             return MotherBrainWalkResult.Reached;
-        Body.SetAnimation(segment);
+        SetBodyAnimation(segment);
         return MotherBrainWalkResult.WalkInstalled;
     }
 
@@ -178,63 +132,49 @@ internal sealed class MotherBrainLateFightState
     /// Makes the body walk backwards. Reaching or passing the target reports it reached first, so a walk
     /// can complete the AI phase on the frame its movement step arrives. A body still
     /// mid-pose then reports it waiting, ahead of the 48 arena limit that also reports
-    /// the target reached. Only a standing body inside both limits installs the walk.
+    /// the target reached. Only a standing body inside both limits starts the walk.
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodySegment segment)
     {
-        if (CoordinateAxis.Difference(targetX, Body.Position.X) >= 0)
+        if (CoordinateAxis.Difference(targetX, BodyPosition.X) >= 0)
             return MotherBrainWalkResult.Reached;
-        if (Body.Pose != MotherBrainBodyPose.Standing)
+        if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (CoordinateAxis.Difference(Body.Position.X, 48) < 0)
+        if (CoordinateAxis.Difference(BodyPosition.X, 48) < 0)
             return MotherBrainWalkResult.Reached;
-        Body.SetAnimation(segment);
+        SetBodyAnimation(segment);
         return MotherBrainWalkResult.WalkInstalled;
     }
 
     /// <summary>Takes the posture chance (<see cref="MotherBrainRandomDefinitions.PostureChanges"/>) to toggle a standing or leaning body animation.</summary>
-    internal bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
+    internal void MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
-        // Only a standing or leaning body changes posture. The request plays as a body animation later in the enemy
-        // update.
+        // Only a standing or leaning body changes posture. The animation plays later in the enemy update.
         if (!randomNumberSeed.Takes(MotherBrainRandomDefinitions.PostureChanges))
-            return false;
+            return;
 
-        if (Body.Pose == MotherBrainBodyPose.Standing)
-        {
-            Body.SetAnimation(MotherBrainBodySegment.LeanDown);
-            return true;
-        }
-
-        if (Body.Pose == MotherBrainBodyPose.LeaningDown)
-        {
-            MakeBodyStandUp(out bool requested);
-            return requested;
-        }
-
-        return false;
+        if (Encounter.Pose == MotherBrainBodyPose.Standing)
+            SetBodyAnimation(MotherBrainBodySegment.LeanDown);
+        else if (Encounter.Pose == MotherBrainBodyPose.LeaningDown)
+            MakeBodyStandUp();
     }
 
-    /// <summary>Requests the pose-specific standing animation and reports whether the body is already standing.</summary>
-    internal bool MakeBodyStandUp(out bool animationRequested)
+    /// <summary>Starts the pose-specific standing animation and reports whether the body is already standing.</summary>
+    internal bool MakeBodyStandUp()
     {
-        animationRequested = false;
-        if (Body.Pose == MotherBrainBodyPose.Standing)
+        if (Encounter.Pose == MotherBrainBodyPose.Standing)
             return true;
 
-        MotherBrainBodySegment? segment = Body.Pose switch
+        MotherBrainBodySegment? segment = Encounter.Pose switch
         {
             MotherBrainBodyPose.Crouched => MotherBrainBodySegment.StandAfterCrouchFast,
             MotherBrainBodyPose.LeaningDown => MotherBrainBodySegment.StandAfterLeaning,
             MotherBrainBodyPose.Standing or MotherBrainBodyPose.Walking or
                 MotherBrainBodyPose.CrouchingTransition or MotherBrainBodyPose.DeathBeam => null,
-            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {Body.Pose}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {Encounter.Pose}."),
         };
         if (segment is { } standUp)
-        {
-            Body.SetAnimation(standUp);
-            animationRequested = true;
-        }
+            SetBodyAnimation(standUp);
 
         return false;
     }
@@ -242,7 +182,4 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by their wrapped difference read as signed, as the game compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
         CoordinateAxis.Difference(value, threshold) >= 0;
-
-    /// <summary>How many head animations the phases have requested; a change marks a new request.</summary>
-    internal uint HeadAnimationRequestSerial { get; private set; }
 }

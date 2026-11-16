@@ -172,7 +172,6 @@ internal sealed class MotherBrainCombat
             // clears the body phase timer when a shot takes the walk credit below zero and stores the counter
             // immediately, before common projectile damage runs.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
-            state.PhaseTimer.Count = sequence.State.PhaseTimer.Count;
         }
         else
         {

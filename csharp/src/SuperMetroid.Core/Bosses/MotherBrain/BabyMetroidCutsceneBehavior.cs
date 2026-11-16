@@ -158,20 +158,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             MotherBrainCadenceDefinitions.BabyHealSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
-        // The Baby's drain step sets the body's animation from the Baby, which runs after the body.
-        // The reusable sequence retains the requested animation, but the physical body already
-        // completed its AI and animation pass earlier this frame; start the animation here so it
-        // begins on the next enemy pass, as it does in the game.
-        if (step.BodyStumbleRequested)
-        {
-            MotherBrainBodySegment bodySegment = sequence.RequestedBodyAnimation ?? throw new InvalidDataException(
-                "The Baby asked Mother Brain's body to stumble without naming its animation.");
-            MotherBrainEncounterAccess.SetMotherBrainBodyAnimation(state, bodySegment);
-        }
-
-        // Cross-enemy writes happen during the later Baby place and become visible in
-        // Mother Brain's body immediately, though body AI cannot execute them until the next frame.
-        state.Phase = sequence.State.Phase;
 
         if (baby.Animation != state.BabyAppliedAnimation)
             SetBabyMetroidCutsceneAnimation(state, place, baby.Animation);

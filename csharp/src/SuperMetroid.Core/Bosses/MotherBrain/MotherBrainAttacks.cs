@@ -13,15 +13,13 @@ internal sealed class MotherBrainAttacks
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Mother Brain's rainbow beam, its colours, and her death.</summary>
-    private readonly MotherBrainRainbowAndDeath _rainbowAndDeath;
+
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainAttacks(EnemyRoomBinding room, MotherBrainRainbowAndDeath rainbowAndDeath)
+    internal MotherBrainAttacks(EnemyRoomBinding room)
     {
         _room = room;
-        _rainbowAndDeath = rainbowAndDeath;
     }
 
     /// <summary>Runs the body's current phase, one of four.</summary>
@@ -86,17 +84,11 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>Advances the between-attacks delay and chooses when another attack may start.</summary>
-    internal void RunMotherBrainSecondPhaseThinking(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    internal void RunMotherBrainSecondPhaseThinking(MotherBrainEnemyState state)
     {
         if (state.Head.Health == 0)
         {
-            StartLiveMotherBrainRainbowBeam(
-                state,
-                samus,
-                sharedProjectiles);
+            StartLiveMotherBrainRainbowBeam(state);
             return;
         }
         if (state.Pose != MotherBrainBodyPose.Standing)
@@ -437,10 +429,7 @@ internal sealed class MotherBrainAttacks
     /// phase and cooldown intentionally remain as selected: the laser body state replaces
     /// the attack sequence, so the chain does not pass through that sequence's end phase.
     /// </summary>
-    internal void FinishMotherBrainLaserAttack(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    internal void FinishMotherBrainLaserAttack(MotherBrainEnemyState state)
     {
         if (!state.PhaseTimer.StepRunsOut())
             return;
@@ -448,7 +437,7 @@ internal sealed class MotherBrainAttacks
         state.LowerNeckMovement = MotherBrainNeckMovement.BobUp;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         state.Phase = MotherBrainBodyPhase.SecondPhaseThinking;
-        RunMotherBrainSecondPhaseThinking(state, samus, sharedProjectiles);
+        RunMotherBrainSecondPhaseThinking(state);
     }
 
     /// <summary>Advances the chosen walk direction, animation, and footstep cadence.</summary>
@@ -497,23 +486,11 @@ internal sealed class MotherBrainAttacks
     /// same body-AI call, but the freshly installed rainbow timer is not decremented until
     /// Mother Brain's next enemy turn.
     /// </summary>
-    internal void StartLiveMotherBrainRainbowBeam(
-        MotherBrainEnemyState state,
-        SamusState samus,
-        SamusBombProjectileSystem sharedProjectiles)
+    internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
-        MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
         state.NextRainbowFrame = 0;
-        state.RainbowAppliedHeadAnimation = null;
-        state.RainbowAppliedSmallPurpleBreathWrites = 0;
-        _rainbowAndDeath.ApplyLiveMotherBrainRainbowState(
-            state,
-            sequence,
-            step: null,
-            samus,
-            sharedProjectiles);
     }
 }

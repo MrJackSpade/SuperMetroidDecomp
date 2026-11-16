@@ -48,7 +48,7 @@ internal static class SporeSpawnAnimations
     {
         [P.InitialDead] =
         [
-            Cue(new SporeSpawnCue.TargetDeathShade(DeathShadeStep: DeathShadeSteps - 1)),
+            Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: DeathShadeSteps - 1)),
             SelectMovement(SporeSpawnMovement.Idle),
             Show(F.SporeSpawnShutTwin, 1),
         ],

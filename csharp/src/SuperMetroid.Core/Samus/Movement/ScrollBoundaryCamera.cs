@@ -52,7 +52,7 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public FixedPosition<RoomPixels>? PreviousSamusPoint { get; private set; }
 
-    /// <summary>Publishes the previous-position checkpoint after both axes and the scrolling hook.</summary>
+    /// <summary>Publishes the previous-position checkpoint after both axes and the room's camera floor.</summary>
     public void FinishSamusScrolling(FixedPosition<RoomPixels> current) => PreviousSamusPoint = current;
 
     /// <summary>Door room replacement retains the global scrolling history and targets.</summary>
@@ -147,12 +147,18 @@ public sealed class ScrollBoundaryCamera
     public void SetCameraXFromEnemyAi(int xPosition) => SetWholeX(xPosition);
 
     /// <summary>
-    /// Applies a direct camera Y write made by a room-installed scrolling-finished
-    /// hook. The game changes only the camera's whole Y at this point: fractional
-    /// and ideal-camera values retain the values produced by ordinary scrolling.
+    /// Raises the camera to <paramref name="floor"/>'s lowest Y when it has tracked Samus above it, after both axes have
+    /// tracked her and before her previous position is published. Only the whole Y changes: its fraction and the ideal
+    /// position keep what the tracking left.
     /// </summary>
-    public void SetCameraYFromScrollingFinishedHook(int yPosition) =>
-        SetWholeY(yPosition);
+    /// <exception cref="ArgumentNullException"><paramref name="floor"/> is null.</exception>
+    public void ApplyFloor(RoomCameraFloor floor)
+    {
+        Ensure.NotNull(floor);
+        if (floor.LowestY is not { } lowestY || lowestY <= PixelPosition.Y)
+            return;
+        SetWholeY(lowestY);
+    }
 
     /// <summary>
     /// Runs horizontal Samus tracking plus camera-speed calculation.

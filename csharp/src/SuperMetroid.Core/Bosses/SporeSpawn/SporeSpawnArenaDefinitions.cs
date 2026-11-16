@@ -44,4 +44,10 @@ internal static class SporeSpawnArenaDefinitions
 
     /// <summary>The top of the band his idle dust clouds rise within as he dies, in room pixels.</summary>
     internal const int IdleDustTop = 480;
+
+    /// <summary>
+    /// The lowest Y, in room pixels, the camera's top edge may take while his live fight goes on: the camera never looks
+    /// above his arena until he dies.
+    /// </summary>
+    internal const int LowestCameraY = 464;
 }

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.EffectActors;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -35,4 +36,7 @@ internal sealed record SporeSpawnBehaviorDependencies
 
     /// <summary>The enemy update's sound and music requests.</summary>
     public required EnemyAudioQueue Audio { get; init; }
+
+    /// <summary>The room camera's floor, which Spore Spawn's live fight holds at his arena's top (#2243).</summary>
+    public required RoomCameraFloor CameraFloor { get; init; }
 }

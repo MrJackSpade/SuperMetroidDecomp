@@ -820,7 +820,7 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Runs the main scrolling, its scrolling-finished hook, background streaming and the minimap.</summary>
+    /// <summary>Runs the main scrolling, the room's camera floor, background streaming and the minimap.</summary>
     private void RunMainScrolling(SamusState samus, ScrollBoundaryCamera camera, FixedPosition<RoomPixels> previousCameraPoint, bool deathOwnsSamus)
     {
         // The door's destination fade runs the enemies and the drawing but not the camera, for ordinary doors as
@@ -873,11 +873,9 @@ internal sealed class SuperMetroidRuntime
             YardKickDistance.Record(camera.Speed.X);
             samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
 
-            // The main scrolling invokes the mutable global
-            // scrolling-finished hook after both axes have tracked Samus. Live Spore
-            // Spawn installs its own hook, which owns the arena's vertical camera floor;
-            // it must run before the layer scrolls and the sprite list consume camera position.
-            Room.LoadedScope.Enemies.RoomMainHooks.RunSporeSpawnScrollingFinishedHook(camera);
+            // The camera keeps to the floor the room's bosses hold once both axes have tracked Samus, before the layer
+            // scrolls and the sprites read where it stands: live Spore Spawn keeps it from looking above his arena.
+            camera.ApplyFloor(Room.LoadedScope.Enemies.RoomMainHooks.CameraFloor);
             camera.FinishSamusScrolling(currentCameraPoint);
 
             // The layer scrolls follow the camera in the same main-loop pass, so the

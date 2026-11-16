@@ -54,21 +54,12 @@ public sealed class SporeSpawnEnemyState
     public bool SporeGenerationSuppressed { get; internal set; }
     /// <summary>One-hit guard for an open phase: once set, further hits neither reverse the sway nor close the head until the animation clears it.</summary>
     public bool Damaged { get; internal set; }
-    /// <summary>Health value last recorded by the guarded damaging-hit colour update; used to avoid reloading unchanged health colours.</summary>
-    public int PreviousHealth { get; internal set; }
-    /// <summary>Fixed death-drift direction toward (128,624) in 256ths of a turn: zero is right, a quarter turn up, a half turn left and three quarters down.</summary>
-    public RotationAngle DeathAngle { get; internal set; }
     /// <summary>
-    /// Unsigned 1/65536-pixel-per-update death-drift magnitude per axis, combining the death
-    /// speed and subspeed of X and of Y; <see cref="DeathAngle"/>
-    /// supplies each axis's movement sign.
+    /// His death drift in 1/65536 pixels per update on each axis, set once as his death begins: one pixel per update
+    /// shared between the axes along his bearing to the arena's centre at (128,624), each axis signed toward it.
     /// </summary>
-    public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }
-    /// <summary>Whether the live fight's scrolling-finished hook still enforces the arena's minimum camera Y; cleared at death and never installed for an already defeated load.</summary>
-    public bool ScrollClampHookActive { get; internal set; }
+    public FixedVector<RoomPixels> DeathVelocity { get; internal set; }
     /// <summary>Guard recording that zero health has already triggered projectile cleanup, the defeated flag, the death animation, and the ceiling-crumble request.</summary>
     public bool DeathStarted { get; internal set; }
-    /// <summary>Defeated-area miniboss flag sampled at room initialization; selects the solid dead body and cleared ceiling instead of the live fight setup.</summary>
-    public bool LoadedAsDefeated { get; internal set; }
 
 }

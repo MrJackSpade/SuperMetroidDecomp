@@ -1,15 +1,13 @@
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Rooms.Scrolling;
-using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 
-/// <summary>The room main hooks over Crocomire, Spore Spawn and the camera distance the room's bosses request.</summary>
+/// <summary>The room main hooks over Crocomire and the camera distance and floor the room's bosses request.</summary>
 /// <param name="crocomire">Crocomire.</param>
-/// <param name="sporeSpawn">Spore Spawn.</param>
 /// <param name="cameraDistance">The room camera's distance mode.</param>
-internal sealed class EnemyRoomMainHooks(CrocomireBehavior crocomire, SporeSpawnBehavior sporeSpawn, RoomCameraDistance cameraDistance) : IEnemyRoomMainHooks
+/// <param name="cameraFloor">The room camera's floor.</param>
+internal sealed class EnemyRoomMainHooks(CrocomireBehavior crocomire, RoomCameraDistance cameraDistance, RoomCameraFloor cameraFloor) : IEnemyRoomMainHooks
 {
     /// <inheritdoc/>
     public CrocomireEnemyState? Crocomire => crocomire.Fight.Encounter;
@@ -18,7 +16,7 @@ internal sealed class EnemyRoomMainHooks(CrocomireBehavior crocomire, SporeSpawn
     public CrocomireDeathState? CrocomireDeath => crocomire.Fight.Encounter?.Death;
 
     /// <inheritdoc/>
-    public void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera) => sporeSpawn.RunScrollingFinishedHook(camera);
+    public RoomCameraFloor CameraFloor => cameraFloor;
 
     /// <inheritdoc/>
     public CameraDistanceMode CameraDistance => cameraDistance.Mode;

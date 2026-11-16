@@ -35,6 +35,8 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public Func<bool>? IsAreaTorizoDefeated { get; set; }
     /// <summary>Optional case-owned callback when the area's Torizo is defeated.</summary>
     public Action? SetAreaTorizoDefeated { get; set; }
+    /// <summary>Optional case-owned callback when the area's mini-boss is defeated.</summary>
+    public Action? SetAreaMiniBossDefeated { get; set; }
     /// <summary>Optional case-owned callback for writes of a screen's scroll state.</summary>
     public Action<Position16<RoomScreens>, RoomScrollState>? SetRoomScrollState { get; set; }
     /// <summary>Optional case-owned callback for Mother Brain glass hit-count increments.</summary>
@@ -102,11 +104,13 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         _ => null,
     }) is { } query ? query() : Loaded($"read the area {bosses} flag").Bosses.IsDefeated(bosses);
 
-    /// <summary>Uses the fixture's Torizo callback when supplied; otherwise forwards the boss flag write.</summary>
+    /// <summary>Uses the fixture's Torizo or mini-boss callback when supplied; otherwise forwards the boss flag write.</summary>
     public void SetDefeated(DefeatedBosses bosses)
     {
         if (bosses == DefeatedBosses.AreaTorizo && SetAreaTorizoDefeated is { } setTorizo)
             setTorizo();
+        else if (bosses == DefeatedBosses.AreaMiniBoss && SetAreaMiniBossDefeated is { } setMiniBoss)
+            setMiniBoss();
         else
             Loaded($"set the area {bosses} flag").Bosses.SetDefeated(bosses);
     }

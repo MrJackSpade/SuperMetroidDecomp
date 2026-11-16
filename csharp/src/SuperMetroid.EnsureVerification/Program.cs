@@ -82,6 +82,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(TransferWordAnalyzerTests.VerifyTransferWordAnalyzer), TransferWordAnalyzerTests.VerifyTransferWordAnalyzer),
                 new AnalyzerSuite(nameof(CartridgeAddressAnalyzerTests.VerifyCartridgeAddressAnalyzer), CartridgeAddressAnalyzerTests.VerifyCartridgeAddressAnalyzer),
                 new AnalyzerSuite(nameof(EnumValueReadAnalyzerTests.VerifyEnumValueReadAnalyzer), EnumValueReadAnalyzerTests.VerifyEnumValueReadAnalyzer),
+                new AnalyzerSuite(nameof(LiteralZeroEnumAnalyzerTests.VerifyLiteralZeroEnumAnalyzer), LiteralZeroEnumAnalyzerTests.VerifyLiteralZeroEnumAnalyzer),
                 new AnalyzerSuite(nameof(CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer), CatalogDecisionAnalyzerTests.VerifyCatalogDecisionAnalyzer),
                 new AnalyzerSuite(nameof(WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer), WholeImageFixtureInLoopAnalyzerTests.VerifyWholeImageFixtureInLoopAnalyzer),
                 new AnalyzerSuite(nameof(PrivateInstallationAnalyzerTests.VerifyPrivateInstallationAnalyzer), PrivateInstallationAnalyzerTests.VerifyPrivateInstallationAnalyzer),

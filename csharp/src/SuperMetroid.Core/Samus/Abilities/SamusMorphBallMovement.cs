@@ -61,7 +61,7 @@ public static class SamusMorphBallMovement
             // the full deceleration-allowed horizontal movement. Its run-momentum
             // call retains established run momentum and republishes boost contact damage.
             speed.HandleExtraRunSpeed(
-                movementType, controllerInput: 0,
+                movementType, controllerInput: GameplayAction.None,
                 speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidMedium.Air);
             UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);

@@ -8,6 +8,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 [Flags]
 internal enum TorizoBehaviorFlags
 {
+    /// <summary>No latch is set, as every Torizo starts.</summary>
+    None = 0,
     /// <summary>Golden Torizo has caught a Super Missile; later shots bypass the catch.</summary>
     CaughtSuperMissile = 1,
     /// <summary>

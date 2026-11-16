@@ -59,3 +59,4 @@ SME6452 | Performance | Error | WholeImageFixtureInLoopAnalyzer
 SME6455 | Performance | Error | PrivateInstallationAnalyzer
 SME6456 | Design | Error | NativeAddressAnalyzer
 SME6457 | Design | Error | RoomGridIdiomAnalyzer
+SME6458 | Design | Error | LiteralZeroEnumAnalyzer

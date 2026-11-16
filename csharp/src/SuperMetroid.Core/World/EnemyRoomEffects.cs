@@ -75,7 +75,7 @@ internal sealed class EnemyRoomEffects
     internal void StartEnemyGlow(EnemyGlowStart? glow, ColourEffectSystem roomColourEffects)
     {
         if (glow is not null)
-            Ensure.NotNull(roomColourEffects).StartEnemyGlow(glow, _player.Samus?.EquippedItems ?? 0);
+            Ensure.NotNull(roomColourEffects).StartEnemyGlow(glow, _player.Samus?.EquippedItems ?? SamusEquipmentFlags.None);
     }
 
     /// <summary>Starts the belly glow a Torizo's fight start asked for among the room's colour effects, watching that Torizo.</summary>

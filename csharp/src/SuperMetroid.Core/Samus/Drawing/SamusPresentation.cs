@@ -203,7 +203,7 @@ internal sealed class SamusPresentation
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
         samus.AdvanceAnimationFrame();
-        HandleAnimationDelay(samus, controllerInput: 0);
+        HandleAnimationDelay(samus, controllerInput: GameplayAction.None);
     }
 
     /// <summary>
@@ -400,6 +400,11 @@ internal sealed class SamusPresentation
     /// <summary>
     /// Draws Samus's body in her current pose, unless invincibility's flicker hides it on this frame.
     /// </summary>
+    /// <param name="samus">The Samus to draw.</param>
+    /// <param name="sprites">The frame's sprites.</param>
+    /// <param name="cameraPosition">The camera the body is placed against.</param>
+    /// <param name="frameCounter">The update counter invincibility's flicker reads.</param>
+    /// <param name="turningFloor">The turning floor that rotates her drawn point, or null on a still floor.</param>
     /// <returns>Whether the body was drawn.</returns>
     /// <remarks>
     /// The body is one whole picture (#1513, #1585): her pose at the picture frame the installed <see cref="SamusShownFrames"/> give the
@@ -409,7 +414,7 @@ internal sealed class SamusPresentation
     public bool Draw(SamusState samus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        int frameCounter = 0,
+        int frameCounter,
         TurningFloorTransform? turningFloor = null)
     {
         Ensure.NotNull(sprites);
@@ -430,6 +435,34 @@ internal sealed class SamusPresentation
         if (!bodyVisible)
             return false;
 
+        DrawBody(samus, sprites, cameraPosition, pictureFrame, turningFloor);
+        return true;
+    }
+
+    /// <summary>
+    /// Draws Samus's body in her current pose on every frame, whatever her invincibility: the door transition, the
+    /// elevator ride and the death sequence show her without the flicker.
+    /// </summary>
+    /// <param name="samus">The Samus to draw.</param>
+    /// <param name="sprites">The frame's sprites.</param>
+    /// <param name="cameraPosition">The camera the body is placed against.</param>
+    /// <param name="turningFloor">The turning floor that rotates her drawn point, or null on a still floor.</param>
+    public void DrawWithoutFlicker(SamusState samus,
+        SpriteFrameBuffer sprites,
+        Position16<RoomPixels> cameraPosition,
+        TurningFloorTransform? turningFloor = null)
+    {
+        Ensure.NotNull(sprites);
+        DrawBody(samus, sprites, cameraPosition, _artwork.ShownFrames.PictureFrame(samus), turningFloor);
+    }
+
+    /// <summary>Places the body's whole picture of her pose at the picture frame, at the origin that frame gives.</summary>
+    private void DrawBody(SamusState samus,
+        SpriteFrameBuffer sprites,
+        Position16<RoomPixels> cameraPosition,
+        SamusAnimationFrame pictureFrame,
+        TurningFloorTransform? turningFloor)
+    {
         // While Ceres's floor turns, Samus is drawn at her whole-pixel world point as the floor
         // rotates it. Every drawn position below therefore uses the
         // rotated point, but public physics coordinates remain completely untouched.
@@ -446,7 +479,6 @@ internal sealed class SamusPresentation
         var body = new SamusBodyFrame(samus.Pose, pictureFrame);
         DrawnFrame = body;
         sprites.AddSamusBody(body, DrawOrigin, BodySheets, new SpriteSource(SpriteSourceKind.Samus));
-        return true;
     }
 
     /// <summary>

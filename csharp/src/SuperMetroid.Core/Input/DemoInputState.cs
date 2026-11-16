@@ -50,11 +50,11 @@ public sealed class DemoInputState
         Enabled = false;
         Position = null;
         FrameHold = 0;
-        Held = 0;
-        NewlyPressed = 0;
-        PreviousHeld = 0;
-        PreviousNewlyPressed = 0;
-        PublishedPreviousNewlyPressed = 0;
+        Held = GameplayAction.None;
+        NewlyPressed = GameplayAction.None;
+        PreviousHeld = GameplayAction.None;
+        PreviousNewlyPressed = GameplayAction.None;
+        PublishedPreviousNewlyPressed = GameplayAction.None;
     }
 
     /// <summary>Starts the playback; loading and enabling remain separate steps.</summary>
@@ -160,7 +160,7 @@ public sealed class DemoInputState
     private void EndInput()
     {
         Position = null;
-        Held = 0;
-        NewlyPressed = 0;
+        Held = GameplayAction.None;
+        NewlyPressed = GameplayAction.None;
     }
 }

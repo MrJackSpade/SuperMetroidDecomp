@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The gunship's flight from Zebes: the planet escape's speeds, the stars and the fade.</summary>
@@ -42,8 +43,8 @@ internal sealed class EndingFlyaway
     {
         // The flyaway's setup clears the explosion's whiteout from the sky.
         screen.Colours.Flash(EndingFlash.WhiteoutCleared, RgbColor.Black);
-        _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, 0);
-        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, 0);
+        _stage.ColourEffects.Start(EndingColourEffectDefinitions.PlanetAfterglow, SamusEquipmentFlags.None);
+        _stage.ColourEffects.Start(EndingColourEffectDefinitions.GunshipEmergence, SamusEquipmentFlags.None);
         _stage.FloorPosition = new(_stage.FloorPosition.X.WithWholePixels(EndingMotionDefinitions.PlanetEscapeFloorX),
             SignedSixteenSixteen.FromWholePixels(EndingMotionDefinitions.PlanetEscapeFloorY));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialZoom;

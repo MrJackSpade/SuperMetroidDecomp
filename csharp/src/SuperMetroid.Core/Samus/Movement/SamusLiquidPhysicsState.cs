@@ -292,7 +292,7 @@ public sealed class SamusLiquidPhysicsState
     public void PrepareAnimationFrame(
         SamusState samus,
         SharedRandom random,
-        int frameCounter = 0,
+        int frameCounter,
         bool bossPresent = false)
     {
         Ensure.NotNull(samus);

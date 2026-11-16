@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Frontend.Pause;
 public readonly record struct PauseEquipmentBit(SamusBeamFlags Beam, SamusEquipmentFlags Item)
 {
     /// <summary>A beam control's bit.</summary>
-    public static PauseEquipmentBit Of(SamusBeamFlags beam) => new(beam, 0);
+    public static PauseEquipmentBit Of(SamusBeamFlags beam) => new(beam, SamusEquipmentFlags.None);
 
     /// <summary>An item control's bit.</summary>
-    public static PauseEquipmentBit Of(SamusEquipmentFlags item) => new(0, item);
+    public static PauseEquipmentBit Of(SamusEquipmentFlags item) => new(SamusBeamFlags.None, item);
 
     /// <summary>Whether the upgrade is set in <paramref name="beams"/> or <paramref name="items"/>.</summary>
     public bool IsSetIn(SamusBeamFlags beams, SamusEquipmentFlags items) => (beams & Beam) != SamusBeamFlags.None || (items & Item) != SamusEquipmentFlags.None;

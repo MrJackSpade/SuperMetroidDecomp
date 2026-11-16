@@ -230,7 +230,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         StepBabyMetroidAnimation();
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
-        colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false });
+        colourEffects.StepScreen(new ColourEffectInputs { SamusY = 0, EquippedItems = SamusEquipmentFlags.None, AreaMiniBossDefeated = false });
         // The skip's rebuild follows the colour effects for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuiltTitleScreen)
@@ -285,7 +285,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     PhaseTimer = TitleSequenceDefinitions.Timing.LogoHoldFrames;
                     // The logo starts its fade as it first shows; the effect shows its first shade when the colour
                     // effects step at the end of this update, so the logo first shows black.
-                    colourEffects.Start(TitleSequenceDefinitions.Fades.Logo, 0);
+                    colourEffects.Start(TitleSequenceDefinitions.Fades.Logo, SamusEquipmentFlags.None);
                 }
                 break;
 
@@ -296,7 +296,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     // before arming the 900-update demo countdown.
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
-                    colourEffects.Start(TitleSequenceDefinitions.Fades.Copyright, 0);
+                    colourEffects.Start(TitleSequenceDefinitions.Fades.Copyright, SamusEquipmentFlags.None);
                 }
                 break;
 
@@ -382,8 +382,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void RestartColourEffects()
     {
         colourEffects = new ColourEffectSystem(new ColourEffectSessionState());
-        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, 0);
-        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.FastLights, 0);
+        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.SlowLights, SamusEquipmentFlags.None);
+        colourEffects.Start(TitleSequenceDefinitions.ConsoleColourEffects.FastLights, SamusEquipmentFlags.None);
     }
 
     /// <summary>

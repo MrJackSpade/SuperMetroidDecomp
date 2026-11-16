@@ -78,7 +78,7 @@ public sealed class SamusDraygonGrabbedState
         // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
-        PreviousDpadInput = 0;
+        PreviousDpadInput = GameplayAction.None;
         ReleasePublishedToOwner = false;
         // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();

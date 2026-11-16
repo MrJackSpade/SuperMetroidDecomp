@@ -74,7 +74,7 @@ internal sealed class RoomObjectFramePhase
         if (_player.Samus?.Xray.AreObjectsSuspended == true)
             return;
 
-        StepRoomObjects(controllerNewInput: 0, roomObjects, bombProjectiles, room);
+        StepRoomObjects(controllerNewInput: GameplayAction.None, roomObjects, bombProjectiles, room);
 
         // Setup-time room objects do not have Samus contact/input available. If a future
         // change publishes a player-facing event here, fail at the exact ownership

@@ -227,7 +227,7 @@ public static class SamusGroundedMovement
         // zero writes below then retire it in the game's original order.
         speed.HandleExtraRunSpeed(
             movementType,
-            controllerInput: 0,
+            controllerInput: GameplayAction.None,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
@@ -288,7 +288,7 @@ public static class SamusGroundedMovement
         // without the flag the pair is cleared before displacement is calculated.
         speed.HandleExtraRunSpeed(
             movementType: SamusMovementType.Moonwalking,
-            controllerInput: 0,
+            controllerInput: GameplayAction.None,
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 

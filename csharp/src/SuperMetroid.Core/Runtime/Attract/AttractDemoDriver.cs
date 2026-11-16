@@ -111,8 +111,8 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _player.Samus.PreviousHealthForHurtCheck = _player.Samus.Health;
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,
             _player.Samus.Missiles, _player.Samus.MaxMissiles, _player.Samus.SuperMissiles, _player.Samus.MaxSuperMissiles,
-            _player.Samus.PowerBombs, _player.Samus.MaxPowerBombs, _player.Samus.EquippedItems, 0, 0, 0));
-        _frameBoundary.BeginAcceptedFrame(0);
+            _player.Samus.PowerBombs, _player.Samus.MaxPowerBombs, _player.Samus.EquippedItems, HudItem.Beam, 0, ReserveTankMode.None));
+        _frameBoundary.BeginAcceptedFrame(ControllerButton.None);
         DoorDefinition door = scene.Door;
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.

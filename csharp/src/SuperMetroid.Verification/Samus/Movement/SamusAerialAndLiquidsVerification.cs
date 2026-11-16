@@ -867,13 +867,13 @@ internal static void VerifySamusLiquidPhysics()
     AssertEqual(3, sample.LiquidPhysics.DeterminePoseChangeAnimationBuffer(sample),
         "pose-change water delay below bottom-minus-one");
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0);
     AssertEqual(3, sample.AnimationFrameBuffer, "continuous water animation delay");
     AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.LiquidPhysicsType,
         "continuous water animation remembers medium");
     sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0);
     AssertEqual(0, sample.AnimationFrameBuffer, "Gravity Suit cancels submerged frame delay");
 
     // Lava's FX handler performs the retail speed-boost cancellation before checking
@@ -887,7 +887,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110);
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0);
     AssertTrue(!sample.HorizontalSpeed.HasRunningMomentum,
         "lava cancels momentum even with Gravity Suit");
     AssertEqual(new SamusSpeedBoostCounter(0, 0), sample.HorizontalSpeed.SpeedBoostCounter,
@@ -906,7 +906,7 @@ internal static void VerifySamusLiquidPhysics()
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
     sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, RoomFxType.Acid);
     sample.LiquidPhysics.BeginFrameSoundRequests();
-    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom());
+    sample.LiquidPhysics.PrepareAnimationFrame(sample, new SharedRandom(), frameCounter: 0);
     AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
     AssertEqual(new SamusSpeedBoostCounter(2, 1), sample.HorizontalSpeed.SpeedBoostCounter,
         "acid preserves speed-boost timer/counter");

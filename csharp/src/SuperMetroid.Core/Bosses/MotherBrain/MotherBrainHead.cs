@@ -32,8 +32,6 @@ internal sealed class MotherBrainHead
     private readonly IMotherBrainRoomActors _roomActors;
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
-    /// <summary>Mother Brain's state lookups, body and brain animation setters, timers and room-object requests.</summary>
-    private readonly MotherBrainEncounterAccess _access;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -48,7 +46,6 @@ internal sealed class MotherBrainHead
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _roomActors = dependencies.RoomActors;
         _projectileAttacks = dependencies.ProjectileAttacks;
-        _access = dependencies.Access;
     }
 
     /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>

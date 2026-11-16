@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro;
-
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>The pointer and definition of one intro mother brain definitions actor.</summary>

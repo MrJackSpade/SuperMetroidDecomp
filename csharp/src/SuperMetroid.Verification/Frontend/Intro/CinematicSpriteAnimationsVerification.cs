@@ -66,7 +66,7 @@ internal static class CinematicSpriteAnimationsVerification
         updates += CompareFamily(cartridge, IntroRinkaAnimations.Spawner, RinkaSpawnerCues, Pictures, compared);
         updates += CompareFamily(cartridge, IntroNarrationAnimations.Narration, NativeCinematicCues<NoAnimationCue>.None, Pictures, compared);
         updates += CompareFamily(cartridge, CeresAnimations.Scenes, CeresCues, Pictures, compared);
-        updates += CompareFamily(cartridge, CeresAnimations.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
+        updates += CompareFamily(cartridge, CeresAnimationsConstants.ExplosionSpawner, ExplosionSpawnerCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingSceneAnimations.Pictures, EndingSceneCues, Pictures, compared);
         updates += CompareFamily(cartridge, EndingTextAnimations.Texts, EndingSceneCues, TypedTexts, compared);
         updates += CompareFamily(cartridge, EndingRewardAnimations.Gesture, RewardGestureCues, Pictures, compared);

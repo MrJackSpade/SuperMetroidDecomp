@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.CeresCinematics;
+﻿namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>What the Ceres explosion spawner's animation has its owner do (#2197).</summary>
 internal enum CeresExplosionSpawnerCue

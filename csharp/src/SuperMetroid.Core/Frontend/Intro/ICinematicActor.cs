@@ -19,9 +19,6 @@ internal interface ICinematicActor<TCue>
     /// <summary>The whole pixels of <see cref="Position"/>; assigning replaces them and keeps both fractions.</summary>
     Offset16<ScreenPixels> ScreenPlace { get; set; }
 
-    /// <summary>The drawn shade of the colouring the actor's recolourable parts draw in (#1512).</summary>
-    PictureShade Colouring { get; }
-
     /// <summary>Retires the actor and clears what it shows.</summary>
     void Delete();
 

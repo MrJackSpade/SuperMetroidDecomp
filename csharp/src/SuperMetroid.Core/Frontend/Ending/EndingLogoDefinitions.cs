@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Frontend.Ending;
 

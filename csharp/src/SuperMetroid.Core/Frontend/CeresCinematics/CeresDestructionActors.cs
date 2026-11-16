@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using static SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionActorDefinitions;
 

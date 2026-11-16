@@ -76,11 +76,6 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace pl
     /// <inheritdoc/>
     public bool OwnsSamusTouch => false;
 
-    /// <inheritdoc/>
-    public void ResolveAfterSamusContact(SamusState samus)
-    {
-    }
-
     /// <summary>Only Samus's contact meets the body's frames' hitboxes; its weapon collision is the encounter's own resolver.</summary>
     public override EnemyCapabilities Capabilities =>
         Place.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.SamusFrameHitboxes : EnemyCapabilities.None;

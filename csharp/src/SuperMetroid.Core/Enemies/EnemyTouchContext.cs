@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>One Samus/enemy overlap that reached a touch reaction.</summary>
 /// <param name="Place">The touched enemy.</param>
 /// <param name="Samus">Samus, who touched it.</param>
+/// <param name="PseudoScrew">Samus's held charge, which her Pseudo Screw contact spends (#2159).</param>
 /// <param name="ControllerInput">Held input, used by reactions that grab or eject Samus.</param>
 /// <param name="Level">Room terrain for collision-aware reactions.</param>
 /// <param name="UsesFrameHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
@@ -17,6 +18,7 @@ namespace SuperMetroid.Core.Enemies;
 internal readonly record struct EnemyTouchContext(
     RoomEnemyPlace Place,
     SamusState Samus,
+    PseudoScrewCharge PseudoScrew,
     GameplayAction ControllerInput,
     RoomLevelData Level,
     bool UsesFrameHitboxes,

@@ -169,7 +169,7 @@ internal sealed class TorizoCombat
             throw new InvalidDataException(
                 $"Torizo has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
         if (context.Place.Health == 0)
             BeginTorizoDeath(context.Place, context.Place.RequireSpeciesState<TorizoEnemyState>());
     }

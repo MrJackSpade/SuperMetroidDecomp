@@ -547,7 +547,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
         // closed shell can carry/push Samus without inflicting the definition's 100 HP.
         if (context.HitboxTouch == MaridiaLargeSnailReactions.DamagingTouch)
-            _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+            _collision.ResolveNormalEnemyTouch(context);
         ResolveMaridiaLargeSnailTouchAfterCommon(context.Place, context.Samus);
     }
 

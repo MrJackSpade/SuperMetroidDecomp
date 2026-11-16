@@ -22,10 +22,8 @@ internal sealed class MotherBrainHead
     private readonly EnemyAudioQueue _audio;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Applies the encounter's damage and death/drop rules.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
     /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
@@ -44,7 +42,6 @@ internal sealed class MotherBrainHead
         _audio = dependencies.Audio;
         _presentation = dependencies.Presentation;
         _frameContext = dependencies.FrameContext;
-        _deathsAndDrops = dependencies.DeathsAndDrops;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _roomActors = dependencies.RoomActors;
         _projectileAttacks = dependencies.ProjectileAttacks;
@@ -104,7 +101,10 @@ internal sealed class MotherBrainHead
     /// Draws her brain, and her neck when it is shown, after every queued enemy has been drawn. The brain is shown by
     /// her own draw rather than the common enemy draw, although her population entry collides by its frames' hitboxes.
     /// </summary>
-    internal void DrawMotherBrainBrainAndNeck(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="camera">Camera position (viewport top-left) in whole room pixels.</param>
+    /// <param name="samus">Samus, whom the brain animation's cues read.</param>
+    internal void DrawMotherBrainBrainAndNeck(SpriteFrameBuffer sprites, Position16<RoomPixels> camera, SamusState samus)
     {
         MotherBrainEnemyState? state = _motherBrainEncounter.MotherBrain;
         RoomEnemyPlace? head = state?.Head;
@@ -117,8 +117,7 @@ internal sealed class MotherBrainHead
             SpawnMotherBrainPurpleBreathSmall(state);
         // The brain draw advances the brain animation here, after every enemy's AI, and returns out
         // of the whole draw when the animation is not live.
-        if (AdvanceMotherBrainBrain(state, _deathsAndDrops.SamusForEnemyDrops ?? throw new InvalidOperationException(
-                "Mother Brain's brain draws in a room loaded before Samus exists.")) is not MotherBrainHeadFrame brainFrame)
+        if (AdvanceMotherBrainBrain(state, samus) is not MotherBrainHeadFrame brainFrame)
             return;
 
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);

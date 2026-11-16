@@ -165,7 +165,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveMochtroidTouch(
         RoomEnemyPlace place,
         MochtroidEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidAnimation(
@@ -198,7 +199,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // A live Samus contact-damage mode takes common AI's enemy-damage branch. This
             // includes Speed Booster, shinespark, Screw Attack, and pseudo-Screw.
-            _collision.ResolveNormalEnemyTouch(place, samus);
+            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
         }
 
         // Unlike every ordinary contact response, Mochtroid immediately cancels the timers
@@ -222,7 +223,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the attachment and drain reaction for Samus overlap.</summary>
     internal void ReactToMochtroidTouch(EnemyTouchContext context) =>
-        ResolveMochtroidTouch(context.Place, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus);
+        ResolveMochtroidTouch(context.Place, context.Place.RequireSpeciesState<MochtroidEnemyState>(), context.Samus, context.PseudoScrew);
 
 
     /// <summary>The Mochtroid's own shot reaction, which runs the common shot damage with no stage of its own.</summary>

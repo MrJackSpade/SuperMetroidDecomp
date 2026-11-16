@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -124,7 +125,7 @@ internal sealed class PhantoonCombat
             switch (cue)
             {
                 case PhantoonFlameCue.SpawnDrop:
-                    RequestPhantoonFlameDrop(projectile);
+                    RequestPhantoonFlameDrop(projectile, context.Samus);
                     return;
                 case PhantoonFlameCue.Delete:
                     projectile.Delete();
@@ -251,7 +252,7 @@ internal sealed class PhantoonCombat
         /// Runs the flame's drop step: the flame's exact position and the Phantoon eye's enemy definition go to the
         /// enemy drop spawner, which places the pickup from the definition's item table.
         /// </summary>
-        private void RequestPhantoonFlameDrop(EnemyProjectile flame)
+        private void RequestPhantoonFlameDrop(EnemyProjectile flame, SamusState samus)
         {
             if (flame.Kind != RoomEnemyProjectileKind.PhantoonDestroyableFlame)
             {
@@ -262,7 +263,8 @@ internal sealed class PhantoonCombat
             RoomEnemyDefinition eye = room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 flame.Position.Whole,
-                eye.DropChances);
+                eye.DropChances,
+                samus);
         }
     }
 
@@ -638,7 +640,7 @@ internal sealed class PhantoonCombat
             throw new InvalidDataException(
                 $"Phantoon has no response to touch reaction {context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
+        _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
     }
 
     /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>

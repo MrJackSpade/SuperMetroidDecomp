@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyTail
 {
-    /// <summary>Exposes the five ordinary Samus projectile slots checked by Ceres whip aiming.</summary>
-    private readonly EnemyFrameContext _frameContext;
     /// <summary>Replaces shots blocked by tail joints with dust or dud effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies the current Ridley body and tail state for post-solve Samus contact.</summary>
@@ -26,9 +24,8 @@ internal sealed class RidleyTail
     private readonly EnemyRoomBinding _room;
 
     /// <summary>Connects tail kinematics, collision, and encounter control to shared room and projectile state.</summary>
-    internal RidleyTail(EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter, EnemyRoomBinding room)
+    internal RidleyTail(EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter, EnemyRoomBinding room)
     {
-        _frameContext = frameContext;
         _projectiles = projectiles;
         _ridleyEncounter = ridleyEncounter;
         _room = room;
@@ -41,10 +38,15 @@ internal sealed class RidleyTail
     /// retaining that documented anomaly is why the tail curls and rotates at the game's
     /// rate.
     /// </summary>
+    /// <param name="place">Ridley's body.</param>
+    /// <param name="state">Ridley's state.</param>
+    /// <param name="samus">Samus, whom the tail follows and whips at.</param>
+    /// <param name="samusProjectiles">Samus's beams and missiles, a missile among which the Ceres whip may aim at instead.</param>
     internal void TickRidleyTail(
         RoomEnemyPlace place,
         RidleyEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        SamusProjectileSystem samusProjectiles)
     {
         if (state.TailSegments.Length != 7)
             throw new InvalidDataException("Ceres Ridley requires seven tail segments.");
@@ -56,7 +58,7 @@ internal sealed class RidleyTail
 
             if (state.TailAction == RidleyTailAction.Neutral)
             {
-                HandleCeresRidleyNeutralTailControl(place, state, samus);
+                HandleCeresRidleyNeutralTailControl(place, state, samus, samusProjectiles);
                 for (int index = 0; index < state.TailSegments.Length; index++)
                     TickRidleyTailSegment(state, index);
             }
@@ -99,7 +101,8 @@ internal sealed class RidleyTail
     internal void HandleCeresRidleyNeutralTailControl(
         RoomEnemyPlace place,
         RidleyEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        SamusProjectileSystem samusProjectiles)
     {
         bool allActive = state.TailSegments.All(segment => segment.Active);
         if (allActive)
@@ -107,16 +110,16 @@ internal sealed class RidleyTail
             bool targetsIdle = state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null;
             if (state.TailWhipRequested && targetsIdle)
             {
-                AimCeresRidleyTailWhip(state, samus, turnsBeyond: 0);
+                AimCeresRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: 0);
             }
             else if (state.IdleTailWhipEnabled)
             {
                 // Read the existing seed; this branch never advances the RNG.
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
-                    AimCeresRidleyTailWhip(state, samus, turnsBeyond: state.TailWhipRequested ? 0 : -1);
+                    AimCeresRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: state.TailWhipRequested ? 0 : -1);
                 else if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < 128)
-                    AimCeresRidleyTailWhip(state, samus, turnsBeyond: 0);
+                    AimCeresRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: 0);
             }
 
             state.TailWhipRequested = false;
@@ -141,9 +144,14 @@ internal sealed class RidleyTail
     /// turns further along the whip's swing; a negative count lies that many turns short. Only the order against the
     /// root's angle and the turns the whip sweeps change: the target still points the same way.
     /// </summary>
-    internal void AimCeresRidleyTailWhip(
+    /// <param name="state">Ridley's state.</param>
+    /// <param name="samus">Samus, whom the whip aims at.</param>
+    /// <param name="samusProjectiles">Samus's beams and missiles; a missile near the tail tip draws the whip instead.</param>
+    /// <param name="turnsBeyond">The whole turns the target lies past the whip's swing, or short of it when negative.</param>
+    internal static void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState samus,
+        SamusProjectileSystem samusProjectiles,
         int turnsBeyond)
     {
         // Ridley turning to face the screen aims no whip, and the fight's opening mode likewise blocks the whip before
@@ -153,18 +161,15 @@ internal sealed class RidleyTail
 
         RidleyTailSegment root = state.TailSegments[0];
         Position16<RoomPixels> aim = samus.Position.Whole + new Offset16<RoomPixels>(0, 24);
-        if (_frameContext.SamusProjectiles is { } projectiles)
-        {
-            RidleyTailSegment tip = state.TailSegments[6];
-            SamusProjectile? missile = RidleyTailMissileTarget.Target(
-                projectiles.Pool.ShotCount.Count,
-                projectiles.Shots,
-                projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
-                    CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < 64 &&
-                    CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < 64);
-            if (missile is not null)
-                aim = missile.Position.Whole;
-        }
+        RidleyTailSegment tip = state.TailSegments[6];
+        SamusProjectile? missile = RidleyTailMissileTarget.Target(
+            samusProjectiles.Pool.ShotCount.Count,
+            samusProjectiles.Shots,
+            projectile => projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile &&
+                CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X < 64 &&
+                CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y < 64);
+        if (missile is not null)
+            aim = missile.Position.Whole;
         TrigonometryAngle targetDirection = EnemyMath.CalculateBearing(aim - root.Position).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
         if (state.FacingDirection == RidleyFacing.Left)

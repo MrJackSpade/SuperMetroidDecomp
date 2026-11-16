@@ -115,9 +115,10 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void ResolveFirefleaTouch(
         RoomEnemyPlace place,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
-        _collision.ResolveNormalEnemyTouch(place, samus);
+        _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
 
         // The touch kills the Fireflea whatever it left, in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion). Queue that death animation before clearing the actor so its artwork and sound
@@ -125,8 +126,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // the emptied place, whose cleared health names the small explosion: the second explosion appears at the room's
         // top-left corner for whatever the place now holds (nothing, or the respawn placeholder), clears that placeholder,
         // and counts a second kill.
-        _deathsAndDrops.StartGenericEnemyDeath(place, deathAnimation:
-            LeftoverNumberDeathExplosion.Named(place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
+        _deathsAndDrops.StartGenericEnemyDeath(place,
+            LeftoverNumberDeathExplosion.Named(place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder), samus);
         AdvanceFirefleaDarkness();
     }
 
@@ -178,5 +179,5 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Fireflea's touch reaction, the retail unconditional-death sequence.</summary>
     internal void ReactToFirefleaTouch(EnemyTouchContext context) =>
-        ResolveFirefleaTouch(context.Place, context.Samus);
+        ResolveFirefleaTouch(context.Place, context.Samus, context.PseudoScrew);
 }

@@ -87,6 +87,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunCrocomireMain(
         RoomEnemyPlace place,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera)
     {
         CrocomireEnemyState state = Access.RequireCrocomire(place);
@@ -109,7 +110,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             RunCrocomireDeathSequence(state, samus, camera);
         }
 
-        Fight.HandleCrocomireInvisibleWall(place, state, samus);
+        Fight.HandleCrocomireInvisibleWall(place, state, samus, pseudoScrew);
         Combat.ApplyCrocomireHurtFlash(place);
     }
 
@@ -243,7 +244,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Skeleton.RunCrocomireSkeletonArc(state);
                 return;
             case CrocomireDeathPhase.WaitForSkeletonTerminalImage:
-                Skeleton.RunCrocomireSkeletonCollapse(state);
+                Skeleton.RunCrocomireSkeletonCollapse(state, samus);
                 return;
             case CrocomireDeathPhase.ClearWallAndOpenScrolls:
                 Skeleton.FinishCrocomireArenaScrolls(state);
@@ -279,6 +280,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Crocomire's main AI.</summary>
     internal void RunCrocomireMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunCrocomireMain(place, frame.Samus, frame.Camera);
+        RunCrocomireMain(place, frame.Samus, frame.PseudoScrew, frame.Camera);
     }
 }

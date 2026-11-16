@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Fx;
@@ -68,12 +69,13 @@ internal sealed class KraidDeath
     internal void RunKraidDeathPhase(
         RoomEnemyPlace body,
         KraidEnemyState state,
-        int cameraX)
+        int cameraX,
+        SamusState samus)
     {
         switch (state.BodyState.Phase)
         {
             case KraidPhase.DeathInitialize:
-                InitializeKraidDeath(state);
+                InitializeKraidDeath(state, samus);
                 return;
 
             case KraidPhase.DeathFadeOut:
@@ -110,7 +112,7 @@ internal sealed class KraidDeath
                 return;
 
             case KraidPhase.DeathSink:
-                RunKraidDeathSink(body, state);
+                RunKraidDeathSink(body, state, samus);
                 return;
 
             case KraidPhase.DeathHideBody:
@@ -199,7 +201,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Starts the death animation and prepares its room mutation schedule.</summary>
-    internal void InitializeKraidDeath(KraidEnemyState state)
+    internal void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
     {
         if (state.HurtFrame != 0)
             return;
@@ -214,16 +216,16 @@ internal sealed class KraidDeath
         foreach (RoomEnemyPlace nail in _parts.Nails)
             nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
         foreach (RoomEnemyPlace nail in _parts.Nails)
-            _deathsAndDrops.StartGenericEnemyDeath(nail, deathAnimation: EnemyDeathExplosion.Small);
+            _deathsAndDrops.StartGenericEnemyDeath(nail, EnemyDeathExplosion.Small, samus);
         foreach (RoomEnemyPlace lint in _parts.Lints)
-            _deathsAndDrops.StartGenericEnemyDeath(lint, deathAnimation: EnemyDeathExplosion.Small);
+            _deathsAndDrops.StartGenericEnemyDeath(lint, EnemyDeathExplosion.Small, samus);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
         _frameResults.KraidObjects.Add(KraidObjectDefinitions.LiveDeathSpikes);
     }
 
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
-    private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state)
+    private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state, SamusState samus)
     {
         _ = _head.AdvanceKraidHeadAnimation(state);
         if (--state.DeathSoundTimer == 0)
@@ -266,7 +268,8 @@ internal sealed class KraidDeath
             xBase: 128,
             xScatter: EnemyDropScatterDefinitions.WideArenaHorizontalScatter,
             yBase: 352,
-            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
+            yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
+            samus: samus);
         // The death continues into redrawing Kraid's room background, which restarts the shared fade step count.
         _presentation.FadeStepCount.Reset();
     }

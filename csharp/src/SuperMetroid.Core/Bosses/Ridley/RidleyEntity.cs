@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotReaction
+        IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotReaction
 {
     /// <summary>Whether the occupant is one of the two Ridley bodies rather than the breakup actor.</summary>
     private bool IsBody => Place.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
@@ -49,7 +49,7 @@ internal sealed class RidleyEntity(
                 ceres.RunCeresRidleyMainAi(Place, frame);
                 break;
             case RidleyPart.BreakupPiece:
-                ridley.Death.RunNorfairRidleyExplosionMain(Place);
+                ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);
                 break;
             default:
                 throw new InvalidOperationException($"Ridley entity bound to {Place.DefinitionId}.");
@@ -133,10 +133,10 @@ internal sealed class RidleyEntity(
     }
 
     /// <inheritdoc/>
-    public void ResolveAfterSamusContact(SamusState samus)
+    public void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         if (IsBody)
-            _ = ceres.Hits.ResolveRidleyBodySamusContact(samus);
+            _ = ceres.Hits.ResolveRidleyBodySamusContact(samus, pseudoScrew);
     }
 
     /// <summary>Ceres Ridley never enters the ordinary shot pass; its encounter resolves its own shots.</summary>

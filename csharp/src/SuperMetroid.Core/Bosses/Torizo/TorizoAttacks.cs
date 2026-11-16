@@ -190,7 +190,7 @@ internal sealed class TorizoAttacks
                     projectile.Radius = setRadius.Radius;
                     return null;
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                    RequestTorizoChozoOrbDrop(projectile);
+                    RequestTorizoChozoOrbDrop(projectile, samus);
                     return null;
                 case TorizoProjectileCue.Scatter scatter:
                     projectiles.Scatter(projectile, scatter.Spread);
@@ -227,7 +227,7 @@ internal sealed class TorizoAttacks
         /// Runs the orb's drop step. The cue names two drop definitions, Bomb Torizo's Crateria orb and Golden Torizo's
         /// orb outside Crateria; the orb's own kind, Bomb or Golden Torizo's, selects between them (#2030).
         /// </summary>
-        private void RequestTorizoChozoOrbDrop(EnemyProjectile projectile)
+        private void RequestTorizoChozoOrbDrop(EnemyProjectile projectile, SamusState samus)
         {
             if (projectile.Kind is not (
                     RoomEnemyProjectileKind.BombTorizoChozoOrb or
@@ -244,7 +244,8 @@ internal sealed class TorizoAttacks
             RoomEnemyDefinition definition = room.Definitions.ReadEnemyDefinition(definitionId);
             deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 projectile.Position.Whole,
-                definition.DropChances);
+                definition.DropChances,
+                samus);
         }
 
         /// <summary>

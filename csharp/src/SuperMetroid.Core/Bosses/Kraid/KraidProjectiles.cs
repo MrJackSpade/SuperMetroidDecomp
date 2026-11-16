@@ -172,7 +172,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>Checks lint contact against Samus without altering the body phase.</summary>
-    private void ResolveKraidLintContact(RoomEnemyPlace lint, SamusState samus)
+    private void ResolveKraidLintContact(RoomEnemyPlace lint, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         if (lint.Contact.HasAny(EnemyContact.IgnoresSamus) || !samus.InvincibilityTimer.IsZero)
             return;
@@ -189,7 +189,7 @@ internal sealed class KraidProjectiles
             samus.Kinematics.ExtraDisplacement.X.WholePixels;
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(
             Math.Min(push, KraidContactDefinitions.LintPush));
-        _collision.ResolveNormalEnemyTouch(lint, samus);
+        _collision.ResolveNormalEnemyTouch(lint, samus, pseudoScrew);
         lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
     }
 
@@ -349,10 +349,10 @@ internal sealed class KraidProjectiles
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) => -velocity;
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
-    internal void RunKraidLintMain(RoomEnemyPlace lint, SamusState samus)
+    internal void RunKraidLintMain(RoomEnemyPlace lint, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         KraidEnemyState state = _access.RequireKraidState(lint);
-        ResolveKraidLintContact(lint, samus);
+        ResolveKraidLintContact(lint, samus, pseudoScrew);
         lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         KraidLintState part = _parts.LintStateOf(state, lint);
         switch (_parts.LintStateOf(state, lint).Phase)
@@ -529,12 +529,12 @@ internal sealed class KraidProjectiles
     /// <summary>Runs a nail's touch: the shared contact damage, then the nail's death.</summary>
     internal void ReactToKraidNailTouch(EnemyTouchContext context)
     {
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context);
         // A fingernail the touch left in its place dies in the explosion the health the touch left names
         // (LeftoverNumberDeathExplosion).
         if (!context.Place.IsFree)
             _deathsAndDrops.StartGenericEnemyDeath(context.Place,
-                LeftoverNumberDeathExplosion.Named(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder));
+                LeftoverNumberDeathExplosion.Named(context.Place.Health, EnemyDeathExplosionDefinitions.AuthoredOrder), context.Samus);
     }
 
 }

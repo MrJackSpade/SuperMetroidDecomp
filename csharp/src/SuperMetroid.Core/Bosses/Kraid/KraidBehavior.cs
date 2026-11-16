@@ -83,6 +83,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunKraidBodyMain(
         RoomEnemyPlace body,
         SamusState samus,
+        PseudoScrewCharge pseudoScrew,
         Position16<RoomPixels> camera,
         SamusProjectileSystem samusProjectiles,
         SamusBombProjectileSystem sharedProjectiles)
@@ -92,19 +93,19 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat.ResolveKraidMouthProjectileHits(body, state, tested);
         Head.RunKraidHurtColours(body, state);
         Combat.ResolveKraidBodyProjectileHits(body, state, tested);
-        Combat.ResolveKraidBodyContact(body, state, samus);
+        Combat.ResolveKraidBodyContact(body, state, samus, pseudoScrew);
         if (KraidPhaseGroups.Rising.Contains(state.BodyState.Phase))
         {
             Rise.RunKraidRisePhase(body, state, samus);
             return;
         }
-        RunKraidCombatPhase(body, state, camera.X);
+        RunKraidCombatPhase(body, state, camera.X, samus);
     }
 
     /// <summary>Runs Kraid's main AI.</summary>
     internal void RunKraidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        RunKraidBodyMain(place, frame.Samus, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
+        RunKraidBodyMain(place, frame.Samus, frame.PseudoScrew, frame.Camera, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <summary>Runs KraidArm's main AI.</summary>
@@ -116,7 +117,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs KraidLintTop's main AI.</summary>
     internal void RunKraidLintTopMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
-        Projectiles.RunKraidLintMain(place, frame.Samus);
+        Projectiles.RunKraidLintMain(place, frame.Samus, frame.PseudoScrew);
     }
 
     /// <summary>Runs KraidFoot's main AI.</summary>
@@ -208,7 +209,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunKraidCombatPhase(
         RoomEnemyPlace body,
         KraidEnemyState state,
-        int cameraX)
+        int cameraX,
+        SamusState samus)
     {
         switch (state.BodyState.Phase)
         {
@@ -273,7 +275,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidPhase.DeathFadeInBackground:
             case KraidPhase.DeathFinishedWasAlive:
             case KraidPhase.DeathFinishedWasDead:
-                Death.RunKraidDeathPhase(body, state, cameraX);
+                Death.RunKraidDeathPhase(body, state, cameraX, samus);
                 return;
 
             case KraidPhase.LintInactive:

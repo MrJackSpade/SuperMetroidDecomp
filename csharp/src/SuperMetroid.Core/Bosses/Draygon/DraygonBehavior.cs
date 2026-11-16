@@ -61,7 +61,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _frameContext = dependencies.FrameContext;
-        Shots = new DraygonShots(_frameContext, dependencies.DeathsAndDrops);
+        Shots = new DraygonShots(dependencies.DeathsAndDrops);
         Parts = new DraygonParts(new DraygonPartsDependencies
         {
             Room = dependencies.Room, Projectiles = dependencies.Projectiles,
@@ -173,7 +173,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 Death.WaitForDraygonBurialEvirs(state, frameCounter);
                 break;
             case DraygonPhase.DyingFinish:
-                Death.SinkDraygonBelowTheRoom(state, frameCounter);
+                Death.SinkDraygonBelowTheRoom(state, frameCounter, samus);
                 break;
             case DraygonPhase.None:
             default:

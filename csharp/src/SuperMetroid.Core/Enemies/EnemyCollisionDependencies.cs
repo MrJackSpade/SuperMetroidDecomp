@@ -21,9 +21,6 @@ internal sealed record EnemyCollisionDependencies
     /// <summary>Earthquake.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Frame context.</summary>
-    public required EnemyFrameContext FrameContext { get; init; }
-
     /// <summary>Projectiles.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 

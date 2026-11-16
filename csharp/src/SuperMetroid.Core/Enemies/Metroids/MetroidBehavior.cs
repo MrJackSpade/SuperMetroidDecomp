@@ -29,7 +29,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Owns the two effect actors composited over the Metroid body.</summary>
     private readonly RoomEffectActors _effectActors;
-    /// <summary>Supplies the current frame's Samus and room context to registered AI.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Creates death animations and randomized item drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -370,7 +370,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns the Metroid's death drops around the origin
     /// recorded before its death cleared the place.
     /// </summary>
-    internal void RequestMetroidDrops(Position16<RoomPixels> origin)
+    internal void RequestMetroidDrops(Position16<RoomPixels> origin, SamusState samus)
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
@@ -379,7 +379,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             var scatter = new Offset16<RoomPixels>(
                 EnemyDropScatterDefinitions.HorizontalScatter.Of(random) - 16,
                 EnemyDropScatterDefinitions.VerticalScatter.Of(random) - 16);
-            _deathsAndDrops.SpawnEnemyDropFromDefinition(origin + scatter, EnemyDefinitionId.Metroid);
+            _deathsAndDrops.SpawnEnemyDropFromDefinition(origin + scatter, EnemyDefinitionId.Metroid, samus);
         }
     }
 
@@ -495,8 +495,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // the five drops spawn.
                 Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                 FinishMetroidDeath(enemy, c.Samus);
-                _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Big);
-                RequestMetroidDrops(dropOrigin);
+                _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Big, c.Samus);
+                RequestMetroidDrops(dropOrigin, c.Samus);
             }
             return true;
         }

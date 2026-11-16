@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -66,9 +67,13 @@ internal sealed class CeresRidleyBehavior
     /// colour handoff, and <see cref="CeresEscapeStatus.RidleyEscaped"/> publication all keep the game's order.
     /// Ridley's later rotating getaway presentation remains a room-main concern, not enemy AI.
     /// </summary>
+    /// <param name="place">Ridley's body.</param>
+    /// <param name="samus">Samus.</param>
+    /// <param name="samusProjectiles">Samus's beams and missiles, a missile among which the tail may whip at.</param>
     internal void RunCeresRidleyMain(
         RoomEnemyPlace place,
-        SamusState samus)
+        SamusState samus,
+        SamusProjectileSystem samusProjectiles)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(place);
         place.Health = RestoredHealth;
@@ -329,7 +334,7 @@ internal sealed class CeresRidleyBehavior
             Flight.IntegrateRidleyMovement(place, state, wallImpact: RidleyWallImpact.CeresWall);
             CeresRidleyFlight.TickRidleyWingAnimation(state);
             _ridleyTail.RandomlyUpdateCeresRidleyTailCurliness(state);
-            _ridleyTail.TickRidleyTail(place, state, samus);
+            _ridleyTail.TickRidleyTail(place, state, samus, samusProjectiles);
             CeresRidleyHits.UpdateCeresRidleyHealthBand(state);
         }
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
@@ -346,5 +351,5 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>Runs Ceres Ridley's main step.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunCeresRidleyMain(place, frame.Samus);
+        RunCeresRidleyMain(place, frame.Samus, frame.SamusProjectiles);
 }

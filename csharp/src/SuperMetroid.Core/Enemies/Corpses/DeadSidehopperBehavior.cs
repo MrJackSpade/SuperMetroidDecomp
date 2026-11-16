@@ -322,11 +322,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void ResolveDeadSidehopperTouch(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
         if (!state.IsDrained)
         {
-            _collision.ResolveNormalEnemyTouch(place, samus);
+            _collision.ResolveNormalEnemyTouch(place, samus, pseudoScrew);
             return;
         }
         TriggerDeadSidehopperRotting(place, state);
@@ -437,5 +438,5 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void ReactToDeadSidehopperTouch(EnemyTouchContext context) =>
         // Before Shitroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // the end of the drain it instead starts the corpse decomposition and never enters common touch damage.
-        ResolveDeadSidehopperTouch(context.Place, context.Place.RequireSpeciesState<DeadSidehopperEnemyState>(), context.Samus);
+        ResolveDeadSidehopperTouch(context.Place, context.Place.RequireSpeciesState<DeadSidehopperEnemyState>(), context.Samus, context.PseudoScrew);
 }

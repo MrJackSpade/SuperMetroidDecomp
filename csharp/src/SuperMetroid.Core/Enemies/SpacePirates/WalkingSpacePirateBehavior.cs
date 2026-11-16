@@ -580,9 +580,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
             _deathsAndDrops.StartGenericEnemyDeath(
                 c.Enemy,
-                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion));
+                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion),
+                c.Samus);
             if (spawnsGoldNinjaDrops)
-                _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin);
+                _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin, c.Samus);
             return true;
         },
     };
@@ -603,6 +604,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // still found, but neither Samus nor the Pirate receives contact damage.
         if (context.Place.FrozenTimer != 0)
             return;
-        _collision.ResolveNormalEnemyTouch(context.Place, context.Samus);
+        _collision.ResolveNormalEnemyTouch(context);
     }
 }

@@ -19,7 +19,7 @@ internal sealed class MotherBrainAscent
     private readonly RoomEarthquake _earthquake;
     /// <summary>Draws encounter artwork and applies installed colours.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Supplies Samus and camera state for the current enemy frame.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;

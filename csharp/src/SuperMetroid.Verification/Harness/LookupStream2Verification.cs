@@ -868,7 +868,7 @@ internal static class LookupStream2Verification
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
             var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
             projectile.DropChancesOverride = NativeDropChances;
-            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
+            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile, fixture.Samus),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());

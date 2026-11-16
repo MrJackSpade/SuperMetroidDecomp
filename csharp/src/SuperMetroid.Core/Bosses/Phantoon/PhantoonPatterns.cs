@@ -15,7 +15,7 @@ internal sealed class PhantoonPatterns
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Queues encounter sounds in enemy update order.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
+    /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Phantoon's fades, health colors, wave amplitude, animations and phase timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;

@@ -150,7 +150,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>Enemy deaths and their drops: the death explosions, the scattered pickups and Samus collecting them.</summary>
     internal EnemyDeathsAndDrops DeathsAndDrops { get; }
 
-    /// <summary>What the current enemy pass reads: the random number, the frame counter, Samus's shots and colours, the power bomb and whether time is frozen.</summary>
+    /// <summary>What the current enemy pass reads: the random number, the frame counter and whether time is frozen.</summary>
     internal EnemyFrameContext FrameContext { get; }
 
     /// <summary>How the room's enemies look: the room's appearance, the boss body layer and the shading each draw shows.</summary>
@@ -643,9 +643,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         Terrain = new EnemyTerrain(breakableTerrain);
         CorpseRowDust = new CorpseRowDust(Audio);
         MotherBrainEncounter = new MotherBrainEncounter(Audio);
-        RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room);
+        RidleyTail = new RidleyTail(Projectiles, RidleyEncounter, Room);
         DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, Lifecycle, compatibility.PowerBombRadius, Audio);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Projectiles = Projectiles, EffectActors = EffectActors, Room = Room, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Lifecycle = Lifecycle, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, Projectiles = Projectiles, EffectActors = EffectActors, Room = Room, Places = Places, PowerBombRadius = compatibility.PowerBombRadius });
         RidleyProjectiles = new RidleyProjectiles(Room, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults, doorPassage);
@@ -673,7 +673,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         RioBehavior = new RioBehavior(Room, Terrain, Audio);
         RinkaBehavior = new RinkaBehavior(Collision, FrameContext, Projectiles, DeathsAndDrops);
         CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, Places = Places, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus, DoorPassage = doorPassage, UnauthoredBoostCadence = compatibility.UnauthoredBoostCadence });
-        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, DoorPassage = doorPassage, RoomFx = RoomFx, FrameContext = FrameContext });
+        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Lifecycle = Lifecycle, Room = Room, Earthquake = Earthquake, Audio = Audio, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, DoorPassage = doorPassage, RoomFx = RoomFx });
         PuyoBehavior = new PuyoBehavior(Room, Terrain, PuyoCeilingTurn);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Projectiles);
         PowampBehavior = new PowampBehavior(Terrain, Projectiles, Places, Collision, DeathsAndDrops);
@@ -861,7 +861,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         IRoomEnemyDefinitionSource definitions = Room.Definitions;
         GunshipBehavior.BeginRoomLoad(request.GunshipScenario);
         FrameContext.BeginRoomLoad(request.DeferLoaderTimeCameraReads);
-        DeathsAndDrops.BindSamus(request.Samus);
         Presentation.BindBackgrounds(request.Appearance);
         FrameResults.Begin();
         BossFrameResults.Begin();
@@ -886,9 +885,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
     internal EnemyFrameResult StepFrame(RoomEnemyFrame frame)
     {
-        DeathsAndDrops.BindSamus(frame.Samus);
         ScrollCap.BeginFrame(frame.SamusPreviousPositionCheckpoint);
-        FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.SharedProjectiles.PowerBombExplosion, frame.FrameCounter);
+        FrameContext.BeginFrame(frame.TimeIsFrozen, frame.FrameCounter);
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(frame.ShortCounter));
         FrameResults.Begin();
         BossFrameResults.Begin();
@@ -923,9 +921,9 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, place, frame.Camera);
                 if (place.IsFree)
                     continue;
-                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, place, frame.Camera);
-                if (place.Entity is IEnemyContactHooks contact)
-                    contact.ResolveAfterSamusContact(frame.Samus);
+                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.PseudoScrew, frame.ControllerInput, frame.Level, place, frame.Camera);
+                if (place.Entity is IEnemyAfterSamusContact contact)
+                    contact.ResolveAfterSamusContact(frame.Samus, frame.PseudoScrew);
                 if (place.IsFree)
                     continue;
             }
@@ -1086,7 +1084,6 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         SamusBombProjectileSystem samusBombs,
         int frameCounter)
     {
-        DeathsAndDrops.BindSamus(samus);
         Projectiles.RunPass(level, samus, camera, shortFrameCounter, samusBombs, frameCounter);
     }
 }

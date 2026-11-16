@@ -118,7 +118,8 @@ internal sealed class CrocomireFight
     internal void HandleCrocomireInvisibleWall(
         RoomEnemyPlace body,
         CrocomireEnemyState state,
-        SamusState samus)
+        SamusState samus,
+        PseudoScrewCharge pseudoScrew)
     {
         if (state.DeathPhase != CrocomireDeathPhase.Fighting)
             return;
@@ -127,7 +128,7 @@ internal sealed class CrocomireFight
         if (CoordinateAxis.Difference(leftEdge, samus.Position.X.Whole) >= 0)
             return;
 
-        _collision.ResolveNormalEnemyTouch(body, samus);
+        _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
         samus.Position = samus.Position.WithWrappedWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(-4, -1));
     }

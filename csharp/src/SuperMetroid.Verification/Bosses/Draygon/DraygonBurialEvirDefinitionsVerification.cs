@@ -20,21 +20,26 @@ internal static class DraygonBurialEvirDefinitionsVerification
         const int positionTable = 0xa5a1c7;
         const int angleTable = 0xa5a1df;
 
-        // The cartridge's three tables list the Evirs from the last spawned to the first.
-        AssertEqual(6, DraygonBurialEvirs.InSpawnOrder.Count, "Draygon's death spawns six burial Evirs");
+        // The cartridge's three tables list the Evirs from the last spawned to the first. Its angle table signs the subspeed
+        // table's magnitudes, which the port's drift takes from the shared integer sine of the heading: an axis's magnitude
+        // is added when the angle, turned a quarter (X) or a half (Y), lies in the second half of the turn, and subtracted
+        // otherwise.
+        AssertEqual(6, DraygonBurialEvirDefinitions.InSpawnOrder.Count, "Draygon's death spawns six burial Evirs");
         for (int entry = 0; entry < 6; entry++)
         {
-            DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4)), definition.SubspeedMagnitude.X.Fraction,
-                $"Draygon burial Evir {entry} X subspeed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4 + 2)), definition.SubspeedMagnitude.Y.Fraction,
-                $"Draygon burial Evir {entry} Y subspeed");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4)), definition.Initial.X,
+            DraygonBurialEvirDefinition definition = DraygonBurialEvirDefinitions.InSpawnOrder[5 - entry];
+            int angle = CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4));
+            AssertEqual(new TrigonometryAngle(angle), definition.Heading, $"Draygon burial Evir {entry} heading");
+            FixedVector<RoomPixels> drift = DraygonDeath.BurialDrift(definition);
+            AssertEqual(NativeBurialVelocity(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4)), add: ((angle + 0x0040) & 0x0080) != 0),
+                drift.X, $"Draygon burial Evir {entry} X velocity");
+            AssertEqual(NativeBurialVelocity(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4 + 2)), add: ((angle + 0x0080) & 0x0080) != 0),
+                drift.Y, $"Draygon burial Evir {entry} Y velocity");
+            Position16<RoomPixels> start = Position16<RoomPixels>.Zero + definition.Start;
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4)), start.X,
                 $"Draygon burial Evir {entry} initial X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4 + 2)), definition.Initial.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4 + 2)), start.Y,
                 $"Draygon burial Evir {entry} initial Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4)), (ushort)definition.Angle.RawValue,
-                $"Draygon burial Evir {entry} angle");
             AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4 + 2)),
                 $"Draygon burial Evir {entry} angle padding");
         }
@@ -51,15 +56,16 @@ internal static class DraygonBurialEvirDefinitionsVerification
             RoomEffectActorKind kind = entry >= 3
                 ? RoomEffectActorKind.DraygonIntroEvir
                 : RoomEffectActorKind.DraygonDeathEvirFacingRight;
-            DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
+            DraygonBurialEvirDefinition definition = DraygonBurialEvirDefinitions.InSpawnOrder[5 - entry];
+            Position16<RoomPixels> start = Position16<RoomPixels>.Zero + definition.Start;
             enemies.DraygonBehavior.Death.SpawnDraygonDeathEvir(draygon, definition);
             // The n-th Evir spawned is the n-th live sprite object.
             RoomEffectActor sprite = enemies.RoomEffectActors[5 - entry];
             AssertTrue(sprite.IsActive, $"Draygon burial Evir {entry} active after spawn");
             AssertEqual(kind, sprite.Kind, $"Draygon burial Evir {entry} kind");
-            AssertEqual(definition.Initial.X, sprite.Position.X.Whole,
+            AssertEqual(start.X, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} spawned X");
-            AssertEqual(definition.Initial.Y, sprite.Position.Y.Whole,
+            AssertEqual(start.Y, sprite.Position.Y.Whole,
                 $"Draygon burial Evir {entry} spawned Y");
             AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(DraygonColours.Evirs), sprite.Graphics,
                 $"Draygon burial Evir {entry} draws in the Evirs' own colours");
@@ -73,15 +79,15 @@ internal static class DraygonBurialEvirDefinitionsVerification
         {
             // The n-th Evir spawned is the n-th live sprite object.
             RoomEffectActor sprite = enemies.RoomEffectActors[5 - entry];
-            DraygonBurialEvirDefinition definition = DraygonBurialEvirs.InSpawnOrder[5 - entry];
+            int angle = CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4));
             (ushort expectedX, ushort expectedXSub) = AddDraygonBurialSubspeed(
-                definition.Initial.X,
-                definition.SubspeedMagnitude.X.Fraction,
-                add: ((definition.Angle.RawValue + 0x0040) & 0x0080) != 0);
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4)),
+                add: ((angle + 0x0040) & 0x0080) != 0);
             (ushort expectedY, ushort expectedYSub) = AddDraygonBurialSubspeed(
-                definition.Initial.Y,
-                definition.SubspeedMagnitude.Y.Fraction,
-                add: ((definition.Angle.RawValue + 0x0080) & 0x0080) != 0);
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4 + 2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4 + 2)),
+                add: ((angle + 0x0080) & 0x0080) != 0);
             AssertEqual(expectedX, sprite.Position.X.Whole,
                 $"Draygon burial Evir {entry} moved X");
             AssertEqual(expectedXSub, sprite.Position.X.Fraction,
@@ -95,6 +101,10 @@ internal static class DraygonBurialEvirDefinitionsVerification
         Console.WriteLine(
             "Draygon burial Evir definitions: all six spawn/movement records match ROM and the real allocation plus 16.16 movement paths pass with all three source tables forbidden.");
     }
+
+    /// <summary>The per-update velocity the cartridge's subspeed <paramref name="magnitude"/> gives one axis, added or subtracted.</summary>
+    private static SignedSixteenSixteen NativeBurialVelocity(ushort magnitude, bool add) =>
+        add ? SignedSixteenSixteen.FromParts(0, magnitude) : -SignedSixteenSixteen.FromParts(0, magnitude);
 
     /// <summary>Models native whole/fraction addition or subtraction for one burial axis.</summary>
     private static AddDraygonBurialSubspeedResult AddDraygonBurialSubspeed(

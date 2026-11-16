@@ -18,7 +18,6 @@ using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.SaveStation;
-using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.WorkRobots;

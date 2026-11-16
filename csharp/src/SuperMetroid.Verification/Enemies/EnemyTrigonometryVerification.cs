@@ -2,7 +2,6 @@ using SuperMetroid.Verification.Rooms.RoomObjects;
 using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Enemies.Kago;
 using SuperMetroid.Verification.Enemies.YappingMaws;
-using SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Enemies.Chozo;
 using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Magdollite;

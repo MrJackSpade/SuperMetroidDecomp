@@ -102,7 +102,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         foreach (int movement in SamusMovementTypeNumbers.Named)
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
@@ -122,14 +122,14 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     {
         for (ushort frame = 0; frame < 10; frame++)
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
             samus.LiquidPhysics.Room = RoomDefinitions.FirstIn(AreaId.Maridia);
-            SamusPresentation.InitializeAnimation(samus, frame);
+            SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
 
@@ -149,7 +149,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             CrateriaAtmosphericEffect? policy = SamusAtmosphericEffects.ForCrateriaRoom(room);
             bool wet = policy is not null;
 
-            var runner = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var runner = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
@@ -158,13 +158,13 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.LiquidPhysics.Room = room;
             if (policy == CrateriaAtmosphericEffect.LandingSite)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            SamusPresentation.InitializeAnimation(runner, initialFrame: 2);
+            SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
                 $"production Crateria running policy in {room.Name}");
 
-            var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
@@ -205,7 +205,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             if (expected)
                 dustyRooms++;
 
-            var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var landing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Pose = pose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),

@@ -517,7 +517,7 @@ public sealed class SamusShinesparkState
     {
         samus.Pose = pose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Runs one frame of the spark's windup, flight or crash.</summary>
@@ -798,7 +798,7 @@ false,             CrashSequenceFinished: true);
         // aligns the standing body's bottom with the old crash body. The input phase alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Pixels an echo's radius grows by on each update.</summary>

@@ -176,7 +176,7 @@ internal static class NativeSnapshotImport
             throw new InvalidDataException("The native Ridley checkpoint requires the installation's Samus body artwork.");
         SamusBodyHalfFrame drawnTop = SamusSpritemapNative.Frame(bodyArtwork.Spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap))
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
-        samus.Presentation.DrawnFrame = new SamusBodyFrame(drawnTop.Pose, drawnTop.AnimationFrame);
+        samus.Presentation.DrawnFrame = new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame));
         samus.Presentation.DrawOrigin = Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame));
         samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
@@ -238,7 +238,7 @@ internal static class NativeSnapshotImport
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(W(NativeSnapshotMemory.Animation)), W(NativeSnapshotMemory.AnimationTimer));
         samus.PoseHistory.PreviousPose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.PreviousPose));
         samus.PoseHistory.PreviousMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection));
         samus.PoseHistory.LastDifferentMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection));

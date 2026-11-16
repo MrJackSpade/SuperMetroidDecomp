@@ -81,10 +81,9 @@ internal static class GrappleFlarePlacementVerification
             // A non-swinging connection installs the locked-in-place grapple function.
             if (native.Grapple.Phase == GrapplePhase.ConnectedLocked) locked++;
 
-            SamusState Seed(ChargeFlarePlacements? placement)
+            SamusState Seed(ChargeFlarePlacements placement)
             {
-                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
-                PrepareRetailSamusFixture(samus);
+                var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
                 samus.Artwork.GrappleFlarePlacement = placement;
                 return samus;
             }

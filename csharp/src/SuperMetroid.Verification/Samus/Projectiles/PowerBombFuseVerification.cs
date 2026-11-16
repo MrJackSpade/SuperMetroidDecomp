@@ -79,7 +79,7 @@ internal static class PowerBombFuseVerification
     /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
-        var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = RetailPresentationFixture().PowerBombGlowColors } };
+        var explosion = new SamusPowerBombExplosionState(RetailPresentationFixture().PowerBombGlowColors);
         explosion.Arm();
         explosion.Spawn(new(128, 128));
         PowerBombRadius retainedSpeed = PowerBombRadius.Zero;

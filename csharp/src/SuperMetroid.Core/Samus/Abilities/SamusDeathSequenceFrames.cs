@@ -1,10 +1,11 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Movement;
 using static SuperMetroid.Core.Samus.Abilities.SamusDeathSequenceDefinitions;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The first frame of the death sequence for each movement type.</summary>
-public static class SamusDeathSequenceFrames
+internal static class SamusDeathSequenceFrames
 {
     /// <summary>
     /// The death pose's first animation frame for the movement Samus had when she died: the Morph Ball and Spring Ball
@@ -13,6 +14,8 @@ public static class SamusDeathSequenceFrames
     /// </summary>
     /// <param name="movement">The movement type before the death pose.</param>
     /// <returns>The initial death-pose animation frame.</returns>
-    public static int InitialFrame(SamusMovementType movement) =>
-        InitialFrames.TryGetValue(movement, out int frame) ? frame : throw new InvalidDataException($"Death-pose frame table has no movement type {movement}.");
+    internal static SamusAnimationTarget InitialFrame(SamusMovementType movement) =>
+        InitialFrames.TryGetValue(movement, out int frame)
+            ? new SamusAnimationTarget(SamusAnimationSegmentName.Main, frame)
+            : throw new InvalidDataException($"Death-pose frame table has no movement type {movement}.");
 }

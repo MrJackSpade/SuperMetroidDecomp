@@ -59,7 +59,7 @@ internal static class SamusHurtColorsVerification
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         InstalledSamusHurtColors catalog, bool cinematic)
     {
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()).WithHurtFlashCount(1);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).WithHurtFlashCount(1);
         // The flash names shades (#1512); the import resolves them from the catalog and the cartridge's suits.
         var sources = InstalledFixtures.SamusShadeSources with
         {

@@ -32,22 +32,35 @@ internal sealed class SamusPresentation
         _artwork = Ensure.NotNull(artwork);
     }
 
-    /// <summary>The installed body placements and presentation catalogs, or none before they are installed.</summary>
-    public InstalledSamusBodyArtwork? Artwork => _artwork.Body;
+    /// <summary>The installed body placements and presentation catalogs.</summary>
+    public InstalledSamusBodyArtwork Artwork => _artwork.Body;
 
-    /// <summary>The installed pre-coloured sheets Samus draws from, or none before they are installed.</summary>
-    public InstalledSpriteSheets? Sheets => _artwork.Sheets;
+    /// <summary>The installed pre-coloured sheets Samus draws from.</summary>
+    public InstalledSpriteSheets Sheets => _artwork.Sheets;
 
     /// <summary>Her splashes, bubbles, lava spray and dust.</summary>
     public SamusParticles Particles { get; } = new();
 
     /// <summary>
-    /// Seeds the animation frame timer as a pose change does, including its
-    /// bottom-minus-one liquid boundary test.
+    /// Starts the pose's animation on its first frame and seeds the animation frame timer as a pose change does, including
+    /// its bottom-minus-one liquid boundary test.
     /// </summary>
-    public static void InitializeAnimation(SamusState samus, int initialFrame = 0)
-    {
+    public static void InitializeAnimation(SamusState samus) => InitializeAnimation(samus, SamusAnimationFrame.Start);
 
+    /// <summary>
+    /// Starts the pose's animation on <paramref name="initialFrame"/>, a frame written for another animation landing where
+    /// the game's layout puts it in the pose's (<see cref="SamusAnimationDelays.Land"/>), and seeds the timer as
+    /// <see cref="InitializeAnimation(SamusState)"/> does.
+    /// </summary>
+    internal static void InitializeAnimation(SamusState samus, SamusAnimationPlace initialFrame) =>
+        InitializeAnimation(samus, SamusAnimationDelays.Land(samus.Pose, initialFrame));
+
+    /// <summary>
+    /// Starts the pose's animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, and seeds the
+    /// timer as <see cref="InitializeAnimation(SamusState)"/> does.
+    /// </summary>
+    internal static void InitializeAnimation(SamusState samus, SamusAnimationFrame initialFrame)
+    {
         samus.AnimationFrame = initialFrame;
         // Pose initialization does not simply reuse the previous animation pass's delay buffer. It
         // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
@@ -94,13 +107,13 @@ internal sealed class SamusPresentation
     /// </remarks>
     internal static void SetPoseAndAnimationFromScriptedController(SamusState samus, 
         SamusPoseId pose,
-        int frame,
+        SamusAnimationPlace frame,
         int timer)
     {
         // Both drained controllers store only the pose; the prior movement and collision radii stay.
         samus.WritePoseWithoutInitialization(pose);
         samus.AnimatedPose = pose;
-        samus.AnimationFrame = frame;
+        samus.AnimationFrame = SamusAnimationDelays.Land(pose, frame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
         samus.PendingTransitionalPose = null;
     }
@@ -115,7 +128,7 @@ internal sealed class SamusPresentation
     {
         if (samus.Pose is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose {samus.Pose}.");
-        samus.AnimationFrame = picture.AnimationFrame;
+        samus.SetAnimationFrame(picture.AnimationFrame);
         samus.AnimationFrameTimer = WrappingCountdown.Start(15);
     }
 
@@ -146,7 +159,7 @@ internal sealed class SamusPresentation
         // timer's last update remains; release or the apex turns her downward and lets it expire.
         if (samus.Pose is SamusPoseId.NeutralJumpRightPose or SamusPoseId.NeutralJumpLeftPose &&
             samus.Kinematics.YDirection != SamusVerticalDirection.Down &&
-            samus.AnimationFrame == 1 &&
+            samus.AnimationIsOn(SamusAnimationFrames.NeutralJumpRise) &&
             samus.AnimationFrameTimer.IsAt(1))
         {
             samus.AnimationFrameTimer = WrappingCountdown.Start(4);
@@ -158,7 +171,7 @@ internal sealed class SamusPresentation
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
 
-        samus.AnimationFrame++;
+        samus.AdvanceAnimationFrame();
         HandleAnimationDelay(samus, step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput, step.QueueEchoSound);
     }
 
@@ -172,7 +185,7 @@ internal sealed class SamusPresentation
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.Decrement().Remaining;
         if (!samus.AnimationFrameTimer.IsZero && !samus.AnimationFrameTimer.IsNegative)
             return;
-        samus.AnimationFrame++;
+        samus.AdvanceAnimationFrame();
         HandleAnimationDelay(samus, controllerInput: 0);
     }
 
@@ -186,7 +199,27 @@ internal sealed class SamusPresentation
     /// seam preserves the ordering: movement writes the pair, then animation later
     /// in the movement phase immediately decrements the newly written timer.
     /// </remarks>
-    internal static void SetAnimationFrameFromMovementOwner(SamusState samus, int frame, int timer)
+    internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationPlace frame, int timer)
+    {
+        samus.SetAnimationFrame(frame);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
+    }
+
+    /// <summary>
+    /// Publishes a frame of the animation Samus animates by, named by its segment, with its timer, as
+    /// <see cref="SetAnimationFrameFromMovementOwner(SamusState, SamusAnimationPlace, int)"/> does.
+    /// </summary>
+    internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationTarget frame, int timer)
+    {
+        samus.AnimationFrame = SamusAnimationDelays.AnimationForPose(samus.AnimationPose).Resolve(frame);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
+    }
+
+    /// <summary>
+    /// Publishes a frame of the animation Samus animates by with its timer, as
+    /// <see cref="SetAnimationFrameFromMovementOwner(SamusState, SamusAnimationPlace, int)"/> does.
+    /// </summary>
+    internal static void SetAnimationFrameFromMovementOwner(SamusState samus, SamusAnimationFrame frame, int timer)
     {
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.Start(timer);
@@ -205,8 +238,8 @@ internal sealed class SamusPresentation
             int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.AnimationFrame)
-                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.AnimationFrame)
+                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.RunFrame)
+                    : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.RunFrame)
                 : delay.Ticks;
             samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
@@ -221,7 +254,8 @@ internal sealed class SamusPresentation
             // Speed Booster the run restarts at frame zero on the ordinary cadence, and nothing else runs.
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
-                int stagedFrame = samus.AnimationFrame;
+                // Taking the cue restarts the run on its first frame; otherwise the frame stays where it is.
+                int stagedFrame = 0;
                 if (samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
                     samus.UnauthoredBoostCadence,
                     movementType: SamusMovementType.Running,
@@ -234,7 +268,7 @@ internal sealed class SamusPresentation
                         ? () => queueFrameEcho()
                         : () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
                 {
-                    samus.AnimationFrame = stagedFrame;
+                    samus.AnimationFrame = SamusAnimationFrame.Start;
                     samus.AnimationFrameTimer = WrappingCountdown.Start(stagedTimer);
                     return;
                 }
@@ -243,7 +277,7 @@ internal sealed class SamusPresentation
             }
             else
             {
-                samus.AnimationFrame = 0;
+                samus.AnimationFrame = SamusAnimationFrame.Start;
                 samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(
                     SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
                 return;
@@ -259,12 +293,15 @@ internal sealed class SamusPresentation
 
             case SamusAnimationLoopUnlessLowEnergy:
                 // Healthy Samus restarts her breathing; on low energy she continues into the drained breathing.
-                samus.AnimationFrame = samus.Health < SamusAnimationDelayDefinitions.LowEnergyBreathingBelow ? samus.AnimationFrame + 1 : 0;
+                if (samus.Health < SamusAnimationDelayDefinitions.LowEnergyBreathingBelow)
+                    samus.AdvanceAnimationFrame();
+                else
+                    samus.AnimationFrame = SamusAnimationFrame.Start;
                 break;
 
             case SamusAnimationInstallDrainedFall:
                 samus.Drained.StartFalling(samus);
-                samus.AnimationFrame++;
+                samus.AdvanceAnimationFrame();
                 break;
 
             case SamusAnimationTurnTransition turn:
@@ -292,11 +329,11 @@ internal sealed class SamusPresentation
 
             case SamusAnimationWallJumpSelect wallJump:
                 // The submersion test is on the body's top edge, unlike jump launch's bottom-edge test.
-                samus.AnimationFrame =
+                samus.MoveAnimationTo(
                     !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
                     samus.LiquidPhysics.IsTopBoundarySubmerged(samus) ? wallJump.OrdinaryFrame :
                     samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? wallJump.ScrewAttackFrame :
-                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? wallJump.SpaceJumpFrame : wallJump.OrdinaryFrame;
+                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? wallJump.SpaceJumpFrame : wallJump.OrdinaryFrame);
                 break;
 
             case SamusAnimationVerticalSpeedTransition verticalSpeed:
@@ -316,11 +353,11 @@ internal sealed class SamusPresentation
                 return;
 
             case SamusAnimationRepeat repeat:
-                samus.AnimationFrame = repeat.Frame;
+                samus.MoveAnimationTo(repeat.Target);
                 break;
 
             case SamusAnimationRestart:
-                samus.AnimationFrame = 0;
+                samus.AnimationFrame = SamusAnimationFrame.Start;
                 break;
 
             default:
@@ -363,7 +400,7 @@ internal sealed class SamusPresentation
         Ensure.NotNull(sprites);
 
         // The body sheet holds pictures for exactly the bodies a path of the game shows (#1513).
-        int pictureFrame = SamusShownFrames.Of(samus.FramesBeyondAnimation).PictureFrame(samus.Pose, samus.AnimationFrame);
+        SamusAnimationFrame pictureFrame = SamusShownFrames.Of(samus.FramesBeyondAnimation).PictureFrame(samus);
 
         // The draw applies invincibility flicker to the body frames, not to
         // animation or graphics streaming as a whole. An odd frame hides ordinary invincible
@@ -386,7 +423,7 @@ internal sealed class SamusPresentation
             ? transform.Transform(position)
             : position;
 
-        InstalledSamusBodyArtwork artwork = _artwork.InstalledBody;
+        InstalledSamusBodyArtwork artwork = _artwork.Body;
         DrawOrigin = (renderPoint - Offset16<RoomPixels>.Of(0, artwork.OriginRise(samus.Pose, pictureFrame)))
             .RelativeToCamera(cameraPosition);
 
@@ -505,7 +542,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>The installed sheets the body draws from.</summary>
-    private InstalledSpriteSheets BodySheets => _artwork.InstalledSheets;
+    private InstalledSpriteSheets BodySheets => _artwork.Sheets;
 
     /// <summary>
     /// Draws an echo, when it stands somewhere, with the picture the body last drew, published wherever it lies; the

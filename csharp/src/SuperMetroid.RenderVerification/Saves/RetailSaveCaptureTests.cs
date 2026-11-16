@@ -35,7 +35,7 @@ internal static class RetailSaveCaptureTests
         var level = runtime.Room.LoadedLevelData;
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.AnimationFrame = 0;
+        samus.AnimationFrame = SamusAnimationFrame.Start;
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(station.Block.X * 16 + 13), (ushort)(station.Block.Y * 16 - samus.Kinematics.Radius.Y)));
         samus.Control.Unlock();

@@ -109,17 +109,17 @@ public static class GitHubErrorReporterSmokeTest
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
         var random = new SharedRandom();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork, random: random, audio: game.AudioForVerification);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
         samus.Drained.GetUpCheck = DrainedGetUpCheck.UnableToStand;
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 8, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(8), 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidSurfaceY = 100;
         game.AdoptRuntime(runtime);
         GameplaySnapshot beforeSnapshot = game.CaptureGameplaySnapshot();
         string before = GameplayFrameFailureDiagnostics.Describe(beforeSnapshot);
-        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, 18, 1);
+        SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(18), 1);
         GameplaySnapshot afterSnapshot = game.CaptureGameplaySnapshot();
         string after = GameplayFrameFailureDiagnostics.Describe(afterSnapshot);
         Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),

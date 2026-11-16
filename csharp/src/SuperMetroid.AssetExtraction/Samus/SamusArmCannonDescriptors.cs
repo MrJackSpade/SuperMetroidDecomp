@@ -92,7 +92,7 @@ public sealed class SamusArmCannonDescriptors
         Ensure.NotNull(shown);
         return new SamusArmCannonLayout(SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose =>
             Decode(poseDescriptors[pose], Enumerable.Range(0, InstalledSamusBody.AnimationFrames)
-                .Where(frame => shown.TryPictureFrame(pose, frame, out _)))));
+                .Where(frame => shown.TryPictureFrame(pose, SamusAnimationDelays.AnimationForPose(pose).FrameAt(frame), out _)))));
     }
 
     /// <summary>Each pose's placement over every animation frame the drawing window holds; poses sharing a descriptor share it.</summary>

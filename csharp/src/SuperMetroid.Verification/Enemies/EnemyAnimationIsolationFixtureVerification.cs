@@ -44,7 +44,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>The Boyon placed in the first enemy slot.</summary>
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
         /// <summary>Samus position used for the actor's proximity and hit interactions.</summary>
-        internal SamusState Samus { get; } = new(GameplayAudioRequests.Standalone(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
+        internal SamusState Samus { get; } = new(GameplayAudioRequests.Standalone(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
         /// <summary>Room collision plane with a flat floor below the actor.</summary>
         internal RoomLevelData Level { get; }
         /// <summary>Fixture VRAM receiving enemy tile presentation.</summary>
@@ -116,7 +116,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         {
             Enemies.Drawing.Advance(new(0, 0));
             Enemies.Drawing.Draw(frame, new(0, 0));
-            Enemies.EffectActors.DrawRoomEffectActors(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.NoHitBurstSheets);
+            Enemies.EffectActors.DrawRoomEffectActors(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);
         }

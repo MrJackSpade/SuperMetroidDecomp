@@ -69,7 +69,8 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Owner of the flash, damaging radius, and armed flag.</summary>
-    public SamusPowerBombExplosionState PowerBombExplosion { get; } = new();
+    public SamusPowerBombExplosionState PowerBombExplosion { get; }
+
 
     /// <summary>
     /// How many bombs Samus has out by the placing count, 0 through the bomb places' count (#1627); kept separately from the
@@ -107,9 +108,18 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     internal void SetSharedBombCounter(int value) => BombCounter = value;
 
-    /// <summary>Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057).</summary>
+    /// <summary>
+    /// Creates one room's bombs, whose sounds join <paramref name="audioRequests"/> (#2057) and whose Power Bomb blasts glow
+    /// in <paramref name="powerBombGlowColors"/> (#2049).
+    /// </summary>
     /// <param name="audioRequests">The update's audio requests the bombs' sounds join: the runtime's, or a cinematic's.</param>
-    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests) => AudioRequests = Ensure.NotNull(audioRequests);
+    /// <param name="powerBombGlowColors">The installed Power Bomb glow colours.</param>
+    internal SamusBombProjectileSystem(GameplayAudioRequests audioRequests,
+        SuperMetroid.Core.Samus.Artwork.InstalledPowerBombGlowColors powerBombGlowColors)
+    {
+        AudioRequests = Ensure.NotNull(audioRequests);
+        PowerBombExplosion = new SamusPowerBombExplosionState(powerBombGlowColors);
+    }
 
     /// <summary>The update's audio requests the bombs' sounds join as they are made.</summary>
     internal GameplayAudioRequests AudioRequests { get; }

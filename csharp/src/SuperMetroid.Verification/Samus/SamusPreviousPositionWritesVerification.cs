@@ -47,7 +47,7 @@ internal static class SamusPreviousPositionWritesVerification
     /// <summary>A Samus with no writes recorded.</summary>
     private static SamusState NewSamus() =>
         new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+            SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
 
     /// <summary>Dispatches the previous-position write checks.</summary>
     [VerificationCommand("--samus-previous-position-writes")]

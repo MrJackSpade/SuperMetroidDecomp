@@ -20,7 +20,7 @@ internal static class SamusImpulseDefinitionsVerification
     {
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
-        var bomb = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var bomb = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int bombBottom = 128 + SamusPoseCollisionRadii.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -59,7 +59,7 @@ internal static class SamusImpulseDefinitionsVerification
         for (ushort side = 0; side <= 1; side++)
         foreach (GameplayAction input in new GameplayAction[] { 0, GameplayAction.Left, GameplayAction.Right })
         {
-            var hurt = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var hurt = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             SamusPoseMetadata.RefreshCollisionRadii(hurt);
             hurt.EquippedItems = (((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) | ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) | ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));
             hurt.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;

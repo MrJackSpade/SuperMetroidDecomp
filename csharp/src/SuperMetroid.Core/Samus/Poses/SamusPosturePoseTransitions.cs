@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
@@ -63,7 +63,7 @@ internal static class SamusPosturePoseTransitions
         // enlargement, and this direct transition does not set the radius afterward.
         // The ordinary input phase publishes the standing radius at the start of the next frame.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -130,7 +130,7 @@ internal static class SamusPosturePoseTransitions
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 10);
 
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         SamusAerialMovement.InitializeJump(samus);
         return true;
     }
@@ -224,7 +224,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
             // The posture change publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
             return true;
         }
 
@@ -253,7 +253,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.CrouchEntryD
         // Keeping that one-frame handoff is observable when the crouched body is resting
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -350,7 +350,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
             // transition. Ordinary crouch entry normally sees zero, but retaining the
             // literal writes keeps a bounce that is somehow active deterministic.
             CancelBounceForPostureTransition(samus);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
             return true;
         }
 
@@ -380,7 +380,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         // radius remains unchanged until the input phase sets the radius next frame. This
         // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition(samus);
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 
@@ -457,7 +457,7 @@ level, SignedSixteenSixteen.FromWholePixels(SamusPostureDefinitions.MorphEntryDo
         // InitializeAnimation resets only the target's animation. In particular, do not call
         // start a jump or clear YDirection/YSpeed/YSubspeed: the input transition can occur
         // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
-        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus);
         return true;
     }
 

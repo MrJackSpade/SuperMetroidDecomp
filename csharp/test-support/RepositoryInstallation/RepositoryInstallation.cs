@@ -80,12 +80,10 @@ internal static class RepositoryInstallation
         SuperMetroid.Core.Audio.AudioQueues? audio = null)
     {
         var assists = new GameplayAssists { SamusCannotDie = playerInvincibilityEnabled, AmmoNeverRunsOut = infiniteAmmoEnabled, MapReveal = mapRevealMode, EscapeTimerHoldsAtOneSecond = preventEscapeTimeout, EncounterResetOnLoad = encounterResetOnLoad };
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork, random, audio);
-        BindRuntime(runtime);
-        return runtime;
+        return SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(assists, Artwork.Gameplay, random, audio);
     }
 
     /// <summary>Rebinds the host catalogs to a runtime restored from a debugger state, which omits them.</summary>
-    internal static void BindRuntime(SuperMetroidRuntime runtime) => runtime.BindArtwork(Artwork, previous: null);
+    internal static void BindRuntime(SuperMetroidRuntime runtime) => runtime.BindArtwork(Artwork.Gameplay, previous: null);
 }
 

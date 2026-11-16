@@ -464,9 +464,9 @@ internal static class SpecialAttackParticlesVerification
     {
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
-        var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
+        var shared = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(samusAt),

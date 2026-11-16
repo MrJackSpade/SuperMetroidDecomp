@@ -360,7 +360,7 @@ public sealed class SamusHorizontalSpeedState
         bool screwAttackEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack);
         if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
-            if (frame.AnimationFrame == 0)
+            if (frame.AnimationOnSpinStart)
             {
                 // Restarts only the colour cycle's step. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw shade.
@@ -368,7 +368,7 @@ public sealed class SamusHorizontalSpeedState
                 return shadeCopied;
             }
 
-            if (frame.AnimationFrame >= 27)
+            if (frame.AnimationPastScrewAttackSpin)
             {
                 // From frame 27 onward Samus shows her normal suit colours.
                 // Frames 1..26 cycle below. Samus's colours are what the next shown frame displays.
@@ -385,7 +385,7 @@ public sealed class SamusHorizontalSpeedState
             if (!screwAttackEquipped)
                 return shadeCopied;
 
-            if (frame.AnimationFrame < 3)
+            if (frame.AnimationBeforeWallJumpSpin)
             {
                 // The wall-jump animation keeps the normal suit colours on frames 0..2;
                 // its Screw frames begin on frame three and share the same six colour steps.

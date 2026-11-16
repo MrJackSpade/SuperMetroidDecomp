@@ -55,7 +55,7 @@ internal static class SamusHudDefinitionsVerification
                 SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), active, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                 "Every posture pose and active-Grapple branch");
         }
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<SamusState, ushort> setTurn = (state, turn) =>
             state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue)
                 ?? throw new InvalidOperationException($"Turn word {turn} names no aim; a handed-over shot always names one."));
@@ -90,9 +90,9 @@ internal static class SamusHudDefinitionsVerification
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
             byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
-            samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
+            samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone()) { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0 }, new(0, 0), bombs);
             AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");

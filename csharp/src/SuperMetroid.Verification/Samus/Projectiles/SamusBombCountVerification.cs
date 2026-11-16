@@ -72,7 +72,7 @@ internal static class SamusBombCountVerification
     private static SamusState MorphedSamus()
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs,

@@ -37,7 +37,7 @@ internal static class PowerBombRadiusVerification
     /// </summary>
     internal static void VerifyPowerBombExplosionFollowsTheOriginal()
     {
-        var explosion = new SamusPowerBombExplosionState { Blast = { PresentationColors = RetailPresentationFixture().PowerBombGlowColors } };
+        var explosion = new SamusPowerBombExplosionState(RetailPresentationFixture().PowerBombGlowColors);
         explosion.Arm();
         explosion.Spawn(new(128, 128));
         var original = new OriginalExplosion();

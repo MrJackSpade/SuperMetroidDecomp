@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Spin-jump animation frames that wall contact rewinds to.</summary>
@@ -7,8 +8,8 @@ internal static class SamusWallContactAnimationDefinitions
     /// Screw Attack's rewind frame: its longer pre-contact animation makes frame 27 the first
     /// eligible wall frame, so contact rewinds to 26.
     /// </summary>
-    internal const int ScrewAttackRewindFrame = 26;
+    internal static SamusAnimationPlace ScrewAttackRewindFrame { get; } = SamusAnimationDelayDefinitions.ScrewAttackAnimation.Place(SamusAnimationSegmentName.Spin, 26);
 
     /// <summary>Ordinary spin and Space Jump's rewind frame, the compact 10 -> 11 handoff.</summary>
-    internal const int SpinJumpRewindFrame = 10;
+    internal static SamusAnimationPlace SpinJumpRewindFrame { get; } = SamusAnimationDelayDefinitions.SpinJumpAnimation.Place(SamusAnimationSegmentName.Spin, 10);
 }

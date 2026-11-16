@@ -191,7 +191,7 @@ public static class SamusAerialMovement
         // later animation call can advance the timer/frame pair.
         if (fullySubmergedWithoutGravity &&
             samus.AnimationFrameTimer.IsAt(1) &&
-            samus.AnimationFrame is 0 or 8)
+            (samus.AnimationIsOn(SamusAnimationFrames.SpaceJumpSpinStart) || samus.AnimationIsOn(SamusAnimationFrames.SpaceJumpSpinMiddle)))
         {
             samus.LiquidPhysics.QueueMovementSound(SamusSound.UnderwaterSpaceJump, priority: SoundRequestPriority.Normal);
         }
@@ -293,9 +293,9 @@ public static class SamusAerialMovement
         // Frames 23+ are the somersault portion and always attack as the Screw Attack.
         // Frames 3..22 attack as the pseudo Screw Attack only after the projectile flare counter
         // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
-        if (samus.AnimationFrame >= 23)
+        if (samus.AnimationHasReached(SamusAnimationFrames.WallJumpScrewAttackSpinStart))
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
-        else if (samus.AnimationFrame >= 3 && samus.BeamCharge.HasCharged(BeamChargeDefinitions.FullyChargedCounter))
+        else if (samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart) && samus.BeamCharge.HasCharged(BeamChargeDefinitions.FullyChargedCounter))
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
 
         samus.HorizontalSpeed.HandleExtraRunSpeed(
@@ -470,8 +470,8 @@ public static class SamusAerialMovement
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
-            samus.AnimationFrame < SamusMovementDefinitions.FastFallAnimationFrame)
-            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusMovementDefinitions.FastFallAnimationFrame,
+            !samus.AnimationHasReached(SamusAnimationFrames.FastFallStart))
+            SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusAnimationFrames.FastFall,
                 SamusMovementDefinitions.FastFallAnimationTimer);
         return result;
     }
@@ -715,12 +715,12 @@ public static class SamusAerialMovement
         if (!samus.PoseHistory.AllowsWallJumpProbe)
             return false;
 
-        int firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
-            ? 27
-            : 11;
+        SamusAnimationPlace firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
+            ? SamusAnimationFrames.ScrewAttackWallJumpReady
+            : SamusAnimationFrames.SpinJumpWallJumpReady;
         // Once the spin reaches the frames a launch can start on, the check withdraws an earlier launch's enemy shake
         // before it reads the held direction; earlier frames leave it waiting.
-        bool launchFrameReached = samus.AnimationFrame >= firstEligibleFrame;
+        bool launchFrameReached = samus.AnimationHasReached(firstEligibleFrame);
         if (launchFrameReached)
             samus.Kinematics.WithdrawWallJumpLaunchShake();
 

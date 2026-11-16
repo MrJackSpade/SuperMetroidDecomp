@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Doors;
@@ -29,7 +29,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <param name="audio">The session's sound and music queues, or null for a runtime that is a session of its own.</param>
         internal static SuperMetroidRuntime Create(
             SuperMetroid.Core.Gameplay.GameplayAssists assists,
-            IGameplayArtwork artwork,
+            GameplayArtwork artwork,
             SuperMetroid.Core.Compatibility.SharedRandom? random = null,
             AudioQueues? audio = null) =>
             new(assists, artwork,

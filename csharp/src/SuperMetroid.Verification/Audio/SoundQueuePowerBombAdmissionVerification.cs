@@ -94,7 +94,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
     private static SamusState SamusAt(SamusPoseId pose, GameplayAudioRequests requests)
     {
         var samus = new SamusState(requests, InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SamusCompatibility.ForNewSamus(), new BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0120, 0x0080)),

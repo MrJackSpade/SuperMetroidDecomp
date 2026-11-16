@@ -49,7 +49,7 @@ public sealed class InstalledSamusBody
         this.graphicsYOffsets = graphicsYOffsets.ToDictionary();
         this.frames = frames.ToDictionary(pose => pose.Key, pose => new SortedDictionary<int, int>(pose.Value.ToDictionary()));
         Frames = [.. SamusPoseNumbers.RecordedPoses.OrderBy(SamusPoseNumbers.Number)
-            .SelectMany(pose => this.frames[pose].Keys.Select(frame => new SamusBodyFrame(pose, frame)))];
+            .SelectMany(pose => this.frames[pose].Keys.Select(frame => new SamusBodyFrame(pose, SamusAnimationDelays.AnimationForPose(pose).FrameAt(frame))))];
         Gameplay = new InstalledSamusBodyArtwork(new SamusBodyArtworkContent
         {
             OriginRises = this.frames.ToDictionary(pose => pose.Key, pose => (IReadOnlyList<int?>)OriginRises(pose.Value)),

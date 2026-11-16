@@ -40,7 +40,7 @@ internal static class EnemyBombShotReactionVerification
         })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot) = LoadedRoomWithMellow(definition, frozenTimer);
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;
@@ -94,7 +94,7 @@ internal static class EnemyBombShotReactionVerification
             slot.CollidesByFrameHitboxes = frameHitboxes;
             if (frameHitboxes)
                 slot.Frame = EnemyFrameId.Empty;
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             SamusBomb bomb = bombs.Bombs[0];
             bomb.Type = SamusBombProjectileSystem.NormalBombType;
             bomb.Damage = 30;

@@ -42,7 +42,7 @@ internal static class PauseReserveUiAssetsVerification
 
         Console.WriteLine("Pause reserve UI: labels, ten digits and 32 arrow phases match native with guarded reads.");
 
-        static SamusState Samus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+        static SamusState Samus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245,
             ReserveTankMode = ReserveTankMode.Auto,

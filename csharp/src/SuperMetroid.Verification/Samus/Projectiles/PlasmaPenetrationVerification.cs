@@ -25,7 +25,7 @@ internal static class PlasmaPenetrationVerification
             slot.Direction = SamusProjectileDirection.Right;
             slot.Playback = ProjectileFixturePlaybacks.Active;
             slot.FrameHold = WrappingCountdown.Start(7);
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             for (int hit = 0; hit < 2; hit++)
             {
                 AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bombs, slot), "penetrating enemy hit accepted");

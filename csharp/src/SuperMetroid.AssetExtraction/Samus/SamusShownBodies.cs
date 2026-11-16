@@ -25,11 +25,13 @@ internal static class SamusShownBodies
             Ensure.NotNull(body);
             foreach (SamusPoseId pose in SamusShownFrames.Poses.OrderBy(SamusPoseNumbers.Number))
             {
-                foreach (int frame in frames.pictured[pose])
+                SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+                foreach (SamusAnimationFrame picture in frames.Pictures(pose))
                 {
+                    int frame = animation.OffsetOf(picture);
                     if (!body.TryPictures(pose, frame, out SamusBodyFramePictures pictures))
                         continue;
-                    yield return new SamusShownBody(new SamusBodyFrame(pose, frame), SamusBodyCompositions.Of(pose, frame, body), pictures);
+                    yield return new SamusShownBody(new SamusBodyFrame(pose, picture), SamusBodyCompositions.Of(pose, frame, body), pictures);
                 }
             }
         }

@@ -37,17 +37,14 @@ internal static class ChozoGrabAnimationVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
-        samus.AnimationFrame = 2;
+        samus.AnimationNumber = 2;
         samus.AnimationFrameTimer = WrappingCountdown.Start(3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LoadedLevelData;
         var handBlock = new Position16<RoomBlocks>(0x4a, 0x17);
         AssertEqual(ChozoStatueRoomDefinitions.WreckedShipHandBehavior, level.GetCollisionBlock(handBlock).Behavior,
             "fixture uses the retail statue hand block");
-        var expectedExplosion = new SamusPowerBombExplosionState
-        {
-            Blast = { PresentationColors = runtime.BombProjectiles.PowerBombExplosion.Blast.PresentationColors },
-        };
+        var expectedExplosion = new SamusPowerBombExplosionState(runtime.BombProjectiles.PowerBombExplosion.Blast.PresentationColors);
         if (powerBomb)
         {
             // Detonation immediately before hand capture; origin differs from Samus so
@@ -67,7 +64,7 @@ internal static class ChozoGrabAnimationVerification
         AssertTrue(scrolls.ReadScreen(new(1, 1)) == RoomScrollState.Open && scrolls.ReadScreen(new(2, 1)) == RoomScrollState.Open
             && scrolls.ReadScreen(new(1, 2)) == RoomScrollState.OpenAlignedToTop && scrolls.ReadScreen(new(2, 2)) == RoomScrollState.OpenAlignedToTop,
             "the waking statue opens the second row's second and third screens green and the two below them blue");
-        AssertEqual(2, samus.AnimationFrame, "grab preserves captured ball frame");
+        AssertEqual(2, samus.AnimationNumber, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "grab preserves captured ball timer");
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
@@ -92,7 +89,7 @@ internal static class ChozoGrabAnimationVerification
             }
             if (samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked)
             {
-                AssertEqual(2, samus.AnimationFrame, "ball frame remains frozen while carried");
+                AssertEqual(2, samus.AnimationNumber, "ball frame remains frozen while carried");
                 AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "ball animation timer remains frozen while carried");
             }
             carried |= samus.Position.X.Whole != startX || samus.Position.Y.Whole != startY;
@@ -127,7 +124,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.Blast.GlowColor.FadeLevels.Blue, actual.Blast.GlowColor.FadeLevels.Blue, "carried blast blue");
                 AssertEqual(expectedExplosion.IsActive, actual.IsActive, $"carried Power Bomb cleanup at frame {frames}");
             }
-            animationResumed |= samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 3;
+            animationResumed |= samus.AnimationNumber != 2 || samus.AnimationFrameTimer.RawValue != 3;
         }
         AssertTrue(animationResumed, "ball animation resumes after release");
         if (powerBomb) Console.WriteLine("Power Bomb continues through capture: exact phases, radii, rendered state, colors and flag cleanup pass.");

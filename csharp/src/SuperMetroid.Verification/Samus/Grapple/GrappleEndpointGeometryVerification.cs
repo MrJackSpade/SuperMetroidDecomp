@@ -28,7 +28,7 @@ internal static class GrappleEndpointGeometryVerification
         {
             ushort endpointX = unchecked((ushort)(camera + offsetX));
             ushort endpointY = unchecked((ushort)(camera + offsetY));
-            var grapple = new SamusGrappleState(new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var grapple = new SamusGrappleState(global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Phase = GrapplePhase.Firing, RopeLength = 8,
                 FlareOrigin = new(camera, camera),

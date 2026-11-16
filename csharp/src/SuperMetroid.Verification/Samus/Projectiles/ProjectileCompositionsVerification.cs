@@ -119,7 +119,7 @@ internal static class ProjectileCompositionsVerification
         {
             SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
-            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone());
+            var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
             var shot = shots.Shots[0];
             shot.Playback = ProjectileFixturePlaybacks.Active; shot.SpritemapPointer = id;
             shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
@@ -187,7 +187,7 @@ internal static class ProjectileCompositionsVerification
     {
         var random = new SharedRandom();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork, random: random, audio: game.AudioForVerification);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.SpriteSheets = sheets;
@@ -195,7 +195,7 @@ internal static class ProjectileCompositionsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         game.AdoptRuntime(runtime);
-        game.BindArtwork(InstalledFixtures.BareRuntimeArtwork with { SpriteSheets = sheets });
+        game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = sheets });
         string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
         // A sheet set loaded apart from the bound one, which each pass must reach once rebound.
         InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
@@ -219,10 +219,10 @@ internal static class ProjectileCompositionsVerification
             }
             SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);
             AssertEqual(power.Frame(frame), Shown(runtime, kind).Image, $"Family ${family:X} draws its composition's frame from the bound power-beam sheet");
-            game.BindArtwork(InstalledFixtures.BareRuntimeArtwork with { SpriteSheets = rebound });
+            game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = rebound });
             AssertTrue(ReferenceEquals(rebound.Get(SpriteSheetId.ProjectilesPower).Image, Shown(runtime, kind).Image.Sheet),
                 $"Family ${family:X} draws from rebound sheets");
-            game.BindArtwork(InstalledFixtures.BareRuntimeArtwork with { SpriteSheets = sheets });
+            game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = sheets });
         }
         Console.WriteLine("Projectile runtime binding: three actor draw passes, sheet frames and sheet rebinding pass.");
 

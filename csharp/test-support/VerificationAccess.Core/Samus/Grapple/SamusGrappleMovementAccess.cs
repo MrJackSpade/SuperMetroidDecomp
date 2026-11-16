@@ -62,7 +62,7 @@ internal static class SamusGrappleMovementAccess
                 ? SamusPoseId.GrappleSwingRightPose
                 : SamusPoseId.GrappleSwingLeftPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus);
 
             // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
             // first pendulum position now prevents one frame of stale pre-grapple coordinates.

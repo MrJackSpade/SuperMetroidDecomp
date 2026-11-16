@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -9,6 +10,6 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <param name="DrawnFor">The swing direction the picture shows Samus hanging in.</param>
 public readonly record struct GrappleSwingPicture(GrappleSwingDirection DrawnFor)
 {
-    /// <summary>The swing pose's animation frame that holds this picture.</summary>
-    internal int AnimationFrame => DrawnFor.Number;
+    /// <summary>The frame of the swing pose's animation that holds this picture: one frame for each direction, in direction order.</summary>
+    internal SamusAnimationPlace AnimationFrame => SamusAnimationDelayDefinitions.GrappleSwingAnimation.Place(SamusAnimationSegmentName.Main, DrawnFor.Number);
 }

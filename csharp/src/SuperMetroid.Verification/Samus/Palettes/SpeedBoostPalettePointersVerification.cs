@@ -40,7 +40,7 @@ internal static class SpeedBoostPalettePointersVerification
                 SamusShadeDefinitions.FullBodyCycles.SpeedBoostPalettePointer(offset),
                 $"compiled Speed Booster pointer selection {selection} matches retail ROM");
 
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding())
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 EquippedItems = equipment[selection],
                 MetroidAttachmentShade = SamusMetroidAttachmentShade.SpeedBoostNext,
@@ -57,7 +57,7 @@ internal static class SpeedBoostPalettePointersVerification
         }
 
         // Without an attacker the alternation leaves the palette alone.
-        var unattached = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+        var unattached = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         AssertTrue(!SamusMetroidAttachmentFlash.Update(new SamusColours(), unattached),
             "no attachment, no alternation");
         AssertEqual(SamusMetroidAttachmentShade.Inactive, unattached.MetroidAttachmentShade,

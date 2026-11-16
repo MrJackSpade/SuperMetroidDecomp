@@ -91,17 +91,57 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The animation frame shown: the number of the step of the pose's animation Samus is on, which is
-    /// also the frame number of the pose's artwork. It is zero or more and never runs away: every frame the animation
-    /// reaches names a step of the pose's animation or of the animation laid out after it, and reading a frame that names no
-    /// step fails (<see cref="AnimationStep"/>); the setter rejects a negative frame.
+    /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of <see cref="AnimatedPose"/>.
+    /// Every frame the animation reaches names a step of that animation or of the animation laid out after it, and reading
+    /// a frame that names no step fails (<see cref="AnimationStep"/>).
     /// </summary>
-    [IntegerQuantity("frame index within the current pose animation")]
-    public int AnimationFrame
-    {
-        get;
-        set => field = Ensure.AtLeastZero(value);
-    }
+    internal SamusAnimationFrame AnimationFrame { get; set; }
+
+    /// <summary>The pose whose animation <see cref="AnimationFrame"/> is a frame of: the animated pose, or before her animation starts, her pose.</summary>
+    internal SamusPoseId AnimationPose => AnimatedPose ?? Pose;
+
+    /// <summary>Sets her animation frame to <paramref name="place"/>, as it lands in the animation she animates by (<see cref="SamusAnimationDelays.Land"/>).</summary>
+    internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(AnimationPose, place);
+
+    /// <summary>Moves her animation on to the frame after the one it is on, the animation laid out after hers included.</summary>
+    internal void AdvanceAnimationFrame() => AnimationFrame = SamusAnimationDelays.Next(AnimationPose, AnimationFrame);
+
+    /// <summary>Moves her animation to the frame <paramref name="target"/> names, as a cue read on her current frame names it.</summary>
+    internal void MoveAnimationTo(SamusAnimationTarget target) =>
+        AnimationFrame = SamusAnimationDelays.Target(AnimationPose, AnimationFrame, target, FramesBeyondAnimation);
+
+    /// <summary>
+    /// Her animation frame read as a frame of <paramref name="pose"/>'s animation: the frame itself when the pose animates
+    /// by the animation she animates by, otherwise where the game's layout puts it (<see cref="SamusAnimationDelays.Land"/>).
+    /// </summary>
+    internal SamusAnimationFrame AnimationFrameOf(SamusPoseId pose) =>
+        SamusAnimationDelays.Land(pose, new SamusAnimationPlace(SamusAnimationDelays.AnimationForPose(AnimationPose), AnimationFrame));
+
+    /// <summary>Whether her animation has reached <paramref name="place"/>, as it lies in the animation she animates by.</summary>
+    internal bool AnimationHasReached(SamusAnimationPlace place) => SamusAnimationDelays.HasReached(AnimationPose, AnimationFrame, place);
+
+    /// <summary>Whether her animation lies past <paramref name="place"/>, as it lies in the animation she animates by.</summary>
+    internal bool AnimationHasPassed(SamusAnimationPlace place) => SamusAnimationDelays.HasPassed(AnimationPose, AnimationFrame, place);
+
+    /// <summary>Whether her animation is on <paramref name="frame"/> of the animation she animates by.</summary>
+    internal bool AnimationIsAt(SamusAnimationTarget frame) =>
+        AnimationFrame == SamusAnimationDelays.AnimationForPose(AnimationPose).Resolve(frame);
+
+    /// <summary>Her animation frame, named by its segment, for diagnostics.</summary>
+    internal string AnimationFrameName =>
+        $"{SamusAnimationDelays.AnimationForPose(AnimationPose).SegmentName(AnimationFrame)} frame {AnimationFrame.Frame}";
+
+    /// <summary>Whether her animation is on <paramref name="place"/>, as it lands in the animation she animates by.</summary>
+    internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(AnimationPose, place);
+
+    /// <summary>
+    /// The frame of the run's stride her animation is on, which the running cadence times (<see cref="SamusRunningCadences"/>):
+    /// a frame of the running animation's first segment, which every pose that runs animates by.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Her animation is past the stride.</exception>
+    internal int RunFrame => AnimationFrame.Segment == 0
+        ? AnimationFrame.Frame
+        : throw new InvalidOperationException($"Samus's animation frame {AnimationFrame} lies past the run's stride.");
 
     /// <summary>
     /// Animation frame countdown. Zero and negative-after-decrement both advance,
@@ -784,7 +824,7 @@ level, probe, this, amount, scanLeftToRight, roomObjects);
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        SamusPresentation.InitializeAnimation(this, initialFrame: 0);
+        SamusPresentation.InitializeAnimation(this);
     }
 
     /// <summary>

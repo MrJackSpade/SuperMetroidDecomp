@@ -72,7 +72,7 @@ internal static class GrappleFlarePresentationVerification
         }
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var native = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
+            var native = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
             native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
                 ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -94,7 +94,7 @@ internal static class GrappleFlarePresentationVerification
         foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
         foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding()) { Pose = SamusPoseId.FacingRightNormalPose };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareStage = GrappleFlareStage.Shown;
             samus.Grapple.FlarePlace = frame;
@@ -153,7 +153,7 @@ internal static class GrappleFlarePresentationVerification
         SamusState Clone(SamusState source) => RoundTrip(source, content);
 
         static SamusState NewSamus() => new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: new SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding());
+            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
     }
 
     /// <summary>The grapple state a flare draw writes.</summary>
@@ -173,7 +173,7 @@ internal static class GrappleFlarePresentationVerification
     {
         var random = new SharedRandom();
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.BareRuntimeArtwork, random: random, audio: game.AudioForVerification);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.GrappleFlarePlacement = grappleArtwork.FlarePlacement;
@@ -192,7 +192,7 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real actor fixture reaches Grapple flare path");
         samus.Grapple.FlareStage = GrappleFlareStage.Shown;
         InstalledSpriteSheets rebound = InstalledFixtures.SpriteSheetsReloading(SpriteSheetId.ProjectilesPower);
-        game.BindArtwork(InstalledFixtures.BareRuntimeArtwork with { SpriteSheets = rebound });
+        game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = rebound });
         AssertTrue(original.SequenceEqual(Draw(runtime)), "Real Grapple actor draws the same flare from rebound sheets");
         runtime.Sprites.BeginFrame();
         runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusColourEffects.Hold);

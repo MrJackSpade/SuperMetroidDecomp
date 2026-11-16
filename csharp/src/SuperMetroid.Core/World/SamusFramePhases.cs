@@ -1339,7 +1339,7 @@ level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObje
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
                 samus,
                 _player.Colours,
-                samus.Artwork.InstalledBody.DeathSteps);
+                samus.Artwork.Body.DeathSteps);
         }
         // The station lock's empty movement mode skips animation like the locked movement mode.
         else if (frame.Mode.Movement is not (SamusMovementMode.ScriptLocked or SamusMovementMode.RefillStation or SamusMovementMode.SuitPickup))

@@ -17,28 +17,20 @@ internal sealed class PhantoonPresentation
         _frameContext = frameContext;
     }
 
-    /// <summary>Blends the body colours toward its visible colors over the selected interval.</summary>
+    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one every second update.</summary>
     internal void AdvancePhantoonFadeIn(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
-        int denominator)
+        int steps)
     {
         if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.Complete)
             return;
 
-        state.BodyFade.Denominator = denominator;
-        int numerator = state.BodyFade.Numerator;
-        if (denominator + 1 < numerator)
-        {
-            state.BodyFade.Numerator = 0;
-            state.BodyFade.Complete = true;
+        // The fade's step is a typed fade toward his health band's colours (#1512, #2251).
+        if (state.BodyFade.TakeStep(steps) is { } step)
+            state.Colours.Fade(PhantoonBodyLook.Health(HealthBand(body)), step, steps);
+        else
             state.Colours.CompleteFade();
-            return;
-        }
-
-        // The fade's step is the import's shade of it, toward his health band's colours (#1512).
-        state.Colours.Fade(PhantoonBodyLook.Health(HealthBand(body)), denominator, numerator);
-        state.BodyFade.Numerator = numerator + 1;
     }
 
     /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
@@ -78,14 +70,4 @@ internal sealed class PhantoonPresentation
     /// <summary>The health band <paramref name="body"/>'s health shows: zero through seven.</summary>
     internal static int HealthBand(RoomEnemyPlace body) =>
         Math.Min(PhantoonColorDefinitions.HealthBandCount - 1, Math.Max(0, (body.Health - 1) / PhantoonColorDefinitions.HealthPerBand));
-
-    /// <summary>Restarts a part's animation from its start with a one-tick timer.</summary>
-    internal static void StartPhantoonAnimation(
-        PhantoonEnemyState state,
-        RoomEnemyPlace place,
-        PhantoonPartSegment segment)
-    {
-        place.AnimationClock.StepOnNextUpdate();
-        state.PartPlayback(place) = PhantoonEnemyState.Starting(segment);
-    }
 }

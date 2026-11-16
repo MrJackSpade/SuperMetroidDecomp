@@ -100,7 +100,11 @@ internal static class NativeSnapshotMotherBrainImport
         state.UpperNeckMovement = MotherBrainNativeWords.NeckMovements.Decode(
             W(MotherBrainMemory.UpperNeckMovementIndex), "Mother Brain upper neck movement index");
         state.StandingBodyReadyingElapsed = DecodeLegTilePage(W(MotherBrainMemory.SpriteTileTransferEntry));
-        state.GrayTransitionCounter = W(MotherBrainMemory.GreyTransitionCounter);
+        // The cartridge counts every fade but her fake death's greying on one word; each fade keeps its own progress
+        // (#2251). The one running continues from the recorded count, and every other restarts before its first step.
+        int transitionSteps = W(MotherBrainMemory.GreyTransitionCounter);
+        foreach (MotherBrainFadeProgress fade in new[] { state.FromFakeDeathGrey, state.DrainedGreying, state.RevivalFromGrey, state.DeathBodyFade, state.CorpseGreying })
+            fade.Steps = transitionSteps;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
         state.LastDroolMouthPoint = W(MotherBrainMemory.DroolProjectileParameter);
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;

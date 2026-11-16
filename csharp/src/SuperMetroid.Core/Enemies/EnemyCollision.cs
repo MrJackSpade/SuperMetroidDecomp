@@ -349,61 +349,17 @@ internal sealed class EnemyCollision
                     break;
                 }
 
-                NormalShotVulnerability shotVulnerability =
-                    ReadNormalShotVulnerability(enemy, projectileType);
-
-                if (shotVulnerability.FreezeImmediately)
+                NormalShotHit hit = ApplyNormalShotDamage(enemy, projectile, projectileType, projectileDamage, roomArea);
+                if (hit == NormalShotHit.Froze)
                 {
-                    FreezeEnemyFromNormalShot(enemy, roomArea);
                     reaction.AfterCommon?.Invoke(shot with { Froze = true });
                     hitCount++;
                     break;
                 }
 
-                int damage = shotVulnerability.DamageFrom(projectileDamage);
-                if (damage == 0)
+                if (hit is NormalShotHit.HurtFrozen or NormalShotHit.HurtUnfrozen)
                 {
-                    // A zero-damage hit enters the dud branch even for Plasma: immunity removes
-                    // the projectile instead of letting its ordinary piercing rule win.
-                    _projectiles.CreateEnemyProjectileDudShot(projectile);
-                }
-                if (damage != 0)
-                {
-                    enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
-                    enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
-                    // Common shot AI queues the definition's cry before subtracting health,
-                    // including lethal hits. Frozen targets suppress this cry; death
-                    // explosion animations retain their separate, later sound owner. The
-                    // same test, made here before a lethal Ice hit freezes the enemy, decides
-                    // the hit burst below, which shows whether or not the enemy has a cry.
-                    bool hurtUnfrozen = enemy.FrozenTimer == 0;
-                    if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
-                        _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
-                    // Every plasma-family hit gives sixteen invincibility frames.
-                    // Only a beam combining Plasma gives this; other projectile
-                    // families never count as Plasma.
-                    if (projectileType.BeamCombination.HasPlasma)
-                        enemy.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
-
-                    bool lethal = damage >= enemy.Health;
-                    bool freezeInsteadOfKilling = lethal &&
-                        projectileType.BeamCombination.HasIce &&
-                        !shotVulnerability.PreventsLethalFreeze &&
-                        enemy.FrozenTimer == 0;
-                    if (freezeInsteadOfKilling)
-                    {
-                        // A lethal Ice-bearing beam leaves health unchanged and freezes the
-                        // actor. This is not the same path as an authored freezing entry above:
-                        // hurt flash and hurt state were already set before the lethal test.
-                        FreezeEnemyFromNormalShot(enemy, roomArea);
-                    }
-                    else
-                    {
-                        enemy.Health = lethal
-                            ? 0
-                            : enemy.Health - damage;
-                    }
-                    if (hurtUnfrozen && reaction.ShowsHitBurst(shot))
+                    if (hit == NormalShotHit.HurtUnfrozen && reaction.ShowsHitBurst(shot))
                         ShowHitBurst(enemy);
                     if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
                     {
@@ -424,6 +380,81 @@ internal sealed class EnemyCollision
             }
         }
         return hitCount;
+    }
+
+    /// <summary>
+    /// Runs common normal-shot damage (#2255), the shared step of every shot reaction that deals ordinary damage, the
+    /// ordinary pass's and the bosses' own: the enemy's vulnerability to <paramref name="projectileType"/> freezes it
+    /// outright, or takes the dud branch when the damage is zero, or hurts it. A hurt enemy flashes, is hurt, cries unless
+    /// frozen, takes Plasma's invincibility, and loses the damage, a lethal Ice-bearing beam freezing it instead where its
+    /// vulnerability allows. The death and the hit burst that follow are the reaction's.
+    /// </summary>
+    /// <param name="enemy">The enemy the shot reached.</param>
+    /// <param name="projectile">The shot, which a dud spends.</param>
+    /// <param name="projectileType">The shot's type as it reached the enemy, before any impact rewrote it.</param>
+    /// <param name="projectileDamage">The shot's damage, zero or more.</param>
+    /// <param name="roomArea">The area of the room the enemy is in, which decides how long a freeze lasts.</param>
+    /// <returns>Whether the shot froze the enemy outright, was a dud, or hurt it while it was frozen or not.</returns>
+    internal NormalShotHit ApplyNormalShotDamage(
+        RoomEnemyPlace enemy,
+        SamusProjectile projectile,
+        SamusProjectileType projectileType,
+        int projectileDamage,
+        AreaId roomArea)
+    {
+        Ensure.NotNull(enemy);
+        Ensure.NotNull(projectile);
+        NormalShotVulnerability shotVulnerability = ReadNormalShotVulnerability(enemy, projectileType);
+        if (shotVulnerability.FreezeImmediately)
+        {
+            FreezeEnemyFromNormalShot(enemy, roomArea);
+            return NormalShotHit.Froze;
+        }
+
+        int damage = shotVulnerability.DamageFrom(projectileDamage);
+        if (damage == 0)
+        {
+            // A zero-damage hit enters the dud branch even for Plasma: immunity removes
+            // the projectile instead of letting its ordinary piercing rule win.
+            _projectiles.CreateEnemyProjectileDudShot(projectile);
+            return NormalShotHit.Dud;
+        }
+
+        enemy.FlashTimer = enemy.HurtFlashFrames + EnemyCollisionDefinitions.WeaponHurtFlashExtension;
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
+        // Common shot AI queues the definition's cry before subtracting health,
+        // including lethal hits. Frozen targets suppress this cry; death
+        // explosion animations retain their separate, later sound owner. The
+        // same test, made here before a lethal Ice hit freezes the enemy, decides
+        // the hit burst, which shows whether or not the enemy has a cry.
+        bool hurtUnfrozen = enemy.FrozenTimer == 0;
+        if (hurtUnfrozen && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
+            _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
+        // Every plasma-family hit gives sixteen invincibility frames.
+        // Only a beam combining Plasma gives this; other projectile
+        // families never count as Plasma.
+        if (projectileType.BeamCombination.HasPlasma)
+            enemy.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
+
+        bool lethal = damage >= enemy.Health;
+        bool freezeInsteadOfKilling = lethal &&
+            projectileType.BeamCombination.HasIce &&
+            !shotVulnerability.PreventsLethalFreeze &&
+            enemy.FrozenTimer == 0;
+        if (freezeInsteadOfKilling)
+        {
+            // A lethal Ice-bearing beam leaves health unchanged and freezes the
+            // actor. This is not the same path as an authored freezing entry:
+            // hurt flash and hurt state were already set before the lethal test.
+            FreezeEnemyFromNormalShot(enemy, roomArea);
+        }
+        else
+        {
+            enemy.Health = lethal
+                ? 0
+                : enemy.Health - damage;
+        }
+        return hurtUnfrozen ? NormalShotHit.HurtUnfrozen : NormalShotHit.HurtFrozen;
     }
 
     /// <summary>Runs an optional enemy-specific shot stage and reports whether it consumed the hit.</summary>

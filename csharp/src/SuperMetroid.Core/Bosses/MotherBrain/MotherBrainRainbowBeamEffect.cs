@@ -14,7 +14,10 @@ public sealed class MotherBrainRainbowBeamEffect
     public bool Active { get; private set; }
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
     public RgbColor Color { get; private set; }
-    /// <summary>The beam cycle's next colour step, advancing by one each update the beam shows; the cycle's end resets it to the first step and repeats the first colour without advancing that update.</summary>
+    /// <summary>
+    /// The beam cycle's next colour step, advancing by one each update the beam shows; past the cycle's last colour the
+    /// cycle starts over at its first, so no colour repeats (#2251).
+    /// </summary>
     public int ColourStep { get; private set; }
     /// <summary>The cone the last update that showed the beam aimed; null until the beam first shows.</summary>
     public MotherBrainRainbowBeamGeometry? Geometry { get; private set; }
@@ -38,14 +41,11 @@ public sealed class MotherBrainRainbowBeamEffect
             ColourStep = 0;
             Color = colours.BeamInitialColor;
         }
-        else if (ColourStep == colours.BeamCycleLength)
-        {
-            // Past the cycle's last colour, the update that restarts it repeats colour zero without advancing.
-            ColourStep = 0;
-            Color = colours.BeamColor(0);
-        }
         else
         {
+            // Past the cycle's last colour, the cycle starts over at its first.
+            if (ColourStep == colours.BeamCycleLength)
+                ColourStep = 0;
             Color = colours.BeamColor(ColourStep);
             ColourStep++;
         }

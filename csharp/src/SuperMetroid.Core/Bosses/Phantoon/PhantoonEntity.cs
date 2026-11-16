@@ -30,7 +30,21 @@ internal abstract class PhantoonEntity(PhantoonBehavior species, RoomEnemyPlace 
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvancePhantoonPartAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvancePhantoonPartAnimation(Part);
+
+    /// <summary>The part's own part of the encounter, its playback included, which it holds from its setup (#2252).</summary>
+    internal PhantoonPart Part => Place.RequireSpeciesState<PhantoonPart>();
+
+    /// <summary>The encounter the part is part of, which it holds from its setup (#2252).</summary>
+    internal PhantoonEnemyState Encounter => Part.Phantoon;
+
+    /// <summary>The encounter <paramref name="part"/> is part of, which the part's own entity holds.</summary>
+    /// <param name="part">A place holding one of Phantoon's parts.</param>
+    /// <exception cref="InvalidOperationException">The place holds none of his parts.</exception>
+    internal static PhantoonEnemyState EncounterOf(RoomEnemyPlace part) =>
+        Ensure.NotNull(part).Entity is PhantoonEntity entity
+            ? entity.Encounter
+            : throw new InvalidOperationException($"Enemy place {part.Ordinal} holds no part of Phantoon.");
 
     /// <inheritdoc/>
     public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Place, probe, out reaction);

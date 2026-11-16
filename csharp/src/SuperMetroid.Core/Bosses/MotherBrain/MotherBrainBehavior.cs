@@ -211,7 +211,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.TubeCollapseTimer.Count = 0;
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
                 state.PhaseTimer.Count = 0;
-                state.GreyFadeStep = 0;
+                state.FakeDeathGreying.Restart();
                 Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
 

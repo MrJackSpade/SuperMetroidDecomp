@@ -234,7 +234,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.GrayTransitionCounter = 0;
+            Encounter.DeathBodyFade.Restart();
             Encounter.DeathPhase = MotherBrainDeathPhase.FadeOutBody;
             Encounter.PhaseTimer.Count = 0;
             return true;
@@ -249,16 +249,15 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathFadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // Body flickering runs every AI call, independently of the seventeen-call
-        // colour cadence. Counter values 0..15 copy blackening colour steps; value 16
-        // is past the last step and completes the transition without a copy.
+        // colour cadence. The fade's sixteen steps show its blackening colourings; its
+        // seventeenth shows none and completes it.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
         requests.BodyFlickers = true;
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.PhaseTimer.Count = 16;
-            int fadeStep = Encounter.GrayTransitionCounter;
-            Encounter.GrayTransitionCounter++;
+            int fadeStep = Encounter.DeathBodyFade.TakeStep();
             if (fadeStep < 16)
                 requests.DeathFadeStep = fadeStep;
             if (fadeStep >= 16)
@@ -354,7 +353,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.GrayTransitionCounter = 0;
+            Encounter.CorpseGreying.Restart();
             Encounter.DeathPhase = MotherBrainDeathPhase.FadeToGrey;
             Encounter.PhaseTimer.Count = 0;
         }
@@ -369,8 +368,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            int greyStep = Encounter.GrayTransitionCounter;
-            Encounter.GrayTransitionCounter++;
+            int greyStep = Encounter.CorpseGreying.TakeStep();
             if (greyStep < 8)
             {
                 requests.CorpseFadeStep = greyStep;

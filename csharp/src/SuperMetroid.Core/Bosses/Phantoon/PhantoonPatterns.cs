@@ -71,9 +71,9 @@ internal sealed class PhantoonPatterns
             return;
 
         state.Phase = PhantoonPhase.WaitingOnEye;
-        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeOpen);
+        state.EyePart.StartAnimation(PhantoonPartSegment.EyeOpen);
         state.FlameRainRequested = false;
-        SpawnPhantoonSpiralFlames(body);
+        SpawnPhantoonSpiralFlames(state);
     }
 
     /// <summary>Moves his body along its figure-eight path by the figure-eight's speed.</summary>
@@ -184,7 +184,6 @@ internal sealed class PhantoonPatterns
     /// <summary>Advances the casual-flame burst while he runs his figure-eight.</summary>
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
-        RoomEnemyPlace mouth = state.Mouth;
         if (--state.CasualFlames.Hold > 0)
             return;
 
@@ -196,7 +195,7 @@ internal sealed class PhantoonPatterns
             PhantoonCasualFlameSchedule schedule = PhantoonCasualFlames.Pattern(state.CasualFlames.Pattern);
             state.CasualFlames.Remaining = exhausted ? null : remaining;
             state.CasualFlames.Hold = exhausted ? schedule.Cooldown : schedule.IntervalBefore(remaining);
-            PhantoonPresentation.StartPhantoonAnimation(state, mouth, PhantoonPartSegment.MouthSpawnFlame);
+            state.MouthPart.StartAnimation(PhantoonPartSegment.MouthSpawnFlame);
             return;
         }
 
@@ -209,10 +208,10 @@ internal sealed class PhantoonPatterns
     /// <summary>Starts the spiral-flame pattern around the body.</summary>
     /// <remarks>The spiral fireballs are the first ordinary combat attack: eight destroyable flames, spawned in their
     /// authored order round the body.</remarks>
-    private void SpawnPhantoonSpiralFlames(RoomEnemyPlace body)
+    private void SpawnPhantoonSpiralFlames(PhantoonEnemyState state)
     {
         foreach (TrigonometryAngle start in PhantoonFlameSpawns.SpiralStarts)
-            SpawnPhantoonSpiralFlame(body, start);
+            SpawnPhantoonSpiralFlame(state, start);
     }
 
     /// <summary>Runs the eye-open vulnerable window.</summary>
@@ -229,8 +228,8 @@ internal sealed class PhantoonPatterns
             if (!state.Swoop.Requested)
             {
                 state.Phase = PhantoonPhase.WaitingOnEye;
-                PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
-                PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeCloseAndPickNewPattern);
+                state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+                state.EyePart.StartAnimation(PhantoonPartSegment.EyeCloseAndPickNewPattern);
                 body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
 
                 // This flag makes the next pattern choice take the initial flame-rain
@@ -256,7 +255,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
         state.Translucent = false;
         BeginPhantoonSwoop(state);
-        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.FullHitboxBody);
+        state.BodyPart.StartAnimation(PhantoonPartSegment.FullHitboxBody);
     }
 
     /// <summary>Runs the 360-frame opaque swoop.</summary>
@@ -272,9 +271,8 @@ internal sealed class PhantoonPatterns
 
         state.Phase = PhantoonPhase.FadeOutWhileSwooping;
         state.Translucent = true;
-        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
-        RoomEnemyPlace eye = state.Eye;
-        PhantoonPresentation.StartPhantoonAnimation(state, eye, PhantoonPartSegment.EyeClose);
+        state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+        state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyFade.Complete = false;
         state.Round.Damage = 0;
@@ -287,7 +285,7 @@ internal sealed class PhantoonPatterns
         SamusState samus)
     {
         MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
 
@@ -335,20 +333,18 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
+        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (state.BodyFade.Complete)
             state.Phase = PhantoonPhase.MoveInFigureEightThenOpenEye;
     }
 
     /// <summary>Runs the visible setup for every flame-rain window.</summary>
-    internal static void BeginPhantoonFlameRainVulnerableWindow(
-        RoomEnemyPlace body,
-        PhantoonEnemyState state)
+    internal static void BeginPhantoonFlameRainVulnerableWindow(PhantoonEnemyState state)
     {
         state.BodyFade.Complete = false;
         state.Translucent = false;
-        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.FullHitboxBody);
-        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeballCentered);
+        state.BodyPart.StartAnimation(PhantoonPartSegment.FullHitboxBody);
+        state.EyePart.StartAnimation(PhantoonPartSegment.EyeballCentered);
         state.Phase = PhantoonPhase.FadeInDuringFlameRain;
     }
 
@@ -357,7 +353,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 1);
+        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.FlameRainFadeInSteps);
         if (!state.BodyFade.Complete)
             return;
 
@@ -385,8 +381,8 @@ internal sealed class PhantoonPatterns
 
         state.Phase = PhantoonPhase.FadeOutDuringFlameRain;
         state.BodyFade.Complete = false;
-        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
-        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeClose);
+        state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+        state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.Translucent = true;
     }
@@ -395,7 +391,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonFlameRainFadeOut(
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
 
@@ -425,7 +421,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         StepPhantoonFigureEight(body, state.FigureEight);
         StepPhantoonCasualFlameSchedule(state);
         if (!state.Round.StepEyeClosedTimerRunsOut())
@@ -440,7 +436,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonFadeOutBeforeRage(
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
         state.Phase = PhantoonPhase.MoveToTopCenterForRage;
@@ -464,7 +460,7 @@ internal sealed class PhantoonPatterns
         RoomEnemyPlace body,
         PhantoonEnemyState state)
     {
-        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, denominator: 12);
+        _phantoonPresentation.AdvancePhantoonFadeIn(body, state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
         state.Phase = PhantoonPhase.Enraged;
@@ -473,7 +469,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Runs all eight alternating radial flame waves.</summary>
-    internal void RunPhantoonRage(RoomEnemyPlace body, PhantoonEnemyState state)
+    internal void RunPhantoonRage(PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
@@ -483,7 +479,7 @@ internal sealed class PhantoonPatterns
             ? PhantoonFlameSpawns.OddRageWave
             : PhantoonFlameSpawns.EvenRageWave;
         foreach (PhantoonRageFlameStart start in wave)
-            SpawnPhantoonRageFlame(body, start);
+            SpawnPhantoonRageFlame(state, start);
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
         state.RageWaveCount++;
@@ -493,7 +489,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        PhantoonPresentation.StartPhantoonAnimation(state, state.Eye, PhantoonPartSegment.EyeClose);
+        state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         state.RageWaveCount = 0;
         state.Phase = PhantoonPhase.FadeOutAfterRage;
     }
@@ -502,7 +498,7 @@ internal sealed class PhantoonPatterns
     internal void RunPhantoonRageFadeOut(
         PhantoonEnemyState state)
     {
-        AdvancePhantoonFadeOut(state, denominator: 12);
+        AdvancePhantoonFadeOut(state, steps: PhantoonColorDefinitions.BodyFadeSteps);
         if (!state.BodyFade.Complete)
             return;
         state.Phase = PhantoonPhase.WaitAfterFadeOut;
@@ -600,33 +596,22 @@ internal sealed class PhantoonPatterns
         else
             direction = toSamus.Y < 0 ? CompassDirection.UpRight : CompassDirection.DownRight;
 
-        PhantoonPresentation.StartPhantoonAnimation(
-            state,
-            state.Eye,
-            PhantoonEyeGaze.EyeAnimation(direction));
+        state.EyePart.StartAnimation(PhantoonEyeGaze.EyeAnimation(direction));
     }
 
-    /// <summary>Blends the body colours toward hidden colors over the selected interval.</summary>
+    /// <summary>Fades his body toward his faded-out colours over <paramref name="steps"/> steps, one every second update.</summary>
     internal void AdvancePhantoonFadeOut(
         PhantoonEnemyState state,
-        int denominator)
+        int steps)
     {
         if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.Complete)
             return;
 
-        state.BodyFade.Denominator = denominator;
-        int numerator = state.BodyFade.Numerator;
-        if (denominator + 1 < numerator)
-        {
-            state.BodyFade.Numerator = 0;
-            state.BodyFade.Complete = true;
+        // The fade's step is a typed fade toward his faded-out colours (#1512, #2251).
+        if (state.BodyFade.TakeStep(steps) is { } step)
+            state.Colours.Fade(PhantoonBodyLook.FadedOut, step, steps);
+        else
             state.Colours.CompleteFade();
-            return;
-        }
-
-        // The fade's step is the import's shade of it, toward his faded-out colours (#1512).
-        state.Colours.Fade(PhantoonBodyLook.FadedOut, denominator, numerator);
-        state.BodyFade.Numerator = numerator + 1;
     }
 
     /// <summary>Places eight delayed rain flames in rotating room columns, each falling eight updates after the last.</summary>
@@ -695,14 +680,15 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Initializes an enraged flame, which circles the body from its start as its circle widens.</summary>
-    /// <param name="body">Phantoon's body.</param>
+    /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">Where on its circle the flame starts and which way it circles.</param>
-    internal bool SpawnPhantoonRageFlame(RoomEnemyPlace body, PhantoonRageFlameStart start)
+    internal bool SpawnPhantoonRageFlame(PhantoonEnemyState phantoon, PhantoonRageFlameStart start)
     {
+        RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        flame.State = new PhantoonOrbitingFlameState(start.Angle)
+        flame.State = new PhantoonOrbitingFlameState(phantoon, start.Angle)
         {
             TurnPerUpdate = PhantoonFlameSpawns.RageTurnPerUpdate(start),
         };
@@ -712,14 +698,15 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Initializes a spiral flame, which circles the body clockwise from its start as its circle widens.</summary>
-    /// <param name="body">Phantoon's body.</param>
+    /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonSpiralFlame(RoomEnemyPlace body, TrigonometryAngle start)
+    internal bool SpawnPhantoonSpiralFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
+        RoomEnemyPlace body = phantoon.Body;
         EnemyProjectile? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-        flame.State = new PhantoonOrbitingFlameState(start);
+        flame.State = new PhantoonOrbitingFlameState(phantoon, start);
         flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
         flame.StartMotion(PhantoonFlameMotion.SpiralOrbiting);
         return true;

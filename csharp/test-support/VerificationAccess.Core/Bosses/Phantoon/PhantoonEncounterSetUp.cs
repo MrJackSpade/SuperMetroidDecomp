@@ -9,13 +9,14 @@ internal static class PhantoonEncounterSetUp
     extension(RoomEnemySystem enemies)
     {
         /// <summary>
-        /// Begins <paramref name="state"/>'s encounter as his body's setup does: his fight holds it and the room reads it
-        /// from the room's boss encounters (#2194).
+        /// Begins <paramref name="state"/>'s encounter as his parts' setups do: each part holds its own part of it (#2252),
+        /// and the room reads it from the room's boss encounters (#2194).
         /// </summary>
         /// <returns>The encounter begun.</returns>
         internal PhantoonEnemyState BeginPhantoonAsSetUp(PhantoonEnemyState state)
         {
-            enemies.PhantoonBehavior.Combat.Phantoon = state;
+            foreach (PhantoonPart part in new[] { state.BodyPart, state.EyePart, state.TentaclesPart, state.MouthPart })
+                part.Place.SetSpeciesState(part);
             enemies.BossEncounters.Attach(state);
             return state;
         }

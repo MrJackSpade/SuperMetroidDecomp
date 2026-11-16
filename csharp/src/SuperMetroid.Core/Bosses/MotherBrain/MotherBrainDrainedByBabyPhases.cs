@@ -189,7 +189,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.GrayTransitionCounter = 0;
+            Encounter.DrainedGreying.Restart();
             Encounter.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
             Encounter.PhaseTimer.Count = 16;
             return true;
@@ -209,8 +209,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
             // The body greys over eight steps, one each time the timer runs out; the ninth finishes the transition
             // without new colours.
-            int greyStep = Encounter.GrayTransitionCounter;
-            Encounter.GrayTransitionCounter++;
+            int greyStep = Encounter.DrainedGreying.TakeStep();
             if (greyStep < 8)
                 requests.DrainColourStep = greyStep;
             if (greyStep >= 8)

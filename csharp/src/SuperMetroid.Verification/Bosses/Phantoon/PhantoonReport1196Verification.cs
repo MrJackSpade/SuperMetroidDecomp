@@ -22,7 +22,7 @@ internal static class PhantoonReport1196Verification
         var state = enemies.BossEncounters.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
         (state ?? throw new InvalidOperationException("Verification requires state.")).PhaseTimer = 1;
-        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
+        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                 projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             "intro producer actually spawns a starting flame");

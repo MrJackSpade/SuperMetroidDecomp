@@ -48,7 +48,7 @@ internal sealed class MotherBrainRevivalPhases
             Encounter.DroolGenerationEnabled = true;
             Encounter.RevivalPhase = MotherBrainRevivalPhase.TransitionFromGrey;
             Encounter.PhaseTimer.Count = 224;
-            Encounter.GrayTransitionCounter = 0;
+            Encounter.RevivalFromGrey.Restart();
             return true;
         }
         return false;
@@ -64,12 +64,9 @@ internal sealed class MotherBrainRevivalPhases
         {
             Encounter.PhaseTimer.Count = 16;
 
-            // The revival reverses the same eight grey fade steps used by the corpse
-            // transition and follows them with zero. The body counter is incremented
-            // before the old index is passed, so index eight is a terminating probe
-            // with no copy. The existing result flag exposes each real copy cadence.
-            int greyStep = Encounter.GrayTransitionCounter;
-            Encounter.GrayTransitionCounter++;
+            // The revival reverses the same eight greying steps used by the corpse transition. Its ninth step shows no
+            // new colours and completes the revival into her waking up.
+            int greyStep = Encounter.RevivalFromGrey.TakeStep();
             if (greyStep < 8)
                 requests.RevivalColourStep = greyStep;
             if (greyStep >= 8)

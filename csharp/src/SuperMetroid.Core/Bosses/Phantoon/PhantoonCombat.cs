@@ -46,10 +46,8 @@ internal sealed class PhantoonCombat
         // damage; a lethal hit begins his death.
         AfterCommon = c =>
         {
-            PhantoonEnemyState phantoon = Phantoon ??
-                throw new InvalidOperationException("Phantoon's shot reaction ran without Phantoon's fight state.");
             int appliedDamage = c.HealthBefore - c.Enemy.Health;
-            ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
+            ResolvePhantoonShotReaction(c.Enemy, PhantoonEntity.EncounterOf(c.Enemy), c.Bomb.Type, appliedDamage);
         },
     };
 
@@ -57,28 +55,29 @@ internal sealed class PhantoonCombat
     /// Phantoon's destroyable flame (#1760): its spawner starts its animation, and a shot one runs its typed shot
     /// animation, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops, _encounter,
+    internal EnemyProjectileBehavior DestroyableFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops,
         PhantoonFlameMotion.CasualFalling, () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableShot));
 
     /// <summary>
     /// One of Phantoon's intro flames (#1760): its spawner starts its animation, and a shot one runs the destroyable
     /// flame's idle animation, the animation its definition names.
     /// </summary>
-    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops, _encounter,
+    internal EnemyProjectileBehavior StartingFlame => field ??= new PhantoonFlameBehavior(_room, _audio, _deathsAndDrops,
         PhantoonFlameMotion.IntroWaiting, () => new PhantoonFlameAnimation(PhantoonFlameSegment.DestroyableIdle));
 
-    /// <summary>A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame animations' cues.</summary>
+    /// <summary>
+    /// A Phantoon flame: every flame's motion, from the intro's wait and orbit to the rage and spiral, and the flame
+    /// animations' cues. A circling flame holds the encounter that spawned it (#2252), whose body it circles.
+    /// </summary>
     /// <param name="room">The loaded room, whose definitions name the flames' drops.</param>
     /// <param name="audio">The enemy sound queue the rain flames' sounds join.</param>
     /// <param name="deathsAndDrops">The drops a shot destroyable flame leaves.</param>
-    /// <param name="encounter">Phantoon's fight state, whose body the orbiting flames circle.</param>
     /// <param name="initial">The motion the flame starts with.</param>
     /// <param name="shot">The animation a destroying shot starts.</param>
     private sealed class PhantoonFlameBehavior(
         EnemyRoomBinding room,
         EnemyAudioQueue audio,
         EnemyDeathsAndDrops deathsAndDrops,
-        PhantoonEncounter encounter,
         PhantoonFlameMotion initial,
         Func<EnemyProjectileAnimation> shot)
         : EnemyProjectileMotionBehavior<PhantoonFlameMotion>(initial, shot), IEnemyProjectileCues<PhantoonFlameCue>
@@ -136,27 +135,21 @@ internal sealed class PhantoonCombat
         }
 
         /// <summary>Holds an intro flame until its delayed orbit begins.</summary>
-        private void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
+        private static void RunPhantoonStartingFlameWaiting(EnemyProjectile flame)
         {
-            PhantoonEnemyState? state = encounter.Phantoon;
-            if (state is null || !state.StartingFlames.Orbiting)
+            PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+            if (!orbit.Phantoon.StartingFlames.Orbiting)
                 return;
             flame.StartMotion(PhantoonFlameMotion.IntroOrbiting);
-            PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
             orbit.StartDelay = PhantoonFlameMotionDefinitions.IntroCircleDelay;
             orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
         }
 
         /// <summary>Advances an intro flame around Phantoon's body; <paramref name="frameCounter"/> times its orbit's closing.</summary>
-        private void RunPhantoonStartingFlameOrbit(EnemyProjectile flame, int frameCounter)
+        private static void RunPhantoonStartingFlameOrbit(EnemyProjectile flame, int frameCounter)
         {
-            if (encounter.Phantoon is not { } state)
-            {
-                flame.Delete();
-                return;
-            }
-
             PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+            PhantoonEnemyState state = orbit.Phantoon;
             if (orbit.StartDelay != 0)
             {
                 orbit.StartDelay--;
@@ -183,20 +176,14 @@ internal sealed class PhantoonCombat
         }
 
         /// <summary>Advances a rage-phase flame through its authored movement.</summary>
-        private void RunPhantoonEnragedFlame(EnemyProjectile flame)
+        private static void RunPhantoonEnragedFlame(EnemyProjectile flame)
         {
-            if (encounter.Phantoon is not { } state)
-            {
-                flame.Delete();
-                return;
-            }
-
             PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
             orbit.Radius += PhantoonFlameMotionDefinitions.RageRadiusStep;
             orbit.Angle += orbit.TurnPerUpdate;
             PositionPhantoonFlameAroundBody(
                 flame,
-                state.Body,
+                orbit.Phantoon.Body,
                 orbit.Angle,
                 orbit.Radius);
             DeletePhantoonFlameOutsideRoom(flame);
@@ -229,20 +216,14 @@ internal sealed class PhantoonCombat
         }
 
         /// <summary>Moves a spiral flame around Phantoon's body.</summary>
-        private void RunPhantoonSpiralFlame(EnemyProjectile flame)
+        private static void RunPhantoonSpiralFlame(EnemyProjectile flame)
         {
-            if (encounter.Phantoon is not { } state)
-            {
-                flame.Delete();
-                return;
-            }
-
             PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
             orbit.Radius += PhantoonFlameMotionDefinitions.SpiralRadiusStep;
             orbit.Angle += PhantoonFlameMotionDefinitions.SpiralTurnPerUpdate;
             PositionPhantoonFlameAroundBody(
                 flame,
-                state.Body,
+                orbit.Phantoon.Body,
                 orbit.Angle,
                 orbit.Radius);
             DeletePhantoonFlameOutsideRoom(flame);
@@ -269,22 +250,20 @@ internal sealed class PhantoonCombat
     }
 
     /// <summary>
-    /// Tests Samus's beams and missiles against Phantoon's body and runs the reaction of the hitbox the first one meets.
-    /// One projectile resolves per pass.
+    /// Tests Samus's beams and missiles against the body of <paramref name="state"/>'s Phantoon, which his body's entity
+    /// resolves, and runs the reaction of the hitbox the first one meets. One projectile resolves per pass.
     /// </summary>
     public int ResolvePhantoonProjectileHits(
+        PhantoonEnemyState state,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
+        Ensure.NotNull(state);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
 
-        if (Phantoon is not { } state)
-            return 0;
-
         RoomEnemyPlace body = state.Body;
-        if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyFrames.ShotsPass(body) ||
+        if (CommonEnemyEmptyFrames.ShotsPass(body) ||
             body.InvincibilityTimer != 0 ||
             body.Presence.HasAny(EnemyPresence.Deleted) ||
             body.Contact.HasAny(EnemyContact.IgnoresSamus))
@@ -350,34 +329,10 @@ internal sealed class PhantoonCombat
                 !projectileType.HasAnyBeam(SamusBeamFlags.Plasma));
 
             int healthBefore = body.Health;
-            // Phantoon calls common normal-shot damage, including its charged-beam
-            // override. Special attack particles retain that bit; reading only the uncharged
-            // combination row made Wave Shield disappear without damaging the boss.
-            EnemyCollision.NormalShotVulnerability vulnerability =
-                EnemyCollision.ReadNormalShotVulnerability(body, projectileType);
-            if (vulnerability.FreezeImmediately)
-            {
-                body.FrozenTimer = 400;
-                body.AiStates |= EnemyAiStates.Frozen;
-                body.InvincibilityTimer = 10;
-            }
-            else
-            {
-                int damage = vulnerability.DamageFrom(projectileDamage);
-                if (damage != 0)
-                {
-                    body.FlashTimer = body.HurtFlashFrames + 8;
-                    body.AiStates |= EnemyAiStates.Hurt;
-                    // Plasma alone installs this clock; ordinary missiles retain
-                    // the timer behavior of the shared damage helper.
-                    if (projectileType.HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = EnemyCollisionDefinitions.PlasmaShotInvincibilityUpdates;
-                    body.Health = damage >= body.Health
-                        ? 0
-                        : body.Health - damage;
-                }
-            }
-
+            // Phantoon's shot reaction runs common normal-shot damage (#2255), including its charged-beam override, a
+            // zero-damage shot's dud, and no death of its own; his own stage follows it. Special attack particles retain
+            // the charged bit; reading only the uncharged combination row made Wave Shield disappear without damaging him.
+            _ = _collision.ApplyNormalShotDamage(body, projectile, projectileType, projectileDamage, _room.Area);
             int appliedDamage = healthBefore - body.Health;
             ResolvePhantoonShotReaction(
                 body,
@@ -468,12 +423,11 @@ internal sealed class PhantoonCombat
     {
         state.Phase = fadeOut;
         state.PhaseTimer = 0;
-        RoomEnemyPlace eye = state.Eye;
         state.Swoop.Requested = false;
         state.Round.Damage = 0;
         state.Translucent = true;
-        PhantoonPresentation.StartPhantoonAnimation(state, body, PhantoonPartSegment.InvulnerableBody);
-        PhantoonPresentation.StartPhantoonAnimation(state, eye, PhantoonPartSegment.EyeClose);
+        state.BodyPart.StartAnimation(PhantoonPartSegment.InvulnerableBody);
+        state.EyePart.StartAnimation(PhantoonPartSegment.EyeClose);
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
         state.BodyFade.Complete = false;
         state.Round.RearmHurtFlash();
@@ -601,27 +555,6 @@ internal sealed class PhantoonCombat
         }
     }
 
-    /// <summary>Phantoon's fight state, which his flames share.</summary>
-    private readonly PhantoonEncounter _encounter = new();
-
-    /// <summary>Phantoon's encounter state once his body has initialized in the room.</summary>
-    public PhantoonEnemyState? Phantoon
-    {
-        get => _encounter.Phantoon;
-        internal set => _encounter.Phantoon = value;
-    }
-
-    /// <summary>Requires Phantoon's living body before handling one of his parts.</summary>
-    internal PhantoonEnemyState RequirePhantoonState(RoomEnemyPlace place)
-    {
-        if (Phantoon is null ||
-            Phantoon.Body.DefinitionId != EnemyDefinitionId.PhantoonBody)
-        {
-            throw new InvalidOperationException(
-                $"Enemy {place.DefinitionId} requires Phantoon's body.");
-        }
-        return Phantoon;
-    }
 
     /// <summary>Recognizes the four enemy definitions that share Phantoon encounter state.</summary>
     internal static bool IsPhantoonPartDefinition(EnemyDefinitionId definition) => definition is

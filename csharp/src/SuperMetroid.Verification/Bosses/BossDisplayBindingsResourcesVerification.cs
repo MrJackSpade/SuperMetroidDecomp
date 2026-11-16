@@ -72,15 +72,10 @@ internal static class BossDisplayBindingsResourcesVerification
         var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
         RoomEnemyPlace body = fixture.Enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        var state = new PhantoonEnemyState(body)
-        {
-            Eye = fixture.Enemies.Places.InUpdateOrder[1],
-            Tentacles = fixture.Actor,
-            Mouth = fixture.Enemies.Places.InUpdateOrder[3],
-        };
+        var state = new PhantoonEnemyState(body, fixture.Enemies.Places.InUpdateOrder[1], fixture.Actor, fixture.Enemies.Places.InUpdateOrder[3]);
         fixture.Enemies.BeginPhantoonAsSetUp(state);
         fixture.SetFrame(0, false);
-        state.PartPlayback(fixture.Actor) = PhantoonEnemyState.Starting(PhantoonPartSegment.Tentacles);
+        fixture.Actor.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.Tentacles);
         fixture.Actor.AnimationClock.StepOnNextUpdate();
         return fixture;
     }

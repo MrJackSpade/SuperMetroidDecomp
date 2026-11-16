@@ -15,10 +15,10 @@ internal static class PhantoonWaveVerification
     /// <summary>Checks setup cadence, native scroll progression, deletion, and debugger state restoration.</summary>
     internal static void VerifyPhantoonWaveLifecycle()
     {
-        var boss = new PhantoonEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()))
-        {
-            Eye = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), Mouth = new RoomEnemyPlace(3, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
-        };
+        var boss = new PhantoonEnemyState(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
+            new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
+            new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
+            new RoomEnemyPlace(3, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()));
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         boss.Wave.PhaseStep = 8;
         var wave = boss.BodyWave;
@@ -102,13 +102,9 @@ internal static class PhantoonWaveVerification
         var visibility = boss.BodyVisibility;
         boss.Translucent = true;
         boss.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.HideForGood;
-        for (int i = 0; i < PhantoonBodyVisibilityEffect.SetupCalls; i++)
-        {
-            visibility.Step(boss);
-            AssertEqual(PhantoonBodyVisibility.Shown, visibility.Visibility, "the effect's setup updates show the body as the room does");
-        }
         visibility.Step(boss);
-        AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility, "translucency takes priority over a cleared body");
+        AssertEqual(PhantoonBodyVisibility.Translucent, visibility.Visibility,
+            "the body shows what the boss asks from the effect's first update, translucency taking priority over a cleared body");
         visibility.LatchDisplay(pixelationBlockSize: 5);
         boss.Death.PixelationSize = 6;
         boss.Translucent = false;

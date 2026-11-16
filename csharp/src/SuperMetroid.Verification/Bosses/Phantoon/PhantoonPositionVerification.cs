@@ -24,7 +24,7 @@ internal static class PhantoonPositionVerification
         var capEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         var capBody = capEnemies.Places.InUpdateOrder[0];
         var capTentacles = capEnemies.Places.InUpdateOrder[2];
-        var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
+        var capState = new PhantoonEnemyState(capBody, capEnemies.Places.InUpdateOrder[1], capTentacles, capEnemies.Places.InUpdateOrder[3]);
         capEnemies.BeginPhantoonAsSetUp(capState);
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capState.Swoop.Velocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));

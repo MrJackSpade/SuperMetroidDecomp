@@ -79,7 +79,7 @@ internal static class NativeEnemyFamilyStateImport
         int index = enemy.Ordinal;
         // The cartridge gives each of Phantoon's parts' record words a meaning per part (#1476); each part's words belong to
         // the encounter's state grouped by what it does (#1933).
-        if (enemy.SpeciesState<PhantoonEnemyState>() is { } phantoon)
+        if (enemy.SpeciesState<PhantoonPart>()?.Phantoon is { } phantoon)
         {
             EnemyDefinitionId part = enemy.DefinitionId;
             if (part == EnemyDefinitionId.PhantoonEye)
@@ -88,8 +88,11 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.Round.EyeClosedTimer = Math.Max(0, CoordinateAxis.AsSigned(words.A));
                 phantoon.FigureEight.Reversed = words.C != 0;
                 phantoon.Death.FadeCycles = words.C;
-                phantoon.BodyFade.Denominator = words.D;
-                phantoon.BodyFade.Numerator = words.E;
+                // The eye's word E counts the steps of whichever of his fades runs: his body's, or after his death the
+                // Wrecked Ship's power coming on, each its own progress (#2251). Word D, the fade's length, is rewritten
+                // by every step.
+                PhantoonFadeProgress fade = phantoon.Phase == PhantoonPhase.Dead ? phantoon.ShipPowerOn : phantoon.BodyFade;
+                fade.Steps = words.E;
                 phantoon.BodyFade.Complete = words.F != 0;
                 phantoon.RageWaveCount = words.F;
                 PhantoonNativeWords.ImportDeathMosaic(phantoon.Death, words.C);

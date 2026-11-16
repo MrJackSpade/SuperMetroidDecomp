@@ -37,7 +37,7 @@ internal static class RoomSheetShades
         if (rooms.Any(room => room.State.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.SporeSpawn)))
             shades.AddRange(SporeSpawnSheetShades.Room(inputs.Bosses));
         if (HoldsPhantoon(rooms))
-            shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses, RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette))));
+            shades.AddRange(PhantoonSheetShades.PowerOn(inputs.Bosses));
         if (Places(rooms, EnemyDefinitionId.CeresElevatorDoor))
             shades.AddRange(ElevatorRoomGlow(inputs));
         if (Places(rooms, EnemyDefinitionId.TourianStatue))
@@ -120,9 +120,8 @@ internal static class RoomSheetShades
     internal static IReadOnlyList<SheetShade> RoomEffects(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
     {
         Ensure.NotNull(inputs);
-        RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
         return [.. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends),
-            .. HoldsPhantoon(RoomsOf(tileset)) ? PhantoonSheetShades.PowerOn(inputs.Bosses, standard) : []];
+            .. HoldsPhantoon(RoomsOf(tileset)) ? PhantoonSheetShades.PowerOn(inputs.Bosses) : []];
     }
 
     /// <summary>

@@ -29,7 +29,7 @@ internal static class PhantoonCasualFlamesVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
         var mouth = enemies.Places.InUpdateOrder[3];
-        var state = new PhantoonEnemyState(body) { Eye = enemies.Places.InUpdateOrder[1], Tentacles = enemies.Places.InUpdateOrder[2], Mouth = mouth };
+        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], mouth);
         enemies.BeginPhantoonAsSetUp(state);
         void step(RoomEnemyPlace _) => enemies.PhantoonBehavior.Patterns.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
@@ -62,7 +62,7 @@ internal static class PhantoonCasualFlamesVerification
             for (int frame = 0; frame < 2048; frame++)
             {
                 // The mouth rests closed before each update; only the casual trigger installs its flame-spitting animation.
-                state.PartPlayback(mouth) = PhantoonEnemyState.Starting(PhantoonPartSegment.MouthInitial);
+                mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthInitial);
                 mouth.AnimationClock.HoldFor(0);
                 bool draw = false;
                 timer = WrappingCounter.Decrement(timer).Value;
@@ -91,7 +91,7 @@ internal static class PhantoonCasualFlamesVerification
                 // mouth holds as no count (#1627).
                 AssertEqual(unchecked((short)count) < 0 ? null : unchecked((short)count), state.CasualFlames.Remaining,
                     "Actual casual frame remaining count");
-                AssertEqual(PhantoonEnemyState.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), state.PartPlayback(mouth),
+                AssertEqual(PhantoonPart.Starting(draw ? PhantoonPartSegment.MouthSpawnFlame : PhantoonPartSegment.MouthInitial), mouth.RequireSpeciesState<PhantoonPart>().Playback,
                     "Exact casual mouth animation trigger frame");
                 AssertEqual(draw ? (ushort)1 : (ushort)0, mouth.AnimationClock.Hold.RawValue, "Exact casual instruction timer reset");
             }

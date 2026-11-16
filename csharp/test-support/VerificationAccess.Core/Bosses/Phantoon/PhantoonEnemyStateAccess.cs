@@ -1,22 +1,20 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Verification access to <see cref="PhantoonEnemyState"/> members production does not use.</summary>
+/// <summary>Verification access to <see cref="PhantoonPart"/> members production does not use.</summary>
 internal static class PhantoonEnemyStateAccess
 {
     /// <summary>Reads the program a Phantoon part plays.</summary>
-    extension(PhantoonEnemyState self)
+    extension(PhantoonPart self)
     {
         /// <summary>
-        /// The program <paramref name="part"/> is playing: the segment its playing phase plays, or, before its first play,
-        /// the one its animation starts at.
+        /// The program the part is playing: the segment its playing phase plays, or, before its first play, the one its
+        /// animation starts at.
         /// </summary>
-        /// <exception cref="InvalidOperationException"><paramref name="part"/> is not one of Phantoon's parts.</exception>
-        internal PhantoonPartSegment PlayingProgram(RoomEnemyPlace part)
+        internal PhantoonPartSegment PlayingProgram()
         {
-            AnimationPlayback<PhantoonPartSegment> playback = self.PartPlayback(part);
+            AnimationPlayback<PhantoonPartSegment> playback = self.Playback;
             return playback.Animation.Phases[playback.Place.Phase].Segment;
         }
     }

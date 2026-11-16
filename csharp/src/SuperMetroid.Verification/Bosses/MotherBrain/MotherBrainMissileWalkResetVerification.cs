@@ -44,6 +44,8 @@ internal static class MotherBrainMissileWalkResetVerification
         runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
         AssertEqual(MotherBrainWalkCredit.Empty, sequence.ThirdPhaseFight.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
         AssertEqual(MotherBrainWalkCredit.Empty, state.WalkCounter, "the encounter projection publishes the reset");
+        AssertEqual(0x8bd8 - 100, head.Health, "the missile then takes common normal-shot damage (#2255)");
+        AssertEqual(head.HurtFlashFrames + 8, head.FlashTimer, "common normal-shot damage starts the head's hurt flash");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");
     }
 

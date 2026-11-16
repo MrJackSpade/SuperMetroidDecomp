@@ -202,7 +202,7 @@ internal sealed class MotherBrainAscent
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
 
-        state.GrayTransitionCounter = 0;
+        state.FromFakeDeathGrey.Restart();
         state.AscentPhase = MotherBrainAscentPhase.TransitionFromGray;
         state.PhaseTimer.Count = 0;
     }

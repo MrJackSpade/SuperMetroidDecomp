@@ -14,10 +14,11 @@ internal static class PhantoonFlameSoundVerification
     internal static void VerifyPhantoonFlameSound()
     {
         var enemies = CreatePhantoonSystem();
-        Action<RoomEnemyPlace, PhantoonPartCue> callback = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
+        Action<PhantoonEnemyState, PhantoonPartCue> callback = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
+        PhantoonEnemyState phantoon = enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         begin();
-        callback(enemies.Places.InUpdateOrder[3], PhantoonPartCue.SpawnCasualFlame);
+        callback(phantoon, PhantoonPartCue.SpawnCasualFlame);
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "casual flame emits one sound request");
         var flameSound = new SoundRequest(RoomSound.PhantoonFlame, SoundRequestPriority.Normal);
         AssertEqual(flameSound, enemies.Audio.SoundRequests[0], "native A7:CF68/CF6B queues library three sound 1D with Max6");
@@ -25,9 +26,9 @@ internal static class PhantoonFlameSoundVerification
             "sound accompanies the actual casual-flame spawn");
 
         begin();
-        callback(enemies.Places.InUpdateOrder[0], PhantoonPartCue.PlayMaterializationSound);
-        callback(enemies.Places.InUpdateOrder[3], PhantoonPartCue.SpawnCasualFlame);
-        callback(enemies.Places.InUpdateOrder[3], PhantoonPartCue.SpawnCasualFlame);
+        callback(phantoon, PhantoonPartCue.PlayMaterializationSound);
+        callback(phantoon, PhantoonPartCue.SpawnCasualFlame);
+        callback(phantoon, PhantoonPartCue.SpawnCasualFlame);
         AssertSequenceEqual(
             new[] { new SoundRequest(EnemySound.PhantoonAppears1, SoundRequestPriority.Normal), flameSound, flameSound },
             enemies.Audio.SoundRequests,

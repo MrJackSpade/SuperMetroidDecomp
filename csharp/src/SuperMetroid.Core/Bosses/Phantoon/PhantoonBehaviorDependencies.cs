@@ -42,4 +42,7 @@ internal sealed record PhantoonBehaviorDependencies
 
     /// <summary>The encounters of the room's bosses, to which his body's setup attaches his (#2194).</summary>
     public required RoomBossEncounters Encounters { get; init; }
+
+    /// <summary>The room's enemy places, among which his body finds his parts listed after it and each part his body before it (#2252).</summary>
+    public required EnemyPlaces Places { get; init; }
 }

@@ -18,7 +18,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     public override void Initialize() => Species.InitializePhantoonBody(Place);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunPhantoonBodyMainAi(Encounter, frame);
 
     /// <summary>
     /// Resolves the body's projectile hits before the ordinary passes: a retained Plasma hit must publish its hurt clock
@@ -27,7 +27,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
     {
         if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-            _ = Species.Combat.ResolvePhantoonProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles);
+            _ = Species.Combat.ResolvePhantoonProjectileHits(Encounter, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <inheritdoc/>
@@ -50,7 +50,7 @@ internal sealed class PhantoonBodyEntity(PhantoonBehavior species, RoomEnemyPlac
     /// <param name="frame">The enemy frame.</param>
     public override bool RunHurt(RoomEnemyFrame frame)
     {
-        Species.ApplyPhantoonHurt(Place, Species.RequireCompletePhantoonState(Place));
+        PhantoonBehavior.ApplyPhantoonHurt(Place, Encounter);
         return true;
     }
 

@@ -180,8 +180,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
 
-    /// <summary>Zero-based count of fake-death grey fade steps taken, 0 through the fade's eight steps plus one.</summary>
-    public int GreyFadeStep { get; internal set; }
+    /// <summary>How far her greying at her fake death has come: its eight colourings, then the step that completes it.</summary>
+    public MotherBrainFadeProgress FakeDeathGreying { get; } = new();
 
     /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
     public MotherBrainCountdown FakeDeathExplosionTimer { get; } = new();
@@ -324,11 +324,20 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public MotherBrainBurstCycle Bursts { get; }
 
-    /// <summary>
-    /// The step her colours' current transition has reached, counting from zero: leaving the fake death's grey, greying
-    /// as the Baby drains her, reviving from it, and her final death's fades.
-    /// </summary>
-    public int GrayTransitionCounter { get; internal set; }
+    /// <summary>How far her return from her fake death's grey has come (#2251).</summary>
+    public MotherBrainFadeProgress FromFakeDeathGrey { get; } = new();
+
+    /// <summary>How far her greying as the Baby drains her has come.</summary>
+    public MotherBrainFadeProgress DrainedGreying { get; } = new();
+
+    /// <summary>How far her revival from that grey has come.</summary>
+    public MotherBrainFadeProgress RevivalFromGrey { get; } = new();
+
+    /// <summary>How far her final death's fade of her body has come.</summary>
+    public MotherBrainFadeProgress DeathBodyFade { get; } = new();
+
+    /// <summary>How far her corpse's greying has come.</summary>
+    public MotherBrainFadeProgress CorpseGreying { get; } = new();
 
     /// <summary>Allows the head animation's mouth-drool generation, enabled during live combat and cleared by low-power/death transitions.</summary>
     public bool DroolGenerationEnabled { get; internal set; }

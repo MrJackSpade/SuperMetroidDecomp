@@ -30,19 +30,14 @@ internal static class PhantoonSoundDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        var state = new PhantoonEnemyState(body)
-        {
-            Eye = enemies.Places.InUpdateOrder[1],
-            Tentacles = enemies.Places.InUpdateOrder[2],
-            Mouth = enemies.Places.InUpdateOrder[3],
-        };
+        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         enemies.BeginPhantoonAsSetUp(state);
-        Action<RoomEnemyPlace, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
+        Action<PhantoonEnemyState, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
         for (int call = 0; call < 6; call++)
         {
             int index = call % 3;
-            process(body, PhantoonPartCue.PlayMaterializationSound);
+            process(state, PhantoonPartCue.PlayMaterializationSound);
             AssertEqual(PhantoonSounds.MaterializationSound(index),
                 (enemies.Audio.LatestSound ?? throw new InvalidOperationException("Verification requires a Phantoon materialization sound request.")),
                 $"Phantoon materialization callback {call} sound");

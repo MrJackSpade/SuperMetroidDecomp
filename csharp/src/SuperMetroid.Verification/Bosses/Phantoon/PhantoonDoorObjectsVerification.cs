@@ -119,10 +119,10 @@ internal static class PhantoonDoorObjectsVerification
         BossFrameResultBuilder results = enemies.BossFrameResults;
         state.StartingFlames.NextFlame = 6;
         state.PhaseTimer = 1;
-        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
+        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual(null, results.PhantoonDoor, "the seventh starting flame asks for no door change");
         state.PhaseTimer = 1;
-        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
+        enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.FightDoor, results.PhantoonDoor, "the eighth starting flame asks for the fight's door");
 
         // Before the fight the door shows its own frame, with the grey door's closed cap beside it.
@@ -154,7 +154,7 @@ internal static class PhantoonDoorObjectsVerification
         state.BossDefeatPersisted = true;
         state.PhaseTimer = 0;
         // Past the power's last step: this update completes the power coming back.
-        state.BodyFade.Numerator = 14;
+        state.ShipPowerOn.Steps = 14;
         enemies.PhantoonBehavior.Death.ActivateWreckedShipAfterPhantoon(state.Body, state, samus);
         AssertEqual((PhantoonDoorChange?)PhantoonDoorChange.RestoredDoor, results.PhantoonDoor, "the power's return asks for the restored door");
 

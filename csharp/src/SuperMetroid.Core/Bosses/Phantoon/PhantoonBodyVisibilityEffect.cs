@@ -5,19 +5,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// pixelation.
 /// </summary>
 /// <remarks>
-/// One mutable instance belongs to the encounter. Its setup progress and its end persist for its lifetime. It reads
+/// One mutable instance belongs to the encounter. Its end persists for its lifetime. It reads
 /// <see cref="PhantoonEnemyState.Translucent"/> and <see cref="PhantoonEnemyState.BodyVisibilityRequest"/> and changes
 /// neither, nor any other gameplay state: no gameplay reads what it shows.
 /// </remarks>
 public sealed class PhantoonBodyVisibilityEffect
 {
-    /// <summary>
-    /// The updates the effect spends starting before it shows what the boss asks; his body shows as the room shows it
-    /// on both.
-    /// </summary>
-    internal const int SetupCalls = 2;
-    /// <summary>Number of initial updates consumed before the effect shows what the boss asks.</summary>
-    private int _setupCalls;
     /// <summary>Whether a <see cref="PhantoonBodyVisibilityRequest.HideForGood"/> body has ended the effect for good.</summary>
     private bool _ended;
     /// <summary>How his body shows as of the last update; not necessarily what the display shows.</summary>
@@ -28,18 +21,17 @@ public sealed class PhantoonBodyVisibilityEffect
     public int DisplayedPixelationBlockSize { get; private set; } = 1;
 
     /// <summary>
-    /// Advances one ordinary-gameplay update: his body shows as the room shows it during the two setup updates and after
-    /// the effect has ended. Thereafter translucency takes precedence; otherwise
+    /// Advances one ordinary-gameplay update: his body shows what the boss asks from the first update (#2263), as the room
+    /// shows it once the effect has ended. Translucency takes precedence; otherwise
     /// <see cref="PhantoonEnemyState.BodyVisibilityRequest"/> hides his body, hides it and ends the effect for good, or shows it.
     /// </summary>
-    /// <param name="boss">Encounter state read without mutation or retention; its mouth must exist once the effect is set up.</param>
+    /// <param name="boss">Encounter state read without mutation or retention.</param>
     /// <remarks>Translucency takes precedence over ending. This does not publish display state, write colours, or update the boss.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
         Ensure.NotNull(boss);
         Visibility = PhantoonBodyVisibility.Shown;
         if (_ended) return;
-        if (_setupCalls < SetupCalls) { _setupCalls++; return; }
         if (boss.Translucent)
             Visibility = PhantoonBodyVisibility.Translucent;
         else if (boss.BodyVisibilityRequest is PhantoonBodyVisibilityRequest.Hide or PhantoonBodyVisibilityRequest.HideForGood)

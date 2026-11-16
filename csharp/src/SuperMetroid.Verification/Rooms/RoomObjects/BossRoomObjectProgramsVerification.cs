@@ -48,9 +48,35 @@ internal static class BossRoomObjectProgramsVerification
     internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom) =>
         CompareChanges(rom, CrocomireArenaEntries, CrocomireArenaMutationDefinitions.Changes, NativeTerrainChanges.NoSteps, "Crocomire arena");
 
-    /// <summary>Mother Brain's fake-death changes play as their native lists do.</summary>
-    internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom) =>
-        CompareChanges(rom, MotherBrainFakeDeathEntries, MotherBrainRoomMutationDefinitions.Changes, NativeTerrainChanges.NoSteps, "Mother Brain fake death");
+    /// <summary>
+    /// Mother Brain's fake-death changes play as their native lists do: each mutation's own change, and the reveal of
+    /// each of the mural's rows at the row's block as the row's own list (#2258).
+    /// </summary>
+    internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom)
+    {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        const string family = "Mother Brain fake death";
+        AssertEqual(Enum.GetValues<MotherBrainRoomMutation>().Length - 1, MotherBrainFakeDeathEntries.Count,
+            $"every {family} mutation but the mural row's reveal has a native list");
+        AssertEqual(MotherBrainFakeDeathEntries.Count, MotherBrainRoomMutationDefinitions.Changes.Count, $"every {family} mutation has a typed change");
+        AssertEqual(MotherBrainMuralDefinitions.RowCount, MotherBrainMuralRowEntries.Count, "every mural row has a native list");
+        int frames = 0;
+        foreach ((MotherBrainRoomMutation mutation, ushort entry) in MotherBrainFakeDeathEntries)
+        {
+            frames += NativeTerrainChanges.Compare(cartridge, MotherBrainRoomMutationDefinitions.Changes[mutation], entry,
+                NativeTerrainChanges.NoSteps, $"{family} {mutation}", out bool began);
+            AssertTrue(!began, $"{family} {mutation} opens nothing as it starts");
+        }
+        for (int row = 0; row < MotherBrainMuralRowEntries.Count; row++)
+        {
+            TerrainChange reveal = MotherBrainRoomObjects.Change(new(
+                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row), MotherBrainRoomMutation.RevealMuralRow));
+            frames += NativeTerrainChanges.Compare(cartridge, reveal, MotherBrainMuralRowEntries[row], NativeTerrainChanges.NoSteps,
+                $"{family} mural row {row + 1}", out bool began);
+            AssertTrue(!began, $"{family} mural row {row + 1} opens nothing as it starts");
+        }
+        Console.WriteLine($"  {family} changes: {frames} typed frames match bank $84.");
+    }
 
     /// <summary>Spore Spawn's ceiling changes play as their native lists do.</summary>
     internal static void VerifySporeSpawnCeilingPrograms(ISnesAddressSpace rom) =>

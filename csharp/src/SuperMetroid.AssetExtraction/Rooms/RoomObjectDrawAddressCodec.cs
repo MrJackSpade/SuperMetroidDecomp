@@ -43,6 +43,9 @@ internal static class RoomObjectDrawAddressCodec
     /// <summary>Bytes between successive eye frames of an eye door.</summary>
     private const int EyeStride = 8;
 
+    /// <summary>Bytes between successive rows of Mother Brain's mural: one thirteen-block run, its header and its end.</summary>
+    private const int MuralRowStride = 30;
+
     /// <summary>The bank-$84 pointer to <paramref name="draw"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> belongs to no family the cartridge stores.</exception>
     internal static ushort Of(RoomObjectDraw draw) => Source(draw).Offset;
@@ -64,6 +67,8 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<KraidRoomObjectDraws.CrumbleDraw> { Frame: var crumble } => RoomObjectDrawSourceDefinitions.KraidCrumble[crumble.Stage],
         RoomObjectFrameDraw<MotherBrainEscapeGateDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainEscapeGate[frame],
         RoomObjectFrameDraw<MotherBrainFakeDeathDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainFakeDeath[frame],
+        RoomObjectFrameDraw<MotherBrainFakeDeathDraws.MuralRowDraw> { Frame: var mural } =>
+            Offset(RoomObjectDrawSourceDefinitions.MotherBrainMuralTopRow, mural.Row * MuralRowStride),
         RoomObjectFrameDraw<MotherBrainGlassDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.MotherBrainGlass[frame],
         RoomObjectFrameDraw<NoobTubeDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.NoobTube[frame],
         RoomObjectFrameDraw<PhantoonDoorDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.PhantoonDoor[frame],

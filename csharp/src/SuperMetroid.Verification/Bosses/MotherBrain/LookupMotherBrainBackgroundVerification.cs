@@ -17,35 +17,30 @@ internal static class LookupMotherBrainBackgroundVerification
         new(0x95b9, "mural-row-7"), new(0x95d7, "mural-row-8"), new(0x95f5, "mural-row-9"), new(0x9613, "mural-row-10"),
         new(0x9631, "mural-row-11"), new(0x964f, "mural-row-12")];
 
-    /// <summary>The mural rows in the order the mural shows them, top to bottom.</summary>
-    private static readonly MotherBrainFakeDeathDraw[] MuralOrder =
-    [
-        MotherBrainFakeDeathDraw.MuralRow1, MotherBrainFakeDeathDraw.MuralRow2, MotherBrainFakeDeathDraw.MuralRow3,
-        MotherBrainFakeDeathDraw.MuralRow4, MotherBrainFakeDeathDraw.MuralRow5, MotherBrainFakeDeathDraw.MuralRow6,
-        MotherBrainFakeDeathDraw.MuralRow7, MotherBrainFakeDeathDraw.MuralRow8, MotherBrainFakeDeathDraw.MuralRow9,
-        MotherBrainFakeDeathDraw.MuralRow10, MotherBrainFakeDeathDraw.MuralRow11, MotherBrainFakeDeathDraw.MuralRow12,
-    ];
-
     /// <summary>
-    /// Checks which draws are the fake-death room's (the mural rows, the wall and door, and the tube clears together), the twelve rows' order, their one thirteen-cell run against the cartridge, and that each row's shape
-    /// covers exactly the cells its draw list writes.
+    /// Checks which draws are the fake-death room's (the wall and door and the tube clears together) and which are the
+    /// mural's rows (#2258), that the mural's one row draw is stored row by row from the top, their one thirteen-cell run
+    /// against the cartridge, and that each row's shape covers exactly the cells its draw list writes.
     /// </summary>
     internal static void VerifyMotherBrainBackgroundGeometry(CartridgeImportAddressSpace rom)
     {
-        LookupEscapeGateStockFrame[] family = [.. Rows, .. LookupMotherBrainBoundaryVerification.Boundaries,
-            .. LookupMotherBrainRegularDrawsVerification.Regular];
+        LookupEscapeGateStockFrame[] family = [.. LookupMotherBrainBoundaryVerification.Boundaries, .. LookupMotherBrainRegularDrawsVerification.Regular];
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             bool owned = family.Any(frame => frame.Pointer == value);
             AssertEqual(owned, RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, NativeObjectDraws.At<MotherBrainFakeDeathDraw>(value), out RoomBlockShape? shape),
                 "Mother Brain fake-death room ownership");
             if (!owned) AssertTrue(shape is null, "Mother Brain missing fake-death room shape");
+            bool mural = Rows.Any(frame => frame.Pointer == value);
+            AssertEqual(mural, RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.MuralRowFamily,
+                NativeObjectDraws.At<MotherBrainFakeDeathDraws.MuralRowDraw>(value), out RoomBlockShape? rowShape), "Mother Brain mural row ownership");
+            if (!mural) AssertTrue(rowShape is null, "Mother Brain missing mural row shape");
         }
         for (int row = 0; row < Rows.Length; row++)
         {
-            AssertEqual(MuralOrder[row], RoomObjectDrawIdentity.FrameOf<MotherBrainFakeDeathDraw>(NativeObjectDraws.At<MotherBrainFakeDeathDraw>(Rows[row].Pointer),
-                "Mother Brain mural row"), "Mother Brain native row order");
-            if (!RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.Family, NativeObjectDraws.At<MotherBrainFakeDeathDraw>(Rows[row].Pointer), out RoomBlockShape? shape))
+            RoomObjectDraw native = NativeObjectDraws.At<MotherBrainFakeDeathDraws.MuralRowDraw>(Rows[row].Pointer);
+            AssertEqual<RoomObjectDraw>(MotherBrainFakeDeathDraws.MuralRow(row), native, "Mother Brain native row order");
+            if (!RoomObjectDrawIdentity.TryShape(MotherBrainFakeDeathDraws.MuralRowFamily, native, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain mural row {Rows[row].Id} has no shape.");
             AssertShapeAsNative(rom, shape, Rows[row].Pointer, Rows[row].Id);
         }

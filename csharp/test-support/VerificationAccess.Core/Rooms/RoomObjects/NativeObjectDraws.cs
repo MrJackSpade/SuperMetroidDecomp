@@ -38,6 +38,7 @@ internal static class NativeObjectDraws
             .Concat(new[] { BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust }.Select(KraidRoomObjectDraws.Crumble))
             .Concat(Enum.GetValues<MotherBrainEscapeGateDraw>().Select(MotherBrainEscapeGateDraws.Family.Of))
             .Concat(Enum.GetValues<MotherBrainFakeDeathDraw>().Select(MotherBrainFakeDeathDraws.Family.Of))
+            .Concat(Enumerable.Range(0, MotherBrainMuralDefinitions.RowCount).Select(MotherBrainFakeDeathDraws.MuralRow))
             .Concat(Enum.GetValues<MotherBrainGlassDraw>().Select(MotherBrainGlassDraws.Family.Of))
             .Concat(Enum.GetValues<NoobTubeDraw>().Select(NoobTubeObjectDraws.Family.Of))
             .Concat(Enum.GetValues<PhantoonDoorDraw>().Select(PhantoonDoorDraws.Family.Of))

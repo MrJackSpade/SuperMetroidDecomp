@@ -34,12 +34,17 @@ internal static class MotherBrainFakeDeathObjectsVerification
 
         AssertEqual(20, RoomObjectMotherBrainFakeDeathVisualFiles.Family.Layouts.Count,
             "Mother Brain fake death owns twenty physical draws");
-        foreach (MotherBrainRoomMutation mutation in Enum.GetValues<MotherBrainRoomMutation>())
+        // Every mutation but a mural row's reveal is spawned at one block; each row's reveal at the row's own block (#2258).
+        var requests = Enum.GetValues<MotherBrainRoomMutation>().Where(mutation => mutation != MotherBrainRoomMutation.RevealMuralRow)
+            .Select(mutation => new RoomObjectSpawnRequest<MotherBrainRoomMutation>(new(5, 3), mutation))
+            .Concat(Enumerable.Range(0, MotherBrainMuralDefinitions.RowCount).Select(row => new RoomObjectSpawnRequest<MotherBrainRoomMutation>(
+                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row), MotherBrainRoomMutation.RevealMuralRow)));
+        foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> request in requests)
         {
-            TerrainChange change = MotherBrainRoomMutationDefinitions.Changes[mutation];
+            TerrainChange change = MotherBrainRoomObjects.Change(request);
             AssertTrue(MotherBrainFakeDeathDraws.TryGet(change.Frames.Single().Draw, out _),
-                $"Mother Brain mutation {mutation} draws a compiled layout");
-            VerifyMotherBrainFakeDeathMutation(rom, mutation, change);
+                $"Mother Brain mutation {request} draws a compiled layout");
+            VerifyMotherBrainFakeDeathMutation(rom, request, change);
         }
 
         Console.WriteLine(
@@ -51,7 +56,7 @@ internal static class MotherBrainFakeDeathObjectsVerification
     /// list writes, and its draw-frame lifetime, deletion and source-read guard.
     /// </summary>
     private static void VerifyMotherBrainFakeDeathMutation(CartridgeImportAddressSpace rom,
-        MotherBrainRoomMutation mutation, TerrainChange change)
+        RoomObjectSpawnRequest<MotherBrainRoomMutation> request, TerrainChange change)
     {
         const int width = 32;
         const int height = 16;
@@ -59,8 +64,11 @@ internal static class MotherBrainFakeDeathObjectsVerification
             width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(5, 3), mutation)),
-            $"Mother Brain mutation {mutation} allocates");
+        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, request),
+            $"Mother Brain mutation {request} allocates");
+        string mutation = request.ToString();
+        int originX = request.Block.X;
+        int originY = request.Block.Y;
         RoomTerrainBlock[] expected = Enumerable.Range(0, terrain.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).Terrain)
             .ToArray();
@@ -70,7 +78,7 @@ internal static class MotherBrainFakeDeathObjectsVerification
             $"Mother Brain mutation {mutation} has a physical draw");
         foreach (KeyValuePair<Offset16<RoomBlocks>, RoomTerrainBlock> cell in
                  InstalledFramePictureAssertions.NativeTerrain(rom, RoomObjectDrawAddressCodec.Of(draw.Draw), out _))
-            expected[(3 + cell.Key.Y) * width + 5 + cell.Key.X] = cell.Value;
+            expected[(originY + cell.Key.Y) * width + originX + cell.Key.X] = cell.Value;
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.Places.ActiveCount,

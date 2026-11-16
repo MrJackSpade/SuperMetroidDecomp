@@ -50,25 +50,14 @@ internal static class BossRoomObjectNativeListAddresses
     ];
 
     /// <summary>
-    /// Mother Brain's fake-death lists at $84:AC05..AC88, six bytes each in authored order, by the mutation each starts.
-    /// The two lists after the mural's last row draw solid rows nothing in the game spawns.
+    /// Mother Brain's fake-death lists at $84:AC05..AC88, six bytes each in authored order, by the mutation each starts,
+    /// other than the mural rows' (<see cref="MotherBrainMuralRowEntries"/>). The two lists after the mural's last row draw
+    /// solid rows nothing in the game spawns.
     /// </summary>
     internal static IReadOnlyList<NativeProgramEntry<MotherBrainRoomMutation>> MotherBrainFakeDeathEntries { get; } =
     [
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.FillWall, 0xac05),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.EscapeDoor, 0xac0b),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow1, 0xac11),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow2, 0xac17),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow3, 0xac1d),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow4, 0xac23),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow5, 0xac29),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow6, 0xac2f),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow7, 0xac35),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow8, 0xac3b),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow9, 0xac41),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow10, 0xac47),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow11, 0xac4d),
-        new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.MuralRow12, 0xac53),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearCeilingBlock, 0xac65),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearCeilingTube, 0xac6b),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearBottomMiddleSideTube, 0xac71),
@@ -76,6 +65,13 @@ internal static class BossRoomObjectNativeListAddresses
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearBottomLeftTube, 0xac7d),
         new NativeProgramEntry<MotherBrainRoomMutation>(MotherBrainRoomMutation.ClearBottomRightTube, 0xac83),
     ];
+
+    /// <summary>
+    /// The lists that reveal the mural's rows at $84:AC11..AC58, six bytes each, top row first: the reveal of a row is the
+    /// one <see cref="MotherBrainRoomMutation.RevealMuralRow"/> at the row's block (#2258).
+    /// </summary>
+    internal static IReadOnlyList<ushort> MotherBrainMuralRowEntries { get; } =
+        [0xac11, 0xac17, 0xac1d, 0xac23, 0xac29, 0xac2f, 0xac35, 0xac3b, 0xac41, 0xac47, 0xac4d, 0xac53];
 
     /// <summary>Phantoon's door lists at $84:B77B..B784 and $84:B785..B78E, by the change each starts (#1678).</summary>
     internal static IReadOnlyList<NativeProgramEntry<PhantoonDoorChange>> PhantoonDoorEntries { get; } =

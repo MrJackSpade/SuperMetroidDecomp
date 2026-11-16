@@ -32,7 +32,7 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     ]);
 
     /// <summary>The mural's top or bottom row: thirteen slope blocks rightward from the origin.</summary>
-    private static readonly RoomBlockShape MuralBorderRow = new(
+    internal static readonly RoomBlockShape MuralBorderRow = new(
     [
         new(new(0, 0), RoomCollisionType.Slope), new(new(1, 0), RoomCollisionType.Slope), new(new(2, 0), RoomCollisionType.Slope),
         new(new(3, 0), RoomCollisionType.Slope), new(new(4, 0), RoomCollisionType.Slope), new(new(5, 0), RoomCollisionType.Slope),
@@ -42,7 +42,7 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
     ]);
 
     /// <summary>A row inside the mural: thirteen empty blocks rightward from the origin.</summary>
-    private static readonly RoomBlockShape MuralInteriorRow = new(
+    internal static readonly RoomBlockShape MuralInteriorRow = new(
     [
         new(new(0, 0), RoomCollisionType.Air), new(new(1, 0), RoomCollisionType.Air), new(new(2, 0), RoomCollisionType.Air),
         new(new(3, 0), RoomCollisionType.Air), new(new(4, 0), RoomCollisionType.Air), new(new(5, 0), RoomCollisionType.Air),
@@ -124,23 +124,11 @@ internal static class MotherBrainFakeDeathObjectDrawDefinitions
         new(new(-1, 0), RoomCollisionType.Air),
     ]);
 
-    /// <summary>The block shape each of the twenty frames draws.</summary>
+    /// <summary>The block shape each frame other than the mural's rows draws.</summary>
     internal static readonly Dictionary<MotherBrainFakeDeathDraw, RoomBlockShape> Shapes = new()
     {
         [MotherBrainFakeDeathDraw.FillWall] = FillWall,
         [MotherBrainFakeDeathDraw.EscapeDoor] = EscapeDoor,
-        [MotherBrainFakeDeathDraw.MuralRow1] = MuralBorderRow,
-        [MotherBrainFakeDeathDraw.MuralRow2] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow3] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow4] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow5] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow6] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow7] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow8] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow9] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow10] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow11] = MuralInteriorRow,
-        [MotherBrainFakeDeathDraw.MuralRow12] = MuralBorderRow,
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] = ClearedCeilingBlock,
         [MotherBrainFakeDeathDraw.ClearCeilingTube] = ClearedCeilingTube,
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] = ClearedBottomMiddleSideTube,

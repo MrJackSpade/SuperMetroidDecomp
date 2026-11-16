@@ -33,7 +33,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             InstalledMotherBrainFakeDeathFrames stock =
                 installation.LoadRoomObjectMotherBrainFakeDeathVisuals();
             VerifyMotherBrainStockMapping(rom, stock);
-            VerifyMotherBrainVisualDraw(MotherBrainRoomMutation.MuralRow12,
+            VerifyMotherBrainVisualDraw(new(new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + MotherBrainMuralDefinitions.RowCount - 1), MotherBrainRoomMutation.RevealMuralRow),
                 new(12, 0), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope), RoomTerrainBlock.Of(0x249, BlockMirroring.None, RoomCollisionType.Slope).Appearance,
                 stock);
 
@@ -51,7 +51,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
     }
 
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
-    private static void VerifyMotherBrainVisualDraw(MotherBrainRoomMutation mutation,
+    private static void VerifyMotherBrainVisualDraw(RoomObjectSpawnRequest<MotherBrainRoomMutation> mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
         InstalledMotherBrainFakeDeathFrames? visuals)
     {
@@ -59,11 +59,11 @@ internal static class MotherBrainFakeDeathVisualsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectMotherBrainFakeDeathVisuals = visuals });
-        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new(new(5, 3), mutation)),
+        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, mutation),
             $"Mother Brain visual mutation {mutation} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
-        int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
+        int blockIndex = (mutation.Block.Y + blockOffset.Y) * width + mutation.Block.X + blockOffset.X;
         AssertEqual(physical,
             level.GetCollisionBlockByIndex(blockIndex).Terrain,
             $"Mother Brain visual mutation {mutation} retains physical block");

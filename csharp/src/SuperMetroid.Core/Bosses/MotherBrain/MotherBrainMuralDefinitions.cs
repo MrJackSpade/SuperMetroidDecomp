@@ -1,18 +1,13 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The mural behind Mother Brain's tank (#2211), which her fake death's ascent reveals two rows an update from the top.
+/// The mural behind Mother Brain's tank (#2211), which her fake death's ascent reveals two rows an update from the top,
+/// each row revealed where it lies (#2258).
 /// </summary>
 internal static class MotherBrainMuralDefinitions
 {
-    /// <summary>The mural's rows, top to bottom.</summary>
-    internal static IReadOnlyList<MotherBrainRoomMutation> Rows { get; } =
-    [
-        MotherBrainRoomMutation.MuralRow1, MotherBrainRoomMutation.MuralRow2, MotherBrainRoomMutation.MuralRow3,
-        MotherBrainRoomMutation.MuralRow4, MotherBrainRoomMutation.MuralRow5, MotherBrainRoomMutation.MuralRow6,
-        MotherBrainRoomMutation.MuralRow7, MotherBrainRoomMutation.MuralRow8, MotherBrainRoomMutation.MuralRow9,
-        MotherBrainRoomMutation.MuralRow10, MotherBrainRoomMutation.MuralRow11, MotherBrainRoomMutation.MuralRow12,
-    ];
+    /// <summary>The mural's rows, from its top border row to its bottom border row.</summary>
+    internal const int RowCount = 12;
 
     /// <summary>The rows the reveal draws each update.</summary>
     internal const int RowsEachUpdate = 2;

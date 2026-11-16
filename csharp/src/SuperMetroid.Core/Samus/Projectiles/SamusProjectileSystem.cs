@@ -92,15 +92,16 @@ public sealed class SamusProjectileSystem
     /// What each of the room's shot places keeps for its next projectile's horizontal sub-pixel position, created by the
     /// room's builder with the room's shot pool.
     /// </param>
+    /// <param name="shotCount">How many shots Samus has out as firing counts them, created by the room's builder with the room's shot pool.</param>
     internal SamusProjectileSystem(GameplayAudioRequests audioRequests, BeamChargeState charge, SamusOverreadServices samusOverreads,
-        LeftMuzzleSubpixelCarry muzzleCarry)
+        LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount)
     {
         AudioRequests = Ensure.NotNull(audioRequests);
         SamusProjectileOverreads overreads = Ensure.NotNull(samusOverreads).Projectiles;
         Charge = Ensure.NotNull(charge);
         PostureAdmission = overreads.PostureAdmission;
         DrainedCrashDepartures = overreads.DrainedCrashDepartures;
-        Pool = new SamusShotPool(muzzleCarry);
+        Pool = new SamusShotPool(muzzleCarry, shotCount);
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio(AudioRequests);
         Animation = new ProjectileAnimation(Charge, Pool);

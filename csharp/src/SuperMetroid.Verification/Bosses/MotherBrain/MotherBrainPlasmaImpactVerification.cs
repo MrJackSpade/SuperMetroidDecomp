@@ -27,11 +27,11 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBodyInitialDummy;
         head.Health = 18000;
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount()) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors);
         var shot = shots.Shots[0];
         SeedChargedPlasma();
@@ -61,7 +61,7 @@ internal static class MotherBrainPlasmaImpactVerification
         AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
         head.InvincibilityTimer = 0;
         state.Form = MotherBrainForm.ThirdPhase;
-        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
+        state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
         state.RainbowBeamSequence.State.Body.Form = MotherBrainForm.ThirdPhase;
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;

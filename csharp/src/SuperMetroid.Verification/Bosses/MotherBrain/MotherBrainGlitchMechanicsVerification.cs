@@ -55,7 +55,7 @@ internal static class MotherBrainGlitchMechanicsVerification
             baby.Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position);
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
             baby.Velocity = new EightEightVector<RoomPixels>(new SignedEightEight(0xff00), new SignedEightEight(0));
-            var motherBrain = new MotherBrainRainbowBeamAttackSequence();
+            var motherBrain = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             baby.Step(samus, motherBrain, HeadOf(motherBrain), cameraPosition: Position16<RoomPixels>.Zero);
             return baby.Velocity.X.RawValue;
         }

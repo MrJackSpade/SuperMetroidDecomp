@@ -41,7 +41,7 @@ internal static class OverlappingEnemyShotsVerification
             enemy.Frame = EnemyFrameId.BeetomCrawlingLeftLegsTucked; // Shots reach only an enemy showing a frame.
             interactive.Add(enemy);
         }
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount)) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount()) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors) { FrameBindings = InstalledFixtures.Projectiles.FrameBindings };
         var shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);

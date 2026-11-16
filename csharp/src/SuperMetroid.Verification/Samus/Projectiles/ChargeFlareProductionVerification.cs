@@ -104,7 +104,7 @@ internal static class ChargeFlareProductionVerification
 
         static SamusProjectileSystem Create()
         {
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
             system.Charge.FlareCounter = 30;
             var frames = system.Charge.FlarePhases;
             Array.Fill(frames, 3);

@@ -214,7 +214,7 @@ internal static class NativeSnapshotMotherBrainImport
     private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state,
         MotherBrainBodyPhase phase, Func<int, ushort> W)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        var sequence = new MotherBrainRainbowBeamAttackSequence(state.Walk, state.Bursts);
         sequence.State.Phase = phase;
         sequence.State.PhaseTimer = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         // The cartridge keeps the brain's fall speed in the body's phase timer.

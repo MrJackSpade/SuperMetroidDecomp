@@ -29,7 +29,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
-            enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body);
+            enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter],

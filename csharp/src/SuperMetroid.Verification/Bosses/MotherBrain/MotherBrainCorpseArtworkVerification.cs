@@ -73,7 +73,7 @@ internal static class MotherBrainCorpseArtworkVerification
         // does: the bottom row first at the corpse's foot, each row above waiting two calls longer (#1472). The extraction
         // stages the corpse frame the schedule rots (#1392).
         CorpseRotScheduleChecks.AssertFreshSchedule(MotherBrainCorpseRottingState.EntryCount,
-            new MotherBrainRainbowBeamAttackSequence().ThirdPhaseDeath.CorpseRotting.Schedule, "Mother Brain's final-death corpse");
+            new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle()).ThirdPhaseDeath.CorpseRotting.Schedule, "Mother Brain's final-death corpse");
 
         Console.WriteLine("  Mother Brain corpse art: indexed PNG import parity, six RAM-only sprite VRAM pages, independent staging oracle, room/sequence staging pass.");
     }

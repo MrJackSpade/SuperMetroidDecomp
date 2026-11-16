@@ -682,7 +682,7 @@ internal static void VerifySamusVisorPalette()
     // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
     // This integration assertion prevents the exact state machine from becoming orphaned.
     var integratedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-    var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+    var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
     SamusBeamChargeGlowStep charge = projectiles.UpdateBeamChargeGlow(
         samusColours, integratedSamus,
         roomVisorAnimation: RoomVisorAnimation.Animated);

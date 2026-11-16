@@ -326,7 +326,7 @@ internal static class EnemyHitBurstVerification
     /// <summary>One uncharged beam of <paramref name="beam"/> at <see cref="Place"/>, flying right.</summary>
     private static (SamusProjectileSystem Shots, SamusBombProjectileSystem Bombs) ShotAt(SamusBeamCombination beam)
     {
-        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+        var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
         SamusProjectile shot = shots.Shots[0];
         shot.Type = SamusProjectileType.Beam(beam, charged: false);
         shot.Damage = 20;

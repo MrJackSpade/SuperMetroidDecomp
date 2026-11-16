@@ -21,8 +21,17 @@ internal sealed class SamusShotPool
     private readonly SamusProjectile[] _places =
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();
 
-    /// <summary>Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/>.</summary>
-    internal SamusShotPool(LeftMuzzleSubpixelCarry muzzleCarry) => MuzzleCarry = Ensure.NotNull(muzzleCarry);
+    /// <summary>
+    /// Starts an empty pool whose places hand their sub-pixel positions on through <paramref name="muzzleCarry"/> and whose
+    /// shots are counted by <paramref name="shotCount"/>.
+    /// </summary>
+    /// <param name="muzzleCarry">What each place keeps for its next projectile's horizontal sub-pixel position.</param>
+    /// <param name="shotCount">The shots counted out, which the room's builder creates with the pool.</param>
+    internal SamusShotPool(LeftMuzzleSubpixelCarry muzzleCarry, SamusShotCount shotCount)
+    {
+        MuzzleCarry = Ensure.NotNull(muzzleCarry);
+        ShotCount = Ensure.NotNull(shotCount);
+    }
 
     /// <summary>The horizontal sub-pixel position each place hands its next projectile.</summary>
     internal LeftMuzzleSubpixelCarry MuzzleCarry { get; }
@@ -103,5 +112,5 @@ internal sealed class SamusShotPool
     }
 
     /// <summary>How many shots Samus has out as firing counts them, which drifts from the places held.</summary>
-    public SamusShotCount ShotCount { get; } = new();
+    public SamusShotCount ShotCount { get; }
 }

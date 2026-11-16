@@ -14,9 +14,15 @@ internal sealed class MotherBrainThirdPhaseDeath
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainThirdPhaseDeath(MotherBrainLateFightState state)
+    /// <param name="state">The state every late-fight phase reads and writes.</param>
+    /// <param name="bursts">
+    /// Where and when the death explosions and the escape door's dust burst: the cycle of the encounter the sequence is
+    /// attached to, which her ascent's dust left (#1872).
+    /// </param>
+    internal MotherBrainThirdPhaseDeath(MotherBrainLateFightState state, MotherBrainBurstCycle bursts)
     {
         _state = state;
+        _bursts = Ensure.NotNull(bursts);
     }
 
     /// <summary>How the body meets Samus and her shots; death makes it ignore Samus.</summary>
@@ -53,13 +59,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     public bool HitboxesEnabled { get; internal set; } = true;
 
     /// <summary>
-    /// Where and when the death explosions and the escape door's dust burst: the encounter's cycle once the sequence is
-    /// attached, which her ascent's dust left (#1872).
+    /// Where and when the death explosions and the escape door's dust burst: the encounter's cycle, which her ascent's dust
+    /// left (#1872).
     /// </summary>
-    private MotherBrainBurstCycle _bursts = new();
-
-    /// <summary>Bursts the death explosions and the escape door's dust from <paramref name="bursts"/> from now on.</summary>
-    internal void ShareBurstCycle(MotherBrainBurstCycle bursts) => _bursts = bursts;
+    private readonly MotherBrainBurstCycle _bursts;
 
     /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
     public bool BodyClearRequested { get; private set; }

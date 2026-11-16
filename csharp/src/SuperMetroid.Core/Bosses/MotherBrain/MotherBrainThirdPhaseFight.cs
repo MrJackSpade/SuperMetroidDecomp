@@ -7,9 +7,12 @@ internal sealed class MotherBrainThirdPhaseFight
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainThirdPhaseFight(MotherBrainLateFightState state)
+    /// <param name="state">The state every late-fight phase reads and writes.</param>
+    /// <param name="walk">The walk credit of the encounter the sequence is attached to.</param>
+    internal MotherBrainThirdPhaseFight(MotherBrainLateFightState state, MotherBrainWalkCounter walk)
     {
         _state = state;
+        _walk = Ensure.NotNull(walk);
     }
 
     /// <summary>
@@ -20,11 +23,8 @@ internal sealed class MotherBrainThirdPhaseFight
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
         MotherBrainPhase3WalkingPhase.Inactive;
 
-    /// <summary>
-    /// The walk credit, which an encounter shares with the sequence it attaches; a standalone
-    /// sequence keeps its own.
-    /// </summary>
-    private MotherBrainWalkCounter _walk = new();
+    /// <summary>The walk credit of the encounter the sequence is attached to, which its walking and shot reactions also read and write.</summary>
+    private readonly MotherBrainWalkCounter _walk;
 
     /// <summary>
     /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles subtract
@@ -303,7 +303,4 @@ internal sealed class MotherBrainThirdPhaseFight
             _state.Phase = MotherBrainBodyPhase.ThirdPhaseFightingMain;
         return false;
     }
-
-    /// <summary>Shares the walk counter the room's Mother Brain state keeps with the third-phase walk.</summary>
-    internal void ShareWalkCounter(MotherBrainWalkCounter walk) => _walk = walk;
 }

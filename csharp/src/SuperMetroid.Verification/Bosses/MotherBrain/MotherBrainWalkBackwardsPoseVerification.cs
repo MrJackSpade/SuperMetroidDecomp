@@ -14,7 +14,7 @@ internal static class MotherBrainWalkBackwardsPoseVerification
 
         MotherBrainRainbowBeamAttackSequence Walking(ushort x, MotherBrainBodyPose pose)
         {
-            var sequence = new MotherBrainRainbowBeamAttackSequence();
+            var sequence = new MotherBrainRainbowBeamAttackSequence(new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
             sequence.DrainedByBaby.PainfulWalkingForward = false;
             sequence.DrainedByBaby.PainfulWalkingAnimationDelay = 0x0002;
             sequence.State.Body.Position = sequence.State.Body.Position.WithX(x);

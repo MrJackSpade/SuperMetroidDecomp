@@ -24,7 +24,7 @@ internal static class MotherBrainLaterContactVerification
         var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         body.Bind(body.DefinitionId, RoomEnemyDefinitionLookup.Get(body.DefinitionId));
-        var state = new MotherBrainEnemyState(body) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        var state = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);
@@ -59,7 +59,7 @@ internal static class MotherBrainLaterContactVerification
         interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
-            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount));
+            var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount());
             var shot = shots.Shots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);

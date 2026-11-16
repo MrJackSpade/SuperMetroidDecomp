@@ -3,19 +3,20 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The state of Fake Kraid. “Mini-Kraid” is the name its item drops and projectiles use; both names refer to
-/// the same enemy definition.
+/// The state of Fake Kraid, the small Kraid in the room before Kraid's.
 /// </summary>
 public sealed class FakeKraidEnemyState
 {
-    /// <summary>Mini-Kraid's animation and where it stands in it (#1600).</summary>
+    /// <summary>Fake Kraid's animation and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FakeKraidSegment> Playback { get; set; }
 
-    /// <summary>Signed whole-pixel walk delta.</summary>
-    public int WalkDelta { get; internal set; }
+    /// <summary>The side Fake Kraid walks toward; a wall or his walk clock running out turns him back.</summary>
+    public HorizontalDirection Walking { get; internal set; }
 
-    /// <summary>Signed four-pixel facing marker.</summary>
-    public int FacingDelta { get; internal set; }
+    /// <summary>
+    /// The side Fake Kraid faces: toward Samus, as each walk cue last found her (#2214); his spits and spikes fly this way.
+    /// </summary>
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>
     /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero, and the

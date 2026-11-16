@@ -10,8 +10,8 @@ internal enum EnemyDeathProjectileSegment
     RespawnTail,
     /// <summary>One burst of the big explosion, repeated, then the drop.</summary>
     BigExplosion,
-    /// <summary>One burst of Mini-Kraid's explosion, repeated, then the drop.</summary>
-    MiniKraidExplosion,
+    /// <summary>One burst of Fake Kraid's explosion, repeated, then the drop.</summary>
+    FakeKraidExplosion,
     /// <summary>The normal explosion animation.</summary>
     NormalExplosion,
     /// <summary>The small explosion animation.</summary>

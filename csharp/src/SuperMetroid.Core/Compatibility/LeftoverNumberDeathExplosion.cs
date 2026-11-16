@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Which explosion an enemy dies in when its death takes the explosion from a number left over by what ran before it,
 /// rather than one the enemy chose (#2131). Zero through four name the death explosions in their authored order (small,
-/// Samus contact, normal, Mini-Kraid's, big), and any other number, or a leftover that is no number at all, names the
+/// Samus contact, normal, Fake Kraid's, big), and any other number, or a leftover that is no number at all, names the
 /// first, the small explosion. Three deaths take their explosion so: a Fireflea Samus touches and a Kraid fingernail
 /// Samus's touch leaves in its place die in the explosion their health left by the touch names, so one with one to four
-/// health left dies in the contact, normal, Mini-Kraid or big explosion and one with none or more in the small one; and a
+/// health left dies in the contact, normal, Fake Kraid or big explosion and one with none or more in the small one; and a
 /// Powamp shot dead dies in the explosion twice its burst's last spike's place in the enemy projectile pool names, so the
 /// first three places give the small, normal and big explosions and any later place, or a burst into a full pool, the
 /// small one. Each caller names where its leftover comes from.

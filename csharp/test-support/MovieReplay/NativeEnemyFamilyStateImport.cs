@@ -528,8 +528,9 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.SpeciesState<FakeKraidEnemyState>() is { } fakeKraidRecord)
         {
-            fakeKraidRecord.WalkDelta = unchecked((short)words.B);
-            fakeKraidRecord.FacingDelta = unchecked((short)words.C);
+            // The cartridge keeps Fake Kraid's walk and facing as signed four-pixel steps (#2214).
+            fakeKraidRecord.Walking = FakeKraidNativeDirection(words.B, "walk");
+            fakeKraidRecord.Facing = FakeKraidNativeDirection(words.C, "facing");
             fakeKraidRecord.WalkStepTimer = words.D;
             fakeKraidRecord.SpitDecisionTimer = words.E;
         }
@@ -979,6 +980,16 @@ internal static class NativeEnemyFamilyStateImport
                 return;
         }
     }
+
+    /// <summary>Decodes Fake Kraid's recorded signed four-pixel step into the direction it points (#2214).</summary>
+    /// <param name="word">The recorded step: four pixels right, or four left.</param>
+    /// <param name="meaning">What the word holds, for the failure message.</param>
+    private static HorizontalDirection FakeKraidNativeDirection(ushort word, string meaning) => unchecked((short)word) switch
+    {
+        4 => HorizontalDirection.Right,
+        -4 => HorizontalDirection.Left,
+        _ => throw new InvalidDataException($"Recorded Fake Kraid {meaning} ${word:X4} is neither four pixels right nor left."),
+    };
 
     /// <summary>Decodes a recorded enemy byte offset into the slot it names.</summary>
     /// <param name="word">The recorded byte offset, the start of an enemy record.</param>

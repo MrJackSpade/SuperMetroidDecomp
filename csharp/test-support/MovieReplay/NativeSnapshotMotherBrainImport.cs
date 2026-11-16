@@ -35,9 +35,9 @@ internal static class NativeSnapshotMotherBrainImport
         state.Form = DecodeForm(W(MotherBrainMemory.Form));
         ImportMotherBrainBodyImage(runtime, state, W);
         state.Pose = DecodePose(W(MotherBrainMemory.Pose));
-        state.BodyPlacement = BodyPlacementOf(state.Form, MotherBrainNativeWords.MotherBrainBodyPhases.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyPhase"));
+        state.BodyPlacement = BodyPlacementOf(state.Form, MotherBrainNativeWords.DecodeBodyPhase(W(MotherBrainMemory.BodyFunction)).Phase);
         state.HitboxesEnabled = MotherBrainHitboxPartsCodec.FromNativeWord(W(MotherBrainMemory.HitboxesEnabled));
-        state.Phase = MotherBrainNativeWords.MotherBrainBodyPhases.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyPhase");
+        (state.Phase, state.MuralRowsDrawn) = MotherBrainNativeWords.DecodeBodyPhase(W(MotherBrainMemory.BodyFunction));
         state.BrainAction = MotherBrainNativeListAddresses.NativeBrainActions[W(MotherBrainMemory.BrainFunction)];
         state.PhaseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BodyFunctionTimer));
         ushort flash = W(MotherBrainMemory.RoomPaletteAnimationScript);
@@ -329,7 +329,7 @@ internal static class NativeSnapshotMotherBrainImport
     /// <exception cref="InvalidDataException">The staged screen is not one installed body frame over her blank.</exception>
     private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
     {
-        var function = MotherBrainNativeWords.MotherBrainBodyPhases.Decode(W(MotherBrainMemory.BodyFunction), "recorded MotherBrainBodyPhase");
+        MotherBrainBodyPhase function = MotherBrainNativeWords.DecodeBodyPhase(W(MotherBrainMemory.BodyFunction)).Phase;
         bool transferred = state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath && function is
             MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain or MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense or
             MotherBrainBodyPhase.FakeDeathAscentPrepareForRising or MotherBrainBodyPhase.FakeDeathAscentReadyStandingBody or

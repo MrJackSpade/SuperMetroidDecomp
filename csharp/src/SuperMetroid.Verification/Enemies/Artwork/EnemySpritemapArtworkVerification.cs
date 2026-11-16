@@ -529,7 +529,7 @@ internal static class EnemySpritemapArtworkVerification
                         EnemyDefinitionId.KihunterRed or
                         EnemyDefinitionId.KihunterRedWings
                     ? KiHunterVisualDefinitions.Bank
-                    : definition == EnemyDefinitionId.MiniKraid
+                    : definition == EnemyDefinitionId.FakeKraid
                     ? EnemySpritemapDefinitions.FakeKraidBank
                     : definition is EnemyDefinitionId.KraidFirstNail or
                         EnemyDefinitionId.KraidSecondNail

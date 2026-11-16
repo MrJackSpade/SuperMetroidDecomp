@@ -31,7 +31,7 @@ internal static class KraidHeadInstructionsVerification
             "an unstarted Kraid head program fails loudly, as an unset native cursor did");
 
         Console.WriteLine(
-            "Kraid head programs: 28 native records, both cries, all entry cursors and delays, every growth resume, and production interpretation pass with the private streams forbidden.");
+            "Kraid head programs: the 19 native records of the three started lists, both cries, all entry cursors and delays, every growth resume, and production interpretation pass with the private streams forbidden.");
     }
 
     /// <summary>Executes the head program from every native cursor and checks poses, durations, image uploads, cries and the resting cursor.</summary>

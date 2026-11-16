@@ -92,7 +92,7 @@ internal sealed class MotherBrainBody
         body.SetSpeciesState(state);
         // Her body frames show on her body from here, which her room does not show over the pipe background until her
         // phase-two transition reveals it (#1356, #1515).
-        _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain));
+        _presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, _motherBrainEncounter.MotherBrain));
         // Her glass shards and tube projectiles show their own colours, MotherBrainColours.GlassAndTubes (#1544).
         // Her room's acid rises, which the room loader applies after enemy initialization.
         _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidRises;
@@ -150,7 +150,7 @@ internal sealed class MotherBrainBody
         if (!place.AnimationClock.Expire())
             return;
         AnimationPlayback<MotherBrainBodySegment> playback = body ? state.BodyPlayback : state.HeadPlayback;
-        EnemyAnimationPlayback.Play(place, MotherBrainAnimations.BodySegments, ref playback, MotherBrainBodyVisualDefinitions.ShownFrames.Of,
+        EnemyAnimationPlayback.Play(place, MotherBrainAnimations.BodySegments, ref playback,
             cue =>
             {
                 ApplyMotherBrainBodyCue(state, samus, cue);

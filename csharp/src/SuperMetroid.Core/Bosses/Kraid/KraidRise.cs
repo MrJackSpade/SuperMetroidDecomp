@@ -49,7 +49,11 @@ internal sealed class KraidRise
         _access = dependencies.Access;
         _background = dependencies.Background;
         _head = dependencies.Head;
+        _bodyLayer = dependencies.BodyLayer;
     }
+
+    /// <summary>The body layer Kraid draws himself, which the room shows (#2194).</summary>
+    private readonly KraidBodyLayer _bodyLayer;
 
     /// <summary>Creates his body's encounter state and restores the defeated room when the area-boss flag is set.</summary>
     internal void InitializeKraidBody(RoomEnemyPlace body)
@@ -57,6 +61,10 @@ internal sealed class KraidRise
         // The body begins the encounter each of his parts joins as it sets up (#2218).
         KraidEnemyState state = _access.BeginEncounter();
         _access.AttachKraidPart(body, state);
+        // The room shows the body layer he draws himself, his backdrop's colours and his own (#2194).
+        _presentation.AttachBossBody(_bodyLayer);
+        _presentation.BossShadings.Show(BossShadingLayer.KraidBackdrop, _access.Backdrop);
+        _presentation.BossShadings.Show(BossShadingLayer.Kraid, state.Colours);
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             // The defeated-room initializer installs the dead-room background colours before the shared part initializer
@@ -192,7 +200,7 @@ internal sealed class KraidRise
                 return;
 
             case KraidGrowthPhase.FadeInRoomBackground:
-                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
+                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
                     return;
                 FinishKraidGrowth(body, state);
                 return;

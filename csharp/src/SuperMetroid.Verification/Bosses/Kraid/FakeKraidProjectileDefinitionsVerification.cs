@@ -24,11 +24,8 @@ internal static class FakeKraidProjectileDefinitionsVerification
         Suite(nameof(VerifyFakeKraidSpikeRowSelection), () => VerifyFakeKraidSpikeRowSelection(rom));
 
         AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectiles.SpitLaunch(false, -1),
-            "Fake Kraid negative spit index");
-        AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectiles.SpitLaunch(true, 2),
-            "Fake Kraid spit index past direction set");
+            () => FakeKraidProjectiles.SpitLaunch(HorizontalDirection.Right, (FakeKraidSpit)2),
+            "Fake Kraid spit past its two shots");
 
         var guarded = new CartridgeReadGuard(rom).Forbid(
             address => address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83,
@@ -53,8 +50,8 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 $"Fake Kraid {(movingRight ? "right" : "left")} physical spit actors");
             for (int projectile = 0; projectile < 2; projectile++)
             {
-                EightEightVector<RoomPixels> launch =
-                    FakeKraidProjectiles.SpitLaunch(movingRight, projectile);
+                EightEightVector<RoomPixels> launch = FakeKraidProjectiles.SpitLaunch(
+                    movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, FakeKraidProjectileDefinitions.SpitsInLaunchOrder[projectile]);
                 AssertEqual(RoomEnemyProjectileKind.FakeKraidSpit, spawned[projectile].Kind,
                     $"Fake Kraid spit {projectile} kind");
                 AssertEqual(unchecked((ushort)(source.Position.X.Whole + (movingRight ? 4 : -4))),
@@ -68,7 +65,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
             }
         }
 
-        foreach (short facingDelta in new short[] { -4, 4 })
+        foreach (HorizontalDirection facing in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
         foreach (FakeKraidSpikeRow row in Enum.GetValues<FakeKraidSpikeRow>())
         {
             var enemies = NewFakeKraidProjectileSystem();
@@ -77,12 +74,12 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
             };
-            var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
+            var state = new FakeKraidEnemyState() { Facing = facing };
             bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);
-            RoomEnemyProjectileKind expectedKind = facingDelta < 0
+            RoomEnemyProjectileKind expectedKind = facing == HorizontalDirection.Left
                 ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
                 : RoomEnemyProjectileKind.FakeKraidSpikeRight;
             AssertEqual(expectedKind, spike.Kind, $"Fake Kraid spike row {row} kind");
@@ -92,7 +89,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                     FakeKraidProjectiles.SpikeYOffset(row))),
                 spike.Position.Y.Whole,
                 $"Fake Kraid spike row {row} Y origin");
-            AssertEqual(facingDelta < 0 ? (ushort)0xfe00 : (ushort)0x0200,
+            AssertEqual(facing == HorizontalDirection.Left ? (ushort)0xfe00 : (ushort)0x0200,
                 spike.Velocity.X.RawValue,
                 $"Fake Kraid spike row {row} X velocity");
         }

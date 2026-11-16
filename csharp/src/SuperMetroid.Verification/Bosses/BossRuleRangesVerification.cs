@@ -45,7 +45,7 @@ internal static class BossRuleRangesVerification
         EnemyDeathExplosion[] expectedByNumber =
         [
             EnemyDeathExplosion.Small, EnemyDeathExplosion.SamusContact, EnemyDeathExplosion.Normal,
-            EnemyDeathExplosion.MiniKraid, EnemyDeathExplosion.Big,
+            EnemyDeathExplosion.FakeKraid, EnemyDeathExplosion.Big,
         ];
         for (int number = 0; number < 1024; number++)
         {

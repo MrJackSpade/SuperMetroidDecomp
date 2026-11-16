@@ -38,6 +38,18 @@ internal static class MotherBrainNativeWords
         [MotherBrainHandBeamPhase.Finish] = 3,
     });
 
+    /// <summary>
+    /// The bank-$A9 routines that draw the mural two rows at a time (#2211), one per pair of rows from the top: the port's
+    /// one <see cref="MotherBrainBodyPhase.FakeDeathAscentDrawMural"/> with that many rows drawn.
+    /// </summary>
+    internal static readonly ushort[] MuralRevealFunctions = [0x8c87, 0x8c9e, 0x8cb5, 0x8ccc, 0x8ce3, 0x8cfa];
+
+    /// <summary>The body phase a recorded bank-$A9 routine word names, and the mural rows it has drawn.</summary>
+    internal static (MotherBrainBodyPhase Phase, int MuralRowsDrawn) DecodeBodyPhase(ushort word) =>
+        Array.IndexOf(MuralRevealFunctions, word) is var pair and >= 0
+            ? (MotherBrainBodyPhase.FakeDeathAscentDrawMural, pair * MotherBrainMuralDefinitions.RowsEachUpdate)
+            : (MotherBrainBodyPhases.Decode(word, "recorded MotherBrainBodyPhase"), 0);
+
     /// <summary>The bank-$A9 routine word naming each <see cref="MotherBrainBodyPhase"/>.</summary>
     internal static readonly NativeWordIdentities<MotherBrainBodyPhase> MotherBrainBodyPhases = new(new Dictionary<MotherBrainBodyPhase, ushort>
     {
@@ -49,12 +61,7 @@ internal static class MotherBrainNativeWords
         [MotherBrainBodyPhase.FakeDeathDescentPauseBeforeFlash] = 0x8884,
         [MotherBrainBodyPhase.FakeDeathDescentFadeToGray] = 0x88b2,
         [MotherBrainBodyPhase.FakeDeathDescentCollapseTubes] = 0x88d3,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows1And2] = 0x8c87,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows3And4] = 0x8c9e,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows5And6] = 0x8cb5,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows7And8] = 0x8ccc,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows9And10] = 0x8ce3,
-        [MotherBrainBodyPhase.FakeDeathAscentDrawMuralRows11And12] = 0x8cfa,
+        [MotherBrainBodyPhase.FakeDeathAscentDrawMural] = 0x8c87,
         [MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Graphics] = 0x8d11,
         [MotherBrainBodyPhase.FakeDeathAscentSetupPhase2Brain] = 0x8d49,
         [MotherBrainBodyPhase.FakeDeathAscentPauseForSuspense] = 0x8d79,

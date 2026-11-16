@@ -50,7 +50,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameContext = dependencies.FrameContext;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
+        _presentation = dependencies.Presentation;
     }
+
+    /// <summary>The room's presentation, which shows his colours (#2194).</summary>
+    private readonly EnemyPresentation _presentation;
 
     /// <summary>Queues a sound from the boss or one of its animations as it makes it, after the update's earlier requests.</summary>
     private void RequestSporeSpawnSound(SoundEffectId sound) =>
@@ -102,6 +106,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             MovementCenter = body.Position.Whole,
         };
         SporeSpawn = state;
+        _presentation.BossShadings.Show(BossShadingLayer.SporeSpawn, state.Colours);
 
         // His spores' colours, which he loads as he initializes, are the import's shade of them (#1512).
         body.Shading = state.Colours.Sprites;

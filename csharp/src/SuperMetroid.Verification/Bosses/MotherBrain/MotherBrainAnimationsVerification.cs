@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainBeamWindowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainDeathHandoffVerification;
@@ -82,17 +83,17 @@ internal static class MotherBrainAnimationsVerification
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, program);
             var beats = MotherBrainAnimations.HeadSegments.Beats(program);
-            var shown = beats.OfType<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame>().First();
+            var shown = beats.OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().First();
             int duration = shown.Duration;
             for (int draw = 0; draw < duration; draw++)
-                AssertEqual((MotherBrainHeadFrame?)shown.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)shown.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
             AnimationPlayback<MotherBrainHeadSegment> resting = state.BrainPlayback ?? throw new InvalidOperationException("Verification requires state.BrainPlayback.");
             AnimationPhase<MotherBrainHeadSegment> phase = resting.Animation.Phases[resting.Place.Phase];
-            AssertTrue(MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + resting.Place.Beat] is AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame,
+            AssertTrue(MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + resting.Place.Beat] is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame,
                 $"{program}'s place rests on the frame it shows");
         }
     }

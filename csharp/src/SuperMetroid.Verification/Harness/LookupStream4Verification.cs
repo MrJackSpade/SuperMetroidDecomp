@@ -2563,8 +2563,8 @@ internal static class LookupStream4Verification
     /// <summary>Every shade Draygon's colours can lay over his body layer: his material colours, their white flash and each health band.</summary>
     private static readonly SuperMetroid.Core.Assets.PictureShade[] DraygonRoomShades =
     [
-        SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Background,
-        SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.BackgroundWhite,
+        SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Body,
+        SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.BodyWhite,
         .. Enumerable.Range(0, 8).Select(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades.Health),
     ];
 

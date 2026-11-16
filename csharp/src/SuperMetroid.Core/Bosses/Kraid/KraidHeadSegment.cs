@@ -1,15 +1,13 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's four head animations. At an animation's start his mouth tests find the last pose of the animation laid out
-/// before it, which <see cref="KraidHeadAnimations.ReadsAt"/> names for each (#1886, #1887).
+/// Kraid's three head animations. At an animation's start his mouth tests find the pose
+/// <see cref="KraidHeadAnimations.ReadsAt"/> names for it (#1886, #1887).
 /// </summary>
 internal enum KraidHeadSegment
 {
     /// <summary>The attack roar: the mouth opens through three stages, roars, holds wide open, then closes.</summary>
     Roar,
-    /// <summary>The slower roar authored after the attack roar, opening for longer.</summary>
-    DyingRoar,
     /// <summary>The eye glow after a body hit: the mouth opens one stage and closes.</summary>
     EyeGlow,
     /// <summary>The death cry: the mouth opens through every stage and stays open.</summary>

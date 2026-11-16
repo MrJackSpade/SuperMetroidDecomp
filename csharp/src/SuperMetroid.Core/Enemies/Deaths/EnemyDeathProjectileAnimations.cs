@@ -30,7 +30,7 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new EnemyDeathProjectileCue.Signal(K.PlaySmallExplosionSound)),
             Cue(new EnemyDeathProjectileCue.Signal(K.BecomePickup)),
         ],
-        [P.MiniKraidExplosion] =
+        [P.FakeKraidExplosion] =
         [
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
@@ -133,7 +133,7 @@ internal static class EnemyDeathProjectileAnimations
     internal static Animation<EnemyDeathProjectileSegment> StartingWith(EnemyDeathProjectileSegment segment) => StartingAt[segment];
 
     /// <summary>
-    /// The animation each death explosion starts (#2061): the big explosion's five bursts and Mini-Kraid's sixteen, each
+    /// The animation each death explosion starts (#2061): the big explosion's five bursts and Fake Kraid's sixteen, each
     /// scattering its sprites, before it becomes the drop; the other explosions' animations start at their segments.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyDeathExplosion, Animation<EnemyDeathProjectileSegment>> Explosions { get; } =
@@ -142,7 +142,7 @@ internal static class EnemyDeathProjectileAnimations
             [EnemyDeathExplosion.Small] = StartingAt[P.SmallExplosion],
             [EnemyDeathExplosion.SamusContact] = StartingAt[P.KilledBySamusContact],
             [EnemyDeathExplosion.Normal] = StartingAt[P.NormalExplosion],
-            [EnemyDeathExplosion.MiniKraid] = new([new(P.MiniKraidExplosion, 0, 5, 16), new(P.MiniKraidExplosion, 5, 1, 1)], AnimationEnd.Holds),
+            [EnemyDeathExplosion.FakeKraid] = new([new(P.FakeKraidExplosion, 0, 5, 16), new(P.FakeKraidExplosion, 5, 1, 1)], AnimationEnd.Holds),
             [EnemyDeathExplosion.Big] = new([new(P.BigExplosion, 0, 4, 5), new(P.BigExplosion, 4, 1, 1)], AnimationEnd.Holds),
         };
 

@@ -49,7 +49,8 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = KraidEntity.EncounterOf(_parts.Body);
         _access.AttachKraidPart(lint, state);
         lint.Shading = _parts.Body.Shading;
-        lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
+        // A lint shows the pose its behaviour sets; its animation never steps, and nothing starts its clock again.
+        lint.AnimationClock.Stop();
         _access.SetKraidPartAnimation(state, lint, KraidPartSegment.LintInitial);
         lint.Frame = EnemyFrameId.KraidLintBudding;
         KraidLintState part = _parts.LintStateOf(state, lint);
@@ -74,7 +75,8 @@ internal sealed class KraidProjectiles
         // A fingernail set up, at the room's first setup or a respawn, has taken no alternate spawn, as a killed one has not.
         nailPart.AlternateSpawn = false;
         nail.Presence = nail.Presence.With(EnemyPresence.Hidden);
-        nail.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
+        // The nail's spin waits until its flight starts the clock.
+        nail.AnimationClock.Stop();
         _access.SetKraidPartAnimation(state, nail, KraidPartSegment.NailLoop);
         nail.Frame = EnemyFrameId.KraidNailTurned0;
         nailPart.Phase = KraidNailPhase.WaitBeforeLaunch;
@@ -274,7 +276,6 @@ internal sealed class KraidProjectiles
     internal void RunKraidLintMain(RoomEnemyPlace lint, KraidLintState part, SamusState samus, PseudoScrewCharge pseudoScrew)
     {
         ResolveKraidLintContact(lint, samus, pseudoScrew);
-        lint.AnimationClock.HoldFor(KraidBehavior.KraidStillPartTimer);
         switch (part.Phase)
         {
             case KraidLintPhase.Inactive:

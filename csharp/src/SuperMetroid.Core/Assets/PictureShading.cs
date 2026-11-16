@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// How a draw's picture is coloured (#1512, #1633): its own colours, with the shades its owner names laid over them in
-/// order, then each colour effect applied in order, then the shades laid over the effects, whose colours are written over
+/// order, then the fades between shadings it shows (#2215), then each colour effect applied in order, then the shades laid over the effects, whose colours are written over
 /// what the effects show. A shade names the pixels it recolours by their colour key, the colour they hold with their
 /// recolour region. The simulation names shades and effects; it never selects a colour for a pixel. A backend colours the
 /// picture from <see cref="KeyColours(SpriteImage)"/> alone.
@@ -24,8 +24,20 @@ public sealed record PictureShading
     /// <param name="effects">The colour effects applied after the shades, in order.</param>
     /// <param name="overEffects">The installed shades laid over what the effects show, in order.</param>
     public PictureShading(ImmutableArray<PictureShade> shades, ImmutableArray<ColourEffect> effects, ImmutableArray<PictureShade> overEffects)
+        : this(shades, [], effects, overEffects)
+    {
+    }
+
+    /// <summary>Keeps a draw's shades, the fades shown over them, its effects and the shades laid over its effects.</summary>
+    /// <param name="shades">The installed shades laid over the standard colours, in order; a later one wins where they overlap.</param>
+    /// <param name="fades">The fades shown over the shades, in order (#2215).</param>
+    /// <param name="effects">The colour effects applied after the fades, in order.</param>
+    /// <param name="overEffects">The installed shades laid over what the effects show, in order.</param>
+    public PictureShading(ImmutableArray<PictureShade> shades, ImmutableArray<PictureShadeFade> fades, ImmutableArray<ColourEffect> effects,
+        ImmutableArray<PictureShade> overEffects)
     {
         Shades = shades.IsDefault ? [] : shades;
+        Fades = fades.IsDefault ? [] : fades;
         Effects = effects.IsDefault ? [] : effects;
         OverEffects = overEffects.IsDefault ? [] : overEffects;
     }
@@ -39,7 +51,10 @@ public sealed record PictureShading
     /// <summary>The installed shades laid over the standard colours, in order.</summary>
     public ImmutableArray<PictureShade> Shades { get; }
 
-    /// <summary>The colour effects applied after the shades, in order.</summary>
+    /// <summary>The fades shown over the shades, in order (#2215).</summary>
+    public ImmutableArray<PictureShadeFade> Fades { get; }
+
+    /// <summary>The colour effects applied after the fades, in order.</summary>
     public ImmutableArray<ColourEffect> Effects { get; }
 
     /// <summary>The installed shades laid over what the effects show, in order.</summary>
@@ -47,7 +62,7 @@ public sealed record PictureShading
 
     /// <summary>Whether both name the same shades and effects in the same order, so show a picture alike.</summary>
     public bool Equals(PictureShading? other) =>
-        other is not null && Shades.SequenceEqual(other.Shades) && Effects.SequenceEqual(other.Effects)
+        other is not null && Shades.SequenceEqual(other.Shades) && Fades.SequenceEqual(other.Fades) && Effects.SequenceEqual(other.Effects)
         && OverEffects.SequenceEqual(other.OverEffects);
 
     /// <summary>Hashes the shades and effects <see cref="Equals(PictureShading)"/> compares.</summary>
@@ -56,6 +71,8 @@ public sealed record PictureShading
         var hash = new HashCode();
         foreach (PictureShade shade in Shades)
             hash.Add(shade);
+        foreach (PictureShadeFade fade in Fades)
+            hash.Add(fade);
         foreach (ColourEffect effect in Effects)
             hash.Add(effect);
         foreach (PictureShade shade in OverEffects)
@@ -64,16 +81,19 @@ public sealed record PictureShading
     }
 
     /// <summary>Whether the picture shows its standard colours.</summary>
-    public bool IsStandard => Shades.IsEmpty && Effects.IsEmpty && OverEffects.IsEmpty;
+    public bool IsStandard => Shades.IsEmpty && Fades.IsEmpty && Effects.IsEmpty && OverEffects.IsEmpty;
 
     /// <summary>This shading with <paramref name="shade"/> laid over its shades.</summary>
-    public PictureShading With(PictureShade shade) => new(Shades.Add(shade), Effects, OverEffects);
+    public PictureShading With(PictureShade shade) => new(Shades.Add(shade), Fades, Effects, OverEffects);
+
+    /// <summary>This shading with <paramref name="fade"/> shown after its fades (#2215).</summary>
+    public PictureShading With(PictureShadeFade fade) => new(Shades, Fades.Add(Ensure.NotNull(fade)), Effects, OverEffects);
 
     /// <summary>This shading with <paramref name="effect"/> applied after its effects.</summary>
-    public PictureShading With(ColourEffect effect) => new(Shades, Effects.Add(Ensure.NotNull(effect)), OverEffects);
+    public PictureShading With(ColourEffect effect) => new(Shades, Fades, Effects.Add(Ensure.NotNull(effect)), OverEffects);
 
     /// <summary>This shading with <paramref name="shade"/> laid over what its effects show.</summary>
-    public PictureShading OverEffect(PictureShade shade) => new(Shades, Effects, OverEffects.Add(shade));
+    public PictureShading OverEffect(PictureShade shade) => new(Shades, Fades, Effects, OverEffects.Add(shade));
 
     /// <summary>The colour each of <paramref name="picture"/>'s colour keys (<see cref="SpriteImage.ColourKeys"/>) shows under this shading.</summary>
     /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
@@ -99,8 +119,20 @@ public sealed record PictureShading
         _ = Ensure.LengthEqual(shown, keys.Length);
         for (int key = 0; key < keys.Length; key++)
             shown[key] = keys[key].Colour;
+        ApplyOver(picture, shown);
+    }
+
+    /// <summary>
+    /// Lays this shading over <paramref name="shown"/>, the colour each of <paramref name="picture"/>'s colour keys shows so
+    /// far: its shades, then its fades, its effects and the shades over its effects.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation did not pre-colour the picture in a shade this shading names.</exception>
+    internal void ApplyOver(SpriteImage picture, Span<RgbColor> shown)
+    {
         foreach (PictureShade shade in Shades)
             Recolour(picture, picture.Shade(shade), shown);
+        foreach (PictureShadeFade fade in Fades)
+            fade.ApplyOver(picture, shown);
         foreach (ColourEffect effect in Effects)
         {
             for (int key = 0; key < shown.Length; key++)

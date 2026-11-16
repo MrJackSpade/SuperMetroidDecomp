@@ -4,7 +4,7 @@ using SuperMetroid.Verification.Harness;
 
 /// <summary>
 /// Checks the enemies' one view (#2025) against each cull it replaced: the edge-inclusive view the projectile culls,
-/// Mini-Kraid, Magdollite, Shutters, the Yapping Maw and the on-screen centre used; the view excluding its far edges
+/// Fake Kraid, Magdollite, Shutters, the Yapping Maw and the on-screen centre used; the view excluding its far edges
 /// that the dust, Skree particle, Magdollite lava and pirate culls used; and the Evir's widened view.
 /// </summary>
 internal static class EnemyViewVerification
@@ -52,7 +52,7 @@ internal static class EnemyViewVerification
             CoordinateAxis.Difference(bottom, point.Y) < 0;
         AssertEqual(!sharedOutside, EnemyView.Contains(point, camera), $"{label}: the shared projectile cull");
 
-        // Botwoon's spit, Mini-Kraid's sounds, Shutters' sound and the Yapping Maw.
+        // Botwoon's spit, Fake Kraid's sounds, Shutters' sound and the Yapping Maw.
         bool signedOnScreen = CoordinateAxis.Difference(point.X, camera.X) >= 0 &&
             CoordinateAxis.AsSigned(camera.X + 256 - point.X) >= 0 &&
             CoordinateAxis.Difference(point.Y, camera.Y) >= 0 &&

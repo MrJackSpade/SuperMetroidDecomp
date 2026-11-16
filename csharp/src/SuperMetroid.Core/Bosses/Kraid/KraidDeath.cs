@@ -92,12 +92,6 @@ internal sealed class KraidDeath
             case KraidDeathPhase.ShowBody:
                 _ = _head.AdvanceKraidHeadAnimation(state);
                 state.BodyState.DeathPhase = KraidDeathPhase.StartSinking;
-                foreach (RoomEnemyPlace lint in _parts.Lints)
-                {
-                    KraidLintState lintState = _parts.LintStateOf(state, lint);
-                    lintState.Phase = KraidLintPhase.AlignToKraidBeforeProducing;
-                    lintState.PhaseTimer = KraidBehavior.KraidStillPartTimer;
-                }
                 state.ShowBody();
                 return;
 
@@ -126,7 +120,7 @@ internal sealed class KraidDeath
                     state.BodyState.DeathPhase = KraidDeathPhase.FadeInBackground;
                 return;
             case KraidDeathPhase.FadeInBackground:
-                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
+                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
                     return;
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
                 if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))

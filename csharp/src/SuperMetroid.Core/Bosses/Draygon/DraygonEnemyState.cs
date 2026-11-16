@@ -8,8 +8,14 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// Draygon's encounter-wide state and the values of his body. The four visible enemy parts remain physical <see cref="RoomEnemyPlace"/> instances; the eye's values live
 /// in its own <see cref="DraygonEyeState"/>.
 /// </summary>
-public sealed class DraygonEnemyState
+public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
+    /// <inheritdoc />
+    Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacement;
+
+    /// <summary>His body shows nothing once his body is deleted, as his room keeps showing it (#2194).</summary>
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => Body.Presence.HasAny(EnemyPresence.Deleted);
+
     /// <summary>Anchors the encounter-wide state to Draygon's physical body place.</summary>
     internal DraygonEnemyState(RoomEnemyPlace body) => Body = body;
 
@@ -60,17 +66,17 @@ public sealed class DraygonEnemyState
     public Position16<RoomPixels> LeftSideReset { get; internal set; }
 
     /// <summary>
-    /// The off-screen point at the right, 672 pixels right of <see cref="LeftSideReset"/> at the same height. Only the X
-    /// axis is read: a leftward swoop aims from it and a leftward goop pass starts there.
+    /// The X of the off-screen place at the right (#2221), 672 pixels right of <see cref="LeftSideReset"/>, wrapping: a
+    /// leftward swoop aims from it and a leftward goop pass starts there.
     /// </summary>
-    public Position16<RoomPixels> RightSideReset { get; internal set; }
+    public int RightSideResetX { get; internal set; }
 
     /// <summary>
-    /// Downward 1/256-pixel acceleration a swoop path is built with, in 1/256 pixel per frame per frame. Only the Y axis is
-    /// meaningful. It starts at 24, each eye hit adds 8 while the result stays below 160, and a tail-whip hit on
-    /// grabbed Samus restores 24.
+    /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at
+    /// 24/256, each eye hit adds 8/256 while the result stays below 160/256, and a tail-whip hit on grabbed Samus restores
+    /// 24/256.
     /// </summary>
-    public EightEightVector<RoomPixels> SwoopAcceleration { get; internal set; }
+    public SignedEightEight SwoopAcceleration { get; internal set; }
 
     /// <summary>
     /// How many updates the intro dance has run: zero when the encounter starts and one more after each of the dance's

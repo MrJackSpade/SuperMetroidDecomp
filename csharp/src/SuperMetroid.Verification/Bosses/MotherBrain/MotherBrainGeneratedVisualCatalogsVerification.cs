@@ -29,10 +29,10 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         new(0xa9, 0xa28c, "mother_brain_body_uncrouching"),
         new(0xa9, 0xa2d6, "mother_brain_body_leaning_down"),
         new(0xa9, 0xa320, "mother_brain_body_initial_dummy"),
-        new(0xa9, 0xa384, "mother_brain_body_standing_twin"),
-        new(0xa9, 0xa3ce, "mother_brain_body_standing_twin_b"),
-        new(0xa9, 0xa418, "mother_brain_body_standing_twin_c"),
-        new(0xa9, 0xa462, "mother_brain_body_standing_twin_d"),
+        new(0xa9, 0xa384, "mother_brain_body_hand_curling"),
+        new(0xa9, 0xa3ce, "mother_brain_body_arm_drawn_back"),
+        new(0xa9, 0xa418, "mother_brain_body_arm_flung_out"),
+        new(0xa9, 0xa462, "mother_brain_body_arm_returning"),
     ];
 
     /// <summary>Pinned names the installed body-layer document stores each frame's BG2 half under, in frame order, without the dummy.</summary>

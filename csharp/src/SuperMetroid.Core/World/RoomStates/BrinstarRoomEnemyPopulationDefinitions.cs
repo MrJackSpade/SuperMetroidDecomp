@@ -455,7 +455,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
             new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
             new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
-            new(EnemyDefinitionId.MiniKraid, new(1328, 160), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
+            new(EnemyDefinitionId.FakeKraid, new(1328, 160), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.SporeSpawn),
         [

@@ -953,12 +953,6 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.Duration(invalid), "stream 3 escape lightning duration bounds");
         Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((CartridgeImportAddressSpace)rom));
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((CartridgeImportAddressSpace)rom));
-        foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
-        {
-            var regions = MotherBrainContacts.Get(part);
-            foreach (int invalid in new[] { -1, regions.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = regions[invalid], "stream 3 contact region bounds");
-        }
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
     }
 

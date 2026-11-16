@@ -85,7 +85,7 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.KzanBottom] = 0xe03f,
         [EnemyDefinitionId.Hibashi] = 0xe07f,
         [EnemyDefinitionId.NuclearWaffle] = 0xe0bf,
-        [EnemyDefinitionId.MiniKraid] = 0xe0ff,
+        [EnemyDefinitionId.FakeKraid] = 0xe0ff,
         [EnemyDefinitionId.RidleyCeres] = 0xe13f,
         [EnemyDefinitionId.Ridley] = 0xe17f,
         [EnemyDefinitionId.RidleyBreakupPiece] = 0xe1bf,

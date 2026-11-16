@@ -31,8 +31,7 @@ internal static class RoomSheetShades
         var shades = new List<SheetShade>(PaletteFxRoomShades.Of(rooms, inputs.Maps.RoomPaletteFx));
         if (rooms.Any(room => room.State.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.Kraid)))
         {
-            RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-            shades.AddRange(KraidBackdropShades.Of(standard, inputs.Bosses.KraidColors
+            shades.AddRange(KraidBackdropShades.Of(inputs.Bosses.KraidColors
                 ?? throw new InvalidDataException("Kraid's room is shaded from the installed Kraid colours.")));
         }
         if (rooms.Any(room => room.State.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == EnemyDefinitionId.SporeSpawn)))

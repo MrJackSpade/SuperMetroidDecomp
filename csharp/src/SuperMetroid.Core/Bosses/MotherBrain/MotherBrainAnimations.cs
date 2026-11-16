@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Animation;
 using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodySegment;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment;
-using M = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadFrame;
+using M = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -10,8 +11,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainAnimations
 {
     /// <summary>Every body segment.</summary>
-    internal static AnimationSegments<B, MotherBrainBodyFrame, MotherBrainBodyCue> BodySegments { get; } = new(
-        new Dictionary<B, AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[]>
+    internal static AnimationSegments<B, EnemyFrameId, MotherBrainBodyCue> BodySegments { get; } = new(
+        new Dictionary<B, AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[]>
     {
         [B.WalkForwardReallyFast] = WalkForward(2),
         [B.WalkForwardFast] = WalkForward(4),
@@ -26,14 +27,14 @@ internal static class MotherBrainAnimations
         [B.CrouchAndThenStandUp] =
         [
             .. Crouch(8, 8),
-            BodyShow(MotherBrainBodyFrame.Crouched, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyCrouched, 8),
             BodyCue(new MotherBrainBodyCue.Move(new(0, -10))),
             Pose(MotherBrainBodyPose.CrouchingTransition),
-            BodyShow(MotherBrainBodyFrame.Uncrouching, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyUncrouching, 8),
             BodyCue(new MotherBrainBodyCue.Move(new(0, -16))),
-            BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyLeaningDown, 8),
             BodyCue(new MotherBrainBodyCue.Move(new(0, -12))),
-            BodyShow(MotherBrainBodyFrame.Standing, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 8),
             Pose(MotherBrainBodyPose.Standing),
         ],
         [B.StandAfterCrouchSlow] = [.. StandUp(16)],
@@ -41,30 +42,30 @@ internal static class MotherBrainAnimations
         [B.StandAfterLeaning] =
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
-            BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyLeaningDown, 8),
             BodyCue(new MotherBrainBodyCue.Move(new(0, -12))),
-            BodyShow(MotherBrainBodyFrame.Standing, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 8),
             Pose(MotherBrainBodyPose.Standing),
         ],
         [B.LeanDown] =
         [
             Pose(MotherBrainBodyPose.CrouchingTransition),
-            BodyShow(MotherBrainBodyFrame.Standing, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 8),
             BodyCue(new MotherBrainBodyCue.Move(new(0, 12))),
             Pose(MotherBrainBodyPose.LeaningDown),
-            BodyShow(MotherBrainBodyFrame.LeaningDown, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyLeaningDown, 8),
         ],
         [B.Crouched] =
         [
             Pose(MotherBrainBodyPose.Crouched),
-            BodyShow(MotherBrainBodyFrame.Crouched, 8),
+            BodyShow(EnemyFrameId.MotherBrainBodyCrouched, 8),
         ],
         [B.CrouchSlow] = [.. Crouch(8, 8)],
         [B.CrouchFast] = [.. Crouch(2, 2)],
         [B.HandBeam] = HandBeam(),
         [B.InitialDummy] =
         [
-            BodyShow(MotherBrainBodyFrame.InitialDummy, 0),
+            BodyShow(EnemyFrameId.MotherBrainBodyInitialDummy, 0),
         ],
     });
 
@@ -76,78 +77,78 @@ internal static class MotherBrainAnimations
     internal static Animation<B> BodyStartingWith(B segment) => BodyStartingAt[segment];
 
     /// <summary>A forward walk whose frames last <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkForward(int duration) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] WalkForward(int duration) =>
     [
         Pose(MotherBrainBodyPose.Walking),
-        BodyShow(MotherBrainBodyFrame.Standing, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyStanding, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(1, -2))),
-        BodyShow(MotherBrainBodyFrame.WalkingFirst, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingNearLegLifting, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(2, 0))),
-        BodyShow(MotherBrainBodyFrame.WalkingSecond, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingNearLegReaching, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(0, 1))),
-        BodyShow(MotherBrainBodyFrame.WalkingThird, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingNearLegPlanting, duration),
         BodyCue(new MotherBrainBodyCue.StepAndMove(new(3, 1))),
-        BodyShow(MotherBrainBodyFrame.WalkingFourth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingLegsApart, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(15, -2))),
-        BodyShow(MotherBrainBodyFrame.WalkingFifth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingFarLegLifting, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(6, -4))),
-        BodyShow(MotherBrainBodyFrame.WalkingSixth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingFarLegPassing, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(-2, 4))),
-        BodyShow(MotherBrainBodyFrame.WalkingSeventh, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingFarLegPlanting, duration),
         BodyCue(new MotherBrainBodyCue.StepAndMove(new(-1, 2))),
         Pose(MotherBrainBodyPose.Standing),
-        BodyShow(MotherBrainBodyFrame.WalkingEighth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingLegsTogether, duration),
     ];
 
     /// <summary>A backward walk whose frames last <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] WalkBackward(int duration) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] WalkBackward(int duration) =>
     [
         Pose(MotherBrainBodyPose.Walking),
-        BodyShow(MotherBrainBodyFrame.WalkingEighth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingLegsTogether, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(1, -2))),
-        BodyShow(MotherBrainBodyFrame.WalkingSeventh, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingFarLegPlanting, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(2, -4))),
-        BodyShow(MotherBrainBodyFrame.WalkingSixth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingFarLegPassing, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(-6, 4))),
-        BodyShow(MotherBrainBodyFrame.WalkingFifth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingFarLegLifting, duration),
         BodyCue(new MotherBrainBodyCue.StepAndMove(new(-15, 2))),
-        BodyShow(MotherBrainBodyFrame.WalkingFourth, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingLegsApart, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(-3, -1))),
-        BodyShow(MotherBrainBodyFrame.WalkingThird, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingNearLegPlanting, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(0, -1))),
-        BodyShow(MotherBrainBodyFrame.WalkingSecond, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingNearLegReaching, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(-2, 0))),
-        BodyShow(MotherBrainBodyFrame.WalkingFirst, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyWalkingNearLegLifting, duration),
         BodyCue(new MotherBrainBodyCue.StepAndMove(new(-1, 2))),
         Pose(MotherBrainBodyPose.Standing),
-        BodyShow(MotherBrainBodyFrame.Standing, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyStanding, duration),
     ];
 
     /// <summary>Lowers the body into the crouch; the lean and uncrouch frames last the given updates.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] Crouch(int lean, int uncrouch) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] Crouch(int lean, int uncrouch) =>
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
-        BodyShow(MotherBrainBodyFrame.Standing, 8),
+        BodyShow(EnemyFrameId.MotherBrainBodyStanding, 8),
         BodyCue(new MotherBrainBodyCue.Move(new(0, 12))),
-        BodyShow(MotherBrainBodyFrame.LeaningDown, lean),
+        BodyShow(EnemyFrameId.MotherBrainBodyLeaningDown, lean),
         BodyCue(new MotherBrainBodyCue.Move(new(0, 16))),
-        BodyShow(MotherBrainBodyFrame.Uncrouching, uncrouch),
+        BodyShow(EnemyFrameId.MotherBrainBodyUncrouching, uncrouch),
         BodyCue(new MotherBrainBodyCue.Move(new(0, 10))),
         Pose(MotherBrainBodyPose.Crouched),
-        BodyShow(MotherBrainBodyFrame.Crouched, 8),
+        BodyShow(EnemyFrameId.MotherBrainBodyCrouched, 8),
     ];
 
     /// <summary>Raises the body from the crouch to standing, each frame lasting <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] StandUp(int duration) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] StandUp(int duration) =>
     [
         Pose(MotherBrainBodyPose.CrouchingTransition),
-        BodyShow(MotherBrainBodyFrame.Crouched, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyCrouched, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(0, -10))),
-        BodyShow(MotherBrainBodyFrame.Uncrouching, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyUncrouching, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(0, -16))),
-        BodyShow(MotherBrainBodyFrame.LeaningDown, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyLeaningDown, duration),
         BodyCue(new MotherBrainBodyCue.Move(new(0, -12))),
-        BodyShow(MotherBrainBodyFrame.Standing, duration),
+        BodyShow(EnemyFrameId.MotherBrainBodyStanding, duration),
         Pose(MotherBrainBodyPose.Standing),
     ];
 
@@ -155,29 +156,29 @@ internal static class MotherBrainAnimations
     /// The red hand beam: the arm rises, eight charge particles alternate between the particle and the energy
     /// spark at the hand, the beam fires, and the body holds the standing pose before the next phase.
     /// </summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>[] HandBeam()
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue>[] HandBeam()
     {
-        var steps = new List<AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>>
+        var steps = new List<AnimationBeat<EnemyFrameId, MotherBrainBodyCue>>
         {
             Pose(MotherBrainBodyPose.DeathBeam),
-            BodyShow(MotherBrainBodyFrame.Standing, 1),
-            BodyShow(MotherBrainBodyFrame.HandBeamSecond, 1),
-            BodyShow(MotherBrainBodyFrame.HandBeamThird, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyHandCurling, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
         };
         for (int particle = 0; particle < 8; particle++)
         {
             steps.Add(BodyCue(particle % 2 == 0
                 ? new MotherBrainBodyCue.SpawnHandDust(new(36, -40), MiscDustAnimation.MotherBrainElbowChargeParticle)
                 : new MotherBrainBodyCue.SpawnHandDust(new(34, -42), MiscDustAnimation.MotherBrainElbowChargeEnergy)));
-            steps.Add(BodyShow(MotherBrainBodyFrame.HandBeamThird, 1));
+            steps.Add(BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1));
         }
         steps.AddRange(
         [
-            BodyShow(MotherBrainBodyFrame.HandBeamThird, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmDrawnBack, 1),
             BodyCue(MotherBrainBodyCue.FireHandBeam),
-            BodyShow(MotherBrainBodyFrame.HandBeamFourth, 1),
-            BodyShow(MotherBrainBodyFrame.HandBeamFifth, 1),
-            BodyShow(MotherBrainBodyFrame.Standing, 240),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmFlungOut, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyArmReturning, 1),
+            BodyShow(EnemyFrameId.MotherBrainBodyStanding, 240),
             BodyCue(MotherBrainBodyCue.AdvanceHandBeamPhase),
             Pose(MotherBrainBodyPose.Standing),
         ]);
@@ -185,71 +186,71 @@ internal static class MotherBrainAnimations
     }
 
     /// <summary>Shows a body frame.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue> BodyShow(MotherBrainBodyFrame frame, int duration) =>
-        new AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue> BodyShow(EnemyFrameId frame, int duration) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainBodyCue>.Frame(frame, duration);
 
     /// <summary>Raises a body event.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue> BodyCue(MotherBrainBodyCue cue) =>
-        new AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue> BodyCue(MotherBrainBodyCue cue) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainBodyCue>.Event(cue);
 
     /// <summary>Raises a body pose.</summary>
-    private static AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue> Pose(MotherBrainBodyPose pose) =>
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>Every brain segment.</summary>
-    internal static AnimationSegments<H, MotherBrainHeadFrame, MotherBrainHeadCue> HeadSegments { get; } = new(
-        new Dictionary<H, AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[]>
+    internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
+        new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>
     {
         [H.StretchingPhase2] = [.. Stretch(WholeHead, MotherBrainStretchKind.Attack)],
-        [H.StretchingPhase2Loop] = [Show(M.StretchingPhaseTwoFirst, 1)],
+        [H.StretchingPhase2Loop] = [Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 1)],
         [H.StretchingPhase3] = [.. Stretch(DamagedHead, MotherBrainStretchKind.Attack)],
-        [H.StretchingPhase3Loop] = [Show(M.StretchingPhaseThreeFirst, 1)],
+        [H.StretchingPhase3Loop] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 1)],
         [H.HyperBeamRecoil] = [.. Stretch(DamagedHead, MotherBrainStretchKind.HyperBeamRecoil)],
-        [H.HyperBeamRecoilLoop] = [Show(M.StretchingPhaseThreeFirst, 1)],
-        [H.Initial] = [Show(M.Initial, 4)],
-        [H.Decapitated] = [Show(M.StretchingPhaseThreeFirst, 8), Show(M.DecapitatedSecond, 4)],
-        [H.DecapitatedLoop] = [Show(M.DecapitatedLoop, 4)],
+        [H.HyperBeamRecoilLoop] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 1)],
+        [H.Initial] = [Show(EnemyFrameId.MotherBrainHeadEyeShut, 4)],
+        [H.Decapitated] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 8), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4)],
+        [H.DecapitatedLoop] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4)],
         [H.DyingDrool] =
         [
             Cue(MotherBrainHeadCueKind.ShakeBrain),
-            Show(M.StretchingPhaseThreeFirst, 4),
-            Show(M.StretchingPhaseThreeSecond, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 4),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
         ],
         [H.DyingDroolBurst] =
         [
-            Show(M.StretchingPhaseThreeThird, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(M.StretchingPhaseThreeThird, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(M.StretchingPhaseThreeThird, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
-            Show(M.StretchingPhaseThreeThird, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
             Cue(MotherBrainHeadCueKind.SpawnDrool),
         ],
         [H.DyingDroolLoop] =
         [
-            Show(M.StretchingPhaseThreeThird, 2),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 2),
             Cue(MotherBrainHeadCueKind.MaybeDroolAgain),
         ],
-        [H.FiringRainbowBeam] = [Show(M.StretchingPhaseTwoFirst, 1)],
-        [H.NeutralPhase2] = [Show(M.Initial, 4), Show(M.NeutralPhaseTwoSecond, 4), Show(M.StretchingPhaseTwoFirst, 8), Show(M.NeutralPhaseTwoSecond, 4), Show(M.Initial, 4), Show(M.NeutralPhaseTwoSecond, 4)],
+        [H.FiringRainbowBeam] = [Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 1)],
+        [H.NeutralPhase2] = [Show(EnemyFrameId.MotherBrainHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 8), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4)],
         [H.NeutralPhase2Hold] =
         [
-            Show(M.StretchingPhaseTwoFirst, 8),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 8),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase2),
-            Show(M.NeutralPhaseTwoSecond, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4),
         ],
-        [H.NeutralPhase3] = [Show(M.DecapitatedLoop, 4), Show(M.DecapitatedSecond, 4), Show(M.StretchingPhaseThreeFirst, 8), Show(M.DecapitatedSecond, 4), Show(M.DecapitatedLoop, 4), Show(M.DecapitatedSecond, 4)],
+        [H.NeutralPhase3] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 8), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 4)],
         [H.NeutralPhase3Hold] =
         [
-            Show(M.StretchingPhaseThreeFirst, 8),
-            Show(M.DecapitatedSecond, 8),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 8),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 8),
             Cue(MotherBrainHeadCueKind.MaybeHoldNeutralPhase3),
-            Show(M.DecapitatedLoop, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 4),
         ],
-        [H.Corpse] = [Show(M.DecapitatedLoop, 2), Show(M.DecapitatedSecond, 2), Show(M.StretchingPhaseThreeFirst, 64), Show(M.CorpseFourth, 64)],
-        [H.CorpseLoop] = [Show(M.CorpseLoop, 2)],
+        [H.Corpse] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 2), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 2), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 64), Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 64)],
+        [H.CorpseLoop] = [Show(EnemyFrameId.MotherBrainHeadCorpseSlumped, 2)],
         [H.FourOnionRingsPhase2] = OnionRingsPhase2(rings: 4),
         [H.TwoOnionRingsPhase2] = OnionRingsPhase2(rings: 2),
         [H.AttackingBabyMetroid] =
@@ -266,44 +267,44 @@ internal static class MotherBrainAnimations
         ],
         [H.FourOnionRingsPhase3] =
         [
-            Show(M.StretchingPhaseThreeFirst, 4),
-            Show(M.StretchingPhaseThreeSecond, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 4),
             Cue(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound),
-            Show(M.StretchingPhaseThreeThird, 8),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 8),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
-            Show(M.StretchingPhaseThreeThird, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(M.StretchingPhaseThreeThird, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(M.StretchingPhaseThreeThird, 3),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 3),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            Show(M.StretchingPhaseThreeThird, 16),
-            Show(M.StretchingPhaseThreeSecond, 4),
-            Show(M.StretchingPhaseThreeFirst, 16),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 16),
+            Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 4),
+            Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 16),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
         ],
         [H.BombPhase2] = Bomb(WholeHead, afterburns: 7),
         [H.BombPhase3] = Bomb(DamagedHead, afterburns: 1),
         [H.Laser] =
         [
-            Show(M.NeutralPhaseTwoSecond, 16),
-            Show(M.StretchingPhaseTwoFirst, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 16),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 4),
             Cue(MotherBrainHeadCueKind.SpawnLaser),
-            Show(M.StretchingPhaseTwoFirst, 32),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 32),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
         ],
         [H.ChargingRainbowBeam] =
         [
             Cue(MotherBrainHeadCueKind.PrepareRainbowBeamCharge),
-            Show(M.StretchingPhaseTwoFirst, 4),
-            Show(M.NeutralPhaseTwoSecond, 4),
-            Show(M.Initial, 2),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeOpen, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeShut, 2),
         ],
         [H.ChargingRainbowBeamLoop] =
         [
             Cue(MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle),
-            Show(M.Initial, 30),
+            Show(EnemyFrameId.MotherBrainHeadEyeShut, 30),
         ],
     });
 
@@ -344,9 +345,9 @@ internal static class MotherBrainAnimations
     /// The neck stretch and the Hyper Beam recoil: the brain shakes, <paramref name="head"/>'s mouth opens through its open,
     /// wide and widest stages, breathing a big purple cloud with the stretch cry, and drools while stretching.
     /// </summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[] Stretch(HeadMouth head, MotherBrainStretchKind kind)
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Stretch(HeadMouth head, MotherBrainStretchKind kind)
     {
-        var steps = new List<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>>
+        var steps = new List<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>>
         {
             Cue(MotherBrainHeadCueKind.ShakeBrain),
             Show(head.Open, 2),
@@ -366,27 +367,27 @@ internal static class MotherBrainAnimations
     }
 
     /// <summary>A phase-two onion-ring volley of <paramref name="rings"/> rings aimed at Samus.</summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[] OnionRingsPhase2(int rings)
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] OnionRingsPhase2(int rings)
     {
-        var steps = new List<AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>>
+        var steps = new List<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>>
         {
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
-            Show(M.StretchingPhaseTwoFirst, 4),
-            Show(M.StretchingPhaseTwoSecond, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 4),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 4),
             HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
-            Show(M.StretchingPhaseTwoThird, 8),
+            Show(EnemyFrameId.MotherBrainHeadJawDropped, 8),
         };
         for (int ring = 0; ring < rings; ring++)
         {
             steps.Add(Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus));
             steps.Add(Cue(MotherBrainHeadCueKind.SpawnOnionRing));
             if (ring == 0) steps.Add(HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)));
-            steps.Add(Show(M.StretchingPhaseTwoThird, ring == rings - 1 ? 16 : 3));
+            steps.Add(Show(EnemyFrameId.MotherBrainHeadJawDropped, ring == rings - 1 ? 16 : 3));
         }
         steps.AddRange(
         [
-            Show(M.StretchingPhaseTwoSecond, 4),
-            Show(M.StretchingPhaseTwoFirst, 16),
+            Show(EnemyFrameId.MotherBrainHeadJawDropping, 4),
+            Show(EnemyFrameId.MotherBrainHeadEyeGlaring, 16),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
         ]);
         return [.. steps];
@@ -396,7 +397,7 @@ internal static class MotherBrainAnimations
     /// A bomb lob from <paramref name="head"/>: phase two lobs a seven-afterburn bomb from the whole head, phase three a
     /// one-afterburn bomb from the damaged one.
     /// </summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>[] Bomb(HeadMouth head, int afterburns) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[] Bomb(HeadMouth head, int afterburns) =>
     [
         Show(head.Closed, 4),
         Show(head.Opening, 4),
@@ -423,24 +424,24 @@ internal static class MotherBrainAnimations
     private sealed record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
 
     /// <summary>The whole head of phase two.</summary>
-    private static HeadMouth WholeHead => new(M.Initial, M.NeutralPhaseTwoSecond, M.StretchingPhaseTwoFirst,
-        M.StretchingPhaseTwoSecond, M.StretchingPhaseTwoThird);
+    private static HeadMouth WholeHead => new(EnemyFrameId.MotherBrainHeadEyeShut, EnemyFrameId.MotherBrainHeadEyeOpen, EnemyFrameId.MotherBrainHeadEyeGlaring,
+        EnemyFrameId.MotherBrainHeadJawDropping, EnemyFrameId.MotherBrainHeadJawDropped);
 
     /// <summary>The damaged head of phase three.</summary>
-    private static HeadMouth DamagedHead => new(M.DecapitatedLoop, M.DecapitatedSecond, M.StretchingPhaseThreeFirst,
-        M.StretchingPhaseThreeSecond, M.StretchingPhaseThreeThird);
+    private static HeadMouth DamagedHead => new(EnemyFrameId.MotherBrainDarkHeadEyeShut, EnemyFrameId.MotherBrainDarkHeadEyeOpen, EnemyFrameId.MotherBrainDarkHeadEyeGlaring,
+        EnemyFrameId.MotherBrainDarkHeadJawDropping, EnemyFrameId.MotherBrainDarkHeadJawDropped);
 
     /// <summary>Shows brain frame <paramref name="frame"/>.</summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> Show(MotherBrainHeadFrame frame, int duration) =>
-        new AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Show(EnemyFrameId frame, int duration) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame(frame, duration);
 
     /// <summary>Raises a brain event that carries no values.</summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> Cue(MotherBrainHeadCueKind kind) =>
         HeadCue(MotherBrainHeadCue.Of(kind));
 
     /// <summary>Raises a brain event.</summary>
-    private static AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
-        new AnimationBeat<MotherBrainHeadFrame, MotherBrainHeadCue>.Event(cue);
+    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> HeadCue(MotherBrainHeadCue cue) =>
+        new AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Event(cue);
 
     /// <summary>One play of every beat of body segment <paramref name="segment"/>.</summary>
     private static AnimationPhase<B> Whole(B segment) => new(segment, 0, BodySegments.Beats(segment).Count, 1);

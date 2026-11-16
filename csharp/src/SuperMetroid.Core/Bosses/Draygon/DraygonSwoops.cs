@@ -41,10 +41,10 @@ internal sealed class DraygonSwoops
     internal static void BuildDraygonSwoopYPositions(DraygonEnemyState state, SamusState samus)
     {
         // The climb ends only because its rising speed grows; every producer of the acceleration keeps it above zero.
-        if (state.SwoopAcceleration.Y <= SignedEightEight.Zero)
+        if (state.SwoopAcceleration <= SignedEightEight.Zero)
             throw new InvalidOperationException("Draygon's swoop path climbs only under a swoop acceleration above zero.");
         int yPosition = 384;
-        EightEightVector<RoomPixels> speed = default;
+        SignedEightEight speed = SignedEightEight.Zero;
         var heights = ImmutableArray.CreateBuilder<int>();
 
         while (true)
@@ -52,7 +52,7 @@ internal sealed class DraygonSwoops
             speed += state.SwoopAcceleration;
             // The path ends once it rises past the reset height, at most 384 pixels up, so the rising speed stays a few
             // pixels an update.
-            int candidate = CoordinateAxis.Wrap(yPosition - speed.Y.WholePixels);
+            int candidate = CoordinateAxis.Wrap(yPosition - speed.WholePixels);
             if (CoordinateAxis.Difference(candidate, state.LeftSideReset.Y) < 0)
                 break;
 
@@ -174,7 +174,7 @@ internal sealed class DraygonSwoops
         int frameCount = PathOf(state).EntryCount;
 
         int distance = CoordinateAxis.Distance(
-            state.RightSideReset.X, samus.Position.X.Whole);
+            state.RightSideResetX, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopDescending;
         DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingLeftReset);

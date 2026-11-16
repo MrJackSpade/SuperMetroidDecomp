@@ -70,7 +70,8 @@ internal sealed class CrocomireFight
         place.SetSpeciesState(state);
         Encounter = state;
         // Crocomire shows his body frames and his death's melt images on his body (#1355, #1466, #1515), nothing at first.
-        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire));
+        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire, state));
+        _presentation.BossShadings.Show(BossShadingLayer.Crocomire, state.Colours);
 
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaMiniBoss))
         {

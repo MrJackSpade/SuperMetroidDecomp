@@ -245,7 +245,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.KzanBottom:
             case EnemyDefinitionId.Hibashi:
             case EnemyDefinitionId.NuclearWaffle:
-            case EnemyDefinitionId.MiniKraid:
+            case EnemyDefinitionId.FakeKraid:
             case EnemyDefinitionId.RidleyCeres:
             case EnemyDefinitionId.Ridley:
             case EnemyDefinitionId.RidleyBreakupPiece:

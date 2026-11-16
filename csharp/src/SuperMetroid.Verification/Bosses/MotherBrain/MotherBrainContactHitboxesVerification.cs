@@ -28,8 +28,7 @@ internal static class MotherBrainContactHitboxesVerification
         foreach (MotherBrainContactPart part in parts)
         {
             int address = MotherBrainContactHitboxDefinitions.GetSourceAddress(part);
-            MotherBrainContactHitboxes hitboxes =
-                MotherBrainContacts.Get(part);
+            IReadOnlyList<EnemyHitboxRectangle> hitboxes = MotherBrainContacts.Get(part);
             AssertEqual(hitboxes.Count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 $"Mother Brain {part} hitbox count");
 

@@ -186,15 +186,15 @@ internal static class RoomObjectDrawSourceDefinitions
     internal static IReadOnlyDictionary<MotherBrainGlassDraw, SnesAddress> MotherBrainGlass { get; } = new Dictionary<MotherBrainGlassDraw, SnesAddress>
     {
         [MotherBrainGlassDraw.Initial] = new(Bank, 0x9717),
-        [MotherBrainGlassDraw.PaneDamage1] = new(Bank, 0x971d),
-        [MotherBrainGlassDraw.PaneDamage2] = new(Bank, 0x9731),
+        [MotherBrainGlassDraw.PaneCracked] = new(Bank, 0x971d),
+        [MotherBrainGlassDraw.PaneCrackedThrough] = new(Bank, 0x9731),
         [MotherBrainGlassDraw.PaneTransition] = new(Bank, 0x9745),
-        [MotherBrainGlassDraw.ShiftedPane1] = new(Bank, 0x974f),
-        [MotherBrainGlassDraw.ShiftedPane2] = new(Bank, 0x9769),
-        [MotherBrainGlassDraw.ShiftedPane3] = new(Bank, 0x9781),
-        [MotherBrainGlassDraw.Shatter1] = new(Bank, 0x978f),
-        [MotherBrainGlassDraw.Shatter2] = new(Bank, 0x97b7),
-        [MotherBrainGlassDraw.Shatter3] = new(Bank, 0x97e7),
+        [MotherBrainGlassDraw.PaneShifted] = new(Bank, 0x974f),
+        [MotherBrainGlassDraw.PaneShiftedCrumbling] = new(Bank, 0x9769),
+        [MotherBrainGlassDraw.PaneShiftedEmptying] = new(Bank, 0x9781),
+        [MotherBrainGlassDraw.RimBuckling] = new(Bank, 0x978f),
+        [MotherBrainGlassDraw.RimBursting] = new(Bank, 0x97b7),
+        [MotherBrainGlassDraw.RimGone] = new(Bank, 0x97e7),
         [MotherBrainGlassDraw.Cleared] = new(Bank, 0x9817),
     };
 

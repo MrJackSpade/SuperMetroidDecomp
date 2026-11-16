@@ -17,28 +17,28 @@ internal static class MotherBrainGlassStageDefinitions
     internal const MotherBrainGlassDraw ClearedImage = MotherBrainGlassDraw.Cleared;
 
     /// <summary>What the glass shows for one update once it was destroyed on an earlier visit, and after its last stage.</summary>
-    internal const MotherBrainGlassDraw ShatteredImage = MotherBrainGlassDraw.Shatter3;
+    internal const MotherBrainGlassDraw ShatteredImage = MotherBrainGlassDraw.RimGone;
 
     /// <summary>The nine stages in order; the image after the last is <see cref="ShatteredImage"/>.</summary>
     internal static IReadOnlyList<MotherBrainGlassStage> Stages { get; } =
     [
         new(MotherBrainGlassDraw.Initial, 2, null),
-        new(MotherBrainGlassDraw.PaneDamage1, 4, null),
-        new(MotherBrainGlassDraw.PaneDamage2, 6, new(
+        new(MotherBrainGlassDraw.PaneCracked, 4, null),
+        new(MotherBrainGlassDraw.PaneCrackedThrough, 6, new(
             [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right],
             [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Right])),
         new(MotherBrainGlassDraw.PaneTransition, 8, null),
-        new(MotherBrainGlassDraw.ShiftedPane1, 10, null),
-        new(MotherBrainGlassDraw.ShiftedPane2, 12, new(
+        new(MotherBrainGlassDraw.PaneShifted, 10, null),
+        new(MotherBrainGlassDraw.PaneShiftedCrumbling, 12, new(
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left],
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left])),
-        new(MotherBrainGlassDraw.ShiftedPane3, 14, new(
+        new(MotherBrainGlassDraw.PaneShiftedEmptying, 14, new(
             [MotherBrainGlassShard.Right, MotherBrainGlassShard.Right, MotherBrainGlassShard.Left, MotherBrainGlassShard.Left],
             [MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
-        new(MotherBrainGlassDraw.Shatter1, 16, new(
+        new(MotherBrainGlassDraw.RimBuckling, 16, new(
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre],
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
-        new(MotherBrainGlassDraw.Shatter2, 18, new(
+        new(MotherBrainGlassDraw.RimBursting, 18, new(
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre],
             [MotherBrainGlassShard.Left, MotherBrainGlassShard.Left, MotherBrainGlassShard.Centre, MotherBrainGlassShard.Centre])),
     ];

@@ -138,15 +138,15 @@ internal static class MotherBrainGlassObjectDrawDefinitions
     internal static readonly Dictionary<MotherBrainGlassDraw, RoomBlockShape> Shapes = new()
     {
         [MotherBrainGlassDraw.Initial] = Intact,
-        [MotherBrainGlassDraw.PaneDamage1] = DamagedPane,
-        [MotherBrainGlassDraw.PaneDamage2] = DamagedPane,
+        [MotherBrainGlassDraw.PaneCracked] = DamagedPane,
+        [MotherBrainGlassDraw.PaneCrackedThrough] = DamagedPane,
         [MotherBrainGlassDraw.PaneTransition] = GivingWayPane,
-        [MotherBrainGlassDraw.ShiftedPane1] = FirstShiftedPane,
-        [MotherBrainGlassDraw.ShiftedPane2] = SecondShiftedPane,
-        [MotherBrainGlassDraw.ShiftedPane3] = EmptyingShiftedPane,
-        [MotherBrainGlassDraw.Shatter1] = FirstShatter,
-        [MotherBrainGlassDraw.Shatter2] = SecondShatter,
-        [MotherBrainGlassDraw.Shatter3] = Gone,
+        [MotherBrainGlassDraw.PaneShifted] = FirstShiftedPane,
+        [MotherBrainGlassDraw.PaneShiftedCrumbling] = SecondShiftedPane,
+        [MotherBrainGlassDraw.PaneShiftedEmptying] = EmptyingShiftedPane,
+        [MotherBrainGlassDraw.RimBuckling] = FirstShatter,
+        [MotherBrainGlassDraw.RimBursting] = SecondShatter,
+        [MotherBrainGlassDraw.RimGone] = Gone,
         [MotherBrainGlassDraw.Cleared] = Gone,
     };
 }

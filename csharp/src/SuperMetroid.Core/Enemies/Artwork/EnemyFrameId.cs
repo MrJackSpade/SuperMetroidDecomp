@@ -3418,14 +3418,14 @@ public enum EnemyFrameId
     MotherBrainBodyLeaningDown,
     /// <summary>Mother Brain: body initial dummy.</summary>
     MotherBrainBodyInitialDummy,
-    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
-    MotherBrainBodyStandingTwin,
-    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
-    MotherBrainBodyStandingTwinB,
-    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
-    MotherBrainBodyStandingTwinC,
-    /// <summary>Mother Brain: its body standing: the picture of MotherBrainBodyStanding, as a frame of its own.</summary>
-    MotherBrainBodyStandingTwinD,
+    /// <summary>Mother Brain: her body standing as her hand beam begins, her hand curling.</summary>
+    MotherBrainBodyHandCurling,
+    /// <summary>Mother Brain: her body with her hand beam's arm drawn back, its fist closed.</summary>
+    MotherBrainBodyArmDrawnBack,
+    /// <summary>Mother Brain: her body with her hand beam's arm flung out high, its hand open.</summary>
+    MotherBrainBodyArmFlungOut,
+    /// <summary>Mother Brain: her body as her hand beam's arm returns: the standing picture, its arm's hitbox a pixel further out.</summary>
+    MotherBrainBodyArmReturning,
     /// <summary>Phantoon: invulnerable body.</summary>
     PhantoonInvulnerableBody,
     /// <summary>Phantoon: full hitbox body.</summary>

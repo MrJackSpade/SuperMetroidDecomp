@@ -110,6 +110,8 @@ internal static class GameplayDisplayFrameTestsVerification
         before = Registers(runtime);
         var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
         runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
+        // The room's display reads the body the encounter attached as it set up (#2194): this one's.
+        runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         AssertPublished(runtime, registers => registers.ShownLayers == (ScreenLayers.Foreground | ScreenLayers.Sprites),
             "Mother Brain's hidden background");

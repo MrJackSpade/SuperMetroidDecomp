@@ -15,7 +15,7 @@ internal static class EnemyDeathExplosionWords
         [EnemyDeathExplosion.Small] = 0,
         [EnemyDeathExplosion.SamusContact] = 1,
         [EnemyDeathExplosion.Normal] = 2,
-        [EnemyDeathExplosion.MiniKraid] = 3,
+        [EnemyDeathExplosion.FakeKraid] = 3,
         [EnemyDeathExplosion.Big] = 4,
     });
 }

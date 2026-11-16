@@ -38,6 +38,9 @@ internal sealed record KraidRiseDependencies
     /// <summary>Kraid's room background: its fade, color transitions and the ceiling rocks.</summary>
     public required KraidBackground Background { get; init; }
 
+    /// <summary>The body layer Kraid draws himself, which the room shows (#2194).</summary>
+    public required KraidBodyLayer BodyLayer { get; init; }
+
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health colours.</summary>
     public required KraidHead Head { get; init; }
 }

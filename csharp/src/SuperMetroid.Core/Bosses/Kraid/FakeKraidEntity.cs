@@ -2,8 +2,8 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>One Mini-Kraid occupant: its own AI, with the shared reactions.</summary>
-/// <param name="species">The Mini-Kraid species owner.</param>
+/// <summary>One Fake Kraid occupant: its own AI, with the shared reactions.</summary>
+/// <param name="species">The Fake Kraid species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)

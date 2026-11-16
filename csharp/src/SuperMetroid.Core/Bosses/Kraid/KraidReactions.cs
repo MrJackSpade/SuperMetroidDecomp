@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal static class KraidReactions
 {
-    /// <summary>The touch reaction of Kraid's background and feet.</summary>
-    internal static EnemyReaction BackgroundTouch { get; } = EnemyReaction.OfSpecies("Kraid.BackgroundTouch");
+    /// <summary>The touch reaction of Kraid's body and feet: the hitboxes his arm's part and his foot hold over his body (#2221).</summary>
+    internal static EnemyReaction BodyTouch { get; } = EnemyReaction.OfSpecies("Kraid.BodyTouch");
 
     /// <summary>The arm's touch reaction, which pushes Samus away.</summary>
     internal static EnemyReaction ArmTouch { get; } = EnemyReaction.OfSpecies("Kraid.ArmTouch");

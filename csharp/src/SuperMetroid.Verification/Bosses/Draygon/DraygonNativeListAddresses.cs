@@ -146,6 +146,8 @@ internal static class DraygonNativeListAddresses
         new ProjectileEntry(DraygonProjectileSegment.Goop, 0x8c3a),
         new ProjectileEntry(DraygonProjectileSegment.GoopShot, 0x8c58),
         new ProjectileEntry(DraygonProjectileSegment.WallTurretBloom, 0x8ca4),
+        // The flight is the part of the bloom's list its goto loops back to (#2221): after sixteen frames and the firing.
+        new ProjectileEntry(DraygonProjectileSegment.WallTurretFlight, 0x8ce6),
     ];
 
     /// <summary>The bank-$86 callbacks the projectile lists use and the cue each must become.</summary>

@@ -25,7 +25,7 @@ internal static class RoomObjectFrameImageFiles
     /// block for a cell that shows nothing (#2100). Revision 7 names Draygon's cannon frames by what each shows, not by
     /// letter (#2176).
     /// </remarks>
-    internal const int FormatVersion = 7;
+    internal const int FormatVersion = 8;
 
     /// <summary>Camel-case field names, mirroring by name and readable output for the installed document.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

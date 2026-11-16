@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>One cue of Mini-Kraid's animations: what it does, with the values it acts on.</summary>
+/// <summary>One cue of Fake Kraid's animations: what it does, with the values it acts on.</summary>
 internal abstract record FakeKraidCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

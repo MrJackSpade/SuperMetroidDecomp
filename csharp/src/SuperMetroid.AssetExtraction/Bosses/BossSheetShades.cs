@@ -196,9 +196,9 @@ internal static class BossSheetShades
         DraygonColorCatalog draygon = Required(bosses.DraygonColors, "Draygon");
         var shades = new List<SheetShade>
         {
-            SheetShade.Run(DraygonShades.Background, DraygonBackgroundFirstInk,
+            SheetShade.Run(DraygonShades.Body, DraygonBackgroundFirstInk,
                 [.. Enumerable.Range(0, DraygonColorDefinitions.BackgroundCount).Select(draygon.ResolveBackground)]),
-            SheetShade.Run(DraygonShades.BackgroundWhite, DraygonBackgroundFirstInk,
+            SheetShade.Run(DraygonShades.BodyWhite, DraygonBackgroundFirstInk,
                 [.. Enumerable.Range(0, DraygonColorDefinitions.WhiteFlashCount).Select(draygon.ResolveWhiteFlash)]),
         };
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)

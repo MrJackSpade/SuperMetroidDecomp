@@ -86,19 +86,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         BodyLayer = new KraidBodyLayer(Access, _bossArtwork, Parts);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);
-        Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
+        Rise = new KraidRise(new KraidRiseDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head, BodyLayer = BodyLayer });
         Death = new KraidDeath(new KraidDeathDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Earthquake = dependencies.Earthquake, Parts = Parts, Presentation = dependencies.Presentation.Surfaces, DeathsAndDrops = dependencies.DeathsAndDrops, CameraDistance = dependencies.CameraDistance, Access = Access, Background = Background, Head = Head });
         Limbs = new KraidLimbs(dependencies.Room, dependencies.Earthquake, Parts, Access);
         Projectiles = new KraidProjectiles(dependencies.Room, dependencies.Terrain, Parts, dependencies.Collision, dependencies.DeathsAndDrops, Access);
         Combat = new KraidCombat(dependencies.Projectiles, dependencies.Audio, dependencies.EffectActors, Parts, dependencies.Collision);
     }
-
-    /// <summary>
-    /// The longest wait a part's timer is loaded with, kept exact (#1627). The lint and fingernail frame timers wait behind
-    /// it so their animations never advance before their behaviour starts them, and a dying Kraid's lints wait behind it as
-    /// their phase timer, changing phase when it runs out, which gameplay sees.
-    /// </summary>
-    internal const int KraidStillPartTimer = 32767;
 
     /// <summary>
     /// Runs Kraid's body for one update: mouth-projectile collision, colour handling,

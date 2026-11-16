@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCollisionDefinitions
 {
     /// <summary>Left-facing body rectangles: one shootable eye and three touch-only regions.</summary>
-    internal static readonly EnemyCollisionHitbox[] FirstBodyHitboxes =
+    internal static readonly EnemyCollisionHitbox[] FacingLeftBodyHitboxes =
     [
         new(-17, -16, 18, 30, EnemyReaction.Ignore, DraygonReactions.Shot),
         new(-59, -66, 3, -30, DraygonReactions.Touch, EnemyReaction.DudShot),
@@ -21,7 +21,7 @@ internal static class DraygonCollisionDefinitions
     ];
 
     /// <summary>Mirrored right-facing body rectangles with the same shootable-eye rule.</summary>
-    internal static readonly EnemyCollisionHitbox[] SecondBodyHitboxes =
+    internal static readonly EnemyCollisionHitbox[] FacingRightBodyHitboxes =
     [
         new(-18, -7, 18, 30, EnemyReaction.Ignore, DraygonReactions.Shot),
         new(-10, -63, 62, -26, DraygonReactions.Touch, EnemyReaction.DudShot),
@@ -32,9 +32,9 @@ internal static class DraygonCollisionDefinitions
     /// <summary>A frame that cannot be hit or touched has no collision components.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> NoComponents = [];
     /// <summary>The left-facing body's one zero-offset component.</summary>
-    internal static readonly ImmutableArray<EnemyCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
+    internal static readonly ImmutableArray<EnemyCollisionComponent> FacingLeftBodyComponents = [new(Offset16<RoomPixels>.Zero, FacingLeftBodyHitboxes)];
     /// <summary>The right-facing body's one zero-offset component.</summary>
-    internal static readonly ImmutableArray<EnemyCollisionComponent> SecondBodyComponents = [new(Offset16<RoomPixels>.Zero, SecondBodyHitboxes)];
+    internal static readonly ImmutableArray<EnemyCollisionComponent> FacingRightBodyComponents = [new(Offset16<RoomPixels>.Zero, FacingRightBodyHitboxes)];
 
     /// <summary>
     /// Each Draygon frame's collision components (#1937). The first eight body-layer frames and the final one of each facing
@@ -49,14 +49,14 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonArmsFacingLeftDownStretched] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingLeftRaising] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingLeftReaching] = NoComponents,
-        [EnemyFrameId.DraygonLimpArmFacingLeftClawRaised] = FirstBodyComponents,
-        [EnemyFrameId.DraygonLimpArmFacingLeftClawDropping] = FirstBodyComponents,
-        [EnemyFrameId.DraygonLimpArmFacingLeftClawDropped] = FirstBodyComponents,
-        [EnemyFrameId.DraygonLimpArmFacingLeftClawCurled] = FirstBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingLeftJawShut] = FirstBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingLeftJawParting] = FirstBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingLeftJawOpen] = FirstBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingLeftJawWide] = FirstBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawRaised] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawDropping] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawDropped] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingLeftClawCurled] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingLeftJawShut] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingLeftJawParting] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingLeftJawOpen] = FacingLeftBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingLeftJawWide] = FacingLeftBodyComponents,
         [EnemyFrameId.DraygonEyeFacingLeftShut] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingLeftOpening] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingLeftHalfOpen] = NoComponents,
@@ -65,7 +65,7 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonEyeFacingLeftBloodshot] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingLeftNarrowing] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingLeftClosing] = NoComponents,
-        [EnemyFrameId.DraygonBodyFacingLeftJawShutTwin] = FirstBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingLeftJawShutTwin] = FacingLeftBodyComponents,
         [EnemyFrameId.DraygonArmsFacingLeftSpreadWide] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingLeftClosing] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingLeftGathering] = NoComponents,
@@ -90,14 +90,14 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonArmsFacingRightDownStretched] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingRightRaising] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingRightReaching] = NoComponents,
-        [EnemyFrameId.DraygonLimpArmFacingRightClawRaised] = SecondBodyComponents,
-        [EnemyFrameId.DraygonLimpArmFacingRightClawDropping] = SecondBodyComponents,
-        [EnemyFrameId.DraygonLimpArmFacingRightClawDropped] = SecondBodyComponents,
-        [EnemyFrameId.DraygonLimpArmFacingRightClawCurled] = SecondBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingRightJawShut] = SecondBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingRightJawParting] = SecondBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingRightJawOpen] = SecondBodyComponents,
-        [EnemyFrameId.DraygonBodyFacingRightJawWide] = SecondBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawRaised] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawDropping] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawDropped] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonLimpArmFacingRightClawCurled] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingRightJawShut] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingRightJawParting] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingRightJawOpen] = FacingRightBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingRightJawWide] = FacingRightBodyComponents,
         [EnemyFrameId.DraygonEyeFacingRightShut] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingRightOpening] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingRightHalfOpen] = NoComponents,
@@ -106,7 +106,7 @@ internal static class DraygonCollisionDefinitions
         [EnemyFrameId.DraygonEyeFacingRightBloodshot] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingRightNarrowing] = NoComponents,
         [EnemyFrameId.DraygonEyeFacingRightClosing] = NoComponents,
-        [EnemyFrameId.DraygonBodyFacingRightJawShutTwin] = SecondBodyComponents,
+        [EnemyFrameId.DraygonBodyFacingRightJawShutTwin] = FacingRightBodyComponents,
         [EnemyFrameId.DraygonArmsFacingRightSpreadWide] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingRightClosing] = NoComponents,
         [EnemyFrameId.DraygonArmsFacingRightGathering] = NoComponents,

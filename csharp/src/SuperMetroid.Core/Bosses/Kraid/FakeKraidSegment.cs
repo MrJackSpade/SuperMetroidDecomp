@@ -1,29 +1,25 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Mini-Kraid's action choice, step and spit animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
-/// Generated from the animations; see <see cref="FakeKraidAnimations"/>.
+/// Fake Kraid's action choice, step and spit animations (#641), in authored order; see <see cref="FakeKraidAnimations"/>.
 /// </summary>
 internal enum FakeKraidSegment
 {
-    /// <summary>Mini-Kraid facing left chooses its next action.</summary>
-    ChooseActionFacingLeft,
-    /// <summary>Mini Kraid animation: step forwards, facing left.</summary>
+    /// <summary>
+    /// Fake Kraid chooses his next action (#2214): every step and spit ends here, and the choice always continues at the
+    /// step or spit it picks.
+    /// </summary>
+    ChooseAction,
+    /// <summary>Fake Kraid steps forwards, facing left.</summary>
     StepForwardsFacingLeft,
-    /// <summary>Mini-Kraid facing left chooses its next action again: the second choice, authored after its forward step.</summary>
-    ChooseAlternateActionFacingLeft,
-    /// <summary>Mini Kraid animation: step backwards, facing left.</summary>
+    /// <summary>Fake Kraid steps backwards, facing left.</summary>
     StepBackwardsFacingLeft,
-    /// <summary>Mini Kraid animation: fire spit, facing left.</summary>
+    /// <summary>Fake Kraid fires his spit, facing left.</summary>
     FireSpitFacingLeft,
-    /// <summary>Mini-Kraid facing right chooses its next action.</summary>
-    ChooseActionFacingRight,
-    /// <summary>Mini Kraid animation: step forwards, facing right.</summary>
+    /// <summary>Fake Kraid steps forwards, facing right.</summary>
     StepForwardsFacingRight,
-    /// <summary>Mini-Kraid facing right chooses its next action again: the second choice, authored after its forward step.</summary>
-    ChooseAlternateActionFacingRight,
-    /// <summary>Mini Kraid animation: step backwards, facing right.</summary>
+    /// <summary>Fake Kraid steps backwards, facing right.</summary>
     StepBackwardsFacingRight,
-    /// <summary>Mini Kraid animation: fire spit, facing right.</summary>
+    /// <summary>Fake Kraid fires his spit, facing right.</summary>
     FireSpitFacingRight,
 }

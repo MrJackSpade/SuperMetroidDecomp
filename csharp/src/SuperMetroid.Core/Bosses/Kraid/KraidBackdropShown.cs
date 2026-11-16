@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// What Kraid's room backdrop shows (#1512): colours it has settled on, or a fade's colours, which are the colours the fade
-/// started from after its steps toward its goal. A fade started during another starts from that fade's colours, so the
-/// colours a fade shows are the chain of fades that led to them.
+/// What Kraid's room backdrop shows (#1512, #2215): colours it has settled on, or a fade partway from what it showed when
+/// the fade started toward the colours the fade ends on. A fade started during another starts from that fade partway.
 /// </summary>
 internal abstract record KraidBackdropShown
 {
@@ -13,22 +12,21 @@ internal abstract record KraidBackdropShown
     }
 
     /// <summary>
-    /// What a fade toward <paramref name="goal"/> shows after its <paramref name="steps"/>, started from
-    /// <paramref name="from"/>: the colours it started from while its steps leave them unchanged (a fade toward the colours
-    /// it starts from, or only the step at counter zero), its goal once the step at the last moving value has landed on it,
-    /// and the fade's colours otherwise, which a fade that completes without that step keeps.
+    /// What a fade toward <paramref name="goal"/> shows, started from <paramref name="from"/>, <paramref name="progress"/>
+    /// of the way: what it started from before it has moved, its goal once it has come the whole way or when it fades
+    /// toward the colours it started from, and the fade partway otherwise.
     /// </summary>
     /// <param name="from">What the backdrop showed when the fade started.</param>
     /// <param name="goal">The colours the fade ends on.</param>
-    /// <param name="steps">The counter's values at the fade's steps.</param>
-    internal static KraidBackdropShown Fade(KraidBackdropShown from, KraidBackdropSettledColours goal, KraidBackdropFadeSteps steps)
+    /// <param name="progress">How far the fade has come.</param>
+    internal static KraidBackdropShown Fade(KraidBackdropShown from, KraidBackdropSettledColours goal, KraidBackdropFadeProgress progress)
     {
         Ensure.NotNull(from);
-        if (from == new Settled(goal) || steps.Took(KraidBackgroundDefinitions.BackdropFadeLastStep))
+        if (from == new Settled(goal) || progress.IsComplete)
             return new Settled(goal);
-        if (steps.OnlyAtZero)
+        if (progress.Moved == 0)
             return from;
-        return new Fading(from, goal, steps);
+        return new Fading(from, goal, progress);
     }
 
     /// <summary>Colours the backdrop has settled on.</summary>
@@ -36,12 +34,11 @@ internal abstract record KraidBackdropShown
     internal sealed record Settled(KraidBackdropSettledColours Colours) : KraidBackdropShown;
 
     /// <summary>
-    /// A fade's colours: <paramref name="From"/>'s after the shared gradual colour change's steps toward
-    /// <paramref name="Goal"/> at the counter's values <paramref name="Steps"/>. Made only by <see cref="Fade"/>, so it never
-    /// shows colours another kind names.
+    /// A fade partway: from <paramref name="From"/> toward <paramref name="Goal"/>, <paramref name="Progress"/> of the way.
+    /// Made only by <see cref="Fade"/>, so it never shows colours another kind names.
     /// </summary>
     /// <param name="From">What the backdrop showed when the fade started.</param>
     /// <param name="Goal">The colours the fade ends on.</param>
-    /// <param name="Steps">The counter's values at the fade's steps, none at the last moving value.</param>
-    internal sealed record Fading(KraidBackdropShown From, KraidBackdropSettledColours Goal, KraidBackdropFadeSteps Steps) : KraidBackdropShown;
+    /// <param name="Progress">How far the fade has come, neither none nor the whole way.</param>
+    internal sealed record Fading(KraidBackdropShown From, KraidBackdropSettledColours Goal, KraidBackdropFadeProgress Progress) : KraidBackdropShown;
 }

@@ -20,6 +20,10 @@ public sealed class GameplayShadingBuilder
     /// <summary>Lays <paramref name="shade"/> over <paramref name="pictures"/>' shades.</summary>
     public void Shade(GameplayPictures pictures, PictureShade shade) => shadings[Defined(pictures)] = shadings[pictures].With(shade);
 
+    /// <summary>Shows <paramref name="fade"/> over <paramref name="pictures"/>' shades, after their fades (#2215).</summary>
+    public void Shade(GameplayPictures pictures, PictureShadeFade fade) =>
+        shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(fade));
+
     /// <summary>Applies <paramref name="effect"/> to <paramref name="pictures"/> after their effects.</summary>
     public void Affect(GameplayPictures pictures, ColourEffect effect) =>
         shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(effect));

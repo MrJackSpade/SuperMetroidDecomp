@@ -7,30 +7,30 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The Mini-Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
+/// <summary>The Fake Kraid species owner: its per-room state, behaviour and the interactions it registers.</summary>
 [RoomLifetime]
 internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MiniKraid];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FakeKraid];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new FakeKraidEntity(this, place, common);
 
-    /// <summary>Provides the existing random number sampled for Mini-Kraid's action decisions.</summary>
+    /// <summary>Provides the existing random number sampled for Fake Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Checks the walk cue's movement against room collision blocks.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates spit, spike, and death effects from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Runs common Samus contact damage before Mini-Kraid's specialized death.</summary>
+    /// <summary>Runs common Samus contact damage before Fake Kraid's specialized death.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Spawns Mini-Kraid's death explosion and the four-pickup scatter after lethal hits.</summary>
+    /// <summary>Spawns Fake Kraid's death explosion and the four-pickup scatter after lethal hits.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Receives Mini-Kraid's cry and spike-launch sounds.</summary>
+    /// <summary>Receives Fake Kraid's cry and spike-launch sounds.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects Mini-Kraid's walk, projectiles, sounds and specialized death to room services.</summary>
+    /// <summary>Connects Fake Kraid's walk, projectiles, sounds and specialized death to room services.</summary>
     internal FakeKraidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyAudioQueue audio)
     {
         _room = room;
@@ -42,7 +42,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of Mini-Kraid's animations. The action choice continues at the step or spit animation it
+    /// Carries out one cue of Fake Kraid's animations. The action choice continues at the step or spit animation it
     /// selects, as the cue returns that animation; every other cue runs on.
     /// </summary>
     private FakeKraidSegment? ApplyFakeKraidCue(RoomEnemyPlace place, FakeKraidCue cue, SamusState samus, RoomLevelData level, Position16<RoomPixels> camera)
@@ -55,7 +55,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case FakeKraidCue.Signal signal:
                 return ApplyFakeKraidSignal(place, signal.Kind, samus, level, camera);
             default:
-                throw new InvalidOperationException($"Mini-Kraid's animations have no {cue} cue.");
+                throw new InvalidOperationException($"Fake Kraid's animations have no {cue} cue.");
         }
     }
 
@@ -66,27 +66,27 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case FakeKraidCueKind.Move:
                 // Walk cue: advance one four-pixel step unless its random reversal
-                // clock expires, then refresh the live facing marker from Samus.
+                // clock expires, then turn to face Samus.
                 ProcessFakeKraidWalkAnimation(place, place.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
             case FakeKraidCueKind.ChooseAction:
                 return SelectFakeKraidAction(place.RequireSpeciesState<FakeKraidEnemyState>());
             case FakeKraidCueKind.PlayCrySound:
-                // The spit step queues its sound only while Mini-Kraid is in the view, its edges included.
+                // The spit step queues its sound only while Fake Kraid is in the view, its edges included.
                 if (EnemyView.Contains(place.Position.Whole, camera))
-                    RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidCry);
+                    RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidCry);
                 return null;
             default:
-                throw new InvalidOperationException($"Mini-Kraid's animations have no {kind} cue.");
+                throw new InvalidOperationException($"Fake Kraid's animations have no {kind} cue.");
         }
     }
 
-    /// <summary>Queues one of Mini-Kraid's sounds as it makes it, after the update's earlier requests.</summary>
+    /// <summary>Queues one of Fake Kraid's sounds as it makes it, after the update's earlier requests.</summary>
     private void RequestFakeKraidSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
 
-    /// <summary>Sets Mini-Kraid up when the room spawns it.</summary>
+    /// <summary>Sets Fake Kraid up when the room spawns it.</summary>
     internal void InitializeFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         var state = new FakeKraidEnemyState();
@@ -105,18 +105,21 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.AnimationClock.Restart();
-        state.WalkDelta = -4;
-        state.FacingDelta = -4;
-        state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0)
-        {
-            state.WalkDelta = 4;
-            state.FacingDelta = 4;
-            state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(FakeKraidSegment.StepForwardsFacingRight), AnimationPlace.StartOfAnimation);
-        }
+        HorizontalDirection towardSamus = SideOfSamus(place, samus);
+        state.Walking = towardSamus;
+        state.Facing = towardSamus;
+        state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(towardSamus == HorizontalDirection.Right
+            ? FakeKraidSegment.StepForwardsFacingRight
+            : FakeKraidSegment.StepForwardsFacingLeft), AnimationPlace.StartOfAnimation);
     }
 
-    /// <summary>Runs Mini-Kraid's main AI for one update.</summary>
+    /// <summary>The side Samus stands on from Fake Kraid: right only when she stands right of him.</summary>
+    private static HorizontalDirection SideOfSamus(RoomEnemyPlace place, SamusState samus) =>
+        CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0
+            ? HorizontalDirection.Right
+            : HorizontalDirection.Left;
+
+    /// <summary>Runs Fake Kraid's main AI for one update.</summary>
     private void RunFakeKraidMain(
         RoomEnemyPlace place,
         FakeKraidEnemyState state,
@@ -144,11 +147,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SpawnFakeKraidSpike(place, state, row) &&
             EnemyView.Contains(place.Position.Whole, camera))
         {
-            RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidSpikeLaunch);
+            RequestFakeKraidSound(KraidSoundDefinitions.FakeKraidSpikeLaunch);
         }
     }
 
-    /// <summary>Runs Mini-Kraid's walk step.</summary>
+    /// <summary>Runs Fake Kraid's walk step.</summary>
     private void ProcessFakeKraidWalkAnimation(
         RoomEnemyPlace place,
         FakeKraidEnemyState state,
@@ -167,7 +170,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.WalkDelta);
+            SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(state.Walking == HorizontalDirection.Right
+                ? FakeKraidProjectileDefinitions.StepPixels
+                : -FakeKraidProjectileDefinitions.StepPixels);
             reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -175,54 +180,50 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if (reverse)
-            state.WalkDelta = -state.WalkDelta;
+            state.Walking = state.Walking == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right;
 
-        state.FacingDelta = CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0
-            ? 4
-            : -4;
+        state.Facing = SideOfSamus(place, samus);
     }
 
-    /// <summary>Runs Mini-Kraid's action choice and returns the animation it continues at.</summary>
+    /// <summary>Runs Fake Kraid's action choice and returns the animation it continues at.</summary>
     private FakeKraidSegment SelectFakeKraidAction(
         FakeKraidEnemyState state)
     {
         if (state.SpitDecisionTimer != 0)
         {
-            if (state.FacingDelta < 0)
+            if (state.Facing == HorizontalDirection.Left)
             {
-                return state.WalkDelta >= 0
+                return state.Walking == HorizontalDirection.Right
                     ? FakeKraidSegment.StepBackwardsFacingLeft
                     : FakeKraidSegment.StepForwardsFacingLeft;
             }
 
-            return state.WalkDelta < 0
+            return state.Walking == HorizontalDirection.Left
                 ? FakeKraidSegment.StepBackwardsFacingRight
                 : FakeKraidSegment.StepForwardsFacingRight;
         }
 
         state.SpitDecisionTimer = KraidRandomDefinitions.FakeKraidSpitDecisionSpread.Of(ReadFakeKraidRandomNumber()) +
             KraidRandomDefinitions.FakeKraidSpitDecisionBase;
-        return state.FacingDelta < 0
+        return state.Facing == HorizontalDirection.Left
             ? FakeKraidSegment.FireSpitFacingLeft
             : FakeKraidSegment.FireSpitFacingRight;
     }
 
-    /// <summary>Runs Mini-Kraid's left and right spit steps.</summary>
+    /// <summary>Runs Fake Kraid's left and right spit steps.</summary>
     internal void SpawnFakeKraidSpitPair(
         RoomEnemyPlace place,
         HorizontalDirection direction)
     {
-        int xOffset = direction == HorizontalDirection.Right ? 4 : -4;
-        for (int projectile = 0; projectile < 2; projectile++)
-        {
-            EightEightVector<RoomPixels> launch =
-                FakeKraidProjectiles.SpitLaunch(direction == HorizontalDirection.Right, projectile);
-            SpawnFakeKraidSpit(place, xOffset, launch);
-        }
+        int xOffset = direction == HorizontalDirection.Right
+            ? FakeKraidProjectileDefinitions.StepPixels
+            : -FakeKraidProjectileDefinitions.StepPixels;
+        foreach (FakeKraidSpit spit in FakeKraidProjectileDefinitions.SpitsInLaunchOrder)
+            SpawnFakeKraidSpit(place, xOffset, FakeKraidProjectiles.SpitLaunch(direction, spit));
     }
 
     /// <summary>
-    /// Allocates one spit projectile above and just ahead of Mini-Kraid's body with its authored velocity; a full enemy
+    /// Allocates one spit projectile above and just ahead of Fake Kraid's body with its authored velocity; a full enemy
     /// projectile pool spawns none.
     /// </summary>
     internal void SpawnFakeKraidSpit(
@@ -252,7 +253,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
     {
-        RoomEnemyProjectileKind kind = state.FacingDelta < 0
+        RoomEnemyProjectileKind kind = state.Facing == HorizontalDirection.Left
             ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
             : RoomEnemyProjectileKind.FakeKraidSpikeRight;
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
@@ -273,7 +274,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         return true;
     }
 
-    /// <summary>Runs Mini-Kraid's spit per frame.</summary>
+    /// <summary>Runs Fake Kraid's spit per frame.</summary>
     internal static void FlyFakeKraidSpit(
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -293,7 +294,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(nextVelocity);
     }
 
-    /// <summary>Runs Mini-Kraid's body spikes per frame.</summary>
+    /// <summary>Runs Fake Kraid's body spikes per frame.</summary>
     internal static void FlyFakeKraidSpike(
         EnemyProjectile projectile,
         RoomLevelData level)
@@ -307,7 +308,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Random.Read();
 
     /// <summary>
-    /// Mini-Kraid's shared death reaction: the enemy's death spawns death
+    /// Fake Kraid's shared death reaction: the enemy's death spawns death
     /// explosion and clears the place, then the death drop
     /// scatters four pickups from the coordinates saved before the shot AI.
     /// The explosion therefore takes the first free projectile place.
@@ -315,27 +316,27 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void KillFakeKraid(RoomEnemyPlace place, SamusState samus)
     {
         Position16<RoomPixels> origin = place.Position.Whole;
-        _deathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.MiniKraid, samus);
+        _deathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.FakeKraid, samus);
         SpawnFakeKraidDeathDrops(origin, samus);
     }
 
-    /// <summary>Scatters four Mini-Kraid pickups around the position saved before death clears its place.</summary>
+    /// <summary>Scatters four Fake Kraid pickups around the position saved before death clears its place.</summary>
     private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin, SamusState samus)
     {
         _deathsAndDrops.SpawnEnemyDropScatterAround(
-            EnemyDefinitionId.MiniKraid,
+            EnemyDefinitionId.FakeKraid,
             count: 4,
             origin,
             samus);
     }
 
-    /// <summary>Replaces generic bomb death with Mini-Kraid's death explosion and four-drop sequence.</summary>
+    /// <summary>Replaces generic bomb death with Fake Kraid's death explosion and four-drop sequence.</summary>
     internal EnemyBombReaction FakeKraidBombReaction => field ??= new()
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
-        // Mini-Kraid drop. Its definition never runs the generic death, whatever reaction a hitbox selects.
+        // Fake Kraid drop. Its definition never runs the generic death, whatever reaction a hitbox selects.
         RunsGenericDeath = false,
-        // Mini Kraid's shot reaction runs the common damage without the hit burst.
+        // Fake Kraid's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
         AfterCommon = c =>
         {
@@ -377,13 +378,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Runs Mini-Kraid's initialization AI.</summary>
+    /// <summary>Runs Fake Kraid's initialization AI.</summary>
     internal void RunFakeKraidInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
     {
         InitializeFakeKraid(place, surroundings.IntroducedSamus);
     }
 
-    /// <summary>Runs Mini-Kraid's main AI.</summary>
+    /// <summary>Runs Fake Kraid's main AI.</summary>
     internal void RunFakeKraidMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
     {
         RunFakeKraidMain(
@@ -392,7 +393,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             frame.Camera);
     }
 
-    /// <summary>Advances Mini-Kraid's typed animation.</summary>
+    /// <summary>Advances Fake Kraid's typed animation.</summary>
     internal void AdvanceFakeKraidTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, FakeKraidAnimations.Segments,
             static (FakeKraidEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
@@ -400,10 +401,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? new AnimationContinuation<FakeKraidSegment>(FakeKraidAnimations.StartingWith(action), AnimationPlace.StartOfAnimation)
                 : null);
 
-    /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
+    /// <summary>Spawns Fake Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal EnemyPowerBombReaction FakeKraidPowerBombReaction => field ??= new()
     {
-        // Mini Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
+        // Fake Kraid's private power-bomb reaction still owns its four direct pickup explosions, spawned after its
         // death explosion.
         ReplacesGenericDeath = c => KillFakeKraid(c.Enemy, c.Samus),
     };
@@ -411,7 +412,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
     internal EnemyShotReaction FakeKraidShotReaction => field ??= new()
     {
-        // Mini Kraid's shot reaction runs the common damage without the hit burst.
+        // Fake Kraid's shot reaction runs the common damage without the hit burst.
         ShowsHitBurst = EnemyShotReaction.NeverShowsHitBurst,
         ReplacesGenericDeath = c =>
         {
@@ -425,7 +426,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         },
     };
 
-    /// <summary>Runs common Samus contact and routes a resulting lethal hit to Mini-Kraid's death sequence.</summary>
+    /// <summary>Runs common Samus contact and routes a resulting lethal hit to Fake Kraid's death sequence.</summary>
     internal void ReactToFakeKraidTouch(EnemyTouchContext context)
     {
         int healthBefore = context.Place.Health;

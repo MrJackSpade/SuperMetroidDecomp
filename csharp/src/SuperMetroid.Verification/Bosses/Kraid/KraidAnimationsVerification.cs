@@ -181,8 +181,8 @@ internal static class KraidAnimationsVerification
 
     /// <summary>
     /// #1627: a held foot pose shows once and rests for good, its frame kept and its new-frame flag clear through every
-    /// later update, past the point its timer runs out and wraps; the arm's last lunge-ready pose keeps the exact longest
-    /// count, which the pending-reopen freeze holds standing.
+    /// later update, past the point its timer runs out and wraps; the arm's last lunge-ready pose is held the same way
+    /// (#2213).
     /// </summary>
     private static void VerifyHeldAndLongestPoses()
     {
@@ -208,9 +208,35 @@ internal static class KraidAnimationsVerification
         state.ArmState.Playback = Started(KraidPartSegment.ArmDyingOrPreparingToLunge);
         for (int beat = 0; beat < 3; beat++)
             Pass(arm, forceExpiry: true);
-        AssertEqual(KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmOutstretched), arm.SpritemapPointer,
-            "the arm shows its last lunge-ready pose");
-        AssertEqual((ushort)32767, arm.AnimationClock.Hold.RawValue, "the last lunge-ready pose keeps the longest frame's exact count");
+        ushort outstretched = KraidPartFrameToolingDefinitions.Spritemap(EnemyFrameId.KraidArmOutstretched);
+        AssertEqual(outstretched, arm.SpritemapPointer, "the arm shows its last lunge-ready pose");
+        // #2213: the pose is held, not timed by the longest frame duration: it rests until the arm's next animation starts.
+        AssertIs<AnimationBeat<EnemyFrameId, KraidPartCue>.HeldFrame>(KraidAnimations.Segments.Beats(KraidPartSegment.ArmDyingOrPreparingToLunge)[^1],
+            "the arm's last lunge-ready pose is held");
+        for (int update = 0; update < 256; update++)
+        {
+            Pass(arm);
+            if (arm.SpritemapPointer != outstretched)
+                throw new InvalidOperationException($"Verification failed: the held lunge-ready arm changed at update {update}.");
+        }
+
+        // #2213: a lint's stopped clock never steps its animation, through any number of updates and a lengthened hold,
+        // until its owner steps it again.
+        RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
+        lint.Bind(EnemyDefinitionId.KraidLintTop, lint.Definition);
+        state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
+        lint.AnimationClock.Stop();
+        lint.AnimationClock.Extend(1);
+        SuperMetroid.Core.Compatibility.WrappingCountdown stoppedHold = lint.AnimationClock.Hold;
+        for (int update = 0; update < 256; update++)
+        {
+            Pass(lint);
+            if (lint.Frame is not null || lint.AnimationClock.ShowsNewFrame || lint.AnimationClock.Hold != stoppedHold ||
+                state.TopLintState.Playback != Started(KraidPartSegment.LintInitial))
+                throw new InvalidOperationException($"Verification failed: the stopped lint's animation stepped at update {update}.");
+        }
+        Pass(lint, forceExpiry: true);
+        AssertEqual((EnemyFrameId?)EnemyFrameId.KraidLintBudding, lint.Frame, "a stepped lint clock plays its animation again");
     }
 
     /// <summary>The part animation starting at <paramref name="segment"/>, before its first play.</summary>
@@ -226,8 +252,14 @@ internal static class KraidAnimationsVerification
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyAnimationPlayer.AdvanceAnimation(part, samus: PassSamus, level: PassLevel, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
+
+    /// <summary>The Samus every animation pass sees; no Kraid part animation reads her.</summary>
+    private static SuperMetroid.Core.Samus.SamusState PassSamus => field ??= RoomEnemyFrameFixtures.StandaloneSamus();
+
+    /// <summary>The open room every animation pass runs in, built once.</summary>
+    private static SuperMetroid.Core.Rooms.LevelData.RoomLevelData PassLevel => field ??= RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
 
     /// <summary>
     /// The real rock producers start typed programs that match their native lists, and the spat rock's burst sets

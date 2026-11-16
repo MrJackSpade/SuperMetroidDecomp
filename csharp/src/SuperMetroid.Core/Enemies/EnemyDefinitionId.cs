@@ -153,8 +153,8 @@ public enum EnemyDefinitionId
     Hibashi,
     /// <summary>The Nuclear Waffle, which sweeps around its centre; the game's own name for it is Puromi.</summary>
     NuclearWaffle,
-    /// <summary>Mini Kraid, the small Kraid of Brinstar.</summary>
-    MiniKraid,
+    /// <summary>Fake Kraid, the small Kraid of Brinstar.</summary>
+    FakeKraid,
     /// <summary>Ridley at Ceres station.</summary>
     /// <remarks>Ceres Ridley, which shares Ridley's implementation.</remarks>
     RidleyCeres,

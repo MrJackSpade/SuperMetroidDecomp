@@ -27,28 +27,28 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
     /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
     internal const ushort DeathBeamStart = 0xa384;
     /// <summary>Every body frame in the order of its cartridge root.</summary>
-    internal static readonly MotherBrainBodyFrame[] CartridgeOrder =
+    internal static readonly EnemyFrameId[] CartridgeOrder =
     [
-        MotherBrainBodyFrame.Standing,
-        MotherBrainBodyFrame.WalkingFirst,
-        MotherBrainBodyFrame.WalkingSecond,
-        MotherBrainBodyFrame.WalkingThird,
-        MotherBrainBodyFrame.WalkingFourth,
-        MotherBrainBodyFrame.WalkingFifth,
-        MotherBrainBodyFrame.WalkingSixth,
-        MotherBrainBodyFrame.WalkingSeventh,
-        MotherBrainBodyFrame.WalkingEighth,
-        MotherBrainBodyFrame.Crouched,
-        MotherBrainBodyFrame.Uncrouching,
-        MotherBrainBodyFrame.LeaningDown,
-        MotherBrainBodyFrame.InitialDummy,
-        MotherBrainBodyFrame.HandBeamSecond,
-        MotherBrainBodyFrame.HandBeamThird,
-        MotherBrainBodyFrame.HandBeamFourth,
-        MotherBrainBodyFrame.HandBeamFifth,
+        EnemyFrameId.MotherBrainBodyStanding,
+        EnemyFrameId.MotherBrainBodyWalkingNearLegLifting,
+        EnemyFrameId.MotherBrainBodyWalkingNearLegReaching,
+        EnemyFrameId.MotherBrainBodyWalkingNearLegPlanting,
+        EnemyFrameId.MotherBrainBodyWalkingLegsApart,
+        EnemyFrameId.MotherBrainBodyWalkingFarLegLifting,
+        EnemyFrameId.MotherBrainBodyWalkingFarLegPassing,
+        EnemyFrameId.MotherBrainBodyWalkingFarLegPlanting,
+        EnemyFrameId.MotherBrainBodyWalkingLegsTogether,
+        EnemyFrameId.MotherBrainBodyCrouched,
+        EnemyFrameId.MotherBrainBodyUncrouching,
+        EnemyFrameId.MotherBrainBodyLeaningDown,
+        EnemyFrameId.MotherBrainBodyInitialDummy,
+        EnemyFrameId.MotherBrainBodyHandCurling,
+        EnemyFrameId.MotherBrainBodyArmDrawnBack,
+        EnemyFrameId.MotherBrainBodyArmFlungOut,
+        EnemyFrameId.MotherBrainBodyArmReturning,
     ];
     /// <summary>The published OAM identity of <paramref name="frame"/>.</summary>
-    internal static NativeEnemySpritemapDefinition Frame(MotherBrainBodyFrame frame) => Frame(Array.IndexOf(CartridgeOrder, frame));
+    internal static NativeEnemySpritemapDefinition Frame(EnemyFrameId frame) => Frame(Array.IndexOf(CartridgeOrder, frame));
     /// <summary>Calculates the published OAM identity. Native record strides are
     /// two header bytes plus eight bytes per component; explicit run boundaries
     /// preserve the shorter crouched/dummy frames and skipped unselected roots.
@@ -61,7 +61,7 @@ internal static class MotherBrainBodyVisualDefinitionsConstants
             : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)
             : index < 13 ? Uncrouching + 0x4a * (index - 10)
             : DeathBeamStart + 0x4a * (index - 13));
-        string name = EnemyFrameNameDefinitions.Names[MotherBrainBodyVisualDefinitions.ShownFrames.Of(CartridgeOrder[index])];
+        string name = EnemyFrameNameDefinitions.Names[CartridgeOrder[index]];
         return new(MotherBrainBodyVisualToolingDefinitions.Bank, pointer, name);
     }
 }

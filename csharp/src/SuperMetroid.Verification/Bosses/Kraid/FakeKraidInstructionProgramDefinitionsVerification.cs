@@ -13,7 +13,7 @@ using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks Mini-Kraid's typed programs and their cues through its real initializer, walks and spits.</summary>
+/// <summary>Checks Fake Kraid's typed programs and their cues through its real initializer, walks and spits.</summary>
 internal static class FakeKraidInstructionProgramDefinitionsVerification
 {
     /// <summary>Enough walk decisions that the spit decision cannot expire during a sixty-update run.</summary>
@@ -34,7 +34,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
         EnemyDefinitionId populationDefinition = EnemyDefinitionIdsConstants.FromHeaderPointer(LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1)));
         ushort extraProperties = LittleEndianBytes.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11));
-        AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
+        AssertEqual(EnemyDefinitionId.FakeKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
         AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0, extraProperties).CollidesByFrameHitboxes,
             "retail Fake Kraid uses ordinary OAM composition");
@@ -48,19 +48,19 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         ExerciseWalk(
             FakeKraidSegment.StepForwardsFacingLeft,
             movingRight: false,
-            walkDelta: -4);
+            walking: HorizontalDirection.Left);
         ExerciseWalk(
             FakeKraidSegment.StepBackwardsFacingLeft,
             movingRight: false,
-            walkDelta: 4);
+            walking: HorizontalDirection.Right);
         ExerciseWalk(
             FakeKraidSegment.StepForwardsFacingRight,
             movingRight: true,
-            walkDelta: 4);
+            walking: HorizontalDirection.Right);
         ExerciseWalk(
             FakeKraidSegment.StepBackwardsFacingRight,
             movingRight: true,
-            walkDelta: -4);
+            walking: HorizontalDirection.Left);
         ExerciseSpit(
             FakeKraidSegment.FireSpitFacingLeft,
             movingRight: false);
@@ -70,11 +70,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         ExerciseWalkTimerExpiry(
             FakeKraidSegment.StepForwardsFacingLeft,
             movingRight: false,
-            walkDelta: -4);
+            walking: HorizontalDirection.Left);
         ExerciseWalkTimerExpiry(
             FakeKraidSegment.StepBackwardsFacingRight,
             movingRight: true,
-            walkDelta: -4);
+            walking: HorizontalDirection.Left);
 
         Console.WriteLine("Fake Kraid: both initial facings, four walk and two spit programs with their cues, and the walk timer's expiry at zero pass.");
 
@@ -93,7 +93,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 $"Fake Kraid initializer selects {(movingRight ? "right" : "left")} program");
         }
 
-        void ExerciseWalk(FakeKraidSegment program, bool movingRight, short walkDelta)
+        void ExerciseWalk(FakeKraidSegment program, bool movingRight, HorizontalDirection walking)
         {
             RoomEnemySystem enemies = CreateSystem(
                 movingRight,
@@ -102,8 +102,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            state.WalkDelta = walkDelta;
-            state.FacingDelta = movingRight ? (short)4 : (short)-4;
+            state.Walking = walking;
+            state.Facing = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
             state.WalkStepTimer = 0x0100;
             state.SpitDecisionTimer = 0x0100;
 
@@ -133,11 +133,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             AssertEqual(2, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                     projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.FakeKraidSpit),
                 $"Fake Kraid {program} spawns its projectile pair");
-            AssertEqual((SoundEffectId?)KraidSoundDefinitions.MiniKraidCry, enemies.Audio.LatestSound,
+            AssertEqual((SoundEffectId?)KraidSoundDefinitions.FakeKraidCry, enemies.Audio.LatestSound,
                 $"Fake Kraid {program} publishes its cry");
         }
 
-        void ExerciseWalkTimerExpiry(FakeKraidSegment program, bool movingRight, short walkDelta)
+        void ExerciseWalkTimerExpiry(FakeKraidSegment program, bool movingRight, HorizontalDirection walking)
         {
             // A timer at one reaches zero on the walk callback: the actor reverses without stepping and reloads
             // seven through ten (seven for the fixture's zero random word).
@@ -148,15 +148,15 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out FakeKraidEnemyState state);
             state.Playback = new AnimationPlayback<FakeKraidSegment>(FakeKraidAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            state.WalkDelta = walkDelta;
-            state.FacingDelta = movingRight ? (short)4 : (short)-4;
+            state.Walking = walking;
+            state.Facing = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
             state.WalkStepTimer = 1;
             state.SpitDecisionTimer = UnexpiredSpitDecisions;
             ushort startX = place.Position.X.Whole;
 
             RunFrames(enemies, place, samus, level, 60);
 
-            AssertEqual((short)-walkDelta, state.WalkDelta,
+            AssertEqual(walking == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right, state.Walking,
                 $"Fake Kraid {program} reverses when its walk timer reaches zero");
             AssertEqual(startX, place.Position.X.Whole,
                 $"Fake Kraid {program} does not step on the reversing callback");
@@ -175,10 +175,10 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             Action<RoomEnemyPlace, SamusState> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
             place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.MiniKraid, place.Definition);
+            place.Bind(EnemyDefinitionId.FakeKraid, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
-            place.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
+            place.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.FakeKraid).Radius;
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {

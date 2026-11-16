@@ -198,7 +198,7 @@ internal static class BrinstarRoomEnemyGraphicsSetDefinitions
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.MiniKraid), [
             new(EnemyDefinitionId.PirateGreenWalking),
-            new(EnemyDefinitionId.MiniKraid),
+            new(EnemyDefinitionId.FakeKraid),
         ]),
         new(nameof(RoomEnemyGraphicsSetDefinitions.SporeSpawn), [
             new(EnemyDefinitionId.SporeSpawn),

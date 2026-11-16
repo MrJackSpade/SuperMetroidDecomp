@@ -9,8 +9,17 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// head at its current pose above it, or the head his body rises with before his head shows a pose.
 /// </summary>
 [RoomLifetime]
-internal sealed class KraidBodyLayer
+internal sealed class KraidBodyLayer : IBossBodyDisplay
 {
+    /// <inheritdoc />
+    BossBodyLayer? IBossBodyDisplay.Layer => CaptureBodyLayer();
+
+    /// <inheritdoc />
+    Position16<RoomPixels>? IBossBodyDisplay.Placement => Placement;
+
+    /// <inheritdoc />
+    bool IBossBodyDisplay.Hidden => false;
+
     /// <summary>Kraid's state and part lookups, part animations, phase timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>

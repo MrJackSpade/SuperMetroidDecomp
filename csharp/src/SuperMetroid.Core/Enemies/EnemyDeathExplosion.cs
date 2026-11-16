@@ -12,8 +12,8 @@ public enum EnemyDeathExplosion
     /// <summary>The normal explosion.</summary>
     Normal,
 
-    /// <summary>Mini-Kraid's explosion.</summary>
-    MiniKraid,
+    /// <summary>Fake Kraid's explosion.</summary>
+    FakeKraid,
 
     /// <summary>The big explosion.</summary>
     Big,

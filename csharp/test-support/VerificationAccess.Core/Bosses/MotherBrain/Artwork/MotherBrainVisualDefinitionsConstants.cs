@@ -31,23 +31,23 @@ internal static class MotherBrainVisualDefinitionsConstants
     /// <summary>Each ordinary OAM record has a two-byte count and five bytes per character.</summary>
     internal static int RecordBytes(int characters) => 2 + characters * 5;
     /// <summary>Each brain frame's place in the cartridge's composition catalog.</summary>
-    internal static readonly IReadOnlyDictionary<MotherBrainHeadFrame, int> HeadCatalogPlaces = new Dictionary<MotherBrainHeadFrame, int>
+    internal static readonly IReadOnlyDictionary<EnemyFrameId, int> HeadCatalogPlaces = new Dictionary<EnemyFrameId, int>
     {
-        [MotherBrainHeadFrame.Initial] = 0,
-        [MotherBrainHeadFrame.NeutralPhaseTwoSecond] = 1,
-        [MotherBrainHeadFrame.StretchingPhaseTwoFirst] = 2,
-        [MotherBrainHeadFrame.StretchingPhaseTwoSecond] = 3,
-        [MotherBrainHeadFrame.StretchingPhaseTwoThird] = 4,
-        [MotherBrainHeadFrame.DecapitatedLoop] = 6,
-        [MotherBrainHeadFrame.DecapitatedSecond] = 7,
-        [MotherBrainHeadFrame.StretchingPhaseThreeFirst] = 8,
-        [MotherBrainHeadFrame.StretchingPhaseThreeSecond] = 9,
-        [MotherBrainHeadFrame.StretchingPhaseThreeThird] = 10,
-        [MotherBrainHeadFrame.CorpseFourth] = 11,
-        [MotherBrainHeadFrame.CorpseLoop] = 12,
+        [EnemyFrameId.MotherBrainHeadEyeShut] = 0,
+        [EnemyFrameId.MotherBrainHeadEyeOpen] = 1,
+        [EnemyFrameId.MotherBrainHeadEyeGlaring] = 2,
+        [EnemyFrameId.MotherBrainHeadJawDropping] = 3,
+        [EnemyFrameId.MotherBrainHeadJawDropped] = 4,
+        [EnemyFrameId.MotherBrainDarkHeadEyeShut] = 6,
+        [EnemyFrameId.MotherBrainDarkHeadEyeOpen] = 7,
+        [EnemyFrameId.MotherBrainDarkHeadEyeGlaring] = 8,
+        [EnemyFrameId.MotherBrainDarkHeadJawDropping] = 9,
+        [EnemyFrameId.MotherBrainDarkHeadJawDropped] = 10,
+        [EnemyFrameId.MotherBrainHeadCorpseSlumping] = 11,
+        [EnemyFrameId.MotherBrainHeadCorpseSlumped] = 12,
     };
     /// <summary>The native OAM identity of brain frame <paramref name="frame"/>.</summary>
-    internal static NativeEnemySpritemapDefinition Frame(MotherBrainHeadFrame frame) => Frame(HeadCatalogPlaces[frame]);
+    internal static NativeEnemySpritemapDefinition Frame(EnemyFrameId frame) => Frame(HeadCatalogPlaces[frame]);
     /// <summary>Calculates a bounded native OAM pointer from each composition family's record size.</summary>
     internal static NativeEnemySpritemapDefinition Frame(int index)
     {

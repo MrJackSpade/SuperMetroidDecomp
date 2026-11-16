@@ -9,8 +9,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Most of these values belong to neither enemy. A dedicated object therefore keeps both enemies' places in the room
 /// separate while one owner serves the two.
 /// </summary>
-public sealed class MotherBrainEnemyState
+public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
+    /// <inheritdoc />
+    Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacedAt;
+
+    /// <inheritdoc />
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => DeathHidesBodyLayer;
+
     /// <summary>Starts the shared encounter state with her body before her head is attached.</summary>
     /// <param name="body">Her body's place.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
@@ -36,6 +42,12 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>The body's phase, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyPhase Phase { get; internal set; }
+
+    /// <summary>
+    /// How many of the mural's rows her fake death's ascent has drawn (#2211): zero when the reveal starts, two more each
+    /// update of <see cref="MotherBrainBodyPhase.FakeDeathAscentDrawMural"/>.
+    /// </summary>
+    public int MuralRowsDrawn { get; internal set; }
     /// <summary>The brain's independent action, selecting its custom head-only or head-and-neck draw setup.</summary>
     public MotherBrainBrainAction BrainAction { get; internal set; }
 

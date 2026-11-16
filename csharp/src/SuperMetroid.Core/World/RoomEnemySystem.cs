@@ -336,7 +336,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <summary>The sparks that fall from the Wrecked Ship's sparks and skitter along the floor.</summary>
     internal FallingSparksBehavior FallingSparksBehavior { get; }
 
-    /// <summary>Mini-Kraid, the small Kraid in the room before Kraid's.</summary>
+    /// <summary>Fake Kraid, the small Kraid in the room before Kraid's.</summary>
     internal FakeKraidBehavior FakeKraidBehavior { get; }
 
     /// <summary>The eyes guarding some doors, which fire at Samus until she destroys them.</summary>
@@ -545,19 +545,11 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     /// <inheritdoc/>
     ImmutableArray<PerspectiveFloorScenery> IEnemyDisplaySources.CeresGetawayChamberWalls => CeresRidleyBehavior.Getaway.ChamberWalls();
     /// <inheritdoc/>
-    BossBodyLayer? IEnemyDisplaySources.BossBody => KraidBehavior.BodyLayer.CaptureBodyLayer()
-        ?? (Presentation.BossBody is { IsShown: true } body ? body.Publish() : null);
+    BossBodyLayer? IEnemyDisplaySources.BossBody => Presentation.BossBodyDisplay?.Layer;
     /// <inheritdoc/>
-    Position16<RoomPixels>? IEnemyDisplaySources.BossBodyPlacement =>
-        KraidBehavior.BodyLayer.Placement
-        ?? PhantoonBehavior.Combat.Phantoon?.Body.Position.Whole
-        ?? DraygonBehavior.Parts.Draygon?.BodyPlacement
-        ?? CrocomireBehavior.Fight.Encounter?.Body.Position.Whole
-        ?? MotherBrainEncounter.MotherBrain?.BodyPlacedAt;
+    Position16<RoomPixels>? IEnemyDisplaySources.BossBodyPlacement => Presentation.BossBodyDisplay?.Placement;
     /// <inheritdoc/>
-    bool IEnemyDisplaySources.BossBodyHidden =>
-        DraygonBehavior.Parts.Draygon?.Body.Presence.HasAny(EnemyPresence.Deleted) == true
-        || MotherBrainEncounter.MotherBrain?.DeathHidesBodyLayer == true;
+    bool IEnemyDisplaySources.BossBodyHidden => Presentation.BossBodyDisplay?.Hidden == true;
     /// <inheritdoc/>
     MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
 
@@ -572,19 +564,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 yield return ridley.Colours;
             if (MotherBrainEncounter.MotherBrain is { } motherBrain)
                 yield return motherBrain.Colours;
-            if (SporeSpawnBehavior.SporeSpawn is { } sporeSpawn)
-                yield return sporeSpawn.Colours;
-            if (PhantoonBehavior.Combat.Phantoon is { } phantoon)
-                yield return phantoon.Colours;
-            if (DraygonBehavior.Parts.Draygon is { } draygon)
-                yield return draygon.Colours;
-            if (CrocomireBehavior.Fight.Encounter is { } crocomire)
-                yield return crocomire.Colours;
-            if (KraidBehavior.Access.Kraid is { } kraid)
-            {
-                yield return KraidBehavior.Access.Backdrop;
-                yield return kraid.Colours;
-            }
+            foreach (IGameplayShadingSource boss in Presentation.BossShadings.InOrder)
+                yield return boss;
         }
     }
 
@@ -659,7 +640,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, Places, Room);
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, TourianEntranceStatueBehavior);
-        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Audio = Audio, Room = Room, Presentation = Presentation, Projectiles = Projectiles, EffectActors = EffectActors, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, EffectActors, compatibility.FallingSparkFloorProbe);
         SparkBehavior = new SparkBehavior(FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);

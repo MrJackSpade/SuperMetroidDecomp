@@ -8,8 +8,14 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the wave,
 /// whether his body shows, and his death.
 /// </summary>
-public sealed class PhantoonEnemyState
+public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
+    /// <inheritdoc />
+    Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;
+
+    /// <inheritdoc />
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
+
     /// <summary>Attaches shared encounter state to the body's place.</summary>
     internal PhantoonEnemyState(RoomEnemyPlace body) => Body = body;
 

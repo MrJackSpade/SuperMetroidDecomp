@@ -38,17 +38,17 @@ internal static class MotherBrainBodyPresentationVerification
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
         var physicalFrames = Enum.GetValues<MotherBrainBodySegment>()
             .SelectMany(program => MotherBrainAnimations.BodySegments.Beats(program))
-            .OfType<AnimationBeat<MotherBrainBodyFrame, MotherBrainBodyCue>.Frame>()
+            .OfType<AnimationBeat<EnemyFrameId, MotherBrainBodyCue>.Frame>()
             .Select(beat => MotherBrainBodyVisualDefinitionsConstants.Frame(beat.Shown).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
-        foreach (MotherBrainBodyFrame shown in MotherBrainBodyVisualDefinitionsConstants.CartridgeOrder)
+        foreach (EnemyFrameId shown in MotherBrainBodyVisualDefinitionsConstants.CartridgeOrder)
         {
             NativeEnemySpritemapDefinition frame = MotherBrainBodyVisualDefinitionsConstants.Frame(shown);
             baseline.SetFrame(frame.Pointer, fresh: true);
             baseline.ClearBg2();
             AssertBodyOam(baseline.DrawInto, stockOam.Frames[frame.Name], baseline.Body, baseline.Inner.Enemies, () => baseline.BodyFrameShowsNothing, frame.Name);
-            AssertBodyBg2(baseline.Bg2Words, stockBg2, MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown));
+            AssertBodyBg2(baseline.Bg2Words, stockBg2, shown);
 
             baseline.SetFrame(frame.Pointer, fresh: false);
             baseline.MarkBg2();

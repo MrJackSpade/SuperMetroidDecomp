@@ -278,7 +278,7 @@ internal static class KraidAnimations
         [
             Show(F.KraidArmRaisedClawClosed, 6),
             Show(F.KraidArmDroopingDiagonal, 6),
-            Show(F.KraidArmOutstretched, ReadyToLungeArmDuration),
+            Hold(F.KraidArmOutstretched),
         ],
         [P.LintInitial] =
         [
@@ -327,19 +327,13 @@ internal static class KraidAnimations
         new AnimationBeat<EnemyFrameId, KraidPartCue>.Frame(frame, duration);
 
     /// <summary>
-    /// Shows <paramref name="frame"/> for good (#1627): the part rests on it until its owner starts another animation. The
-    /// feet's standing poses and the belly lints' poses are held: nothing reads a foot's frame timer, and a lint's behaviour
-    /// reloads its timer every update, so the longest frame duration never runs out where gameplay sees it.
+    /// Shows <paramref name="frame"/> for good (#1627, #2213): the part rests on it until its owner starts another animation.
+    /// The feet's standing poses, the belly lints' poses and the arm's last lunge-ready pose are held: nothing reads a part's
+    /// frame timer or new-frame flag, and every lunge and the death start the arm's next animation long before any frame
+    /// duration could run out.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, KraidPartCue> Hold(EnemyFrameId frame) =>
         new AnimationBeat<EnemyFrameId, KraidPartCue>.HeldFrame(frame);
-
-    /// <summary>
-    /// The updates the arm's last lunge-ready pose shows, the longest duration a frame can have, kept exact (#1627): while mouth
-    /// reopens are pending, Kraid's arm behaviour adds an update to the arm's frame timer every update, which keeps this
-    /// count standing and the arm's new-frame flag clear; a held frame's timer would run out every update instead.
-    /// </summary>
-    private const int ReadyToLungeArmDuration = 32767;
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, KraidPartCue> Cue(KraidPartCue cue) =>

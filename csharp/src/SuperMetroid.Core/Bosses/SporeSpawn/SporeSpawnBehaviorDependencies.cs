@@ -12,6 +12,9 @@ internal sealed record SporeSpawnBehaviorDependencies
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
+    /// <summary>The room's presentation, which shows his colours (#2194).</summary>
+    public required EnemyPresentation Presentation { get; init; }
+
     /// <summary>Projectiles.</summary>
     public required EnemyProjectileEngine Projectiles { get; init; }
 

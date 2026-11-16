@@ -53,17 +53,6 @@ internal static class KraidHeadAnimations
             Show(KraidHeadFrame.Opening, RoarClosingDuration),
             Show(KraidHeadFrame.Closed, RoarClosingDuration),
         ],
-        [P.DyingRoar] =
-        [
-            Show(KraidHeadFrame.Closed, 20),
-            Show(KraidHeadFrame.Opening, 20),
-            Show(KraidHeadFrame.Wider, 20),
-            Cue(KraidHeadCue.Roar),
-            Show(KraidHeadFrame.Open, 192),
-            Show(KraidHeadFrame.Wider, 20),
-            Show(KraidHeadFrame.Opening, 20),
-            Show(KraidHeadFrame.Closed, 20),
-        ],
         [P.EyeGlow] =
         [
             Show(KraidHeadFrame.Closed, EyeGlowEntryDuration),
@@ -84,7 +73,6 @@ internal static class KraidHeadAnimations
     internal static IReadOnlyDictionary<KraidHeadSegment, Animation<KraidHeadSegment>> StartingAt { get; } = new Dictionary<KraidHeadSegment, Animation<KraidHeadSegment>>
     {
         [P.Roar] = new([new(P.Roar, 0, 8, 1)], AnimationEnd.Holds),
-        [P.DyingRoar] = new([new(P.DyingRoar, 0, 8, 1)], AnimationEnd.Holds),
         [P.EyeGlow] = new([new(P.EyeGlow, 0, 3, 1)], AnimationEnd.Holds),
         [P.Death] = new([new(P.Death, 0, 5, 1)], AnimationEnd.Holds),
     };
@@ -110,14 +98,12 @@ internal static class KraidHeadAnimations
     }
 
     /// <summary>
-    /// The last pose of the head animation laid out before each animation, which the mouth tests find at its start
-    /// (<see cref="KraidMouthTrailsHead"/>): every animation but the roar, laid out first, follows one that ends with the
-    /// mouth closed.
+    /// The pose the mouth tests find at each animation's start, before its first step (<see cref="KraidMouthTrailsHead"/>):
+    /// none before the roar, and the closed mouth before the eye glow and the death cry.
     /// </summary>
-    private static readonly Dictionary<KraidHeadSegment, KraidHeadFrame?> PoseLaidOutBefore = new()
+    private static readonly Dictionary<KraidHeadSegment, KraidHeadFrame?> PoseBeforeStart = new()
     {
         [P.Roar] = null,
-        [P.DyingRoar] = KraidHeadFrame.Closed,
         [P.EyeGlow] = KraidHeadFrame.Closed,
         [P.Death] = KraidHeadFrame.Closed,
     };
@@ -133,7 +119,7 @@ internal static class KraidHeadAnimations
             throw new InvalidOperationException($"Kraid head place {place} is outside its segment.");
         KraidHeadFrame?[] steps = [.. beats.Select(beat => beat.ShownFrame)];
         KraidMouthTrailsHead.MouthShapes<KraidHeadFrame> shapes =
-            KraidMouthTrailsHead.ShapesAt(steps, place.Step, PoseLaidOutBefore[place.Segment]);
+            KraidMouthTrailsHead.ShapesAt(steps, place.Step, PoseBeforeStart[place.Segment]);
         return new(Read(shapes.Outer), Read(shapes.Inner), GrowthResumeBefore(place.Step < steps.Length ? steps[place.Step] : null));
     }
 
@@ -179,15 +165,32 @@ internal static class KraidHeadAnimations
         };
     }
 
-    /// <summary>The roar place growth restarts the head at.</summary>
+    /// <summary>
+    /// The roar place growth restarts the head at: past the closing pose matching the one the head shows next, or past the
+    /// wide-open hold, so the closing part plays on from there.
+    /// </summary>
     internal static AnimationPlayback<KraidHeadSegment> GrowthResumePlayback(KraidHeadGrowthResume resume) => resume switch
     {
-        KraidHeadGrowthResume.NextFrameClosed => At(P.Roar, 8),
-        KraidHeadGrowthResume.NextFrameOpening => At(P.Roar, 7),
-        KraidHeadGrowthResume.NextFrameWider => At(P.Roar, 6),
-        KraidHeadGrowthResume.NextStepOther => At(P.Roar, 5),
+        KraidHeadGrowthResume.NextFrameClosed => RoarPastClosingPose(KraidHeadFrame.Closed),
+        KraidHeadGrowthResume.NextFrameOpening => RoarPastClosingPose(KraidHeadFrame.Opening),
+        KraidHeadGrowthResume.NextFrameWider => RoarPastClosingPose(KraidHeadFrame.Wider),
+        KraidHeadGrowthResume.NextStepOther => At(P.Roar, RoarClosingStart),
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidHeadGrowthResume)} {resume}."),
     };
+
+    /// <summary>The roar's first closing step: the one after its wide-open hold.</summary>
+    private static int RoarClosingStart { get; } =
+        Segments.Beats(P.Roar).ToList().FindIndex(beat => beat.ShownFrame == KraidHeadFrame.Open) + 1;
+
+    /// <summary>The roar standing just past the closing pose that shows <paramref name="pose"/>.</summary>
+    /// <exception cref="InvalidOperationException">The roar's closing part shows no such pose.</exception>
+    private static AnimationPlayback<KraidHeadSegment> RoarPastClosingPose(KraidHeadFrame pose)
+    {
+        int closing = Segments.Beats(P.Roar).Skip(RoarClosingStart).ToList().FindIndex(beat => beat.ShownFrame == pose);
+        return closing >= 0
+            ? At(P.Roar, RoarClosingStart + closing + 1)
+            : throw new InvalidOperationException($"Kraid's roar closes through no {pose} pose.");
+    }
 
     /// <summary>The head delay, in updates, growth restarts the head with.</summary>
     internal static int GrowthResumeDelay(KraidHeadGrowthResume resume) => resume switch

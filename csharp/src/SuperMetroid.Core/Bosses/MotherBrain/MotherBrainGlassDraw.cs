@@ -1,28 +1,28 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The eleven frames Mother Brain's glass draws into her room as it breaks.</summary>
+/// <summary>The eleven frames Mother Brain's glass draws into her room as it breaks (#2211), named for what each shows.</summary>
 internal enum MotherBrainGlassDraw
 {
     /// <summary>The intact glass block.</summary>
     Initial,
-    /// <summary>First full pane damage frame.</summary>
-    PaneDamage1,
-    /// <summary>Second full pane damage frame.</summary>
-    PaneDamage2,
+    /// <summary>The pane cracked from its right edge.</summary>
+    PaneCracked,
+    /// <summary>The pane's cracks reaching across it.</summary>
+    PaneCrackedThrough,
     /// <summary>The pane giving way below the glass block.</summary>
     PaneTransition,
-    /// <summary>First shifted pane damage frame.</summary>
-    ShiftedPane1,
-    /// <summary>Second shifted pane damage frame.</summary>
-    ShiftedPane2,
+    /// <summary>The cracked pane shifted to the glass's left side, whole.</summary>
+    PaneShifted,
+    /// <summary>The shifted pane crumbling from its top.</summary>
+    PaneShiftedCrumbling,
     /// <summary>The shifted pane emptying.</summary>
-    ShiftedPane3,
-    /// <summary>First shatter frame.</summary>
-    Shatter1,
-    /// <summary>Second shatter frame.</summary>
-    Shatter2,
-    /// <summary>Third shatter frame: the glass's square empty.</summary>
-    Shatter3,
+    PaneShiftedEmptying,
+    /// <summary>The glass's rim buckling inward.</summary>
+    RimBuckling,
+    /// <summary>The glass's rim bursting, the tubes behind it showing.</summary>
+    RimBursting,
+    /// <summary>The rim gone: only the tubes behind the glass's square remain.</summary>
+    RimGone,
     /// <summary>The glass gone, its square empty.</summary>
     Cleared,
 }

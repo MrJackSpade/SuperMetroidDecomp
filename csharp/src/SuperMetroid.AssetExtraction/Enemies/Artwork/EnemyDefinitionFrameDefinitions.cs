@@ -412,10 +412,10 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.MotherBrainBodyUncrouching,
         EnemyFrameId.MotherBrainBodyLeaningDown,
         EnemyFrameId.MotherBrainBodyInitialDummy,
-        EnemyFrameId.MotherBrainBodyStandingTwin,
-        EnemyFrameId.MotherBrainBodyStandingTwinB,
-        EnemyFrameId.MotherBrainBodyStandingTwinC,
-        EnemyFrameId.MotherBrainBodyStandingTwinD,
+        EnemyFrameId.MotherBrainBodyHandCurling,
+        EnemyFrameId.MotherBrainBodyArmDrawnBack,
+        EnemyFrameId.MotherBrainBodyArmFlungOut,
+        EnemyFrameId.MotherBrainBodyArmReturning,
     ];
 
     /// <summary>The frames <c>Bosses/MotherBrain/MotherBrainBehavior.cs</c> shows for <c>MotherBrainHead</c>.</summary>
@@ -2469,7 +2469,7 @@ internal static class EnemyDefinitionFrameDefinitions
             [EnemyDefinitionId.CrocomireTongue] = CrocomireTongueFrames,
             [EnemyDefinitionId.DraygonArms] = DraygonArmsFrames,
             [EnemyDefinitionId.DraygonTail] = DraygonTailFrames,
-            [EnemyDefinitionId.MiniKraid] = FakeKraid,
+            [EnemyDefinitionId.FakeKraid] = FakeKraid,
             [EnemyDefinitionId.KraidArm] = KraidArmFrames,
             [EnemyDefinitionId.KraidFoot] = KraidFootFrames,
             [EnemyDefinitionId.KraidLintBottom] = KraidLintBottomFrames,

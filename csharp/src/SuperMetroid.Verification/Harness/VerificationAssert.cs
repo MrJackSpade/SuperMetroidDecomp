@@ -3387,7 +3387,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(visualOracle.Rom)),
             "Kraid visual oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
-        Console.WriteLine("Kraid visual selectors: the compiled selector inventory passes; Mini-Kraid's frames come from its typed programs.");
+        Console.WriteLine("Kraid visual selectors: the compiled selector inventory passes; Fake Kraid's frames come from its typed programs.");
         return 0;
     }
 
@@ -3635,7 +3635,7 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(headOracle.Rom)),
             "Kraid head oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(headOracle));
-        Console.WriteLine("Kraid head programs: all 28 native commands, frame fields, sound IDs, enumeration, exact cursors and bounds pass.");
+        Console.WriteLine("Kraid head programs: the 19 native commands of the three started lists, frame fields, sound IDs, enumeration, exact cursors and bounds pass.");
         return 0;
     }
 

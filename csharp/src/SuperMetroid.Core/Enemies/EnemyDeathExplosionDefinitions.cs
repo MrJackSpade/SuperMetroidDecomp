@@ -9,7 +9,7 @@ internal static class EnemyDeathExplosionDefinitions
     internal const EnemyDeathProjectileSegment NoDropTail = EnemyDeathProjectileSegment.RespawnTail;
 
     /// <summary>
-    /// The wide spread a Mini-Kraid death explosion's sprites land in, up to 32 pixels from it each way: 0-63 pixels right
+    /// The wide spread a Fake Kraid death explosion's sprites land in, up to 32 pixels from it each way: 0-63 pixels right
     /// of and below the 32 they are centred back by, the random number modulo 64 across and the random number divided by
     /// 256, modulo 64, down.
     /// </summary>
@@ -31,7 +31,7 @@ internal static class EnemyDeathExplosionDefinitions
         EnemyDeathExplosion.Small,
         EnemyDeathExplosion.SamusContact,
         EnemyDeathExplosion.Normal,
-        EnemyDeathExplosion.MiniKraid,
+        EnemyDeathExplosion.FakeKraid,
         EnemyDeathExplosion.Big,
     ];
 }

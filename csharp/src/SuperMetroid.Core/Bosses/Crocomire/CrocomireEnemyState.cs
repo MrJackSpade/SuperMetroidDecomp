@@ -18,8 +18,14 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// pixels, which the leftover fraction never reaches before the acceleration's ceiling discards it, and every melt's
 /// rise is followed by a new sink from rest, so a rise here starts from no acceleration.
 /// </remarks>
-public sealed class CrocomireEnemyState
+public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
+    /// <inheritdoc />
+    Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;
+
+    /// <inheritdoc />
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
+
     /// <summary>Creates the state for Crocomire's body place.</summary>
     internal CrocomireEnemyState(RoomEnemyPlace body) => Body = body;
 

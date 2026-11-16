@@ -646,7 +646,7 @@ internal sealed class SuperMetroidRuntime
         // Baby during that later enemy phase, so a newly started Hyper Beam colour effect naturally
         // begins on the following frame. Debug scripts that grant Hyper Beam before their
         // first StepFrame get the same effects-first behavior immediately.
-        // The room's colour effects take their turns first (ColourEffectTurnOrder): room FX starts first,
+        // The room's colour effects take their turns first (ColourEffectSystem.effects): room FX starts first,
         // and Hyper Beam's effect, which starts later, takes its turn after them.
         // Running the room's effects before the separately owned Hyper Beam effect keeps that
         // order.

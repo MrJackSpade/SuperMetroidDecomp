@@ -129,7 +129,7 @@ public sealed class SamusProjectile
     /// <summary>
     /// The Spazer special-attack particle this one is paired with, set when the attack starts (#1683): a beam particle
     /// and the trailing particle that turns the same way. A spent particle ends its partner's place with itself
-    /// (<see cref="SpentSpazerParticleEndsPartnerPlace"/>).
+    /// (<see cref="SamusShotPool.HolderOfPlaceOf"/>).
     /// </summary>
     internal SamusProjectile? SpazerPartner { get; set; }
 

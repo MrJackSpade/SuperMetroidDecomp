@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// foot and his two fingernails. Each part joins as the part its definition names when it initializes (#1877), and
 /// the fight reaches it through that. A part's reference outlives the part's occupant: a
 /// deleted part leaves its last values there and a killed part is emptied, so a read of a part that has been killed
-/// goes through the rule that states what the fight reads of it (<see cref="KilledFingernailStops"/>).
+/// finds what the kill left (<see cref="RoomEnemyPlace.FoundState{T}"/>).
 /// </summary>
 [RoomLifetime]
 internal sealed class KraidParts

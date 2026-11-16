@@ -162,9 +162,13 @@ public sealed class EnemyProjectile
     internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
 
     /// <summary>
-    /// Frees the projectile's place without ending the projectile, for a power-bombed Draygon shot
-    /// (<see cref="PowerBombedDraygonShotFinishesItsUpdate"/>): a later spawn may take the place, while the update that
-    /// freed it goes on with the projectile, which keeps its animation, state and properties.
+    /// Frees the projectile's place without ending the projectile, for a Draygon goop or wall-turret shot a power bomb's
+    /// explosion catches (#1590): a later spawn may take the place, while the update that freed it goes on with the
+    /// projectile, which keeps its animation, state and properties. The caught shot finishes the update it was caught in:
+    /// it still moves, a flying goop still tests Samus and, on reaching her, sticks to her and slows her again after the
+    /// explosion has cleared her slowdown, and its animation still runs this pass; where it moved to is what it leaves in
+    /// its place for the next projectile spawned there (<see cref="EnemyProjectileHandOver"/>). From the next pass on it
+    /// takes no part in the game (<c>docs/compatibility-layer.md</c> gives the evidence).
     /// </summary>
     internal void FreePlace() => Kind = RoomEnemyProjectileKind.None;
 

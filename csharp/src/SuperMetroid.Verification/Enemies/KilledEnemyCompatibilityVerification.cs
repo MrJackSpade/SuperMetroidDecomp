@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -7,31 +6,34 @@ namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks the compatibility rules for what the game reads of an enemy after a hit killed it (#1543).</summary>
+/// <summary>Checks the compatibility rules for what the game reads of an enemy after it left its place (#1543, #2130).</summary>
 internal static class KilledEnemyCompatibilityVerification
 {
     /// <summary>
-    /// Confirms each rule: a killed fingernail gives its sibling's launch no speed, the destroyed shutter is never found
-    /// moving, a killed Gamet holds its formation back, a killed Evir body reads as facing left, and the rest of a
-    /// Shaktool chain reads the killed segment's emptied remains for that update and keeps what it writes there.
+    /// Confirms what a neighbour finds in an enemy's place (<see cref="RemovedEnemyLeftovers{TStates}"/>): the living
+    /// enemy's own state, the state a deleted enemy left as it left it, nothing once a kill cleared the place, and a later
+    /// enemy's own state; and that the rest of a Shaktool chain reads the killed segment's emptied remains for that update
+    /// and keeps what it writes there.
     /// </summary>
     internal static void VerifyKilledEnemyCompatibility()
     {
-        AssertEqual(5, KilledFingernailStops.SiblingSpeed(5, stopped: 0, siblingKilled: false), "a living sibling gives its last speed");
-        AssertEqual(0, KilledFingernailStops.SiblingSpeed(5, stopped: 0, siblingKilled: true), "a killed sibling gives a stopped nail's");
-
-        AssertTrue(DestroyedShutterReaction.FindsMoving(moving: true, healthAfterHit: 20), "a moving shutter the hit left is found moving");
-        AssertTrue(!DestroyedShutterReaction.FindsMoving(moving: true, healthAfterHit: 0), "the shutter the hit destroyed is found at rest");
-        AssertTrue(!DestroyedShutterReaction.FindsMoving(moving: false, healthAfterHit: 20), "a shutter at rest is found at rest");
-
-        AssertTrue(KilledGametHoldsFormation.Waits("waiting", static _ => true), "a living member waiting counts as waiting");
-        AssertTrue(!KilledGametHoldsFormation.Waits("rising", static _ => false), "a living member that is not waiting holds the formation");
-        AssertTrue(!KilledGametHoldsFormation.Waits<string>(null, static _ => true), "a killed member holds the formation");
-
-        AssertEqual(EvirFacing.Right, KilledEvirBodyFacing.Facing(EvirFacing.Right, EvirFacing.Left, bodyKilled: false), "a living body reads as it faces");
-        AssertEqual(EvirFacing.Left, KilledEvirBodyFacing.Facing(EvirFacing.Right, EvirFacing.Left, bodyKilled: true), "a killed body reads as facing left");
-
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
+        RoomEnemyPlace place = enemies.Places.InUpdateOrder[2];
+        AssertEqual<Remains?>(null, place.FoundState<Remains>(), "a place no enemy has held holds nothing");
+        var first = new Remains();
+        place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+        place.SetSpeciesState(first);
+        AssertTrue(ReferenceEquals(first, place.FoundState<Remains>()), "a living enemy is found as it is");
+        place.Unbind();
+        AssertEqual<Remains?>(null, place.SpeciesState<Remains>(), "a deleted enemy's place holds no occupant");
+        AssertTrue(ReferenceEquals(first, place.FoundState<Remains>()), "a deleted enemy is found as it left itself");
+        var second = new Remains();
+        place.Bind(EnemyPlaceFixtures.StandIn, place.Definition);
+        place.SetSpeciesState(second);
+        AssertTrue(ReferenceEquals(second, place.FoundState<Remains>()), "an enemy placed after a deletion is found as itself");
+        place.Clear();
+        AssertEqual<Remains?>(null, place.FoundState<Remains>(), "a killed enemy's cleared place holds nothing");
+
         RoomEnemyPlace killedPlace = enemies.Places.InUpdateOrder[3];
         RoomEnemyPlace otherPlace = enemies.Places.InUpdateOrder[4];
         var segments = new KilledShaktoolSegment<RoomEnemyPlace, ShaktoolSegmentState>();
@@ -47,8 +49,11 @@ internal static class KilledEnemyCompatibilityVerification
         AssertTrue(ReferenceEquals(remains, segments.RemainsAt(killedPlace)), "the chain reads back what it wrote to the remains");
         segments.RecordKill(otherPlace);
         AssertEqual<ShaktoolSegmentState?>(null, segments.RemainsAt(killedPlace), "a later kill replaces the remains");
-        Console.WriteLine("Killed-enemy compatibility: fingernails, shutters, Gamets, Evir bodies and Shaktool segments match.");
+        Console.WriteLine("Killed-enemy compatibility: living, deleted and killed enemies' places and Shaktool segments match.");
     }
+
+    /// <summary>A species state the check installs in a place.</summary>
+    private sealed class Remains;
 
     /// <summary>Runs the focused killed-enemy compatibility check.</summary>
     [VerificationCommand("--killed-enemy-compatibility")]

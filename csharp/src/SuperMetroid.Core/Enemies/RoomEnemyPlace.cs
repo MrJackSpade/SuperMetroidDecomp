@@ -13,11 +13,21 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class RoomEnemyPlace : ISolidEnemy
 {
     /// <summary>Creates the place at <paramref name="ordinal"/> in <see cref="EnemyPlaceOrder"/>, before any occupant is installed.</summary>
-    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry)
+    /// <param name="ordinal">The place's position in allocation and processing order.</param>
+    /// <param name="registry">The species registry that creates the entity for each installed occupant.</param>
+    /// <param name="leftovers">What the place's removed occupants leave for their neighbours, created with the room's places.</param>
+    internal RoomEnemyPlace(int ordinal, EnemySpeciesRegistry registry, RemovedEnemyLeftovers<EnemyOccupantStates> leftovers)
     {
         _registry = Ensure.NotNull(registry);
+        _leftovers = Ensure.NotNull(leftovers);
         Ordinal = Ensure.BetweenInclusive(0, EnemyPlaceOrder.Capacity - 1, ordinal);
     }
+
+    /// <summary>
+    /// What the place's last removed occupant left there for the enemies that read it: its species states as it left them
+    /// after a deletion, nothing after a kill (<see cref="RemovedEnemyLeftovers{TStates}"/>).
+    /// </summary>
+    private readonly RemovedEnemyLeftovers<EnemyOccupantStates> _leftovers;
 
     /// <summary>
     /// The place's ordinal in <see cref="EnemyPlaceOrder"/>, 0 through <see cref="EnemyPlaceOrder.Capacity"/> minus one,
@@ -73,6 +83,15 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     internal void SetSpeciesState<T>(T state) where T : class => OccupantStates.Install(state);
 
     /// <summary>
+    /// The <typeparamref name="T"/> another enemy finds when it reads this place, which it does without testing what the
+    /// place holds (<see cref="RemovedEnemyLeftovers{TStates}"/>): the occupant's own while an enemy holds the place, the
+    /// state a deleted occupant left, or null when the place's last occupant was killed, whose cleared state reads as
+    /// nothing, or held none.
+    /// </summary>
+    internal T? FoundState<T>() where T : class =>
+        _leftovers.Found(DefinitionId == EnemyDefinitionId.None ? null : OccupantStates)?.Find<T>();
+
+    /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
     /// here, at the statement that changes the definition, because the game re-reads the definition each time the enemy runs.
     /// </summary>
@@ -101,12 +120,18 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     }
 
     /// <summary>
-    /// Empties the place's identity and drops its occupant's species states when the occupant is deleted without being
-    /// killed. The place keeps the occupant's last position, health and timers: the enemies that read a deleted partner
-    /// read what it left, through the rule that says so (<see cref="DeletedParentLeftovers"/>, <see cref="FollowUpAfterStruckPart"/>),
-    /// and a partner keeps the species state it took when it was placed.
+    /// Empties the place's identity and its occupant's species states when the occupant is deleted without being killed.
+    /// The place keeps the occupant's last position, health and timers, and its species states stay for the enemies that
+    /// read it (<see cref="FoundState{T}"/>, <see cref="RemovedEnemyLeftovers{TStates}"/>, <see cref="FollowUpAfterStruckPart"/>).
     /// </summary>
     internal void Unbind()
+    {
+        _leftovers.Deleted(OccupantStates);
+        Vacate();
+    }
+
+    /// <summary>Empties the place's identity, entity and species states.</summary>
+    private void Vacate()
     {
         DefinitionId = EnemyDefinitionId.None;
         Entity = null;
@@ -196,10 +221,14 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     /// </summary>
     public Offset16<RoomPixels> DrawOffset { get; internal set; }
 
-    /// <summary>Empties the place when its occupant is killed: its identity, its species states and the place's live values.</summary>
+    /// <summary>
+    /// Empties the place when its occupant is killed: its identity, its species states and the place's live values. The
+    /// kill clears what the occupant leaves, so the enemies that read the place find no species state there.
+    /// </summary>
     internal void Clear()
     {
-        Unbind();
+        _leftovers.Killed();
+        Vacate();
         Definition = default;
         Spawn = default;
         Position = FixedPosition<RoomPixels>.Zero;

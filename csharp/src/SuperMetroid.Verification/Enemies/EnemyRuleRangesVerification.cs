@@ -82,14 +82,4 @@ internal static class EnemyRuleRangesVerification
         AssertEqual(standard.Ordnance.PowerBomb, standard.ForBeam(SamusBeamCombination.SpazerPlasmaIceWave), "with Ice and Wave, the Power Bomb response");
         Console.WriteLine("  Unauthored beam vulnerability: the four Spazer and Plasma combinations take the ordnance responses.");
     }
-
-    /// <summary>A follower reads its parent's current state while one occupies the place, and the state it took once the parent was deleted.</summary>
-    internal static void VerifyDeletedParentLeftovers()
-    {
-        object left = new();
-        object current = new();
-        AssertTrue(ReferenceEquals(current, DeletedParentLeftovers.Parent(current, left)), "a living parent is read as it is");
-        AssertTrue(ReferenceEquals(left, DeletedParentLeftovers.Parent<object>(null, left)), "a deleted parent is read as it left itself");
-        Console.WriteLine("  Deleted parents: followers read what a deleted parent left.");
-    }
 }

@@ -296,13 +296,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Only the first Pipe Bug listed has a trigger width. It is the formation controller and may
         // arm itself only while all four Pipe Bugs listed after it are still at the
-        // dormant action.
+        // dormant action. It reads each member's place whatever it holds: a member killed and not yet respawned has a
+        // cleared place, which never reads as waiting, so it holds the formation back until its respawn sets it up again.
         if (place.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;
         NorfairPipeBugFormation formation = RequireNorfairPipeBugFormation(place);
-        if (formation.Members.All(member => KilledGametHoldsFormation.Waits(
-                member.Place.SpeciesState<NorfairPipeBugState>(),
-                static state => state.Action == NorfairPipeBugAction.WaitForFormation)))
+        if (formation.Members.All(static member =>
+                member.Place.FoundState<NorfairPipeBugState>() is { Action: NorfairPipeBugAction.WaitForFormation }))
         {
             state.Action = NorfairPipeBugAction.WaitForSamus;
         }
@@ -429,7 +429,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>
     /// The formation the leader found when it was placed, rejecting an incomplete or unrelated formation: every member's
     /// place was set up as a Norfair Pipe Bug, and holds one or, killed, none until it respawns
-    /// (<see cref="KilledGametHoldsFormation"/>).
+    /// (<see cref="RoomEnemyPlace.FoundState{T}"/>).
     /// </summary>
     private NorfairPipeBugFormation RequireNorfairPipeBugFormation(RoomEnemyPlace leader)
     {

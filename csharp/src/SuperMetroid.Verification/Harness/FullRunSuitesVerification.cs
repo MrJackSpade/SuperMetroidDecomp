@@ -1086,7 +1086,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMetroidClosingDistance), () => VerifyMetroidClosingDistance()),
         new(nameof(VerifyYappingMawLinkOffset), () => VerifyYappingMawLinkOffset()),
         new(nameof(VerifyUnauthoredBeamVulnerability), () => VerifyUnauthoredBeamVulnerability()),
-        new(nameof(VerifyDeletedParentLeftovers), () => VerifyDeletedParentLeftovers()),
         new(nameof(VerifyDeathExplosionRules), () => VerifyDeathExplosionRules()),
         new(nameof(VerifySeekingVelocityRun), () => VerifySeekingVelocityRun()),
         new(nameof(VerifyShitroidSeekingAcceleration), () => VerifyShitroidSeekingAcceleration()),

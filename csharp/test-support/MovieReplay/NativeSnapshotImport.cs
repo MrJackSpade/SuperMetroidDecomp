@@ -102,7 +102,7 @@ internal static class NativeSnapshotImport
         }
 
         // Each live native object becomes a running colour effect. The handler visits its objects from the last down, so
-        // the effects join in that order and take their turns in it (ColourEffectTurnOrder); the effects the room load
+        // the effects join in that order and take their turns in it (ColourEffectSystem.effects); the effects the room load
         // started are replaced by the recorded ones.
         var importedEffects = runtime.RoomPaletteFx.effects;
         importedEffects.Clear();
@@ -154,7 +154,7 @@ internal static class NativeSnapshotImport
             {
                 throw new InvalidDataException($"The native snapshot's {effect} watches {recordedCondition}, not its definition's {imported.Condition}.");
             }
-            ColourEffectTurnOrder.Join(importedEffects, imported);
+            importedEffects.Add(imported);
         }
         runtime.ColourEffectSession.PublishedHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.HeatPalettePhase));
         runtime.ColourEffectSession.ShimmerHeatPhase = new SuperMetroid.Core.Fx.ColourEffects.HeatPhase(W(NativeSnapshotMemory.PreviousHeatPalettePhase));

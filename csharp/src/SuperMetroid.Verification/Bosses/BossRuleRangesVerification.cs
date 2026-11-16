@@ -67,9 +67,6 @@ internal static class BossRuleRangesVerification
         }
         AssertThrows<ArgumentOutOfRangeException>(() => LeftoverNumberDeathExplosion.Named(-1, order), "a negative number is refused");
         AssertThrows<ArgumentException>(() => LeftoverNumberDeathExplosion.Named(0, order.Take(4).ToArray()), "the five explosions are required");
-        AssertTrue(KilledFingernailStops.SiblingTookAlternateSpawn("waiting", static _ => true), "a living sibling's alternate spawn is read");
-        AssertTrue(!KilledFingernailStops.SiblingTookAlternateSpawn<string>(null, static _ => true), "a killed sibling took no alternate spawn");
-        AssertTrue(!KilledFingernailStops.SiblingTookAlternateSpawn("launched", static _ => false), "a sibling that took the ordinary spawn");
-        Console.WriteLine("  Death explosion rules: every health and spike place selects the original's explosion; a killed fingernail took no alternate spawn.");
+        Console.WriteLine("  Death explosion rules: every leftover number and spike place selects the original's explosion.");
     }
 }

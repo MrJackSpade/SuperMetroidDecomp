@@ -16,14 +16,21 @@ namespace SuperMetroid.Core.Fx;
 /// room's effect starts. Landing Site is one of them: its lightning flashes the scrolling-sky horizon's colours.
 /// </para>
 /// <para>
-/// The effects take their turns in the order they started (<see cref="ColourEffectTurnOrder"/>), which Samus's heat
-/// shimmer (<see cref="ColourEffectId.SamusInHeat"/>) observes. Any number of effects run at once.
+/// The effects take their turns in the order they started (<see cref="effects"/>), which Samus's heat shimmer
+/// (<see cref="ColourEffectId.SamusInHeat"/>) observes. Any number of effects run at once.
 /// </para>
 /// </remarks>
 [RoomLifetime]
 public sealed class ColourEffectSystem : IGameplayShadingSource
 {
-    /// <summary>The running effects, in turn order (<see cref="ColourEffectTurnOrder"/>).</summary>
+    /// <summary>
+    /// The running effects, in turn order: the order they started (#1592, #1598), an effect that starts joining after every
+    /// running effect. The order is observable through Samus's heat shimmer: started first in every heated room, it takes
+    /// its turn before the room's heat glow that publishes the heat phase, so the shimmer, which restarts her suit's pulse
+    /// on that phase, follows a new phase one update late. The effects whose turns gameplay observes, the heat shimmer
+    /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's FX record
+    /// and run until the room ends (<c>docs/compatibility-layer.md</c> gives the evidence).
+    /// </summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>
     /// The effects whose animations ran to their end (#1597), in the order they settled: each keeps its final frame on its
@@ -228,7 +235,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        ColourEffectTurnOrder.Join(effects, new RoomColourEffect(effect, animation, litTorizo, glowingEnemy));
+        effects.Add(new RoomColourEffect(effect, animation, litTorizo, glowingEnemy));
         return true;
     }
 

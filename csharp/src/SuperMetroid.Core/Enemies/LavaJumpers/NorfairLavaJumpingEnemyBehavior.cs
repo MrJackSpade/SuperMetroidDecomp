@@ -18,8 +18,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private readonly EnemyPlaces _places;
     /// <summary>The parent each follower found when it was placed, which its room lists right before it.</summary>
     private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
-    /// <summary>The state of the parent each follower found when it was placed, which a deleted parent leaves (<see cref="DeletedParentLeftovers"/>).</summary>
-    private readonly EnemyPartLinks<NorfairLavaJumpingEnemyState> _parentStates = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -51,7 +49,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             });
             _parents.Place(place, _places.ListedBefore(place, 1));
             ValidateNorfairLavaJumpingEnemyParent(place);
-            _parentStates.Place(place, GetPrecedingNorfairLavaJumpingEnemyPlace(place).RequireSpeciesState<NorfairLavaJumpingEnemyState>());
             return;
         }
 
@@ -163,8 +160,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     {
         RoomEnemyPlace parent = GetPrecedingNorfairLavaJumpingEnemyPlace(follower);
 
-        // The follower reads its parent's health, freeze, vertical speed and position; a parent deleted without a kill is
-        // read as it left them (DeletedParentLeftovers), and a killed parent's emptied place ends the follower.
+        // The follower reads its parent's health, freeze, vertical speed and position in the parent's place; a parent
+        // deleted without a kill is read as it left them (RoomEnemyPlace.FoundState), and a killed parent's emptied place
+        // ends the follower.
         if (parent.Health == 0)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
@@ -173,8 +171,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
         // The pair is checked when the follower is placed, not on every update.
         follower.FrozenTimer = parent.FrozenTimer;
-        NorfairLavaJumpingEnemyState parentState = DeletedParentLeftovers.Parent(
-            parent.SpeciesState<NorfairLavaJumpingEnemyState>(), _parentStates.Of(follower));
+        NorfairLavaJumpingEnemyState parentState = parent.FoundState<NorfairLavaJumpingEnemyState>() ?? throw new InvalidOperationException(
+            $"Lava jumper follower {follower.Ordinal} finds no lava jumper in its parent's place {parent.Ordinal}.");
         if (parent.FrozenTimer != 0 || !parentState.YVelocity.IsNegative)
         {
             // The second half appears only while the parent is travelling upward. At the

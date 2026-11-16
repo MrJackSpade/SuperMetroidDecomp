@@ -29,7 +29,7 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemyPlace place, Ene
         switch (EvirPartDefinitions.Parts[Place.DefinitionId])
         {
             case EvirPart.Evir:
-                species.RunEvirMainAi(Place, frame);
+                EvirBehavior.RunEvirMainAi(Place, frame);
                 break;
             case EvirPart.Projectile:
                 EvirBehavior.RunEvirProjectileMainAi(Place, frame);

@@ -15,7 +15,10 @@ internal sealed class EnemyPlaces
     /// <summary>The empty place a newly spawned enemy takes, or null when every place is taken.</summary>
     internal RoomEnemyPlace? FindFreePlace() => EnemyPlaceOrder.FirstFree(_places);
 
-    /// <summary>Creates the places once, each bound to the species registry that creates its entity.</summary>
+    /// <summary>
+    /// Creates the places once, each bound to the species registry that creates its entity and given the record of what
+    /// its removed occupants leave for their neighbours.
+    /// </summary>
     /// <exception cref="InvalidOperationException">The places already exist.</exception>
     internal void InstallPlaces(EnemySpeciesRegistry species)
     {
@@ -23,7 +26,7 @@ internal sealed class EnemyPlaces
         if (_places[0] is not null)
             throw new InvalidOperationException("The enemy places are installed once, when the room enemy system is built.");
         for (int ordinal = 0; ordinal < _places.Length; ordinal++)
-            _places[ordinal] = new RoomEnemyPlace(ordinal, species);
+            _places[ordinal] = new RoomEnemyPlace(ordinal, species, new RemovedEnemyLeftovers<EnemyOccupantStates>());
     }
 
     /// <summary>

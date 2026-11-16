@@ -12549,22 +12549,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyProjectileProgramFrameDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands",
       "kind": "static class",
       "scope": "test",

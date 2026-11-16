@@ -3,6 +3,15 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The counter cadences of the ending (#1606): the turning floor, the departing planet, the explosion's fade and the reward's colours.</summary>
 internal static class EndingCadenceDefinitions
 {
+    /// <summary>Updates each step of the escape scenes' and the credits' fades takes: one level every second update.</summary>
+    internal const int FastFadeUpdatesPerStep = 2;
+
+    /// <summary>Updates the post-credits fade-in waits after the blank hold before its first step.</summary>
+    internal const int PostCreditsFadeFirstWait = 1;
+
+    /// <summary>Updates the post-credits fade-in waits between each step and the next: one level every fourth update.</summary>
+    internal const int PostCreditsFadeStepDelay = 3;
+
     /// <summary>
     /// The phase-timer counts on which the post-credits reward's fade takes a colour step: every fourth count, at place
     /// one of the period, so a 64-count fade half steps on its fourth, eighth and later calls.

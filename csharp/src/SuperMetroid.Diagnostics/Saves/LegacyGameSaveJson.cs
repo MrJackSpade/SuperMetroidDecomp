@@ -484,7 +484,7 @@ public static class LegacyGameSaveJson
             throw new InvalidDataException("Legacy preservedUntranslatedSram is required.");
         byte[] sram = DecodeLegacyPages(pages);
         JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
-        if (slots.Count != SaveSlotStore.SlotCount)
+        if (slots.Count != SaveRamLayout.SlotCount)
             throw new InvalidDataException("slots must contain exactly three entries");
         for (int index = 0; index < slots.Count; index++)
         {

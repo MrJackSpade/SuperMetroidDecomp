@@ -483,9 +483,9 @@ internal static class CollectiblesVerification
         };
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(
-            0,
+            SaveSlot.A,
             SuperMetroidSaveSnapshot.Capture(sourceSamus, sourceSystem, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.BubbleMountainSave }));
-        SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
+        SuperMetroidSaveSlot slot = saveRam.ReadSlot(SaveSlot.A)
             ?? throw new InvalidOperationException("collectible save slot checksum failed");
 
         var restoredSystem = new SharedGameState(new SharedRandom());

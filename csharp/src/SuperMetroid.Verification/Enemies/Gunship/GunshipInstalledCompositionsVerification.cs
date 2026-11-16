@@ -72,7 +72,7 @@ internal static class GunshipInstalledCompositionsVerification
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0);
         var scene = game.Session.ScreenAs<CeresDestructionCinematicState>();
-        (scene ?? throw new InvalidOperationException("Verification requires scene.")).Phase = CeresDestructionPhase.Finished;
+        (scene ?? throw new InvalidOperationException("Verification requires scene.")).SkipToPhase(CeresDestructionPhase.Finished);
         game.StepCaptured(0);
         game.StepCaptured(0);
         AssertEqual(AreaId.Crateria, game.GameplayRuntimeForVerification.Room.LoadedRoom.Area,

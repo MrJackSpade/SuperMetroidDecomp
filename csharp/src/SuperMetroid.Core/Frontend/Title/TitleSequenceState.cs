@@ -71,13 +71,13 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Frames left before the next title sequence entry is read.</summary>
     private int sequenceEntryTimer;
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
-    internal TitleSprite? ActiveSprite { get; set; }
+    internal TitleSprite? ActiveSprite { get; private set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
-    internal TitleCardTyping? ActiveCard { get; set; }
+    internal TitleCardTyping? ActiveCard { get; private set; }
     /// <summary>Screen origin used when drawing the active title frame.</summary>
-    internal Offset16<ScreenPixels> ActiveOrigin { get; set; }
+    internal Offset16<ScreenPixels> ActiveOrigin { get; private set; }
     /// <summary>What the title shows every part of the active composition as (#1512).</summary>
-    internal TitleSpriteColouring ActiveColouring { get; set; }
+    internal TitleSpriteColouring ActiveColouring { get; private set; }
     /// <summary>
     /// Whether the title screen's rebuild after a skip, or on the return from the demo, has restored the copyright's
     /// glyph colours (#1512), which the copyright then shows over its drawn colours.
@@ -87,8 +87,10 @@ public sealed class TitleSequenceState : IFrontendScreen
     private FixedVector<FloorPixels> panPosition;
     /// <summary>The floor's zoom in 256ths of a floor pixel per screen pixel, animated from the close-up scene to the floor's own size.</summary>
     internal FloorZoom Zoom { get; private set; }
+    /// <summary>The title's screen brightness and the cadence of its fades; the skip's and the fade-in's step every update.</summary>
+    private readonly ScreenFade fade = new(0);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
-    internal int Brightness { get; private set; }
+    internal int Brightness => fade.Level;
     /// <summary>The frame of the Baby Metroid's pulse animation the floor shows.</summary>
     internal int BabyFrame { get; private set; }
     /// <summary>Updates left before the Baby Metroid's animation shows its next frame.</summary>
@@ -144,12 +146,12 @@ public sealed class TitleSequenceState : IFrontendScreen
 
         // The year card forces full brightness on the first
         // processing frame; its position and colouring come from its definition.
-        Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
+        fade.Show(DisplayBrightness.Full);
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
 
     /// <summary>The title's running step; the skip's fade-out runs alongside it (#1719).</summary>
-    public TitleSequencePhase Phase { get; internal set; }
+    public TitleSequencePhase Phase { get; private set; }
 
     /// <summary>How far the skip to the title screen has run alongside the running step (#1719).</summary>
     internal TitleSkipStage SkipStage { get; private set; }
@@ -173,7 +175,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             titleBackdrop,
             spriteSheets);
         title.EnterImmediateTitleScreen();
-        title.Brightness = 0;
+        title.fade.Restart(0, 0);
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }
@@ -205,6 +207,7 @@ public sealed class TitleSequenceState : IFrontendScreen
             // The fade-out's black stopped the running step on the previous update; this update rebuilds the title
             // screen in its place, and the fade-in starts on the next update.
             EnterImmediateTitleScreen();
+            fade.StepEvery(1);
             Phase = TitleSequencePhase.TitleScreenFadeIn;
             SkipStage = TitleSkipStage.NotSkipping;
         }
@@ -216,7 +219,10 @@ public sealed class TitleSequenceState : IFrontendScreen
             // skip does not restart. The skip's fade-out then runs alongside the running step (#1719), which keeps
             // running until the screen is black; its first fade step falls on the update of the press.
             if (confirmPressed && SkipStage == TitleSkipStage.NotSkipping && AcceptsSkip(Phase))
+            {
+                fade.StepEvery(1);
                 SkipStage = TitleSkipStage.FadingOut;
+            }
             if (SkipStage == TitleSkipStage.FadingOut)
                 StepSkipFadeOut();
         }
@@ -300,10 +306,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.TitleScreenFadeIn:
-                Brightness = Math.Min(
-                    TitleSequenceDefinitions.Timing.MaximumBrightness,
-                    Brightness + TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
-                if (Brightness == TitleSequenceDefinitions.Timing.MaximumBrightness)
+                if (fade.Brighten(TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep))
                     EnterTitleScreen();
                 break;
 
@@ -313,25 +316,20 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     fadingToDemo = true;
                     Phase = TitleSequencePhase.TitleScreenFadeOut;
-                    PhaseTimer = TitleSequenceDefinitions.Timing.TitleFadeCadenceFrames;
+                    fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
                 }
                 else if (confirmPressed)
                 {
                     Phase = TitleSequencePhase.TitleScreenFadeOut;
-                    PhaseTimer = TitleSequenceDefinitions.Timing.TitleFadeCadenceFrames;
+                    fade.StepEvery(TitleSequenceDefinitions.Timing.TitleFadeUpdatesPerStep);
                 }
                 break;
 
             case TitleSequencePhase.TitleScreenFadeOut:
-                if (--PhaseTimer <= 0)
+                if (fade.Darken())
                 {
-                    PhaseTimer = TitleSequenceDefinitions.Timing.TitleFadeCadenceFrames;
-                    Brightness = Math.Max(0, Brightness - 1);
-                    if (Brightness == 0)
-                    {
-                        DemoRequested = fadingToDemo;
-                        FileSelectRequested = !fadingToDemo;
-                    }
+                    DemoRequested = fadingToDemo;
+                    FileSelectRequested = !fadingToDemo;
                 }
                 break;
             default:
@@ -369,10 +367,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// </summary>
     private void StepSkipFadeOut()
     {
-        Brightness = Math.Max(
-            0,
-            Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
-        if (Brightness != 0)
+        if (!fade.Darken(TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep))
             return;
         // The transition queues the immediate title song an update before rebuilding the immediate title screen.
         audio?.QueueMusic(
@@ -584,7 +579,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         EnterImmediateTitleScreen();
         Phase = TitleSequencePhase.TitleScreen;
         PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames;
-        Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
+        fade.Show(DisplayBrightness.Full);
     }
 
     /// <summary>Advances the Baby Metroid's pulse animation when its authored frame duration expires.</summary>

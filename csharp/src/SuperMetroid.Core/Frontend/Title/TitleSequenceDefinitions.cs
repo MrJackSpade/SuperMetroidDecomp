@@ -125,8 +125,6 @@ public static class TitleSequenceDefinitions
     /// <summary>Holds, fades and the buttons that skip.</summary>
     public static class Timing
     {
-        /// <summary>The fully lit brightness level, which clamps fades and scales rendered colours.</summary>
-        public const int MaximumBrightness = 15;
         /// <summary>Brightness change per update for the skip's fade-out and the title's fade-in.</summary>
         public const int SkipFadeBrightnessStep = 2;
         /// <summary>Updates the logo holds before the copyright.</summary>
@@ -135,8 +133,8 @@ public static class TitleSequenceDefinitions
         public const int CopyrightHoldFrames = 32;
         /// <summary>The idle title screen's timeout in updates; expiring selects the demo before a confirmation that update.</summary>
         public const int TitleScreenIdleTimeoutFrames = 900;
-        /// <summary>Updates between brightness decrements when leaving the idle title screen.</summary>
-        public const int TitleFadeCadenceFrames = 2;
+        /// <summary>Updates each step of the fade leaving the idle title screen takes: one level every second update.</summary>
+        public const int TitleFadeUpdatesPerStep = 2;
         /// <summary>Updates the Baby Metroid holds each pose of its animation.</summary>
         public const int BabyFrameDuration = 10;
         /// <summary>The buttons whose new presses skip the opening or leave the idle title screen.</summary>

@@ -21,14 +21,14 @@ internal static class FileSelectPresentationVerification
         _ = FileSelectSourcePresentation.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus));
 
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
+        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot
         {
             Health = 45,
             MaxHealth = 99,
             GameTimeHours = 12,
             GameTimeMinutes = 34,
         });
-        saveRam.SelectSlot(0);
+        saveRam.SelectSlot(SaveSlot.A);
 
         var nativeAudio = AudioQueues.Standalone();
         var installedAudio = AudioQueues.Standalone();

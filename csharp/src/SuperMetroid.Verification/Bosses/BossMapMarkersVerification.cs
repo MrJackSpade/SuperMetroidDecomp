@@ -39,7 +39,7 @@ internal static class BossMapMarkersVerification
                 system.SetAreaMapAcquired(area);
                 var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1) });
                 // Center the marker under test without changing its authored position.
-                pause.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
+                pause.ScrollMapTo(new Offset16<MapPixels>(x - 128, y - 112));
                 var alive = pause.Render();
                 AssertEqual(0, record, "retail authored boss markers use area-boss bit zero");
                 for (int other = 0; other < 6; other++)
@@ -64,11 +64,11 @@ internal static class BossMapMarkersVerification
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
                 // format and restore path, entirely in disposable memory.
                 var source = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-                source.SaveSlot(0,
+                source.SaveSlot(SaveSlot.A,
                     SuperMetroidSaveSnapshot.Capture(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), system, new SaveSnapshotContext { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture") }));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-                var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
+                var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(SaveSlot.A) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
                 var restoredSystem = new SharedGameState(new SharedRandom());
                 slot.ApplyTo(new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), restoredSystem);
@@ -81,7 +81,7 @@ internal static class BossMapMarkersVerification
                 var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(system, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
                 var marker = new FileSelectStationMarker(SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), 0, "boss map fixture"), RetailPresentationFixture().SaveMarkers);
-                ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
+                int scrollX = x - 128, scrollY = y - 112;
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(
                     savedGraphics.Render(new(scrollX, scrollY), marker)),
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
@@ -103,7 +103,7 @@ internal static class BossMapMarkersVerification
                 PauseMenuState CenteredPause(SharedGameState state)
                 {
                     var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = state, Area = SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), RoomMapPosition = new(0, 1) });
-                    reopened.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
+                    reopened.ScrollMapTo(new Offset16<MapPixels>(x - 128, y - 112));
                     return reopened;
                 }
                 markers++;

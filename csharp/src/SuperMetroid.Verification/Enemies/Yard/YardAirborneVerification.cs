@@ -73,8 +73,8 @@ internal static class YardAirborneVerification
 
         var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = LoadStationDefinitions.CrateriaSave };
         var saves = new SaveSlotStore(RetailPresentationFixtureVerification.RetailPresentationFixture());
-        saves.SaveSlot(0, snapshot);
-        SuperMetroidSaveSlot slot = saves.ReadSlot(0) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
+        saves.SaveSlot(SaveSlot.A, snapshot);
+        SuperMetroidSaveSlot slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");
         var loaded = CreateRetailRuntimeFixture();
         loaded.YardKickDistance.Record(stale);
         loaded.RoomLoader.InitializeSavedGame(slot);

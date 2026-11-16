@@ -16,19 +16,19 @@ internal static class AutomaticCheckpointSaver
     /// <summary>
     /// The Ceres opening publishes its checkpoint game state before saving the initial Ceres checkpoint.
     /// </summary>
-    public static void SaveCeresArrival(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
+    public static void SaveCeresArrival(SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot) =>
         SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresElevatorArrival);
 
     /// <summary>
     /// The escape ending publishes its checkpoint game state before saving at the completed escape blackout.
     /// This checkpoint resumes the destruction cinematic, never the escaping room.
     /// </summary>
-    public static void SaveCeresDeparture(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
+    public static void SaveCeresDeparture(SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot) =>
         SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresDestruction);
 
     /// <summary>Publishes the requested Ceres loading state, then saves Samus, system state, game time, and player options through the ordinary save-file encoder.</summary>
     private static void SaveCeresCheckpoint(
-        SaveSlotStore saves, SuperMetroidRuntime runtime, int slot, SaveLoadingGameState route)
+        SaveSlotStore saves, SuperMetroidRuntime runtime, SaveSlot slot, SaveLoadingGameState route)
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
@@ -47,7 +47,7 @@ internal static class AutomaticCheckpointSaver
     public static bool TrySaveGunshipLanding(
         SaveSlotStore saves,
         SuperMetroidRuntime runtime,
-        int selectedSaveSlot)
+        SaveSlot selectedSaveSlot)
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);

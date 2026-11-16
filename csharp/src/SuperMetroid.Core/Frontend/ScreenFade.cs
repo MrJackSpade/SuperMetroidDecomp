@@ -1,149 +1,116 @@
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The screen-fade delay and counter, and the
-/// fade-in and fade-out steps that use
-/// them to step a <see cref="ScreenBrightness"/>.
+/// A screen's brightness and the cadence a fade steps it at (#2081): every frontend scene, and the gameplay session's
+/// pause, death, escape and arrival fades, fade with this one type.
 /// </summary>
 /// <remarks>
-/// Each call is one update. A nonnegative decremented counter consumes the call
-/// without changing brightness; otherwise the counter reloads from the delay and brightness
-/// moves one step. A delay of one therefore changes brightness on every second update.
-/// The brightness stays with its screen owner; this type owns only the timing values.
+/// The brightness is a level from black, zero, through <see cref="DisplayBrightness.Full"/>. Each fade update first counts
+/// down the wait: while updates remain to wait it only counts; otherwise it reloads the wait from the step delay and moves
+/// the level by its step, stopping at black and at full. A step delay and first wait of <c>n</c> therefore step on the
+/// update <c>n + 1</c> updates from the start and every <c>n + 1</c> updates after it (<see cref="StepEvery"/>).
 /// </remarks>
 public sealed class ScreenFade
 {
-    /// <summary>
-    /// Updates skipped between brightness steps. The slow cinematic fades count it down themselves, from at most
-    /// <see cref="LongestSlowDelay"/>.
-    /// </summary>
-    public WrappingCountdown Delay { get; private set; }
+    /// <summary>A fade at <paramref name="level"/> that steps on every update.</summary>
+    /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>
+    public ScreenFade(int level) => Show(level);
 
-    /// <summary>
-    /// The longest delay a slow cinematic fade counts. The game counts a slow fade's delay as a small count that runs
-    /// past zero below zero; every slow fade starts from a delay and counter of two, well inside the range in which that
-    /// count and the countdown agree.
-    /// </summary>
-    public const int LongestSlowDelay = 127;
-
-    /// <summary>
-    /// Updates remaining before the next brightness step: a wrapping countdown; whether it reads as negative after the decrement
-    /// decides whether the update steps brightness.
-    /// </summary>
-    public WrappingCountdown Counter { get; private set; }
-
-    /// <summary>Stores both fade counters, as menu setup does before a fade.</summary>
-    /// <param name="delay">The updates each brightness step waits, 0 through 65535.</param>
-    /// <param name="counter">The updates before the first brightness step, 0 through 65535.</param>
-    public void SetTiming(int delay, int counter)
+    /// <summary>A fade at <paramref name="level"/> with the given cadence (<see cref="SetCadence"/>).</summary>
+    /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>
+    /// <param name="stepDelay">The updates waited between one step and the next.</param>
+    /// <param name="firstWait">The updates waited before the first step.</param>
+    public ScreenFade(int level, int stepDelay, int firstWait)
     {
-        Delay = WrappingCountdown.Start(delay);
-        Counter = WrappingCountdown.Start(counter);
+        Show(level);
+        SetCadence(stepDelay, firstWait);
     }
 
-    /// <summary>
-    /// One update of fading in, one level brighter up to fully lit; a blanked screen comes back at level
-    /// one. Completion is reaching <see cref="ScreenBrightness.FullyLit"/>.
-    /// </summary>
-    public void FadeIn(ref ScreenBrightness brightness)
+    /// <summary>The screen's brightness, from black, zero, through <see cref="DisplayBrightness.Full"/>.</summary>
+    [IntegerQuantity("screen brightness level, black through full")]
+    public int Level { get; private set; }
+
+    /// <summary>The updates waited between one step and the next.</summary>
+    [IntegerQuantity("updates waited between fade steps")]
+    private int stepDelay;
+
+    /// <summary>The updates still to wait before the next step.</summary>
+    [IntegerQuantity("updates still waited before the next fade step")]
+    private int wait;
+
+    /// <summary>Whether the screen is black.</summary>
+    public bool IsBlack => Level == 0;
+
+    /// <summary>Whether the screen is fully lit.</summary>
+    public bool IsFullyLit => Level == DisplayBrightness.Full;
+
+    /// <summary>Shows the screen at <paramref name="level"/>, leaving the cadence as it is.</summary>
+    /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>
+    public void Show(int level) => Level = DisplayBrightness.Require(level);
+
+    /// <summary>Sets the cadence: the first step waits <paramref name="firstWait"/> updates, each later one <paramref name="stepDelay"/>.</summary>
+    /// <param name="stepDelay">The updates waited between one step and the next, zero or more.</param>
+    /// <param name="firstWait">The updates waited before the first step, zero or more.</param>
+    public void SetCadence(int stepDelay, int firstWait)
     {
-        if (ConsumeCounter())
-            return;
-        if (brightness.Level < ScreenBrightness.FullLevel)
-            brightness = ScreenBrightness.Lit(brightness.Level + 1);
+        this.stepDelay = Ensure.BetweenInclusive(0, int.MaxValue, stepDelay);
+        wait = Ensure.BetweenInclusive(0, int.MaxValue, firstWait);
     }
 
-    /// <summary>
-    /// One update of fading out. The step down from level one blanks the screen, which is the fade's
-    /// completion (<see cref="ScreenBrightness.IsBlanked"/>); an unblanked level zero stays where it is.
-    /// </summary>
-    public void FadeOut(ref ScreenBrightness brightness)
+    /// <summary>Steps once every <paramref name="updates"/> updates from now, the first step on the last of them.</summary>
+    /// <param name="updates">The updates each step takes, one or more.</param>
+    public void StepEvery(int updates)
     {
-        if (ConsumeCounter())
-            return;
-        int current = brightness.Level;
-        if (current == 0)
-            return;
-        brightness = current == 1 ? ScreenBrightness.Blanked : ScreenBrightness.Lit(current - 1);
+        int waited = Ensure.BetweenInclusive(1, int.MaxValue, updates) - 1;
+        SetCadence(waited, waited);
     }
 
-    /// <summary>
-    /// One cinematic update of fading in slowly. Returns
-    /// true when this call reached full brightness.
-    /// </summary>
-    /// <remarks>
-    /// Unlike the gameplay fades, these count the delay down and reload it from the counter, stepping when the
-    /// decrement reaches zero or runs past it. Equal seeds of N therefore step on the Nth call and every N calls after it.
-    /// </remarks>
-    public bool AdvanceSlowFadeIn(ref ScreenBrightness brightness)
+    /// <summary>Shows the screen at <paramref name="level"/> and waits <paramref name="stepDelay"/> updates before each step.</summary>
+    /// <param name="level">The brightness, from black through <see cref="DisplayBrightness.Full"/>.</param>
+    /// <param name="stepDelay">The updates waited before the first step and between each step and the next.</param>
+    public void Restart(int level, int stepDelay)
     {
-        if (ConsumeSlowDelay())
-            return false;
-        int next = brightness.Level + 1;
-        if (next >= ScreenBrightness.FullLevel)
+        Show(level);
+        SetCadence(stepDelay, stepDelay);
+    }
+
+    /// <summary>One update of fading in by one level; returns whether the screen is fully lit after it.</summary>
+    public bool Brighten() => Brighten(1);
+
+    /// <summary>One update of fading in by <paramref name="levels"/> levels a step; returns whether the screen is fully lit after it.</summary>
+    /// <param name="levels">The levels one step brightens by, one or more.</param>
+    public bool Brighten(int levels)
+    {
+        Ensure.BetweenInclusive(1, DisplayBrightness.Full, levels);
+        if (!Waits())
+            Level = Math.Min(DisplayBrightness.Full, Level + levels);
+        return IsFullyLit;
+    }
+
+    /// <summary>One update of fading out by one level; returns whether the screen is black after it.</summary>
+    public bool Darken() => Darken(1);
+
+    /// <summary>One update of fading out by <paramref name="levels"/> levels a step; returns whether the screen is black after it.</summary>
+    /// <param name="levels">The levels one step darkens by, one or more.</param>
+    public bool Darken(int levels)
+    {
+        Ensure.BetweenInclusive(1, DisplayBrightness.Full, levels);
+        if (!Waits())
+            Level = Math.Max(0, Level - levels);
+        return IsBlack;
+    }
+
+    /// <summary>Counts one update of the wait: true while it only waits; otherwise reloads the wait for the next step.</summary>
+    private bool Waits()
+    {
+        if (wait > 0)
         {
-            brightness = ScreenBrightness.FullyLit;
-            ClearSlowTiming();
+            wait--;
             return true;
         }
-        brightness = ScreenBrightness.Lit(next);
-        ReloadSlowDelay();
-        return false;
-    }
-
-    /// <summary>
-    /// One cinematic update of fading out slowly. Returns
-    /// true once brightness is zero (the screen is blanked on that call).
-    /// </summary>
-    public bool AdvanceSlowFadeOut(ref ScreenBrightness brightness)
-    {
-        if (ConsumeSlowDelay())
-            return false;
-        int current = brightness.Level;
-        if (current == 0)
-            return true;
-        if (current == 1)
-        {
-            brightness = ScreenBrightness.Blanked;
-            ClearSlowTiming();
-            return true;
-        }
-        brightness = ScreenBrightness.Lit(current - 1);
-        ReloadSlowDelay();
-        return false;
-    }
-
-    /// <summary>Counts the slow delay down: true while the decremented delay stays positive.</summary>
-    /// <exception cref="InvalidOperationException">The delay is longer than <see cref="LongestSlowDelay"/>.</exception>
-    private bool ConsumeSlowDelay()
-    {
-        if (!Delay.IsNegative && Delay.IsAtLeast(LongestSlowDelay + 1))
-            throw new InvalidOperationException($"A slow fade counts a delay of at most {LongestSlowDelay} updates, not {Delay}.");
-        CountdownStep step = Delay.Decrement();
-        Delay = step.Remaining;
-        return !step.IsZeroOrNegative;
-    }
-
-    /// <summary>Reloads the slow delay from the counter.</summary>
-    private void ReloadSlowDelay() => Delay = Counter;
-
-    /// <summary>Clears the delay and counter on reaching the fade's end.</summary>
-    private void ClearSlowTiming()
-    {
-        Delay = WrappingCountdown.Start(0);
-        Counter = WrappingCountdown.Start(0);
-    }
-
-    /// <summary>Counts the delay down, wrapping below zero; returns true when this update only counts down.</summary>
-    private bool ConsumeCounter()
-    {
-        CountdownStep step = Counter.Decrement();
-        if (step.IsNonNegative)
-        {
-            Counter = step.Remaining;
-            return true;
-        }
-        Counter = Delay;
+        wait = stepDelay;
         return false;
     }
 }

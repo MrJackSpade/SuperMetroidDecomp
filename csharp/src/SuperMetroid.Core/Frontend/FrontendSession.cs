@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.Frontend.Ending;
@@ -46,8 +47,12 @@ internal sealed class FrontendSession
         DemoPlaylist = StockAttractDemoScenes.Playlist(saves.DetermineCompletionDemoSetUnlocked());
     }
 
-    /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
-    internal readonly ScreenFadeTimer screenFade = new();
+    /// <summary>
+    /// The gameplay screen's fade, shared by the pause and unpause fades and the transitions between rendered phases: its
+    /// level is the brightness gameplay was last shown at, which a pause fades from. Every return to main gameplay leaves its
+    /// cadence stepping on every update, which a map-station pause then inherits; power-on waits one update first.
+    /// </summary>
+    internal readonly ScreenFade screenFade = new(DisplayBrightness.Full, stepDelay: 0, firstWait: PauseFadeTiming.CounterReload);
     /// <summary>
     /// The camera fractions the game keeps from one game or demo to the next: each runtime's first room's camera starts from
     /// them, and each released runtime leaves its camera's; the soft reset clears them.
@@ -146,11 +151,11 @@ internal sealed class FrontendSession
     /// <summary>Door approach and destination loading state across gameplay states.</summary>
     internal readonly DoorTransitionState doorTransition = new();
     /// <summary>The save slot the frontend has selected.</summary>
-    internal int SelectedSaveSlot { get; private set; }
+    internal SaveSlot SelectedSaveSlot { get; private set; }
     /// <summary>Distinguishes a saved-game load from fresh Ceres setup.</summary>
     internal bool LoadingExistingSave { get; set; }
     /// <summary>Selects <paramref name="slot"/>, which holds a save to load when <paramref name="existing"/>.</summary>
-    internal void SelectSaveSlot(int slot, bool existing)
+    internal void SelectSaveSlot(SaveSlot slot, bool existing)
     {
         SelectedSaveSlot = slot;
         LoadingExistingSave = existing;
@@ -178,33 +183,33 @@ internal sealed class FrontendSession
     /// <summary>A soft reset forgets any Spacetime Beam restart.</summary>
     internal void ForgetSpacetimeRestart() => spacetimeIntroRestartSlot = null;
     /// <summary>The fade into Landing Site or Ceres arrival, from black on a two-frame cadence.</summary>
-    internal BrightnessFade GameplayFadeIn { get; } = new(0, 1);
+    internal ScreenFade GameplayFadeIn { get; } = new(0, stepDelay: 1, firstWait: 1);
     /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     internal bool GameplayFadeLeadsToCeresArrival { get; private set; }
-    /// <summary>Gameplay brightness retained through pause and unpause fades, 0 (black) through 15.</summary>
-    internal int PauseBrightness { get; set; } = PauseFadeTiming.FullyLit;
-    /// <summary>Steps the shared screen fade one frame toward lit and records the level, without publishing it.</summary>
-    internal int AdvanceScreenFadeIn() => PauseBrightness = screenFade.Brighten(PauseBrightness);
-    /// <summary>Steps the shared screen fade one frame toward lit, publishes the level and returns it.</summary>
-    internal int StepScreenFadeIn()
+    /// <summary>Gameplay brightness retained through pause and unpause fades, from black through full.</summary>
+    internal int PauseBrightness => screenFade.Level;
+    /// <summary>Steps the shared screen fade one frame toward lit, without publishing it; returns whether it is fully lit.</summary>
+    internal bool AdvanceScreenFadeIn() => screenFade.Brighten();
+    /// <summary>Steps the shared screen fade one frame toward lit and publishes the level; returns whether it is fully lit.</summary>
+    internal bool StepScreenFadeIn()
     {
-        int brightness = AdvanceScreenFadeIn();
-        SetDisplayBrightness(brightness);
-        return brightness;
+        bool lit = AdvanceScreenFadeIn();
+        SetDisplayBrightness(screenFade.Level);
+        return lit;
     }
-    /// <summary>Steps the shared screen fade one frame toward black, publishes the level and returns it.</summary>
-    internal int StepScreenFadeOut()
+    /// <summary>Steps the shared screen fade one frame toward black and publishes the level; returns whether it is black.</summary>
+    internal bool StepScreenFadeOut()
     {
-        int brightness = PauseBrightness = screenFade.Darken(PauseBrightness);
-        SetDisplayBrightness(brightness);
-        return brightness;
+        bool black = screenFade.Darken();
+        SetDisplayBrightness(screenFade.Level);
+        return black;
     }
     /// <summary>Records the screen brightness at full, as a completed fade-in leaves it.</summary>
-    internal void RecordFullBrightness() => PauseBrightness = PauseFadeTiming.FullyLit;
+    internal void RecordFullBrightness() => screenFade.Show(DisplayBrightness.Full);
     /// <summary>The death-state blackout, from full brightness on a two-frame cadence.</summary>
-    internal BrightnessFade DeathFade { get; } = new(15, 0);
+    internal ScreenFade DeathFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The ending transition after the Zebes escape, one level darker every frame.</summary>
-    internal BrightnessFade EscapeFade { get; } = new(15, 0);
+    internal ScreenFade EscapeFade { get; } = new(DisplayBrightness.Full);
     /// <summary>The room state whose music was last queued.</summary>
     internal RoomStateSettings? LastAudioRoomState { get; set; }
     /// <summary>Forgets the room whose music was last queued, so the next runtime's room music is queued from scratch.</summary>
@@ -276,21 +281,20 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginZebesEscapeFade()
     {
-        EscapeFade.Start(15, 0);
+        EscapeFade.Restart(DisplayBrightness.Full, 0);
         GameState = SuperMetroidGameState.SamusEscapesFromZebes;
     }
     /// <summary>Sets the screen's brightness on the published frame and retains it for pause fades.</summary>
     internal void SetDisplayBrightness(int brightness)
     {
         // Pause entry fades from the last level the screen was shown at.
-        PauseBrightness = brightness;
+        screenFade.Show(brightness);
         display.SetBrightness(brightness);
     }
     /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade counters reloaded.</summary>
     internal void BeginPauseFade(int initialBrightness)
     {
-        PauseBrightness = initialBrightness;
-        screenFade.Reload();
+        screenFade.Restart(initialBrightness, PauseFadeTiming.CounterReload);
     }
     /// <summary>Allocates and binds the gameplay owner without selecting a room.</summary>
     /// <param name="purpose">Whether the runtime plays a selected game, which takes the assists and menu options, or an attract demo.</param>
@@ -472,7 +476,7 @@ internal sealed class FrontendSession
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
-        GameplayFadeIn.Start(0, 1);
+        GameplayFadeIn.Restart(0, 1);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
         GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
@@ -485,7 +489,7 @@ internal sealed class FrontendSession
     {
         GameState = SuperMetroidGameState.MainGameplay;
         GameplayFadeLeadsToCeresArrival = false;
-        screenFade.Clear();
+        screenFade.StepEvery(1);
         RecordFullBrightness();
     }
     /// <summary>Persists the automatic Landing Site checkpoint after the gunship lands.</summary>

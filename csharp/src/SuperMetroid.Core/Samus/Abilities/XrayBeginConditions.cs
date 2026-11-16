@@ -7,11 +7,11 @@ public sealed record XrayBeginConditions
     public required SuperMetroid.Core.Progression.SuperMetroidGameState GameState { get; init; }
 
     /// <summary>Whether a power bomb explosion's status is set; any set status rejects X-ray activation.</summary>
-    public bool PowerBombExplosionActive { get; init; } = false;
+    public required bool PowerBombExplosionActive { get; init; }
 
     /// <summary>The shared projectile cooldown, which X-ray reads to tell whether Samus reads as drained (<see cref="XrayRefusedAsDrained"/>).</summary>
-    public int ProjectileCooldownTimer { get; init; }
+    public required int ProjectileCooldownTimer { get; init; }
 
     /// <summary>The number of live bombs, which X-ray reads to tell whether Samus reads as drained (<see cref="XrayRefusedAsDrained"/>).</summary>
-    public int BombCounter { get; init; } = 0;
+    public required int BombCounter { get; init; }
 }

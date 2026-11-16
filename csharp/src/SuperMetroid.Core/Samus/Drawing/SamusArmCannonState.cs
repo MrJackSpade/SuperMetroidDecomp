@@ -32,7 +32,7 @@ public sealed class SamusArmCannonState
     public bool IsTransitioning { get; private set; }
 
     /// <summary>The cover picture shown, or null while the cover is closed.</summary>
-    public SamusArmCannonCoverFrame? Frame { get; internal set; }
+    public SamusArmCannonCoverFrame? Frame { get; private set; }
 
     /// <summary>
     /// The updates the HUD selection has held still, 0 through 2: a change restarts it at one and it saturates at two,
@@ -41,11 +41,11 @@ public sealed class SamusArmCannonState
     public int StableSelectionUpdates
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, SamusArmCannonDefinitions.StableSelectionUpdates, value);
+        private set => field = Ensure.BetweenInclusive(0, SamusArmCannonDefinitions.StableSelectionUpdates, value);
     }
 
     /// <summary>Where this frame's cover is drawn relative to the body, from the pose's drawing mode.</summary>
-    public SamusArmCannonDrawOrder DrawOrder { get; internal set; }
+    public SamusArmCannonDrawOrder DrawOrder { get; private set; }
 
     /// <summary>
     /// Runs the HUD selection stability update and the arm cannon's open-state update. Calling once

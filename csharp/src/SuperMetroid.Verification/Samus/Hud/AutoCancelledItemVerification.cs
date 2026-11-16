@@ -82,7 +82,7 @@ internal static class AutoCancelledItemVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing,
-                new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "the fixture starts X-ray");
+                new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "the fixture starts X-ray");
             while (!samus.Xray.WarmUp.IsOver)
                 samus.Xray.StepBeam(samus, controllerInput: 0);
             while (samus.Xray.BeamPhase != XrayBeamPhase.Finish)

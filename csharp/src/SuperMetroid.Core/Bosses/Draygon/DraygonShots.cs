@@ -127,11 +127,11 @@ internal sealed class DraygonShots
         {
             // The goop's attach step runs the power-bomb catch first, then attaches regardless.
             FreePlaceIfPowerBombed(goop, samus, powerBomb);
-            int nextDivisor = samus.XSpeedDivisor + 1;
+            int nextDivisor = samus.SlowdownLevel + 1;
             if (nextDivisor >= DraygonArenaDefinitions.GoopSlowdownLimit)
                 return;
 
-            samus.XSpeedDivisor = nextDivisor;
+            samus.SlowdownLevel = nextDivisor;
             goop.State = new DraygonGoopAttachedState(nextDivisor);
             goop.StartMotion(DraygonShotMotion.GoopStuckToSamus);
             goop.BlocksSamusProjectiles = false;
@@ -182,7 +182,7 @@ internal sealed class DraygonShots
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 return;
             projectile.FreePlace();
-            samus.XSpeedDivisor = 0;
+            samus.SlowdownLevel = 0;
         }
     }
     /// <summary>Moves a Draygon projectile along its angle at its speed.</summary>
@@ -202,9 +202,9 @@ internal sealed class DraygonShots
         SamusState samus)
     {
         goop.Delete();
-        samus.XSpeedDivisor = samus.XSpeedDivisor == 0
+        samus.SlowdownLevel = samus.SlowdownLevel == 0
             ? 0
-            : samus.XSpeedDivisor - 1;
+            : samus.SlowdownLevel - 1;
     }
 
     /// <summary>Tests the projectile against the 512-by-512-pixel Draygon arena bounds.</summary>

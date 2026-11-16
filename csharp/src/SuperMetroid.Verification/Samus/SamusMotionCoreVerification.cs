@@ -432,18 +432,18 @@ internal static void VerifySamusHorizontalSpeed()
     // $90:E4E6 caps the divisor at four halvings. Extra run speed is added before
     // that shift; 2.0 + 2.0 therefore becomes 0.4000 when the largest divisor, five, is stored.
     speed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0);
-    speed.SpeedDivisor = SamusHorizontalSpeedState.LargestSpeedDivisor;
+    speed.SlowdownLevel = SamusHorizontalSpeedState.LargestSlowdownLevel;
     AssertEqual(0x00004000u, speed.CalculateTotalSpeed(UnsignedSixteenSixteen.FromRaw(0x00020000)).RawValue, "total speed divisor caps at four");
     AssertEqual(0x4000, speed.TotalSpeed.Fraction, "total subspeed publication");
 
     // The displacement clamp replaces only the signed whole word and preserves the low
     // fraction. These deliberately oversized values catch a tempting floating-point clamp.
     speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(0);
-    speed.SpeedDivisor = 0;
-    AssertEqual(0x000f1234, speed.CalculateRightDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234)).RawValue, "right displacement +15 clamp");
+    speed.SlowdownLevel = 0;
+    AssertEqual(0x000f1234, speed.CalculateRightDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "right displacement +15 clamp");
     // Negation happens before clamping, so 0 - $0010:1234 is $FFEF:EDCC. The clamp
     // replaces only its high word, producing $FFF1:EDCC rather than mirroring $1234.
-    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234)).RawValue, "left displacement -15 clamp");
+    AssertEqual(unchecked((int)0xfff1edcc), speed.CalculateLeftDisplacement(UnsignedSixteenSixteen.FromRaw(0x00101234), extraDisplacement: default).RawValue, "left displacement -15 clamp");
 
     Console.WriteLine("  Samus speed: acceleration, deceleration, submerged palette gate, boost departure echoes, divisor, and clamp agree.");
 }

@@ -341,7 +341,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 CheckValue("Lava spray wait", samus.LiquidPhysics.EffectWaits.SprayWaitUpdates,
                     SamusAtmosphericEffectWordCodec.SprayWait(W(NativeSnapshotMemory.AtmosphericFrameAndType + sprayPlace * 2),
                         W(NativeSnapshotMemory.AtmosphericTimer + sprayPlace * 2)));
-                Check("Liquid animation buffer", checked((ushort)samus.AnimationFrameBuffer), NativeSnapshotMemory.AnimationFrameBuffer);
+                Check("Liquid animation buffer", checked((ushort)samus.ExtraAnimationDelay), NativeSnapshotMemory.AnimationFrameBuffer);
                 Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
                 Check("PeriodicSubDamage", checked((ushort)samus.PeriodicDamage.Pending.Fraction), NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", checked((ushort)samus.PeriodicDamage.Pending.Whole), NativeSnapshotMemory.PeriodicDamage);
@@ -388,7 +388,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             Check("Samus ExtraYDisplacementFraction", samus.Kinematics.ExtraDisplacement.Y.Fraction, NativeSnapshotMemory.ExtraYDisplacementFraction);
             if (!SamusSnapshotWords.AlignsToSlopes(W(NativeSnapshotMemory.SlopeCollisionEnable)))
                 mismatches.Add($"Samus slope alignment: native={W(NativeSnapshotMemory.SlopeCollisionEnable):X4} disables it, which the port never does");
-            Check("Samus SpeedDivisor", checked((ushort)samus.HorizontalSpeed.SpeedDivisor), NativeSnapshotMemory.SpeedDivisor);
+            Check("Samus SlowdownLevel", checked((ushort)samus.HorizontalSpeed.SlowdownLevel), NativeSnapshotMemory.SpeedDivisor);
             Check("Samus BodyAttack", SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.ContactDamage.Word(samus.HorizontalSpeed.BodyAttack), NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", SamusSnapshotWords.EncodeBallBounce(samus.MorphBallBounceState), NativeSnapshotMemory.MorphBallBounceState);
             Check("Samus bomb jump", SamusBombJumpRequestCodec.ToNative(samus.BombJumpRequest), NativeSnapshotMemory.BombJumpDirection);

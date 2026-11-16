@@ -182,7 +182,7 @@ public static class SamusBlockCollision
                         DoorBlockExit horizontalDoor = terrain.Level.ResolveDoorCollision(
                             block,
                             state.CollisionPose.ForRoomCollision(),
-                            move.PublishDoorSideEffects);
+                            publishDoorSideEffects: true);
                         if (horizontalDoor.IsElevatorPseudoDoor)
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(

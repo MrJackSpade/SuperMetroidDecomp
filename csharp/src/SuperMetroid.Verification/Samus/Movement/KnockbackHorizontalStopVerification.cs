@@ -17,7 +17,7 @@ internal static class KnockbackHorizontalStopVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left }, poseCollision: new KnockbackPoseCollision(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, 0));
+            SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: new KnockbackPoseCollision(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, 0));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(new SolidEnemyFixture(), new((ushort)(right ? 111 : 89), 100), new(5, 8), Solid: true)];

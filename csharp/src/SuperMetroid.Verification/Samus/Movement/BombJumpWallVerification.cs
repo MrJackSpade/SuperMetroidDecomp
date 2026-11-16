@@ -93,7 +93,7 @@ internal static class BombJumpWallVerification
         // until the common hurt-expiry command restores both.
         hurt.Pose = SamusPoseId.NormalJumpForwardRightPose;
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
-        AssertTrue(SamusKnockbackMovement.Start(hurt, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left }, poseCollision: null), "normal hurt interrupts humanoid bomb start");
+        AssertTrue(SamusKnockbackMovement.Start(hurt, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: null), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
         hurt.KnockbackTimer = 0;

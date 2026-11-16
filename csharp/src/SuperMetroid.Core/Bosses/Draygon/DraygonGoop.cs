@@ -76,7 +76,7 @@ internal sealed class DraygonGoop
         // The right-facing shot runs the turret's step; the left-facing one does not.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
-        if (samus.XSpeedDivisor != 0)
+        if (samus.SlowdownLevel != 0)
         {
             state.Phase = DraygonPhase.TryGrabSamus;
             return;
@@ -124,7 +124,7 @@ internal sealed class DraygonGoop
     {
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         // Only the leftward recovery rechecks whether Samus became gooped after firing.
-        if (direction != HorizontalDirection.Right && samus.XSpeedDivisor != 0)
+        if (direction != HorizontalDirection.Right && samus.SlowdownLevel != 0)
         {
             state.Phase = DraygonPhase.TryGrabSamus;
             return;

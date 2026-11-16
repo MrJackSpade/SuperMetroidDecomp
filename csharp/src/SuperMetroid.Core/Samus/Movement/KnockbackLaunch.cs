@@ -6,8 +6,11 @@ public sealed record KnockbackLaunch
     /// <summary>The direction the knockback carries Samus horizontally.</summary>
     public required KnockbackHorizontalDirection KnockbackXDirection { get; init; }
 
-    /// <summary>Nonzero producer-owned hurt countdown in gameplay updates; normal contact supplies five, while scripted intro Rinka contact supplies eleven.</summary>
-    public int KnockbackTimer { get; init; } = 5;
+    /// <summary>
+    /// The hurt countdown in gameplay updates, which the producer of the hit owns: an enemy's touch supplies
+    /// <see cref="Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates"/>, the intro Rinka's strike its own.
+    /// </summary>
+    public required int KnockbackTimer { get; init; }
 
     /// <summary>
     /// The launch a damage producer left pending on Samus: the direction its contact published, left or right, and the

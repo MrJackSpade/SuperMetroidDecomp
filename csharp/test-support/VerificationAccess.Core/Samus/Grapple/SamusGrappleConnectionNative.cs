@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Grapple;
 
@@ -13,18 +14,18 @@ internal static class SamusGrappleConnectionNative
         [GrappleConnectionKind.WallGrab] = 0xc814,
     });
 
-    /// <summary>The pose routine a connection record's handler word names.</summary>
-    internal static readonly NativeWordIdentities<GrappleConnectionPose> Poses = new(new Dictionary<GrappleConnectionPose, ushort>
+    /// <summary>The pose a connection record's handler word installs: the routine that sets that pose.</summary>
+    internal static readonly NativeWordIdentities<SamusPoseId> Poses = new(new Dictionary<SamusPoseId, ushort>
     {
-        [GrappleConnectionPose.SwingClockwise] = 0xb9d9,
-        [GrappleConnectionPose.SwingAnticlockwise] = 0xb9e2,
-        [GrappleConnectionPose.StandingUpRight] = 0xb9ea,
-        [GrappleConnectionPose.StandingRight] = 0xb9f3,
-        [GrappleConnectionPose.StandingDown] = 0xb9fc,
-        [GrappleConnectionPose.StandingUpLeft] = 0xba05,
-        [GrappleConnectionPose.CrouchingUpRight] = 0xba0e,
-        [GrappleConnectionPose.CrouchingRight] = 0xba17,
-        [GrappleConnectionPose.CrouchingDownLeft] = 0xba20,
-        [GrappleConnectionPose.CrouchingUpLeft] = 0xba29,
+        [SamusPoseId.GrappleSwingRightPose] = 0xb9d9,
+        [SamusPoseId.GrappleSwingLeftPose] = 0xb9e2,
+        [SamusPoseId.GrappleStandingRightPose] = 0xb9ea,
+        [SamusPoseId.GrappleStandingDownRightPose] = 0xb9f3,
+        [SamusPoseId.GrappleStandingDownLeftPose] = 0xb9fc,
+        [SamusPoseId.GrappleStandingLeftPose] = 0xba05,
+        [SamusPoseId.GrappleCrouchingRightPose] = 0xba0e,
+        [SamusPoseId.GrappleCrouchingDownRightPose] = 0xba17,
+        [SamusPoseId.GrappleCrouchingDownLeftPose] = 0xba20,
+        [SamusPoseId.GrappleCrouchingLeftPose] = 0xba29,
     });
 }

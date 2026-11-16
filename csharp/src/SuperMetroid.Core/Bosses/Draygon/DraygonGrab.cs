@@ -46,7 +46,7 @@ internal sealed class DraygonGrab
         // Attached goop actors own this divisor. Once the final actor disappears, retail
         // abandons the chase immediately and exits through the same upward flight used
         // after a completed grab.
-        if (samus.XSpeedDivisor == 0)
+        if (samus.SlowdownLevel == 0)
         {
             state.Phase = DraygonPhase.FlyStraightUp;
             return;

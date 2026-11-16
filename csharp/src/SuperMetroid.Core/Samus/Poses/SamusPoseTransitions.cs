@@ -313,7 +313,7 @@ internal static class SamusPoseTransitions
         // The game's pose initialization computes its own local delay without replacing
         // the buffer published by this frame's FX pass. The pose-transition cue adds that live
         // buffer once more after installing the new animation.
-        int cueAnimationBuffer = samus.AnimationFrameBuffer;
+        int cueAnimationBuffer = samus.ExtraAnimationDelay;
 
         bool verified = new SamusPoseChange(samus.Pose, targetPose) is
             (SamusPoseId.TurningRightToLeftPose, SamusPoseId.FacingLeftNormalPose) or

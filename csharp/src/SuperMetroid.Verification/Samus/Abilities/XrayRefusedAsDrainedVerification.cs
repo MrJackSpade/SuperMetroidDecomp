@@ -48,13 +48,14 @@ internal static class XrayRefusedAsDrainedVerification
                 for (int divisor = 0; divisor <= MostSpeedDivisor; divisor++)
                 {
                     SamusState samus = StandingSamus();
-                    samus.XSpeedDivisor = divisor;
+                    samus.SlowdownLevel = divisor;
                     bool admitted = samus.Xray.TryBeginAndActivate(samus, previousMovementType: SamusMovementType.Standing,
                         conditions: new XrayBeginConditions
                         {
                             GameState = SuperMetroidGameState.MainGameplay,
                             ProjectileCooldownTimer = cooldown,
                             BombCounter = bombs,
+                            PowerBombExplosionActive = false,
                         });
                     bool refused = cooldown == 7 && bombs == 5 && divisor == 2;
                     AssertEqual(!refused, admitted,

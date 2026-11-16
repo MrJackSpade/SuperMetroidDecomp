@@ -71,7 +71,7 @@ internal sealed class SamusPresentation
         // Pose initialization does not simply reuse the previous animation pass's delay buffer. It
         // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
         // Gravity Suit takes the ordinary speed-divisor path.
-        samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
+        samus.ExtraAnimationDelay = samus.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(samus);
         samus.AnimatedPose = samus.Pose;
         if (samus.AnimationStep is not SamusAnimationDelay initialDelay)
         {
@@ -79,7 +79,7 @@ internal sealed class SamusPresentation
                 $"Samus pose {samus.Pose} cannot start its animation on frame {samus.AnimationFrame}, which is not a delay.");
         }
 
-        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(initialDelay.Ticks);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(initialDelay.Ticks);
         samus.PendingTransitionalPose = null;
     }
 
@@ -90,7 +90,7 @@ internal sealed class SamusPresentation
     /// </summary>
     /// <remarks>
     /// The behaviour also returns early while the animation-frame delay adjustment is negative. This model owns it as
-    /// <see cref="SamusState.AnimationFrameBuffer"/>, so it runs only where that is
+    /// <see cref="SamusState.ExtraAnimationDelay"/>, so it runs only where that is
     /// nonnegative, as it is at the intro's discovery setup and its demo's end.
     /// </remarks>
     internal static void SetAnimationFrameIfPoseChanged(SamusState samus)
@@ -257,7 +257,7 @@ internal sealed class SamusPresentation
                     ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.UnauthoredBoostCadence, samus.RunStrideFrame.Frame)
                     : SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, samus.RunStrideFrame.Frame)
                 : delay.Ticks;
-            samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
+            samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(runningOrPoseDelay);
             return;
         }
 
@@ -275,7 +275,7 @@ internal sealed class SamusPresentation
                     samus.UnauthoredBoostCadence,
                     movementType: SamusMovementType.Running,
                     controllerInput,
-                    samus.AnimationFrameBuffer,
+                    samus.ExtraAnimationDelay,
                     out int stagedTimer,
                     // The echo joins Samus's audio requests, whose queue's answer selects the boost's cadence.
                     () => samus.AudioRequests.QueueSound(RoomSound.SpeedBooster, SoundRequestPriority.Normal)))
@@ -290,7 +290,7 @@ internal sealed class SamusPresentation
             else
             {
                 samus.AnimationFrame = SamusAnimationFrame.Start;
-                samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(
+                samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(
                     SamusRunningCadences.Delay(samus.UnauthoredBoostCadence, SamusRunningCadence.Ordinary, frame: 0));
                 return;
             }
@@ -381,7 +381,7 @@ internal sealed class SamusPresentation
             throw new InvalidDataException(
                 $"Samus animation step {step} selected frame {samus.AnimationFrame}, which is not a delay.");
         }
-        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.AnimationFrameBuffer).AddFrames(selected.Ticks);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(samus.ExtraAnimationDelay).AddFrames(selected.Ticks);
     }
 
     /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's animation.</summary>

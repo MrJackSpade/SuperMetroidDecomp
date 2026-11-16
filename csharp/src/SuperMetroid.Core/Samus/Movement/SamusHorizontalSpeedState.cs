@@ -118,18 +118,18 @@ public sealed class SamusHorizontalSpeedState
     public UnsignedSixteenSixteen TotalSpeed { get; private set; }
 
     /// <summary>
-    /// Speed divisor, 0 through <see cref="LargestSpeedDivisor"/>: total speed is halved this many times, capped at four
-    /// halvings. It doubles as the dry-room animation delay. Each Draygon goop stuck to Samus adds one, a sixth is
-    /// refused, and the Baby Metroid's drain stores two, so the setter rejects any other value.
+    /// How slowed Samus is (#2286), 0 through <see cref="LargestSlowdownLevel"/>: total speed is halved this many times,
+    /// capped at four halvings, and the game's same level is her dry-ground animation delay. Each Draygon goop stuck to
+    /// Samus adds one, a sixth is refused, and the Baby Metroid's drain stores two, so the setter rejects any other value.
     /// </summary>
-    public int SpeedDivisor
+    public int SlowdownLevel
     {
         get;
-        set => field = Ensure.BetweenInclusive(0, LargestSpeedDivisor, value);
+        set => field = Ensure.BetweenInclusive(0, LargestSlowdownLevel, value);
     }
 
-    /// <summary>The largest speed divisor: five Draygon goops stuck to Samus, the most the goop's attach step allows.</summary>
-    public const int LargestSpeedDivisor = 5;
+    /// <summary>The largest slowdown level: five Draygon goops stuck to Samus, the most the goop's attach step allows.</summary>
+    public const int LargestSlowdownLevel = 5;
 
     /// <summary>
     /// Acceleration mode: accelerating speeds up, while turning and decelerating both take the
@@ -780,7 +780,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
     {
-        TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SpeedDivisor, SamusHorizontalSpeedDefinitions.LargestSpeedHalvings));
+        TotalSpeed = (baseSpeed + ExtraRunSpeed).Halved(Math.Min(SlowdownLevel, SamusHorizontalSpeedDefinitions.LargestSpeedHalvings));
         return TotalSpeed;
     }
 
@@ -788,7 +788,7 @@ public sealed class SamusHorizontalSpeedState
     /// Calculates the non-collision portion of a rightward displacement,
     /// including the ±15-pixel whole-pixel clamp.
     /// </summary>
-    public SignedSixteenSixteen CalculateRightDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement = default) =>
+    public SignedSixteenSixteen CalculateRightDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement) =>
         ClampDisplacement(CalculateTotalSpeed(baseSpeed).AsDisplacement() + extraDisplacement);
 
     /// <summary>
@@ -796,7 +796,7 @@ public sealed class SamusHorizontalSpeedState
     /// Left is <c>extra displacement - total speed</c>, not merely
     /// the rightward result reversed.
     /// </summary>
-    public SignedSixteenSixteen CalculateLeftDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement = default) =>
+    public SignedSixteenSixteen CalculateLeftDisplacement(UnsignedSixteenSixteen baseSpeed, SignedSixteenSixteen extraDisplacement) =>
         ClampDisplacement(extraDisplacement - CalculateTotalSpeed(baseSpeed).AsDisplacement());
 
     /// <summary>Whether Samus has any base speed: either its whole pixels or its fraction is nonzero.</summary>

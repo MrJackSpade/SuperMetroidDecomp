@@ -140,7 +140,7 @@ public sealed class SamusXrayState
         if ((IsActive && !cancellingDirectGMode) || PendingActivationPose is not null)
             return false;
 
-        if (XrayRefusedAsDrained.Refuses(conditions.ProjectileCooldownTimer, conditions.BombCounter, samus.XSpeedDivisor))
+        if (XrayRefusedAsDrained.Refuses(conditions.ProjectileCooldownTimer, conditions.BombCounter, samus.SlowdownLevel))
             return false;
 
         // Landing art (the normal and spin landings and the aimed and firing landings) is explicitly

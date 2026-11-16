@@ -154,11 +154,11 @@ public sealed class SamusState
     public WrappingCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
-    /// Delay, in updates, added to each animation frame for speed and liquid physics: zero, two or three, or the
-    /// <see cref="XSpeedDivisor"/> on dry ground, so 0 through
-    /// <see cref="SamusHorizontalSpeedState.LargestSpeedDivisor"/>; the setter rejects any other value.
+    /// The updates added to each frame of Samus's animation (#2286): two in water, three in lava or acid, and on dry ground
+    /// her <see cref="SlowdownLevel"/>, so 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>; the
+    /// setter rejects any other value.
     /// </summary>
-    public int AnimationFrameBuffer { get; internal set => field = Ensure.BetweenInclusive(0, SamusHorizontalSpeedState.LargestSpeedDivisor, value); }
+    public int ExtraAnimationDelay { get; internal set => field = Ensure.BetweenInclusive(0, SamusHorizontalSpeedState.LargestSlowdownLevel, value); }
 
     /// <summary>
     /// Exact fixed-point horizontal speeds used by ordinary grounded
@@ -242,15 +242,16 @@ public sealed class SamusState
     public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();
 
     /// <summary>
-    /// The X-speed divisor, 0 through <see cref="SamusHorizontalSpeedState.LargestSpeedDivisor"/>, as Samus's own view of
-    /// <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>: the one stored value is both a movement-speed divisor and the
-    /// no-FX animation delay buffer, and its setter rejects values outside that range.
+    /// How slowed Samus is (#2286), 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>, as her own view
+    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>. The game keeps one level for two effects: her speed is
+    /// halved once per level, and on dry ground each level adds an update to every frame of her animation
+    /// (<see cref="ExtraAnimationDelay"/>). The setter rejects values outside that range.
     /// </summary>
-    [IntegerQuantity("right-shift applied to horizontal speed, zero when undivided")]
-    public int XSpeedDivisor
+    [IntegerQuantity("halvings of Samus's horizontal speed, zero when she is not slowed")]
+    public int SlowdownLevel
     {
-        get => HorizontalSpeed.SpeedDivisor;
-        set => HorizontalSpeed.SpeedDivisor = value;
+        get => HorizontalSpeed.SlowdownLevel;
+        set => HorizontalSpeed.SlowdownLevel = value;
     }
 
     /// <summary>Current energy, also used by the animation's low-energy cue.</summary>

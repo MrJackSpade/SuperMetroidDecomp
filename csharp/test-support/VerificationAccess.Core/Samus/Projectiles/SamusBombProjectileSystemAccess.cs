@@ -18,7 +18,7 @@ internal static class SamusBombProjectileSystemAccess
         {
             self.AdvancePowerBombExplosion(samus, controllerInput);
             bool consumed = self.RunHudProducer(samus, controllerInput, controllerNewInput);
-            _ = self.HandleBombs(terrain, samus);
+            _ = self.HandleBombs(terrain, samus, BombJumpOverlapPublication.Immediate);
             return consumed;
         }
     }

@@ -124,7 +124,7 @@ internal static class MotherBrainRoomColorsVerification
     private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
     {
         enemies.Presentation.AttachBossBody(BossBodyPartsConstants.Hidden(BossBodyOwner.MotherBrain));
-        return new(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        return new(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
     }
 
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>

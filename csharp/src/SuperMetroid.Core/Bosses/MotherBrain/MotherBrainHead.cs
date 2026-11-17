@@ -81,17 +81,12 @@ internal sealed class MotherBrainHead
         place.AnimationClock.Show(0);
     }
 
-    /// <summary>Runs the head main/hurt entry and its choice of whether her brain and neck are drawn.</summary>
+    /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
-
-        // The head main first stops drawing her brain and neck. Only an intentionally invisible head
-        // runs the shared brain action, which draws them again.
+        // The head main first stops drawing her brain and neck; her brain's action then draws them again.
         state.DrawBrain = false;
         state.DrawNeck = false;
-        if (!head.Presence.HasAny(EnemyPresence.Hidden))
-            return;
-
         switch (state.BrainAction)
         {
             case MotherBrainBrainAction.SetupBrainToBeDrawn:
@@ -129,8 +124,8 @@ internal sealed class MotherBrainHead
         if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
             BossRandomRolls.InLowerHalf(_room.Random.Read()))
             SpawnMotherBrainPurpleBreathSmall(state);
-        // The brain draw advances the brain animation here, after every enemy's AI, and returns out
-        // of the whole draw when the animation is not live.
+        // The brain's animation plays at this draw, after every enemy's AI (MotherBrainBrainAnimation), and the whole draw
+        // ends when the animation is not live.
         if (AdvanceMotherBrainBrain(state, samus) is not EnemyFrameId brainFrame)
             return;
 
@@ -247,53 +242,13 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Returns the brain frame
-    /// to draw, or null when the brain is not live. With time frozen it only reads the current
-    /// frame. Otherwise a frame holds while its duration minus the timer is not negative
-    /// (the timer counting up); past it, cues run until the next frame, which
-    /// resets the timer to one.
+    /// Plays her brain's animation at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it
+    /// shows, or null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>.
     /// </summary>
-    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
-    {
-        if (state.BrainPlayback is not { } playback)
-            return null;
-        AnimationBeat<EnemyFrameId, MotherBrainHeadCue> beat = RestingBeat(playback);
-        if (_frameContext.TimeIsFrozen)
-        {
-            return beat is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frozen ? frozen.Shown : throw new InvalidOperationException(
-                $"Mother Brain's frozen brain rests on {beat} at {playback.Place} of its animation, not a frame.");
-        }
-
-        Animation<MotherBrainHeadSegment> animation = playback.Animation;
-        AnimationPlace place = playback.Place;
-        if (beat is AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame show)
-        {
-            if (state.BrainFrameTimer <= show.Duration)
-            {
-                state.BrainFrameTimer++;
-                return show.Shown;
-            }
-            place = place with { Beat = place.Beat + 1 };
-        }
-
-        AnimationShown<MotherBrainHeadSegment, EnemyFrameId> advance = MotherBrainAnimations.HeadSegments.PlayToNextFrame(
-            ref animation, ref place, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
-                ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
-                : null);
-        if (advance is not AnimationShown<MotherBrainHeadSegment, EnemyFrameId>.Frame shown)
-            throw new InvalidOperationException($"Mother Brain's brain animations have no {advance} beat.");
-        // The place rests on the frame it shows, so it steps back onto it.
-        state.BrainPlayback = new(animation, place with { Beat = place.Beat - 1 });
-        state.BrainFrameTimer = 1;
-        return shown.Shown;
-    }
-
-    /// <summary>The beat <paramref name="playback"/>'s place rests on: its playing phase's next beat.</summary>
-    private static AnimationBeat<EnemyFrameId, MotherBrainHeadCue> RestingBeat(AnimationPlayback<MotherBrainHeadSegment> playback)
-    {
-        AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
-        return MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat];
-    }
+    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
+        state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => ApplyMotherBrainHeadCue(state, samus, cue) is { } segment
+            ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
+            : null);
 
     /// <summary>Carries out one event of a brain animation.</summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>

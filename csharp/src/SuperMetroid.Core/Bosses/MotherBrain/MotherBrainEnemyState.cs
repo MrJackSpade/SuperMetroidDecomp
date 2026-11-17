@@ -23,12 +23,15 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <param name="head">Her head's place, which her room lists right after her body.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
-    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
+    /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
+    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
+        MotherBrainBrainAnimation brain)
     {
         Body = body;
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
+        Brain = Ensure.NotNull(brain);
     }
 
     /// <summary>Her body, which owns the encounter and runs first.</summary>
@@ -211,18 +214,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal MotherBrainColours Colours { get; } = new();
 
     /// <summary>
-    /// The brain's own animation (#641, #1600), separate from the head place, which shows her brain's hit area: its place rests on the
-    /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the animation
-    /// setter and the draw-time runner write it.
+    /// Her brain's own animation (#641, #1600, #2317), separate from the head place, which shows her brain's hit area; it
+    /// plays at her brain's draw.
     /// </summary>
-    internal AnimationPlayback<MotherBrainHeadSegment>? BrainPlayback { get; set; }
-
-    /// <summary>
-    /// How long the brain's frame has shown. It counts draws up from one
-    /// and the animation advances once it exceeds the frame's duration, so each frame shows for
-    /// its duration plus one draw.
-    /// </summary>
-    public int BrainFrameTimer { get; internal set; }
+    public MotherBrainBrainAnimation Brain { get; }
 
     /// <summary>
     /// The body enemy's animation and where it stands (#641, #1600), or null before its first animation, while her body
@@ -240,9 +235,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool DeleteTurretsAndRinkas { get; internal set; }
 
     /// <summary>
-    /// Set by the head main on frames where her brain is drawn after the ordinary enemy
-    /// queues. It is deliberately rebuilt every frame rather than treated as
-    /// ordinary visibility because both the body and the brain carry the hide-drawing property.
+    /// Set by the head main, as her brain's action selects, on updates her brain is drawn by her own draw after the ordinary
+    /// enemy queues; rebuilt every update. Her head's place is hidden from the ordinary enemy draw throughout.
     /// </summary>
     public bool DrawBrain { get; internal set; }
 

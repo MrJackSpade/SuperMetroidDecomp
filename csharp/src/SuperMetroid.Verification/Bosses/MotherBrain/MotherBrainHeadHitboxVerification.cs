@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Runtime;
@@ -29,9 +30,10 @@ internal static class MotherBrainHeadHitboxVerification
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.Initial), AnimationPlace.StartOf(0)),
-            state.BrainPlayback,
+        AssertEqual<MotherBrainHeadSegment?>(MotherBrainHeadSegment.Initial, state.Brain.Playback?.PlayingSegment,
             "the brain program starts at InstList_MotherBrainHead_Initial");
+        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut, state.Brain.ShownFrame,
+            "the brain's initial animation shows its closed eye from its start");
 
         EnemyAnimationPlayer.AdvanceAnimation(head, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");

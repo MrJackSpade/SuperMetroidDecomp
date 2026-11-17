@@ -54,9 +54,9 @@ internal sealed class MotherBrainAscent
     {
         state.BrainAction = MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
 
-        // The body and brain both become tangible before the suspense pause, but remain invisible for
-        // their separate reasons: the body waits for its leg pictures, while the head's hide-drawing
-        // bit deliberately selects her brain and articulated neck's own draw.
+        // The body and brain both become tangible before the suspense pause, but stay out of the ordinary enemy draw: the
+        // body waits for its leg pictures, while her brain and articulated neck are drawn by their own draw, as her brain's
+        // action selects.
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Health = MotherBrainFightDefinitions.SecondPhaseHealth;

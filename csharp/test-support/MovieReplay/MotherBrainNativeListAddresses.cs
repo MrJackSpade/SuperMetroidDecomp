@@ -225,11 +225,24 @@ internal static class MotherBrainNativeListAddresses
     /// phases the lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list
     /// pointers to typed playbacks.
     /// </summary>
+    /// <param name="cartridge">The pinned cartridge.</param>
+    /// <param name="bank">The lists' bank.</param>
+    /// <param name="segments">The typed segments.</param>
+    /// <param name="startingAt">The typed animations, by the segment each starts at.</param>
+    /// <param name="entries">Each segment's native entry, in authored order.</param>
+    /// <param name="spritemap">The spritemap a frame shows.</param>
+    /// <param name="ops">What each native opcode of the lists becomes.</param>
+    /// <param name="onlyRunOnInto">The segments no owner starts, which animations only run on into.</param>
+    /// <param name="shownUpdates">
+    /// The updates a frame of the list's stated duration shows for, where the family counts its frames otherwise than the
+    /// enemy animation pass does; null for the duration itself.
+    /// </param>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge, int bank, AnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         NativeProgramEntry<TSegment>[] entries, Func<TFrame, ushort> spritemap,
-        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops, IReadOnlySet<TSegment>? onlyRunOnInto = null)
+        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops, IReadOnlySet<TSegment>? onlyRunOnInto = null,
+        Func<ushort, int>? shownUpdates = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -267,7 +280,7 @@ internal static class MotherBrainNativeListAddresses
                         continue;
                     case NativeEnemyListDefinitions.WordKind.Frame:
                         var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beats, addresses.Count, at), $"{at}: frame");
-                        VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
+                        VerificationAssertions.AssertEqual(shownUpdates?.Invoke(word) ?? word, frame.Duration, $"{at}: duration");
                         VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(frame.Shown), $"{at}: spritemap");
                         addresses.Add(cursor);
                         cursor = unchecked((ushort)(cursor + 4));
@@ -367,7 +380,9 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
     internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(IImportCartridgeSource cartridge) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.HeadSegments, MotherBrainAnimations.HeadStartingAt, HeadEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps, HeadSegmentsOnlyRunOnInto);
+            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps, HeadSegmentsOnlyRunOnInto,
+            // Her brain counts its draws up from one and moves on once the count passes the duration: one draw more.
+            duration => duration + 1);
 
     /// <summary>The brain segments only the animations before them run on into, which start no animation (#1948).</summary>
     private static readonly HashSet<MotherBrainHeadSegment> HeadSegmentsOnlyRunOnInto =

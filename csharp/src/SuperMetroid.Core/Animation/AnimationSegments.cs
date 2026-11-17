@@ -53,6 +53,19 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The beats of <paramref name="segment"/>.</summary>
     internal IReadOnlyList<AnimationBeat<TFrame, TEvent>> Beats(TSegment segment) => beats[segment];
 
+    /// <summary>
+    /// Whether <paramref name="animation"/> opens with a frame (#2317): played from its start, it shows a frame or a held
+    /// frame before it raises any event.
+    /// </summary>
+    internal bool OpensWithFrame(Animation<TSegment> animation)
+    {
+        Ensure.NotNull(animation);
+        if (animation.Phases.Count == 0 || animation.Phases[0].BeatCount == 0)
+            return false;
+        AnimationPhase<TSegment> opening = animation.Phases[0];
+        return beats[opening.Segment][opening.FirstBeat] is AnimationBeat<TFrame, TEvent>.Frame or AnimationBeat<TFrame, TEvent>.HeldFrame;
+    }
+
     /// <summary>Every frame a segment shows, each once, in the order the segments first show them.</summary>
     internal IEnumerable<TFrame> Frames =>
         beats.Values.SelectMany(segment => segment).Select(beat => beat.ShownFrame).OfType<TFrame>().Distinct();

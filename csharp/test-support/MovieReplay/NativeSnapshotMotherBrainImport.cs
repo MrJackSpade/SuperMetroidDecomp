@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -69,8 +70,7 @@ internal static class NativeSnapshotMotherBrainImport
             state.Colours.DetachBrain();
         ushort brain = W(MotherBrainMemory.BrainAnimationScript);
         // Bit 15 clear means the brain list is not live.
-        state.BrainPlayback = unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(cartridge, brain);
-        state.BrainFrameTimer = W(MotherBrainMemory.BrainFrameHold);
+        ImportBrainAnimation(state.Brain, unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(cartridge, brain), W(MotherBrainMemory.BrainFrameHold));
         Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         // Each record's instruction-list word is read from the snapshot; the port keeps the typed playback it stands for.
         ushort AnimationScript(RoomEnemyPlace place) => W(NativeSnapshotMemory.EnemyBase +
@@ -135,6 +135,41 @@ internal static class NativeSnapshotMotherBrainImport
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
         if (LateFightStages.Contains(state.Stage))
             ImportNativeMotherBrainRainbowSequence(state, W);
+    }
+
+    /// <summary>
+    /// Imports the brain animation from the playback resting on the beat the recorded pointer stands at and the recorded
+    /// count of draws the frame there has shown (#2317): a frame shows on with the updates its count leaves it, the
+    /// playback past it; a held frame shows for good; a cue, which only a start leaves the pointer on, plays at the next
+    /// draw.
+    /// </summary>
+    private static void ImportBrainAnimation(MotherBrainBrainAnimation brain, AnimationPlayback<MotherBrainHeadSegment>? resting, int drawsShown)
+    {
+        if (resting is not { } playback)
+        {
+            brain.Playback = null;
+            return;
+        }
+        AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
+        switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
+        {
+            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
+                brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
+                brain.ShownFrame = frame.Shown;
+                // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
+                brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
+                return;
+            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
+                brain.Playback = playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) };
+                brain.ShownFrame = held.Shown;
+                brain.Clock.ShowForGood();
+                return;
+            default:
+                brain.Playback = playback;
+                brain.ShownFrame = null;
+                brain.Clock.StepOnNextUpdate();
+                return;
+        }
     }
 
     /// <summary>

@@ -53,7 +53,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // sets only the animating property so the shared enemy animation animates the shell.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
-        state.HitCounter = place.SpawnSettings<KagoSpawnSettings>().HitCount;
     }
 
     /// <summary>
@@ -73,7 +72,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             place.AnimationClock.StepOnNextUpdate();
         }
 
-        if (--state.HitCounter < 0)
+        // The shell withstands as many shots as its placement names and dies of the next (#2340).
+        if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
         {
             // Common shot AI can in principle kill the 1600-health shell first. Do not
             // count the same death twice.

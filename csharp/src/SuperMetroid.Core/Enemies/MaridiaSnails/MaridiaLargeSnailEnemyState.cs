@@ -69,7 +69,11 @@ public sealed class MaridiaLargeSnailEnemyState
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
 
-    /// <summary>Attack cooldown, initialized to 128 and expiring when it steps below zero.</summary>
+    /// <summary>
+    /// The rolling updates left before Oum may attack, the one it may first attack on included (#2340): it starts at
+    /// <see cref="MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown"/> and each attack restarts it; once run out it
+    /// stays at zero until Oum attacks.
+    /// </summary>
     public int AttackCooldown { get; internal set; }
 
     /// <summary>

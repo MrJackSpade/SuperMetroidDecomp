@@ -566,7 +566,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             maridiaLargeSnailRecord.Action = MaridiaSnailsNativeWords.MaridiaLargeSnailActions.Decode(words.A, "recorded MaridiaLargeSnailAction");
             maridiaLargeSnailRecord.YSpeedCurvePlace = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(unchecked((short)words.B));
-            maridiaLargeSnailRecord.AttackCooldown = unchecked((short)words.C);
+            maridiaLargeSnailRecord.AttackCooldown = TrueDuration(words.C);
             maridiaLargeSnailRecord.Heading = words.D != 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             maridiaLargeSnailRecord.RemainingBounces = unchecked((short)words.E);
             maridiaLargeSnailRecord.BouncePhase = MaridiaSnailsNativeWords.MaridiaLargeSnailBouncePhases.Decode(words.F, "recorded MaridiaLargeSnailBouncePhase");
@@ -804,7 +804,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.HibashiStates[index] is { } hibashi)
         {
             hibashi.Action = HibashiNativeWords.HibashiActions.Decode(words.A, "recorded HibashiAction");
-            hibashi.InactiveTimer = unchecked((short)words.B);
+            hibashi.InactiveTimer = TrueDuration(words.B);
             hibashi.ActivityFinished = words.C != 0;
             hibashi.SpawnY = words.D;
         }

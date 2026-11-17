@@ -149,11 +149,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (state.StopMovementNextFrame)
             return;
 
-        state.AttackCooldown--;
-        bool cooldownExpired = state.AttackCooldown < 0;
-        if (cooldownExpired)
+        // The cooldown lasts its whole duration and then stays run out until Oum attacks (#2340).
+        if (state.AttackCooldown > 0)
+            state.AttackCooldown--;
+        if (state.AttackCooldown == 0)
         {
-            state.AttackCooldown = 0;
             bool mayAttack = EnemyMath.IsWithinStrictModularDistance(
                     samus.Position.X.Whole,
                     place.Position.X.Whole,

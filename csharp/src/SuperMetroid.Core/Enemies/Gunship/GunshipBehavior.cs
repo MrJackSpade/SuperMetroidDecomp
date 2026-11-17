@@ -412,10 +412,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decrements the phase timer, treating one and a step past zero as expiry.</summary>
+    /// <summary>Counts the phase timer down: the update that takes it to zero ends the waiting phase (#2340).</summary>
     private static bool TickGunshipPhaseTimer(RoomEnemyPlace top)
     {
-        return --State(top).PhaseTimer <= 0;
+        return --State(top).PhaseTimer == 0;
     }
 
     /// <summary>Lowers Samus into the ship until she is aboard, then closes the pad.</summary>

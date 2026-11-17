@@ -15,8 +15,4 @@ public static class BeamChargeDefinitions
     public const int FullyChargedCounter = 60;
     /// <summary>Flare-counter clamp at which the charge begins testing special beam attacks.</summary>
     public const int SpecialAttackCounter = 120;
-    /// <summary>The steps an ordinary charged shot's flash starts with (#2280).</summary>
-    public const int ChargedShotFlashSteps = 4;
-    /// <summary>The steps the Hyper Beam's glow starts with: two for each of its ten frames (#2280).</summary>
-    public const int HyperBeamGlowSteps = 20;
 }

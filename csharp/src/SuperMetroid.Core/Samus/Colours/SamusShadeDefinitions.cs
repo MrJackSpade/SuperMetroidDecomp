@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Immutable game data shared by Samus shades.</summary>
@@ -46,13 +45,6 @@ public static class SamusShadeDefinitions
         public const int PingPongSpan = 6;
         /// <summary>The Speed Booster shade the Metroid-attachment flash alternates with the normal suit: the family's brightest.</summary>
         public const int SpeedBoostFlashShade = 3;
-    }
-
-    /// <summary>The colour effect the Hyper Beam starts when Samus receives it.</summary>
-    public static class HyperBeamFx
-    {
-        /// <summary>How the Hyper Beam's colour effect starts: plainly.</summary>
-        public const ColourEffectStart Start = ColourEffectStart.Plain;
     }
 
     /// <summary>Shade tables consumed by the fatal-damage sequence.</summary>

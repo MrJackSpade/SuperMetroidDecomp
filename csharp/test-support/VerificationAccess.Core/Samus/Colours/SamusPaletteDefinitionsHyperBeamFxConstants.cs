@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Colours;
 
-/// <summary>Cartridge values of <see cref="SamusShadeDefinitions.HyperBeamFx"/> that only verification reads.</summary>
+/// <summary>Cartridge values of <see cref="SamusShadeDefinitionsConstants.HyperBeamFx"/> that only verification reads.</summary>
 internal static class SamusPaletteDefinitionsHyperBeamFxConstants
 {
     /// <summary>Instruction <c>$C595</c>: finish the current timed palette record.</summary>
@@ -17,7 +17,7 @@ internal static class SamusPaletteDefinitionsHyperBeamFxConstants
     public const ushort SetColorIndex = 0xc655;
 
     /// <summary>Provides Hyper Beam palette FX commands, list address, frame count, and frame width.</summary>
-    extension(SamusShadeDefinitions.HyperBeamFx)
+    extension(SamusShadeDefinitionsConstants.HyperBeamFx)
     {
         /// <inheritdoc cref="SamusPaletteDefinitionsHyperBeamFxConstants.Done"/>
         internal static ushort Done => SamusPaletteDefinitionsHyperBeamFxConstants.Done;

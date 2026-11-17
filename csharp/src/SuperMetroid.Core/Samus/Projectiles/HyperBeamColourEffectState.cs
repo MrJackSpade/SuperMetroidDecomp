@@ -1,7 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -29,9 +27,6 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>The shade of the beams' cycle last shown, or none before the first update.</summary>
-    private PictureShade? _shownCycleShade;
-
     /// <summary>
     /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
     /// (<see cref="Step"/>).
@@ -42,7 +37,6 @@ public sealed class HyperBeamColourEffectState
         // nothing more. This state keeps every observable field and delay.
         IsActive = true;
         FrameHold = 1;
-        _shownCycleShade = null;
         Place = AnimationPlace.StartOfAnimation;
     }
 
@@ -74,7 +68,7 @@ public sealed class HyperBeamColourEffectState
         colours.LayOverBeams(shown.Shown);
 
         FrameHold = shown.Duration;
-        _shownCycleShade = shown.Shown;
+        _ = shown.Shown;
     }
 
 }

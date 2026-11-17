@@ -30,7 +30,7 @@ internal static class SamusPaletteDefinitionsVerification
             "shared visor destination agrees with X-ray catalog");
         AssertEqual(
             SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount,
-            SamusShadeDefinitions.HyperBeamFx.FrameCount,
+            SamusShadeDefinitionsConstants.HyperBeamFx.FrameCount,
             "full-body and projectile Hyper Beam cycles have equal record counts");
         AssertTrue(
             SamusShadeDefinitions.SuitPickup.WhiteRed >=
@@ -81,10 +81,10 @@ internal static class SamusPaletteDefinitionsVerification
             2 * sizeof(ushort), "Hyper Beam palette-FX object definition");
         TouchRange(bus,
             SamusPaletteDefinitionsBanksConstants.PaletteFx |
-                SamusShadeDefinitions.HyperBeamFx.InitialList,
+                SamusShadeDefinitionsConstants.HyperBeamFx.InitialList,
             2 * sizeof(ushort) +
-                SamusShadeDefinitions.HyperBeamFx.FrameCount *
-                    SamusShadeDefinitions.HyperBeamFx.FrameByteCount +
+                SamusShadeDefinitionsConstants.HyperBeamFx.FrameCount *
+                    SamusShadeDefinitionsConstants.HyperBeamFx.FrameByteCount +
                 2 * sizeof(ushort),
             "Hyper Beam palette-FX instruction stream");
 

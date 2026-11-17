@@ -277,32 +277,37 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>A spore (#1760): its spawner starts its animation, and a shot spore runs its typed shot animation.</summary>
     internal SporeSpawnProjectileBehavior Spore => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
-        owner: this, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
+        releasedSpores: null, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SporeShot));
 
     /// <summary>A ceiling spore spawner (#1760): its spawner starts its animation, and a shot one restarts it closed.</summary>
-    internal EnemyProjectileBehavior Spawner => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
-        owner: this, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
+    internal SporeSpawnProjectileBehavior Spawner => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
+        releasedSpores: Spore, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
 
     /// <summary>A link of Spore Spawn's stalk (#1760): its spawner starts its animation, and a shot one restarts it.</summary>
     internal EnemyProjectileBehavior Stalk => field ??= new SporeSpawnProjectileBehavior(_room, _projectiles, _deathsAndDrops,
-        owner: this, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
+        releasedSpores: null, shot: () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Stalk));
 
     /// <summary>A spore, spawner or stalk link: the spores' drift and the spawners' cadence, and their animations' cues.</summary>
     /// <param name="room">The loaded room, whose random numbers time the spawners' releases.</param>
     /// <param name="projectiles">The enemy projectiles, which hold the spores a spawner releases.</param>
     /// <param name="deathsAndDrops">The killed sound and the drops a shot spore leaves.</param>
-    /// <param name="owner">Spore Spawn's behaviour, whose spores' own behaviour the spores a spawner releases run (#2335).</param>
+    /// <param name="releasedSpores">
+    /// The spores' behaviour, which the spores a ceiling spawner releases run; none for a spore or a stalk link, which release
+    /// none (#2335).
+    /// </param>
     /// <param name="shot">The animation a destroying shot starts.</param>
     internal sealed class SporeSpawnProjectileBehavior(
         EnemyRoomBinding room,
         EnemyProjectileEngine projectiles,
         EnemyDeathsAndDrops deathsAndDrops,
-        SporeSpawnBehavior owner,
+        SporeSpawnProjectileBehavior? releasedSpores,
         Func<EnemyProjectileAnimation> shot)
         : EnemyProjectileMotionBehavior<SporeSpawnProjectileMotion>(StartingMotions, shot), IEnemyProjectileCues<SporeSpawnProjectileCue>
     {
-        /// <summary>The behaviour the spores a spawner releases run: the spores' own.</summary>
-        private SporeSpawnProjectileBehavior Spores => owner.Spore;
+        /// <summary>The behaviour the spores a ceiling spawner releases run: the spores' own.</summary>
+        /// <exception cref="InvalidOperationException">The behaviour is a spore's or a stalk link's, which release no spores.</exception>
+        private SporeSpawnProjectileBehavior Spores => releasedSpores
+            ?? throw new InvalidOperationException("Only a ceiling spore spawner releases spores.");
 
         /// <summary>A spore drifts and a spawner releases spores from its spawn; a stalk link holds still.</summary>
         private static readonly Dictionary<RoomEnemyProjectileKind, SporeSpawnProjectileMotion?> StartingMotions = new()

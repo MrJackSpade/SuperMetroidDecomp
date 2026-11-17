@@ -134,7 +134,7 @@ internal static class SporeSpawnAnimationsVerification
             RoomEnemySystem enemies = NewProjectileSystem();
             // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
             var sporeSpawn = new SporeSpawnEnemyState();
-            enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
+            enemies.SporeSpawnBehavior.Spawner.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
                 started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),

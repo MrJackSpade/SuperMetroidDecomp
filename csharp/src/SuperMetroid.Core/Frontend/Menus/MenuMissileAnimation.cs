@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 internal sealed class MenuMissileAnimation
 {
     /// <summary>The roll as it plays.</summary>
-    private readonly AnimationPlayer<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> player;
+    internal readonly AnimationPlayer<MenuMissileSegment, MenuMissileFrame, NoAnimationCue> player;
 
     /// <summary>Starts the roll on its first picture, each later picture held for <paramref name="frameDuration"/> updates.</summary>
     internal MenuMissileAnimation(int frameDuration)
@@ -21,9 +21,6 @@ internal sealed class MenuMissileAnimation
 
     /// <summary>The picture the missile shows.</summary>
     internal MenuMissileFrame Frame => player.Showing;
-
-    /// <summary>The updates the shown picture has left before the roll moves on.</summary>
-    internal int UpdatesLeft => player.UpdatesLeft;
 
     /// <summary>Runs one update of the roll.</summary>
     internal void Step() => player.Step();

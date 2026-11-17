@@ -701,7 +701,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// delay of the sound's rhythm; after the rhythm's last delay it starts again from the first. A room whose quakes are
     /// silent (<see cref="QuakeSoundsSilenced"/>) plays none and leaves the countdown and the rhythm where they stand.
     /// </summary>
-    /// <param name="randomNumber">The current random number, sampled without advancing it; the number modulo 4 adds zero through three updates to the next earthquake-sound delay.</param>
+    /// <param name="randomNumber">The current random number, sampled without advancing it; its four-way choice adds zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
     /// The frame the save file found at power-on adds to every next delay (<see cref="PowerOnEarthquakeSoundDelay"/>).
     /// Both effects are the first their room starts after the door ends the previous room's effects, so they

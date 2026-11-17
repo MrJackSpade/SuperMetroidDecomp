@@ -44,8 +44,7 @@ internal sealed class GunshipState
 
     /// <summary>
     /// The ship's upward escape speed, raised each update up to its cap (<see cref="AccelerateEscape"/>). It
-    /// starts at two pixels an update, grows by a quarter pixel and never passes ten pixels and three quarters, so it
-    /// never reaches the type's wrap.
+    /// starts at two pixels an update, grows by a quarter pixel and never passes ten pixels and three quarters.
     /// </summary>
     public SignedEightEight EscapeVelocity { get; internal set; }
 

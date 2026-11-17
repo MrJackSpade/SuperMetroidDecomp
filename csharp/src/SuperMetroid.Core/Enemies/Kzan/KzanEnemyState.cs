@@ -2,10 +2,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
-/// The state of a Kzan top. The bottom half has no private state: it follows the top just before it in the room's
-/// enemies. The top's values are its own: setup writes the wait reload and the speed, each fall or rise writes the
-/// previous position before carrying Samus by it, and landing writes the rise wait before it counts down, so nothing a
-/// previous Kzan left reaches a new one.
+/// The state of a Kzan top. The bottom half has no state of its own: it follows the top just before it in the room's
+/// enemies. Every value the top reads it has set itself: setup sets the wait and the speed, each fall or rise records
+/// where the top stood before carrying Samus by the move, and landing sets the rise wait before it counts down.
 /// </summary>
 public sealed class KzanEnemyState
 {
@@ -19,20 +18,17 @@ public sealed class KzanEnemyState
     public KzanAction Action { get; internal set; }
 
     /// <summary>
-    /// Top-position wait in actor updates; decremented with a wrap below zero to 65535, so an initial zero does not expire
-    /// immediately.
+    /// The top's wait before it falls, in updates: a wait of zero does not run out at once but runs the full countdown.
     /// </summary>
     public WrappingCountdown FallWaitTimer { get; internal set; }
 
     /// <summary>
-    /// The top's original room Y, where upward motion stops before restarting the wait. Positions compare with it by the
-    /// wrapped difference.
+    /// The top's original room Y, where its rise stops before the wait restarts.
     /// </summary>
     public int RisingTargetY { get; internal set; }
 
     /// <summary>
-    /// The lowest room Y of the fall, the spawn Y plus the spawn settings' fall distance, inside the room. Positions
-    /// compare with it by the wrapped difference.
+    /// The lowest room Y of the fall: the spawn Y plus the spawn settings' fall distance, inside the room.
     /// </summary>
     public int FallingTargetY { get; internal set; }
 

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal static class SpacePirateDecisions
 {
     /// <summary>
-    /// The random field a ninja Space Pirate draws until it is nonzero before its divekick: the sample modulo 4. Each of
+    /// The random field a ninja Space Pirate draws until it is nonzero before its divekick. Each of
     /// the three accepted values selects the same divekick.
     /// </summary>
     internal static readonly RandomSampleField DivekickChoice = new(0, 2);

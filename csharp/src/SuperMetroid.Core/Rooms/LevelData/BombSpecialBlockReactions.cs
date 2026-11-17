@@ -10,7 +10,7 @@ public static class BombSpecialBlockReactions
         new([SpecialBlockReaction.BombRevealsSpeedBlock], SpeedBoosterBlockObjectDefinitions.BombReveal);
 
     /// <summary>
-    /// The crumble reveal, the Speed Booster block's reveal, or the no-op reaction that only holds its place for an update,
+    /// The crumble reveal, the Speed Booster block's reveal, or the reaction that does nothing but hold its place for an update,
     /// for a special block with <paramref name="reaction"/>. Brinstar's own Speed Booster blocks are revealed as Speed
     /// Booster blocks; the import resolves the same entries of the other areas' tables to plain solid blocks (#1805).
     /// </summary>

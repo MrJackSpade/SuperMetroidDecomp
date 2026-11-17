@@ -12,8 +12,9 @@ internal static class CrocomireMeltMask
 {
     /// <summary>
     /// The pixels <paramref name="image"/>'s picture hides once each band has shown the step <paramref name="bandSteps"/>
-    /// gives it: step <c>s</c> erases pixel <c>s</c> modulo eight of group <see cref="CrocomireMeltDissolveDefinitions.ColumnOrder"/>
-    /// <c>[s]</c> divided by eight, in every band the dissolve erases.
+    /// gives it: each step erases, in every band the dissolve erases, the pixel its place among each eight steps names
+    /// within the group of eight columns holding the column <see cref="CrocomireMeltDissolveDefinitions.ColumnOrder"/> gives
+    /// it.
     /// </summary>
     /// <exception cref="InvalidOperationException">The frame shows no picture, or a band's step is not one of the dissolve's.</exception>
     internal static HiddenPictureColumns Of(BossBodyFrame image, ReadOnlySpan<int> bandSteps)

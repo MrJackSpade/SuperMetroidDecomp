@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 /// <summary>Compiled patrol rules for Owtch.</summary>
 internal static class OwtchMovementDefinitions
 {
-    /// <summary>The random choice that sends a surfacing Owtch right rather than left: taken when the sample divided by 256 is odd.</summary>
+    /// <summary>The random choice that sends a surfacing Owtch right rather than left: taken for half the random numbers.</summary>
     internal static readonly RandomSampleField MoveRightChoice = new(8, 1);
 
     /// <summary>

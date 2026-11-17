@@ -25,7 +25,7 @@ internal static class RioLaunchDefinitions
     /// <summary>The slower Norfair Rio downward launch velocity, five and three quarter pixels per update, chosen when <see cref="SlowLaunchBit"/> is set.</summary>
     internal static SignedEightEight NorfairSlowYVelocity { get; } = SignedEightEight.FromParts(5, 192);
 
-    /// <summary>The random choice, taken when the sample divided by 4 is odd, that sends a diving Norfair Rio down at its slower launch velocity.</summary>
+    /// <summary>The random choice, taken for half the random numbers, that sends a diving Norfair Rio down at its slower launch velocity.</summary>
     internal static readonly RandomSampleField SlowLaunchBit = new(2, 1);
 
     /// <summary>
@@ -35,8 +35,8 @@ internal static class RioLaunchDefinitions
     internal static readonly RandomSampleField AttackChanceLowBit = new(0, 1);
 
     /// <summary>
-    /// The other of the two random choices, the sample divided by 256 being odd, of which at least one must be taken for a Norfair or Lower Norfair
-    /// Rio to attack.
+    /// The other of the two random choices, each taken for half the random numbers, of which at least one must be taken
+    /// for a Norfair or Lower Norfair Rio to attack.
     /// </summary>
     internal static readonly RandomSampleField AttackChanceHighBit = new(8, 1);
 

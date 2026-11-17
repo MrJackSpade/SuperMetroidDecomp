@@ -106,10 +106,8 @@ internal sealed class EnemyCollision
             // Touch collision does not read the invisible property as a collision flag;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // place remains invisible while its animation moves a live hitbox.
-            // Both Ridley definitions use a hand-authored extended body plus a separately
-            // solved tail tip. The enemy pass runs its body's collision at this same pre-AI seam;
-            // tail processing checks the tip later. Do not flatten either to the definition's
-            // dummy 8x8 radius here. An actor without a touch reaction is skipped.
+            // Both Ridleys touch Samus with their own body hitboxes and, later in the update, the tail's tip; neither
+            // touches by its definition's radius. An actor without a touch reaction is skipped.
             if (place.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
                 place.Presence.HasAny(EnemyPresence.Deleted) ||
                 place.Entity is not IEnemyTouchReaction { ReactsToTouch: true } touch)
@@ -209,10 +207,8 @@ internal sealed class EnemyCollision
 
             foreach (SamusProjectile projectile in projectiles.Shots)
             {
-                // The place still holds the live beam or missile when the enemy's collision
-                // response selects vulnerability. Starting the impact below deliberately
-                // turns the place into an explosion, so retain the incoming type instead of
-                // accidentally asking the vulnerability table about the visual effect.
+                // The enemy's vulnerability answers for the beam or missile that hit it, before the impact below turns the
+                // shot into its explosion.
                 SamusProjectileType projectileType = projectile.Type;
                 int projectileDamage = Ensure.AtLeastZero(projectile.Damage);
                 SamusProjectileDirection projectileDirection = projectile.Direction;
@@ -465,7 +461,7 @@ internal sealed class EnemyCollision
     /// Runs the ordinary-radius half of the enemies' bomb collision.
     /// </summary>
     /// <remarks>
-    /// Normal bombs are not part of the five-shot beam/missile walk above: the bomb pass waits for the shared bomb
+    /// Normal bombs are not among the five beams and missiles tested above: the bomb pass waits for the shared bomb
     /// countdown to reach zero, marks the overlapping bomb as having hit, and runs the enemy's shot reaction with
     /// that bomb selected.
     ///

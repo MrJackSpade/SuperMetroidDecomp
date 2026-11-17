@@ -37,8 +37,8 @@ internal static class SamusComboMechanics
     /// particles. The game negates the truncated positive magnitude, so this deliberately
     /// truncates toward zero in all quadrants.
     /// </summary>
-    /// <remarks>The positive sample times the amplitude, divided by 256
-    /// and truncated, gives the magnitude; the sign is restored afterward, including at the exact 256 peak.
+    /// <remarks>The positive sample's share of the amplitude, in whole pixels rounded down, gives the magnitude; the sign
+    /// is restored afterward, including at the sine's exact peak.
     /// The Ice, Plasma and Spazer attacks give angles in 256ths of a turn; Y turns back a quarter turn
     /// with the same wrap. The amplitude is 0 through 255. It reads the game's signed sine and keeps no
     /// values of its own.</remarks>

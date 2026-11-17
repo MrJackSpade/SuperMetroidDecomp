@@ -16,12 +16,10 @@ internal sealed class EnemyRoomStatus
     private readonly EnemySession _session;
 
     /// <summary>
-    /// The room's kill count, zero or more: reset at load and incremented by death paths through
-    /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated
-    /// enemies. Its readers compare it with the room's kill quota, at most 255, on every room-object update from the room's
-    /// load, so the count meets the quota long before a count kept to the game's range could pass 65535 and start again;
-    /// once met, the grey door has opened and the cleared event is set for good, so no reader sees where a count past
-    /// that would stand.
+    /// The room's kill count, zero or more: reset as the room loads and raised by each kill <see cref="RecordKill"/>
+    /// records, so it counts kills rather than the enemies left or defeated. Its readers compare it with the room's kill
+    /// quota on every room-object update; once it meets the quota the grey door has opened and the cleared event is set for
+    /// good.
     /// </summary>
     public int EnemiesKilled { get; internal set => field = Ensure.AtLeastZero(value); }
     /// <summary>

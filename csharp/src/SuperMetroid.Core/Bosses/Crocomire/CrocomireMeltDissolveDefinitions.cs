@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireMeltDissolveDefinitions
 {
     /// <summary>
-    /// The column each step of the dissolve erases, by step: its group of eight pixel columns is the column divided by eight.
-    /// The pixel within the group the step erases is the step's place modulo eight, not the column's, so a step usually
-    /// clears a different pixel than its column names; this silhouette is what the melt shows.
+    /// The column each step of the dissolve erases, by step: the step erases a pixel of the group of eight pixel columns
+    /// the column lies in. The pixel within the group is the step's place among each eight steps, not the column's, so a
+    /// step usually clears a different pixel than its column names; this silhouette is what the melt shows.
     /// </summary>
     /// <remarks>
     /// The fixed shuffled order in which the dissolve visits all columns 0 through 48, not samples of motion or geometry.

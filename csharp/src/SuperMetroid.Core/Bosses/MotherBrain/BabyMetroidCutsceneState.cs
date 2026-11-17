@@ -643,7 +643,7 @@ public sealed class BabyMetroidCutsceneState
 
         // The flash step is called after the common velocity mover. It decrements the same
         // extra timer that onion-ring hits write and shows the flash colours while the
-        // decremented value, modulo four, is two or three. Starting from sixteen, the first post-hit enemy call sees
+        // decremented value stands at the third or fourth update of each four. Starting from sixteen, the first post-hit enemy call sees
         // sixteen for its shake above, then displays the normal colours with timer fifteen.
         if (OnionRingHitFlashTimer != 0)
         {

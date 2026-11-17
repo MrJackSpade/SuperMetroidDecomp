@@ -854,7 +854,7 @@ internal sealed class SamusFramePhases
 
         // The two front-facing poses enter through the controller-locked demo and elevator setups.
         // The actor-owned vertical-collision value remains an explicit producer, while
-        // this consumer now includes both the zero-status no-op and the nonzero
+        // this consumer now includes both the zero status, which moves nothing, and the nonzero
         // one-pixel downward block scan.
         SamusGroundedMovement.StepFacingForward(
             _room.LevelData,
@@ -1084,7 +1084,7 @@ internal sealed class SamusFramePhases
 
         // The drained get-up runs after movement and before animation.
         // Mother Brain's two drain setups choose its Up-edge branches; the
-        // method is a cheap no-op for every ordinary gameplay state.
+        // step does nothing in every ordinary gameplay state.
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
             samus.Drained.RunGetUpCheck(samus, _playerActions.NewlyPressed);
 

@@ -544,9 +544,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the private tail after common shot/power-bomb AI. A surviving
-    /// body mirrors freeze/hurt timing into its wing until health reaches the wing's
-    /// detach health; that exact threshold—not an invented constant—starts detachment.
+    /// Runs the Ki-Hunter's own response after the common shot and Power Bomb reactions. A surviving body freezes and
+    /// flashes its wings with it until its health falls to the health at which the wings detach, which starts their fall.
     /// </summary>
     private void ResolveKiHunterShotAfterCommon(RoomEnemyPlace body)
     {
@@ -556,8 +555,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (!wingsInPlace)
                 return;
-            // Killing the body deletes its wings outright, stripping processing and every other population flag rather
-            // than merely adding the deleted flag.
+            // Killing the body removes its wings outright: they stop updating and keep none of their placement's properties.
             wings.Contact = EnemyContact.None;
             wings.Processing = EnemyProcessing.None;
             wings.Presence = EnemyPresence.Deleted;
@@ -652,8 +650,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the game's check that
-    /// the angle plus a quarter turn lies in the second half-turn, which switches the wing from its orbit to its falling arc and back.
+    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters, the half of the turn in which
+    /// the wing leaves its orbit for its falling arc and the other half in which it returns.
     /// </summary>
     private static bool LiesWithinMiddleHalfTurn(RotationAngle angle) =>
         angle + RotationAngle.QuarterTurn >= RotationAngle.HalfTurn;

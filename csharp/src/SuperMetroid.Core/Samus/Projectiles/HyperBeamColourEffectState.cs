@@ -40,9 +40,8 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public void Spawn()
     {
-        // Allocation clears the effect's colour step and auxiliary timer, installs timer
-        // one, then calls the object's no-op setup. This specialized state has no
-        // reusable fields to clear, but preserves every observable field and delay.
+        // Starting the effect clears its colour step and auxiliary timer and sets its timer to one; its setup does
+        // nothing more. This state keeps every observable field and delay.
         IsActive = true;
         FrameHold = 1;
         ShownCycleShade = null;

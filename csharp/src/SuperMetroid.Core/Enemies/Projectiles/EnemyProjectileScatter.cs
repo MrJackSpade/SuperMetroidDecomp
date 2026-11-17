@@ -12,6 +12,6 @@ internal readonly record struct EnemyProjectileScatter(RandomSampleField XRange,
     /// <summary>The random choice of the scatter's first sample that turns the X offset leftward: taken when the sample is 32768 or more.</summary>
     internal static readonly RandomSampleField NegativeX = new(15, 1);
 
-    /// <summary>The random choice of the scatter's first sample that turns the Y offset upward: taken when the sample divided by 16384 is odd.</summary>
+    /// <summary>The random choice of the scatter's first sample that turns the Y offset upward: taken for half the random numbers.</summary>
     internal static readonly RandomSampleField NegativeY = new(14, 1);
 }

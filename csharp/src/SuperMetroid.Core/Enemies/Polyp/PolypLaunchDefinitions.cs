@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal static class PolypLaunchDefinitions
 {
-    /// <summary>The random number divided by two, modulo 8, selects the cooldown.</summary>
+    /// <summary>One of the random number's eight choices selects the cooldown.</summary>
     internal static readonly RandomSampleField CooldownSelector = new(1, 3);
 
-    /// <summary>The random number divided by two, modulo 16, selects the launch speed and the horizontal velocity.</summary>
+    /// <summary>One of the random number's sixteen choices selects the launch speed and the horizontal velocity.</summary>
     internal static readonly RandomSampleField LaunchSelector = new(1, 4);
 
     /// <summary>

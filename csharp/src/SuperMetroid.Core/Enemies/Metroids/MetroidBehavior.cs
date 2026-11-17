@@ -55,8 +55,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
                 break;
             case MetroidCueKind.PlayRandomCry:
-                // The shared random sequence advances exactly once and the result's remainder by eight chooses one of the eight
-                // authored idle cries.
+                // One random number, drawn from the shared random sequence, chooses one of the eight idle cries.
                 _audio.QueueEnemySound(MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
             default:
@@ -284,8 +283,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.DrainTakesEnergy(drainFraction))
             return;
 
-        // Dealing Samus one damage performs a saturating subtract and deliberately does not
-        // start ordinary hurt flash, invincibility, knockback, or suit division.
+        // The Metroid drains one energy, never below none, without the hurt flash, invincibility, knockback or suit
+        // protection an ordinary hit brings.
         samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
 
@@ -493,8 +492,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return true;
         }
 
-        // Custom Metroid shot AI does not call normal shot AI. Preserve the collision prelude, then apply recoil/ice
-        // or attached power-bomb escape without inventing vulnerability-based health damage.
+        // A shot on a Metroid takes no common shot reaction and does it no health damage: the collision marks the shot,
+        // then the Metroid recoils, freezes or, attached, escapes as a Power Bomb shakes it loose.
         c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
         ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.AtLeastZero(c.Projectile.Damage), MetroidRecoilOrigin.Of(c.Projectiles.Shots).Position.Whole, c.Samus);
         return true;

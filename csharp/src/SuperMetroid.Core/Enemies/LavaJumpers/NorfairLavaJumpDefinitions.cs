@@ -12,6 +12,6 @@ internal static class NorfairLavaJumpDefinitions
         -SignedEightEight.FromParts(5, 1),
     ];
 
-    /// <summary>Which of the four launch velocities a jump uses: the sample divided by 512, modulo 4.</summary>
+    /// <summary>Which of the four launch velocities a jump uses.</summary>
     internal static readonly RandomSampleField LaunchSelector = new(9, 2);
 }

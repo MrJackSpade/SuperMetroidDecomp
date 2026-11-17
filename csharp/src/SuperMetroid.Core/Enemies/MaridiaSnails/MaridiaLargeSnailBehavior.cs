@@ -191,8 +191,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BouncePhase)
         {
             case MaridiaLargeSnailBouncePhase.Falling:
-                // The place stays within 3712 256ths of a mark below the start through mark 64, so the game's
-                // signed comparisons are ordinary comparisons.
+                // The place stays within 3712 256ths of a mark below the start through mark 64.
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
                     state.YSpeedCurvePlace + MaridiaLargeSnailMotionDefinitions.BounceAcceleration,
                     MaridiaLargeSnailMotionDefinitions.FastestFallPlace);
@@ -222,8 +221,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     return;
                 }
 
-                // The rising half reads the negative member of the same curve mark. The place is not
-                // negative here, so its whole marks are the mark the game selects by the speed's magnitude.
+                // The rising half moves at the same curve mark's speed upward; the place lies at or past the curve's start
+                // here, so its whole marks are that mark.
                 _terrain.MoveEnemyVertically(
                     level,
                     place,
@@ -457,7 +456,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 return null;
             });
 
-    /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
+    /// <summary>A hit on the protected shell does nothing; only a vulnerable hitbox takes common damage.</summary>
     internal EnemyShotReaction MaridiaLargeSnailShotReaction => field ??= new()
     {
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
@@ -466,9 +465,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
             if (c.HitboxShot == EnemyReaction.Ignore)
             {
-                // Frame-hitbox collision marks the projectile before calling the
-                // no-op. It does not run normal shot AI, create an impact, play the shot sound,
-                // or consult vulnerability for this protected shell component.
+                // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
+                // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
                 c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }
@@ -495,9 +493,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 $"{context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
         }
 
-        // The damaging touch enters common touch damage and falls directly through the harmless touch's
-        // asymmetric shove. Harmless-touch frames execute only the shove, which is why the
-        // closed shell can carry/push Samus without inflicting the definition's 100 HP.
+        // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
+        // touch only shoves, which is how the closed shell carries and pushes Samus without its 100 damage.
         if (context.HitboxTouch == MaridiaLargeSnailReactions.DamagingTouch)
             _collision.ResolveNormalEnemyTouch(context);
         ResolveMaridiaLargeSnailTouchAfterCommon(context.Place, context.Samus);

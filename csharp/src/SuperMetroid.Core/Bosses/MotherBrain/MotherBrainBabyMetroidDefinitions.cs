@@ -10,8 +10,8 @@ internal static class MotherBrainBabyMetroidDefinitions
 
     /// <summary>
     /// The Baby's placement, which supplies its properties. Its initialization replaces the placement's position, but
-    /// the placement keeps it as where the Baby spawned. It carries no spawn settings: the cutscene's own animation
-    /// replaces the first animation the game's placement names, which nothing reads.
+    /// the placement keeps it as where the Baby spawned. It carries no spawn settings: the cutscene starts the Baby's
+    /// own animation.
     /// </summary>
     internal static readonly RoomEnemyPlacement SpawnPopulation =
         new(EnemyDefinitionId.BabyMetroidCutscene, new(384, 64),

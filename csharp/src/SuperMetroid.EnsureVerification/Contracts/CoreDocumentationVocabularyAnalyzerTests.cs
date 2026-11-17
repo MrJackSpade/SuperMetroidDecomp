@@ -699,9 +699,9 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Does nothing: the rotting table is exhausted.</summary>\nint F => 0; }", "('rotting table')");
         Expect("class P { string Name => \"Emits dust when a rotting-table row finishes.\"; }", "('rotting-table')");
         Expect("class P { /// <summary>Continues the descent until Y modulo 256 reaches 240.</summary>\nint F => 0; }", "('modulo 256')");
-        // A table of settings, a tail whip, a call, a multiplication, a rotting corpse, another modulus and a hardware owner
-        // are English.
-        Expect("class P { /// <summary>A table of settings; Ridley's tail whip; the call; a multiplication; the rotting corpse; the sample modulo 64.</summary>\nint F => 0; }");
+        // A table of settings, a tail whip, a call, a multiplication, a rotting corpse and a hardware owner are English
+        // (any other modulus is arithmetic told as a summary, #2345).
+        Expect("class P { /// <summary>A table of settings; Ridley's tail whip; the call; a multiplication; the rotting corpse.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the short multiply keeps the radius modulo 256.</summary>\n[CompatibilityService(\"product\")] class Product { }");
         // The display's colour math, screen designation and per-line effects outside hardware owners (#2089).
         Expect("class P { /// <summary>The rear-view station grows while its fixed-color flash fades.</summary>\nint F => 0; }", "('fixed-color')");
@@ -759,7 +759,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { string Name => \"Hold the B run button.\"; }", "('B run button')");
         Expect("class P { // A fresh press of Shoot (X) fires.\n }", "('Shoot (X)')");
         // A coordinate, an article, X-ray, a lower-case letter, a letter alone and a hardware owner are English.
-        Expect("class P { /// <summary>X is the sample modulo 128; Y is the tangent; A held animation stays held; A binding names a frame.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>X is the sample; Y is the tangent; A held animation stays held; A binding names a frame.</summary>\nint F => 0; }");
         Expect("class P { // X-ray is shoot-free; a is jump; the X button; Shoot alone.\n }");
         Expect(CompatibilityService + "/// <summary>Evidence: the game reads B as Run and A is Jump.</summary>\n[CompatibilityService(\"buttons\")] class Buttons { }");
         // Anything verified, in every type, as the review trail (#2123).
@@ -1302,5 +1302,25 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Moves two pixels in her direction; the direction is two pixels away; a speed table; a table of distances; the input transitions.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The direction one turn on; the direction of one link; directions one full turn holds; direction zero of the rope's turn.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the shot direction is two in the transition table.</summary>\n[CompatibilityService(\"direction\")] class Direction { }");
+        // The original's arithmetic told as a summary, its program structure and its leftover storage, outside hardware
+        // owners and markup (#2345).
+        Expect("class P { /// <summary>Adds a step: the sample divided by 256, modulo 4.</summary>\nint F => 0; }", "('divided by 256')");
+        Expect("class P { /// <summary>Picks a wait: the sample modulo 8.</summary>\nint F => 0; }", "('modulo 8')");
+        Expect("class P { void Run() { // the result's remainder by eight chooses a cry\n } }", "('remainder by eight')");
+        Expect("class P { void Run() { // The bug's update is an if/else-if chain.\n } }", "('if/else-if')");
+        Expect("class P { void Run() { // An else-if picks the wall.\n } }", "('else-if')");
+        Expect("class P { /// <summary>Its call chain runs the shot.</summary>\nint F => 0; }", "('call chain')");
+        Expect("class P { /// <summary>Exactly matching the leading call in the game's reaction.</summary>\nint F => 0; }", "('leading call')");
+        Expect("class P { void Run() { // Custom shot AI does not call normal shot AI.\n } }", "('does not call')");
+        Expect("class P { void Run() { // The collision marks the shot before calling the no-op.\n } }", "('no-op')");
+        Expect("class P { void Run() { // The prologue requires the baby's parent.\n } }", "('prologue')");
+        Expect("class P { /// <summary>Nothing a previous Kzan left reaches a new one.</summary>\nint F => 0; }", "('Nothing a previous')");
+        Expect("class P { void Run() { // It republishes a height, which nothing reads.\n } }", "('which nothing reads')");
+        Expect("class P { void Run() { // A hit draws a number the game keeps but nothing reads.\n } }", "('but nothing reads')");
+        // Dividing a picture, an instruction not to call a method, Ceres the prologue station, identities nothing reads,
+        // what a previous room hands the next and a hardware owner are English.
+        Expect("class P { /// <summary>The picture divided into halves; do not call it twice; Ceres, the prologue station; the research station prologue.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Its values are arbitrary and nothing reads them; the countdown the previous room's main left.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the sample divided by 256, modulo 4, in an if/else chain.</summary>\n[CompatibilityService(\"modulo\")] class Modulo { }");
     }
 }

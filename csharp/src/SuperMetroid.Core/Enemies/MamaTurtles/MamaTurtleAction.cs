@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// </summary>
 public enum MamaTurtleAction
 {
-    /// <summary>Links the four Baby Turtles after Mama in the room's enemies to her.</summary>
+    /// <summary>Checks, on her first update, that the four baby turtles she found when she was placed are babies.</summary>
     Initial,
     /// <summary>Does nothing of its own while Mama's animation plays, such as leaving or entering her shell; its cues move her.</summary>
     Idle,

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 /// </summary>
 public enum MetareeAction
 {
-    /// <summary>Activates within 72 horizontal pixels, without checking that Samus is below, and fixes the unsigned downward speed for the attack.</summary>
+    /// <summary>Dives once Samus is within 72 pixels either side, whether or not she is below, at a downward speed set as it starts.</summary>
     Idling,
     /// <summary>Waits for the animation's attack-ready flag, then installs dive art and requests the enemy-library dive sound.</summary>
     PreparingAttack,

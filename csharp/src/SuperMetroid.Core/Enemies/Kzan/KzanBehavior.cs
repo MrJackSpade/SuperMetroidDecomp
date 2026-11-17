@@ -62,9 +62,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // the fastest the fall reaches.
         state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
 
-        // The spawn settings name the fall distance in pixels and the top wait countdown.
-        // A zero countdown deliberately wraps to -1 on its first decrement rather than
-        // triggering immediately.
+        // The spawn settings name the fall distance in pixels and the top's wait. A wait of zero does not run out at
+        // once: it runs the full countdown (WrappingCountdown).
         int spawnY = place.Position.Y.Whole;
         state.FallingTargetY = spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
@@ -152,8 +151,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousY = place.Position.Y.Whole;
         place.Position = place.Position.AdvanceY(state.FallingSpeed);
 
-        // The comparison checks only whether the wrapped difference is negative, which the spatial difference
-        // keeps: coordinates near the room's edge retain the same game behavior.
+        // The top lands once it reaches its falling target.
         if (!CoordinateAxis.Precedes(place.Position.Y.Whole, state.FallingTargetY))
         {
             state.RiseWaitTimer = KzanRiseWaitFrames;

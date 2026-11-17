@@ -431,9 +431,9 @@ internal sealed class ProjectileTerrainCollision
         }
 
         // The breaks, the Power Bomb and Super Missile blocks and the empty reaction are the ordinary
-        // shot-block reactions, and the collision probe is the deliberate no-op room object. The
+        // shot-block reactions, and the collision probe is the room object that does nothing. The
         // reaction that sets off only in a shootable block is also admitted so shootable-solid can
-        // preserve its no-op room object; shootable-air's method exits without allocating. The RoomObject
+        // keep its room object that does nothing; shootable air places none. The RoomObject
         // owner performs the power-bomb/Super-Missile family checks synchronously, just as each
         // setup sees the current projectile type while the room object spawns.
         bool spawnsShotBlockReaction = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or

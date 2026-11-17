@@ -125,8 +125,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        // The step expires on reaching zero and also on going below it, so an already-zero timer expires on its
-        // step to -1. This is deliberately not a test before the step.
+        // The opening ends on the update its countdown runs out, including a countdown already at none.
         if (--state.ActionTimer > 0)
             return;
 

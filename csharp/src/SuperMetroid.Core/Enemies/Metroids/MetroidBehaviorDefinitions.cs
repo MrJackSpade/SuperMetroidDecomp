@@ -19,7 +19,7 @@ internal static class MetroidBehaviorDefinitions
         EnemySound.RisingSqueal, EnemySound.ShotMetroid, EnemySound.RisingSqueal, EnemySound.ShotMetroid,
     ];
 
-    /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> a chasing Metroid plays: the sample modulo 8.</summary>
+    /// <summary>The random field that picks which of the eight <see cref="RandomCries"/> a chasing Metroid plays.</summary>
     internal static readonly RandomSampleField CrySlot = new(0, 3);
 
     /// <summary>How close on each axis, in pixels and exclusive, a closing Metroid comes to its aim before it latches on.</summary>

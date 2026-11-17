@@ -59,8 +59,7 @@ public static class NoobTubeDebrisDefinitions
     public static SignedEightEight ShardFallYVelocity { get; } = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(192);
 
     /// <summary>
-    /// The random field a glass shard or air bubble starts its swaying fall from: the sample divided by 256, as the
-    /// angle its sway starts at.
+    /// The random choice of the angle a glass shard's or air bubble's swaying fall starts at, any of the turn's 256 steps.
     /// </summary>
     internal static readonly RandomSampleField FallingSwayStart = new(8, 8);
 

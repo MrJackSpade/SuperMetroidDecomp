@@ -87,7 +87,7 @@ internal sealed class EnemyDeathsAndDrops
         Ensure.NotNull(samus);
         RecordKill(enemy);
         // The death puts the grapple into its dropped phase before clearing the enemy.
-        // Equality is deliberate: this is not a general test for any set grapple bit.
+        // Only an enemy the grapple kills outright counts, not one it reacts to otherwise.
         if (enemy.AiStates == EnemyAiStates.Grappled)
             samus.Grapple.Phase = GrapplePhase.Dropped;
         RemoveKilledEnemy(enemy, deathAnimation, respawns: enemy.Presence.HasAny(EnemyPresence.RespawnsIfKilled));

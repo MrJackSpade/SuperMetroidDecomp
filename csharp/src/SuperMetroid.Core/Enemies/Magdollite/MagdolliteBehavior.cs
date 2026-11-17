@@ -108,7 +108,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowGlow();
     }
 
-    /// <summary>Places the head and starts it in its Samus-facing idle animation, retaining the initializer's reversed marker convention until the first tick.</summary>
+    /// <summary>Places the head and starts it in its idle animation, facing Samus.</summary>
     internal void InitializeMagdolliteHead(
         RoomEnemyPlace place,
         SamusState samus)
@@ -709,8 +709,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             Lava,
             SpriteGraphics.SpawnedBy(source));
 
-        // The initializer copies both subpixels from the throwing overlay, starts the lava's drop below it, and throws the
-        // lava sideways in the overlay's facing.
+        // The lava starts where the throwing overlay stands, with its fractions of a pixel, a drop below it, and flies
+        // sideways the way the overlay faces.
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop, source.Position.Y.Fraction));
         projectile.Velocity = new(
             throwsRight ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,

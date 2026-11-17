@@ -115,8 +115,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The population already supplies the animating property, and the initializer sets it again; leaving the
-        // shell needs the animation to run.
+        // Mama animates: leaving the shell needs her animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
@@ -465,8 +464,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // The prologue requires the child's parent to be a Mama Turtle. The game also clears and republishes a
-        // carried-height value on the parent here, which nothing reads.
+        // Each baby update requires the baby's Mama Turtle.
         _ = RequireMamaTurtleParent(baby);
         switch (state.Action)
         {

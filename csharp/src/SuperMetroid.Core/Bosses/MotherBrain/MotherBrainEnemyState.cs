@@ -187,7 +187,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>The wait before the next fake-death explosion (<see cref="MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates"/>).</summary>
     public BossCountdown FakeDeathExplosionTimer { get; } = new();
-    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer runs out.</summary>
+    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; stepped back one whenever the explosion timer runs out, the first following the last.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }
 
     /// <summary>

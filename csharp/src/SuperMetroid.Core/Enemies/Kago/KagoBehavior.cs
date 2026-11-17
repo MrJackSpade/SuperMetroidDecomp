@@ -57,9 +57,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the Kago-owned tail of the Kago's shot reaction. The shot has
-    /// already executed common normal-enemy shot AI, exactly matching the leading call in
-    /// the game's reaction.
+    /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
     {
@@ -217,7 +215,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             StepKagoBugSound(projectile);
             EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-            // The bug's update is an if/else-if chain. A wall consumes this frame, zeros X,
+            // The bug takes one of these each update, the first that applies. A wall takes this update, zeros X,
             // and deliberately postpones both vertical motion and gravity until the next frame.
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
             {
@@ -325,8 +323,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 
-        // Kago samples the existing random value and never advances it. The new bug's sub-pixel position, flags and
-        // state start fresh; its velocity is what its place's previous projectile left until its jump sets it.
+        // Kago reads the current random number without drawing another. The new bug's fractions of a pixel, flags and
+        // state start fresh; its speed is the hand-over its place gives (EnemyProjectileHandOver) until its jump sets it.
         int initialIdleFrames = KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber()) + 1;
         projectile.State = new KagoBugState(source)
         {

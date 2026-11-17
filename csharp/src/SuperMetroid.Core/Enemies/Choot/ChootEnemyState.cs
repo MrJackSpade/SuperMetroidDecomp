@@ -2,9 +2,8 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// The state of one Choot. Every value is the Choot's own: setup writes the spawn and falling positions and the
-/// ascent's starting place, activation writes the jump delay and the apex writes the falling origin, each before it is
-/// read, so nothing a previous Choot in the place left reaches a new one.
+/// The state of one Choot. Every value it reads it has set itself: setup sets the spawn and falling positions and the
+/// ascent's starting place, activation the jump delay and the apex the falling origin.
 /// </summary>
 public sealed class ChootEnemyState
 {

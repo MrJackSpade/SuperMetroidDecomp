@@ -10,8 +10,7 @@ internal static class MotherBrainGlassShardDefinitions
     internal static readonly RandomSampleField LaunchAngle = new(0, 8);
 
     /// <summary>
-    /// A launched shard's jitter on each axis, 0 through 15 pixels less <see cref="ShardJitterCentre"/>: the sample
-    /// modulo 16.
+    /// A launched shard's jitter on each axis, 0 through 15 pixels less <see cref="ShardJitterCentre"/>.
     /// </summary>
     internal static readonly RandomSampleField ShardJitter = new(0, 4);
 
@@ -22,14 +21,13 @@ internal static class MotherBrainGlassShardDefinitions
     internal const int ShardJitterCentre = 8;
 
     /// <summary>
-    /// The chance a falling shard sparkles each update, one in four: the sample divided by 32 and the sample divided by
-    /// 1024 are both even.
+    /// The chance a falling shard sparkles each update, one in four: two even choices of the random number must both
+    /// come up.
     /// </summary>
     internal static readonly RandomClearBitsChance ShardSparkles = new(new RandomSampleField(5, 1), new RandomSampleField(10, 1));
 
     /// <summary>
-    /// A sparkle's offset from its shard on each axis, 0 through 31 pixels less <see cref="SparkleOffsetCentre"/>: the
-    /// sample modulo 32.
+    /// A sparkle's offset from its shard on each axis, 0 through 31 pixels less <see cref="SparkleOffsetCentre"/>.
     /// </summary>
     internal static readonly RandomSampleField SparkleOffset = new(0, 5);
 

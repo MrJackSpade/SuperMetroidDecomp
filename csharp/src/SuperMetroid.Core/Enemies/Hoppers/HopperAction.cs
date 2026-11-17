@@ -9,15 +9,15 @@ public enum HopperAction
 {
     /// <summary>Consumes a shared RNG value and chooses small or big hop by whether it is odd, without starting movement that update.</summary>
     ChooseHopSize,
-    /// <summary>Installs the precomputed small-hop speed-curve place, place step 3, and positive three-pixel X velocity before choosing the hop's direction.</summary>
+    /// <summary>Readies the small hop: its start along the speed curve, three marks a pass, and three pixels an update sideways, before choosing the hop's direction.</summary>
     PrepareSmallHop,
-    /// <summary>Installs the precomputed big-hop speed-curve place, place step 4, and positive three-pixel X velocity before choosing the hop's direction.</summary>
+    /// <summary>Readies the big hop: its start along the speed curve, four marks a pass, and three pixels an update sideways, before choosing the hop's direction.</summary>
     PrepareBigHop,
-    /// <summary>Compares Samus X against the hopper and selects the leftward/backward or rightward/forward start.</summary>
+    /// <summary>Hops toward Samus: leftward when she stands left of the hopper, otherwise rightward.</summary>
     ChooseDirection,
-    /// <summary>Negates X velocity and starts the jumping animation and the hop.</summary>
+    /// <summary>Turns the hop leftward and starts the jumping animation and the hop.</summary>
     StartBackwardHop,
-    /// <summary>Retains positive X velocity and starts the jumping animation and the hop.</summary>
+    /// <summary>Keeps the hop rightward and starts the jumping animation and the hop.</summary>
     StartForwardHop,
     /// <summary>Restores the variant's floor or ceiling idle animation and waits for its cue-driven ready flag.</summary>
     Landed,

@@ -354,8 +354,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Sets the divekick's initial rising speed. The game also stores a target midway between a post and the
-    /// patrol centre, which nothing reads; it is not kept.
+    /// Sets the divekick's initial rising speed.
     /// </summary>
     private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
         state.Speed = SpacePirateMotionDefinitions.NinjaDiveStartSpeed;
@@ -525,7 +524,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 place.AnimationClock.StepOnNextUpdate();
                 // The cue returns the selected animation, not its next step.
                 // Re-entering that animation runs its action cue and restores decision AI
-                // after the idle animation explicitly set the no-op action.
+                // after the idle animation set the action that waits for it.
                 return state.ActiveAnimation;
             case NinjaSpacePirateCue.Signal { Kind: NinjaSpacePirateCueKind.ResetSpeed }:
                 state.Speed = default;

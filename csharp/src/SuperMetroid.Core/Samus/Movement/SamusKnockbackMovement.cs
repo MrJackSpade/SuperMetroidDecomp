@@ -354,7 +354,7 @@ public static class SamusKnockbackMovement
         // first installed an animation-owned pose. That overlap is observable: a turn from radius 19 to
         // radius 10 moves Samus down nine pixels while preserving her feet. Reading the
         // previous pose instead of assuming a hurt pose also covers the no-animation
-        // path, where both radii ordinarily match and the alignment is a no-op.
+        // path, where both radii ordinarily match and the alignment moves her nowhere.
         int previousRadius = SamusPoseMetadata.ReadPoseYRadius(samus.PoseHistory.PreviousPose);
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);

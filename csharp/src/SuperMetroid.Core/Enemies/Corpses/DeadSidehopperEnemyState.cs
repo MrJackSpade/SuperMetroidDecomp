@@ -27,7 +27,7 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>The current dead-sidehopper AI behaviour.</summary>
     public DeadSidehopperAction Action { get; internal set; }
 
-    /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
+    /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it, the first following the fourth.</summary>
     public int JumpPhase { get; internal set; }
 
     /// <summary>Draining AI updates since the drain last stepped, 0..7; the eighth steps the drain and restarts the count.</summary>

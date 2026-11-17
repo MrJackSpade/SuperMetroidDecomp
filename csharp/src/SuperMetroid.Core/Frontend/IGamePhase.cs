@@ -12,7 +12,7 @@ internal interface IGamePhase
     /// <summary>The random generator's step before this state's phase runs.</summary>
     PhaseRandomStep RandomStep { get; }
 
-    /// <summary>The prologue and epilogue audio facts for this state.</summary>
+    /// <summary>The audio facts for this state, before and after each of its updates.</summary>
     GamePhaseAudio Audio { get; }
 
     /// <summary>The state's current status for hosts and diagnostics.</summary>

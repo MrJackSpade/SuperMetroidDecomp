@@ -34,8 +34,7 @@ internal static class EnemyMath
     /// </summary>
     internal static Bearing CalculateBearing(Offset16<RoomPixels> delta)
     {
-        // A signed coordinate difference's magnitude reaches 32,768, which a short cannot hold: the offsets widen to int before their
-        // absolute values are taken, so -32,768 gives 32,768 instead of overflowing.
+        // The distances are taken as whole numbers, so the farthest offset either way keeps its full size.
         int absoluteX = Math.Abs((int)delta.X);
         int absoluteY = Math.Abs((int)delta.Y);
         bool left = delta.X < 0;

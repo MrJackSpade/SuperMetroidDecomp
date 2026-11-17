@@ -38,12 +38,12 @@ internal static class RoomObjectSystemAccess
                 RoomObjectKind.MetroidRoomClearance or
                 RoomObjectKind.MotherBrainEscapeRoomGate or
                 RoomObjectKind.DownwardGate or RoomObjectKind.DownwardGateShotBlock ||
-                EyeDoorObjects.IsEyeDoorKind(header) || DraygonCannonObjects.IsDraygonCannonKind(header))
+                EyeDoorObjectsConstants.IsEyeDoorKind(header) || DraygonCannonObjectsConstants.IsDraygonCannonKind(header))
             {
                 return true;
             }
             if (RoomObjectSystem.IsColoredDoorHeader(header) ||
-                GreyDoorObjects.TryIdentifyGreyDoor(header, out _))
+                GreyDoorObjectsConstants.TryIdentifyGreyDoor(header, out _))
                 return true;
             return CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _);
         }

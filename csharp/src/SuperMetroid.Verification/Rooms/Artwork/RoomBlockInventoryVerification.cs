@@ -8,7 +8,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;

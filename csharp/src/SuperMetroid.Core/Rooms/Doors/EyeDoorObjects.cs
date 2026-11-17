@@ -30,9 +30,6 @@ internal sealed class EyeDoorObjects
         _sounds = sounds;
     }
 
-    /// <summary>Recognizes the eye, middle, and bottom definitions for either door orientation.</summary>
-    internal static bool IsEyeDoorKind(RoomObjectKind kind) => EyeDoorPartDefinitions.Parts.ContainsKey(kind);
-
     /// <summary>
     /// Places the eye-door part the room's population placed as <paramref name="placed"/> in <paramref name="door"/>, which
     /// takes its first look on its first update, and installs its closed collision blocks unless its door has been opened

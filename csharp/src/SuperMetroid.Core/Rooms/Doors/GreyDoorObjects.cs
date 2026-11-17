@@ -88,12 +88,4 @@ internal sealed class GreyDoorObjects
         ApplyGreyDoorSetup(level, place.Block);
         place.Become(new GreyDoorObject(variant, argument.Condition, new PlacedDoor(argument.Door)));
     }
-
-    /// <summary>
-    /// Maps the four grey doors and Bomb Torizo's right-facing grey door to their facing, each by its own kind (#1414).
-    /// </summary>
-    internal static bool TryIdentifyGreyDoor(
-        RoomObjectKind kind,
-        out ColoredDoorOrientation orientation) =>
-        DoorObjectKindDefinitions.GreyDoors.TryGetValue(kind, out orientation);
 }

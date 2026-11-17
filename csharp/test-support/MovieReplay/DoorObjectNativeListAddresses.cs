@@ -90,9 +90,9 @@ internal static class DoorObjectNativeListAddresses
     /// <summary>The native closing list a coloured or grey cap's header names, or null for a header that is not one.</summary>
     internal static ushort? TypedClosingEntry(RoomObjectKind header)
     {
-        if (DoorObjects.TryIdentifyColoredDoor(header, out ColoredDoorColor color, out ColoredDoorOrientation coloredOrientation))
+        if (DoorObjectsConstants.TryIdentifyColoredDoor(header, out ColoredDoorColor color, out ColoredDoorOrientation coloredOrientation))
             return Colored(color, coloredOrientation).Closing;
-        if (GreyDoorObjects.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
+        if (GreyDoorObjectsConstants.TryIdentifyGreyDoor(header, out ColoredDoorOrientation greyOrientation))
             return Grey(new GreyDoorVariant(greyOrientation, header == RoomObjectKind.BombTorizoGreyDoor)).Closing;
         return null;
     }

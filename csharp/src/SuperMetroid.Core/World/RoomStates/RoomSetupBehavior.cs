@@ -2,7 +2,6 @@ using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
@@ -117,16 +116,6 @@ public abstract class RoomSetupBehavior
     /// blocks so, and nothing the simulation does tells this setup from <see cref="SpawnCeresHaze"/> (#1791).
     /// </summary>
     public static RoomSetupBehavior SpawnCeresRidleyArenaHaze { get; } = new CeresHazeSetup(nameof(SpawnCeresRidleyArenaHaze));
-
-    /// <summary>Every room-setup behaviour the room states author, <see cref="None"/> first.</summary>
-    public static IReadOnlyList<RoomSetupBehavior> All { get; } =
-    [
-        None, OpenRescuedAnimalsPassageAndQuake, AutoDestroyWallDuringEscape, TurnWallIntoShotBlocksDuringEscape,
-        LandSkyWithLandingSiteQuake, ScrollingSkyLand, ScrollingSkyOcean, RunStatueUnlockingAnimations,
-        HoldPrePhantoonProjectilePlace, SpawnShaktoolController, SetCollectedMap,
-        SetZebesTimebombEventAndLightHorizontalShaking, SetLightHorizontalRoomShaking, SetMediumHorizontalRoomShaking,
-        MediumHorizontalShakingWithRisingAcid, SealCeresDoorAndSpawnHaze, SpawnCeresHaze, SpawnCeresRidleyArenaHaze,
-    ];
 
     /// <summary>The setup that does nothing.</summary>
     private sealed class NoRoomSetup() : RoomSetupBehavior(nameof(None));

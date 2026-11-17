@@ -54,7 +54,7 @@ internal static class RoomCallbackDefinitionsVerification
             "callback audit reaches every compiled retail room state");
         AssertTrue(mainCallbacks.SetEquals(RoomMainBehavior.All),
             "every typed room-main callback occurs in the retail state graph");
-        AssertTrue(setupCallbacks.SetEquals(RoomSetupBehavior.All),
+        AssertTrue(setupCallbacks.SetEquals(RoomSetupBehaviorConstants.All),
             "every typed room-setup callback occurs in the retail state graph");
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomBehaviorRoutines.ResolveMain(0xffff),

@@ -113,7 +113,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             AssertEqual(ColoredDoorPhase.Waiting, roomObjects.ColoredDoors.Single().Phase,
                 $"resident colored door {header} finishes closing and resumes its owner");
 
-            AssertTrue(DoorObjects.TryIdentifyColoredDoor(header, out ColoredDoorColor doorColor, out _),
+            AssertTrue(DoorObjectsConstants.TryIdentifyColoredDoor(header, out ColoredDoorColor doorColor, out _),
                 $"resident colored door {header} names its colour");
             SamusProjectileType accepted = SamusProjectileType.Of(doorColor switch
             {

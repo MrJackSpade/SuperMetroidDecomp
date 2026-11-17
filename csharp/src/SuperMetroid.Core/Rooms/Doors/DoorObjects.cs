@@ -137,20 +137,6 @@ internal sealed class DoorObjects
     internal void RecordDoorOpened(PlacedDoor? door) => door?.RecordOpened(_system);
 
     /// <summary>
-    /// Names the color and facing of a colored-door room object: each of the twelve coloured doors by its own kind (#1414).
-    /// </summary>
-    internal static bool TryIdentifyColoredDoor(
-        RoomObjectKind kind,
-        out ColoredDoorColor color,
-        out ColoredDoorOrientation orientation)
-    {
-        bool found = DoorObjectKindDefinitions.ColoredDoors.TryGetValue(kind, out ColoredDoorVariant variant);
-        color = variant.Color;
-        orientation = variant.Orientation;
-        return found;
-    }
-
-    /// <summary>
     /// Places the blue cap a shot opens, selected by a shootable block's blue-door behaviour, and applies its setup.
     /// </summary>
     /// <remarks>

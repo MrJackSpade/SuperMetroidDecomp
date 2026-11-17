@@ -6,8 +6,6 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Ceres;
 
 namespace SuperMetroid.Core.World;
 

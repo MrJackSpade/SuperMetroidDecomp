@@ -1,12 +1,3 @@
-using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -46,7 +37,7 @@ internal sealed class RoomObjectPopulationLoader
                 throw new InvalidDataException(
                     $"Room-object population {population.Name} placement {placementIndex} ({objectKind}) must name the Draygon wall cannon it controls exactly when it is a Draygon cannon.");
             var placed = new PlacedRoomObject(
-                objectKind, placement.Block, placement.Argument);
+placement.Block, placement.Argument);
 
             Position16<RoomBlocks> block;
             try

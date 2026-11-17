@@ -269,16 +269,16 @@ internal sealed class BeamCombos
     /// shot's first frame is installed, or with no animation, it leaves progression alone; only the overwrite of
     /// progression is kept (owner decision on #1318).
     /// </summary>
-    /// <param name="progression">The session's progression, which the copy overwrites; required when it reaches it.</param>
+    /// <param name="progression">The progression the overwrite turns on and off.</param>
     /// <param name="shot">The Spacetime shot.</param>
-    internal void RunSpaceTimeProgressionOverwrite(SharedGameState? progression, SamusProjectile shot)
+    internal void RunSpaceTimeProgressionOverwrite(SharedGameState progression, SamusProjectile shot)
     {
+        Ensure.NotNull(progression);
         Ensure.NotNull(shot);
         if (shot.Sprite is null || shot.Playback is not { } playback)
             return;
         if (_spaceTimeOverwrite.For(SamusProjectilePlayback.BeatOf(playback), shot.Place) is { } overwrite)
-            (progression ?? throw new InvalidOperationException(
-                "The Spacetime shot's progression overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
+            progression.Overwrite(overwrite);
     }
     /// <summary>Runs the Spazer combo, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,

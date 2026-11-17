@@ -65,7 +65,7 @@ public static class SamusSlopePhysics
         RoomLevelData level,
         Position16<RoomPixels> position,
         int yRadius,
-        bool horizontalSlopeCollisionEnabled = true)
+        bool horizontalSlopeCollisionEnabled)
     {
         Ensure.NotNull(level);
         int xPosition = position.X;

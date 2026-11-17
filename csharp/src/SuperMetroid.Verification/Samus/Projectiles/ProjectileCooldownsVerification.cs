@@ -63,7 +63,7 @@ internal static class ProjectileCooldownsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (chargeEquipped ? SamusBeamFlags.Charge : SamusBeamFlags.None) | SamusBeamFlags.Wave | SamusBeamFlags.Plasma };
             samus.PendingTransitionShot = new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left);
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
-            projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared);
+            projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : GameplayAction.Shoot }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
             AssertEqual(0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
             AssertEqual(15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
@@ -78,7 +78,7 @@ internal static class ProjectileCooldownsVerification
             {
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
                 shared.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, frame == 0 ? GameplayAction.Shoot : 0);
-                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0 }, new(0, 0), shared);
+                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = frame == 0 ? GameplayAction.Shoot : 0 }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
                 if (projectiles.LastFrameResult.QueuedSoundEffect is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;

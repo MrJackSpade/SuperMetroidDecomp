@@ -343,10 +343,10 @@ internal sealed class SamusFramePhases
             // bombs, then the shots (#1620). Passing the live camera position also gives the projectile deletion check
             // its exact off-screen deletion window. A Spacetime beam shot changes Samus's items and progress during this
             // pass, so the rest of this update, and a save, see the change.
-            var shotTerrain = new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects, Progression = _system };
+            var shotTerrain = new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects };
             room.Projectiles.FireFromHud(shotTerrain, samus, new ProjectileButtonInput { ControllerInput = _playerActions.Current, ControllerNewInput = _playerActions.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, room.BombProjectiles, projectileProducerEnabled: !frame.InputHandlingLocked(samus));
             _ = room.BombProjectiles.HandleBombs(new SamusTerrain { Level = _room.LevelData, RoomObjects = room.RoomObjects }, samus, overlap: BombJumpOverlapPublication.Deferred);
-            room.Projectiles.HandleShots(shotTerrain, samus, camera.PixelPosition, room.BombProjectiles);
+            room.Projectiles.HandleShots(shotTerrain, samus, camera.PixelPosition, room.BombProjectiles, _system);
 
             if (!_freeze.TimeIsFrozen)
                 room.BombProjectiles.ResolveSamusOverlap(samus, room.Projectiles.Firing.ProjectileInvincibilityTimer);

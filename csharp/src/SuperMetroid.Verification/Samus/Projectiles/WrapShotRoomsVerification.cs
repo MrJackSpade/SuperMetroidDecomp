@@ -16,6 +16,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks remote blue-door caps hit by wrapped shots in three retail rooms.</summary>
 internal static class WrapShotRoomsVerification
@@ -52,7 +53,7 @@ internal static class WrapShotRoomsVerification
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
                 runtime.BombProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
+                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles, new SharedGameState(new SharedRandom()));
                 if (firstHit < 0 && runtime.RoomObjects.PopulationPlaces.Any(place => place.Block == level.BlockAt(setup.Target) && place.Behaviour is BlueDoorCapObject { Orientation: ColoredDoorOrientation.Right, Phase: BlueDoorCapPhase.Opening }))
                     firstHit = frame;
                 runtime.RoomObjects.Step(level);

@@ -191,6 +191,11 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The flashback room's collision, which exists while the flashback runs.</summary>
     internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
+    /// <summary>The Mother Brain flashback's own progression, which its shots act on; the demo's shots never change it.</summary>
+    private SharedGameState? CurrentFlashbackProgression { get; set; }
+    /// <summary>The flashback's progression, which exists while the flashback runs.</summary>
+    private SharedGameState FlashbackProgression => CurrentFlashbackProgression ??
+        throw new InvalidOperationException("The Mother Brain flashback is not running.");
     /// <summary>
     /// What the running crossfade did on this update (#1980), or null on an update no crossfade runs: the actors the
     /// crossfade's finish ends react to it after the cinematic phase has advanced it.
@@ -614,6 +619,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // The flashback's collision room is built from its own terrain blocks, so the
         // visual room page never stands in for the collision contract.
         CurrentFlashbackLevel = CreateMotherBrainLevel();
+        CurrentFlashbackProgression = new SharedGameState(Random);
         flashbackProjectiles.Reset();
         CurrentFlashbackDemoInput = new DemoInputState();
         CurrentFlashbackDemoInput.Clear();
@@ -700,6 +706,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         FlashbackRinkas = null;
         CurrentFlashbackDemoInput = null;
         CurrentFlashbackLevel = null;
+        CurrentFlashbackProgression = null;
         flashbackProjectiles.Reset();
 
         crossfade = new IntroCrossfade(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Flashback);
@@ -871,7 +878,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // the real owner is still required for missile admission timing.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
         // A missile's firing sound joins the frontend's queues as the shot fires.
-        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles, progression: FlashbackProgression);
 
         // Both the demo and locked movement modes end by resetting the
         // movement and pose-change state, so a later missile inherits only the

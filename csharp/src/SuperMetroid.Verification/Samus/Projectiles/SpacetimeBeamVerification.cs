@@ -83,14 +83,14 @@ internal static class SpacetimeBeamVerification
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), shared, system);
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertEqual(0x9137, projectiles.Shots[0].InstructionPointer,
             "native frame-zero next animation record");
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared, system);
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         // The overwrite writes word $0880, which the dispatcher does not name, so it resumes the main game (#1523).

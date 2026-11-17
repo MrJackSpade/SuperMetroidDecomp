@@ -132,7 +132,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             ship = new GunshipState(GunshipPhase.Idle) { BaseY = place.Position.Y.Whole, EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelay };
         }
         ship.BobTimer = 1;
-        ship.BobPhase = 0;
+        ship.Bob = GunshipIdleBob.First;
         place.SetSpeciesState(ship);
         // Every placement, landed or descending after Ceres, starts the lights' glow among the room's colour effects. The
         // glow keeps this gunship (#1783): it runs until the room's colour effects are cleared and shows on these pieces.
@@ -286,28 +286,31 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         bottom.Position = bottom.Position.WithWholeY(GunshipMotionDefinitions.LandedBottomY);
         pad.Position = pad.Position.WithWholeY(GunshipMotionDefinitions.LandedPadY);
         State(top).Phase = GunshipPhase.ApplyLandingBrakes;
-        State(top).LandingBrakeStep = 0;
+        State(top).LandingBrake = GunshipLandingBrake.First;
     }
 
     /// <summary>Applies seventeen authored brake offsets, then opens the pad and aligns Samus.</summary>
     internal void BouncePostCeresGunship(RoomEnemyPlace top, SamusState samus)
     {
-        int yDelta = GunshipMotion.LandingBrakeYDelta(State(top).LandingBrakeStep);
+        GunshipLandingBrake brake = State(top).LandingBrake;
+        int yDelta = brake.YDelta;
         samus.Position += new Offset16<RoomPixels>(0, yDelta);
         foreach (RoomEnemyPlace place in Pieces(top).All)
         {
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + yDelta);
         }
 
-        State(top).LandingBrakeStep++;
-        if (State(top).LandingBrakeStep < GunshipMotionDefinitions.LandingBrakeYDeltas.Length)
+        if (brake.Next is { } next)
+        {
+            State(top).LandingBrake = next;
             return;
+        }
 
         RoomEnemyPlace pad = Pieces(top).EntrancePad;
         State(top).Phase = GunshipPhase.WaitForLandingEntranceToOpen;
         State(top).BaseY = top.Position.Y.Whole;
         State(top).BobTimer = 1;
-        State(top).BobPhase = 0;
+        State(top).Bob = GunshipIdleBob.First;
         samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
@@ -362,14 +365,14 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (--State(top).BobTimer > 0)
             return;
 
-        GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(State(top).BobPhase);
+        GunshipIdleBob bob = State(top).Bob;
         State(top).BobTimer = bob.Timer;
         int yDelta = bob.YDelta;
         foreach (RoomEnemyPlace place in Pieces(top).All)
         {
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole + yDelta);
         }
-        State(top).BobPhase = (State(top).BobPhase + 1) % GunshipMotionDefinitions.IdleBobs.Length;
+        State(top).Bob = bob.Next;
     }
 
     /// <summary>Accepts a new Down press inside the standing entrance box and opens the pad.</summary>

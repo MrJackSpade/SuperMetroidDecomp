@@ -27,8 +27,8 @@ public sealed class MorphBallEyeBeamState
     /// <summary>The widening speed, the turn the half-width grows by each update: zero when the beam appears and raised by a quarter step before each widening update adds it.</summary>
     public RotationAngle AngularHalfWidthGrowth { get; internal set; }
 
-    /// <summary>Position in the sixteen-step yellow brightness cycle, 0 through 15: the colour shown next.</summary>
-    public int ColourStep { get; internal set; }
+    /// <summary>The colour of the sixteen-colour yellow brightness cycle the full beam shows next.</summary>
+    public MorphBallEyeBeamColour NextColour { get; internal set; }
 
     /// <summary>
     /// The colour the beam adds inside its cone: red and green only, never blue; black before the beam appears and once
@@ -61,7 +61,7 @@ public sealed class MorphBallEyeBeamState
         Body = null;
         AngularHalfWidth = RotationAngle.Zero;
         AngularHalfWidthGrowth = RotationAngle.Zero;
-        ColourStep = 0;
+        NextColour = MorphBallEyeBeamColour.First;
         Color = RgbColor.Black;
     }
 

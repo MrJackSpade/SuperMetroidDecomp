@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal static class MetroidBehaviorDefinitions
 {
     /// <summary>
-    /// Four successive two-pixel cardinal displacements, right, up, left and
-    /// down, by escape countdown phase.
+    /// The two-pixel moves a Metroid a Power Bomb shakes loose makes, one an update, in the order it makes them (#2343):
+    /// right, down, left and up.
     /// </summary>
-    internal static readonly Offset16<RoomPixels>[] EscapeDisplacements = [new(2, 0), new(0, -2), new(-2, 0), new(0, 2)];
+    internal static readonly Offset16<RoomPixels>[] EscapeMoves = [new(2, 0), new(0, 2), new(-2, 0), new(0, -2)];
 
     /// <summary>
     /// The cry a chasing Metroid plays for each of the eight outcomes of <see cref="CrySlot"/>, in outcome order: the

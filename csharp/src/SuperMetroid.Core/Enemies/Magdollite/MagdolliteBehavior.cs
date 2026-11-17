@@ -54,11 +54,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Updates left before the room's lava glow steps to its next frame.</summary>
     internal int GlowStepCountdown { get; private set; }
-    /// <summary>
-    /// The frame of the room's lava glow every Magdollite shows, 0 through <see cref="MagdolliteShades.GlowFrames"/>
-    /// minus one; each step advances it around the cycle.
-    /// </summary>
-    internal int GlowFrame { get; private set; }
+    /// <summary>The frame of the room's lava glow every Magdollite shows; each step advances it around the cycle.</summary>
+    internal MagdolliteGlow GlowFrame { get; private set; }
     /// <summary>Whether a Magdollite has started the room's lava glow; until one has, the glow does not step.</summary>
     private bool _glowStarted;
 
@@ -107,7 +104,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _glowStarted = true;
         GlowStepCountdown = MagdolliteMotionDefinitions.GlowFrameDuration;
-        GlowFrame = 0;
+        GlowFrame = MagdolliteGlow.First;
         ShowGlow();
     }
 
@@ -301,7 +298,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Action = MagdolliteBodyAction.Rising;
         state.RiseDisplacementY = 0;
-        state.BodyPhase = MagdolliteRiseStage.FirstPillar;
+        state.BodyPhase = MagdolliteRiseStage.OneSegment;
         body.Position = body.Position.WithWholeY(state.OriginY);
     }
 
@@ -495,7 +492,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         GlowStepCountdown = MagdolliteMotionDefinitions.GlowFrameDuration;
-        GlowFrame = (GlowFrame + 1) % MagdolliteShades.GlowFrames;
+        GlowFrame = GlowFrame.Next;
         ShowGlow();
     }
 

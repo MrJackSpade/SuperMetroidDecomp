@@ -143,10 +143,12 @@ internal static class NativeEnemyFamilyStateImport
             // landing-brake step in the top hull's variables A through E.
             gunshipRecord.PhaseTimer = unchecked((short)words.A);
             gunshipRecord.EngineReadyingElapsed = words.B;
-            gunshipRecord.BobPhase = words.C;
+            gunshipRecord.Bob = GunshipIdleBob.All[words.C];
             gunshipRecord.BobTimer = unchecked((short)words.D);
             gunshipRecord.BaseY = words.E;
-            gunshipRecord.LandingBrakeStep = words.E;
+            // E holds the next landing brake only while the ship brakes; otherwise it holds the base Y.
+            if (words.E < GunshipLandingBrake.All.Count)
+                gunshipRecord.LandingBrake = GunshipLandingBrake.All[words.E];
         }
         if (enemy.DefinitionId == EnemyDefinitionId.ShipBottomEntrance && index > 0 &&
             enemies.Places.InUpdateOrder[index - 1].SpeciesState<GunshipState>() is { } bottomOfShip)

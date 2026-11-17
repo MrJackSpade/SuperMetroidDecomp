@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The gunship's state, one for the whole ship, which its top hull keeps and runs: its phase, landing, bob and engine
-/// timers, and its takeoff. Each count is bounded where it is read: the brake and bob schedules reject a step past their
-/// entries, and the engine readying rejects one past its duration.
+/// The gunship's state, one for the whole ship, which its top hull keeps and runs: its phase, landing brakes, bob and
+/// engine timers, and its takeoff. The engine readying rejects a count past its duration.
 /// </summary>
 internal sealed class GunshipState
 {
@@ -19,8 +18,8 @@ internal sealed class GunshipState
     /// </summary>
     public int EngineReadyingElapsed { get; internal set; }
 
-    /// <summary>The ship's next idle-bob entry, 0 through 3.</summary>
-    public int BobPhase { get; internal set; }
+    /// <summary>The ship's next idle-bob step.</summary>
+    public GunshipIdleBob Bob { get; internal set; }
 
     /// <summary>The ship's updates until its next idle-bob step.</summary>
     public int BobTimer { get; internal set; }
@@ -31,8 +30,8 @@ internal sealed class GunshipState
     /// <summary>The ship's landed room Y, its top hull's, from which Samus's entry and exit heights are measured.</summary>
     public int BaseY { get; internal set; }
 
-    /// <summary>The ship's next landing-brake entry, counting through the seventeen authored offsets.</summary>
-    public int LandingBrakeStep { get; internal set; }
+    /// <summary>The ship's next landing brake.</summary>
+    public GunshipLandingBrake LandingBrake { get; internal set; }
 
     /// <summary>
     /// The ship's engine-rumble frame, counting the <see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/>

@@ -67,7 +67,7 @@ internal static class MagdolliteApexThresholdVerification
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[1];
             var state = enemies.MagdolliteStates[1] as MagdolliteBodyState ?? throw new InvalidOperationException("Magdollite arm has no state.");
             state.Action = MagdolliteBodyAction.Rising;
-            state.BodyPhase = MagdolliteRiseStage.FirstPillar;
+            state.BodyPhase = MagdolliteRiseStage.OneSegment;
             state.RiseDisplacementY = 0;
             body.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
 
@@ -77,7 +77,7 @@ internal static class MagdolliteApexThresholdVerification
             rise(body, state, RoomEnemyFrameFixtures.StandaloneSamus());
             AssertEqual(new FixedCoordinate(669, 0), body.Position.Y, "Magdollite arm's second rise carries the half pixel");
             AssertEqual(-3, state.RiseDisplacementY, "Magdollite arm's rise displacement counts whole-pixel moves");
-            AssertEqual(MagdolliteRiseStage.FirstPillar, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
+            AssertEqual(MagdolliteRiseStage.OneSegment, state.BodyPhase, "Magdollite arm stays in its first phase below sixteen pixels");
         }
 
         static void VerifyApex(int headSlot, bool grows)

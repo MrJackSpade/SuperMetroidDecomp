@@ -333,6 +333,8 @@ public static class GameAssetInstaller
             Step("Extracting enemy overreads...", (bus, d) => EnemyOverreadFiles.Extract(bus, d))),
         new(GameInstallationLayout.BossAndIntroOverreadDirectoryName,
             Step("Extracting boss and intro overread reads...", (bus, d) => BossAndIntroOverreadFiles.Extract(bus, d))),
+        new(GameInstallationLayout.RoomScrollOverreadDirectoryName,
+            Step("Extracting room scroll overread cells...", (bus, d) => RoomScrollOverreadFiles.Extract(bus, d))),
         new(GameInstallationLayout.StraddledTerrainDirectoryName, InstallerComponentKind.Standalone,
             Step("Decoding straddled terrain...", (_, d) => StraddledTerrainFiles.Extract(d))),
         new(GameInstallationLayout.StandardObjectDirectoryName,

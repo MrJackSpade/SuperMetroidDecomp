@@ -103,12 +103,12 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public int InTwoFiftySixths => RawValue >> NearReadingShift;
 
     /// <summary>
-    /// The displacement scaled by <paramref name="twoFiftySixths"/>/256, as grounded slope movement scales Samus's
-    /// horizontal travel: the displacement is first counted in 256ths of a pixel (<see cref="InTwoFiftySixths"/>), then
-    /// multiplied. The product must fit the type; a displacement whose scaled amount does not fails loudly.
+    /// The displacement scaled by <paramref name="share"/>, as grounded slope movement scales Samus's horizontal travel:
+    /// the displacement is first counted in 256ths of a pixel (<see cref="InTwoFiftySixths"/>), then multiplied by the
+    /// share's 256ths. The product must fit the type; a displacement whose scaled amount does not fails loudly.
     /// </summary>
     /// <exception cref="OverflowException">The scaled displacement lies outside the type's range.</exception>
-    public SignedSixteenSixteen ScaledByTwoFiftySixths(int twoFiftySixths) => new(checked(InTwoFiftySixths * twoFiftySixths));
+    public SignedSixteenSixteen ScaledBy(SpeedShare share) => new(checked(InTwoFiftySixths * share.TwoHundredFiftySixths));
 
     /// <summary>
     /// The displacement limited to <paramref name="limit"/> counted in 256ths of a pixel, as a quicksand surface limits a

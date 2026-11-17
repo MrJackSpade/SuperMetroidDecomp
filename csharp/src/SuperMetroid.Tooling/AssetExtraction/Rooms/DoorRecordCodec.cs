@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -45,6 +46,6 @@ internal static class DoorRecordCodec
     internal static DoorSamusSpeed DecodeSamusSpeed(ushort word) => unchecked((short)word) switch
     {
         < 0 => DoorSamusSpeed.AxisDefault,
-        short speed => DoorSamusSpeed.SubpixelsPerStep(speed),
+        short speed => DoorSamusSpeed.PerStep(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed)),
     };
 }

@@ -80,6 +80,8 @@ internal sealed class RoomLoader
     private readonly GameplayAudioRequests _audioRequests;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system built here.</summary>
     private readonly SamusOverreadServices _samusOverreads;
+    /// <summary>The installed cells each explicit scroll layout's load writes past the room's screens.</summary>
+    private readonly ScrollCellsPastRoomScreens<RoomScrollState> _scrollCellsPastRoomScreens;
     /// <summary>
     /// The session's unauthored Speed Booster cadence, handed to every Samus built here and to every room's enemies, whose
     /// Ceres Ridley getaway leaves its delays behind.
@@ -131,6 +133,7 @@ internal sealed class RoomLoader
         _beamCharge = dependencies.BeamCharge;
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
+        _scrollCellsPastRoomScreens = Ensure.NotNull(dependencies.ScrollCellsPastRoomScreens);
         _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
         _cameraFractions = Ensure.NotNull(dependencies.CameraFractions);
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
@@ -1174,7 +1177,7 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets);
+        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets, _scrollCellsPastRoomScreens);
 
 
     /// <summary>

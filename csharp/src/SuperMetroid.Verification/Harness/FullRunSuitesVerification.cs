@@ -429,6 +429,7 @@ using static SuperMetroid.Verification.Areas.Tourian.EscapeAcidRiseVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianFirstRoomMapVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueDescentRoundingVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueXrayFreezeVerification;
+using static SuperMetroid.Verification.Areas.Tourian.TourianStatueSceneLookVerification;
 using static SuperMetroid.Verification.Fx.TreadmillPhysicsVerification;
 using static SuperMetroid.Verification.Hardware.TypedWordsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseElevatorFlagsVerification;
@@ -1124,6 +1125,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
         new(nameof(VerifyMessageBoxPauses), () => VerifyMessageBoxPauses()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),
+        new(nameof(VerifyTourianStatueSceneLook), () => VerifyTourianStatueSceneLook()),
         new(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles()),
         new(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding()),
         new(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops()),

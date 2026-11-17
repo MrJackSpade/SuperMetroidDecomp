@@ -42,7 +42,7 @@ internal static class LookupRetailDoorHeadersVerification
         AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(384), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Down), "vertical axis default push");
         AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(200), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Left), "horizontal axis default push");
         AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(200), DoorSamusSpeed.AxisDefault.Step(DoorDirection.Right), "horizontal axis default push");
-        AssertEqual(DoorSamusSpeed.SubpixelsPerStep(0x01c0), DoorRecordCodec.DecodeSamusSpeed(0x01c0), "a door's own distance word");
+        AssertEqual(DoorSamusSpeed.PixelsPerStep(1, 3, 4), DoorRecordCodec.DecodeSamusSpeed(0x01c0), "a door's own distance word");
         AssertEqual(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x01c0), DoorRecordCodec.DecodeSamusSpeed(0x01c0).Step(DoorDirection.Up), "a door's own push ignores the axis");
         AssertEqual(DoorSamusSpeed.None, DoorRecordCodec.DecodeSamusSpeed(0), "a zero distance word is no push");
         AssertEqual(SignedEightEight.Zero, DoorSamusSpeed.None.Step(DoorDirection.Left), "no push");

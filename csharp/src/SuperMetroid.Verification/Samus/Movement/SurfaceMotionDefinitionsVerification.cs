@@ -16,7 +16,7 @@ internal static class SurfaceMotionDefinitionsVerification
         {
             ushort multiplier = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e931 + shape * 4));
             SlopeShape slope = RoomBlockBehaviorCodec.SlopeShapeOf(shape);
-            AssertEqual(multiplier, slope.CrawlerTangentFactor, "Crawler native slope multiplier");
+            AssertEqual(multiplier, slope.CrawlerTangentShare.TwoHundredFiftySixths, "Crawler native slope multiplier");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 int speed = unchecked((short)raw);

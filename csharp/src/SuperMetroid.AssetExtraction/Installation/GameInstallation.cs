@@ -85,6 +85,11 @@ public sealed record GameInstallation(string Root)
     public string BossAndIntroOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.BossAndIntroOverreadDirectoryName);
     /// <summary>Loads the validated compatibility services reproducing Kraid's, Crocomire's and the intro egg shell's reads past their data.</summary>
     public SuperMetroid.Core.Compatibility.BossAndIntroOverreadServices LoadBossAndIntroOverreads() => BossAndIntroOverreadFiles.Load(BossAndIntroOverreadDirectory);
+    /// <summary>Stock decoded cells each explicit scroll layout's load writes past the room's screens, which are not presentation the player edits.</summary>
+    public string RoomScrollOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomScrollOverreadDirectoryName);
+    /// <summary>Loads the validated compatibility service reproducing what each explicit scroll layout's load writes past the room's screens.</summary>
+    public SuperMetroid.Core.Compatibility.ScrollCellsPastRoomScreens<SuperMetroid.Core.Rooms.Scrolling.RoomScrollState> LoadScrollCellsPastRoomScreens() =>
+        RoomScrollOverreadFiles.Load(RoomScrollOverreadDirectory);
     /// <summary>Installed sprite sheet manifests, which name where the picture store holds each frame's picture.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Loads every installed sprite sheet.</summary>
@@ -355,6 +360,7 @@ public sealed record GameInstallation(string Root)
             SamusOverreads = LoadSamusOverreads(),
             EnemyOverreads = LoadEnemyOverreads(),
             BossAndIntroOverreads = LoadBossAndIntroOverreads(),
+            ScrollCellsPastRoomScreens = LoadScrollCellsPastRoomScreens(),
             SpriteSheets = LoadSpriteSheets(),
             EnemySheets = LoadEnemySheets(),
             EnemyFrameDisplays = enemies.FrameDisplays,

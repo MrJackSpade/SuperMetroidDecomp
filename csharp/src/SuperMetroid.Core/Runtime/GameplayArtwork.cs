@@ -8,6 +8,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -56,6 +57,12 @@ internal sealed record GameplayArtwork
     /// egg shell read past their data, decoded from the player's game data.
     /// </summary>
     public required BossAndIntroOverreadServices BossAndIntroOverreads { get; init; }
+
+    /// <summary>
+    /// The compatibility service reproducing what each explicit scroll layout's load writes past the room's screens,
+    /// decoded from the player's game data (#2356).
+    /// </summary>
+    public required ScrollCellsPastRoomScreens<RoomScrollState> ScrollCellsPastRoomScreens { get; init; }
 
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     public required InstalledSpriteSheets SpriteSheets { get; init; }

@@ -222,14 +222,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
         }
     }
 
-    /// <summary>
-    /// Whether Samus is away from the door: distant from it along either axis, each distance measured the short way across
-    /// the coordinate's wrap.
-    /// </summary>
+    /// <summary>Whether Samus is away from the door: distant from it along either axis.</summary>
+    /// <remarks>Ceres's rooms are a few screens across, so Samus and a door are never more than a room apart.</remarks>
     private static bool IsSamusAway(RoomEnemyPlace place, SamusState samus)
     {
-        int xDistance = CoordinateAxis.Distance(place.Position.X.Whole, samus.Position.X.Whole);
-        int yDistance = CoordinateAxis.Distance(place.Position.Y.Whole, samus.Position.Y.Whole);
+        int xDistance = Math.Abs(place.Position.X.Whole - samus.Position.X.Whole);
+        int yDistance = Math.Abs(place.Position.Y.Whole - samus.Position.Y.Whole);
         return xDistance >= CeresDoorApproachDefinitions.DistantPixels || yDistance >= CeresDoorApproachDefinitions.DistantPixels;
     }
 }

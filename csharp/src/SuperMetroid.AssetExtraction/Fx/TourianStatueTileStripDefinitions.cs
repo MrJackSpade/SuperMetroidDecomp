@@ -4,9 +4,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The shared strip of characters the four Tourian statues' pictures are cut from (#1395): each statue's three
-/// oscillation pictures and its released picture are windows of the one strip the room-FX atlas packs (#1415: by
-/// character position). Only the import pictures the statues' frames from it.
+/// The shared strip of characters the four Tourian statues' pictures are cut from (#1395): each statue's three eye
+/// pictures, bright, dim and dark, and its released picture are windows of the one strip the room-FX atlas packs
+/// (#1415: by character position). Only the import pictures the statues' frames from it.
 /// </summary>
 internal static class TourianStatueTileStripDefinitions
 {
@@ -14,7 +14,7 @@ internal static class TourianStatueTileStripDefinitions
     internal const int CharacterByteCount = 16;
 
     /// <summary>
-    /// Each statue's windows of the strip: the animated-tile object that copies them, its first oscillation picture's
+    /// Each statue's windows of the strip: the animated-tile object that copies them, its bright-eyed picture's
     /// first character, its pictures' width in characters and its released picture's first character
     /// (<see cref="RoomFxBlockAnimationPictures"/>).
     /// </summary>

@@ -211,7 +211,7 @@ internal static void VerifyDoorOpeningTrajectories()
             Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
             RoomObjectBlock: new(0, 0),
             DestinationScreen: new(3, 2),
-            SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
+            SamusSpeed: DoorSamusSpeed.PixelsPerStep(1),
             Setup: DoorSetupDefinitions.None);
         ushort finalCameraY = direction == 3
             ? (ushort)(destinationY + 0x20)

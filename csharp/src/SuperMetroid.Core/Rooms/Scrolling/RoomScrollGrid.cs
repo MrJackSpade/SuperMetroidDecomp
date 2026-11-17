@@ -44,21 +44,33 @@ public sealed class RoomScrollGrid
     public static ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> KeepCellsAcrossRooms(StoredExploredMaps<AreaId> storedExploredMaps) =>
         new(KeptCellCount, RoomScrollState.Closed, storedExploredMaps, RoomScrollState.OpenAlignedToTop, RoomScrollState.Open);
 
-    /// <summary>Loads the scroll data <paramref name="scroll"/> selects into <paramref name="cells"/>, as the room loader does.</summary>
-    /// <exception cref="ArgumentException">An explicit table does not hold one state for every kept cell.</exception>
+    /// <summary>
+    /// Loads the scroll data <paramref name="scroll"/> selects into <paramref name="cells"/>, as the room loader does: an
+    /// explicit table's screens, followed by the cells its load writes past them (<paramref name="pastScreens"/>).
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// An explicit layout does not hold one state for each of the room's screens, or its screens and the cells past them
+    /// do not fill every kept cell.
+    /// </exception>
     public static RoomScrollGrid FromDefinition(
         ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
         RoomScrollDefinition scroll,
-        Extent16<RoomScreens> size)
+        Extent16<RoomScreens> size,
+        ScrollCellsPastRoomScreens<RoomScrollState> pastScreens)
     {
         Ensure.NotNull(scroll);
+        Ensure.NotNull(pastScreens);
         if (scroll.ImplicitBottomRow is { } bottomRow)
             return CreateImplicit(cells, size, bottomRow);
 
-        foreach (RoomScrollState state in scroll.Cells)
-            Validate(state, nameof(scroll));
         var grid = new RoomScrollGrid(cells, size);
-        cells.LoadAll(scroll.Cells);
+        if (scroll.Cells.Count != grid.LogicalCellCount)
+            throw new ArgumentException(
+                $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.LogicalCellCount}.", nameof(scroll));
+        RoomScrollState[] loaded = [.. scroll.Cells, .. pastScreens.After(scroll.Name)];
+        foreach (RoomScrollState state in loaded)
+            Validate(state, nameof(scroll));
+        cells.LoadAll(loaded);
         return grid;
     }
 

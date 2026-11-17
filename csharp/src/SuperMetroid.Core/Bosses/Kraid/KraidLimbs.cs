@@ -61,14 +61,6 @@ internal sealed class KraidLimbs
     }
 
     /// <summary>
-    /// Whether the arm swings normally (#1886): it plays its normal swing or that swing's pause, the animations from which it
-    /// slows once Kraid is below half health. An arm already slow, rising or sinking, dying or preparing a lunge keeps its
-    /// animation.
-    /// </summary>
-    private static bool ArmSwingsNormally(KraidEnemyState state) =>
-        state.ArmState.Playback.PlayingSegment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
-
-    /// <summary>
     /// Whether the arm has yet to reach its pause (#1886): it plays its normal swing and has not shown the swing's last
     /// frame. While that last frame shows, the arm already counts as paused, as it does through the pause and any later
     /// animation.
@@ -97,9 +89,7 @@ internal sealed class KraidLimbs
             return;
         AnimationPlayback<KraidPartSegment> playback = partState.Playback;
         EnemyAnimationPlayback.Play(part, KraidAnimations.Segments, ref playback, partState.Show,
-            cue => ApplyKraidPartCue(partState.Kraid, cue) is { } started
-                ? new AnimationContinuation<KraidPartSegment>(KraidAnimations.StartingWith(started), AnimationPlace.StartOfAnimation)
-                : null);
+            cue => ApplyKraidPartCue(partState.Kraid, cue) is { } started ? partState.ContinueWith(started) : null);
         partState.Playback = playback;
     }
 
@@ -174,7 +164,7 @@ internal sealed class KraidLimbs
     /// already the slow one or a later animation.
     /// </summary>
     private KraidPartSegment? SelectKraidArmSpeedAnimation(KraidEnemyState state) =>
-        _parts.Body.Health < state.HalfHealth && ArmSwingsNormally(state)
+        _parts.Body.Health < state.HalfHealth && state.ArmState.SwingsNormally
             ? KraidPartSegment.ArmSlow
             : null;
 

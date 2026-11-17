@@ -20,6 +20,10 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// <inheritdoc/>
     public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);
 
+    /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
+    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+        MotherBrainCombat.FindMotherBrainBodyHitboxReaction(Place, probe, out reaction);
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMotherBrainBodyMain(Place, Encounter, frame.Samus, frame.SharedProjectiles);
 

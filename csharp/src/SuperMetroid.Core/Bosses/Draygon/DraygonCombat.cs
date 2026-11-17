@@ -25,11 +25,6 @@ internal sealed class DraygonCombat
         _grab = grab;
     }
 
-    /// <summary>Recognizes the four enemy definitions that form one Draygon encounter.</summary>
-    internal static bool IsDraygonDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or
-        EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms;
-
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
     internal EnemyBombReaction DraygonBombReaction => field ??= new()
     {
@@ -188,12 +183,13 @@ internal sealed class DraygonCombat
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
     };
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Draygon's parts,
+    /// which its own entity asks for (#2301).
+    /// </summary>
+    internal static bool FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!DraygonCombat.IsDraygonDefinition(enemy.DefinitionId))
-            return null;
 
         // Both sprite and body-layer art are replaceable presentation. Their
         // component offsets and hitboxes remain fixed gameplay data.

@@ -12,6 +12,9 @@ internal sealed class GoldenTorizoEntity(TorizoBehavior species, RoomEnemyPlace 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunGoldenTorizoMainAi(Place, frame);
 
+    /// <summary>He is Norfair's Golden Torizo.</summary>
+    protected override bool IsGolden => true;
+
     /// <summary>Golden Torizo's own shot reaction, which its definition leaves to it.</summary>
     public override EnemyReaction? SpeciesShot => TorizoReactions.GoldenShot;
 

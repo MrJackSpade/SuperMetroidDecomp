@@ -155,7 +155,7 @@ internal static class KraidAnimationsVerification
     {
         (_, KraidEnemyState state, RoomEnemyPlace body, RoomEnemyPlace arm) = NewKraid();
         body.Health = 104;
-        state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
+        state.ArmState.SetAnimation(KraidPartSegment.ArmNormalPause);
         arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
@@ -163,7 +163,7 @@ internal static class KraidAnimationsVerification
         AssertEqual(KraidPartSegment.ArmNormal, PlayingSegment(state.ArmState.Playback), "a healthy arm loops its normal swing");
 
         body.Health = 51;
-        state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
+        state.ArmState.SetAnimation(KraidPartSegment.ArmNormalPause);
         arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
@@ -205,7 +205,7 @@ internal static class KraidAnimationsVerification
                 throw new InvalidOperationException($"Verification failed: the held neutral foot changed at update {update}.");
         }
 
-        state.ArmState.Playback = Started(KraidPartSegment.ArmDyingOrPreparingToLunge);
+        state.ArmState.SetAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         for (int beat = 0; beat < 3; beat++)
             Pass(arm, forceExpiry: true);
         ushort outstretched = KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidArmOutstretched));

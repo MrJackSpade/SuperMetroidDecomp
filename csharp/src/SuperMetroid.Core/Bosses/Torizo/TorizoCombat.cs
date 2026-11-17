@@ -257,12 +257,10 @@ internal sealed class TorizoCombat
         return false;
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>The reaction of the first hitbox the probe overlaps on a Torizo's frame, which his own entity asks for (#2301).</summary>
+    internal static bool FindTorizoHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (enemy.DefinitionId is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
-            return null;
 
         // The body's rectangles lie about Torizo's origin; the probe compares coordinates by their difference, so a
         // rectangle edge computed past either end of the room compares as the wrapped coordinate would.

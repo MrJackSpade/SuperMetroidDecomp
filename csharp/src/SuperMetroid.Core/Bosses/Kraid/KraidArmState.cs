@@ -14,4 +14,15 @@ public sealed class KraidArmState : KraidAnimatedPartState
         : base(kraid, reference, KraidPartSegment.ArmRisingOrSinking)
     {
     }
+
+    /// <summary>
+    /// Whether the arm swings normally (#1886, #2301): its normal swing or that swing's pause started, the animations from
+    /// which it slows once Kraid is below half health. An arm rising or sinking, already slow, dying or preparing a lunge
+    /// does not; the arm starts rising.
+    /// </summary>
+    internal bool SwingsNormally { get; private set; }
+
+    /// <inheritdoc/>
+    private protected override void Started(KraidPartSegment segment) =>
+        SwingsNormally = segment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
 }

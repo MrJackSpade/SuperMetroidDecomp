@@ -23,7 +23,26 @@ public abstract class KraidAnimatedPartState : KraidPartState
         new(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>Installs the animation beginning at <paramref name="segment"/>, from its start; the part's timer is set separately.</summary>
-    internal void SetAnimation(KraidPartSegment segment) => Playback = Starting(segment);
+    internal void SetAnimation(KraidPartSegment segment)
+    {
+        Playback = Starting(segment);
+        Started(segment);
+    }
+
+    /// <summary>
+    /// The animation beginning at <paramref name="segment"/> that one of the part's cues continues its play with, which the
+    /// part notes as it starts (#2301).
+    /// </summary>
+    internal AnimationContinuation<KraidPartSegment> ContinueWith(KraidPartSegment segment)
+    {
+        Started(segment);
+        return new(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
+    }
+
+    /// <summary>Notes the animation beginning at <paramref name="segment"/> as it starts, for a part that keeps state by it (#2301).</summary>
+    private protected virtual void Started(KraidPartSegment segment)
+    {
+    }
 
     /// <summary>Installs the animation beginning at <paramref name="segment"/> and runs its first step on the next update.</summary>
     internal void StartAnimation(KraidPartSegment segment)

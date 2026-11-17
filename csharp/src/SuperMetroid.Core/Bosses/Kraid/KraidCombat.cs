@@ -33,44 +33,51 @@ internal sealed class KraidCombat
         _collision = collision;
     }
 
-    /// <summary>Runs the arm's or foot's reaction to a bomb its hitboxes select, before the check for an ignoring reaction.</summary>
-    internal void ReactToArmOrFootBomb(EnemyBombContext c)
+    /// <summary>Runs the arm's reaction to a bomb its hitboxes select, before the check for an ignoring reaction.</summary>
+    internal void ReactToArmBomb(EnemyBombContext c)
     {
-        if ((c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot) ||
-            c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-                c.SelectedShot != EnemyReaction.Ignore)
-        {
-            throw new InvalidDataException(
-                $"Kraid part {c.Enemy.DefinitionId} selected " +
-                $"normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
-        }
+        if (c.SelectedShot != EnemyReaction.Ignore && c.SelectedShot != KraidReactions.ArmShot)
+            throw new InvalidDataException($"Kraid's arm selected normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
 
         // The arm's shot reaction raises dust where the shot struck; the hit's direction is already recorded.
-        // Protected arm frames and every foot rectangle ignore the shot.
+        // Protected arm frames ignore the shot.
         if (c.SelectedShot == KraidReactions.ArmShot)
             SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
     }
 
-    /// <summary>The arm's and foot's shot reaction, which their hitboxes decide behind their definitions' ignoring one.</summary>
-    internal EnemyShotReaction ArmAndFootShotReaction => field ??= new()
+    /// <summary>Runs the foot's reaction to a bomb its hitboxes select: every foot rectangle ignores it.</summary>
+    internal static void ReactToFootBomb(EnemyBombContext c)
     {
-        // Kraid's arm and foot are admitted by their species definitions' ignoring shot reaction, which still lets their hitboxes
-        // decide; their authored hitboxes select the arm's private reaction.
+        if (c.SelectedShot != EnemyReaction.Ignore)
+            throw new InvalidDataException($"Kraid's foot selected normal-bomb shot AI {c.SelectedShot?.ToString() ?? "(unnamed)"}.");
+    }
+
+    /// <summary>The arm's shot reaction, which its hitboxes decide behind its definition's ignoring one.</summary>
+    internal EnemyShotReaction ArmShotReaction => field ??= new()
+    {
+        // Kraid's arm is admitted by its definition's ignoring shot reaction, which still lets its hitboxes decide; its
+        // authored hitboxes select the arm's private reaction.
         AfterSuperMissileQuake = (in EnemyShotContext c) =>
         {
-            if (!c.UsesFrameHitboxes ||
-                (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot) ||
-                c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-                    c.HitboxShot != EnemyReaction.Ignore)
-            {
-                throw new InvalidDataException(
-                    $"Kraid part {c.Enemy.DefinitionId} selected " +
-                    $"shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
-            }
+            if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
+                throw new InvalidDataException($"Kraid's arm selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
             c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
                 SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
+            return true;
+        },
+    };
+
+    /// <summary>The foot's shot reaction, which its hitboxes decide behind its definition's ignoring one: every rectangle ignores the shot.</summary>
+    internal static EnemyShotReaction FootShotReaction { get; } = new()
+    {
+        AfterSuperMissileQuake = (in EnemyShotContext c) =>
+        {
+            if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
+                throw new InvalidDataException($"Kraid's foot selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
+
+            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
         },
     };
@@ -293,12 +300,14 @@ internal sealed class KraidCombat
             _collision.ResolveNormalEnemyTouch(body, samus, pseudoScrew);
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidFootHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on his foot's pose, or null when the pose has none; the foot's
+    /// own entity asks with its own pose (#2301).
+    /// </summary>
+    internal static bool? FindKraidFootHitboxReaction(RoomEnemyPlace enemy, KraidPartPose? pose, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-            KraidFootCollision.TryGetComponents(enemy.SpeciesState<KraidPartState>()?.Pose, out var footComponents)))
+        if (!KraidFootCollision.TryGetComponents(pose, out var footComponents))
             return null;
 
         // Kraid's foot art is replaceable, but each pose still places two physical components against one shared hitbox
@@ -321,12 +330,14 @@ internal sealed class KraidCombat
         return false;
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on his arm's frame, or null when the frame has none; the arm's
+    /// own entity asks (#2301).
+    /// </summary>
     internal static bool? FindKraidArmHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(enemy.DefinitionId == EnemyDefinitionId.KraidArm &&
-            KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents)))
+        if (!KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents))
             return null;
 
         // Kraid's arm art is editable, but the frame

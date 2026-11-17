@@ -37,9 +37,8 @@ internal sealed class TorizoMovement
     /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
     /// chooses his values.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemyPlace torizo, SamusState samus, GameplayAction controllerInput)
+    internal void InitializeTorizo(RoomEnemyPlace torizo, bool isGolden, SamusState samus, GameplayAction controllerInput)
     {
-        bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(isGolden)
         {
             // Every Torizo population entry starts it standing, with no behaviour latch set.
@@ -237,8 +236,8 @@ internal sealed class TorizoMovement
     }
 
     /// <summary>Runs either Torizo's initialization AI.</summary>
-    internal void RunTorizoInitializationAi(RoomEnemyPlace place, EnemySpawnSurroundings surroundings)
+    internal void RunTorizoInitializationAi(RoomEnemyPlace place, bool isGolden, EnemySpawnSurroundings surroundings)
     {
-        InitializeTorizo(place, surroundings.IntroducedSamus, surroundings.ControllerInput);
+        InitializeTorizo(place, isGolden, surroundings.IntroducedSamus, surroundings.ControllerInput);
     }
 }

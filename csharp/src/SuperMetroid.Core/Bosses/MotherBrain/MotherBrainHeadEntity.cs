@@ -14,6 +14,10 @@ internal sealed class MotherBrainHeadEntity(MotherBrainBehavior species, RoomEne
     /// <inheritdoc/>
     public override void Initialize() => Species.Head.InitializeMotherBrainHead(Place);
 
+    /// <summary>The head's hitbox: her brain's rectangle, which it owns (#2220).</summary>
+    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+        MotherBrainCombat.FindMotherBrainHeadHitboxReaction(Place, probe, out reaction);
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => MotherBrainHead.RunMotherBrainHeadMain(Place, Encounter, frame.Samus);
 

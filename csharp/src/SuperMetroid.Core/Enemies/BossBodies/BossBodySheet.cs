@@ -37,7 +37,7 @@ public sealed class BossBodySheet
 
     /// <summary>The frame enemy frame <paramref name="frame"/> shows.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
-    public BossBodyFrame Frame(EnemyFrameId frame) => Frame(BossBodyFrameNames.Of(frame));
+    public BossBodyFrame Frame(EnemyFrameId frame) => Frame(EnemyFrameSheetKeys.Of(frame));
 
     /// <summary>The frame named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>

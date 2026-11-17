@@ -39,20 +39,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
             // The collision stores exactly one, rather than combining it with an old
             // hurt or frozen state. The next enemy pass therefore runs grapple AI.
             enemy.AiStates = EnemyAiStates.Grappled;
-            GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse switch
-            {
-                EnemyGrappleResponse.NoInteraction => GrappleEnemyReaction.None,
-                EnemyGrappleResponse.Attach => GrappleEnemyReaction.Attach,
-                EnemyGrappleResponse.Kill => GrappleEnemyReaction.Kill,
-                EnemyGrappleResponse.Cancel => GrappleEnemyReaction.Cancel,
-                EnemyGrappleResponse.AttachWithoutInvincibility =>
-                    GrappleEnemyReaction.AttachWithoutInvincibility,
-                EnemyGrappleResponse.AttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
-                EnemyGrappleResponse.HurtSamus => GrappleEnemyReaction.HurtSamus,
-                EnemyGrappleResponse.None or EnemyGrappleResponse.SpeciesOwn or _ => throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} grapple response {enemy.Definition.GrappleResponse} " +
-                    "is not one of the translated common reactions."),
-            };
+            GrappleEnemyReaction reaction = enemy.Definition.GrappleResponse ?? throw new InvalidDataException(
+                $"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
             return new GrappleEnemyCollision(
                 reaction,
                 enemy.Position.Whole,
@@ -73,14 +61,14 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
         switch (enemy.Definition.GrappleResponse)
         {
-            case EnemyGrappleResponse.NoInteraction:
+            case GrappleEnemyReaction.None:
                 enemy.AiStates = EnemyAiStates.None;
                 enemy.InvincibilityTimer = 0;
                 enemy.FrozenTimer = 0;
                 enemy.ShakeTimer = 0;
                 return true;
 
-            case EnemyGrappleResponse.Attach:
+            case GrappleEnemyReaction.Attach:
                 if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
@@ -92,19 +80,19 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 }
                 return true;
 
-            case EnemyGrappleResponse.Kill:
+            case GrappleEnemyReaction.Kill:
                 // A grapple kill always ends in the small explosion. The shared death keeps the enemy's position, its drop
                 // and any respawn marker; deleting the enemy outright would skip the explosion.
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, EnemyDeathExplosion.Small, frame.Samus);
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case EnemyGrappleResponse.Cancel:
-            case EnemyGrappleResponse.HurtSamus:
+            case GrappleEnemyReaction.Cancel:
+            case GrappleEnemyReaction.HurtSamus:
                 enemy.AiStates = EnemyAiStates.Frozen;
                 return true;
 
-            case EnemyGrappleResponse.AttachWithoutInvincibility:
+            case GrappleEnemyReaction.AttachWithoutInvincibility:
                 if (enemy.FrozenTimer != 0)
                 {
                     enemy.AiStates = EnemyAiStates.Frozen;
@@ -118,16 +106,16 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case EnemyGrappleResponse.AttachAndParalyze:
+            case GrappleEnemyReaction.AttachAndParalyze:
                 enemy.FlashTimer = enemy.HurtFlashFrames;
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
-            case EnemyGrappleResponse.None:
-            case EnemyGrappleResponse.SpeciesOwn:
+            case null:
+                throw new InvalidDataException($"Enemy {enemy.DefinitionId} names no reaction to the grapple beam.");
             default:
                 throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} has no response to grapple response {enemy.Definition.GrappleResponse}.");
+                    $"Enemy {enemy.DefinitionId} has no response to grapple reaction {enemy.Definition.GrappleResponse}.");
         }
     }
 }

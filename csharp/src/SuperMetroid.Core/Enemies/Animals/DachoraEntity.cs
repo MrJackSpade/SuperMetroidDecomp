@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
-/// <summary>One Dachora occupant: its own AI, with the shared reactions.</summary>
+/// <summary>A Dachora's body: its run, charge and shinespark, with the shared reactions.</summary>
 /// <param name="species">The Dachora species owner.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>

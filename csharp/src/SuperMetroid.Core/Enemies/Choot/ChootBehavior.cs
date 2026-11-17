@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>The Choot species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

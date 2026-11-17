@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>

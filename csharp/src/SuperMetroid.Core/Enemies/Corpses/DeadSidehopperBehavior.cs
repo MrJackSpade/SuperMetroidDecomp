@@ -276,9 +276,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         state.DrainStepCalls = 0;
 
-        int stage = state.DrainStage ??
-            throw new InvalidOperationException("A dead Sidehopper placed already dead has no drain to step.");
-        state.DrainStage = stage + 1;
+        // Only the victim drains: a corpse placed already dead never reaches its drain.
+        state.DrainStage++;
         place.Shading = state.Shading;
         if (!state.IsDrained)
             return;

@@ -31,13 +31,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>The room's enemy places, among which each corpse's sand heap is found to draw.</summary>
-    private readonly EnemyPlaces _places;
+    /// <summary>The places of the corpses the room has set up, in the order they were placed, whose sand heaps it draws (#2283).</summary>
+    private readonly List<RoomEnemyPlace> _corpses = [];
 
-    /// <summary>Binds corpse rotting to room memory, frame timing, projectiles, presentation and the room's enemy places.</summary>
-    internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio, EnemyPlaces places)
+    /// <summary>Binds corpse rotting to room memory, frame timing, projectiles and presentation.</summary>
+    internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio)
     {
-        _places = places;
         _audio = audio;
         _room = room;
         _frameContext = frameContext;
@@ -46,8 +45,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the dead Torizo, whose corpse keeps its own state on its place like the other corpses (#1808).</summary>
-    internal static void InitializeDeadTorizo(RoomEnemyPlace place)
+    internal void InitializeDeadTorizo(RoomEnemyPlace place)
     {
+        _corpses.Add(place);
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         AnimationPlayback<DeadTorizoSegment> playback = EnemyAnimationPlayback.Start(place, DeadTorizoAnimations.StartingWith(Corpses.DeadTorizoSegment.Stationary));
@@ -183,12 +183,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Draws each initialized corpse's sand heap after the enemy queue, in the order of the room's enemy places,
+    /// Draws the sand heap of each corpse still in its place after the enemy queue, in the order they were placed,
     /// publishing its frame as the encounter's own (#1392), with the rows that corpse's own rot has formed (#1539).
     /// </summary>
     internal void DrawDeadTorizoSandHeap(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
     {
-        foreach (RoomEnemyPlace place in _places.InUpdateOrder)
+        foreach (RoomEnemyPlace place in _corpses)
         {
             if (place.SpeciesState<DeadTorizoEnemyState>() is not { } state)
                 continue;

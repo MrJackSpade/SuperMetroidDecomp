@@ -24,18 +24,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BlueBrinstarFaceBlockEntity(this, place, common);
 
-    /// <summary>The room's enemy places, whose face blocks all show the room-wide glow.</summary>
-    private readonly EnemyPlaces _places;
+    /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
+    private readonly List<RoomEnemyPlace> _blocks = [];
 
     /// <summary>Samus's passage through a door, which pauses the face blocks' glow.</summary>
     private readonly DoorPassage _doorPassage;
 
-    /// <summary>Binds the species to the room's places and Samus's passage through a door.</summary>
-    internal BlueBrinstarFaceBlockBehavior(EnemyPlaces places, DoorPassage doorPassage)
-    {
-        _doorPassage = doorPassage;
-        _places = places;
-    }
+    /// <summary>Binds the species to Samus's passage through a door.</summary>
+    internal BlueBrinstarFaceBlockBehavior(DoorPassage doorPassage) => _doorPassage = doorPassage;
 
     /// <summary>
     /// Whether a face block has started the room's glow, which it does once Samus has collected the Morph Ball. The room
@@ -58,6 +54,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
         place.SetSpeciesState(state);
+        _blocks.Add(place);
 
         // The neutral animation is a one-frame neutral picture followed by the common rest. All
         // authored directional animations show the same neutral picture as their first frame.
@@ -140,11 +137,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
         _glowFrame = (_glowFrame + 1) % FaceBlockShades.GlowFrames;
         PictureShading glow = Glow;
-        foreach (RoomEnemyPlace block in _places.InUpdateOrder)
-        {
-            if (block.DefinitionId == EnemyDefinitionId.FaceBlock)
-                block.Shading = glow;
-        }
+        foreach (RoomEnemyPlace block in _blocks)
+            block.Shading = glow;
     }
 
     /// <summary>Advances the blue Brinstar face block's typed animation.</summary>

@@ -18,7 +18,10 @@ public sealed class EvirSpitState : EvirPartState
     /// </summary>
     internal RoomEnemyPlace Body { get; }
 
-    /// <summary>What the spit does each update.</summary>
+    /// <summary>
+    /// What the spit does each update: held at the mouth, in flight, or growing back from distant flight until the
+    /// regeneration animation's last step.
+    /// </summary>
     public EvirSpitAction Action { get; internal set; }
 
     /// <summary>
@@ -29,10 +32,4 @@ public sealed class EvirSpitState : EvirPartState
 
     /// <summary>The spit's velocity per AI update, calculated from its launch angle.</summary>
     public FixedVector<RoomPixels> ProjectileVelocity { get; internal set; }
-
-    /// <summary>Whether the spit is in flight; flight selects the normal projectile animation.</summary>
-    public bool InFlight { get; internal set; }
-
-    /// <summary>Whether the spit is growing back at the mouth: set when distant flight ends and cleared by the regeneration animation's last step.</summary>
-    public bool Regenerating { get; internal set; }
 }

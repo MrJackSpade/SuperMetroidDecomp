@@ -79,7 +79,7 @@ internal static class DachoraMotionStateVerification
             DachoraEchoState state = place.SpeciesState<DachoraEchoState>() ?? throw new InvalidOperationException("A negative parameter makes an echo.");
             state.Lifetime = lifetime;
 
-            enemies.DachoraBehavior.RunDachoraMainAi(place, frame);
+            DachoraBehavior.RunDachoraEchoMainAi(place, frame);
 
             AssertEqual(expected, state.Lifetime, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, place.Presence.HasAny(EnemyPresence.Hidden), $"echo lifetime {lifetime} visibility");
@@ -98,12 +98,12 @@ internal static class DachoraMotionStateVerification
         for (int slot = 0; slot < 5; slot++)
         {
             RoomEnemyPlace part = enemies.Places.InUpdateOrder[slot];
-            part.Bind(EnemyDefinitionId.Dachora, part.Definition);
             part.SetSpawnParameter1(EnemyDefinitionId.Dachora, slot == 0 ? (ushort)1 : ushort.MaxValue);
+            part.Bind(EnemyDefinitionId.Dachora, part.Definition);
             part.Radius = new(8, 8);
         }
         for (int slot = 0; slot < 5; slot++)
-            enemies.DachoraBehavior.InitializeDachora(enemies.Places.InUpdateOrder[slot]);
+            InitializeThroughEntity(enemies.Places.InUpdateOrder[slot]);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         DachoraEnemyState state = body.RequireSpeciesState<DachoraEnemyState>();
         DachoraEchoState[] echoes = [.. Enumerable.Range(1, 4).Select(slot => enemies.Places.InUpdateOrder[slot].RequireSpeciesState<DachoraEchoState>())];
@@ -146,12 +146,19 @@ internal static class DachoraMotionStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
+        place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         place.Radius = new(8, 8);
-        enemies.DachoraBehavior.InitializeDachora(place);
+        InitializeThroughEntity(place);
         return (enemies, place);
     }
+
+    /// <summary>
+    /// Initializes <paramref name="place"/> through the entity its placement made, as a room's spawn does: a body, or a
+    /// speed-boost echo (#2283).
+    /// </summary>
+    private static void InitializeThroughEntity(RoomEnemyPlace place) =>
+        (place.Entity as IEnemyInitialization ?? throw new InvalidOperationException("A Dachora place initializes.")).Initialize();
 
     /// <summary>Runs Dachora's motion-state and echo-lifetime checks.</summary>
     [VerificationCommand("--dachora-motion-state")]

@@ -8,15 +8,24 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 internal static class CrawlersNativeWords
 {
-    /// <summary>The routine word naming each <see cref="CrawlerAction"/>.</summary>
-    internal static readonly NativeWordIdentities<CrawlerAction> CrawlerActions = new(new Dictionary<CrawlerAction, ushort>
+    /// <summary>The routine word naming each <see cref="CrawlerAction"/> of a crawler that crawls by the shared crawl.</summary>
+    internal static readonly NativeWordIdentities<CrawlerAction> SurfaceCrawlerActions = new(new Dictionary<CrawlerAction, ushort>
     {
-        [CrawlerAction.OrangeZoomerSettling] = 0xe08a,
-        [CrawlerAction.OrangeZoomerCrawlingVertically] = 0xe091,
-        [CrawlerAction.OrangeZoomerCrawlingHorizontally] = 0xe168,
         [CrawlerAction.Settling] = 0xe6c1,
         [CrawlerAction.CrawlingVertically] = 0xe6c8,
         [CrawlerAction.Falling] = 0xe785,
         [CrawlerAction.CrawlingHorizontally] = 0xe7f2,
+    });
+
+    /// <summary>
+    /// The routine word naming each <see cref="CrawlerAction"/> of an orange Zoomer (#2283): its own routines settle it
+    /// and crawl it after Samus, and it falls by the shared fall.
+    /// </summary>
+    internal static readonly NativeWordIdentities<CrawlerAction> OrangeZoomerActions = new(new Dictionary<CrawlerAction, ushort>
+    {
+        [CrawlerAction.Settling] = 0xe08a,
+        [CrawlerAction.CrawlingVertically] = 0xe091,
+        [CrawlerAction.CrawlingHorizontally] = 0xe168,
+        [CrawlerAction.Falling] = 0xe785,
     });
 }

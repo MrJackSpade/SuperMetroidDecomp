@@ -138,8 +138,8 @@ internal sealed record PartFrameConfiguration(
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // Each crawler starts in its family's surface program and takes its later surfaces from its species' own family:
-        // Sciser, Zero and Viola their own, the shared crawlers the shared family; the orange Zoomer chooses only among
-        // its own.
+        // Sciser, Zero and Viola their own; the spiny crawlers, the orange Zoomer among them, crawl each surface by the one
+        // spiny crawl (#2283).
         new("CrawlersBehavior", null, null, "CrawlerAnimations", null, [],
             new Dictionary<string, string[]>(StringComparer.Ordinal)
             {
@@ -147,11 +147,11 @@ internal sealed record PartFrameConfiguration(
                 ["Zero"] = CrawlerFamily("Zero"),
                 // The Viola crawls the same on every surface (#2061).
                 ["Viola"] = ["ViolaNormal"],
-                ["Zeela"] = CrawlerFamily("Shared"),
-                ["Sova"] = CrawlerFamily("Shared"),
-                ["Zoomer"] = CrawlerFamily("Shared"),
-                ["ArmoredZoomer"] = CrawlerFamily("Shared"),
-                ["OrangeZoomer"] = CrawlerFamily("OrangeZoomer"),
+                ["Zeela"] = CrawlerFamily("SpinyCrawler"),
+                ["Sova"] = CrawlerFamily("SpinyCrawler"),
+                ["Zoomer"] = CrawlerFamily("SpinyCrawler"),
+                ["ArmoredZoomer"] = CrawlerFamily("SpinyCrawler"),
+                ["OrangeZoomer"] = CrawlerFamily("SpinyCrawler"),
             },
             new Dictionary<string, string[]>(StringComparer.Ordinal), null, null, []),
         // A Brinstar pipe bug runs the weak or the strong programs its room's kind selects; Gamet and Geega their own.
@@ -404,9 +404,9 @@ internal sealed record PartFrameConfiguration(
         "EnemyFrameId=RidleyBodyRightLegsExtended",
     ];
 
-    /// <summary>A crawler family's four surface programs, as <c>CrawlerAnimationDefinitions.Families</c> names them.</summary>
-    private static string[] CrawlerFamily(string family) =>
-        [$"{family}UpsideRight", $"{family}UpsideLeft", $"{family}UpsideDown", $"{family}UpsideUp"];
+    /// <summary>The four surface programs named <paramref name="crawls"/>, as <c>CrawlerAnimationDefinitions.Families</c> selects them.</summary>
+    private static string[] CrawlerFamily(string crawls) =>
+        [$"{crawls}UpsideRight", $"{crawls}UpsideLeft", $"{crawls}UpsideDown", $"{crawls}UpsideUp"];
 }
 
 /// <summary>

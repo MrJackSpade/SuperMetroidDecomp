@@ -26,8 +26,8 @@ internal interface IElevatorJourney
     /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();
 
-    /// <summary>Clears the flags when gameplay resumes.</summary>
-    void ClearElevatorFlagsOnGameplayResume();
+    /// <summary>Gameplay resumes from the pause, which disarms the pseudo-door (<see cref="Compatibility.UnpauseDisarmsElevator"/>).</summary>
+    void ResumeFromPause();
 
     /// <summary>Prepares the destination elevator before the room load.</summary>
     void PrepareElevatorArrival();

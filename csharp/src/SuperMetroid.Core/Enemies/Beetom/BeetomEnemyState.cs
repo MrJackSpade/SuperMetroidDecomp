@@ -46,12 +46,6 @@ public sealed class BeetomEnemyState
     public GameplayAction LastSeenPlayerActions { get; internal set; }
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BeetomSegment> Playback { get; set; }
-    /// <summary>Short-hop starting place: the first multiple of four marks along the curve whose integrated quadratic speeds reach the short hop's height.</summary>
-    public QuadraticSpeedCurvePlace InitialShortLeapYSpeedCurvePlace { get; internal set; }
-    /// <summary>Long-hop starting place: the first multiple of five marks along the curve whose integrated quadratic speeds reach the long hop's height.</summary>
-    public QuadraticSpeedCurvePlace InitialLongLeapYSpeedCurvePlace { get; internal set; }
-    /// <summary>Lunge starting place: the first multiple of three marks along the curve whose integrated quadratic speeds reach the lunge's height.</summary>
-    public QuadraticSpeedCurvePlace InitialLungeYSpeedCurvePlace { get; internal set; }
     /// <summary>Arc phase: false uses the rising speed-curve half; passing the apex switches to the falling half at the curve's start.</summary>
     public bool Falling { get; internal set; }
     /// <summary>Attachment latch set on first touch and cleared after escape or the common shot reaction; it prevents repeated attachment setup.</summary>

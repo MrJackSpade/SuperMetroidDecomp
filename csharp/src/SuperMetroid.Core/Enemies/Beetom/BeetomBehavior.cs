@@ -75,10 +75,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
         _room.Random.Seed(BeetomRandomDefinitions.Seed);
 
-        state.InitialShortLeapYSpeedCurvePlace = BeetomLeapDefinitions.ShortLeap.StartPlace;
-        state.InitialLongLeapYSpeedCurvePlace = BeetomLeapDefinitions.LongLeap.StartPlace;
-        state.InitialLungeYSpeedCurvePlace = BeetomLeapDefinitions.Lunge.StartPlace;
-
         // Samus's side picks the facing: a negative Samus-minus-enemy delta
         // selects the left-facing animation; nonnegative selects the right-facing animation.
         SetBeetomAnimation(
@@ -115,10 +111,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartBeetomCrawling(place, state, state.Heading);
                 return;
             case BeetomAction.StartShortHop:
-                StartBeetomHop(place, state, state.InitialShortLeapYSpeedCurvePlace, state.Heading, BeetomHopLength.Short);
+                StartBeetomHop(place, state, BeetomLeapDefinitions.ShortLeap.StartPlace, state.Heading, BeetomHopLength.Short);
                 return;
             case BeetomAction.StartLongHop:
-                StartBeetomHop(place, state, state.InitialLongLeapYSpeedCurvePlace, state.Heading, BeetomHopLength.Long);
+                StartBeetomHop(place, state, BeetomLeapDefinitions.LongLeap.StartPlace, state.Heading, BeetomHopLength.Long);
                 return;
             case BeetomAction.DecideActionSamusInProximity:
                 StartBeetomLunge(place, state, samus);
@@ -230,7 +226,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection towardSamus = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;
-        state.YSpeedCurvePlace = state.InitialLungeYSpeedCurvePlace;
+        state.YSpeedCurvePlace = BeetomLeapDefinitions.Lunge.StartPlace;
         state.Facing = towardSamus;
         state.Begin(BeetomAction.Lunge, towardSamus);
         state.Falling = false;

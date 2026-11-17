@@ -1,13 +1,16 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
 {
     /// <inheritdoc/>
@@ -88,11 +91,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 
     /// <summary>
-    /// Resuming gameplay reloads the room's pictures through the elevator's picture reload, whose first
-    /// write clears the elevator's journey status. Unpausing mid-ride therefore leaves the elevator's pseudo-door
-    /// unarmed: reaching it starts the door at once, without the 48-frame down-elevator wait.
+    /// Gameplay resumes from the pause, which disarms the pseudo-door (<see cref="UnpauseDisarmsElevator"/>): reaching it
+    /// mid-ride starts the door at once, without the down-elevator wait.
     /// </summary>
-    public void ClearElevatorFlagsOnGameplayResume() => ElevatorFlags = ElevatorJourneyFlag.None;
+    public void ResumeFromPause() => ElevatorFlags = UnpauseDisarmsElevator.ArmingAfterResume(ElevatorJourneyFlag.None);
 
     /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination

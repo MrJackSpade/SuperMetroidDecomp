@@ -24,7 +24,7 @@ internal static class DeadTorizoCollisionVerification
             place.Bind(EnemyDefinitionId.CorpseTorizo, place.Definition);
             place.Position = place.Position.WithWhole(new(120, 100));
             place.Radius = new(16, 32);
-            DeadTorizoBehavior.InitializeDeadTorizo(place);
+            enemies.DeadTorizoBehavior.InitializeDeadTorizo(place);
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(place.Contact.HasAny(EnemyContact.SolidToSamus),
                 "Native initial solidity must be retained.");

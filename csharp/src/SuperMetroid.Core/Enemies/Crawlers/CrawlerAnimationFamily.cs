@@ -11,6 +11,6 @@ public enum CrawlerAnimationFamily
     Sciser,
     /// <summary>Zero's own surface animations.</summary>
     Zero,
-    /// <summary>The orange Zoomer's surface animations, which it selects itself; shared corner turns never use this family.</summary>
+    /// <summary>The orange Zoomer's own surface table, which selects the crawls the shared family does (#2283).</summary>
     OrangeZoomer,
 }

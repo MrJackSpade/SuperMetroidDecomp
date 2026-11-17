@@ -214,8 +214,9 @@ internal static class BossBodySheetComposer
             }
             written.Add(frame.Key, cells);
         }
-        return written.Keys.OrderBy(frame => frame.ToString(), StringComparer.Ordinal)
-            .Select(frame => new BossBodyFrameSource(BossBodyFrameNames.Of(frame), Whole(frame))
+        // Each frame takes its installed sheet key (#2283), the key the enemy sheets give it.
+        return written.Keys.OrderBy(EnemyFrameSheetKeys.Of, StringComparer.Ordinal)
+            .Select(frame => new BossBodyFrameSource(EnemyFrameSheetKeys.Of(frame), Whole(frame))
             {
                 PictureShift = new(MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(frame),
                     BossBodySourceDefinitions.FramesLowered.GetValueOrDefault(frame)),

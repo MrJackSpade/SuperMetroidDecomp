@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Platforms;
-
-namespace SuperMetroid.Core.Enemies.Artwork;
+﻿namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Cartridge values and helpers of <see cref="TripperKamerVisualDefinitions"/> that only verification reads.</summary>
 internal static class TripperKamerVisualDefinitionsConstants

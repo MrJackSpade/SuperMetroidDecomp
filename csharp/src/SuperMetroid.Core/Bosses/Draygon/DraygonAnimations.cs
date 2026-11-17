@@ -20,13 +20,13 @@ internal static class DraygonAnimations
         [
             Cue(new DraygonCue.StartPartAnimations(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
-            Show(F.DraygonBodyFacingLeftJawShutTwin, 1),
+            Show(F.DraygonBodyFacingLeftJawShut, 1),
         ],
         [P.BodyFacingRightReset] =
         [
             Cue(new DraygonCue.StartPartAnimations(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Right)),
-            Show(F.DraygonBodyFacingRightJawShutTwin, 1),
+            Show(F.DraygonBodyFacingRightJawShut, 1),
         ],
         [P.ArmsFacingLeftIdle] =
         [
@@ -65,7 +65,7 @@ internal static class DraygonAnimations
         [P.BodyFacingLeftIdle] =
         [
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Left)),
-            Show(F.DraygonBodyFacingLeftJawShutTwin, 1),
+            Show(F.DraygonBodyFacingLeftJawShut, 1),
         ],
         [P.BodyDying] =
         [
@@ -313,7 +313,7 @@ internal static class DraygonAnimations
         [P.BodyFacingRightIdle] =
         [
             Cue(new DraygonCue.TrackWithEye(HorizontalDirection.Right)),
-            Show(F.DraygonBodyFacingRightJawShutTwin, 1),
+            Show(F.DraygonBodyFacingRightJawShut, 1),
         ],
         [P.BodyFacingRightFireGoop] =
         [

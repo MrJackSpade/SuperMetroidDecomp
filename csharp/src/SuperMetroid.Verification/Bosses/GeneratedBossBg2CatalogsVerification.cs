@@ -56,7 +56,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xa325, "draygon_bg2_A325"),
         new(0xa32f, "draygon_bg2_A32F"),
         new(0xa339, "draygon_bg2_A339"),
-        new(0xa343, "draygon_bg2_A343"),
+        new(0xa3bb, "draygon_bg2_A3BB"),
         new(0xa34d, "draygon_bg2_A34D"),
         new(0xa357, "draygon_bg2_A357"),
         new(0xa361, "draygon_bg2_A361"),
@@ -68,12 +68,11 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xa39d, "draygon_bg2_A39D"),
         new(0xa3a7, "draygon_bg2_A3A7"),
         new(0xa3b1, "draygon_bg2_A3B1"),
-        new(0xa3bb, "draygon_bg2_A3BB"),
         new(0xa643, "draygon_bg2_A643"),
         new(0xa64d, "draygon_bg2_A64D"),
         new(0xa657, "draygon_bg2_A657"),
         new(0xa661, "draygon_bg2_A661"),
-        new(0xa66b, "draygon_bg2_A66B"),
+        new(0xa6e3, "draygon_bg2_A6E3"),
         new(0xa675, "draygon_bg2_A675"),
         new(0xa67f, "draygon_bg2_A67F"),
         new(0xa689, "draygon_bg2_A689"),
@@ -85,7 +84,6 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xa6c5, "draygon_bg2_A6C5"),
         new(0xa6cf, "draygon_bg2_A6CF"),
         new(0xa6d9, "draygon_bg2_A6D9"),
-        new(0xa6e3, "draygon_bg2_A6E3"),
 
         ];
         byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, frame => frame.LegacyName, new Bg2CatalogAccess { IsFrame = DraygonBodyLayerFrameDefinitions.Frames.Contains, Extract = () => DraygonBg2FrameFiles.Extract(rom) });

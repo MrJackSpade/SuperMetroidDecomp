@@ -25,8 +25,8 @@ internal static class DraygonProjectileAnimations
                 Show(EnemyProjectileFrameId.DraygonGoopPuffed, 10),
                 Show(EnemyProjectileFrameId.DraygonGoopRounded, 10),
                 Show(EnemyProjectileFrameId.DraygonGoopLopsided, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopRoundedTwin, 10),
-                Show(EnemyProjectileFrameId.DraygonGoopPuffedTwin, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopRounded, 10),
+                Show(EnemyProjectileFrameId.DraygonGoopPuffed, 10),
             ],
             [P.GoopShot] =
             [

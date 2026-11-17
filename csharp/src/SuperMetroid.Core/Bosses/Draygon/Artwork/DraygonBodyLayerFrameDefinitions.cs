@@ -24,7 +24,6 @@ internal static class DraygonBodyLayerFrameDefinitions
         EnemyFrameId.DraygonEyeFacingLeftBloodshot,
         EnemyFrameId.DraygonEyeFacingLeftNarrowing,
         EnemyFrameId.DraygonEyeFacingLeftClosing,
-        EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
         EnemyFrameId.DraygonLimpArmFacingRightClawRaised,
         EnemyFrameId.DraygonLimpArmFacingRightClawDropping,
         EnemyFrameId.DraygonLimpArmFacingRightClawDropped,
@@ -41,6 +40,5 @@ internal static class DraygonBodyLayerFrameDefinitions
         EnemyFrameId.DraygonEyeFacingRightBloodshot,
         EnemyFrameId.DraygonEyeFacingRightNarrowing,
         EnemyFrameId.DraygonEyeFacingRightClosing,
-        EnemyFrameId.DraygonBodyFacingRightJawShutTwin,
     };
 }

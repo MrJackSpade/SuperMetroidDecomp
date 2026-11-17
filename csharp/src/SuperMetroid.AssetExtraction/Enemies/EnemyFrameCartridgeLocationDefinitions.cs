@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -1551,19 +1551,19 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.CrocomireBodySwingingArmOutstretched] = new(0xa4, 0xc4de),
         [EnemyFrameId.CrocomireBodySwingingArmLowering] = new(0xa4, 0xc510),
         [EnemyFrameId.CrocomireBodySwingingArmReturning] = new(0xa4, 0xc542),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwinB] = new(0xa4, 0xc574),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwinC] = new(0xa4, 0xc5ae),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwinD] = new(0xa4, 0xc5e8),
-        [EnemyFrameId.CrocomireBodyNearFootForwardArmBentTwin] = new(0xa4, 0xc6a4),
-        [EnemyFrameId.CrocomireBodyNearFootForwardArmSweepingTwin] = new(0xa4, 0xc752),
-        [EnemyFrameId.CrocomireBodyNearFootForwardArmLiftingTwin] = new(0xa4, 0xc78c),
-        [EnemyFrameId.CrocomireBodyNearFootForwardArmUprightTwin] = new(0xa4, 0xc7c6),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmBentTwin] = new(0xa4, 0xc800),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmSquareTwin] = new(0xa4, 0xc83a),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmReachingTwin] = new(0xa4, 0xc874),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmSweepingTwin] = new(0xa4, 0xc8ae),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmLiftingTwin] = new(0xa4, 0xc8e8),
-        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwin] = new(0xa4, 0xc922),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthShut] = new(0xa4, 0xc574),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthParted] = new(0xa4, 0xc5ae),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthGaping] = new(0xa4, 0xc5e8),
+        [EnemyFrameId.CrocomireBodyNearFootForwardArmBentMouthShut] = new(0xa4, 0xc6a4),
+        [EnemyFrameId.CrocomireBodyNearFootForwardArmSweepingMouthGaping] = new(0xa4, 0xc752),
+        [EnemyFrameId.CrocomireBodyNearFootForwardArmLiftingMouthGaping] = new(0xa4, 0xc78c),
+        [EnemyFrameId.CrocomireBodyNearFootForwardArmUprightMouthGaping] = new(0xa4, 0xc7c6),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmBentMouthGaping] = new(0xa4, 0xc800),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmSquareMouthGaping] = new(0xa4, 0xc83a),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmReachingMouthGaping] = new(0xa4, 0xc874),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmSweepingMouthGaping] = new(0xa4, 0xc8ae),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmLiftingMouthParted] = new(0xa4, 0xc8e8),
+        [EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthShutting] = new(0xa4, 0xc922),
         [EnemyFrameId.CrocomireBodyLungingArmBent] = new(0xa4, 0xc95c),
         [EnemyFrameId.CrocomireBodyLungingArmRaised] = new(0xa4, 0xc996),
         [EnemyFrameId.CrocomireBodyLungingArmOutstretched] = new(0xa4, 0xc9d0),
@@ -1741,7 +1741,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DraygonLimpArmFacingLeftClawDropping] = new(0xa5, 0xa325),
         [EnemyFrameId.DraygonLimpArmFacingLeftClawDropped] = new(0xa5, 0xa32f),
         [EnemyFrameId.DraygonLimpArmFacingLeftClawCurled] = new(0xa5, 0xa339),
-        [EnemyFrameId.DraygonBodyFacingLeftJawShut] = new(0xa5, 0xa343),
+        [EnemyFrameId.DraygonBodyFacingLeftJawShut] = new(0xa5, 0xa3bb),
         [EnemyFrameId.DraygonBodyFacingLeftJawParting] = new(0xa5, 0xa34d),
         [EnemyFrameId.DraygonBodyFacingLeftJawOpen] = new(0xa5, 0xa357),
         [EnemyFrameId.DraygonBodyFacingLeftJawWide] = new(0xa5, 0xa361),
@@ -1753,12 +1753,11 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DraygonEyeFacingLeftBloodshot] = new(0xa5, 0xa39d),
         [EnemyFrameId.DraygonEyeFacingLeftNarrowing] = new(0xa5, 0xa3a7),
         [EnemyFrameId.DraygonEyeFacingLeftClosing] = new(0xa5, 0xa3b1),
-        [EnemyFrameId.DraygonBodyFacingLeftJawShutTwin] = new(0xa5, 0xa3bb),
         [EnemyFrameId.DraygonLimpArmFacingRightClawRaised] = new(0xa5, 0xa643),
         [EnemyFrameId.DraygonLimpArmFacingRightClawDropping] = new(0xa5, 0xa64d),
         [EnemyFrameId.DraygonLimpArmFacingRightClawDropped] = new(0xa5, 0xa657),
         [EnemyFrameId.DraygonLimpArmFacingRightClawCurled] = new(0xa5, 0xa661),
-        [EnemyFrameId.DraygonBodyFacingRightJawShut] = new(0xa5, 0xa66b),
+        [EnemyFrameId.DraygonBodyFacingRightJawShut] = new(0xa5, 0xa6e3),
         [EnemyFrameId.DraygonBodyFacingRightJawParting] = new(0xa5, 0xa675),
         [EnemyFrameId.DraygonBodyFacingRightJawOpen] = new(0xa5, 0xa67f),
         [EnemyFrameId.DraygonBodyFacingRightJawWide] = new(0xa5, 0xa689),
@@ -1770,7 +1769,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.DraygonEyeFacingRightBloodshot] = new(0xa5, 0xa6c5),
         [EnemyFrameId.DraygonEyeFacingRightNarrowing] = new(0xa5, 0xa6cf),
         [EnemyFrameId.DraygonEyeFacingRightClosing] = new(0xa5, 0xa6d9),
-        [EnemyFrameId.DraygonBodyFacingRightJawShutTwin] = new(0xa5, 0xa6e3),
         [EnemyFrameId.CrocomireBodySkeletonToppling] = new(0xa4, 0xe1fe),
         [EnemyFrameId.CrocomireBodySkeletonLeaning] = new(0xa4, 0xe228),
         [EnemyFrameId.CrocomireBodySkeletonTipping] = new(0xa4, 0xe252),
@@ -1812,11 +1810,14 @@ internal static class EnemyFrameCartridgeLocationDefinitions
     /// at rest before his rise ends and at each step of his walk, whose records draw one of its five pictures at a placement;
     /// Phantoon's eye, whose lists show his closed eye from two identical records and his open eye looking ahead from a
     /// whole record and from one that writes only the eyeball's cells over it; and Spore Spawn's open pulse, whose last pose
-    /// is a byte-identical copy of his fully open record (#2234).
+    /// is a byte-identical copy of his fully open record (#2234); and Draygon's shut jaw, whose fire-goop lists write only
+    /// the jaw's cells over the whole body his idle and reset lists draw (#2268).
     /// The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
     /// </summary>
     internal static IReadOnlyDictionary<SnesAddress, EnemyFrameId> AlsoStoredAt { get; } = new Dictionary<SnesAddress, EnemyFrameId>
     {
+        [new(0xa5, 0xa343)] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
+        [new(0xa5, 0xa66b)] = EnemyFrameId.DraygonBodyFacingRightJawShut,
         [new(0xa7, 0xdf05)] = EnemyFrameId.PhantoonEyeClosed,
         [new(0xa7, 0xdf23)] = EnemyFrameId.PhantoonEyeballCentered,
         [new(0xa7, 0x90fd)] = EnemyFrameId.KraidArmRaisedClawClosed,

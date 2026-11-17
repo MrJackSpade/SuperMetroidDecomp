@@ -326,7 +326,9 @@ internal static class CrocomireAnimationsVerification
             // from the native list's longest frame.
             if (!SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.RestsOnHeldFrame(native.Timer, projectile.FrameHold))
                 AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
-            AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
+            // An operand that stores a pose's picture again shows that pose (#2268).
+            AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand),
+                projectile.PresentationOperandAddress, $"{at}: frame");
         }
         AssertEqual(shot, native.Deleted, $"Crocomire {label}: only the shot program deletes its projectile");
     }

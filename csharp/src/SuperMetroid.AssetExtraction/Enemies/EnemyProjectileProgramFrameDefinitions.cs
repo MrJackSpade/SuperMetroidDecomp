@@ -22,8 +22,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.DraygonGoopPuffed] = 0x8c40,
         [EnemyProjectileFrameId.DraygonGoopRounded] = 0x8c44,
         [EnemyProjectileFrameId.DraygonGoopLopsided] = 0x8c48,
-        [EnemyProjectileFrameId.DraygonGoopRoundedTwin] = 0x8c4c,
-        [EnemyProjectileFrameId.DraygonGoopPuffedTwin] = 0x8c50,
         [EnemyProjectileFrameId.DraygonGoopCurled] = 0x8c5a,
         [EnemyProjectileFrameId.DraygonGoopScattered] = 0x8c5e,
         [EnemyProjectileFrameId.DraygonWallTurretSparksApart32] = 0x8ca6,
@@ -49,8 +47,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.CrocomireMouthBallMedium] = 0x8fd5,
         [EnemyProjectileFrameId.CrocomireMouthBallLarge] = 0x8fd9,
         [EnemyProjectileFrameId.CrocomireMouthBallLargest] = 0x8fdd,
-        [EnemyProjectileFrameId.CrocomireMouthBallLargeTwin] = 0x8fe1,
-        [EnemyProjectileFrameId.CrocomireMouthBallMediumTwin] = 0x8fe5,
         [EnemyProjectileFrameId.CrocomireBridgeFragment] = 0x8fed,
         [EnemyProjectileFrameId.CrocomireSpikeWallPiece] = 0x8ff5,
         [EnemyProjectileFrameId.CrocomireShotSpark] = 0x9009,
@@ -926,11 +922,16 @@ internal static class EnemyProjectileProgramFrameDefinitions
     /// <summary>
     /// The operands that show an installed program frame's picture again (#2210, #2234, #2249), with the frame each shows: the hand
     /// beam's second and third stages draw its first stage's seven pictures from operands of their own, and Phantoon's flame
-    /// lists repeat the poses another of his lists shows, his resting flame's last pose a copy of its resting pose. The import
+    /// lists repeat the poses another of his lists shows, his resting flame's last pose a copy of its resting pose; Draygon's
+    /// goop and Crocomire's mouth glow end their cycles on the poses they passed through, stored again (#2268). The import
     /// composes each frame once from <see cref="Operands"/>; tools reading native lists find its frame here.
     /// </summary>
     internal static readonly FrozenDictionary<ushort, EnemyProjectileFrameId> AlsoStoredAt = new Dictionary<ushort, EnemyProjectileFrameId>
     {
+        [0x8c4c] = EnemyProjectileFrameId.DraygonGoopRounded,
+        [0x8c50] = EnemyProjectileFrameId.DraygonGoopPuffed,
+        [0x8fe1] = EnemyProjectileFrameId.CrocomireMouthBallLarge,
+        [0x8fe5] = EnemyProjectileFrameId.CrocomireMouthBallMedium,
         [0xc7b9] = EnemyProjectileFrameId.MotherBrainHandBeamOrbSmall,
         [0xc7c2] = EnemyProjectileFrameId.MotherBrainHandBeamOrbRed,
         [0xc7c6] = EnemyProjectileFrameId.MotherBrainHandBeamOrbRedYellowCore,

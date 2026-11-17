@@ -6,12 +6,14 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// </summary>
 internal enum SparkSegment
 {
-    /// <summary>The flicker on animation.</summary>
+    /// <summary>
+    /// Turning solid and flickering on, large crosses and slants blinking and scattering, then sparking small.
+    /// </summary>
     FlickerOn,
-    /// <summary>The active animation.</summary>
+    /// <summary>Sparking small, crossed and slanted with trails, repeating.</summary>
     Active,
-    /// <summary>The flicker out animation.</summary>
+    /// <summary>Flickering large and scattering until it blinks out and is no longer solid.</summary>
     FlickerOut,
-    /// <summary>The emitter animation.</summary>
+    /// <summary>The emitter sparking large, crossed and slanted, scattering, repeating.</summary>
     Emitter,
 }

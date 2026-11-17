@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// </summary>
 internal enum BlueBrinstarFaceBlockSegment
 {
-    /// <summary>The Samus left animation.</summary>
+    /// <summary>The face looking ahead, then glancing and turning to look left toward Samus, held.</summary>
     SamusLeft,
-    /// <summary>The Samus right animation.</summary>
+    /// <summary>The face looking ahead, then glancing and turning to look right toward Samus, held.</summary>
     SamusRight,
-    /// <summary>The initial animation.</summary>
+    /// <summary>The face looking ahead, held.</summary>
     Initial,
 }

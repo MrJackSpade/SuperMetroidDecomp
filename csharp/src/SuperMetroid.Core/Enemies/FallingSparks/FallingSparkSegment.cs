@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// </summary>
 internal enum FallingSparkSegment
 {
-    /// <summary>The falling animation.</summary>
+    /// <summary>A spark tumbling, upright, diagonal and small, as it falls, repeating.</summary>
     Falling,
-    /// <summary>The hit floor animation.</summary>
+    /// <summary>
+    /// The spark flickering on and off through its shapes where it hit the floor, before it vanishes.
+    /// </summary>
     HitFloor,
 }

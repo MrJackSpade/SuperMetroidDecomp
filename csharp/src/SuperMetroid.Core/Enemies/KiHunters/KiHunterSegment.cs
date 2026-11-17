@@ -6,30 +6,50 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 internal enum KiHunterSegment
 {
-    /// <summary>The flying left animation.</summary>
+    /// <summary>Hovering facing left, dipping once, before it flies on.</summary>
     FlyingLeft,
-    /// <summary>The swoop left animation.</summary>
+    /// <summary>
+    /// Swooping facing left: its arms swinging back and in, a hover, then its legs reaching and stretched out, before
+    /// it flies on.
+    /// </summary>
     SwoopLeft,
-    /// <summary>The flying right animation.</summary>
+    /// <summary>Hovering facing right, dipping once, before it flies on.</summary>
     FlyingRight,
-    /// <summary>The swoop right animation.</summary>
+    /// <summary>
+    /// Swooping facing right: its arms swinging back and in, a hover, then its legs reaching and stretched out, before
+    /// it flies on.
+    /// </summary>
     SwoopRight,
-    /// <summary>The wings left animation.</summary>
+    /// <summary>Its wings facing left flapping, raised, mid and level, repeating.</summary>
     WingsLeft,
-    /// <summary>The wings right animation.</summary>
+    /// <summary>Its wings facing right flapping, raised, mid and level, repeating.</summary>
     WingsRight,
-    /// <summary>The detached wings animation.</summary>
+    /// <summary>Its wings torn off, held as they fall.</summary>
     DetachedWings,
-    /// <summary>The jump left animation.</summary>
+    /// <summary>
+    /// Crouching facing left, crouching low and springing, then crouching again before it leaps into a hop.
+    /// </summary>
     JumpLeft,
-    /// <summary>The jump right animation.</summary>
+    /// <summary>
+    /// Crouching facing right, crouching low and springing, then crouching again before it leaps into a hop.
+    /// </summary>
     JumpRight,
-    /// <summary>The land left animation.</summary>
+    /// <summary>
+    /// Landing facing left: crouching low, springing and crouching again before it chooses its next move on foot.
+    /// </summary>
     LandLeft,
-    /// <summary>The land right animation.</summary>
+    /// <summary>
+    /// Landing facing right: crouching low, springing and crouching again before it chooses its next move on foot.
+    /// </summary>
     LandRight,
-    /// <summary>The spit left animation.</summary>
+    /// <summary>
+    /// Crouched facing left, its mouth swelling with acid until it spits it left, then crouched again before it chooses
+    /// its next move.
+    /// </summary>
     SpitLeft,
-    /// <summary>The spit right animation.</summary>
+    /// <summary>
+    /// Crouched facing right, its mouth swelling with acid until it spits it right, then crouched again before it
+    /// chooses its next move.
+    /// </summary>
     SpitRight,
 }

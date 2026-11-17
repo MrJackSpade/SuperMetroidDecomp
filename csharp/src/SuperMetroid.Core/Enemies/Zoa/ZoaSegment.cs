@@ -6,12 +6,18 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 /// </summary>
 public enum ZoaSegment
 {
-    /// <summary>The facing left shooting animation.</summary>
+    /// <summary>
+    /// Darting left: its tail tucked as it launches slowly, kicking as it speeds up and stretched out at full speed,
+    /// repeating.
+    /// </summary>
     FacingLeftShooting,
-    /// <summary>The facing left rising animation.</summary>
+    /// <summary>Swimming up facing left, its legs paddling in and out, repeating.</summary>
     FacingLeftRising,
-    /// <summary>The facing right shooting animation.</summary>
+    /// <summary>
+    /// Darting right: its tail tucked as it launches slowly, kicking as it speeds up and stretched out at full speed,
+    /// repeating.
+    /// </summary>
     FacingRightShooting,
-    /// <summary>The facing right rising animation.</summary>
+    /// <summary>Swimming up facing right, its legs paddling in and out, repeating.</summary>
     FacingRightRising,
 }

@@ -6,12 +6,16 @@ namespace SuperMetroid.Core.Enemies.Waver;
 /// </summary>
 internal enum WaverSegment
 {
-    /// <summary>The steady facing left animation.</summary>
+    /// <summary>Flying level facing left, held.</summary>
     SteadyFacingLeft,
-    /// <summary>The steady facing right animation.</summary>
+    /// <summary>Flying level facing right, held.</summary>
     SteadyFacingRight,
-    /// <summary>The spinning facing left animation.</summary>
+    /// <summary>
+    /// Rolling over facing left: edge-on, tilted, its underside and turning back, before the spin ends.
+    /// </summary>
     SpinningFacingLeft,
-    /// <summary>The spinning facing right animation.</summary>
+    /// <summary>
+    /// Rolling over facing right: edge-on, tilted, its underside and turning back, before the spin ends.
+    /// </summary>
     SpinningFacingRight,
 }

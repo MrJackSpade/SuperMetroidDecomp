@@ -6,21 +6,23 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// </summary>
 internal enum ShaktoolSegment
 {
-    /// <summary>The saw hand head bob primary piece animation.</summary>
+    /// <summary>The saw hand's inner piece pausing while the head bobs, then spinning.</summary>
     SawHandHeadBobPrimaryPiece,
-    /// <summary>The saw hand head bob final piece animation.</summary>
+    /// <summary>
+    /// The saw hand's outer piece pausing while the head bobs, then setting the Shaktool moving again and spinning.
+    /// </summary>
     SawHandHeadBobFinalPiece,
-    /// <summary>The saw hand primary piece animation.</summary>
+    /// <summary>The saw hand's inner piece turning a twelfth of a turn at a time, slowly, repeating.</summary>
     SawHandPrimaryPiece,
-    /// <summary>The saw hand final piece animation.</summary>
+    /// <summary>The saw hand's outer piece turning a twelfth of a turn at a time, quickly, repeating.</summary>
     SawHandFinalPiece,
-    /// <summary>The arm piece head bob back animation.</summary>
+    /// <summary>A back arm piece lowering and rising again while the head bobs, then held.</summary>
     ArmPieceHeadBobBack,
-    /// <summary>The arm piece head bob front animation.</summary>
+    /// <summary>A front arm piece lowering and rising again a little later while the head bobs, then held.</summary>
     ArmPieceHeadBobFront,
-    /// <summary>The arm piece normal animation.</summary>
+    /// <summary>An arm piece, held.</summary>
     ArmPieceNormal,
-    /// <summary>The head head bob animation.</summary>
+    /// <summary>The head lowering and rising as it bobs, then aiming left.</summary>
     HeadHeadBob,
     /// <summary>
     /// The head aiming left, where its head bob rests until the chain moves again; while the chain orients it, the head

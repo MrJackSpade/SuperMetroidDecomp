@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal enum PolypSegment
 {
-    /// <summary>The stationary animation.</summary>
+    /// <summary>The Polyp's rock, held where it lies in the lava.</summary>
     Stationary,
 }

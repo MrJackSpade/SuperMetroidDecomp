@@ -6,16 +6,22 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// </summary>
 internal enum DragonSegment
 {
-    /// <summary>The idle facing left animation.</summary>
+    /// <summary>Its body facing left, held.</summary>
     IdleFacingLeft,
-    /// <summary>The wings facing left animation.</summary>
+    /// <summary>Its wing beating facing left, raised and lowered, repeating.</summary>
     WingsFacingLeft,
-    /// <summary>The idle facing right animation.</summary>
+    /// <summary>Its body facing right, held.</summary>
     IdleFacingRight,
-    /// <summary>The wings facing right animation.</summary>
+    /// <summary>Its wing beating facing right, raised and lowered, repeating.</summary>
     WingsFacingRight,
-    /// <summary>The attacking facing left animation.</summary>
+    /// <summary>
+    /// Facing left, drawing its head back, then raising it and thrusting it forward to spit, before it finishes the
+    /// attack.
+    /// </summary>
     AttackingFacingLeft,
-    /// <summary>The attacking facing right animation.</summary>
+    /// <summary>
+    /// Facing right, drawing its head back, then raising it and thrusting it forward to spit, before it finishes the
+    /// attack.
+    /// </summary>
     AttackingFacingRight,
 }

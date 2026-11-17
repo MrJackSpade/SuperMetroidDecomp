@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 internal enum YappingMawBodyProjectileSegment
 {
-    /// <summary>The facing down animation.</summary>
+    /// <summary>A link of its neck facing down, held.</summary>
     FacingDown,
-    /// <summary>The facing up animation.</summary>
+    /// <summary>A link of its neck facing up, held.</summary>
     FacingUp,
 }

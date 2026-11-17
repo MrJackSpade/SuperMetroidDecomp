@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </summary>
 internal enum NuclearWaffleSegment
 {
-    /// <summary>The body loop animation.</summary>
+    /// <summary>Its body turning through its eight angles in a tumbling order, repeating.</summary>
     BodyLoop,
 }

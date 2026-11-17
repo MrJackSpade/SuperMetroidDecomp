@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// </summary>
 internal enum KzanSegment
 {
-    /// <summary>The idle animation.</summary>
+    /// <summary>Its spiked block, held.</summary>
     Idle,
 }

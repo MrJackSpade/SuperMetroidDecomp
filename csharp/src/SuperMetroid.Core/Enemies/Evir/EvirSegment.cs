@@ -6,15 +6,23 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// </summary>
 internal enum EvirSegment
 {
-    /// <summary>The body facing left animation.</summary>
+    /// <summary>
+    /// The body facing left, its legs tucking, curling, lowering, hanging, stretching and lifting, repeating.
+    /// </summary>
     BodyFacingLeft,
-    /// <summary>The arms facing left animation.</summary>
+    /// <summary>
+    /// The arms facing left reaching, curling, folding and spreading four times, then held folded, repeating.
+    /// </summary>
     ArmsFacingLeft,
-    /// <summary>The body facing right animation.</summary>
+    /// <summary>
+    /// The body facing right, its legs tucking, curling, lowering, hanging, stretching and lifting, repeating.
+    /// </summary>
     BodyFacingRight,
-    /// <summary>The arms facing right animation.</summary>
+    /// <summary>
+    /// The arms facing right reaching, curling, folding and spreading four times, then held folded, repeating.
+    /// </summary>
     ArmsFacingRight,
-    /// <summary>The projectile normal animation.</summary>
+    /// <summary>Its spine ball, held while it flies.</summary>
     ProjectileNormal,
     /// <summary>A regenerating spit's start at the mouth, its entry cue.</summary>
     ProjectileRegenerating,

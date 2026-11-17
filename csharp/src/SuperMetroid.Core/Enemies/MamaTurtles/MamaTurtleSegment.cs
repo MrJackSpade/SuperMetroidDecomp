@@ -6,30 +6,52 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// </summary>
 internal enum MamaTurtleSegment
 {
-    /// <summary>The Baby crawling left animation.</summary>
+    /// <summary>
+    /// A baby turtle crawling left, its legs tucking, reaching, planting and pushing, before it crawls on or turns
+    /// around.
+    /// </summary>
     BabyCrawlingLeft,
-    /// <summary>The Baby spinning animation.</summary>
+    /// <summary>A baby turtle's shell spinning a quarter turn at a time with its sound, repeating.</summary>
     BabySpinning,
-    /// <summary>The mama spinning animation.</summary>
+    /// <summary>
+    /// The Mama Turtle spinning in her shell with its sound, facing left, the viewer and right, repeating.
+    /// </summary>
     MamaSpinning,
-    /// <summary>The mama enter shell left animation.</summary>
+    /// <summary>
+    /// The Mama Turtle facing left withdrawing into her shell and rising to hover, held in her shell.
+    /// </summary>
     MamaEnterShellLeft,
-    /// <summary>The Baby hiding left animation.</summary>
+    /// <summary>
+    /// A baby turtle facing left pulling in its legs and hiding in its shell before it comes out again.
+    /// </summary>
     BabyHidingLeft,
     /// <summary>The dormant mama's animation.</summary>
     MamaAsleep,
-    /// <summary>The mama leave shell left animation.</summary>
+    /// <summary>The Mama Turtle facing left coming out of her shell and standing, before she withdraws again.</summary>
     MamaLeaveShellLeft,
-    /// <summary>The Baby leave shell left animation.</summary>
+    /// <summary>
+    /// A baby turtle's legs coming out of its shell and resting, before and after it has left the shell.
+    /// </summary>
     BabyLeaveShellLeft,
-    /// <summary>The Baby crawling right animation.</summary>
+    /// <summary>
+    /// A baby turtle crawling right, its legs tucking, reaching, planting and pushing, before it crawls on or turns
+    /// around.
+    /// </summary>
     BabyCrawlingRight,
-    /// <summary>The mama enter shell right animation.</summary>
+    /// <summary>
+    /// The Mama Turtle facing right withdrawing into her shell and rising to hover, held in her shell.
+    /// </summary>
     MamaEnterShellRight,
-    /// <summary>The Baby hiding right animation.</summary>
+    /// <summary>
+    /// A baby turtle facing right pulling in its legs and hiding in its shell before it comes out again.
+    /// </summary>
     BabyHidingRight,
-    /// <summary>The mama leave shell right animation.</summary>
+    /// <summary>
+    /// The Mama Turtle facing right coming out of her shell and standing, before she withdraws again.
+    /// </summary>
     MamaLeaveShellRight,
-    /// <summary>The Baby leave shell right animation.</summary>
+    /// <summary>
+    /// A baby turtle's legs coming out of its shell and resting, facing left, before and after it has left the shell.
+    /// </summary>
     BabyLeaveShellRight,
 }

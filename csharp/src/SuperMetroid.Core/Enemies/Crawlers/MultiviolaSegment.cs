@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// </summary>
 internal enum MultiviolaSegment
 {
-    /// <summary>The flying animation.</summary>
+    /// <summary>
+    /// Spinning as it flies, its face fading in, brightening to its brightest and fading out again, repeating.
+    /// </summary>
     Flying,
 }

@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 /// </summary>
 internal enum PuyoSegment
 {
-    /// <summary>The grounded fast animation.</summary>
+    /// <summary>On the ground, its body flattening and rising tall again quickly, repeating.</summary>
     GroundedFast,
-    /// <summary>The grounded medium animation.</summary>
+    /// <summary>On the ground, its body flattening and rising tall again, repeating.</summary>
     GroundedMedium,
-    /// <summary>The grounded slow animation.</summary>
+    /// <summary>On the ground, its body flattening and rising tall again slowly, repeating.</summary>
     GroundedSlow,
     /// <summary>The airborne pose tilted furthest right: early in a rise to the right, late in a fall to the left.</summary>
     TiltedFarRight,

@@ -6,36 +6,63 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// </summary>
 internal enum YappingMawSegment
 {
-    /// <summary>The attacking up animation.</summary>
+    /// <summary>
+    /// Biting up: its jaws wide, then snapping shut with the bite sound and held shut a long while, repeating.
+    /// </summary>
     AttackingUp,
-    /// <summary>The attacking up right animation.</summary>
+    /// <summary>
+    /// Biting up and right: its jaws wide, then snapping shut with the bite sound and held shut a long while,
+    /// repeating.
+    /// </summary>
     AttackingUpRight,
-    /// <summary>The attacking right animation.</summary>
+    /// <summary>
+    /// Biting right: its jaws wide, then snapping shut with the bite sound and held shut a long while, repeating.
+    /// </summary>
     AttackingRight,
-    /// <summary>The attacking down right animation.</summary>
+    /// <summary>
+    /// Biting down and right: its jaws wide, then snapping shut with the bite sound and held shut a long while,
+    /// repeating.
+    /// </summary>
     AttackingDownRight,
-    /// <summary>The attacking down animation.</summary>
+    /// <summary>
+    /// Biting down: its jaws wide, then snapping shut with the bite sound and held shut a long while, repeating.
+    /// </summary>
     AttackingDown,
-    /// <summary>The attacking down left animation.</summary>
+    /// <summary>
+    /// Biting down and left: its jaws wide, then snapping shut with the bite sound and held shut a long while,
+    /// repeating.
+    /// </summary>
     AttackingDownLeft,
-    /// <summary>The attacking left animation.</summary>
+    /// <summary>
+    /// Biting left: its jaws wide, then snapping shut with the bite sound and held shut a long while, repeating.
+    /// </summary>
     AttackingLeft,
-    /// <summary>The attacking up left animation.</summary>
+    /// <summary>
+    /// Biting up and left: its jaws wide, then snapping shut with the bite sound and held shut a long while, repeating.
+    /// </summary>
     AttackingUpLeft,
-    /// <summary>The cooldown up right animation.</summary>
+    /// <summary>
+    /// Holding Samus up and right with its jaws shut, then straight up, then chewing her above it, repeating.
+    /// </summary>
     CooldownUpRight,
-    /// <summary>The cooldown up animation.</summary>
+    /// <summary>Holding Samus straight up, then chewing her above it, repeating.</summary>
     CooldownUp,
     /// <summary>The jaws chewing up on the held Samus, which every cooldown aimed up loops (#2276).</summary>
     ChewingUp,
-    /// <summary>The cooldown up left animation.</summary>
+    /// <summary>
+    /// Holding Samus up and left with its jaws shut, then straight up and chewing her above it, repeating.
+    /// </summary>
     CooldownUpLeft,
-    /// <summary>The cooldown down right animation.</summary>
+    /// <summary>
+    /// Holding Samus down and right with its jaws shut, then straight down, then chewing her below it, repeating.
+    /// </summary>
     CooldownDownRight,
-    /// <summary>The cooldown down animation.</summary>
+    /// <summary>Holding Samus straight down, then chewing her below it, repeating.</summary>
     CooldownDown,
     /// <summary>The jaws chewing down on the held Samus, which every cooldown aimed down loops (#2276).</summary>
     ChewingDown,
-    /// <summary>The cooldown down left animation.</summary>
+    /// <summary>
+    /// Holding Samus down and left with its jaws shut, then straight down and chewing her below it, repeating.
+    /// </summary>
     CooldownDownLeft,
 }

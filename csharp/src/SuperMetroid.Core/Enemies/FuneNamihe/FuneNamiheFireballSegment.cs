@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal enum FuneNamiheFireballSegment
 {
-    /// <summary>The left animation.</summary>
+    /// <summary>A fireball flying left, trailing, round and dissolving, repeating.</summary>
     Left,
-    /// <summary>The right animation.</summary>
+    /// <summary>A fireball flying right, trailing, round and dissolving, repeating.</summary>
     Right,
 }

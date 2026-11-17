@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 internal enum ChozoTourianDustSegment
 {
-    /// <summary>The footsteps animation.</summary>
+    /// <summary>A footstep's dust scattering as a puff, a pair, a trio and a dense cloud before it vanishes.</summary>
     Footsteps,
     /// <summary>One puff of the Tourian statue's descent dust, which its animation repeats.</summary>
     TourianDescentDust,

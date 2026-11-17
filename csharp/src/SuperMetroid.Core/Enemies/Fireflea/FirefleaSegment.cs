@@ -6,6 +6,9 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// </summary>
 internal enum FirefleaSegment
 {
-    /// <summary>The loop animation.</summary>
+    /// <summary>
+    /// Beating its wings up, level and down while its glow dims from brightest to dimmest and brightens back,
+    /// repeating.
+    /// </summary>
     Loop,
 }

@@ -6,20 +6,34 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// </summary>
 public enum MaridiaLargeSnailSegment
 {
-    /// <summary>The facing left idle animation.</summary>
+    /// <summary>Oum facing left, upright, held.</summary>
     FacingLeftIdle,
-    /// <summary>The facing left attacking animation.</summary>
+    /// <summary>
+    /// Oum facing left opening its vent with a splash and jetting water out longer and shorter again, before the attack
+    /// ends.
+    /// </summary>
     FacingLeftAttacking,
-    /// <summary>The facing left rolling forwards animation.</summary>
+    /// <summary>
+    /// Oum facing left rolling forward an eighth of a turn each pose from its vent-open pose, repeating.
+    /// </summary>
     FacingLeftRollingForwards,
-    /// <summary>The facing left rolling backwards animation.</summary>
+    /// <summary>
+    /// Oum facing left rolling backward an eighth of a turn each pose to its vent-open pose, repeating.
+    /// </summary>
     FacingLeftRollingBackwards,
-    /// <summary>The facing right idle animation.</summary>
+    /// <summary>Oum facing right, upright, held.</summary>
     FacingRightIdle,
-    /// <summary>The facing right attacking animation.</summary>
+    /// <summary>
+    /// Oum facing right opening its vent with a splash and jetting water out longer and shorter again, before the
+    /// attack ends.
+    /// </summary>
     FacingRightAttacking,
-    /// <summary>The facing right rolling forwards animation.</summary>
+    /// <summary>
+    /// Oum facing right rolling forward an eighth of a turn each pose from its vent-open pose, repeating.
+    /// </summary>
     FacingRightRollingForwards,
-    /// <summary>The facing right rolling backwards animation.</summary>
+    /// <summary>
+    /// Oum facing right rolling backward an eighth of a turn each pose to its vent-open pose, repeating.
+    /// </summary>
     FacingRightRollingBackwards,
 }

@@ -8,10 +8,14 @@ internal enum SkulteraSegment
 {
     /// <summary>The swim to the left, looped.</summary>
     SwimmingLeft,
-    /// <summary>The turning right animation.</summary>
+    /// <summary>
+    /// Turning around toward the right, half a turn in steps that slow at either end, before it swims on.
+    /// </summary>
     TurningRight,
     /// <summary>The swim to the right, looped.</summary>
     SwimmingRight,
-    /// <summary>The turning left animation.</summary>
+    /// <summary>
+    /// Turning around toward the left, half a turn in steps that slow at either end, before it swims on.
+    /// </summary>
     TurningLeft,
 }

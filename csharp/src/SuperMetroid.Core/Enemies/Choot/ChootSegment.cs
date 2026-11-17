@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 internal enum ChootSegment
 {
-    /// <summary>The idle animation.</summary>
+    /// <summary>Lying flat, held; it stops moving while off screen.</summary>
     Idle,
-    /// <summary>The jumping animation.</summary>
+    /// <summary>Springing up, then held folded while it jumps; it moves off screen too.</summary>
     Jumping,
-    /// <summary>The falling animation.</summary>
+    /// <summary>Springing, then held spread out while it falls; it moves off screen too.</summary>
     Falling,
 }

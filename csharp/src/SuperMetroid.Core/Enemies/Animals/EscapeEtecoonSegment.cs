@@ -10,19 +10,19 @@ internal enum EscapeEtecoonSegment
     RunningLeftLowTide,
     /// <summary>The leftward run's four strides at low tide.</summary>
     RunningLeftLowTideStride,
-    /// <summary>The running left high tide animation.</summary>
+    /// <summary>Running left at high tide, stretching, bunching and pushing off, repeating.</summary>
     RunningLeftHighTide,
     /// <summary>The rightward run's low-tide check, its entry cue.</summary>
     RunningRightLowTide,
     /// <summary>The rightward run's four strides at low tide.</summary>
     RunningRightLowTideStride,
-    /// <summary>The running right high tide animation.</summary>
+    /// <summary>Running right at high tide, stretching, bunching and pushing off, repeating.</summary>
     RunningRightHighTide,
     /// <summary>The escape run's start, its entry cue.</summary>
     RunningForEscape,
     /// <summary>The escape run's four strides.</summary>
     RunningForEscapeStride,
-    /// <summary>The stationary animation.</summary>
+    /// <summary>Standing still, looking right, then turning to look left and back again, repeating.</summary>
     Stationary,
     /// <summary>The thanks to Samus, its entry cue.</summary>
     ExpressGratitudeThenEscape,

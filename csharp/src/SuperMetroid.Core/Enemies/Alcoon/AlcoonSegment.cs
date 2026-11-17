@@ -8,18 +8,24 @@ internal enum AlcoonSegment
 {
     /// <summary>The walk to the left: its move cue and four strides, one cycle.</summary>
     WalkingLeft,
-    /// <summary>The fire left animation.</summary>
+    /// <summary>
+    /// Facing left, its throat glowing as it opens its mouth to spit three fireballs, level, upward and downward,
+    /// before it walks again.
+    /// </summary>
     FireLeft,
-    /// <summary>The airborne left looking up animation.</summary>
+    /// <summary>Facing left in its leaping pose, held while it is in the air.</summary>
     AirborneLeftLookingUp,
-    /// <summary>The airborne left looking forward animation.</summary>
+    /// <summary>Facing left with its far leg planted, held while it is in the air.</summary>
     AirborneLeftLookingForward,
     /// <summary>The walk to the right: its move cue and four strides, one cycle.</summary>
     WalkingRight,
-    /// <summary>The fire right animation.</summary>
+    /// <summary>
+    /// Facing right, its throat glowing as it opens its mouth to spit three fireballs, level, upward and downward,
+    /// before it walks again.
+    /// </summary>
     FireRight,
-    /// <summary>The airborne right looking up animation.</summary>
+    /// <summary>Facing right in its leaping pose, held while it is in the air.</summary>
     AirborneRightLookingUp,
-    /// <summary>The airborne right looking forward animation.</summary>
+    /// <summary>Facing right with its far leg planted, held while it is in the air.</summary>
     AirborneRightLookingForward,
 }

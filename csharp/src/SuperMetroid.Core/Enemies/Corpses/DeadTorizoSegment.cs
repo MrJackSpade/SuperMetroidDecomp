@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 internal enum DeadTorizoSegment
 {
-    /// <summary>The stationary animation.</summary>
+    /// <summary>The dead Torizo standing, held.</summary>
     Stationary,
 }

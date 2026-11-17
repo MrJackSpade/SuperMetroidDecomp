@@ -6,18 +6,22 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// </summary>
 internal enum NorfairRioSegment
 {
-    /// <summary>The idle animation.</summary>
+    /// <summary>Hovering, its wings spread, level and drooping, with its flames behind it, repeating.</summary>
     Idle,
-    /// <summary>The start descending animation.</summary>
+    /// <summary>
+    /// Its wings flattening, lifting and sweeping up as it starts to swoop down, its flames moving with them.
+    /// </summary>
     StartDescending,
-    /// <summary>The descending animation.</summary>
+    /// <summary>Diving down, its flames trailing it, repeating.</summary>
     Descending,
-    /// <summary>The start ascending animation.</summary>
+    /// <summary>
+    /// Its wings sweeping down from swept up to drooping as it starts to rise again, its flames moving with them.
+    /// </summary>
     StartAscending,
-    /// <summary>The ascending animation.</summary>
+    /// <summary>Climbing, its flames trailing it, repeating.</summary>
     Ascending,
-    /// <summary>The flames ascending animation.</summary>
+    /// <summary>Its flames flickering large, medium and small as it rises, repeating.</summary>
     FlamesAscending,
-    /// <summary>The flames descending animation.</summary>
+    /// <summary>Its flames flickering large, medium and small as it falls, repeating.</summary>
     FlamesDescending,
 }

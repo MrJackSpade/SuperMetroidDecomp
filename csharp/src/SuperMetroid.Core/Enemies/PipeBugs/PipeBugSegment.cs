@@ -6,36 +6,44 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// </summary>
 public enum PipeBugSegment
 {
-    /// <summary>The zeb rising left animation.</summary>
+    /// <summary>
+    /// A Zeb facing left rising from its pipe, its wings beating from up to down and back, repeating.
+    /// </summary>
     ZebRisingLeft,
-    /// <summary>The zeb shooting left animation.</summary>
+    /// <summary>A Zeb facing left shooting across, its wings beating twice as fast, repeating.</summary>
     ZebShootingLeft,
-    /// <summary>The zeb rising right animation.</summary>
+    /// <summary>
+    /// A Zeb facing right rising from its pipe, its wings beating from up to down and back, repeating.
+    /// </summary>
     ZebRisingRight,
-    /// <summary>The zeb shooting right animation.</summary>
+    /// <summary>A Zeb facing right shooting across, its wings beating twice as fast, repeating.</summary>
     ZebShootingRight,
-    /// <summary>The zebbo rising left animation.</summary>
+    /// <summary>A Zebbo facing left rising from its pipe, its wings beating up, level and down, repeating.</summary>
     ZebboRisingLeft,
-    /// <summary>The zebbo shooting left animation.</summary>
+    /// <summary>A Zebbo darting left, its wings beating up, level and down, repeating.</summary>
     ZebboShootingLeft,
-    /// <summary>The zebbo rising right animation.</summary>
+    /// <summary>A Zebbo facing right rising from its pipe, its wings beating up, level and down, repeating.</summary>
     ZebboRisingRight,
-    /// <summary>The zebbo shooting right animation.</summary>
+    /// <summary>A Zebbo darting right, its wings beating up, level and down, repeating.</summary>
     ZebboShootingRight,
-    /// <summary>The gamet rising left animation.</summary>
+    /// <summary>
+    /// A Gamet facing left rising from its pipe, its wings beating from up to down and back, repeating.
+    /// </summary>
     GametRisingLeft,
-    /// <summary>The gamet flying left animation.</summary>
+    /// <summary>A Gamet facing left flying across, its wings beating twice as fast, repeating.</summary>
     GametFlyingLeft,
-    /// <summary>The gamet rising right animation.</summary>
+    /// <summary>
+    /// A Gamet facing right rising from its pipe, its wings beating from up to down and back, repeating.
+    /// </summary>
     GametRisingRight,
-    /// <summary>The gamet flying right animation.</summary>
+    /// <summary>A Gamet facing right flying across, its wings beating twice as fast, repeating.</summary>
     GametFlyingRight,
-    /// <summary>The geega flying left animation.</summary>
+    /// <summary>A Geega flying level facing left, its wings beating up, level and down, repeating.</summary>
     GeegaFlyingLeft,
-    /// <summary>The geega arcing left animation.</summary>
+    /// <summary>A Geega tilted facing left as it arcs away, its wings beating quickly, repeating.</summary>
     GeegaArcingLeft,
-    /// <summary>The geega flying right animation.</summary>
+    /// <summary>A Geega flying level facing right, its wings beating up, level and down, repeating.</summary>
     GeegaFlyingRight,
-    /// <summary>The geega arcing right animation.</summary>
+    /// <summary>A Geega tilted facing right as it arcs away, its wings beating quickly, repeating.</summary>
     GeegaArcingRight,
 }

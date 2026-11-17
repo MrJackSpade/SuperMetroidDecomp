@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 /// </summary>
 internal enum PolypRockSegment
 {
-    /// <summary>The initial animation.</summary>
+    /// <summary>The lava rock it hurls, held.</summary>
     Initial,
 }

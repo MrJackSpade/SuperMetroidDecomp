@@ -6,8 +6,12 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 internal enum MetroidSegment
 {
-    /// <summary>The chasing Samus animation.</summary>
+    /// <summary>
+    /// Its nuclei pulsing from dark to brightest and back four times while it chases Samus, then a cry, repeating.
+    /// </summary>
     ChasingSamus,
-    /// <summary>The draining Samus animation.</summary>
+    /// <summary>
+    /// Its nuclei pulsing from dark to brightest and back with the draining sound while it drains Samus, repeating.
+    /// </summary>
     DrainingSamus,
 }

@@ -6,24 +6,32 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 internal enum MorphBallEyeSegment
 {
-    /// <summary>The facing right deactivating animation.</summary>
+    /// <summary>
+    /// The eye on the right-facing mount half open, looking across, then half open again before it closes, held shut.
+    /// </summary>
     FacingRightDeactivating,
-    /// <summary>The facing right closed animation.</summary>
+    /// <summary>The eye on the right-facing mount shut, held.</summary>
     FacingRightClosed,
-    /// <summary>The facing left deactivating animation.</summary>
+    /// <summary>
+    /// The eye on the left-facing mount half open, looking across, then half open again before it closes, held shut.
+    /// </summary>
     FacingLeftDeactivating,
-    /// <summary>The facing left closed animation.</summary>
+    /// <summary>The eye on the left-facing mount shut, held.</summary>
     FacingLeftClosed,
-    /// <summary>The facing right activating animation.</summary>
+    /// <summary>
+    /// The eye on the right-facing mount shut, then opening halfway and looking across, ending half open.
+    /// </summary>
     FacingRightActivating,
-    /// <summary>The facing left activating animation.</summary>
+    /// <summary>
+    /// The eye on the left-facing mount shut, then opening halfway and looking across, ending half open.
+    /// </summary>
     FacingLeftActivating,
-    /// <summary>The mount facing right animation.</summary>
+    /// <summary>The eye's mount facing right, held.</summary>
     MountFacingRight,
-    /// <summary>The mount facing down animation.</summary>
+    /// <summary>The eye's mount facing down, held.</summary>
     MountFacingDown,
-    /// <summary>The mount facing left animation.</summary>
+    /// <summary>The eye's mount facing left, held.</summary>
     MountFacingLeft,
-    /// <summary>The mount facing up animation.</summary>
+    /// <summary>The eye's mount facing up, held.</summary>
     MountFacingUp,
 }

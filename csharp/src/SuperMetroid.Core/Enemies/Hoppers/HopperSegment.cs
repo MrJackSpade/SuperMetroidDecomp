@@ -6,36 +6,64 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 /// </summary>
 internal enum HopperSegment
 {
-    /// <summary>The sidehopper floor jumping animation.</summary>
+    /// <summary>
+    /// A Sidehopper leaping off the floor on straight legs with the hop sound; it moves off screen too.
+    /// </summary>
     SidehopperFloorJumping,
-    /// <summary>The sidehopper floor landed animation.</summary>
+    /// <summary>
+    /// A Sidehopper landing on the floor with its sound, its legs bending and crouching twice before it is ready to hop
+    /// again.
+    /// </summary>
     SidehopperFloorLanded,
-    /// <summary>The sidehopper ceiling jumping animation.</summary>
+    /// <summary>
+    /// A Sidehopper leaping off the ceiling on straight legs with the hop sound; it moves off screen too.
+    /// </summary>
     SidehopperCeilingJumping,
-    /// <summary>The sidehopper ceiling landed animation.</summary>
+    /// <summary>
+    /// A Sidehopper landing on the ceiling with its sound, its legs bending and crouching twice before it is ready to
+    /// hop again.
+    /// </summary>
     SidehopperCeilingLanded,
-    /// <summary>The dessgeega floor jumping animation.</summary>
+    /// <summary>A Dessgeega leaping off the floor on straight legs; it moves off screen too.</summary>
     DessgeegaFloorJumping,
-    /// <summary>The dessgeega floor landed animation.</summary>
+    /// <summary>
+    /// A Dessgeega landing on the floor, its legs bending and crouching twice before it is ready to hop again.
+    /// </summary>
     DessgeegaFloorLanded,
-    /// <summary>The dessgeega ceiling jumping animation.</summary>
+    /// <summary>A Dessgeega leaping off the ceiling on straight legs; it moves off screen too.</summary>
     DessgeegaCeilingJumping,
-    /// <summary>The dessgeega ceiling landed animation.</summary>
+    /// <summary>
+    /// A Dessgeega landing on the ceiling, its legs bending and crouching twice before it is ready to hop again.
+    /// </summary>
     DessgeegaCeilingLanded,
-    /// <summary>The large sidehopper floor jumping animation.</summary>
+    /// <summary>
+    /// A large Sidehopper leaping off the floor on straight legs with the hop sound; it moves off screen too.
+    /// </summary>
     LargeSidehopperFloorJumping,
-    /// <summary>The large sidehopper floor landed animation.</summary>
+    /// <summary>
+    /// A large Sidehopper landing on the floor with its sound, its legs bending and crouching twice before it is ready
+    /// to hop again.
+    /// </summary>
     LargeSidehopperFloorLanded,
-    /// <summary>The large sidehopper ceiling jumping animation.</summary>
+    /// <summary>
+    /// A large Sidehopper leaping off the ceiling on straight legs with the hop sound; it moves off screen too.
+    /// </summary>
     LargeSidehopperCeilingJumping,
-    /// <summary>The large sidehopper ceiling landed animation.</summary>
+    /// <summary>
+    /// A large Sidehopper landing on the ceiling with its sound, its legs bending and crouching twice before it is
+    /// ready to hop again.
+    /// </summary>
     LargeSidehopperCeilingLanded,
-    /// <summary>The large dessgeega floor jumping animation.</summary>
+    /// <summary>A large Dessgeega leaping off the floor on straight legs; it moves off screen too.</summary>
     LargeDessgeegaFloorJumping,
-    /// <summary>The large dessgeega floor landed animation.</summary>
+    /// <summary>
+    /// A large Dessgeega landing on the floor, its legs bending and crouching twice before it is ready to hop again.
+    /// </summary>
     LargeDessgeegaFloorLanded,
-    /// <summary>The large dessgeega ceiling jumping animation.</summary>
+    /// <summary>A large Dessgeega leaping off the ceiling on straight legs; it moves off screen too.</summary>
     LargeDessgeegaCeilingJumping,
-    /// <summary>The large dessgeega ceiling landed animation.</summary>
+    /// <summary>
+    /// A large Dessgeega landing on the ceiling, its legs bending and crouching twice before it is ready to hop again.
+    /// </summary>
     LargeDessgeegaCeilingLanded,
 }

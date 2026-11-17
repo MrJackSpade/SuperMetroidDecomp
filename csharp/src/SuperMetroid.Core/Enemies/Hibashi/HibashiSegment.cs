@@ -8,6 +8,6 @@ internal enum HibashiSegment
 {
     /// <summary>The visible flame's eruption.</summary>
     Flame,
-    /// <summary>The hitbox animation.</summary>
+    /// <summary>The pillar's collision part, held as an ember.</summary>
     Hitbox,
 }

@@ -11,9 +11,9 @@ internal enum LowerNorfairRioSegment
     Idle,
     /// <summary>The idle wingbeat, looped.</summary>
     IdleWingbeat,
-    /// <summary>The prepare to swoop animation.</summary>
+    /// <summary>Its flames hidden, its wings lifting, spreading fully and folding before it swoops.</summary>
     PrepareToSwoop,
-    /// <summary>The descending animation.</summary>
+    /// <summary>Its flames hidden, held with its wings folded while it swoops down.</summary>
     Descending,
     /// <summary>The opening of the climb back to the perch, which holds its last pose until its cue.</summary>
     AscentOpening,
@@ -21,8 +21,8 @@ internal enum LowerNorfairRioSegment
     Ascending,
     /// <summary>The climb's swept-wing beat, looped.</summary>
     AscendingWingbeat,
-    /// <summary>The cooldown animation.</summary>
+    /// <summary>Its flames showing, its wings sweeping and spreading open again after its swoop.</summary>
     Cooldown,
-    /// <summary>The flames animation.</summary>
+    /// <summary>Its flames flickering from large to small, repeating.</summary>
     Flames,
 }

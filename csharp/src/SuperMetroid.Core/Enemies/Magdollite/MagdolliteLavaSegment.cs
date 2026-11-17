@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// </summary>
 internal enum MagdolliteLavaSegment
 {
-    /// <summary>The left animation.</summary>
+    /// <summary>A gob of lava thrown left, held.</summary>
     Left,
-    /// <summary>The right animation.</summary>
+    /// <summary>A gob of lava thrown right, held.</summary>
     Right,
     /// <summary>The shot animation: the lava spawns its drops and is deleted.</summary>
     Shot,

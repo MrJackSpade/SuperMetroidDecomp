@@ -14,6 +14,6 @@ internal enum ShutterSegment
     GrowingThirtyPixels,
     /// <summary>The 40-pixel growing shutter animation.</summary>
     FortyPixels,
-    /// <summary>The Kamer platform animation.</summary>
+    /// <summary>Kamer's light brightening from dark to bright, repeating.</summary>
     KamerPlatform,
 }

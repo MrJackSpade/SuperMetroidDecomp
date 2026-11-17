@@ -10,7 +10,10 @@ internal enum BeetomSegment
     CrawlingLeft,
     /// <summary>The leftward crawl's four strides.</summary>
     CrawlingLeftStride,
-    /// <summary>The hop left animation.</summary>
+    /// <summary>
+    /// Hopping left: pushing off, stretching its leg and pushing again, then landing with its legs tucked; it keeps
+    /// moving off screen.
+    /// </summary>
     HopLeft,
     /// <summary>The leftward drain's green gem, shown once.</summary>
     DrainingLeft,
@@ -20,7 +23,10 @@ internal enum BeetomSegment
     CrawlingRight,
     /// <summary>The rightward crawl's four strides.</summary>
     CrawlingRightStride,
-    /// <summary>The hop right animation.</summary>
+    /// <summary>
+    /// Hopping right: pushing off, stretching its leg and pushing again, then landing with its legs tucked; it keeps
+    /// moving off screen.
+    /// </summary>
     HopRight,
     /// <summary>The rightward drain's green gem, shown once.</summary>
     DrainingRight,

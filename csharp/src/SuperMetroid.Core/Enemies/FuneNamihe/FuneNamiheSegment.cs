@@ -6,20 +6,32 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 internal enum FuneNamiheSegment
 {
-    /// <summary>The Fune idle left animation.</summary>
+    /// <summary>The Fune facing left with its mouth closed, held.</summary>
     FuneIdleLeft,
-    /// <summary>The Fune active left animation.</summary>
+    /// <summary>
+    /// The Fune facing left opening its mouth to spit a fireball left with its sound, then closing it again before it
+    /// idles.
+    /// </summary>
     FuneActiveLeft,
-    /// <summary>The Fune idle right animation.</summary>
+    /// <summary>The Fune facing right with its mouth closed, held.</summary>
     FuneIdleRight,
-    /// <summary>The Fune active right animation.</summary>
+    /// <summary>
+    /// The Fune facing right opening its mouth to spit a fireball right with its sound, then closing it again before it
+    /// idles.
+    /// </summary>
     FuneActiveRight,
-    /// <summary>The Namihe idle left animation.</summary>
+    /// <summary>The Namihe facing left with its mouth closed, held.</summary>
     NamiheIdleLeft,
-    /// <summary>The Namihe active left animation.</summary>
+    /// <summary>
+    /// The Namihe facing left opening its mouth wide to spit a fireball left with its sound, then closing it again
+    /// before it idles.
+    /// </summary>
     NamiheActiveLeft,
-    /// <summary>The Namihe idle right animation.</summary>
+    /// <summary>The Namihe facing right with its mouth closed, held.</summary>
     NamiheIdleRight,
-    /// <summary>The Namihe active right animation.</summary>
+    /// <summary>
+    /// The Namihe facing right opening its mouth wide to spit a fireball right with its sound, then closing it again
+    /// before it idles.
+    /// </summary>
     NamiheActiveRight,
 }

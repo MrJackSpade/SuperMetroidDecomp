@@ -61,7 +61,7 @@ internal sealed class RidleyNativeInstructionPointers
     /// </summary>
     internal ushort? TranslatedEnemy(RoomEnemySystem enemies, RoomEnemyPlace actor)
     {
-        if (RidleyInteractions.IsRidleyDefinition(actor.DefinitionId))
+        if (RidleyInteractionsConstants.IsRidleyDefinition(actor.DefinitionId))
             return Body(RequireRidley(enemies).Flight);
         if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
         {

@@ -16,7 +16,6 @@ using static SuperMetroid.Verification.Enemies.Crawlers.OrangeZoomerArtworkVerif
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
-using static SuperMetroid.Verification.Bosses.Ridley.RidleySupplementalArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotVisualsVerification;

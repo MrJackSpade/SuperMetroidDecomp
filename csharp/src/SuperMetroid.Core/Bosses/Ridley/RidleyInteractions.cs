@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>Ridley's hitboxes, weapon reactions, intangibility and health colours.</summary>
 internal static class RidleyInteractions
 {
-    /// <summary>Includes both the Ceres and the Lower Norfair Ridley definitions.</summary>
-    internal static bool IsRidleyDefinition(EnemyDefinitionId definitionId) =>
-        definitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
     /// <summary>
     /// Puts Norfair Ridley in the health band his health has reached and shows its health shade. Norfair and Ceres show

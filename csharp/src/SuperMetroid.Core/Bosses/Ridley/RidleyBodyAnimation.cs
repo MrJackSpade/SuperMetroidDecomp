@@ -69,8 +69,7 @@ internal sealed class RidleyBodyAnimation
                 flight.ClawHeight = setClawHeight.Height;
                 return null;
             case RidleyBodyCue.Move move:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Displacement.X);
-                place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + move.Displacement.Y);
+                place.Position += move.Displacement;
                 return null;
             case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.FaceForward }:
                 flight.FacingDirection = RidleyFacing.Turning;

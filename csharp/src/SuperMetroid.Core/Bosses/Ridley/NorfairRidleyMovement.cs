@@ -15,15 +15,17 @@ internal static class NorfairRidleyMovement
     {
         divisor = RidleyInertia.Divisor(divisor);
 
+        Position16<RoomPixels> at = place.Position.Whole;
+        Offset16<RoomPixels> fromTarget = at - target;
         flight.Velocity = new EightEightVector<RoomPixels>(
             AccelerateNorfairRidleyAxis(
-                flight.Velocity.X,
-                place.Position.X.Whole, target.X,
+                new SeekingVelocityRun(flight.Velocity.X, at.X, target.X),
+                fromTarget.X,
                 divisor,
                 reversalBoost),
             AccelerateNorfairRidleyAxis(
-                flight.Velocity.Y,
-                place.Position.Y.Whole, target.Y,
+                new SeekingVelocityRun(flight.Velocity.Y, at.Y, target.Y),
+                fromTarget.Y,
                 divisor,
                 reversalBoost));
     }
@@ -35,22 +37,19 @@ internal static class NorfairRidleyMovement
     /// velocity stays within a few thousand units of rest (each update clamps it to five pixels and a step is at most the
     /// arena's height), so the clamps compare signed velocities.
     /// </summary>
-    /// <param name="axisVelocity">The axis velocity.</param>
-    /// <param name="position">Ridley's whole coordinate on the axis, as his position holds it.</param>
-    /// <param name="target">The target's whole coordinate on the axis, as its position holds it.</param>
+    /// <param name="run">The run of steps from the axis velocity toward the target from Ridley's place on the axis.</param>
+    /// <param name="distance">Ridley's displacement from the target on the axis.</param>
     /// <param name="divisor">The inertia divisor, at least one.</param>
     /// <param name="reversalBoost">The extra speed a reversal subtracts or adds first, never negative.</param>
     private static SignedEightEight AccelerateNorfairRidleyAxis(
-        SignedEightEight axisVelocity,
-        int position,
-        int target,
+        SeekingVelocityRun run,
+        int distance,
         int divisor,
         int reversalBoost)
     {
-        int distance = CoordinateAxis.Difference(position, target);
+        SignedEightEight axisVelocity = run.Velocity;
         if (distance == 0) return axisVelocity;
         int step = Math.Max(1, Math.Abs(distance) / divisor);
-        var run = new SeekingVelocityRun(axisVelocity, position, target);
 
         if (distance > 0)
         {

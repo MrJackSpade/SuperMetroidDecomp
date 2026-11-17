@@ -602,8 +602,8 @@ internal static class RidleyFullMovieVerification
         RidleyFullMovieCase[] cases = [
             new RidleyFullMovieCase(0x004a, RidleyFacing.Right, false), // Original movie frame 734: already facing inward.
             new RidleyFullMovieCase(0x00c0, RidleyFacing.Right, true), new RidleyFullMovieCase(0x004a, RidleyFacing.Left, true), new RidleyFullMovieCase(0x00c0, RidleyFacing.Left, false),
+            // The arena's centre column: his movement box keeps him between X 64 and 224, inside one screen.
             new RidleyFullMovieCase(0x004a, RidleyFacing.Turning, false), new RidleyFullMovieCase(0x007f, RidleyFacing.Right, false), new RidleyFullMovieCase(0x0080, RidleyFacing.Right, true),
-            new RidleyFullMovieCase(0x014a, RidleyFacing.Right, false), // Native tests the low position byte, not full X >= 128.
         ];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
@@ -624,7 +624,7 @@ internal static class RidleyFullMovieVerification
         NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), hoverState);
         AssertEqual(-1, hoverState.PhaseTimer.Count, "native hover counts zero one update past it before selecting next attack");
         AssertEqual(NorfairRidleyPhase.SelectAttack, hoverState.Phase, "negative hover timer exits before movement");
-        Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
+        Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and the arena's centre column agree.");
     }
 
     /// <summary>Checks pause page and HDMA timing across Ridley's fight.</summary>

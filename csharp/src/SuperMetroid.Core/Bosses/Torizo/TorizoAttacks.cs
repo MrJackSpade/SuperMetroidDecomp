@@ -817,7 +817,7 @@ internal sealed class TorizoAttacks
         bool awayFromSamus)
     {
         TrigonometryAngle bearing = EnemyMath.CalculateBearing(
-            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToMirroredTrigonometryAngle();
+            samus.Position.Whole - projectile.Position.Whole).ToMirroredTrigonometryAngle();
         TrigonometryAngle angle = awayFromSamus ? bearing.InSecondHalfTurn() : bearing.InFirstHalfTurn();
 
         // The up-zero heading: X is its sine, Y its negative cosine. Starting both reads at sine rotates the shot.

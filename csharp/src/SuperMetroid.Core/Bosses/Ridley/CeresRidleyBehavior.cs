@@ -110,7 +110,7 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
                 // The rising step adds -16 to the 1/256-pixel Y velocity before the common movement pass. Ridley rises from rest
                 // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
                 state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y - CeresRidleyFlightDefinitions.LiftoffClimbStep);
-                if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.LiftoffSlowingLineY) < 0)
+                if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.LiftoffSlowingLineY)
                 {
                     state.Phase = CeresRidleyPhase.LiftoffDecelerating;
                     CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state);

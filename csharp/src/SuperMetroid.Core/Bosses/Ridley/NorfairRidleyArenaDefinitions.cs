@@ -12,11 +12,17 @@ internal static class NorfairRidleyArenaDefinitions
     /// <summary>Where Ridley is placed, below his arena's visible floor.</summary>
     internal static readonly Position16<RoomPixels> Spawn = new(96, 394);
 
-    /// <summary>The top-left corner of the box his movement keeps him in.</summary>
-    internal static readonly Position16<RoomPixels> MovementMinimum = new(64, 64);
+    /// <summary>The top-left corner of the box his movement keeps him in, where it lies from the room's origin.</summary>
+    internal static readonly Offset16<RoomPixels> MovementMinimum = new(64, 64);
 
-    /// <summary>The bottom-right corner of the box his movement keeps him in.</summary>
-    internal static readonly Position16<RoomPixels> MovementMaximum = new(224, 416);
+    /// <summary>The bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</summary>
+    internal static readonly Offset16<RoomPixels> MovementMaximum = new(224, 416);
+
+    /// <summary>
+    /// The column halfway across his arena, one screen wide, which his movement box keeps him well inside: his pogo bounces
+    /// and his facing turn toward the half he is not in.
+    /// </summary>
+    internal const int CentreX = 128;
 
     /// <summary>The point he flies to as he enters the arena, before his first attack.</summary>
     internal static readonly Position16<RoomPixels> ArenaEntry = new(64, 256);

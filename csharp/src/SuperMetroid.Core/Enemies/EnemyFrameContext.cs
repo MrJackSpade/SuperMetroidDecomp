@@ -18,9 +18,8 @@ internal sealed class EnemyFrameContext
     private readonly EnemySession _session;
 
     /// <summary>
-    /// Enemy-pass random counter read by AI and projectiles, 0 through 65535. Its one advance wraps
-    /// from 65535 back to zero, and every reader takes it modulo a power of two or copies it whole, so a wider store holds exactly
-    /// the counter the game keeps.
+    /// The count of enemy passes, read by AI and projectiles: every reader takes a power-of-two cadence of it (an
+    /// <see cref="UpdateCadence"/> or <see cref="UpdateCounterField"/>), so it is a plain count.
     /// </summary>
     internal int RandomEnemyCounter
     {
@@ -57,6 +56,6 @@ internal sealed class EnemyFrameContext
         FrameCounter = frameCounter;
     }
 
-    /// <summary>The end-of-pass advance of the random counter, wrapping from 65535 to zero.</summary>
-    internal void AdvanceRandomEnemyCounter() => RandomEnemyCounter = WrappingCounter.IncrementCount(RandomEnemyCounter);
+    /// <summary>Counts the enemy pass that has just ended.</summary>
+    internal void AdvanceRandomEnemyCounter() => RandomEnemyCounter++;
 }

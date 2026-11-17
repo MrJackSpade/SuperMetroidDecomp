@@ -111,10 +111,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         state.FacesLeft = samusIsLeft;
         StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Idle(state.FacesLeft));
 
-        if (!EnemyMath.IsWithinStrictModularDistance(
-                samus.Position.X.Whole,
-                place.Position.X.Whole,
-                MaridiaLargeSnailMotionDefinitions.PushingReachX))
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
         {
             return;
         }
@@ -154,10 +151,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (cooldownExpired)
         {
             state.AttackCooldown = 0;
-            bool mayAttack = EnemyMath.IsWithinStrictModularDistance(
-                    samus.Position.X.Whole,
-                    place.Position.X.Whole,
-                    MaridiaLargeSnailMotionDefinitions.AttackReach) &&
+            bool mayAttack = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) < MaridiaLargeSnailMotionDefinitions.AttackReach &&
                 state.AttackAllowsRotation &&
                 state.RemainingBounces == 0;
             if (mayAttack)
@@ -270,7 +264,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         if (temporarilyReachTowardSamus)
         {
-            place.Position = place.Position.WithWrappedWholeX(
+            place.Position = place.Position.WithWholeX(
                 place.Position.X.Whole + (state.MovingLeft
                     ? MaridiaLargeSnailMotionDefinitions.PushReach
                     : -MaridiaLargeSnailMotionDefinitions.PushReach));
@@ -292,14 +286,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         state.SamusInPushingRange = false;
         state.SamusIsLeft = false;
-        if (!EnemyMath.IsWithinStrictModularDistance(
-                samus.Position.Y.Whole,
-                place.Position.Y.Whole,
-                MaridiaLargeSnailMotionDefinitions.PushingReachY) ||
-            !EnemyMath.IsWithinStrictModularDistance(
-                samus.Position.X.Whole,
-                place.Position.X.Whole,
-                MaridiaLargeSnailMotionDefinitions.PushingReachX))
+        if (CoordinateAxis.Distance(samus.Position.Y.Whole, place.Position.Y.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachY ||
+            CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= MaridiaLargeSnailMotionDefinitions.PushingReachX)
         {
             return;
         }
@@ -326,12 +314,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!state.SamusInPushingRange)
             return;
 
-        int deltaX = CoordinateAxis.Wrap(place.Position.X.Whole - state.PreviousPosition.X);
-        bool movedLeft = CoordinateAxis.AsSigned(deltaX) < 0;
+        int deltaX = place.Position.X.Whole - state.PreviousPosition.X;
+        bool movedLeft = deltaX < 0;
         if (movedLeft != state.SamusIsLeft)
             return;
 
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(deltaX), 0);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(deltaX, 0);
     }
 
     /// <summary>Records an opposing controller direction to stop the following frame's roll.</summary>

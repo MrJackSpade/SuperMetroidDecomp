@@ -137,7 +137,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus =
             CoordinateAxis.Difference(place.Position.X.Whole, samus.Position.X.Whole) < 0;
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
+        place.Position = place.Position.WithWholeX(place.Position.X.Whole +
             (metareeIsLeftOfSamus
                 ? MetareeMotionDefinitions.DiveSteer
                 : -MetareeMotionDefinitions.DiveSteer));
@@ -154,7 +154,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.BurrowTimer == MetareeMotionDefinitions.BurstCountdown)
             SkreeMetareeParticles.SpawnBurst(_projectiles, place, SkreeMetareeParticleSegment.Metaree);
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + 1);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + 1);
     }
 
     /// <summary>Starts <paramref name="animation"/> unless it is the one playing, which keeps playing (#2145).</summary>

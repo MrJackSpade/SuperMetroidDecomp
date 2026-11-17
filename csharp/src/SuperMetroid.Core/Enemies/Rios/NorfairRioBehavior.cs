@@ -81,10 +81,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // number, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle animation without starting an attack.
                 if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||
-                    !EnemyMath.IsWithinStrictModularDistance(
-                        samus.Position.X.Whole,
-                        place.Position.X.Whole,
-                        RioLaunchDefinitions.NorfairTriggerDistance))
+                    CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= RioLaunchDefinitions.NorfairTriggerDistance)
                 {
                     if (state.AnimationSignal)
                     {

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// how far it steps along the curve each pass, which fix the place it starts its climb from (<see cref="StartPlace"/>).
 /// The Beetom's leaps, the hoppers' hops and the Ki-Hunter's detached wings plan their climbs this way.
 /// </summary>
-/// <param name="Height">How high the climb rises, no higher than <see cref="QuadraticSpeedCurveDefinitions.LargestClimbHeight"/> pixels.</param>
+/// <param name="Height">How high the climb rises, none or more: 16 to 64 pixels for the climbs the game plans.</param>
 /// <param name="StepPerPass">How far along the curve each pass of the search steps.</param>
 internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
 {
@@ -22,15 +22,14 @@ internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height,
     /// reading the speed rejects the climb before the place could grow further, and a climb that steps nowhere sums the
     /// start's speed of zero only (#1627).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The height is negative or above the largest climb height.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The height is negative.</exception>
     /// <exception cref="InvalidDataException">The climb does not reach its height within the curve's marks.</exception>
     internal QuadraticSpeedCurvePlace StartPlace
     {
         get
         {
-            if (Height.IsNegative || Height > SignedSixteenSixteen.FromWholePixels(QuadraticSpeedCurveDefinitions.LargestClimbHeight))
-                throw new ArgumentOutOfRangeException(nameof(Height), Height,
-                    $"A climb rises no lower than nothing and no higher than {QuadraticSpeedCurveDefinitions.LargestClimbHeight} pixels.");
+            if (Height.IsNegative)
+                throw new ArgumentOutOfRangeException(nameof(Height), Height, "A climb rises no lower than nothing.");
             QuadraticSpeedCurvePlace place = QuadraticSpeedCurvePlace.Start;
             SignedSixteenSixteen climbed = SignedSixteenSixteen.Zero;
             for (int pass = 0; pass < MostPasses; pass++)

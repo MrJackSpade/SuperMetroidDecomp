@@ -31,8 +31,8 @@ public sealed class KzanEnemyState
     public int RisingTargetY { get; internal set; }
 
     /// <summary>
-    /// The lowest room Y of the fall, the spawn Y plus the spawn settings' fall distance with room-coordinate
-    /// wraparound. Positions compare with it by the wrapped difference.
+    /// The lowest room Y of the fall, the spawn Y plus the spawn settings' fall distance, inside the room. Positions
+    /// compare with it by the wrapped difference.
     /// </summary>
     public int FallingTargetY { get; internal set; }
 

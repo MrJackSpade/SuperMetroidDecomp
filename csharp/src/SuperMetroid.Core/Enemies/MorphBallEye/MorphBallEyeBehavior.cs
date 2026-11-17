@@ -138,8 +138,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        if (!EnemyMath.IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, MorphBallEyeWatchDefinitions.OpeningReachY) ||
-            !EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, MorphBallEyeWatchDefinitions.OpeningReachX))
+        if (CoordinateAxis.Distance(samus.Position.Y.Whole, eye.Position.Y.Whole) >= MorphBallEyeWatchDefinitions.OpeningReachY ||
+            CoordinateAxis.Distance(samus.Position.X.Whole, eye.Position.X.Whole) >= MorphBallEyeWatchDefinitions.OpeningReachX)
         {
             return;
         }
@@ -176,8 +176,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         bool inProximity =
-            EnemyMath.IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.Position.Y.Whole, MorphBallEyeWatchDefinitions.StayOpenReachY) &&
-            EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, MorphBallEyeWatchDefinitions.StayOpenReachX);
+            CoordinateAxis.Distance(samus.Position.Y.Whole, eye.Position.Y.Whole) < MorphBallEyeWatchDefinitions.StayOpenReachY &&
+            CoordinateAxis.Distance(samus.Position.X.Whole, eye.Position.X.Whole) < MorphBallEyeWatchDefinitions.StayOpenReachX;
         if (!inProximity)
         {
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EyeRaySoundStop, priority: SoundRequestPriority.Normal);

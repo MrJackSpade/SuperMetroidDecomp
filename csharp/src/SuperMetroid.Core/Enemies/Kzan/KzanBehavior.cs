@@ -66,7 +66,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // A zero countdown deliberately wraps to -1 on its first decrement rather than
         // triggering immediately.
         int spawnY = place.Position.Y.Whole;
-        state.FallingTargetY = CoordinateAxis.Wrap(spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance);
+        state.FallingTargetY = spawnY + place.SpawnSettings<KzanSpawnSettings>().FallDistance;
         state.RisingTargetY = spawnY;
         state.FallWaitTimerResetValue = place.SpawnSettings<KzanSpawnSettings>().FallWait;
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
@@ -98,7 +98,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private void FollowKzanTop(RoomEnemyPlace bottom)
     {
         RoomEnemyPlace top = _tops.Of(bottom);
-        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, CoordinateAxis.Wrap(top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop)));
+        bottom.Position = bottom.Position.WithWhole(new(top.Position.X.Whole, top.Position.Y.Whole + KzanMotionDefinitions.BottomBelowTop));
     }
 
     /// <summary>Runs the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>

@@ -114,8 +114,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(KiHunterMotionDefinitions.PatrolStartVelocity);
-        state.UpperPatrolY = CoordinateAxis.Wrap(body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise);
-        state.LowerPatrolY = CoordinateAxis.Wrap(state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth);
+        state.UpperPatrolY = body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise;
+        state.LowerPatrolY = state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth;
         state.SpawnPosition = body.Position.Whole;
 
         // A wingless Ki-Hunter is the permanently ground-bound form. The wing listed after it
@@ -304,9 +304,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         TrigonometryAngle tableAngle = state.SwoopAngle.ToTrigonometryAngle();
-        int targetX = CoordinateAxis.Wrap(
-            state.SwoopTargetX +
-            EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X));
+        int targetX = state.SwoopTargetX + EnemyMath.CircleCosinePixels(tableAngle, state.SwoopRadius.X);
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
@@ -316,9 +314,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
-        int targetY = CoordinateAxis.Wrap(
-            state.SwoopOriginY +
-            EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y));
+        int targetY = state.SwoopOriginY + EnemyMath.CircleNegativeSinePixels(tableAngle, state.SwoopRadius.Y);
         SignedSixteenSixteen verticalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
@@ -525,10 +521,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         TrigonometryAngle trigonometryAngle = state.WingArcAngle.ToTrigonometryAngle();
-        int desiredY = CoordinateAxis.Wrap(
-            state.OrbitCenter.Y +
-            EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) -
-            state.FallingArcOffset.Y);
+        int desiredY = state.OrbitCenter.Y + EnemyMath.CircleNegativeSinePixels(trigonometryAngle, radius) - state.FallingArcOffset.Y;
         if (_terrain.MoveEnemyVertically(
                 level,
                 wings,
@@ -540,7 +533,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        wings.Position = wings.Position.WithWrappedWholeX(
+        wings.Position = wings.Position.WithWholeX(
             state.OrbitCenter.X + EnemyMath.CircleCosinePixels(trigonometryAngle, radius) - state.FallingArcOffset.X);
         if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
@@ -861,10 +854,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(movingRight
             ? KiHunterAcidHorizontalSpeed
             : -KiHunterAcidHorizontalSpeed);
-        projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole +
+        projectile.Position = projectile.Position.WithWholeX(body.Position.X.Whole +
             (movingRight ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
-        projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
     }
 
     /// <summary>
@@ -876,7 +869,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         projectile.StartMotion(KiHunterAcidMotion.Falling);
-        projectile.Position = projectile.Position.WithWrappedWholeX(
+        projectile.Position = projectile.Position.WithWholeX(
             projectile.Position.X.Whole + (direction == HorizontalDirection.Right
                 ? KiHunterMotionDefinitions.AcidLaunchShift
                 : -KiHunterMotionDefinitions.AcidLaunchShift));

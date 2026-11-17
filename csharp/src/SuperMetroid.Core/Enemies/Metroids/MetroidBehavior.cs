@@ -91,7 +91,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunMetroidMain(RoomEnemyPlace place, SamusState samus, RoomLevelData level)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus);
+        int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
         switch (state.Movement)
         {
             case MetroidMovement.Homing:
@@ -233,7 +233,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResolveMetroidTouch(RoomEnemyPlace place, SamusState samus)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus);
+        int targetY = samus.Position.Y.Whole - MetroidBehaviorDefinitions.AimAboveSamus;
         if (samus.HorizontalSpeed.BodyAttack != SamusBodyAttack.None)
         {
             if (state.Movement != MetroidMovement.AttachedToSamus)

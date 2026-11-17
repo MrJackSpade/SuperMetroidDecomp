@@ -49,12 +49,13 @@ internal static class EnemyQuadraticSpeedsVerification
             AssertEqual(SixteenSixteenWords.ToCoordinate(expected), rock.Position.Y, "Polyp real split-word carry/wrap");
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, QuadraticSpeedCurvePlace.FromMarks(QuadraticSpeedCurveDefinitions.MarkCount), EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
-        // The Beetom's and the hoppers' climbs (#2026): for every height up to the largest climb, at one, two and four
-        // marks a pass, the climb starts at the mark the original's sixteen-bit sum, compared with the height by the sign
-        // of their difference, settles on; a height above the largest climb or below nothing is refused.
+        // The Beetom's and the hoppers' climbs (#2026): for every height up to 96 pixels, past every climb the game plans
+        // (16 to 64 pixels), at one, two and four marks a pass, the climb starts at the mark the original's sixteen-bit
+        // sum, compared with the height by the sign of their difference, settles on; a height below nothing is refused
+        // (#2341: no largest height is a rule).
         QuadraticSpeedCurvePlace Climb(int height, int marks) =>
             new QuadraticCurveClimb(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(height), QuadraticSpeedCurvePlace.FromMarks(marks)).StartPlace;
-        int largestClimb = QuadraticSpeedCurveDefinitions.LargestClimbHeight * 256;
+        const int largestClimb = 96 * 256;
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
         for (int height = 0; height <= largestClimb; height++)
@@ -70,9 +71,8 @@ internal static class EnemyQuadraticSpeedsVerification
                 break;
             }
         }
-        // At four marks a pass the curve's coarse speeds sum to more than the largest climb, so every height settles.
-        AssertEqual(3 * (largestClimb + 1), initialIndexCases, "every climb height up to the largest settles inside the curve");
-        AssertThrows<ArgumentOutOfRangeException>(() => Climb(largestClimb + 1, 1), "a climb above the largest is refused");
+        // At four marks a pass the curve's coarse speeds sum to more than 96 pixels, so every height settles.
+        AssertEqual(3 * (largestClimb + 1), initialIndexCases, "every climb height up to 96 pixels settles inside the curve");
         AssertThrows<ArgumentOutOfRangeException>(() => Climb(-1, 1), "a climb below nothing is refused");
         // #1627: the climb is bounded by the table's rows, not a pass count. Fifty rows at a time, a climb row fifty settles
         // is taken there; one 256th taller runs on past the table's last row and is rejected; a delta of zero settles on

@@ -59,8 +59,8 @@ internal sealed class DraygonGrab
 
         int clawOffset = state.Facing == HorizontalDirection.Right ? DraygonArenaDefinitions.ClawReach : -DraygonArenaDefinitions.ClawReach;
         bool insideGrabWindow =
-            EnemyMath.IsWithinStrictModularDistance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole, DraygonArenaDefinitions.GrabWindow) &&
-            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, DraygonArenaDefinitions.GrabWindow);
+            CoordinateAxis.Distance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole) < DraygonArenaDefinitions.GrabWindow &&
+            CoordinateAxis.Distance(body.Position.Y.Whole, samus.Position.Y.Whole) < DraygonArenaDefinitions.GrabWindow;
         if (!insideGrabWindow)
         {
             MoveDraygonToward(body, samus.Position.Whole, DraygonGrabDefinitions.ChaseSpeed);
@@ -110,8 +110,8 @@ internal sealed class DraygonGrab
 
         RoomEnemyPlace body = state.Body;
         bool reachedTarget =
-            EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonGrabDefinitions.SpiralTarget.X, DraygonArenaDefinitions.SpiralTargetTolerance) &&
-            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonGrabDefinitions.SpiralTarget.Y, DraygonArenaDefinitions.SpiralTargetTolerance);
+            CoordinateAxis.Distance(body.Position.X.Whole, DraygonGrabDefinitions.SpiralTarget.X) < DraygonArenaDefinitions.SpiralTargetTolerance &&
+            CoordinateAxis.Distance(body.Position.Y.Whole, DraygonGrabDefinitions.SpiralTarget.Y) < DraygonArenaDefinitions.SpiralTargetTolerance;
         if (reachedTarget)
         {
             state.Phase = DraygonPhase.FlailWithSamus;

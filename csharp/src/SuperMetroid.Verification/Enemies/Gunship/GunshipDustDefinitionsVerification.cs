@@ -13,7 +13,10 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 /// <summary>Checks compiled gunship liftoff dust data and real projectile allocation against cartridge table values.</summary>
 internal static class GunshipDustDefinitionsVerification
 {
-    /// <summary>Compares all six dust definitions and wrapped spawn positions, then checks full-pool behavior.</summary>
+    /// <summary>
+    /// Compares all six dust definitions and their spawn positions for Samus anywhere a cloud stays inside the room space
+    /// (#2341: the clouds are placed by plain arithmetic), then checks full-pool behavior.
+    /// </summary>
     internal static void VerifyCompiledGunshipDust(CartridgeImportAddressSpace rom)
     {
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
@@ -22,6 +25,9 @@ internal static class GunshipDustDefinitionsVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var slot = enemies.Projectiles.EnemyProjectiles[^1];
         AssertEqual(6, GunshipDustDefinitions.LiftoffClouds.Count, "Six liftoff dust clouds");
+        // Samus at least 128 pixels from either end of the room space on both axes keeps every cloud inside it.
+        const int margin = 128;
+        int spawns = 0;
         for (int cloud = 0; cloud < GunshipDustDefinitions.LiftoffClouds.Count; cloud++)
         {
             // The gunship's six spawn parameters are the native tables' byte offsets, in the clouds' spawn order.
@@ -31,11 +37,10 @@ internal static class GunshipDustDefinitionsVerification
             var definition = GunshipDustDefinitions.LiftoffClouds[cloud];
             AssertEqual(dx, definition.XOffset, "All native dust signed X offsets");
             AssertEqual(instruction, GunshipDustNativeListAddresses.Entry(definition.Animation), "All native dust instruction selections");
-            for (int origin = 0; origin <= ushort.MaxValue; origin++)
+            for (int origin = margin; origin <= ushort.MaxValue - margin; origin++)
             {
                 slot.Delete();
-                // Every world X and Y, including independent positive/negative wrap,
-                // enters the actual allocator/header initializer with stale slot values.
+                // Every such world X and Y enters the actual allocator/header initializer with stale slot values.
                 samus.Position = samus.Position.WithWhole(new((ushort)origin, (ushort)(ushort.MaxValue - origin)));
                 slot.Position = slot.Position.WithFractionY(0xffff).WithFractionX(0xffff);
                 slot.Velocity = new(new SignedEightEight(0x1234), new SignedEightEight(0x1234));
@@ -43,8 +48,9 @@ internal static class GunshipDustDefinitionsVerification
                 // A spawn creates a new projectile in the place, which the place now holds (#1590).
                 slot = enemies.Projectiles.EnemyProjectiles[^1];
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
-                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.Position.X.Whole, "Actual dust signed X placement and wrap");
-                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.Position.Y.Whole, "Actual dust Y placement and wrap");
+                AssertEqual(samus.Position.X.Whole + dx, (int)slot.Position.X.Whole, "Actual dust signed X placement");
+                AssertEqual(samus.Position.Y.Whole + Word(0x86a2c5), (int)slot.Position.Y.Whole, "Actual dust Y placement");
+                spawns++;
                 AssertTrue(slot.Animation is GunshipDustAnimation started &&
                     started.Playback == new AnimationPlayback<GunshipDustSegment>(GunshipDustAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), "Actual dust program selection");
                 AssertEqual((ushort)1, slot.FrameHold.RawValue, "Dust begins on first program tick");
@@ -67,7 +73,7 @@ internal static class GunshipDustDefinitionsVerification
             AssertEqual((ushort)0x1234, occupied.Position.X.Whole, "Full pool retains X");
             AssertTrue(ReferenceEquals(EnemyProjectileDeleteAnimation.Instance, occupied.Animation), "Full pool retains program");
         }
-        Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns and full-pool retention pass with migrated reads forbidden.");
+        Console.WriteLine($"Gunship dust: 12 native words, {spawns} real spawns and full-pool retention pass with migrated reads forbidden.");
     }
 
     /// <summary>Reads a native dust-table byte solely as the verification oracle at the CPU bus boundary.</summary>

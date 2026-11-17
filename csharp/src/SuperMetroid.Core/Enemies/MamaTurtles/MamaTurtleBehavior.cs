@@ -140,8 +140,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
         {
-            SpawnTopCenter = new Position16<RoomPixels>(
-                place.Position.X.Whole, CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y)),
+            SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
             Velocity = new Offset16<RoomPixels>(place.SpawnSettings<TurtleSpawnSettings>().Speed, 0),
         };
         place.SetSpeciesState(state);
@@ -239,18 +238,18 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The shell's contour on Samus's left differs from its contour on her right; the asymmetry is visible
         // around the dormant shell's lip.
         int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
-        mama.Radius = mama.Radius.WithY(CoordinateAxis.Wrap(-contourOffset));
+        mama.Radius = mama.Radius.WithY(-contourOffset);
         mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);
 
         if (!EnemyCollision.IsSamusStandingOn(mama, samus))
             return;
 
-        int shellTop = CoordinateAxis.Wrap(mama.Position.Y.Whole - mama.Radius.Y);
-        int overlap = CoordinateAxis.Wrap(samus.Kinematics.BottomBoundary - shellTop);
-        if (CoordinateAxis.AsSigned(overlap) < 0)
+        int shellTop = mama.Position.Y.Whole - mama.Radius.Y;
+        int overlap = samus.Kinematics.BottomBoundary - shellTop;
+        if (overlap < 0)
             return;
 
-        samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(overlap));
+        samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, overlap);
     }
 
     /// <summary>Runs the deliberately jittery shell-opening step.</summary>
@@ -271,11 +270,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement -= MamaTurtleMotionDefinitions.LeavingShellRiderShift;
         }
 
-        mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.LeavingShellClimb);
+        mama.Position = mama.Position.WithWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.LeavingShellClimb);
         mama.Radius = mama.Radius.WithY(MamaTurtleMotionDefinitions.AwakeHalfHeight);
         mama.Position = mama.Position.WithWholeX(MamaTurtleCadenceDefinitions.LeavingShellSidestepsLeft.IsSetIn(mama.Position.Y.Whole)
-            ? CoordinateAxis.Wrap(mama.Position.X.Whole - 1)
-            : CoordinateAxis.Wrap(mama.Position.X.Whole + 1));
+            ? mama.Position.X.Whole - 1
+            : mama.Position.X.Whole + 1);
 
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, SignedSixteenSixteen.FromWholePixels(1)))
             return;
@@ -417,7 +416,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
         {
-            mama.Position = mama.Position.WithWrappedWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.RiddenAscentSpeed);
+            mama.Position = mama.Position.WithWholeY(mama.Position.Y.Whole - MamaTurtleMotionDefinitions.RiddenAscentSpeed);
             samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, MamaTurtleMotionDefinitions.RiddenAscentSpeed);
             return;
         }
@@ -706,8 +705,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         baby.Position = baby.Position.WithWholeX(CoordinateAxis.Difference(baby.Position.X.Whole, samus.Position.X.Whole) >= 0
-            ? CoordinateAxis.Wrap(samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.Radius.X)
-            : CoordinateAxis.Wrap(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X));
+            ? samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.Radius.X
+            : samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X);
         state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
@@ -725,37 +724,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         parent.Asleep = false;
     }
 
-    /// <summary>Runs Mama's expanded private damage box.</summary>
+    /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>
     private void ResolveMamaTurtleExpandedContact(
         RoomEnemyPlace mama,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        // The box is Mama's body grown on each side and shrunk at the top and bottom.
-        int left = CoordinateAxis.Wrap(
-            mama.Position.X.Whole - mama.Radius.X - MamaTurtleMotionDefinitions.DamageBoxReach);
-        int right = CoordinateAxis.Wrap(
-            mama.Position.X.Whole + mama.Radius.X + MamaTurtleMotionDefinitions.DamageBoxReach);
-        int top = CoordinateAxis.Wrap(
-            mama.Position.Y.Whole - mama.Radius.Y + MamaTurtleMotionDefinitions.DamageBoxInset);
-        int bottom = CoordinateAxis.Wrap(
-            mama.Position.Y.Whole + mama.Radius.Y - MamaTurtleMotionDefinitions.DamageBoxInset);
-
-        int samusLeftMinusOne = CoordinateAxis.Wrap(
-            samus.Position.X.Whole - samus.Kinematics.Radius.X - 1);
-        if (CoordinateAxis.Difference(samusLeftMinusOne, right) >= 0)
-            return;
-        int samusRight = CoordinateAxis.Wrap(
-            samus.Position.X.Whole + samus.Kinematics.Radius.X);
-        if (CoordinateAxis.Difference(samusRight, left) < 0)
-            return;
-        int samusTopPlusOne = CoordinateAxis.Wrap(
-            samus.Position.Y.Whole - samus.Kinematics.Radius.Y + 1);
-        if (CoordinateAxis.Difference(samusTopPlusOne, bottom) >= 0)
-            return;
-        int samusBottom = CoordinateAxis.Wrap(
-            samus.Position.Y.Whole + samus.Kinematics.Radius.Y);
-        if (CoordinateAxis.Difference(samusBottom, top) < 0 || !samus.InvincibilityTimer.IsZero)
+        if (!MamaTurtleDamageBox.Touches(mama, samus) || !samus.InvincibilityTimer.IsZero)
             return;
 
         _collision.ResolveNormalEnemyTouch(mama, samus, pseudoScrew);

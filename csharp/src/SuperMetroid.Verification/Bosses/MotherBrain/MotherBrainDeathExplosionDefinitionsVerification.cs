@@ -40,7 +40,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
-            AssertTrue(projectile.Animation is MiscDustProjectileAnimation started &&
+            AssertTrue(projectile.Animation is DustExplosionProjectileAnimation started &&
                     started.PlayingSegment == MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]],
                 $"production Mother Brain death explosion instruction {parameter}");
             AssertEqual(0x00f9, projectile.Position.X.Whole,

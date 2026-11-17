@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KiHunterBodyEntity(KiHunterBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeKiHunter(Place);

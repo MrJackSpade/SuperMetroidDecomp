@@ -68,7 +68,7 @@ internal sealed class RoomObjectFramePhase
     /// </remarks>
     internal void RunRoomObjectsForDoor(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        // The explicit transition-time call still enters the common room-object step,
+        // The room objects' door-transition update still enters the common room-object step,
         // which returns at once while the X-ray suspends the room objects.
         // Indirect G-Mode deliberately carries that suspension across the door.
         if (_player.Samus?.Xray.AreObjectsSuspended == true)

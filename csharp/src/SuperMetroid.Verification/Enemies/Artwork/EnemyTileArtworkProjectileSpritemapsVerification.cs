@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
         // The shared dust and explosion programs are typed (#1760): the misc-dust kind is spawned with a program, not one
         // its kind starts, and the shared-frame draws present each of their frames on it.
-        RoomEnemyProjectileKind.MiscDustExplosion,
+        RoomEnemyProjectileKind.DustOrExplosion,
         // Ki-Hunter acid's spawner starts the program of the way it spits it (#2278).
         RoomEnemyProjectileKind.KiHunterAcidSpit,
     ];
@@ -397,7 +397,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                     {
                         OamBuffer sharedReference = DrawReferenceProgramFrame(artwork, shown, bus);
                         OamBuffer sharedDrawn = DrawSharedFrame(artwork, shown, NewEnemyProjectileVisualGuard(bus));
-                        AssertTrue(InstalledStandsFor(sharedReference, sharedDrawn, artwork, shown, RoomEnemyProjectileKind.MiscDustExplosion),
+                        AssertTrue(InstalledStandsFor(sharedReference, sharedDrawn, artwork, shown, RoomEnemyProjectileKind.DustOrExplosion),
                             $"shared frame $86:{frame.OperandAddress:X4} runs without visual ROM reads: " +
                             $"records (x, y, tile, attributes) native {OamRecords(sharedReference)}, installed {OamRecords(sharedDrawn)}");
                     }
@@ -444,7 +444,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The cartridge's draw of a program frame under the graphics word its spawn writes: the shared sheet's for an object
         // any room spawns, else its spawner's own sheet's in the set that loads it, with the row its loaded colours select.
         static OamBuffer DrawReferenceProgramFrame(ImportEnemyArtwork artwork, EnemyProjectileFrameId frame, ISnesAddressSpace source,
-            RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.MiscDustExplosion)
+            RoomEnemyProjectileKind _ = RoomEnemyProjectileKind.DustOrExplosion)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             SpriteGraphics graphics = SpawnedObjectFixtures.LoadSetSpawning(enemies, frame, SpawnedGraphics);
@@ -599,7 +599,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawSpawnerFrame(RoomEnemySystem enemies, EnemyProjectileFrameId frame, SpriteGraphics graphics)
         {
             EnemyProjectile slot = enemies.Projectiles.EnemyProjectiles[0];
-            slot.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
+            slot.Kind = RoomEnemyProjectileKind.DustOrExplosion;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = graphics;
             slot.Frame = frame;
@@ -612,7 +612,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawSharedFrame(ImportEnemyArtwork artwork,
             EnemyProjectileFrameId frame, ISnesAddressSpace source) =>
             DrawProgramFrame(artwork, frame, source,
-                RoomEnemyProjectileKind.MiscDustExplosion);
+                RoomEnemyProjectileKind.DustOrExplosion);
 
         static OamBuffer DrawProgramFrame(ImportEnemyArtwork artwork,
             EnemyProjectileFrameId frame, ISnesAddressSpace source, RoomEnemyProjectileKind kind)

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>
-/// The file-select map's entry (#1512): the wait the game spends fading two colours of the still-black screen, its setup
-/// coroutine, and the centered area-map reveal.
+/// The file-select map's entry (#1512): the wait the game spends fading two colours of the still-black screen, its setup,
+/// and the centered area-map reveal.
 /// </summary>
 /// <remarks>
 /// The game fades two background colours toward black with its gradual colour change while the screen shows only its
@@ -19,7 +19,7 @@ public sealed class FileSelectMapEntry
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
 
-    /// <summary>Gets the current entry-coroutine stage.</summary>
+    /// <summary>Gets the current entry stage.</summary>
     public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.EntryFade;
 
     /// <summary>Gets whether the reveal has finished and ordinary area-map input may begin.</summary>
@@ -37,7 +37,7 @@ public sealed class FileSelectMapEntry
     /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
     public int Bottom => ScreenGeometry.ScreenHeightPixels - Top;
 
-    /// <summary>Advances the entry fade, setup coroutine, or centered reveal by one frontend update.</summary>
+    /// <summary>Advances the entry fade, setup, or centered reveal by one frontend update.</summary>
     public void Step()
     {
         switch (Phase)

@@ -892,7 +892,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                             RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter ? RoomEnemyProjectileKind.None : projectile.Kind;
                         Check(owner + " next afterburn kind", EnemyProjectileNativeWords.Kinds.Word(successorKind), NativeSnapshotMemory.EnemyProjectileVariableF + index);
                         break;
-                    case RoomEnemyProjectileKind.MiscDustExplosion:
+                    case RoomEnemyProjectileKind.DustOrExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathPickup:
                         break;

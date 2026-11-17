@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <param name="place">The place the Boyon occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => BoyonBehavior.InitializeBoyon(Place);

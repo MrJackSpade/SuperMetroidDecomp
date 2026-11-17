@@ -33,7 +33,7 @@ internal static class DraygonEyeEffectsVerification
                 eye.FrameCounter = frame;
                 runtime.Enemies.DraygonBehavior.Parts.TrackSamusWithDraygonEye(draygon, samus, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
                 var particles = runtime.Enemies.Projectiles.EnemyProjectiles.Where(p =>
-                    p.Kind == RoomEnemyProjectileKind.MiscDustExplosion).ToArray();
+                    p.Kind == RoomEnemyProjectileKind.DustOrExplosion).ToArray();
                 AssertEqual(frame == 127 ? 0 : 1, particles.Length, "Eye particle cadence with unchanged target angle");
                 if (particles.Length == 1)
                 {

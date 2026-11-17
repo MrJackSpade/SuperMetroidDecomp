@@ -37,7 +37,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             var spawn = new Action<Position16<RoomPixels>, DustExplosionAnimation>(enemies.Projectiles.SpawnDustOrExplosion);
             spawn(new(0x1234, 0x5678), animation);
             EnemyProjectile roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
-            AssertTrue(roomSlot.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == animation,
+            AssertTrue(roomSlot.Animation is DustExplosionProjectileAnimation started && started.PlayingSegment == animation,
                 $"room-graphics misc-dust production selector {index}");
         }
         AssertEqual(16, unrequested, "misc-dust selectors no spawner asks for");
@@ -77,7 +77,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
             EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles[0];
             initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
+            AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
                 (random & nativeXMask))), smoke.Position.X.Whole,
@@ -92,7 +92,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         Action<Position16<RoomPixels>, DustExplosionAnimation> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
         spawnRidley(new(0x1234, 0x5678), DustExplosionAnimation.BigExplosion);
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
-                MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.BigExplosion },
+                DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.BigExplosion },
             "Ridley production dust starts the requested animation's program");
 
         var invalidRoom = CreateMiscDustEnemySystem();

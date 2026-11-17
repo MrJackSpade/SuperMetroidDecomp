@@ -92,7 +92,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.SkreeMetareeParticle or RoomEnemyProjectileKind.KiHunterAcidSpit or
                 // Mother Brain's death explosion plays a typed misc-dust program, and so does every shared dust cloud and
                 // explosion, whose spawners start the program they choose.
-                RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.MiscDustExplosion ||
+                RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.DustOrExplosion ||
                 // The projectiles whose spawners start typed programs (#1291, #1395, #1760).
                 FamilyProjectileStarts.StartingAnimation(kind) is not null;
             AssertTrue(typed, $"Projectile {kind} starts a typed program");

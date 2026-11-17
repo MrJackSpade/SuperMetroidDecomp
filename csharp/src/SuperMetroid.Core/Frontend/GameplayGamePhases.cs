@@ -157,9 +157,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Runs one update of <see cref="SuperMetroidGameState.SamusEscapesFromZebes"/>.</summary>
     internal void RunSamusEscapesFromZebes(ControllerButton controllerInput)
     {
-        // The Zebes-escape state calls the complete main-gameplay coroutine before
-        // the fade-out. The fleeing gunship, room animations, and sound publishers
-        // therefore continue behind every darkening frame.
+        // Samus's escape from Zebes runs a whole gameplay update before the fade-out, so
+        // the fleeing gunship, the room's animations and its sounds go on behind every
+        // darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The fade-out reloads the counter from the screen fade's delay, which
@@ -201,11 +201,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
-        // The pause check only runs from Samus's normal input phase. The station lock
-        // replaces that phase with an inert one, so its entire insertion,
-        // message/data-load, and retraction sequence bypasses pause-check even though the game
-        // state remains MainGameplay. The locked input mode installed with it stands for that
-        // replacement; the remaining clauses are the pause check's own predicate.
+        // The player can pause only while Samus takes her ordinary input. A station's lock
+        // takes her input away, so nothing pauses the game through a station's whole
+        // docking, message and release, though the game is still in main gameplay. The
+        // locked input mode stands for that; the other conditions are the pause's own.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
                !session.Runtime.MessageBox.IsActive &&
@@ -220,7 +219,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
 
     /// <summary>
     /// The main gameplay state: one gameplay frame and the state publications its
-    /// steps make. The fade-in state calls the same update before fading in.
+    /// steps make. The fade-in state runs the same update before fading in.
     /// </summary>
     private void RunMainGameplayState(ControllerButton controllerInput)
     {
@@ -285,7 +284,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else if (session.GameplayRuntime.RoomLoader.HasPendingDoorTransition && !session.GameplayRuntime.MessageBox.IsActive)
         {
-            // A door hit changes the game state during the gameplay call.
+            // A door hit changes the game state during the gameplay update.
             // The already-produced gameplay image remains this frame's image; the
             // following update begins the door state from that publication.
             // A message box opened later in the same update (a station's completion

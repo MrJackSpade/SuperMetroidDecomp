@@ -50,7 +50,7 @@ internal sealed class IntroNarrationActors
     /// the cross-fade, and the arrow deletes itself at its next update, in the same frame.
     /// </summary>
     private bool pageTurnAccepted;
-    /// <summary>Alternates typewriter audio calls while letters appear.</summary>
+    /// <summary>Alternates the typewriter's sound requests while letters appear.</summary>
     private bool typewriterSoundToggle;
     /// <summary>Created by the first glyph to animate per-character glow effects.</summary>
     private CinematicTextGlowSystem? textGlow;

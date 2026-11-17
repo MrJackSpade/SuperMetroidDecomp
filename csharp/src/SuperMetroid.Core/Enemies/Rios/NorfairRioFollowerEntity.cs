@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// <param name="place">The place the follower occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NorfairRioFollowerEntity(NorfairRioBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeNorfairRioFollower(Place);

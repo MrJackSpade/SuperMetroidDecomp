@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class ShuttersEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Shutters species owner.</summary>
     protected ShuttersBehavior Species => species;

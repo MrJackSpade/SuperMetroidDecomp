@@ -10,14 +10,11 @@ public static class Trigonometry
     /// <summary>The game's fine signed sine over the whole turn, peaking at +/-32767, unlike
     /// <see cref="SignedSine"/>. The positive half equals the unsigned half-wave
     /// (<see cref="UnsignedHalfWave"/>) halved; sign is restored only after that truncation.</summary>
-    /// <remarks>Keep this algorithm: for angle a in 256ths of a turn, let n = a mod 128 and
-    /// U(n) = floor(65535*sin(n*pi/128)). The exact result is floor(U(n)/2),
-    /// negated only when a &gt;= 128. All 256 values match the game's table
-    /// exactly. This preserves
-    /// the half-unit scale (32767.5), rather than assuming a scale of 32767.
-    /// The values come from bounded decimal arithmetic, not Math.Sin.
-    /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
-    /// input angle before sampling.
+    /// <remarks>For angle a in 256ths of a turn, let n = a mod 128 and
+    /// U(n) = floor(65535*sin(n*pi/128)). The result is floor(U(n)/2),
+    /// negated only when a &gt;= 128: a half-unit scale of 32767.5, not 32767.
+    /// The values come from bounded decimal arithmetic, not Math.Sin, so every
+    /// machine gives the same sine.
     /// </remarks>
     public static int FineSignedSine(TrigonometryAngle angle)
     {

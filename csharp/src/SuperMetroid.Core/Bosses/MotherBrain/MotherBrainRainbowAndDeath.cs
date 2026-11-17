@@ -137,7 +137,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (projectile is null) return; // Shared-pool exhaustion drops the spawn.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion,
             _projectileAttacks.Projectile, graphics: default);
-        projectile.StartAnimation(new MiscDustProjectileAnimation(animation));
+        projectile.StartAnimation(new DustExplosionProjectileAnimation(animation));
         projectile.State = new MotherBrainBodyExplosionState(state, request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         MotherBrainProjectiles.MotherBrainProjectileBehavior.RunMotherBrainDeathExplosion(projectile);
@@ -258,7 +258,7 @@ internal sealed class MotherBrainRainbowAndDeath
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
             _projectileAttacks.Projectile,
             graphics: default);
-        projectile.StartAnimation(new MiscDustProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion));
+        projectile.StartAnimation(new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion));
         projectile.State = new MotherBrainFollowingExplosionState(request.Offset);
         projectile.Velocity = FollowingExplosionLeftVelocity.Of(request.Offset);
         projectile.Position = projectile.Position.WithWhole(samusBeforeMovement + request.Offset);

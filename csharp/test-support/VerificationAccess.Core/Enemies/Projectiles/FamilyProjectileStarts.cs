@@ -99,7 +99,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.DragonFireball => DragonBehavior.Fireball,
         RoomEnemyProjectileKind.EyeDoorProjectile => enemies.EyeDoorBehavior.Shot,
         RoomEnemyProjectileKind.EyeDoorSweat => enemies.EyeDoorBehavior.Sweat,
-        RoomEnemyProjectileKind.MiscDustExplosion => MiscDustProjectileBehavior.Instance,
+        RoomEnemyProjectileKind.DustOrExplosion => DustExplosionProjectileBehavior.Instance,
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
             enemies.DeathsAndDrops.DeathProjectiles,
         RoomEnemyProjectileKind.KagoBug => enemies.KagoBehavior.Bug,
@@ -159,7 +159,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.YappingMawBody => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment.FacingDown),
         RoomEnemyProjectileKind.EyeDoorProjectile => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial),
         RoomEnemyProjectileKind.EyeDoorSweat => new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling),
-        RoomEnemyProjectileKind.EyeDoorSmoke => new MiscDustProjectileAnimation(DustExplosionAnimation.SmallExplosion),
+        RoomEnemyProjectileKind.EyeDoorSmoke => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion),
         RoomEnemyProjectileKind.SaveStationElectricity => new SaveStationElectricityAnimation(),
         RoomEnemyProjectileKind.DownwardGateMoving => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Closed),
@@ -167,7 +167,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.NoobTubeShard => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
         RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.ReleasedAirBubble)),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
-            new MiscDustProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
+            new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),
         RoomEnemyProjectileKind.MotherBrainTopLeftTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopLeft),
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleLeft),
@@ -210,7 +210,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or RoomEnemyProjectileKind.CeresFallingDebrisLight or
             RoomEnemyProjectileKind.CeresFallingDebrisDark or RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
             RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpike or RoomEnemyProjectileKind.PirateMotherBrainLaser or
-            RoomEnemyProjectileKind.PirateClaw or RoomEnemyProjectileKind.MiscDustExplosion or RoomEnemyProjectileKind.KagoBug or
+            RoomEnemyProjectileKind.PirateClaw or RoomEnemyProjectileKind.DustOrExplosion or RoomEnemyProjectileKind.KagoBug or
             RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
             RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.TorizoInitialDrool or
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or

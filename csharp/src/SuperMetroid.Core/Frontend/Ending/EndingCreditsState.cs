@@ -308,8 +308,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.PostCreditsReward:
-                // Both fade halves test their counter before the decrement. Both 64-frame halves advance
-                // their shared colour step on the fourth, eighth, ... calls.
+                // Both fade halves test their counter before counting it down, so both 64-update halves advance
+                // their shared colour step on their fourth update and every fourth update after.
                 if (EndingCadenceDefinitions.RewardColourStepEveryFourthUpdate.IsDue(Stage.PhaseTimer))
                 {
                     CreditsRoll.AdvanceRewardFade();

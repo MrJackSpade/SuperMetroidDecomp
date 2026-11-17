@@ -80,7 +80,7 @@ internal sealed class EnemyFramePhase
     /// the camera's scrolling-speed cap reads.
     /// </param>
     /// <param name="room">The loaded room.</param>
-    internal void RunEnemyMainPhase(EnemyProcessingList processingList, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomScope room)
+    internal void RunEnemyUpdatePhase(EnemyProcessingList processingList, FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint, RoomScope room)
     {
         if (_room.Camera is not null)
         {

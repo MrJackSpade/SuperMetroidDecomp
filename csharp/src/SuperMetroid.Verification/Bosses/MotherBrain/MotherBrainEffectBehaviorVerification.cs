@@ -63,7 +63,7 @@ internal static class MotherBrainEffectBehaviorVerification
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion);
         AssertEqual(247, explosion.Position.X.Whole, "real rainbow-impact producer applies its signed X offset");
         AssertEqual(135, explosion.Position.Y.Whole, "real rainbow-impact producer applies its signed Y offset");
-        AssertTrue(explosion.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.MotherBrainRainbowBeamExplosion },
+        AssertTrue(explosion.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.MotherBrainRainbowBeamExplosion },
             "the rainbow impact starts the shared misc-dust rainbow explosion");
         AssertLifetime(explosionEnemies, explosion, 18, "rainbow impact survives its five-stage 18-frame lifetime");
 
@@ -79,7 +79,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), Animation: MotherBrainDeathExplosionNativeSelectors.Animations[parameter], SoundEffect: MotherBrainSoundDefinitions.Explosion));
             EnemyProjectile deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainDeathExplosion);
-            AssertTrue(deathExplosion.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == deathPrograms[parameter],
+            AssertTrue(deathExplosion.Animation is DustExplosionProjectileAnimation started && started.PlayingSegment == deathPrograms[parameter],
                 $"Mother Brain death explosion {parameter} starts {deathPrograms[parameter]}");
             AssertLifetime(deathEnemies, deathExplosion, deathExplosionLifetimes[parameter], $"Mother Brain death explosion {parameter} survives its lifetime");
         }

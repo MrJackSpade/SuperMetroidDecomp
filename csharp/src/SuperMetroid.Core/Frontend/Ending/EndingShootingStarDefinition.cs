@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal readonly record struct EndingShootingStarDefinition(
     EightEightVector<ScreenPixels> Acceleration, int? Period, int Delay)
 {
-    /// <summary>A star whose picture animates, each frame lasting <paramref name="period"/> calls.</summary>
+    /// <summary>A star whose picture animates, each frame lasting <paramref name="period"/> updates.</summary>
     internal static EndingShootingStarDefinition Animated(EightEightVector<ScreenPixels> acceleration, int period, int delay) =>
         new(acceleration, period, delay);
 

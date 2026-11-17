@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// The fourteen misc-dust explosion, smoke, dust and bubble animations (#641, #1686). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class MiscDustProjectileAnimations
+internal static class DustExplosionProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(

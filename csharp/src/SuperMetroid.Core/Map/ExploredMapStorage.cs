@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Map;
 /// <see cref="SavedMapExplorationRuns"/> keeps, and nothing of Ceres's.
 /// </summary>
 /// <remarks>
-/// Evidence: saving and loading the map copy only the Zebes areas' exploration, the cells the original keeps in a save.
+/// Saving and loading keep only the Zebes areas' exploration.
 /// </remarks>
 public static class ExploredMapStorage
 {

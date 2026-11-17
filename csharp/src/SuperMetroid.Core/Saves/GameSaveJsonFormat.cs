@@ -13,6 +13,6 @@ public static class GameSaveJsonFormat
     /// </summary>
     public const int SchemaVersion = 13;
 
-    /// <summary>Extension replacing the emulator-oriented <c>.srm</c> host file.</summary>
+    /// <summary>The file extension of a game save.</summary>
     public const string FileExtension = ".save.json";
 }

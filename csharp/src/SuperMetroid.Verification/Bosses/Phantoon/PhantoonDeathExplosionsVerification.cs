@@ -38,7 +38,7 @@ internal static class PhantoonDeathExplosionsVerification
             body.Position = body.Position.WithWhole(new(origin, origin));
             state.PhaseTimer = 15;
             state.Phase = PhantoonPhase.DyingExplosions;
-            if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
+            if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.DustOrExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
             {
@@ -70,7 +70,7 @@ internal static class PhantoonDeathExplosionsVerification
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
-                        AssertTrue(explosion.Animation is MiscDustProjectileAnimation { PlayingSegment: var explosionProgram } &&
+                        AssertTrue(explosion.Animation is DustExplosionProjectileAnimation { PlayingSegment: var explosionProgram } &&
                                 MiscDustProjectileNativeListAddresses.Entry(explosionProgram) == CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress),
                             "Real explosion animation selection");
                     }

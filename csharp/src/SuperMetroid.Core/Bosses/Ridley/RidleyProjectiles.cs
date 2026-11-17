@@ -127,11 +127,11 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             dust,
-            RoomEnemyProjectileKind.MiscDustExplosion,
-            MiscDustProjectileBehavior.Instance,
+            RoomEnemyProjectileKind.DustOrExplosion,
+            DustExplosionProjectileBehavior.Instance,
             graphics: default);
         dust.Position = dust.Position.WithWhole(position);
-        dust.StartAnimation(new MiscDustProjectileAnimation(animation));
+        dust.StartAnimation(new DustExplosionProjectileAnimation(animation));
     }
 
     /// <summary>

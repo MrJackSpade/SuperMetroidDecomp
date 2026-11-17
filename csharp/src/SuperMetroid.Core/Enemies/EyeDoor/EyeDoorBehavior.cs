@@ -177,7 +177,7 @@ internal sealed class EyeDoorBehavior
     {
         int random = _room.Random.Read();
         // Stores only the animation, keeping the definition's one-update timer.
-        projectile.InstallAnimation(new MiscDustProjectileAnimation(animation));
+        projectile.InstallAnimation(new DustExplosionProjectileAnimation(animation));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + EyeDoorEffectDefinitions.SmokeCentre + new Offset16<RoomPixels>(
             placement.Base.X + placement.XScatter.Of(random),

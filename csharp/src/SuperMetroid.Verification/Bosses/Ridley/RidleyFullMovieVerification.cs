@@ -85,7 +85,7 @@ internal static class RidleyFullMovieVerification
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = WrappingCountdown.Start(0); SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
-        runtime.EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
+        runtime.EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
         AssertEqual(399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
@@ -464,10 +464,10 @@ internal static class RidleyFullMovieVerification
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
-        AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
+        AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
+        AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }

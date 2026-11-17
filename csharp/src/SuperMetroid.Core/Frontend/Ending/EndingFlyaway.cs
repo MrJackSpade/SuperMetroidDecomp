@@ -25,9 +25,8 @@ internal sealed class EndingFlyaway
     }
 
     /// <summary>
-    /// Cinematic calls made so far. Only its parity and quarter phase are read (the alternating
-    /// atmospheric rotation and the planet turn cadence), so a growing count reproduces the
-    /// game's wrapping counter exactly.
+    /// The cinematic's updates so far. Only its parity and quarter phase are read: the alternating
+    /// atmospheric rotation and the planet turn cadence.
     /// </summary>
     internal int CinematicFrame { get; set; }
 

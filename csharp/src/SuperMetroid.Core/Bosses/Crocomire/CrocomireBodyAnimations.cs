@@ -440,41 +440,42 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonFallsApart] =
         [
-            Show(F.CrocomireBodySkeletonCollapseStage1, 10),
+            Show(F.CrocomireBodySkeletonArmHeldLevel, 10),
             Dust(-32),
-            Show(F.CrocomireBodySkeletonCollapseStage2, 5),
+            Show(F.CrocomireBodySkeletonArmDropping, 5),
             Dust(0),
-            Show(F.CrocomireBodySkeletonCollapseStage2, 5),
+            Show(F.CrocomireBodySkeletonArmDropping, 5),
             Dust(-16),
-            Show(F.CrocomireBodySkeletonCollapseStage3, 5),
+            Show(F.CrocomireBodySkeletonArmLowered, 5),
             Dust(16),
-            Show(F.CrocomireBodySkeletonCollapseStage3, 5),
-            Show(F.CrocomireBodySkeletonCollapseStage4, 10),
-            Show(F.CrocomireBodySkeletonCollapseStage5, 32),
-            Show(F.CrocomireBodySkeletonCollapseStage6, 16),
+            Show(F.CrocomireBodySkeletonArmLowered, 5),
+            Show(F.CrocomireBodySkeletonArmPlanted, 10),
+            Show(F.CrocomireBodySkeletonBodySettling, 32),
+            Show(F.CrocomireBodySkeletonArmSplaying, 16),
             Cue(K.SkeletonCollapseSound),
-            Show(F.CrocomireBodySkeletonCollapseStage7, 10),
-            Show(F.CrocomireBodySkeletonCollapseStage8, 9),
-            Show(F.CrocomireBodySkeletonCollapseStage9, 9),
+            Show(F.CrocomireBodySkeletonArmFlat, 10),
+            Show(F.CrocomireBodySkeletonRibsSagging, 9),
+            Show(F.CrocomireBodySkeletonRibsSlumped, 9),
             Dust(0),
-            Show(F.CrocomireBodySkeletonCollapseStage10, 8),
+            Show(F.CrocomireBodySkeletonArmFallenOff, 8),
             Dust(8),
-            Show(F.CrocomireBodySkeletonCollapseStage11, 8),
+            Show(F.CrocomireBodySkeletonTailScattering, 8),
             Dust(16),
-            Show(F.CrocomireBodySkeletonCollapseStage12, 7),
+            Show(F.CrocomireBodySkeletonSpineFallingApart, 7),
             Dust(24),
-            Show(F.CrocomireBodySkeletonCollapseStage13, 7),
+            Show(F.CrocomireBodySkeletonRibsSplaying, 7),
             Dust(32),
-            Show(F.CrocomireBodySkeletonCollapseStage14, 6),
+            Show(F.CrocomireBodySkeletonRibsFlattened, 6),
             Dust(40),
-            Show(F.CrocomireBodySkeletonCollapseStage15, 6),
+            Show(F.CrocomireBodySkeletonBonesGathering, 6),
             Dust(48),
-            Show(F.CrocomireBodySkeletonCollapseStage16, 6),
+            Show(F.CrocomireBodySkeletonBonesHuddled, 6),
             Dust(56),
-            Show(F.CrocomireBodySkeletonCollapseStage17, 5),
+            Show(F.CrocomireBodySkeletonRibsBesideSkull, 5),
             Dust(64),
             Cue(K.BigExplosionSound),
-            Show(F.CrocomireBodySkeletonCollapseStage18, 5),
+            Mark(K.SkeletonCollapsed),
+            Show(F.CrocomireBodySkeletonLastBones, 5),
         ],
         [P.SkeletonStable] =
         [
@@ -486,15 +487,15 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonFlowingDownRiver] =
         [
-            Show(F.CrocomireBubblesRisingStage1, 4),
-            Show(F.CrocomireBubblesRisingStage2, 4),
-            Show(F.CrocomireBubblesRisingStage3, 4),
-            Show(F.CrocomireBubblesRisingStage4, 4),
-            Show(F.CrocomireBubblesRisingStage5, 4),
-            Show(F.CrocomireBubblesRisingStage6, 4),
-            Show(F.CrocomireBubblesRisingStage7, 4),
-            Show(F.CrocomireBubblesRisingStage8, 4),
-            Show(F.CrocomireBubblesRisingStage9, 4),
+            Show(F.CrocomireBubblesForming, 4),
+            Show(F.CrocomireBubblesWelling, 4),
+            Show(F.CrocomireBubblesSpreading, 4),
+            Show(F.CrocomireBubblesBursting, 4),
+            Show(F.CrocomireBubblesSpraying, 4),
+            Show(F.CrocomireBubblesScattered, 4),
+            Show(F.CrocomireBubblesThinning, 4),
+            Show(F.CrocomireBubblesFading, 4),
+            Show(F.CrocomireBubblesVanishing, 4),
             Show(F.CrocomireBubblesAdrift, 20),
         ],
     });
@@ -577,6 +578,10 @@ internal static class CrocomireBodyAnimations
     /// <summary>Publishes a signalling cue of <paramref name="kind"/>.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Cue(CrocomireBodyCueKind kind) =>
         new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Event(new CrocomireBodyCue.Signal(kind));
+
+    /// <summary>Marks the moment <paramref name="kind"/> names (#2301), which his state notes and which plays nothing.</summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Mark(CrocomireBodyCueKind kind) =>
+        new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Marker(new CrocomireBodyCue.Signal(kind));
 
     /// <summary>Publishes a big dust cloud <paramref name="offset"/> pixels from the body.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Dust(int offset) =>

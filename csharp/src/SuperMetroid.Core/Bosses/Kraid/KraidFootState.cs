@@ -20,4 +20,20 @@ public sealed class KraidFootState : KraidAnimatedPartState
 
     /// <summary>The way the second-phase foot walks the body toward its target (#2165).</summary>
     public HorizontalDirection WalkDirection { get; internal set; }
+
+    /// <summary>
+    /// Whether the foot shows its walk's last frame (#1886, #2301), as the walk marks it: a forward walk or lunge has
+    /// finished and rests on it, and the backward walk has reached the frame from which it loops, until its next lap
+    /// begins. Every animation the foot starts begins without it.
+    /// </summary>
+    internal bool ShowsWalkEnd { get; private set; }
+
+    /// <summary>The foot's walk shows its last frame, as its animation's cue marks.</summary>
+    internal void ReachWalkEnd() => ShowsWalkEnd = true;
+
+    /// <summary>The foot's backward walk begins a lap, as its animation's cue marks: it no longer shows its last frame.</summary>
+    internal void PlayWalkOn() => ShowsWalkEnd = false;
+
+    /// <inheritdoc/>
+    private protected override void Started(KraidPartSegment segment) => ShowsWalkEnd = false;
 }

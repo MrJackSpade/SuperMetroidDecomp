@@ -22,7 +22,26 @@ public sealed class KraidArmState : KraidAnimatedPartState
     /// </summary>
     internal bool SwingsNormally { get; private set; }
 
+    /// <summary>
+    /// Whether the arm has yet to reach its pause (#1886, #2301): its normal swing has started, as an animation or as the
+    /// pause plays on into it, and has not shown its last frame, which the swing marks. While that last frame shows, the
+    /// arm already counts as paused, as it does through the pause and any later animation. Kraid's small-form lunge waits
+    /// on it.
+    /// </summary>
+    internal bool YetToPause { get; private set; }
+
+    /// <summary>The arm's normal swing begins, as its animation's cue marks: the arm has yet to reach its pause.</summary>
+    internal void BeginSwing() => YetToPause = true;
+
+    /// <summary>The arm's normal swing shows its last frame, as its animation's cue marks: the arm counts as paused.</summary>
+    internal void ReachPause() => YetToPause = false;
+
     /// <inheritdoc/>
-    private protected override void Started(KraidPartSegment segment) =>
+    private protected override void Started(KraidPartSegment segment)
+    {
         SwingsNormally = segment is KraidPartSegment.ArmNormal or KraidPartSegment.ArmNormalPause;
+        // An animation starting with the normal swing has yet to reach the pause before its first frame shows; every other
+        // one starts at the pause or away from the swing.
+        YetToPause = segment == KraidPartSegment.ArmNormal;
+    }
 }

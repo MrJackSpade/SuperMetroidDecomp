@@ -44,6 +44,7 @@ internal static class KraidAnimationsVerification
         NativeEnemyAnimationOracle.CompareAnimations(lists, KraidAnimations.StartingAt);
 
         VerifyArmSpeedSwitch();
+        VerifyLimbMarks();
         VerifyHeldAndLongestPoses();
         Suite(nameof(VerifyKraidArmCollisionDefinitions), () => VerifyKraidArmCollisionDefinitions(rom));
         Suite(nameof(VerifyKraidFootCollisionDefinitions), () => VerifyKraidFootCollisionDefinitions());
@@ -54,7 +55,7 @@ internal static class KraidAnimationsVerification
     /// <summary>
     /// Reads one part segment's native list, comparing each of its beats with the segment's, and returns each beat's
     /// native address and the list's gotos, sleeps and runs on into the next authored list. The no-operation callback
-    /// has no beat.
+    /// has no beat, and a marker beat (#2301), the port's own, occupies none: it stands at the address of what follows it.
     /// </summary>
     private static NativeEnemyList<KraidPartSegment> ReadPartList(IImportCartridgeSource cartridge, KraidPartSegment segment, ushort entry)
     {
@@ -70,6 +71,11 @@ internal static class KraidAnimationsVerification
             {
                 controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
                 return Finish();
+            }
+            if (beat < beats.Count && beats[beat] is AnimationBeat<KraidPartPose, KraidPartCue>.Marker)
+            {
+                addresses.Add(cursor);
+                continue;
             }
             int address = (PartBankNumber << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
@@ -195,6 +201,58 @@ internal static class KraidAnimationsVerification
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidAnimations.StartingWith(KraidPartSegment.ArmSlow), state.ArmState.Playback.Animation, "a slow arm's callback keeps the slow swing");
+    }
+
+    /// <summary>
+    /// #2301: the arm's and the foot's marks follow their animations, update by update through the production player, exactly
+    /// as the places they stand for: the arm has yet to pause while it plays its normal swing and has not shown that swing's
+    /// last frame, whichever animation it starts and at either health, and the foot shows its walk's end while it plays a
+    /// walk or lunge and has shown its last frame, the backward walk's laps included.
+    /// </summary>
+    private static void VerifyLimbMarks()
+    {
+        (RoomEnemySystem enemies, KraidEnemyState state, RoomEnemyPlace body, RoomEnemyPlace arm) = NewKraid();
+        foreach (int health in new[] { 104, 51 })
+        {
+            foreach (KraidPartSegment start in new[] { KraidPartSegment.ArmNormal, KraidPartSegment.ArmNormalPause, KraidPartSegment.ArmSlow })
+            {
+                body.Health = health;
+                state.ArmState.StartAnimation(start);
+                var seen = new HashSet<bool>();
+                for (int update = 0; update < 400; update++)
+                {
+                    AnimationPlayback<KraidPartSegment> playback = state.ArmState.Playback;
+                    bool yetToPause = PlayingSegment(playback) == KraidPartSegment.ArmNormal
+                        && playback.Place.Beat < playback.Animation.Phases[playback.Place.Phase].BeatCount;
+                    AssertEqual(yetToPause, state.ArmState.YetToPause, $"Kraid's arm from {start} at health {health}, update {update}: yet to pause");
+                    seen.Add(yetToPause);
+                    Pass(arm);
+                }
+                AssertTrue(start != KraidPartSegment.ArmNormal || seen.Count == 2, $"Kraid's arm's normal swing at health {health} reaches its pause");
+            }
+        }
+
+        RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
+        foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
+        // The foot binds after the encounter began, and joins it as its setup would.
+        KraidEncounterAccess.AttachKraidPart(state.FootState);
+        // The walks' cues raise, lower and step the body: it stands clear of the room's edges while they do.
+        body.Position = body.Position.WithWhole(new(512, 512));
+        foreach (KraidPartSegment walk in new[] { KraidPartSegment.FootWalkingForward, KraidPartSegment.FootLungeForward, KraidPartSegment.FootWalkingBackward })
+        {
+            state.FootState.StartAnimation(walk);
+            int shownEnds = 0;
+            for (int update = 0; update < 300; update++)
+            {
+                AnimationPlayback<KraidPartSegment> playback = state.FootState.Playback;
+                bool showsEnd = PlayingSegment(playback) == walk
+                    && playback.Place.Beat >= playback.Animation.Phases[playback.Place.Phase].BeatCount;
+                AssertEqual(showsEnd, state.FootState.ShowsWalkEnd, $"Kraid's foot {walk}, update {update}: shows its walk's end");
+                shownEnds += showsEnd ? 1 : 0;
+                Pass(foot);
+            }
+            AssertTrue(shownEnds > 0, $"Kraid's foot {walk} reaches its walk's end");
+        }
     }
 
     /// <summary>

@@ -12,7 +12,8 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// the pose it shows (#2210): an installed picture, the foot's step from where its walk first shows that picture, and the
 /// depth of the parts Kraid shows while he rises; and the animation starting at each, which plays its segments whole. A
 /// pose the foot shows again straight after itself is one beat of both durations (#2296): nothing reads a part's frame timer
-/// or new-frame flag, so the second showing changed nothing.
+/// or new-frame flag, so the second showing changed nothing. The arm's normal swing marks its start and its last frame, and
+/// each walk its last frame and the backward walk each lap's start (#2301): the moments Kraid's lunges and walks wait on.
 /// </summary>
 internal static class KraidAnimations
 {
@@ -85,6 +86,7 @@ internal static class KraidAnimations
             Step(F.KraidFootLifting, new(2, 5), 1),
             Cue(K.StepLeft),
             Step(F.KraidFootPlanted, new(-6, 0), 1),
+            Mark(K.WalkReachesEnd),
             Show(F.KraidFootPlanted, 1),
         ],
         [P.FootLungeForward] =
@@ -144,10 +146,12 @@ internal static class KraidAnimations
             Step(F.KraidFootLifting, new(2, 5), 1),
             Step(F.KraidFootPlanted, new(-6, 0), 1),
             Cue(K.StepLeft),
+            Mark(K.WalkReachesEnd),
             Show(F.KraidFootPlanted, 1),
         ],
         [P.FootWalkingBackward] =
         [
+            Mark(K.WalkPlaysOn),
             Cue(K.StepRight),
             Show(F.KraidFootPlanted, 4),
             Cue(K.StepRight),
@@ -202,10 +206,12 @@ internal static class KraidAnimations
             Step(F.KraidFootPlanted, new(-8, -4), 1),
             Step(F.KraidFootPlanted, new(-6, -3), 1),
             Step(F.KraidFootPlanted, new(-4, -2), 1),
+            Mark(K.WalkReachesEnd),
             Step(F.KraidFootPlanted, new(-2, -1), 1),
         ],
         [P.ArmNormal] =
         [
+            Mark(K.ArmSwingBegins),
             Show(F.KraidArmRaisedClawClosed, 6),
             Show(F.KraidArmRaisedClawOpen, 6),
             Show(F.KraidArmLoweringClawHooked, 6),
@@ -222,6 +228,7 @@ internal static class KraidAnimations
             Show(F.KraidArmLevelClawHangingDown, 6),
             Show(F.KraidArmLevelClawHooked, 6),
             Show(F.KraidArmLoweringClawHooked, 6),
+            Mark(K.ArmReachesPause),
             Show(F.KraidArmRaisedClawOpen, 6),
         ],
         [P.ArmNormalPause] =
@@ -358,4 +365,8 @@ internal static class KraidAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<KraidPartPose, KraidPartCue> Cue(KraidPartCue cue) =>
         new AnimationBeat<KraidPartPose, KraidPartCue>.Event(cue);
+
+    /// <summary>Marks the moment <paramref name="moment"/> names (#2301), which the part's state notes and which plays nothing.</summary>
+    private static AnimationBeat<KraidPartPose, KraidPartCue> Mark(KraidPartCue moment) =>
+        new AnimationBeat<KraidPartPose, KraidPartCue>.Marker(moment);
 }

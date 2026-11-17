@@ -78,6 +78,7 @@ internal static class CrocomireAnimationsVerification
         AssertEqual(83, TypedBodySpritemaps(skeleton: false).Concat(TypedBodySpritemaps(skeleton: true)).Distinct().Count(),
             "the body segments draw all 50 body and 33 skeleton frames");
 
+        VerifyCollapseMarkerPlace(lists);
         VerifySkeletonCollapse(cartridge);
         VerifyFightAiRedirect();
         VerifyRoarRepeats();
@@ -154,6 +155,24 @@ internal static class CrocomireAnimationsVerification
     {
         enemies.Audio.BeginFrame();
         EnemyAnimationPlayer.AdvanceAnimation(state.Body, samus ?? RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+    }
+
+    /// <summary>
+    /// #2301: the collapse's marker occupies no native beat: it stands at the native address of the last picture after it, and
+    /// a recorded pointer at that address imports as the place before the marker, so the imported play still marks the
+    /// collapse as it shows the last picture.
+    /// </summary>
+    private static void VerifyCollapseMarkerPlace(Dictionary<CrocomireBodySegment, NativeEnemyList<CrocomireBodySegment>> lists)
+    {
+        IReadOnlyList<AnimationBeat<EnemyFrameId, CrocomireBodyCue>> beats = CrocomireBodyAnimations.Segments.Beats(CrocomireBodySegment.SkeletonFallsApart);
+        int marker = beats.ToList().FindIndex(beat => beat is AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Marker
+            { Raised: CrocomireBodyCue.Signal { Kind: CrocomireBodyCueKind.SkeletonCollapsed } });
+        AssertTrue(marker >= 0 && beats[marker + 1].ShownFrame is not null, "the collapse marks its end just before its last picture");
+        ushort[] addresses = lists[CrocomireBodySegment.SkeletonFallsApart].BeatAddresses;
+        AssertEqual(addresses[marker + 1], addresses[marker], "the collapse's marker stands at its last picture's native address");
+        AnimationPlayback<CrocomireBodySegment> imported = NativeEnemyAnimationOracle.PlaybackAt(lists, BodyListEntries, CrocomireBodyAnimations.StartingAt, addresses[marker]);
+        AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodySegment.SkeletonFallsApart), new AnimationPlace(0, marker)),
+            imported, "a pointer at the last picture imports as the place before the collapse's marker");
     }
 
     /// <summary>

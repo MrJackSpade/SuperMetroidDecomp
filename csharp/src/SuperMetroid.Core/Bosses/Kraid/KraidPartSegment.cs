@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The animations of Kraid's foot, arm, lints and fingernails (#1886). Kraid's behaviour asks a part's playback where it
-/// stands in one of them (the arm reached its pause, the walk finished or reached its loop), never how the animations are
-/// ordered.
+/// The animations of Kraid's foot, arm, lints and fingernails (#1886). Kraid's behaviour starts them by name and never asks
+/// where a part's playback stands in one: the animations mark the moments it waits on (the arm reached its pause, the walk
+/// finished or reached its loop) as their own cues (#2301).
 /// </summary>
 public enum KraidPartSegment
 {

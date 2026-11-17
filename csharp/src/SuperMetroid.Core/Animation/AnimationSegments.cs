@@ -142,11 +142,11 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
                     case AnimationBeat<TFrame, TEvent>.Pause pause:
                         return new AnimationShown<TSegment, TFrame>.Paused(pause.Duration);
                     case AnimationBeat<TFrame, TEvent>.Event raised:
-                        if (react(raised.Raised, new AnimationPlayback<TSegment>(animation, place)) is { } continuation)
-                        {
-                            animation = continuation.Animation;
-                            place = continuation.CountsOn ? continuation.Place.WithPlaysLeft(place.PlaysLeft) : continuation.Place;
-                        }
+                        React(raised.Raised, ref animation, ref place, react);
+                        continue;
+                    case AnimationBeat<TFrame, TEvent>.Marker marked:
+                        // A marker is raised as an event is (#2301): it marks a moment for its owner and plays nothing.
+                        React(marked.Raised, ref animation, ref place, react);
                         continue;
                     default:
                         throw new InvalidOperationException($"Undefined beat in segment {phase.Segment}.");
@@ -182,6 +182,20 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
             }
         }
         throw new InvalidOperationException("The animation passed every beat without showing a frame.");
+    }
+
+    /// <summary>
+    /// Raises <paramref name="raised"/> to <paramref name="react"/> where the play stands just past it, and continues the play
+    /// where the owner's reaction says, if it says.
+    /// </summary>
+    private static void React(
+        TEvent raised, ref Animation<TSegment> animation, ref AnimationPlace place,
+        Func<TEvent, AnimationPlayback<TSegment>, AnimationContinuation<TSegment>?> react)
+    {
+        if (react(raised, new AnimationPlayback<TSegment>(animation, place)) is not { } continuation)
+            return;
+        animation = continuation.Animation;
+        place = continuation.CountsOn ? continuation.Place.WithPlaysLeft(place.PlaysLeft) : continuation.Place;
     }
 
     /// <summary>The start of phase <paramref name="phase"/> of <paramref name="animation"/>, with every play of a repeated phase left.</summary>

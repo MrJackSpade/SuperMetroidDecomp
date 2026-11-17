@@ -307,6 +307,9 @@ internal sealed class CrocomireFight
                     : CrocomireFightDefinitions.SpikeWallDustSide;
                 _access.SpawnCrocomireDust(state, baseOffset + CrocomireRandomDefinitions.SpikeWallDustSpread.Of(random));
                 return null;
+            case CrocomireBodyCueKind.SkeletonCollapsed:
+                state.MarkSkeletonCollapsed();
+                return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyCueKind)} {kind}.");
         }

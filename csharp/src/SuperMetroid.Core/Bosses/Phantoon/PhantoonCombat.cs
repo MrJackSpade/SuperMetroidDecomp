@@ -552,11 +552,6 @@ internal sealed class PhantoonCombat
     }
 
 
-    /// <summary>Recognizes the four enemy definitions that share Phantoon encounter state.</summary>
-    internal static bool IsPhantoonPartDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or
-        EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth;
-
     /// <summary>Runs Phantoon's body contact through the shared enemy collision path.</summary>
     internal void ReactToPhantoonBodyTouch(EnemyTouchContext context)
     {
@@ -572,12 +567,13 @@ internal sealed class PhantoonCombat
         _collision.ResolveNormalEnemyTouch(context, TouchDeathAnimation.Skip);
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Phantoon's parts,
+    /// which its own entity asks for (#2301).
+    /// </summary>
+    internal static bool FindPhantoonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
-            return null;
 
         // Phantoon's frames' hitboxes are the compiled definitions', never his editable background frames'; the
         // invulnerable body's centre point is a compatibility rule (PhantoonSolidifyingCentre).

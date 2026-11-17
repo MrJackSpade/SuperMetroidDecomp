@@ -1422,7 +1422,6 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));
         Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
-        Suite(nameof(VerifyLookupStream4RidleyFireballOperands), () => VerifyLookupStream4RidleyFireballOperands());
         Suite(nameof(VerifyLookupStream4GeometryLayout), () => VerifyLookupStream4GeometryLayout(rom));
         Suite(nameof(VerifyLookupStream4PowerBombColors), () => VerifyLookupStream4PowerBombColors(rom));
         Suite(nameof(VerifyLookupStream4SporeAndFly), () => VerifyLookupStream4SporeAndFly(rom));
@@ -1646,23 +1645,6 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => MaridiaSnailsNativeWords.MaridiaLargeSnailAnimations.Decode(invalid, "Oum animation index"), "Oum animation exact domain");
-    }
-
-    /// <summary>Checks Ridley's fireball frames keep their native operand order.</summary>
-    internal static void VerifyLookupStream4RidleyFireballOperands()
-    {
-        // Ridley's fireball programs are typed (#1287); VerifyRidleyAnimations matches them to the native lists, and
-        // their installed frames keep the native operand addresses in list order.
-        ushort[] operands =
-        [
-            0x9556, 0x955e, 0x9562, 0x9566, 0x956a, 0x956e,
-            0x9578, 0x957c, 0x9580, 0x9584, 0x9588,
-            0x95a4, 0x95aa, 0x95ae, 0x95b2, 0x95b6,
-            0x95d7, 0x95dd, 0x95e1, 0x95e5, 0x95e9,
-            0x960a, 0x9610, 0x9614, 0x9618, 0x961c,
-        ];
-        AssertTrue(operands.SequenceEqual(RidleyFireballAnimations.ProjectileFrames.Select(EnemyProjectileProgramFrameSources.Operand)),
-            "Ridley fireball frames keep the native operand order");
     }
 
     /// <summary>Checks Draygon palette and presentation table boundaries against cartridge layout.</summary>

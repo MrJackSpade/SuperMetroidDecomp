@@ -313,7 +313,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 (SoundEffectId?)SamusSound.ChargingBeam,
                 chargeFrame.QueuedSoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
-            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundMaximum,
+            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundPriority,
                 "charge startup is requested at high priority");
         }
         else
@@ -325,7 +325,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         flareOam = SpriteFrameBuffer.DrawnOam(frame =>
         {
             chargeProjectiles.DrawChargeFlare(frame, chargeSamus, new(0, 0), chargeProjectiles.AdvanceChargeFlare(chargeSamus), null,
-                new ChargeFlareArtwork { Placement = fixtureFlarePlacement, Objects = InstalledFixtures.ProjectileArtwork() });
+                new ChargeFlareArtwork { Placement = fixtureFlarePlacement, Sheets = InstalledFixtures.ProjectileArtwork() });
         // Runtime's later `$93:82F7` draw phase must run on every simulated gameplay frame.
         // The ordinary power beam periodically allocates two empty streams; `$90:B6A9`
         // consumes their zero terminators immediately instead of leaving timer-one slots.
@@ -365,7 +365,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual((SoundEffectId?)SamusSound.Silence,
         rejectedRelease.QueuedSoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
-    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundMaximum,
+    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundPriority,
         "rejected charge release requests its cancellation at essential priority");
 
     // Build two identical fifteen-call charge states so their central flare frame and

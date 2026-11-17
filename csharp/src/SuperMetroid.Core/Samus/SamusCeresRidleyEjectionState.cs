@@ -44,12 +44,8 @@ public sealed class SamusCeresRidleyEjectionState
         // displaced movement owner can resume after Ridley's shove ends.
         SamusMovementHandOver.To(samus, SamusMovementOwner.CeresRidleyEjection);
 
-        // Takes only her movement. Her ordinary pose input stays: held controller chords
-        // are still matched, projectile/HUD input still
-        // runs, and the shove specifically discards a prospective damage boost
-        // while the shove remains active. Runtime owns that narrow prospective-pose clear.
-        // Do not lock her control here; doing so changes controller
-        // semantics and made this cutscene indistinguishable from an elevator/message lock.
+        // The shove takes only her movement; her control stays unlocked. Her held chords still choose poses and her
+        // weapons and HUD still answer, and while the shove lasts the runtime discards any damage boost she would take.
     }
 
     /// <summary>Runs one update of the shove.</summary>
@@ -78,8 +74,7 @@ public sealed class SamusCeresRidleyEjectionState
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
             SamusPresentation.InitializeAnimation(samus);
-            // The shove's first update owns this shift. Request/BeginFrame must
-            // not publish it early, and subsequent shove frames must not repeat it.
+            // The shove's first update shifts her pose history, once.
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWrappedWholeY(
                 samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - samus.Kinematics.Radius.Y));
@@ -97,9 +92,9 @@ public sealed class SamusCeresRidleyEjectionState
             return;
         }
 
-        // The bomb jump's falling horizontal movement deliberately uses the current pose's movement
-        // type (knockback for the knockback poses) and the persistent base/extra-run speeds. Direction comes
-        // from the ejection's own direction instead of pose facing, so Ridley always throws toward a wall.
+        // The shove moves her across at the base speed of her pose's movement type (the knockback poses' knockback) with
+        // her kept run speeds, toward the shove's own side rather than her facing, so Ridley always throws her toward a
+        // wall.
         SamusHorizontalSpeedState horizontalSpeed = samus.HorizontalSpeed;
         horizontalSpeed.SelectSpeedsFor(
             samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -128,9 +123,8 @@ public sealed class SamusCeresRidleyEjectionState
             return;
         }
 
-        // Accelerates only while the signed whole speed is below five. The
-        // resulting 1/65536-pixel speed is passed directly to MoveDown; unlike the common falling
-        // movement, this path adds no extra one-pixel downward bias.
+        // Her fall speeds up only while its whole pixels are below five, and she falls by that speed alone, without the
+        // extra pixel an ordinary fall adds.
         if (samus.Kinematics.YSpeed.Whole < SamusVerticalMotionDefinitions.CeresRidleyShoveFallingSpeed)
             samus.Kinematics.YSpeed += samus.Kinematics.YAcceleration;
         SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = samus.Kinematics.YSpeed.AsDisplacement(), ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });

@@ -162,7 +162,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         int random = _room.Random.Read();
         _projectiles.SpawnDustOrExplosion(
             new(CorpseDustDefinitions.TorizoSpread.Of(random) + DeadTorizoCorpseDefinitions.DustOrigin.X, DeadTorizoCorpseDefinitions.DustOrigin.Y),
-            MiscDustAnimation.CorpseDustCloud);
+            DustExplosionAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(_frameContext.RandomEnemyCounter))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }

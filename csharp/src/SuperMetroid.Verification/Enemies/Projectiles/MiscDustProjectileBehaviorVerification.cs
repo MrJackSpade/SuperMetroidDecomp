@@ -30,7 +30,7 @@ internal static class MiscDustProjectileBehaviorVerification
     {
         CartridgeReadGuard guard = ForbiddingSharedLists(rom);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(16384, 16384)) };
-        foreach (MiscDustAnimation animation in Enum.GetValues<MiscDustAnimation>())
+        foreach (DustExplosionAnimation animation in Enum.GetValues<DustExplosionAnimation>())
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
             enemies.Projectiles.SpawnDustOrExplosion(new Position16<RoomPixels>(128, 96), animation);
@@ -50,10 +50,10 @@ internal static class MiscDustProjectileBehaviorVerification
 
         // Since #1414 the eye door's two smoke puffs are typed definitions rather than packed operands: each starts its
         // misc-dust program and plays to deletion with native frame durations.
-        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.ScatteredSmoke, MiscDustAnimation.CorpseDustCloud);
-        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, MiscDustAnimation.EyeDoorSmokePuff);
+        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.ScatteredSmoke, DustExplosionAnimation.CorpseDustCloud);
+        VerifyEyeDoorSmoke(EyeDoorProjectileDefinition.CenteredSmoke, DustExplosionAnimation.EyeDoorSmokePuff);
 
-        void VerifyEyeDoorSmoke(EyeDoorProjectileDefinition puff, MiscDustAnimation animation)
+        void VerifyEyeDoorSmoke(EyeDoorProjectileDefinition puff, DustExplosionAnimation animation)
         {
             RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
             smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(

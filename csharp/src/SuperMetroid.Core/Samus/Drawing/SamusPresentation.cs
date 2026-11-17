@@ -484,8 +484,8 @@ internal sealed class SamusPresentation
     /// the speed-echo position update.
     /// </summary>
     /// <remarks>
-    /// This preserves both branches of the echo draw. A
-    /// capturing cursor draws stationary trailing snapshots only at boost stage four.
+    /// The echoes either trail her or depart. While they capture her positions they draw stationary trailing snapshots,
+    /// only at boost stage four.
     /// Cancellation sends the echoes departing; drawing then advances each body's
     /// ±8 X / ±2 Y convergence before deciding whether it crossed the live Samus.
     /// </remarks>

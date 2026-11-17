@@ -44,7 +44,7 @@ internal static class TorizoMotionDefinitions
 
     /// <summary>
     /// The gravity on Bomb Torizo's Chozo orb, in 256ths of a pixel an update, each update. A falling orb that reaches
-    /// <see cref="RunawaySpeed"/> is removed, so its speed never leaves the 1/256-pixel range.
+    /// <see cref="RunawaySpeed"/> is removed, so its speed never grows past that.
     /// </summary>
     internal static readonly SignedEightEight BombOrbGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(18);
 

@@ -23,9 +23,9 @@ internal static class MiscDustProjectileDefinitionsVerification
         const int placementTable = 0x86e47e;
 
         int unrequested = 0;
-        for (ushort index = 0; index < MiscDustAnimationIndices.SelectorCount; index++)
+        for (ushort index = 0; index < DustExplosionAnimationIndices.SelectorCount; index++)
         {
-            if (MiscDustAnimationIndices.TryDecode(index) is not { } animation)
+            if (DustExplosionAnimationIndices.TryDecode(index) is not { } animation)
             {
                 unrequested++;
                 continue;
@@ -34,29 +34,29 @@ internal static class MiscDustProjectileDefinitionsVerification
             AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(animation), $"misc-dust instruction selector {index}");
 
             var enemies = CreateMiscDustEnemySystem();
-            var spawn = new Action<Position16<RoomPixels>, MiscDustAnimation>(enemies.Projectiles.SpawnDustOrExplosion);
+            var spawn = new Action<Position16<RoomPixels>, DustExplosionAnimation>(enemies.Projectiles.SpawnDustOrExplosion);
             spawn(new(0x1234, 0x5678), animation);
             EnemyProjectile roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
             AssertTrue(roomSlot.Animation is MiscDustProjectileAnimation started && started.PlayingSegment == animation,
                 $"room-graphics misc-dust production selector {index}");
         }
         AssertEqual(16, unrequested, "misc-dust selectors no spawner asks for");
-        AssertEqual(Enum.GetValues<MiscDustAnimation>().Length, MiscDustAnimationIndices.SelectorCount - unrequested,
+        AssertEqual(Enum.GetValues<DustExplosionAnimation>().Length, DustExplosionAnimationIndices.SelectorCount - unrequested,
             "every misc-dust animation has its selector");
 
         // The cartridge's five placement records, in its order (#2044).
-        MiscDustPlacementDefinition[] placements =
+        DustExplosionPlacement[] placements =
         [
-            MiscDustSmokePlacements.Point,
-            MiscDustSmokePlacementsConstants.CentredEightPixelSquare,
-            MiscDustSmokePlacementsConstants.CentredSixteenPixelSquare,
-            MiscDustSmokePlacements.CentredSixteenByThirtyTwoBox,
-            MiscDustSmokePlacementsConstants.CentredThirtyTwoBySixtyFourBox,
+            SmokePuffPlacements.Point,
+            SmokePuffPlacementsConstants.CentredEightPixelSquare,
+            SmokePuffPlacementsConstants.CentredSixteenPixelSquare,
+            SmokePuffPlacements.CentredSixteenByThirtyTwoBox,
+            SmokePuffPlacementsConstants.CentredThirtyTwoBySixtyFourBox,
         ];
         for (int index = 0; index < placements.Length; index++)
         {
             int address = placementTable + index * 8;
-            MiscDustPlacementDefinition definition = placements[index];
+            DustExplosionPlacement definition = placements[index];
             // The native masks apply to the sample's low (X) and high (Y) bytes; each field reads exactly those bits.
             int nativeXMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             int nativeYMask = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2));
@@ -74,10 +74,10 @@ internal static class MiscDustProjectileDefinitionsVerification
             var enemies = CreateMiscDustEnemySystem();
             enemies.VerificationServices().ReadRandom = () => random;
             enemies.VerificationServices().NextRandom = () => { advances++; return 0xbeef; };
-            Action<EnemyProjectile, MiscDustAnimation, MiscDustPlacementDefinition, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
+            Action<EnemyProjectile, DustExplosionAnimation, DustExplosionPlacement, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
             EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles[0];
-            initialize(smoke, MiscDustAnimation.CorpseDustCloud, definition, new(7, 9));
-            AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.CorpseDustCloud },
+            initialize(smoke, DustExplosionAnimation.CorpseDustCloud, definition, new(7, 9));
+            AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.CorpseDustCloud },
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
                 (random & nativeXMask))), smoke.Position.X.Whole,
@@ -89,16 +89,16 @@ internal static class MiscDustProjectileDefinitionsVerification
         }
 
         var ridley = CreateMiscDustEnemySystem();
-        Action<Position16<RoomPixels>, MiscDustAnimation> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
-        spawnRidley(new(0x1234, 0x5678), MiscDustAnimation.BigExplosion);
+        Action<Position16<RoomPixels>, DustExplosionAnimation> spawnRidley = ridley.RidleyProjectiles.SpawnRidleyDust;
+        spawnRidley(new(0x1234, 0x5678), DustExplosionAnimation.BigExplosion);
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
-                MiscDustProjectileAnimation { PlayingSegment: MiscDustAnimation.BigExplosion },
+                MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.BigExplosion },
             "Ridley production dust starts the requested animation's program");
 
         var invalidRoom = CreateMiscDustEnemySystem();
-        var spawnInvalidRoom = new Action<Position16<RoomPixels>, MiscDustAnimation>(invalidRoom.Projectiles.SpawnDustOrExplosion);
+        var spawnInvalidRoom = new Action<Position16<RoomPixels>, DustExplosionAnimation>(invalidRoom.Projectiles.SpawnDustOrExplosion);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (MiscDustAnimation)byte.MaxValue),
+            () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (DustExplosionAnimation)byte.MaxValue),
             "room-graphics selector beyond authored table");
         AssertEqual(0, invalidRoom.ActiveEnemyProjectileCount,
             "invalid room-graphics misc dust does not partially allocate a slot");

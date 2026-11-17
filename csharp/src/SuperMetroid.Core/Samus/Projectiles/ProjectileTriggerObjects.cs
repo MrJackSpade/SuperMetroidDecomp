@@ -26,8 +26,7 @@ internal sealed class ProjectileTriggerObjects
         Position16<RoomBlocks> block,
         SamusProjectileType projectileType)
     {
-        // The search runs in processing order and accepts the first matching block regardless of its definition. Preserve
-        // that generality: reaction room objects and future modelled actors must not be omitted from a family step.
+        // The first active place at the block the search reaches takes the hit, whatever room object it holds.
         foreach (RoomObjectPlace place in _places.InUpdateOrder)
         {
             if (!place.Active || place.Block != block)

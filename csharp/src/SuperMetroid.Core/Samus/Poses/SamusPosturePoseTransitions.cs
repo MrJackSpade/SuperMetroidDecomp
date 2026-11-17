@@ -351,8 +351,7 @@ internal static class SamusPosturePoseTransitions
             out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
-            // A morph source can only produce RetainSource here. Keep the defensive branch
-            // explicit so a future request cannot accidentally apply non-morph crouch fallback.
+            // A Morph Ball source can only keep its pose here; a crouch applies only if the outcome asks for one.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;

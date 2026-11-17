@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -39,7 +40,7 @@ public sealed class MotherBrainCorpseRottingState
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
                     Position: brainPosition + MotherBrainLateFightDefinitions.CorpseDustFromBrain +
                         new Offset16<RoomPixels>(randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset), 0),
-                    Animation: MiscDustAnimation.CorpseDustCloud,
+                    Animation: DustExplosionAnimation.CorpseDustCloud,
                     SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(enemyPassCount),
                     SoundEffect: EnemySound.LiquidDamage));
             });

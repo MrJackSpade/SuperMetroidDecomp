@@ -421,7 +421,7 @@ internal static class SamusPoseTransitions
         // Runs movement-type initialization after the pose-transition cue has
         // selected the new normal-jump pose but before it initializes that pose's frame.
         // A live stored shine replaces the target with the shinespark windup, so never briefly seed
-        // neutral, aimed-up or diagonally-up normal-jump animation state in this branch.
+        // neutral, aimed-up or diagonally-up normal-jump animation state for it.
         bool beganShinespark = SamusAerialPoseTransitions.TryBeginShinesparkWindup(samus,
             targetPose,
             previousMovementType);

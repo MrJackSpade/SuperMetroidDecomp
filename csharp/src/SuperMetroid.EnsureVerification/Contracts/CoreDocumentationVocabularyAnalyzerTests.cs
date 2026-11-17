@@ -1355,6 +1355,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Set before property initializers run; an object initializer; the afterburn's branches; the enemy's setup.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The body's update count; Samus's five shot places; his roar ends.</summary>\nint F => 0; int UpdateCount; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the initializer branches on the execution counter.</summary>\n[CompatibilityService(\"init\")] class Init { int MainEnemyExecutionCounter; }");
+<<<<<<< HEAD
         // The original's arithmetic told as a summary, its program structure and its leftover storage, outside hardware
         // owners and markup (#2345).
         Expect("class P { /// <summary>Adds a step: the sample divided by 256, modulo 4.</summary>\nint F => 0; }", "('divided by 256')");
@@ -1375,5 +1376,50 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>The picture divided into halves; do not call it twice; Ceres, the prologue station; the research station prologue.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Its values are arbitrary and nothing reads them; the countdown the previous room's main left.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the sample divided by 256, modulo 4, in an if/else chain.</summary>\n[CompatibilityService(\"modulo\")] class Modulo { }");
+||||||| 273b556990
+=======
+        // The machine's storage and the repository's checks told for a value, outside hardware owners and markup (#2352): a
+        // position's overflow, a range named by its 1/N-pixel storage, scan, target, collision and solid counters, state
+        // lying below a clear, allocations that clear and routes that allocate, and a check that runs to confirm a value.
+        Expect("class P { /// <summary>Runs the homing particle, keeping its 1/256-pixel acceleration and position overflow.</summary>\nint F => 0; }",
+            "('position overflow')");
+        Expect("class P { /// <summary>The speed stays far inside the 1/256-pixel range.</summary>\nint F => 0; }", "('the 1/256-pixel range')");
+        Expect("class P { /// <summary>Negates the speed, wrapping within its signed 1/256-pixel range.</summary>\nint F => 0; }",
+            "('its signed 1/256-pixel range')");
+        Expect("class P { void Run() { // A surface hit clears both scan counters.\n } }", "('scan counters')");
+        Expect("class P { /// <summary>Reports a collision only when the scan's solid counter completes.</summary>\nint F => 0; }",
+            "('scan's solid counter')");
+        Expect("class P { void Run() { // The span decrements its target counter for each stopping block.\n } }", "('target counter')");
+        Expect("class P { void Run() { // Gate setup forces the collision counter.\n } }", "('collision counter')");
+        Expect("class P { /// <summary>Copies the inventory, which lie below the state her setup clears.</summary>\nint F => 0; }",
+            "('lie below the state her setup clears')");
+        Expect("class P { void Run() { // Allocation clears the effect's colour step.\n } }", "('Allocation clears')");
+        Expect("class P { void Run() { // Both collision routes allocate the shot trigger.\n } }", "('routes allocate')");
+        Expect("class P { /// <remarks>The radius check runs every update of a blast against the arithmetic to confirm it.</remarks>\nint F => 0; }",
+            "('check runs every update of a blast against the arithmetic to confirm')");
+        // A sum that overflows, a range in pixels, a counter alone, lying below a ledge, an allocation alone, a check the game
+        // makes and a hardware owner are English.
+        Expect("class P { /// <summary>A sum that overflows; the 32-pixel range of the attack; the counter; the floor lies below a ledge; an allocation; the game's check runs every update.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the scan counters and the 1/65536-pixel position overflow.</summary>\n[CompatibilityService(\"scan\")] class Scan { }");
+        // The original's code branches told in prose, outside hardware owners and markup (#2352): this, that, both or every
+        // branch, a branch of a step, a branch taken, entered or run, a branch that does something, a branch order and
+        // branching straight to something.
+        Expect("class P { void Run() { // Morph Ball's radius is smaller, and that branch restores the previous pose.\n } }", "('that branch')");
+        Expect("class P { /// <summary>Preserves both branches of the echo draw.</summary>\nint F => 0; }", "('both branches')");
+        Expect("class P { /// <summary>Runs the deceleration branch of the speed calculation.</summary>\nint F => 0; }",
+            "('Runs the deceleration branch')");
+        Expect("class P { /// <summary>The hidden-wall branch of the room's shaking.</summary>\nint F => 0; }", "('branch of')");
+        Expect("class P { void Run() { // A zero-damage hit takes the dud branch.\n } }", "('takes the dud branch')");
+        Expect("class P { void Run() { // a fast swing takes the alternating boost/normal branch\n } }",
+            "('takes the alternating boost/normal branch')");
+        Expect("class P { void Run() { // The landing branch moves the game to Crateria.\n } }", "('branch moves')");
+        Expect("class P { string S = \"The thaw branch leaves the clock at its remainder.\"; }", "('branch leaves')");
+        Expect("class P { /// <summary>Picks the suit in the game's branch order.</summary>\nint F => 0; }", "('branch order')");
+        Expect("class P { void Run() { // The step branches straight to the shots.\n } }", "('branches straight to')");
+        // A room's state choice's branches, a projectile's branches, an afterburn branch, an animation that branches to
+        // another, a branch alone and a hardware owner are English.
+        Expect("class P { /// <summary>One branch of a room's state choice; the branches of the projectile; an afterburn branch; the swing, which branches to its release; a branch.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the wall branch stores the speed; it takes the retreating branch.</summary>\n[CompatibilityService(\"branch\")] class Branch { }");
+>>>>>>> worktree-agent-a25205e6d337c0739
     }
 }

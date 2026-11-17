@@ -400,7 +400,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRinkaCamera(frame.Camera);
     }
     /// <summary>The dust a Rinka's special death raises.</summary>
-    private const MiscDustAnimation DeathDust = MiscDustAnimation.SmallExplosion;
+    private const DustExplosionAnimation DeathDust = DustExplosionAnimation.SmallExplosion;
     /// <summary>Raises a Rinka's small death explosion at <paramref name="position"/>.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnDustOrExplosion(position, DeathDust);

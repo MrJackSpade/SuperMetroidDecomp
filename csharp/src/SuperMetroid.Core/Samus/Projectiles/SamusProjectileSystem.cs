@@ -45,10 +45,16 @@ public sealed class SamusProjectileSystem
     /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
 
+<<<<<<< HEAD
     /// <summary>Starts and runs the special beam attacks, whose particles take Samus's first shot places.</summary>
+||||||| 273b556990
+    /// <summary>Advances special beam combinations that share ordinary projectile storage.</summary>
+=======
+    /// <summary>Runs the special beam attacks, whose particles fly in Samus's shot places.</summary>
+>>>>>>> worktree-agent-a25205e6d337c0739
     internal BeamCombos Combos { get; }
 
-    /// <summary>Plays projectile records and draws their sprite compositions.</summary>
+    /// <summary>Plays the shots' animations and draws their pictures.</summary>
     internal ProjectileAnimation Animation { get; }
 
     /// <summary>Applies HUD, cooldown, equipment, and charge rules when allocating a shot.</summary>
@@ -176,9 +182,8 @@ public sealed class SamusProjectileSystem
     /// This belongs to Samus's suit colouring, not charge-flare drawing. It changes
     /// Samus's colours, which the next displayed frame shows, so the same colours
     /// are written at this phase.
-    /// The runtime executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
-    /// colouring afterward unless glow expiry returns the normal-suit restoration action.
-    /// That action models the restore branch, bypassing special colouring for one frame.
+    /// The runtime shows the special Speed Booster, Screw Attack, Shinespark, Crystal Flash and X-ray colouring afterward,
+    /// except on the update the glow ends and restores the suit: that update shows no special colouring.
     /// </remarks>
     /// <param name="colours">Samus's shown colours.</param>
     /// <param name="samus">Samus.</param>
@@ -231,6 +236,79 @@ public sealed class SamusProjectileSystem
         Charge.ChargedShotGlow = played;
         if (played.Kind == ChargedShotGlowKind.None)
         {
+<<<<<<< HEAD
+||||||| 273b556990
+            // The flash counts its step down before its zero test. Starting at four therefore produces
+            // white on steps 3, 2, and 1. Step 1 -> 0 takes the restore branch, causing
+            // the outer colour step to restore the complete suit shade on the fourth call.
+            glow = glow.Stepped();
+            if (glow.RemainingSteps == 0)
+            {
+                Charge.ChargedShotGlow = ChargedShotGlow.None;
+                ProjectileAnimation.ShowSuitShade(colours, samus);
+                return new(
+                    SamusBeamChargeGlowAction.RestoredNormalSuit);
+            }
+
+            // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
+            Charge.ChargedShotGlow = glow;
+            colours.ShowSuit(SamusShades.ChargedShotGlow);
+
+            return new(
+                SamusBeamChargeGlowAction.OrdinaryWhite);
+        }
+
+        // The Hyper Beam's glow: odd steps are pure hold calls; even steps 20..2 show the Hyper Beam glow's
+        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two updates.
+        if (glow.RemainingSteps % 2 == 1)
+        {
+            Charge.ChargedShotGlow = glow.Stepped();
+            return new(
+                SamusBeamChargeGlowAction.HyperHold);
+        }
+
+        int glowStep = glow.RemainingSteps / 2;
+        if (glowStep == 0)
+        {
+            // The glow's final update, at step zero, ends it and reports it finished so the outer colour step performs the
+            // suit restore.
+            Charge.ChargedShotGlow = ChargedShotGlow.None;
+=======
+            // The flash counts its step down before testing it. Starting at four, it shows white on steps three, two and
+            // one, and on its fourth update, reaching zero, it restores the suit's whole shade.
+            glow = glow.Stepped();
+            if (glow.RemainingSteps == 0)
+            {
+                Charge.ChargedShotGlow = ChargedShotGlow.None;
+                ProjectileAnimation.ShowSuitShade(colours, samus);
+                return new(
+                    SamusBeamChargeGlowAction.RestoredNormalSuit);
+            }
+
+            // Every visible suit colour shows the glow's yellow; the import pre-colours the shade (#1512).
+            Charge.ChargedShotGlow = glow;
+            colours.ShowSuit(SamusShades.ChargedShotGlow);
+
+            return new(
+                SamusBeamChargeGlowAction.OrdinaryWhite);
+        }
+
+        // The Hyper Beam's glow: an odd step holds the shown frame; even steps 20..2 show the Hyper Beam glow's
+        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two updates.
+        if (glow.RemainingSteps % 2 == 1)
+        {
+            Charge.ChargedShotGlow = glow.Stepped();
+            return new(
+                SamusBeamChargeGlowAction.HyperHold);
+        }
+
+        int glowStep = glow.RemainingSteps / 2;
+        if (glowStep == 0)
+        {
+            // The glow's final update, at step zero, ends it and reports it finished so the outer colour step performs the
+            // suit restore.
+            Charge.ChargedShotGlow = ChargedShotGlow.None;
+>>>>>>> worktree-agent-a25205e6d337c0739
             ProjectileAnimation.ShowSuitShade(colours, samus);
             return true;
         }
@@ -277,14 +355,13 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(sharedProjectiles);
 
         SoundEffectId? queuedSound = null;
-        SoundRequestPriority? queuedSoundMaximum = null;
+        SoundRequestPriority? queuedSoundPriority = null;
 
         // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
         // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
         // go to the bombs instead, and while her input is locked no producer runs.
-        // The forward-facing HUD step branches straight to projectile handling for either
-        // forward-facing pose. In particular an elevator may keep accepting physical
-        // controller samples without allowing them to charge or fire a weapon.
+        // A forward-facing pose fires nothing and goes straight on to the shots already out. In particular an elevator
+        // may keep accepting physical controller samples without allowing them to charge or fire a weapon.
         // Spin, wall-jump, hurt and special movement use the jumping HUD selection mode, not
         // the normal beam producer. With grapple inactive that mode does
         // nothing: held/released Shoot must leave the charge untouched.
@@ -313,7 +390,7 @@ public sealed class SamusProjectileSystem
                 (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                (_, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
+                (_, queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
@@ -330,17 +407,17 @@ public sealed class SamusProjectileSystem
                     buttons.ControllerPreviousNewInput,
                     sharedProjectiles);
                 if (queuedSound is not null)
-                    queuedSoundMaximum = SoundRequestPriority.Normal;
+                    queuedSoundPriority = SoundRequestPriority.Normal;
             }
         }
         // Firing queues its sound as it fires, before any projectile moves.
         if (queuedSound is { } firingSound)
         {
             AudioRequests.QueueSound(firingSound,
-                queuedSoundMaximum ?? throw new InvalidDataException("A projectile sound was queued without its queue limit."));
+                queuedSoundPriority ?? throw new InvalidDataException("A projectile sound was queued without its priority."));
         }
 
-        LastFrameResult = new SamusProjectileFrameResult(queuedSound, queuedSoundMaximum);
+        LastFrameResult = new SamusProjectileFrameResult(queuedSound, queuedSoundPriority);
     }
 
     /// <summary>
@@ -426,7 +503,7 @@ public sealed class SamusProjectileSystem
             return hyper;
         }
 
-        // Calls before the main flare is shown initialize or retain the hidden animation state; from then the central
+        // Updates before the main flare shows start or keep its hidden animation; from then the central
         // flare is drawn, and from the sparks' count both orbiting spark components too. The Hyper Beam's flare counts
         // no updates, so without the Hyper Beam equipped it shows nothing here.
         if (Charge.FlareCounter == 1)
@@ -474,9 +551,7 @@ public sealed class SamusProjectileSystem
                 shot.Type.Family.IsBombOrExplosion)
                 continue;
 
-            // Unlike the bomb/explosion pass, the game's live projectile drawing does not
-            // cull by world X. The sprite is published wherever it lies and the display clips it.
-            // This also preserves sprite ordering/capacity when a combo orbits offscreen.
+            // Unlike a bomb or an explosion, a live shot is drawn wherever it lies, offscreen included; the display clips it.
             if (shot.Sprite is not null)
                 ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                     shot, cameraPosition, artwork);
@@ -488,7 +563,7 @@ public sealed class SamusProjectileSystem
     /// side owns its own timer, animation position and position.
     /// </summary>
     /// <param name="timeIsFrozen">
-    /// Whether time is frozen. Frozen trails retain their current record and are still drawn;
+    /// Whether time is frozen. Frozen trails keep their current picture and are still drawn;
     /// their timers and position steps do not advance.
     /// </param>
     public void AdvanceTrails(bool timeIsFrozen) => Trails.Advance(timeIsFrozen);
@@ -496,11 +571,11 @@ public sealed class SamusProjectileSystem
     /// <summary>Publishes every live trail side, the newest trail first.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="cameraPosition">Whole-pixel room camera origin subtracted from trail coordinates.</param>
-    /// <param name="objects">The projectile sheet the trail poses are drawn from.</param>
+    /// <param name="sheets">The projectile sheets the trail poses are drawn from.</param>
     public void DrawTrails(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        ProjectileDrawArtwork objects) => Trails.Draw(sprites, cameraPosition, objects);
+        ProjectileDrawArtwork sheets) => Trails.Draw(sprites, cameraPosition, sheets);
 
     /// <summary>
     /// Draws beam explosions in enemy collision's earlier bomb/explosion phase.
@@ -526,7 +601,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Fully clears projectile storage and held-charge presentation for forced owners such as
+    /// Clears every shot, trail and the held charge's flare and glow for forced owners such as
     /// elevator boarding and the intro flashback. A room's load builds a new system instead,
     /// whose held charge is the session's.
     /// </summary>
@@ -541,7 +616,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Clears projectile storage without the flare
+    /// Clears every shot and trail, without the flare
     /// counter, flare animation state or charge glow state, which <see cref="Reset"/> clears after it.
     /// </summary>
     private void ClearProjectileData()

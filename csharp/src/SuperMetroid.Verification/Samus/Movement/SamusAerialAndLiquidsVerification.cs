@@ -1208,6 +1208,8 @@ internal static void VerifySamusAtmosphericEffects()
     {
         Pose = SamusPoseId.MovingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+        // A dry room: the Landing Site without its rain.
+        Room = RoomDefinitions.LandingSite,
     };
     SamusPoseMetadata.RefreshCollisionRadii(runner);
     SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));

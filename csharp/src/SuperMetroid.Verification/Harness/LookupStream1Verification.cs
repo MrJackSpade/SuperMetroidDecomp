@@ -939,7 +939,7 @@ internal static class LookupStream1Verification
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, ChargeFlareComponent, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
-        ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
+        ProjectileDrawArtwork flareSheets = InstalledFixtures.ProjectileArtwork();
         foreach (SamusPoseId pose in new[]
         {
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
@@ -957,7 +957,7 @@ internal static class LookupStream1Verification
             // The flare's picture may be laid out once for several projectile sheet frames whose pictures are identical
             // (#1513), so the draw is matched against each composition that picture stands for.
             Action<SpriteFrameBuffer> drawFlare = frame => draw(frame, samus, Position16<RoomPixels>.Zero, ChargeFlareComponent.MainFlare, null,
-                new ChargeFlareArtwork { Placement = stock, Objects = flareObjects });
+                new ChargeFlareArtwork { Placement = stock, Sheets = flareSheets });
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(drawFlare);
             AssertTrue(actual.LastFinalizedSpriteCount > 0, "Focused flare placement fixture emits its native sprite");
             AssertTrue(SpriteFrameBufferAccess.DrawnStandsFor(drawFlare, expected),

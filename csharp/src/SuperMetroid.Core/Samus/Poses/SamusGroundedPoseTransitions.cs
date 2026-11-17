@@ -287,7 +287,7 @@ internal static class SamusGroundedPoseTransitions
             !exitsToForwardRun && !exitsToStandingFallback)
         {
             // The predicates above cover every stable moonwalk route;
-            // reaching this branch means the request chose the wrong pose change.
+            // any other route means the request chose the wrong pose change.
             throw new InvalidOperationException(
                 $"Moonwalk pose change {samus.Pose} -> {targetPose} is not a stable route.");
         }

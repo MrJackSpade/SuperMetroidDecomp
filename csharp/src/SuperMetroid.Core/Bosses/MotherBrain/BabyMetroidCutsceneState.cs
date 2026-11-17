@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Samus;
@@ -327,7 +328,7 @@ public sealed class BabyMetroidCutsceneState
                     // enemy's current room coordinate and spawns a small dust cloud
                     // in the highest free place for an enemy projectile.
                     foreach (Offset16<RoomPixels> dust in BabyMetroidCutsceneDefinitions.ReleaseDustOffsets)
-                        releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(head + dust, Animation: MiscDustAnimation.SmallDustCloud));
+                        releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(head + dust, Animation: DustExplosionAnimation.SmallDustCloud));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }
                 goto case BabyMetroidCutscenePhase.MoveToTheCeiling;
@@ -755,7 +756,7 @@ public sealed class BabyMetroidCutsceneState
         NextDeathExplosion = NextDeathExplosion.NextInCycle;
         return new DustExplosionRequest(
             Position: Position.Whole + scatter,
-            Animation: MiscDustAnimation.SmallExplosion,
+            Animation: DustExplosionAnimation.SmallExplosion,
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }
 
@@ -915,7 +916,9 @@ public sealed class BabyMetroidCutsceneState
         return true;
     }
 
-    /// <summary>Accelerates X toward its target with equality choosing the left branch and zeroes velocity on crossing.</summary>
+    /// <summary>
+    /// Accelerates X toward its target, leftward when it stands exactly on the target, and zeroes the velocity on crossing.
+    /// </summary>
     private bool AccelerateTowardsXPosition(int targetX, SignedEightEight acceleration)
     {
         int difference = SignedPlace.X - targetX;

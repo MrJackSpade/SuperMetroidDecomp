@@ -163,13 +163,13 @@ internal sealed class ProjectileTrails
     internal void Draw(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> cameraPosition,
-        ProjectileDrawArtwork objects)
+        ProjectileDrawArtwork sheets)
     {
         Ensure.NotNull(sprites);
         for (int index = trails.Count - 1; index >= 0; index--)
         {
-            DrawTrailSide(sprites, trails[index], cameraPosition, HorizontalDirection.Left, objects);
-            DrawTrailSide(sprites, trails[index], cameraPosition, HorizontalDirection.Right, objects);
+            DrawTrailSide(sprites, trails[index], cameraPosition, HorizontalDirection.Left, sheets);
+            DrawTrailSide(sprites, trails[index], cameraPosition, HorizontalDirection.Right, sheets);
         }
     }
 
@@ -179,7 +179,7 @@ internal sealed class ProjectileTrails
         SamusProjectileTrail pair,
         Position16<RoomPixels> cameraPosition,
         HorizontalDirection direction,
-        ProjectileDrawArtwork objects)
+        ProjectileDrawArtwork sheets)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         // A finished side, including one that ended in this frame's advance, shows nothing, and so does a side whose
@@ -190,7 +190,7 @@ internal sealed class ProjectileTrails
         // The trail is published wherever it lies; the display clips it to the view (#1541).
         Offset16<ScreenPixels> place = side.DisplayedPosition.RelativeToCamera(cameraPosition);
 
-        SpriteSheetFrame image = objects.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
+        SpriteSheetFrame image = sheets.SheetOf(pair.PicturedBeams).Frame(ProjectileSheetFrames.TrailFrame(pose));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail),
             image, place, SpriteMirror.None));
     }

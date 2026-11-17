@@ -25,17 +25,17 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
     /// <summary>Replaces the Y axis.</summary>
     public EightEightVector<TSpace> WithY(SignedEightEight y) => this with { Y = y };
 
-    /// <summary>Negates the raw X value (wrapping within its signed 1/256-pixel range); Y is unchanged.</summary>
+    /// <summary>Negates the X speed, wrapping as a <see cref="SignedEightEight"/> does; Y is unchanged.</summary>
     public EightEightVector<TSpace> ReversedX() => WithX(X.Negated());
 
-    /// <summary>Negates the raw Y value (wrapping within its signed 1/256-pixel range); X is unchanged.</summary>
+    /// <summary>Negates the Y speed, wrapping as a <see cref="SignedEightEight"/> does; X is unchanged.</summary>
     public EightEightVector<TSpace> ReversedY() => WithY(Y.Negated());
 
-    /// <summary>Adds the raw 1/256-pixel values of each axis, wrapping within the signed 1/256-pixel range.</summary>
+    /// <summary>Adds each axis's speeds, each sum wrapping as a <see cref="SignedEightEight"/> sum does.</summary>
     public static EightEightVector<TSpace> operator +(EightEightVector<TSpace> left, EightEightVector<TSpace> right) =>
         new(left.X + right.X, left.Y + right.Y);
 
-    /// <summary>Scales the signed raw 1/256-pixel values of each axis, wrapping within the signed 1/256-pixel range.</summary>
+    /// <summary>Scales each axis's speed by <paramref name="factor"/>, each product wrapping as a <see cref="SignedEightEight"/> does.</summary>
     public static EightEightVector<TSpace> operator *(EightEightVector<TSpace> vector, int factor) =>
         new(SignedEightEight.Wrapped(vector.X.InTwoHundredFiftySixthsOfPixel * factor),
             SignedEightEight.Wrapped(vector.Y.InTwoHundredFiftySixthsOfPixel * factor));

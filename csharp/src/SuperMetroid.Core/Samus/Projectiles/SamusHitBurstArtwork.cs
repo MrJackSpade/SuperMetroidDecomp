@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// shows the sheet of the beams she has equipped, as her charge flare does (#1586), and its draw is one of hers, which
 /// shows her beams' current colouring with her other draws.
 /// </summary>
-/// <param name="Objects">The context's projectile sheets.</param>
+/// <param name="Sheets">The context's projectile sheets.</param>
 /// <param name="EquippedBeams">The beam combination she has equipped as the burst is drawn.</param>
-public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Objects, SamusBeamCombination EquippedBeams)
+public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Sheets, SamusBeamCombination EquippedBeams)
 {
     /// <summary>Publishes the burst's composition <paramref name="picture"/> centred on <paramref name="origin"/>.</summary>
     /// <param name="sprites">The frame's sprite description.</param>
@@ -21,7 +21,7 @@ public readonly record struct SamusHitBurstArtwork(ProjectileDrawArtwork Objects
     internal void Draw(SpriteFrameBuffer sprites, ProjectileSpriteId picture, Offset16<ScreenPixels> origin)
     {
         Ensure.NotNull(sprites);
-        SpriteSheetFrame image = Objects.SheetOf(EquippedBeams).Frame(ProjectileSheetFrames.HitBurstFrame(picture));
+        SpriteSheetFrame image = Sheets.SheetOf(EquippedBeams).Frame(ProjectileSheetFrames.HitBurstFrame(picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusHitBurst), image, origin, SpriteMirror.None));
     }
 }

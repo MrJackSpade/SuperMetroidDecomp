@@ -916,8 +916,8 @@ internal sealed class SamusFramePhases
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
         // The knockback movement type's normal movement is this one. Active
-        // knockback and Ceres ejection were intercepted above; this branch
-        // is their authentic one-frame normal movement tail before the pose transition
+        // knockback and Ceres ejection were intercepted above; this is the knockback
+        // movement type's one-frame normal movement before the pose transition
         // installs the input/no-input target chosen during the input phase.
         SignedSixteenSixteen groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
@@ -1083,8 +1083,16 @@ internal sealed class SamusFramePhases
         }
 
         // The drained get-up runs after movement and before animation.
+<<<<<<< HEAD
         // Mother Brain's two drain setups choose its Up-edge branches; the
         // step does nothing in every ordinary gameplay state.
+||||||| 273b556990
+        // Mother Brain's two drain setups choose its Up-edge branches; the
+        // method is a cheap no-op for every ordinary gameplay state.
+=======
+        // Mother Brain's two drain setups choose whether an Up press stands her up; the
+        // method is a cheap no-op for every ordinary gameplay state.
+>>>>>>> worktree-agent-a25205e6d337c0739
         if (frame.Mode.Movement != SamusMovementMode.SuitPickup)
             samus.Drained.RunGetUpCheck(samus, _playerActions.NewlyPressed);
 

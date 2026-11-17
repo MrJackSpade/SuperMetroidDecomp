@@ -16,7 +16,7 @@ public static class SamusGrappleSwing
         SamusState samus,
         SamusGrappleState grapple)
     {
-        // A fast swing selects the slow-scrolling camera branch.
+        // A fast swing makes the camera scroll slowly.
         grapple.SlowScrolling = grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed;
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
         // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
@@ -57,8 +57,8 @@ public static class SamusGrappleSwing
         // stays below 2^24 65536ths of a pixel and never wraps.
         samus.Kinematics.YSpeed = cosine.SizeTimes(releaseSpeed);
 
-        // The release selects Y direction from both angular-velocity sign and cosine sign.
-        // Keeping that branch literal avoids deriving a screen-coordinate convention.
+        // The release's vertical direction depends on which way the swing turns and which side of its anchor's
+        // level she hangs.
         bool movingDown = grapple.AngularVelocity.IsNegative ? cosine.IsNegative : !cosine.IsNegative;
         samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
 
@@ -97,7 +97,7 @@ public static class SamusGrappleSwing
                 grapple.RopeLength = GrappleBeamDefinitions.Swing.RopeLengthCap;
         }
 
-        // The branch accepts pumping only through the lower half of the circle, from a quarter turn up to three quarters.
+        // Pumping the swing works only through the lower half of the circle, from a quarter turn up to three quarters.
         // Hanging straight down, a motionless pendulum gets the kick before the normal input acceleration is added.
         bool inPumpArc = grapple.Angle >= RotationAngle.QuarterTurn &&
             grapple.Angle < RotationAngle.ThreeQuarterTurn;

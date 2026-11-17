@@ -95,8 +95,8 @@ public static class SamusMorphBallMovement
                 roomObjects,
                 out hitCeiling);
 
-            // Only the stable-pose branch performs the speed cleanup, and only
-            // after the no-speed Y path. A moving ball retains its newly calculated speed.
+            // Only a ball in a stable pose has its momentum cleared, and only after the vertical move with no speed. A
+            // moving ball keeps its newly calculated speed.
             if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && stationaryPose)
                 speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
@@ -258,7 +258,7 @@ public static class SamusMorphBallMovement
             // With no horizontal direction held the game clears the displacement and persistent base speed;
             // powered vertical motion continues unchanged.
             speed.BaseSpeed = default;
-            // This branch bypasses the speed calculation; retain the previous total-speed pair.
+            // With no direction held the speed is not calculated, and the previous total speeds stay.
             requestedHorizontal = SignedSixteenSixteen.Zero;
         }
         else

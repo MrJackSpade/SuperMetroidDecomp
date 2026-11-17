@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Identities and definition tables for special beam attacks.</summary>
+/// <summary>The special beam attacks' sizes, speeds, turns, lifetimes and sounds.</summary>
 public static class BeamComboDefinitions
 {
     /// <summary>The Plasma special beam attack's expansion/contraction step in pixels.</summary>
@@ -66,10 +66,7 @@ public static class BeamComboDefinitions
     /// <summary>How far above Samus the Spazer special attack's particles centre their flight once they stop circling her.</summary>
     public const int SpazerFlightCentreHeight = 114;
 
-    /// <summary>
-    /// How far left of the view an Ice or Plasma special attack particle may fly before it ends, in pixels; the view's
-    /// own left edge is at nothing.
-    /// </summary>
+    /// <summary>How far left of the view's left edge an Ice or Plasma special attack particle may fly before it ends, in pixels.</summary>
     public const int ViewLeftMargin = 32;
 
     /// <summary>How far right of the view's left edge an Ice or Plasma special attack particle ends, in pixels.</summary>

@@ -80,9 +80,8 @@ public static class SamusBombJumpMovement
         }
         else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed.Whole == 0)
         {
-            // The rise restores input while speed is still fractional and
-            // positive, BEFORE the apex or a collision restores normal movement.
-            // A next-frame table match can therefore cancel the remaining bomb rise.
+            // The rise gives her pose input back while her speed is still a fraction of a pixel upward, before the apex
+            // or a collision gives her movement back, so the next update's pose input can end the rest of the rise.
             samus.BombJumpPoseInputLocked = false;
         }
 
@@ -107,7 +106,7 @@ public static class SamusBombJumpMovement
         return new BombJumpMovementResult(vertical, FellWithoutFloor: movedDown);
     }
 
-    /// <summary>Applies bomb-jump gravity and vertical block collision, reporting the apex's downward branch.</summary>
+    /// <summary>Applies bomb-jump gravity and vertical block collision, reporting whether she has passed the apex and moved down.</summary>
     private static BombJumpRise MoveUpWithGravity(
         RoomLevelData level,
         SamusState samus,

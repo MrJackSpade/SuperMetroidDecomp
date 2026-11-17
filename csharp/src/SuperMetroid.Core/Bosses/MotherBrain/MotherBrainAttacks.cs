@@ -211,8 +211,8 @@ internal sealed class MotherBrainAttacks
                 PositionMotherBrainHeadQuicklyForLaser(state, samus);
                 return;
             case MotherBrainSecondPhaseAttack.Bomb when state.BombCounter >= 1:
-                // The bomb branch returns without changing the current head animation when one bomb is
-                // already alive. The body still spends the full cooldown in phase one.
+                // A bomb attack with a bomb already alive does nothing, leaving the head's animation as it is. The body
+                // still spends the full cooldown in phase one.
                 return;
             case MotherBrainSecondPhaseAttack.Bomb:
                 state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombDecideWalking;

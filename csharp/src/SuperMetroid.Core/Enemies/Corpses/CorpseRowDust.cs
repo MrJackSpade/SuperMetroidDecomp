@@ -25,7 +25,7 @@ internal sealed class CorpseRowDust
     {
         projectiles.SpawnDustOrExplosion(
             place.Position.Whole + CorpseDustDefinitions.CloudOrigin + new Offset16<RoomPixels>(CorpseDustSpread(random), 0),
-            MiscDustAnimation.CorpseDustCloud);
+            DustExplosionAnimation.CorpseDustCloud);
         if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(randomEnemyCounter))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);
     }

@@ -305,8 +305,8 @@ public sealed class SamusCrystalFlashState
     private void StepFinish(SamusState samus)
     {
         // The step is usually entered with equality because the raised height was captured at the
-        // end of the rise. Preserve the real defensive branch: an external producer that
-        // displaced Samus upward/downward makes the whole Y walk downward one pixel an update.
+        // end of the rise. Anything else that moved Samus up or down makes her whole vertical position step down one
+        // pixel each update it differs from the raised height.
         if (samus.Position.Y.Whole != RaisedHeight)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 

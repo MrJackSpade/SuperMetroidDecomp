@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
@@ -168,7 +169,7 @@ internal sealed class NorfairRidleyDeath
 
         _ridleyProjectiles.SpawnRidleyDust(
             body.Position.Whole + scatter,
-            MiscDustAnimation.SmallExplosion);
+            DustExplosionAnimation.SmallExplosion);
         _audio.RequestRidleyDeathExplosionSound();
     }
 

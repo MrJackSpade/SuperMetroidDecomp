@@ -117,8 +117,8 @@ public sealed class SamusDrainedState
         {
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
-            // The able branch ends its get-up after the first accepted Up
-            // edge. Further presses cannot restart the stand-up.
+            // Able to stand, she ends her get-up after the first accepted Up press. Further presses cannot restart the
+            // stand-up.
             GetUpCheck = DrainedGetUpCheck.Inactive;
             return true;
         }
@@ -127,8 +127,8 @@ public sealed class SamusDrainedState
             samus.AnimationHasReached(SamusDrainedAnimationDefinitions.UnableToStandFirstFrame) &&
             !samus.AnimationHasPassed(SamusDrainedAnimationDefinitions.UnableToStandLastFrame))
         {
-            // Unlike the able branch, the failed-stand branch keeps its get-up. A later
-            // visit to the held crouch's frames that accept Up can therefore react to another fresh Up edge.
+            // Unable to stand, she keeps her get-up. A later visit to the held crouch's frames that accept Up can
+            // therefore react to another fresh Up press.
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.UnableToStandFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
             return true;
         }

@@ -35,7 +35,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
         switch (session.LoadingRoute)
         {
             case GameDataLoadRoute.SavedCheckpoint:
-                // A save continued from the file-select map: the ordinary branch loads the
+                // A save continued from the file-select map: the ordinary load brings in the
                 // game in one update, then holds for the same waits as a new game.
                 if (session.SetupSelectedGame())
                     throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");

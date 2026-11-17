@@ -126,6 +126,6 @@ internal sealed class SamusFrameState
     /// <summary>Most recent update of drained Samus's fall.</summary>
     public DrainedSamusMovementResult? LastDrainedSamusMovement { get; internal set; }
 
-    /// <summary>Most recent alternating-D-pad Draygon escape check result.</summary>
+    /// <summary>Most recent check of Draygon's escape, counted by the directions pressed.</summary>
     public DraygonEscapeResult? LastDraygonEscape { get; internal set; }
 }

@@ -87,8 +87,8 @@ internal static class SamusAerialPoseTransitions
         // The input phase's SetRadius publishes the new pose radius on the next update.
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
-        // Aim may cancel the spin into a pose that consumes stored shine. Run that
-        // branch of the common normal-jump setup before ordinary acceleration.
+        // Aim may cancel the spin into a pose that consumes stored shine. That starts the shinespark's windup, as a
+        // normal jump's setup does, before ordinary acceleration.
         bool beganShinespark = TryBeginShinesparkWindup(samus,
             targetPose, SamusPoseMetadata.IsWallJumpPose(sourcePose)
                 ? SamusMovementType.WallJumping : SamusMovementType.SpinJumping);

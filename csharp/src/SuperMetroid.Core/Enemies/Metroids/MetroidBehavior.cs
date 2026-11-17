@@ -228,7 +228,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Shell.Graphics = state.Shell.Graphics.In(EnemyShades.HurtFlashLook);
     }
 
-    /// <summary>Resolves the ordinary and contact-damage branches of a Metroid's touch.</summary>
+    /// <summary>Resolves a Metroid's touch of Samus: her body attack throws it away from her; otherwise it drains her.</summary>
     internal void ResolveMetroidTouch(RoomEnemyPlace place, SamusState samus)
     {
         MetroidEnemyState state = place.RequireSpeciesState<MetroidEnemyState>();

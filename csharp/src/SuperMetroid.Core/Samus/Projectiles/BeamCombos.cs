@@ -27,9 +27,34 @@ internal sealed class BeamCombos
         _spaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
     }
     /// <summary>
+<<<<<<< HEAD
     /// Fires the special beam attack: debit the selected beam cost before attempting its family.
     /// This is the allocation boundary; the normal producer must call it only after
     /// charge/input eligibility, and particles run their own behaviours.
+||||||| 273b556990
+    /// The turn the Ice and Plasma special attacks add to every orbiting particle's angle each update: four steps on,
+    /// or four steps back (the turn of a full circle less four) when a left-facing Samus starts the attack; activation
+    /// also stores four steps on for Wave and no turn for Spazer, which never read it. Each particle's angle turns on
+    /// round its circle, so the turn back carries it the opposite way by the same four steps.
+    /// </summary>
+    public TrigonometryAngle OrbitTurnPerUpdate { get; internal set; }
+
+    /// <summary>
+    /// Fires the special beam attack: debit the selected beam cost before attempting its family.
+    /// This is the allocation boundary; the normal producer must call it only after
+    /// charge/input eligibility, and particles run their own behaviours.
+=======
+    /// The turn the Ice and Plasma special attacks add to every orbiting particle's angle each update: four steps on,
+    /// or four steps back (the turn of a full circle less four) when a left-facing Samus starts the attack; activation
+    /// also stores four steps on for Wave and no turn for Spazer, which never read it. Each particle's angle turns on
+    /// round its circle, so the turn back carries it the opposite way by the same four steps.
+    /// </summary>
+    public TrigonometryAngle OrbitTurnPerUpdate { get; internal set; }
+
+    /// <summary>
+    /// Fires the special beam attack of the selected weapon, taking its ammunition first. Firing asks for it once the
+    /// charge and the input allow it; its particles then run on their own.
+>>>>>>> worktree-agent-a25205e6d337c0739
     /// </summary>
     internal bool TryActivateCombo(SamusState samus,
         SamusBombProjectileSystem shared, out SoundEffectId? sound)
@@ -396,7 +421,9 @@ internal sealed class BeamCombos
             InitializeComboShot(shot, BeamComboShotKind.Echo);
         }
     }
-    /// <summary>Runs the Wave combo's homing oscillator, preserving 1/256-pixel acceleration and 1/65536-pixel position overflow.</summary>
+    /// <summary>
+    /// Runs one update of a Wave special attack particle, which swings back and forth through Samus as it homes on her.
+    /// </summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
         SamusProjectile shot, SamusBombProjectileSystem shared)
     {
@@ -434,8 +461,8 @@ internal sealed class BeamCombos
     }
 
     /// <summary>
-    /// Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound. The speed
-    /// stays within one acceleration of the bound either way, far inside the 1/256-pixel range.
+    /// Moves one Wave velocity component toward Samus, respecting the acceleration and the speed bound either way. The
+    /// speed stays within one acceleration of the bound.
     /// </summary>
     private static SignedEightEight AccelerateWaveAxis(SignedEightEight speed, int targetDelta)
     {

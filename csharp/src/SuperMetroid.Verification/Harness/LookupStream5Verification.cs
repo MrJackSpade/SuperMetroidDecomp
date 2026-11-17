@@ -161,7 +161,7 @@ internal static class LookupStream5Verification
                     int index = 3 - ordinal % 4;
                     ushort x = unchecked((ushort)(origin.X + (short)ReadVerificationWord(rom, 0xa6f840 + index * 4)));
                     ushort y = unchecked((ushort)(origin.Y + (short)ReadVerificationWord(rom, 0xa6f842 + index * 4)));
-                    MiscDustAnimation program = ordinal % 2 == 0 ? MiscDustAnimation.Smoke : MiscDustAnimation.SmallExplosion;
+                    DustExplosionAnimation program = ordinal % 2 == 0 ? DustExplosionAnimation.Smoke : DustExplosionAnimation.SmallExplosion;
                     // Native pool allocation descends; identify each emission through its unique current ordinal below.
                     var particle = particles[emitted - ordinal - 1];
                     AssertEqual(x, particle.Position.X.Whole, "Actual produced native X including 16-bit wrap");

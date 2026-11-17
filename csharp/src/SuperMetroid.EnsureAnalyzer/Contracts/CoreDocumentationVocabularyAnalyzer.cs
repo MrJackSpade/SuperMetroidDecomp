@@ -95,9 +95,16 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// and in declared names, a value compared or read as signed, a deferred write or a suit's colour copy, odd frames that
 /// return, hardcoded data, an offset written with a plus sign, the retail game, a cursor through the original's lists, a
 /// count of bits, position and policy rows and records, and arithmetic written as a summary.
+<<<<<<< HEAD
 /// #2345 adds, outside hardware owners, a value's arithmetic told as a division, remainder or modulo by a number, the
 /// original's program structure (if/else chains, a leading call, a call not made, a no-op, a routine's prologue) and
 /// storage told as left over or never read.
+||||||| 273b556990
+=======
+/// #2352 adds, outside hardware owners, a position's overflow, a range named by its 1/N-pixel storage, scan, target,
+/// collision and solid counters, state lying below a clear, allocations that clear and routes that allocate, a check that
+/// runs to confirm a value, and the original's code branches told in prose.
+>>>>>>> worktree-agent-a25205e6d337c0739
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1451,6 +1458,55 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The machine's storage and the repository's checks told for a value in prose (#2352), outside hardware owners and
+    /// markup: a position, velocity, speed, coordinate, fraction or sub-pixel overflow (the 1/65536-pixel position
+    /// overflow); a value's range named by its 1/N-pixel storage (far inside the 1/256-pixel range, wrapping within its
+    /// signed 1/256-pixel range); a scan's, target, collision or solid counter (a hit clears both scan counters, the scan's
+    /// solid counter completes); state that lies below what a clear reaches (the inventory, which lie below the state the
+    /// setup clears); an allocation that clears, installs, calls, writes or sets something, and routes that allocate
+    /// (Allocation clears the step, the collision routes allocate the trigger); and a check that runs to confirm a value
+    /// (the radius check runs every update to confirm it). Core says what the game does: a shot's speed stays within its
+    /// bound, a block stops the shot, what Samus keeps, an effect starts at its first shade, a block notifies its room
+    /// object. English stays legal: a sum that overflows, a range in pixels (the 32-pixel range of the attack), a counter
+    /// alone, lying below a ledge, an allocation alone and a check the game makes.
+    /// </summary>
+    private static readonly Regex StorageAndCheckNarrationProse = new(
+        @"\b(?:position|velocity|speed|coordinate|fraction|sub-?pixel)\s+overflows?\b" +
+        @"|\b(?:the|its|their|a)\s+(?:signed\s+)?1/[0-9]+-pixel\s+range\b" +
+        @"|\bscan(?:'s)?\s+(?:[\w-]+\s+)?counters?\b|\b(?:target|collision|solid)\s+counters?\b" +
+        @"|\blies?\s+below\b[^.;:!?]*?\bclears?\b" +
+        @"|\ballocation\s+(?:clears?|installs?|calls?|writes?|sets?)\b|\broutes?\s+allocates?\b" +
+        @"|\bchecks?\s+runs?\b[^.;:!?]*?\bto\s+(?:confirm|verify|prove)\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A branch of the original's code told in prose (#2352), outside hardware owners and markup: this, that, either,
+    /// neither, each, every, both or which branch (that branch restores the pose, both branches of the draw); a branch of
+    /// a step, check or calculation (the deceleration branch of the speed calculation), except a room's state choice, a
+    /// projectile or an afterburn; a branch taken, entered, selected, chosen, reached, bypassed, suppressed, covered,
+    /// kept, preserved, modelled, consumed, run, executed, completed or used, with up to four words between (takes the dud
+    /// branch, runs the first-form branch); a branch that returns, reads, writes, stores, sets, clears, restores,
+    /// publishes, applies, bypasses, skips, leaves, performs, ends, accepts, moves, loads, sets up, samples, repeats,
+    /// does, can or cannot, never, always or still, matters or keeps something (the landing branch moves the game); a
+    /// branch order; and branching straight or directly to something. Core says what the game does in that case: a hit
+    /// with no damage is a dud, the camera scrolls slowly, the game moves to Crateria. English stays legal: a room's state
+    /// choice's branches, a projectile's or an afterburn's branches, an animation that branches to another (which
+    /// branches to its release) and a branch alone.
+    /// </summary>
+    private static readonly Regex BranchNarrationProse = new(
+        @"\b(?:this|that|either|neither|each|every|both|which|whichever)\s+branch(?:es)?\b(?![-\s]+(?:to|into|out|off|back)\b)" +
+        @"|\bbranch(?:es)?\s+of\b(?!\s+(?:a|an|the|its)\s+(?:[\w'-]+\s+){0,2}?(?:state\s+choice|projectiles?|afterburns?)\b)" +
+        @"|\b(?:takes?|took|taking|taken|enters?|entered|entering|selects?|selected|selecting|choos(?:e|es|ing)|chose|chosen" +
+        @"|reach(?:es|ed|ing)?|bypass(?:es|ed|ing)?|suppress(?:es|ed|ing)?|covers?|retains?|keeps?|preserv(?:e|es|ed|ing)" +
+        @"|models?|consumes?|runs?|executes?|completes?|uses?)\s+(?:the|its|a|an|their|his|her|that|this)\s+" +
+        @"(?:[\w/'""“”-]+\s+){0,4}?branch(?:es)?\b" +
+        @"|\bbranch(?:es)?\s+(?:returns?|reads?|writes?|stores?|sets?|clears?|restores?|publishes|applies|bypasses|skips" +
+        @"|leaves|performs|ends|accepts|moves|loads|initiali[sz]es|samples|repeats|does|cannot|can|never|always|still" +
+        @"|matters|keeps)\b" +
+        @"|\bbranch\s+order\b|\bbranch(?:es)?\s+(?:directly|straight)\s+to\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
     /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
     /// count it means.
@@ -1931,7 +1987,13 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
             : PoseDataNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } poseData ? poseData.Value
             : RoutineNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } routineNarration ? routineNarration.Value
+<<<<<<< HEAD
             : ArithmeticAndStorageSummaryProse.Match(Markup.Replace(text, " ")) is { Success: true } summary ? summary.Value
+||||||| 273b556990
+=======
+            : StorageAndCheckNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } storageAndCheck ? storageAndCheck.Value
+            : BranchNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } branchNarration ? branchNarration.Value
+>>>>>>> worktree-agent-a25205e6d337c0739
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

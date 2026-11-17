@@ -33,8 +33,8 @@ public static class SamusPoseInputTransitions
         GameplayAction heldActions,
         GameplayAction newlyPressedActions)
     {
-        // Branches directly to lookup-failure handling when no action is held,
-        // before it reads the pose's input transitions at all.
+        // With no action held, no input transition matches and the pose's definition decides, without reading the
+        // pose's input transitions at all.
         if (heldActions == GameplayAction.None)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
 

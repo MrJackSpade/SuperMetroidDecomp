@@ -636,7 +636,7 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void SpawnDustOrExplosion(
         Position16<RoomPixels> position,
-        MiscDustAnimation animation)
+        DustExplosionAnimation animation)
     {
         // The animation is chosen before a place is taken, so an undefined one fails without taking a place.
         var playing = new MiscDustProjectileAnimation(animation);

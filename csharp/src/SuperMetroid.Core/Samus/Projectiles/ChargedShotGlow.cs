@@ -36,8 +36,18 @@ public readonly record struct ChargedShotGlow
     /// <summary>Which glow this is.</summary>
     public ChargedShotGlowKind Kind { get; }
 
+<<<<<<< HEAD
     /// <summary>Where the glow's sequence stands: the start before its first update, then just past the shade it showed last.</summary>
     internal AnimationPlace Place { get; }
+||||||| 273b556990
+    /// <summary>The steps the glow has left; see <see cref="Of"/> for each kind's range.</summary>
+    [IntegerQuantity("charge colour calls the glow has left")]
+    public int RemainingSteps { get; }
+=======
+    /// <summary>The steps the glow has left; see <see cref="Of"/> for each kind's range.</summary>
+    [IntegerQuantity("updates of the charge colour the glow has left")]
+    public int RemainingSteps { get; }
+>>>>>>> worktree-agent-a25205e6d337c0739
 
     /// <summary>The updates the shade shown last still holds for, the one that showed it included; zero before the first update.</summary>
     internal int Hold { get; }

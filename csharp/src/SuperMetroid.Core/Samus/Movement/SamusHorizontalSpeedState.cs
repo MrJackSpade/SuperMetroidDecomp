@@ -132,8 +132,7 @@ public sealed class SamusHorizontalSpeedState
     public const int LargestSlowdownLevel = 5;
 
     /// <summary>
-    /// Acceleration mode: accelerating speeds up, while turning and decelerating both take the
-    /// deceleration branch of the speed calculation.
+    /// Acceleration mode: accelerating speeds up, while turning and decelerating both slow her down.
     /// </summary>
     public SamusAccelerationMode AccelerationMode { get; set; }
 
@@ -322,8 +321,7 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadences.Delay(unauthoredBoostCadence, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
 
     /// <summary>
-    /// Runs the dry-room Speed Booster branch of the Screw Attack and
-    /// Speed Booster glow.
+    /// Runs the Speed Booster's share of the Screw Attack and Speed Booster glow when she is out of liquid.
     /// </summary>
     /// <returns>True when this update copied an authored shade into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied shade replaces.</param>
@@ -745,8 +743,8 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Calculates the horizontal base speed with deceleration disallowed.
-    /// Despite the name, the turning acceleration mode still selects the
-    /// turning/deceleration branch; accelerating and decelerating both accelerate toward the movement's
+    /// Despite the name, the turning acceleration mode still slows her as a turn
+    /// does; accelerating and decelerating both accelerate toward the movement's
     /// maximum. The returned reached-maximum result is important to spin
     /// jump's decision to retain horizontal motion.
     /// </summary>

@@ -1071,7 +1071,7 @@ public static class SamusGrappleMovement
         return direction;
     }
 
-    /// <summary>Firing branch of the grapple beam's step, before the selected grapple phase runs.</summary>
+    /// <summary>Changes Samus's pose as she fires the grapple beam, before the grapple's phase runs.</summary>
     internal static GrappleMovementResult? HandleFiringPoseChange(
         RoomLevelData level, SamusState samus, GameplayAction controllerInput)
     {

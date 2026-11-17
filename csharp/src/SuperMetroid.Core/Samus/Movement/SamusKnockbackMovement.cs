@@ -122,9 +122,8 @@ public static class SamusKnockbackMovement
         if (suppressesKnockback)
             return false;
 
-        // Replaces an ordinary body with a knockback pose. The ball branch, by contrast,
-        // republishes the exact Morph/Spring Ball pose. Because Samus's pose update sees no
-        // pose change in that branch, the rolling animation frame and timer survive.
+        // Replaces an ordinary body with a knockback pose. A ball, by contrast, keeps its exact Morph or Spring Ball
+        // pose; since Samus's pose update sees no pose change, the rolling animation frame and timer survive.
         bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         if (humanoid)
         {
@@ -152,10 +151,9 @@ public static class SamusKnockbackMovement
             humanoid = true;
         }
 
-        // Deliberately ignores both the damage-source side and controller input
-        // when choosing a ball's vertical branch: right-facing ball art always gets
-        // SamusKnockbackDirection.UpRight, and left-facing art UpLeft. The humanoid branch
-        // retains the unusual forward-held selection of down-left/down-right directions.
+        // A ball's knockback ignores both the damage's side and the controller: a ball facing right always goes
+        // SamusKnockbackDirection.UpRight, and one facing left UpLeft. An upright Samus keeps the unusual choice of
+        // down-left or down-right with forward held.
         samus.KnockbackXDirection = launch.KnockbackXDirection;
         if (morphed)
         {
@@ -317,7 +315,7 @@ public static class SamusKnockbackMovement
     }
 
     /// <summary>
-    /// Consumes the zero-timer branch of the knockback check and finishes the expired hit
+    /// Finishes the hit once the knockback check finds its timer run out
     /// after movement/animation, including boosts which already restored normal movement.
     /// Returns whether this higher-priority transition superseded ordinary pose input.
     /// </summary>

@@ -145,8 +145,8 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)
     {
         // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
-        // The last two dispersal frames have no plume and cannot reach
-        // this branch. Insisting on both facts keeps collision tied to the authored geometry.
+        // The last two dispersal frames have no plume and touch nothing. Steam touches Samus only where a frame's
+        // authored hitbox carries the touch reaction.
         if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
         {
             throw new InvalidDataException(

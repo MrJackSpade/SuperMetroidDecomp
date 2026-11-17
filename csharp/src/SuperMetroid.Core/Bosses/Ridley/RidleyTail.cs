@@ -106,7 +106,7 @@ internal sealed class RidleyTail
             }
             else if (state.Tail.IdleWhipEnabled)
             {
-                // Read the existing seed; this branch never advances the RNG.
+                // An idle whip reads the random number as it stands and never advances it.
                 // An idle random whip with no request pending aims one whole turn short of a requested one.
                 if (RidleyRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
                     AimRidleyTailWhip(state, samus, samusProjectiles, turnsBeyond: state.Tail.WhipRequested ? 0 : -1);
@@ -439,7 +439,7 @@ internal sealed class RidleyTail
             // A missile gets the tiny dud and the dud-shot sound. Beams and supers
             // use the larger smoke variant, exactly as the tail's shot reaction selects it.
             bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
-            MiscDustAnimation dustVariant = missile ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
+            DustExplosionAnimation dustVariant = missile ? DustExplosionAnimation.DudShotTinyExplosion : DustExplosionAnimation.Smoke;
             _projectiles.SpawnDustOrExplosion(joint.Position, dustVariant);
             if (missile)
                 _projectiles.QueueDudSound(SoundRequestPriority.Normal);

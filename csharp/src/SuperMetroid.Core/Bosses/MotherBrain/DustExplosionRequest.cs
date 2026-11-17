@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -6,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Position">Where the explosion appears in the room.</param>
 /// <param name="Animation">The dust animation it plays.</param>
 /// <param name="SoundEffect">The sound it queues.</param>
-public readonly record struct DustExplosionRequest(Position16<RoomPixels> Position, MiscDustAnimation Animation, SoundEffectId SoundEffect);
+public readonly record struct DustExplosionRequest(Position16<RoomPixels> Position, DustExplosionAnimation Animation, SoundEffectId SoundEffect);

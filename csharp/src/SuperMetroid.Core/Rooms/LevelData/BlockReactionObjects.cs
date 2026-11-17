@@ -269,9 +269,8 @@ internal sealed class BlockReactionObjects
         switch (reaction)
         {
             case ShotBlockReaction.CollisionProbe:
-                // Setup ends the projectile scan and forces its collision counter;
-                // the shot's collision publishes those scan effects only after successful
-                // allocation. This object does not change terrain and leaves on its first update.
+                // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
+                // object has taken a place. This object does not change terrain and leaves on its first update.
                 place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
                 return true;
 

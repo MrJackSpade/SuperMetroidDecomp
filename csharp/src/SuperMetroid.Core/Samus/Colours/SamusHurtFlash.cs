@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>
-/// The ordinary hurt-counter branch of
+/// The ordinary hurt flash among
 /// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Boulder;
@@ -39,5 +40,5 @@ internal static class BoulderMotionDefinitions
     internal const int RollingGroundReach = 2;
 
     /// <summary>The dust a Boulder breaks into at its terminal impact.</summary>
-    internal const MiscDustAnimation BreakDust = MiscDustAnimation.RockParticles;
+    internal const DustExplosionAnimation BreakDust = DustExplosionAnimation.RockParticles;
 }

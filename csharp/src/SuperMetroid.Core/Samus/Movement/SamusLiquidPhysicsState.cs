@@ -350,7 +350,7 @@ public sealed class SamusLiquidPhysicsState
 
             if (fxKind == RoomFxType.Lava && gravitySuit)
             {
-                // Lava's Gravity-Suit branch returns before damage and before surface spray.
+                // Lava does nothing more to a Gravity Suit: no damage and no surface spray.
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
                 // strength when periodic damage runs later in the same movement phase.
                 LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
@@ -446,7 +446,7 @@ public sealed class SamusLiquidPhysicsState
     {
         // Each area has its own landing graphics. An undefined area has none;
         // fail loudly instead of manufacturing output.
-        switch (samus.Room.Area)
+        switch (samus.LoadedRoom.Area)
         {
             case AreaId.Crateria:
                 HandleCrateriaLandingGraphics(samus);
@@ -454,7 +454,7 @@ public sealed class SamusLiquidPhysicsState
 
             case AreaId.Brinstar:
             case AreaId.Tourian:
-                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(samus.Room))
+                if (SamusAtmosphericEffects.LandingRaisesDustInBrinstarOrTourian(samus.LoadedRoom))
                     SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
                 else
                     EndLandingEffectWait();
@@ -474,7 +474,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {samus.Room.Area} is outside the seven areas.");
+                throw new InvalidDataException($"Landing graphics area {samus.LoadedRoom.Area} is outside the seven areas.");
         }
     }
 
@@ -491,14 +491,14 @@ public sealed class SamusLiquidPhysicsState
 
         // The Green Pirates Shaft bypasses the room policy and always chooses the
         // dry-dust step, still subject to live liquid submersion.
-        if (samus.Room == RoomDefinitions.GreenPiratesShaft)
+        if (samus.LoadedRoom == RoomDefinitions.GreenPiratesShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, SamusParticleKind.Dust);
             return;
         }
 
         // The game duplicates this room policy for running footsteps and landing effects.
-        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(samus.Room);
+        CrateriaAtmosphericEffect? roomEffect = SamusAtmosphericEffects.ForCrateriaRoom(samus.LoadedRoom);
         if (roomEffect == CrateriaAtmosphericEffect.LandingSite)
         {
             // Landing Site creates splashes only while it rains; its normal scrolling-sky
@@ -656,8 +656,8 @@ public sealed class SamusLiquidPhysicsState
         }
 
         bool cinematic = samus.Presentation.Mode == SamusPresentationMode.Cinematic;
-        bool useWetFootsteps = samus.Room.Area == AreaId.Maridia;
-        if (samus.Room.Area == AreaId.Crateria)
+        bool useWetFootsteps = samus.LoadedRoom.Area == AreaId.Maridia;
+        if (samus.LoadedRoom.Area == AreaId.Crateria)
         {
             if (cinematic)
             {
@@ -665,7 +665,7 @@ public sealed class SamusLiquidPhysicsState
             }
             else
             {
-                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(samus.Room) switch
+                useWetFootsteps = SamusAtmosphericEffects.ForCrateriaRoom(samus.LoadedRoom) switch
                 {
                     CrateriaAtmosphericEffect.LandingSite => FxType == RoomFxType.Rain,
                     CrateriaAtmosphericEffect.WreckedShipEntrance =>

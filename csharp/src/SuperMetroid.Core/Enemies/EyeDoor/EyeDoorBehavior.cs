@@ -171,8 +171,8 @@ internal sealed class EyeDoorBehavior
     /// </summary>
     internal void InitializeEyeDoorSmoke(
         EnemyProjectile projectile,
-        MiscDustAnimation animation,
-        MiscDustPlacementDefinition placement,
+        DustExplosionAnimation animation,
+        DustExplosionPlacement placement,
         Position16<RoomBlocks> block)
     {
         int random = _room.Random.Read();

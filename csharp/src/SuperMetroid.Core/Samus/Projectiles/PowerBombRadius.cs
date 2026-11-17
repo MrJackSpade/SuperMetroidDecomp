@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// blast at 134 pixels and Crystal Flash's bubble at 32 pixels. The flash slows by half a pixel an update for at most
 /// four updates from 48 pixels an update, so its speed never drops below nothing. The one place the range's end is
 /// load-bearing is the growth the shape stages refuse when it would reach 256 pixels: the compatibility rule
-/// <see cref="PowerBombGrowthHold"/>. The Power Bomb radius check runs every update of a Power Bomb and of a
-/// Crystal Flash against the original's arithmetic to confirm it.
+/// <see cref="PowerBombGrowthHold"/>.
 /// </remarks>
 public readonly record struct PowerBombRadius : IComparable<PowerBombRadius>
 {

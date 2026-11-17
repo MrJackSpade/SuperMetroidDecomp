@@ -93,7 +93,7 @@ internal sealed class PhantoonDeath
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         _projectiles.SpawnDustOrExplosion(position, explosion.Type);
-        _audio.RequestPhantoonCombatSound(explosion.Type == MiscDustAnimation.BigExplosion
+        _audio.RequestPhantoonCombatSound(explosion.Type == DustExplosionAnimation.BigExplosion
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 

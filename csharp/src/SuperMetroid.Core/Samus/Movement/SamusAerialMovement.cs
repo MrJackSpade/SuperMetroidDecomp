@@ -444,7 +444,7 @@ public static class SamusAerialMovement
 
         AerialMovementResult result = FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
         // The movement selects fast-fall art after physics, before Samus is animated.
-        // Aimed falling poses have their own animations and do not enter this branch.
+        // Aimed falling poses have their own animations and keep them.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
             SamusSpeedMagnitude.IsAtLeast(samus.Kinematics.YSpeed.Whole, SamusMovementDefinitions.FastFallAnimationSpeed) &&
@@ -504,7 +504,7 @@ public static class SamusAerialMovement
         {
             // Clears both persistent base speeds and the frame displacement.
             speed.BaseSpeed = default;
-            // This branch bypasses the speed calculation; retain the previous total-speed pair.
+            // With no direction held the speed is not calculated, and the previous total speeds stay.
             SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.Zero });
         }
         else
@@ -726,10 +726,8 @@ public static class SamusAerialMovement
         bool triggered = jumpNew && distance < SamusMovementDefinitions.WallJumpReachPixels;
         if (triggered)
         {
-            // Both successful exits converge on the same result: the solid-enemy
-            // branch writes WallJump, and the terrain branch repeats that write
-            // too. This is not merely an internal boolean. The shared result
-            // state, so retain the publication even though the returned result below also tells
+            // A wall jump off a solid enemy and one off terrain both record the wall jump as her vertical collision
+            // result, which others read, as well as returning it; the result below also tells
             // the runtime to install the wall-jump pose explicitly.
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
             // A launch off a solid or frozen enemy asks the next enemy pass to shake that enemy; a launch off

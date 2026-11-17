@@ -651,8 +651,8 @@ public sealed class SamusXrayState
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        // Both branches of X-ray's frozen-time pose input publish history after
-        // initializing their pose; the ordinary gameplay pose transitions are bypassed.
+        // X-ray's frozen-time pose input, turning or aiming, shifts her pose history after setting up her pose; the
+        // ordinary pose transitions do not run.
         samus.CommitPoseHistory();
     }
 

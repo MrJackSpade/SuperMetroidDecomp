@@ -119,7 +119,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         projectile.Damage = RidleyProjectileDamage.ForArea(_room.Area);
 
     /// <summary>Allocates the dust enemy projectile with one authored dust variant.</summary>
-    internal void SpawnRidleyDust(Position16<RoomPixels> position, MiscDustAnimation animation)
+    internal void SpawnRidleyDust(Position16<RoomPixels> position, DustExplosionAnimation animation)
     {
         EnemyProjectile? dust = _projectiles.AllocateEnemyProjectile();
         if (dust is null)

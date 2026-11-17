@@ -35,7 +35,7 @@ internal static class CollectibleTimelinesVerification
 
         // A shot Chozo orb shows the empty block, its burst and the empty block, three updates each, then its item's
         // first look.
-        CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 79, precollected: false);
+        CollectibleFixture orb = LoadCollectible(bus, header: RoomObjectNativeWords.Word(RoomObjectKind.ChozoBombs), roomArgument: 79, precollected: false);
         orb.RoomObjects.Step(orb.Level);
         AssertTrue(orb.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(orb.Block), "the orb accepts the shot");
         var burst = new List<RoomBlockAppearance>();
@@ -45,7 +45,7 @@ internal static class CollectibleTimelinesVerification
         AssertShows(orb, burst, "Chozo orb burst");
         orb.RoomObjects.Step(orb.Level);
         AssertEqual(CollectiblePhase.Visible, orb.RoomObjects.CollectiblePhases[0], "the burst ends with the item exposed");
-        AssertEqual(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.MorphBall, CollectibleLook.Primary)),
+        AssertEqual(RoomCellPicture.Of(new CollectiblePicture(InWorldCollectibleKind.Bombs, CollectibleLook.Primary)),
             orb.Level.ForegroundPlane.Cells.Cells[orb.BlockIndex].Picture, "the exposed item shows its first look");
 
         // A shot block crumbles from whole to dust, four updates each, then the Missile Tank shows its two looks, four

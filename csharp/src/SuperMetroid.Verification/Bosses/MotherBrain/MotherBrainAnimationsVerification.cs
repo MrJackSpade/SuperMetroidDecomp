@@ -68,7 +68,7 @@ internal static class MotherBrainAnimationsVerification
         bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.Definition);
         RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
         headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.Definition);
-        var state = new MotherBrainEnemyState(bodyPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = headPlace };
+        var state = new MotherBrainEnemyState(bodyPlace, headPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         enemies.MotherBrainEncounter.BeginAsSetUp(state);
         return new NewMotherBrainResult(enemies, state);
     }

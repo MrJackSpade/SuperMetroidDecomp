@@ -2,12 +2,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot's own state beside what every part holds: the phase it runs and its second-phase think timer.</summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
-public sealed class KraidFootState : KraidPartState
+public sealed class KraidFootState : KraidAnimatedPartState
 {
     /// <summary>Makes the foot of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the foot is part of.</param>
-    internal KraidFootState(KraidEnemyState kraid)
-        : base(kraid)
+    /// <param name="reference">Kraid's reference to the foot, which it joins as it sets up.</param>
+    internal KraidFootState(KraidEnemyState kraid, KraidPartReference reference)
+        : base(kraid, reference, KraidPartSegment.FootInitial)
     {
     }
 

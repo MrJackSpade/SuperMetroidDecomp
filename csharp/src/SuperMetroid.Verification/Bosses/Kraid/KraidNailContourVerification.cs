@@ -22,7 +22,7 @@ internal static class KraidNailContourVerification
         var session = EnemySessionFixtures.WithInstalledServices();
         var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, enemies.KraidBehavior.Parts.NailStateOf(state, place));
+        Func<RoomEnemyPlace, bool> reflect = place => enemies.KraidBehavior.Projectiles.KraidBodyContourReflectsNail(place, ((KraidNailState)place.RequireSpeciesState<KraidPartState>()));
         var body = enemies.Places.InUpdateOrder[0];
         var nail = enemies.Places.InUpdateOrder[6];
         nail.Radius = nail.Radius.WithX(4);
@@ -55,7 +55,7 @@ internal static class KraidNailContourVerification
             for (int delta = -1; delta <= 1; delta++)
             {
                 nail.Position = nail.Position.WithWholeX(unchecked((ushort)(edge - nail.Radius.X + delta)));
-                enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity = enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.WithX(SignedSixteenSixteen.FromParts(unchecked((short)velocity), enemies.KraidBehavior.Parts.NailStateOf(state, nail).NailVelocity.X.Fraction));
+                ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.WithX(SignedSixteenSixteen.FromParts(unchecked((short)velocity), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X.Fraction));
                 bool expected = unchecked((short)(nail.Position.X.Whole + nail.Radius.X - edge)) >= 0 && (short)velocity >= 0;
                 AssertEqual(expected, reflect(nail), "Actual contour reflection retains signed edge and velocity gates");
             }

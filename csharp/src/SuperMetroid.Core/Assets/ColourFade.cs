@@ -40,9 +40,6 @@ public sealed record ColourFade : ColourEffect
     {
         FadeLevelColour from = (Direction == GradualFadeDirection.Toward ? shown : Endpoint).FadeLevels;
         FadeLevelColour to = (Direction == GradualFadeDirection.Toward ? Endpoint : shown).FadeLevels;
-        return new FadeLevelColour(Level(from.Red, to.Red), Level(from.Green, to.Green), Level(from.Blue, to.Blue)).ToColour();
+        return FadeLevelColour.Partway(from, to, Progress, Length).ToColour();
     }
-
-    /// <summary>One fade level partway from <paramref name="from"/> to <paramref name="to"/>.</summary>
-    private int Level(int from, int to) => from + ((to - from) * Progress / Length);
 }

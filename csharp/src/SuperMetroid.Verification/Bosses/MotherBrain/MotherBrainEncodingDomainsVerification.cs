@@ -216,6 +216,8 @@ internal static class MotherBrainEncodingDomainsVerification
         static MotherBrainEnemyState At(MotherBrainForm form) => new(
             new SuperMetroid.Core.Enemies.RoomEnemyPlace(0, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
                 new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
+            new SuperMetroid.Core.Enemies.RoomEnemyPlace(1, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
+                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
             new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Form = form };
         MotherBrainEnemyState glass = At(MotherBrainForm.Glass);
         glass.AscentPhase = MotherBrainAscentPhase.ContinuePausing;

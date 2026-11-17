@@ -50,7 +50,7 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { DraygonColors = DraygonColorFile.Read(colors) });
         Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0]);
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
 
         ushort[] productionHealth =
             [6000, 5250, 5249, 4500, 4499, 3750, 3749, 3000, 2999,
@@ -58,7 +58,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         foreach (ushort health in productionHealth)
         {
             state.Body.Health = health;
-            state.HealthBand = null;
             update(state);
             AssertEqual(
                 DraygonHealthBand.Of(health),
@@ -69,7 +68,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             "production Draygon palette selection performs no threshold-table reads");
 
         state.Body.Health = 6001;
-        state.HealthBand = null;
         AssertThrows<InvalidDataException>(
             () => update(state),
             "production Draygon rejects malformed restored health without a ROM fallback");

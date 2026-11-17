@@ -16,19 +16,19 @@ internal static class KraidPartsAccess
         /// <returns>The encounter begun.</returns>
         internal KraidEnemyState BeginEncounterInRoomOrder(EnemyPlaces enemies)
         {
-            var state = new KraidEnemyState();
-            kraid.BodyLayer.Show(state);
             KraidParts parts = kraid.Parts;
-            KraidPartReference[] roomOrder =
+            var state = new KraidEnemyState(parts);
+            kraid.BodyLayer.Show(state);
+            (KraidPartReference Reference, KraidPartState State)[] roomOrder =
             [
-                parts.BodyReference, parts.ArmReference, parts.TopLintReference, parts.MiddleLintReference,
-                parts.BottomLintReference, parts.FootReference, parts.FirstNailReference, parts.SecondNailReference,
+                (parts.BodyReference, state.BodyState), (parts.ArmReference, state.ArmState), (parts.TopLintReference, state.TopLintState),
+                (parts.MiddleLintReference, state.MiddleLintState), (parts.BottomLintReference, state.BottomLintState),
+                (parts.FootReference, state.FootState), (parts.FirstNailReference, state.FirstNailState), (parts.SecondNailReference, state.SecondNailState),
             ];
             for (int place = 0; place < roomOrder.Length; place++)
             {
-                RoomEnemyPlace part = enemies.InUpdateOrder[place];
-                roomOrder[place].Join(part);
-                kraid.Access.AttachKraidPart(part, state);
+                roomOrder[place].Reference.Join(enemies.InUpdateOrder[place]);
+                KraidEncounterAccess.AttachKraidPart(roomOrder[place].State);
             }
             return state;
         }

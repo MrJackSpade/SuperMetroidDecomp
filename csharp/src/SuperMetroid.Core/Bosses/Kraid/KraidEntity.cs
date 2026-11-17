@@ -48,11 +48,10 @@ internal abstract class KraidEntity(KraidBehavior species, RoomEnemyPlace place,
     /// <summary>None: the arm's, foot's and body's definitions name the ignoring shot reaction.</summary>
     public EnemyReaction? SpeciesShot => null;
 
-    /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>None: only his arm and foot have hitboxes of their own, which their entities find (#2301).</summary>
+    public virtual bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        return KraidCombat.FindKraidFootHitboxReaction(Place, probe, out reaction) ??
-            KraidCombat.FindKraidArmHitboxReaction(Place, probe, out reaction);
+        return null;
     }
 }

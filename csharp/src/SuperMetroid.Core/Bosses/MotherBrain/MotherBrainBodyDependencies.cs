@@ -36,4 +36,7 @@ internal sealed record MotherBrainBodyDependencies
 
     /// <summary>Holds the body her body frames show on.</summary>
     public required EnemyPresentation Presentation { get; init; }
+
+    /// <summary>The room's enemy places, which list her head right after her body (#2298).</summary>
+    public required EnemyPlaces Places { get; init; }
 }

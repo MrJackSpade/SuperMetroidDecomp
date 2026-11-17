@@ -12,6 +12,19 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place
     /// <inheritdoc/>
     protected override void SetUp() => Species.Limbs.InitializeKraidArm(Place);
 
+    /// <summary>The arm's own part of the encounter.</summary>
+    protected override KraidAnimatedPartState Part => Encounter.ArmState;
+
+    /// <summary>The arm's hitboxes, which its frame's components hold.</summary>
+    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+        KraidCombat.FindKraidArmHitboxReaction(Place, probe, out reaction);
+
+    /// <summary>The arm's shot reaction.</summary>
+    protected override EnemyShotReaction LimbShotReaction => Species.Combat.ArmShotReaction;
+
+    /// <summary>The arm's bomb reaction.</summary>
+    protected override void ReactToLimbBomb(EnemyBombContext context) => Species.Combat.ReactToArmBomb(context);
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
 

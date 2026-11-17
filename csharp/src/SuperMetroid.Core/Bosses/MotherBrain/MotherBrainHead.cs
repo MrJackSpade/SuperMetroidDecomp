@@ -59,7 +59,6 @@ internal sealed class MotherBrainHead
         head.AnimationClock.StepOnNextUpdate();
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
-        state.Head = head;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
     }
 

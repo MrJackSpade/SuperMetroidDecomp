@@ -1,17 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>The state of Draygon's eye actor.</summary>
+/// <summary>The tracking of Draygon's eye, which his encounter keeps (#2298).</summary>
 internal sealed class DraygonEyeState
 {
-    /// <summary>Starts the eye of <paramref name="draygon"/> in <paramref name="action"/>.</summary>
-    internal DraygonEyeState(DraygonEnemyState draygon, DraygonEyeAction action)
-    {
-        Draygon = Ensure.NotNull(draygon);
-        Action = action;
-    }
-
-    /// <summary>The encounter the eye is part of (#2177), which his body set up before it.</summary>
-    internal DraygonEnemyState Draygon { get; }
+    /// <summary>Starts the eye in <paramref name="action"/>.</summary>
+    internal DraygonEyeState(DraygonEyeAction action) => Action = action;
 
     /// <summary>The eye's action.</summary>
     public DraygonEyeAction Action { get; internal set; }

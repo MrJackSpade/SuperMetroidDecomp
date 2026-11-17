@@ -226,7 +226,8 @@ internal static class NativeEnemyFamilyStateImport
             // import, which holds the memory the table lies in.
             draygonRecord.SwoopVelocity = UnsignedSixteenSixteen.FromRaw(SixteenSixteenWords.Compose(words.D, words.E));
         }
-        if (enemy.SpeciesState<DraygonEyeState>() is { } draygonEyeRecord)
+        // Draygon's encounter keeps his eye's tracking (#2298).
+        if (enemy.Entity is DraygonEyeEntity { Encounter.EyeTracking: var draygonEyeRecord })
         {
             // A zero word is a setup that never ran this far (a defeated room's deleted boss); the state keeps its start.
             if (words.A != 0)

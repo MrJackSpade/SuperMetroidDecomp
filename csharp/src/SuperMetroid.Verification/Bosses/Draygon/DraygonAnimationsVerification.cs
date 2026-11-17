@@ -190,22 +190,16 @@ internal static class DraygonAnimationsVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body)
-        {
-            Eye = enemies.Places.InUpdateOrder[1],
-            Tail = enemies.Places.InUpdateOrder[2],
-            Arms = enemies.Places.InUpdateOrder[3],
-        };
+        var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         body.SetSpeciesState(state);
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
-        var eyeState = new DraygonEyeState(state, DraygonEyeAction.Inert);
-        state.Eye.SetSpeciesState(eyeState);
+        state.Eye.SetSpeciesState(state.EyePart);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
-        state.Tail.SetSpeciesState(new DraygonPartState(state));
+        state.Tail.SetSpeciesState(state.TailPart);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
-        state.Arms.SetSpeciesState(new DraygonPartState(state));
-        foreach (RoomEnemyPlace part in new[] { body, state.Eye, state.Tail, state.Arms })
-            state.StartAnimation(part, DraygonSegment.Rest);
+        state.Arms.SetSpeciesState(state.ArmsPart);
+        foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
+            part.SetAnimation(DraygonSegment.Rest);
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;
         return new NewDraygonResult(enemies, state);
@@ -226,19 +220,19 @@ internal static class DraygonAnimationsVerification
     private static void VerifyReset()
     {
         (_, DraygonEnemyState state) = NewDraygon();
-        state.StartAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
+        state.BodyPart.SetAnimation(DraygonSegment.BodyFacingRightReset);
         state.Body.AnimationClock.StepOnNextUpdate();
         Pass(state.Body);
-        AssertEqual(Started(DraygonSegment.EyeFacingRightIdle), state.Playback(state.Eye), "the reset starts the eye");
-        AssertEqual(Started(DraygonSegment.TailFacingRightIdle), state.Playback(state.Tail), "the reset starts the tail");
-        AssertEqual(Started(DraygonSegment.ArmsFacingRightIdle), state.Playback(state.Arms), "the reset starts the arms");
+        AssertEqual(Started(DraygonSegment.EyeFacingRightIdle), state.EyePart.Playback, "the reset starts the eye");
+        AssertEqual(Started(DraygonSegment.TailFacingRightIdle), state.TailPart.Playback, "the reset starts the tail");
+        AssertEqual(Started(DraygonSegment.ArmsFacingRightIdle), state.ArmsPart.Playback, "the reset starts the arms");
         foreach (RoomEnemyPlace part in new[] { state.Eye, state.Tail, state.Arms })
             AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
-            state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
+            state.BodyPart.Playback, "the body's own frame keeps it in the reset, after its frame");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(EnemyFrameId.DraygonBodyFacingRightJawShut), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
-        AssertEqual<DraygonEyeAction?>(DraygonEyeAction.Tracking, state.Eye.SpeciesState<DraygonEyeState>()?.Action, "the reset gives the eye its tracking function");
-        AssertEqual<HorizontalDirection?>(HorizontalDirection.Right, state.Eye.SpeciesState<DraygonEyeState>()?.Facing, "the reset's tracking eye faces right (#2165)");
+        AssertEqual<DraygonEyeAction?>(DraygonEyeAction.Tracking, state.EyeTracking.Action, "the reset gives the eye its tracking function");
+        AssertEqual<HorizontalDirection?>(HorizontalDirection.Right, state.EyeTracking.Facing, "the reset's tracking eye faces right (#2165)");
     }
 
     /// <summary>
@@ -252,10 +246,10 @@ internal static class DraygonAnimationsVerification
         {
             (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
             enemies.DraygonBehavior.Goop.SetupDraygonGoopPass(state, direction, RoomEnemyFrameFixtures.StandaloneSamus(), frameCounter: 0);
-            AssertEqual(Started(DraygonSegment.Rest), state.Playback(state.Arms), $"a {direction} goop pass's setup leaves the arms' animation");
+            AssertEqual(Started(DraygonSegment.Rest), state.ArmsPart.Playback, $"a {direction} goop pass's setup leaves the arms' animation");
             Pass(state.Body);
             AssertEqual(Started(direction == HorizontalDirection.Right ? DraygonSegment.ArmsFacingRightIdle : DraygonSegment.ArmsFacingLeftIdle),
-                state.Playback(state.Arms), $"the {direction} goop pass's reset starts the arms before they play");
+                state.ArmsPart.Playback, $"the {direction} goop pass's reset starts the arms before they play");
         }
     }
 
@@ -268,7 +262,7 @@ internal static class DraygonAnimationsVerification
     {
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemyPlace arms = state.Arms;
-        state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftDying);
+        state.ArmsPart.SetAnimation(DraygonSegment.ArmsFacingLeftDying);
         arms.AnimationClock.StepOnNextUpdate();
         var native = new NativeEnemyListReader(BodyBankNumber, Entry(DraygonSegment.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
@@ -281,7 +275,7 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.Timer, arms.AnimationClock.Hold.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, arms.AnimationClock.ShowsNewFrame, $"{at}: new-frame flag");
-            if (NativeEnemyAnimationOracle.NativePlaysLeft(state.Playback(arms)) is { } playsLeft)
+            if (NativeEnemyAnimationOracle.NativePlaysLeft(state.ArmsPart.Playback) is { } playsLeft)
                 AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(EnemyAudioQueueAccess.SoundList(cues.OfType<DraygonCue.QueueSound>().Select(sound => sound.Sound)),
@@ -289,8 +283,8 @@ internal static class DraygonAnimationsVerification
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;
-                AssertEqual(Started(DraygonSegment.Rest), state.Playback(state.Tail), $"{at}: the tail sleeps");
-                AnimationPlayback<DraygonSegment> armsPlayback = state.Playback(arms);
+                AssertEqual(Started(DraygonSegment.Rest), state.TailPart.Playback, $"{at}: the tail sleeps");
+                AnimationPlayback<DraygonSegment> armsPlayback = state.ArmsPart.Playback;
                 AnimationPhase<DraygonSegment> running = armsPlayback.Animation.Phases[armsPlayback.Place.Phase];
                 AssertEqual((DraygonSegment.BodyDyingExplosions, 8), (running.Segment, running.FirstBeat),
                     $"{at}: the running arms keep their own program, its explosions' loop, as the native final store replaces the paralysis");

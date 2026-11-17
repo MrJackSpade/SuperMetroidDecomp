@@ -14,9 +14,9 @@ internal sealed class DraygonEyeEntity(DraygonBehavior species, RoomEnemyPlace p
     /// <inheritdoc/>
     public override void Initialize() => Species.Parts.InitializeDraygonEye(Place);
 
-    /// <summary>The encounter the eye joined as it set up.</summary>
-    internal override DraygonEnemyState Encounter => Place.RequireSpeciesState<DraygonEyeState>().Draygon;
+    /// <summary>The eye's part of the encounter it joined as it set up.</summary>
+    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonPart>();
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.Parts.RunDraygonEyeMain(Place, Ensure.NotNull(frame).Samus);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.Parts.RunDraygonEyeMain(Encounter, Ensure.NotNull(frame).Samus);
 }

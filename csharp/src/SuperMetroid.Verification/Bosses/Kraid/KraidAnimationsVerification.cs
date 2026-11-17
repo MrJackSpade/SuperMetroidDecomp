@@ -155,7 +155,7 @@ internal static class KraidAnimationsVerification
     {
         (_, KraidEnemyState state, RoomEnemyPlace body, RoomEnemyPlace arm) = NewKraid();
         body.Health = 104;
-        state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
+        state.ArmState.SetAnimation(KraidPartSegment.ArmNormalPause);
         arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
@@ -163,7 +163,7 @@ internal static class KraidAnimationsVerification
         AssertEqual(KraidPartSegment.ArmNormal, PlayingSegment(state.ArmState.Playback), "a healthy arm loops its normal swing");
 
         body.Health = 51;
-        state.ArmState.Playback = Started(KraidPartSegment.ArmNormalPause);
+        state.ArmState.SetAnimation(KraidPartSegment.ArmNormalPause);
         arm.AnimationClock.StepOnNextUpdate();
         Pass(arm);
         Pass(arm, forceExpiry: true);
@@ -190,7 +190,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
         // The foot binds after the encounter began, and joins it as its setup would.
-        enemies.KraidBehavior.Access.AttachKraidPart(foot, state);
+        KraidEncounterAccess.AttachKraidPart(state.FootState);
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
@@ -205,7 +205,7 @@ internal static class KraidAnimationsVerification
                 throw new InvalidOperationException($"Verification failed: the held neutral foot changed at update {update}.");
         }
 
-        state.ArmState.Playback = Started(KraidPartSegment.ArmDyingOrPreparingToLunge);
+        state.ArmState.SetAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         for (int beat = 0; beat < 3; beat++)
             Pass(arm, forceExpiry: true);
         ushort outstretched = KraidPartFrameToolingDefinitions.Spritemap(new KraidPartPose(EnemyFrameId.KraidArmOutstretched));
@@ -225,7 +225,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
         lint.Bind(EnemyDefinitionId.KraidLintTop, lint.Definition);
         // The lint binds after the encounter began, and joins it as its setup would.
-        enemies.KraidBehavior.Access.AttachKraidPart(lint, state);
+        KraidEncounterAccess.AttachKraidPart(state.TopLintState);
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);
@@ -323,7 +323,7 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState();
+        var state = new KraidEnemyState(new KraidParts());
         random = 0;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 16;

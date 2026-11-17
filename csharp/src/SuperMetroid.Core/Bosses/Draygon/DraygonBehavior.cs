@@ -237,9 +237,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal const int DraygonArmsReachUpdatesFromSwoopBottom = 26;
 
     /// <summary>Advances the typed animation of <paramref name="place"/>, one of the parts of <paramref name="draygon"/>.</summary>
-    internal void AdvanceDraygonTypedAnimation(DraygonEnemyState draygon, RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceDraygonTypedAnimation(DraygonPart part, EnemyAnimationCueContext context)
     {
-        Parts.AdvanceDraygonPartAnimation(draygon, place, context.Samus);
+        Parts.AdvanceDraygonPartAnimation(part, context.Samus);
     }
 
     /// <summary>Runs DraygonBody's main AI.</summary>

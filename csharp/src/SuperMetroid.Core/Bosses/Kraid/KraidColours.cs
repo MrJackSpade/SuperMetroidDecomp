@@ -11,8 +11,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 internal sealed class KraidColours : IGameplayShadingSource
 {
-    /// <summary>The band shown, a health band or the hurt flash, or null while he shows his room's own colours.</summary>
-    internal KraidColourBand? Band { get; private set; }
+    /// <summary>
+    /// The shade his body and parts show: a health band's or the hurt flash's (#2297), or null while he shows his room's own
+    /// colours.
+    /// </summary>
+    internal PictureShade? Shown { get; private set; }
 
     /// <summary>Whether his body shows his death colours.</summary>
     internal bool ShowsDeathArm { get; private set; }
@@ -27,17 +30,28 @@ internal sealed class KraidColours : IGameplayShadingSource
     internal static PictureShading RocksShading { get; } = PictureShading.Shaded(KraidShades.Rocks);
 
     /// <summary>The shading his sprite parts show: his band's, or his room's own colours before any.</summary>
-    internal PictureShading Parts => Band is { } band ? PictureShading.Shaded(KraidShades.Health(band)) : PictureShading.Standard;
+    internal PictureShading Parts => Shown is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard;
 
     /// <summary>
-    /// Shows <paramref name="band"/>, a health band or the hurt flash, with <paramref name="bandEyes"/> as its eyes; its
-    /// shade shows the eyes in <paramref name="shaded"/>, which the eyes' colours are shown in place of.
+    /// Shows health band <paramref name="band"/> with <paramref name="bandEyes"/> as its eyes; its shade shows the eyes in
+    /// <paramref name="shaded"/>, which the eyes' colours are shown in place of.
     /// </summary>
-    internal void ShowBand(KraidColourBand band, ReadOnlySpan<RgbColor> bandEyes, ReadOnlySpan<RgbColor> shaded)
+    internal void ShowBand(KraidHealthBand band, ReadOnlySpan<RgbColor> bandEyes, ReadOnlySpan<RgbColor> shaded) =>
+        Show(KraidShades.Health(band), bandEyes, shaded);
+
+    /// <summary>
+    /// Shows his hurt flash with <paramref name="flashEyes"/> as its eyes; its shade shows the eyes in
+    /// <paramref name="shaded"/>, which the eyes' colours are shown in place of.
+    /// </summary>
+    internal void ShowHurtFlash(ReadOnlySpan<RgbColor> flashEyes, ReadOnlySpan<RgbColor> shaded) =>
+        Show(KraidShades.HurtFlash, flashEyes, shaded);
+
+    /// <summary>Shows <paramref name="shade"/> with <paramref name="eyes"/> in his eyes, which its shade shows in <paramref name="shaded"/>.</summary>
+    private void Show(PictureShade shade, ReadOnlySpan<RgbColor> eyes, ReadOnlySpan<RgbColor> shaded)
     {
-        Band = band;
+        Shown = shade;
         shadedEyes = Ensure.LengthEqual(shaded, KraidEyeGlow.Eyes).ToArray();
-        ShowBandEyes(bandEyes);
+        ShowBandEyes(eyes);
     }
 
     /// <summary>Shows <paramref name="bandEyes"/>, his health band's eye colours, in his eyes at once.</summary>
@@ -72,9 +86,9 @@ internal sealed class KraidColours : IGameplayShadingSource
             frame.Shade(GameplayPictures.BossBody, KraidShades.DeathArm);
             return;
         }
-        if (Band is not { } band)
+        if (Shown is not { } shade)
             return;
-        frame.Shade(GameplayPictures.BossBody, KraidShades.Health(band));
+        frame.Shade(GameplayPictures.BossBody, shade);
         // His body's shades show his eyes in one set of colours; the glow's colours are shown in their place.
         ImmutableArray<RgbColor> eyes = EyeGlow.Shown;
         if (!eyes.SequenceEqual(shadedEyes))

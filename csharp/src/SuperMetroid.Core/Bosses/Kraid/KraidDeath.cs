@@ -101,8 +101,8 @@ internal sealed class KraidDeath
                 state.DeathSoundTimer = KraidArenaDefinitions.SinkFirstSoundUpdates;
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
                 _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.SinkShakeUpdates);
-                _access.StartKraidPartAnimation(state, _parts.Arm, KraidPartSegment.ArmRisingOrSinking);
-                _access.StartKraidPartAnimation(state, _parts.Foot, KraidPartSegment.FootInitial);
+                state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
+                state.FootState.StartAnimation(KraidPartSegment.FootInitial);
                 state.FootState.Phase = KraidFootPhase.Resting;
                 return;
 
@@ -161,7 +161,7 @@ internal sealed class KraidDeath
         if (state.HurtFrame != 0)
             return;
         state.Colours.ShowDeathArm();
-        _access.StartKraidPartAnimation(state, _parts.Arm, KraidPartSegment.ArmDyingOrPreparingToLunge);
+        state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
         state.BodyState.DeathPhase = KraidDeathPhase.FadeOut;
         state.HeadPlayback = KraidHeadAnimations.DeathAfterEntryFrame;
         state.BodyState.HeadTimer = KraidHeadAnimations.DeathEntryDuration;
@@ -197,19 +197,10 @@ internal sealed class KraidDeath
         RoomEnemyPlace arm = _parts.Arm;
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         arm.Presence = arm.Presence.With(EnemyPresence.Deleted);
-        // The lints and the foot take the arm's new properties, no longer solid and without animation or off-screen
-        // processing.
-        EnemyContact otherContact = arm.Contact.Without(EnemyContact.SolidToSamus);
-        EnemyProcessing otherProcessing = arm.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+        // The lints and the foot are deleted with the arm (#2298).
         foreach (RoomEnemyPlace lint in _parts.Lints)
-        {
-            lint.Contact = otherContact;
-            lint.Processing = otherProcessing;
-            lint.Presence = arm.Presence;
-        }
-        _parts.Foot.Contact = otherContact;
-        _parts.Foot.Processing = otherProcessing;
-        _parts.Foot.Presence = arm.Presence;
+            KraidEncounterAccess.DeleteKraidPart(lint);
+        KraidEncounterAccess.DeleteKraidPart(_parts.Foot);
         state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
         // The death returns the camera to its normal tracking before the death drop.
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);

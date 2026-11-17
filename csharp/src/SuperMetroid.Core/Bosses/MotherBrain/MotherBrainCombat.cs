@@ -214,19 +214,27 @@ internal sealed class MotherBrainCombat
                 : 13;
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindMotherBrainHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on her body's frame: her brain's rectangle until its first
+    /// animation shows a body frame, then what its frame shows. Her body's own entity asks (#2301).
+    /// </summary>
+    internal static bool FindMotherBrainBodyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+        FindHitboxReaction(enemy, enemy.Frame == EnemyFrameId.MotherBrainBrainHitArea
+            ? MotherBrainCollisionDefinitions.BrainComponents
+            : MotherBrainCollision.ComponentsAt(enemy.Frame), probe, out reaction);
+
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on her head: her brain, whose rectangle it owns (#2220). Her head's
+    /// own entity asks (#2301).
+    /// </summary>
+    internal static bool FindMotherBrainHeadHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+        FindHitboxReaction(enemy, MotherBrainCollisionDefinitions.BrainComponents, probe, out reaction);
+
+    /// <summary>The reaction of the first of <paramref name="components"/>' hitboxes the probe overlaps, placed from <paramref name="enemy"/>.</summary>
+    private static bool FindHitboxReaction(RoomEnemyPlace enemy, ReadOnlySpan<EnemyCollisionComponent> components, EnemyHitboxProbe probe,
+        out EnemyReaction? reaction)
     {
         reaction = null;
-        if (enemy.DefinitionId is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
-            return null;
-
-        // The head is her brain, whose rectangle it owns (#2220); the body meets what its frame shows, her brain's rectangle
-        // until its first animation shows a body frame.
-        ReadOnlySpan<EnemyCollisionComponent> components =
-            enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead || enemy.Frame == EnemyFrameId.MotherBrainBrainHitArea
-                ? MotherBrainCollisionDefinitions.BrainComponents
-                : MotherBrainCollision.ComponentsAt(enemy.Frame);
         foreach (EnemyCollisionComponent component in components)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

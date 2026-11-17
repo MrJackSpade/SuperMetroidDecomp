@@ -33,7 +33,7 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         BuildDraygonSwoopYPositions(state, samus);
         state.Phase = DraygonPhase.SwoopDescending;
-        DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingRightReset);
+        state.BodyPart.StartAnimation(DraygonSegment.BodyFacingRightReset);
         state.Facing = HorizontalDirection.Right;
     }
 
@@ -84,7 +84,7 @@ internal sealed class DraygonSwoops
         RoomEnemyPlace body = state.Body;
         int entry = state.SwoopEntry;
         if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
-            DraygonParts.StartDraygonAnimation(state.Arms, side.ArmsNearApex);
+            state.ArmsPart.StartAnimation(side.ArmsNearApex);
 
         body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
         state.SwoopEntry = entry - 1;
@@ -127,7 +127,7 @@ internal sealed class DraygonSwoops
         RoomEnemyPlace body = state.Body;
         int entry = state.SwoopEntry;
         if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
-            DraygonParts.StartDraygonAnimation(state.Arms, side.ArmsIdle);
+            state.ArmsPart.StartAnimation(side.ArmsIdle);
 
         DraygonSwoopPath path = PathOf(state);
         body.Position = body.Position.WithWholeY(path.HeightAt(entry));
@@ -177,7 +177,7 @@ internal sealed class DraygonSwoops
             state.RightSideResetX, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopDescending;
-        DraygonParts.StartDraygonAnimation(state.Body, DraygonSegment.BodyFacingLeftReset);
+        state.BodyPart.StartAnimation(DraygonSegment.BodyFacingLeftReset);
         state.Facing = HorizontalDirection.Left;
         state.SwoopEntry = frameCount;
     }

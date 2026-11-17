@@ -17,8 +17,8 @@ internal sealed class DraygonBodyEntity(DraygonBehavior species, RoomEnemyPlace 
     /// <inheritdoc/>
     public override void Initialize() => Species.Parts.InitializeDraygonBody(Place);
 
-    /// <summary>The encounter the body set up.</summary>
-    internal override DraygonEnemyState Encounter => Place.RequireSpeciesState<DraygonEnemyState>();
+    /// <summary>The body's part of the encounter it set up.</summary>
+    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonEnemyState>().BodyPart;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunDraygonBodyMainAi(Place, frame);

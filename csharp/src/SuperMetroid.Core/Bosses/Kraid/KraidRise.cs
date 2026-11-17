@@ -60,8 +60,8 @@ internal sealed class KraidRise
     {
         // The body begins the encounter each of his parts joins as it sets up (#2218): a body that sets up again begins a
         // new one.
-        var state = new KraidEnemyState();
-        _access.AttachKraidPart(body, state);
+        var state = new KraidEnemyState(_parts);
+        KraidEncounterAccess.AttachKraidPart(state.BodyState);
         // The room shows the body layer he draws himself, of this encounter, his backdrop's colours and his own (#2194).
         _bodyLayer.Show(state);
         _presentation.AttachBossBody(_bodyLayer);
@@ -180,11 +180,11 @@ internal sealed class KraidRise
             case KraidGrowthPhase.SettleParts:
                 state.BodyState.GrowthPhase = KraidGrowthPhase.ShowRoomBackdrop;
                 RoomEnemyPlace foot = _parts.Foot;
-                _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootNeutral);
-                foreach (RoomEnemyPlace lint in _parts.Lints)
+                state.FootState.StartAnimation(KraidPartSegment.FootNeutral);
+                foreach (KraidLintState lint in state.Lints)
                 {
-                    _access.SetKraidPartAnimation(state, lint, KraidPartSegment.LintPostGrowth);
-                    lint.Frame = EnemyFrameId.KraidLintGrown;
+                    lint.SetAnimation(KraidPartSegment.LintPostGrowth);
+                    lint.Place.Frame = EnemyFrameId.KraidLintGrown;
                 }
                 return;
 
@@ -216,17 +216,15 @@ internal sealed class KraidRise
 
         foreach (KraidLintPart part in Enum.GetValues<KraidLintPart>())
         {
-            RoomEnemyPlace lint = _parts.Lint(part);
-            KraidLintState lintState = _parts.LintStateOf(state, lint);
+            KraidLintState lintState = state.Lint(part);
             lintState.PhaseTimer = KraidLints.InitialDelay(part);
             lintState.Phase = KraidLintPhase.AlignToKraidBeforeProducing;
             lintState.LintTravel = 0;
         }
         // Each fingernail waits one launch delay longer than the one before.
         int nailDelay = KraidArenaDefinitions.NailLaunchDelayUpdates;
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        foreach (KraidNailState nailState in state.Nails)
         {
-            KraidNailState nailState = _parts.NailStateOf(state, nail);
             nailState.Phase = KraidNailPhase.WaitBeforeLaunch;
             nailState.PhaseTimer = nailDelay;
             nailDelay += KraidArenaDefinitions.NailLaunchDelayUpdates;
@@ -235,7 +233,7 @@ internal sealed class KraidRise
         state.WalkTargetX = KraidArenaDefinitions.SecondPhaseStartX;
         RoomEnemyPlace foot = _parts.Foot;
         state.FootState.Phase = KraidFootPhase.SecondPhaseWalkToStart;
-        _access.StartKraidPartAnimation(state, foot, KraidPartSegment.FootWalkingBackward);
+        state.FootState.StartAnimation(KraidPartSegment.FootWalkingBackward);
     }
 
     /// <summary>Requests a rock from the floor during the growth sequence.</summary>
@@ -338,7 +336,7 @@ internal sealed class KraidRise
                     // Its lunge delay starts on the exact rise-completion frame.
                     state.FootState.Phase = KraidFootPhase.FirstPhaseThinking;
                     state.FootState.PhaseTimer = KraidArenaDefinitions.LungeDelayUpdates;
-                    _access.StartKraidPartAnimation(state, _parts.Arm, KraidPartSegment.ArmNormal);
+                    state.ArmState.StartAnimation(KraidPartSegment.ArmNormal);
                 }
                 return;
 

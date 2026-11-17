@@ -15,8 +15,8 @@ internal sealed class KraidLintEntity(KraidBehavior species, RoomEnemyPlace plac
     protected override void SetUp() => Species.Projectiles.InitializeKraidLint(Place, lint);
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidLintMain(Place, Species.Parts.LintStateOf(Encounter, Place), frame.Samus, frame.PseudoScrew);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.Projectiles.RunKraidLintMain(Place, Encounter.Lint(lint), frame.Samus, frame.PseudoScrew);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Encounter.Lint(lint));
 }

@@ -22,22 +22,31 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyPlace pl
     public ActorDepth? PictureDepth => Pose?.Depth;
 
     /// <summary>The pose the limb's animation shows, or null before it shows one.</summary>
-    private KraidPartPose? Pose => Place.RequireSpeciesState<KraidPartState>().Pose;
+    private KraidPartPose? Pose => Part.Pose;
+
+    /// <summary>The limb's own part of the encounter, its animation included (#2298).</summary>
+    protected abstract KraidAnimatedPartState Part { get; }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Part);
 
     /// <summary>The limb's shot reaction behind its ignoring definition, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction =>
-        Place.Definition.Shot == EnemyReaction.Ignore ? Species.Combat.ArmAndFootShotReaction : base.ShotReaction;
+        Place.Definition.Shot == EnemyReaction.Ignore ? LimbShotReaction : base.ShotReaction;
+
+    /// <summary>The limb's own shot reaction, which its hitboxes decide behind its definition's ignoring one (#2301).</summary>
+    protected abstract EnemyShotReaction LimbShotReaction { get; }
 
     /// <summary>Runs the limb's own reaction to every bomb that overlaps it, before the ignoring check.</summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        Species.Combat.ReactToArmOrFootBomb(context);
+        ReactToLimbBomb(context);
         return true;
     }
+
+    /// <summary>The limb's own reaction to a bomb its hitboxes select (#2301).</summary>
+    protected abstract void ReactToLimbBomb(EnemyBombContext context);
 
     /// <summary>The limb's contact and shots meet its frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.SamusFrameHitboxes | EnemyCapabilities.ProjectileFrameHitboxes;

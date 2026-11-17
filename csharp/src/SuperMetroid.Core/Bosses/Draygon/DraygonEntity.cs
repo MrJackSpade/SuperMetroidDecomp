@@ -29,10 +29,13 @@ internal abstract class DraygonEntity(DraygonBehavior species, RoomEnemyPlace pl
     public abstract void RunMainAi(IEnemyAiFrame frame);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceDraygonTypedAnimation(Encounter, Place, context);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceDraygonTypedAnimation(Part, context);
+
+    /// <summary>The part's own part of the encounter, its playback included, which it holds from its setup (#2298).</summary>
+    internal abstract DraygonPart Part { get; }
 
     /// <summary>The encounter the part is part of, which it holds from its setup (#2177).</summary>
-    internal abstract DraygonEnemyState Encounter { get; }
+    internal DraygonEnemyState Encounter => Part.Draygon;
 
     /// <summary>The encounter <paramref name="part"/> is part of, which the part's own entity holds.</summary>
     /// <param name="part">A place holding one of Draygon's parts.</param>

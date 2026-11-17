@@ -40,12 +40,15 @@ internal sealed class MotherBrainBody
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>Holds the body her body frames show on.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>The room's enemy places, which list her head right after her body (#2298).</summary>
+    private readonly EnemyPlaces _places;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainBody(MotherBrainBodyDependencies dependencies)
     {
         _presentation = dependencies.Presentation;
+        _places = dependencies.Places;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -82,7 +85,8 @@ internal sealed class MotherBrainBody
 
         // The encounter's setup creates the walk credit and the burst cycle the encounter and its later sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
-        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
+        MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, count: 1)[0],
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,

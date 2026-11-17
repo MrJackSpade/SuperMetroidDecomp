@@ -60,7 +60,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         // The Baby's colours load while Mother Brain's encounter is loaded, which lays them over its sprites (#1512).
-        var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
         Type type = typeof(RoomEnemySystem);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.

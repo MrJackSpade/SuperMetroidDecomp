@@ -25,11 +25,6 @@ internal sealed class DraygonCombat
         _grab = grab;
     }
 
-    /// <summary>Recognizes the four enemy definitions that form one Draygon encounter.</summary>
-    internal static bool IsDraygonDefinition(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or
-        EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms;
-
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
     internal EnemyBombReaction DraygonBombReaction => field ??= new()
     {
@@ -76,7 +71,7 @@ internal sealed class DraygonCombat
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)
-            state.Colours.ShowBand(RequireHealthBand(state));
+            state.Colours.ShowBand(state.HealthBand);
         state.ShadeSprites();
 
         // A grapple connected to the turrets is the game's electrocution channel. It is
@@ -125,17 +120,13 @@ internal sealed class DraygonCombat
     {
         RoomEnemyPlace body = state.Body;
         samus.Grapple.Phase = GrapplePhase.Dropped;
-        DraygonParts.StartDraygonAnimation(
-            body,
-            state.Facing == HorizontalDirection.Right
+        state.BodyPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightDying
                 : DraygonSegment.ArmsFacingLeftDying);
-        DraygonParts.StartDraygonAnimation(
-            state.Eye,
-            state.Facing == HorizontalDirection.Right
+        state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
-        state.Eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
+        state.EyeTracking.Action = DraygonEyeAction.Inert;
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an
@@ -157,15 +148,8 @@ internal sealed class DraygonCombat
         ShowDraygonHealthBand(state);
     }
 
-    /// <summary>The installed health band; code reads it only after initialization installs one.</summary>
-    private static DraygonHealthBand RequireHealthBand(DraygonEnemyState state) => state.HealthBand
-        ?? throw new InvalidOperationException("Draygon has no installed health shade band.");
-
     /// <summary>Shows his selected health band's colours.</summary>
-    internal static void ShowDraygonHealthBand(DraygonEnemyState state)
-    {
-        state.Colours.ShowBand(RequireHealthBand(state));
-    }
+    internal static void ShowDraygonHealthBand(DraygonEnemyState state) => state.Colours.ShowBand(state.HealthBand);
 
     /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);
@@ -199,12 +183,13 @@ internal sealed class DraygonCombat
         AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
     };
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on <paramref name="enemy"/>'s frame, one of Draygon's parts,
+    /// which its own entity asks for (#2301).
+    /// </summary>
+    internal static bool FindDraygonHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!DraygonCombat.IsDraygonDefinition(enemy.DefinitionId))
-            return null;
 
         // Both sprite and body-layer art are replaceable presentation. Their
         // component offsets and hitboxes remain fixed gameplay data.

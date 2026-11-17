@@ -43,6 +43,10 @@ internal abstract class MotherBrainEntity(MotherBrainBehavior species, RoomEnemy
     /// <summary>None: the tubes name a shared shot reaction.</summary>
     public virtual EnemyReaction? SpeciesShot => null;
 
-    /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MotherBrainCombat.FindMotherBrainHitboxReaction(Place, probe, out reaction);
+    /// <summary>None: only her body and her head have hitboxes of their own, which their entities find (#2301).</summary>
+    public virtual bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    {
+        reaction = null;
+        return null;
+    }
 }

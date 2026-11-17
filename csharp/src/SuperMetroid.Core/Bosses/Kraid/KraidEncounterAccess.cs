@@ -42,18 +42,6 @@ internal sealed class KraidEncounterAccess
         place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
     }
 
-    /// <summary>Installs <paramref name="segment"/> as <paramref name="kraid"/>'s part's animation, from its start; the part's timer is set separately.</summary>
-    internal void SetKraidPartAnimation(KraidEnemyState kraid, RoomEnemyPlace part, KraidPartSegment segment) =>
-        _parts.StateOf(kraid, part).Playback =
-            new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
-
-    /// <summary>Sets a part's animation and runs its first step on the next frame.</summary>
-    internal void StartKraidPartAnimation(KraidEnemyState kraid, RoomEnemyPlace part, KraidPartSegment segment)
-    {
-        SetKraidPartAnimation(kraid, part, segment);
-        part.AnimationClock.StepOnNextUpdate();
-    }
-
     /// <summary>The room's current random number, which Kraid's next decision reads without advancing it.</summary>
     internal int ReadKraidRandomNumber() =>
         _room.Random.Read();
@@ -65,10 +53,20 @@ internal sealed class KraidEncounterAccess
     /// </summary>
     internal KraidBackdropColours Backdrop { get; } = new();
 
-    /// <summary>Installs a part's state for the part's occupant of its place; the encounter keeps it across the part's kills and respawns.</summary>
-    internal void AttachKraidPart(RoomEnemyPlace place, KraidEnemyState state)
+    /// <summary>
+    /// Deletes a Kraid part as his body sinks away (#2298): it stops being solid, ignores Samus, stops its animation and
+    /// off-screen processing, and is deleted; its other properties are kept.
+    /// </summary>
+    internal static void DeleteKraidPart(RoomEnemyPlace place)
     {
-        KraidPartState part = _parts.StateOf(state, place);
-        place.SetSpeciesState(part);
+        place.Contact = place.Contact.Replace(EnemyContact.SolidToSamus | EnemyContact.IgnoresSamus, EnemyContact.IgnoresSamus);
+        place.Processing = place.Processing.Without(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
+        place.Presence = place.Presence.With(EnemyPresence.Deleted);
     }
+
+    /// <summary>
+    /// Installs <paramref name="part"/>'s state for the part's occupant of its place; the encounter keeps it across the
+    /// part's kills and respawns.
+    /// </summary>
+    internal static void AttachKraidPart(KraidPartState part) => Ensure.NotNull(part).Place.SetSpeciesState(part);
 }

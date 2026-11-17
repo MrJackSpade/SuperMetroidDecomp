@@ -718,12 +718,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spore.BlocksSamusProjectiles = false;
     }
 
-    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    /// <summary>
+    /// The reaction of the first hitbox the probe overlaps on Spore Spawn's frame, or null when the frame is not one of his
+    /// collision frames; his own entity asks (#2301).
+    /// </summary>
     internal static bool? FindSporeSpawnHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!(enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-            SporeSpawnCollision.IsFrame(enemy.Frame)))
+        if (!SporeSpawnCollision.IsFrame(enemy.Frame))
             return null;
 
         // Every rectangle and reaction of these eleven frames comes from Spore Spawn's collision catalog.

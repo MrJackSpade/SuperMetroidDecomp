@@ -9,17 +9,22 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </summary>
 public sealed class KraidEnemyState
 {
-    /// <summary>Begins an encounter whose parts each hold it from their setup (#2218).</summary>
-    public KraidEnemyState()
+    /// <summary>
+    /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
+    /// <paramref name="parts"/>' reference to it, and each animated part plays the animation its setup starts (#2298).
+    /// </summary>
+    /// <param name="parts">Kraid's references to his parts in his room.</param>
+    internal KraidEnemyState(KraidParts parts)
     {
-        BodyState = new(this);
-        ArmState = new(this);
-        TopLintState = new(this);
-        MiddleLintState = new(this);
-        BottomLintState = new(this);
-        FootState = new(this);
-        FirstNailState = new(this);
-        SecondNailState = new(this);
+        Ensure.NotNull(parts);
+        BodyState = new(this, parts.BodyReference);
+        ArmState = new(this, parts.ArmReference);
+        TopLintState = new(this, parts.TopLintReference);
+        MiddleLintState = new(this, parts.MiddleLintReference);
+        BottomLintState = new(this, parts.BottomLintReference);
+        FootState = new(this, parts.FootReference);
+        FirstNailState = new(this, parts.FirstNailReference, sibling: parts.SecondNailReference);
+        SecondNailState = new(this, parts.SecondNailReference, sibling: parts.FirstNailReference);
     }
 
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
@@ -48,6 +53,29 @@ public sealed class KraidEnemyState
 
     /// <summary>His second fingernail's own state.</summary>
     internal KraidNailState SecondNailState { get; }
+
+    /// <summary>His lint <paramref name="part"/>'s own state.</summary>
+    internal KraidLintState Lint(KraidLintPart part) => part switch
+    {
+        KraidLintPart.Top => TopLintState,
+        KraidLintPart.Middle => MiddleLintState,
+        KraidLintPart.Bottom => BottomLintState,
+        _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
+    };
+
+    /// <summary>His fingernail <paramref name="part"/>'s own state.</summary>
+    internal KraidNailState Nail(KraidNailPart part) => part switch
+    {
+        KraidNailPart.First => FirstNailState,
+        KraidNailPart.Second => SecondNailState,
+        _ => throw new InvalidOperationException($"Undefined {nameof(KraidNailPart)} {part}."),
+    };
+
+    /// <summary>His three lints' own states, top first.</summary>
+    internal IEnumerable<KraidLintState> Lints => [TopLintState, MiddleLintState, BottomLintState];
+
+    /// <summary>His two fingernails' own states, first first.</summary>
+    internal IEnumerable<KraidNailState> Nails => [FirstNailState, SecondNailState];
 
     /// <summary>Gets the body think countdown selected from the random-delay table and consumed before the next mouth attack.</summary>
     public int ThinkingTimer { get; internal set; }

@@ -1,11 +1,12 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// What every one of Kraid's parts holds: the encounter it is part of, its typed animation and the phase timer its
-/// timed phases wait on. Each part kind keeps the phase it runs, of its own type (#2208), and its own state on top of
+/// What every one of Kraid's parts holds: the encounter it is part of, the place it occupies (#2298) and the phase timer
+/// its timed phases wait on; his animated parts hold their typed animation too (<see cref="KraidAnimatedPartState"/>). Each part kind keeps the phase it runs, of its own type (#2208), and its own state on top of
 /// this: his body (<see cref="KraidBodyState"/>), his arm (<see cref="KraidArmState"/>), each lint
 /// (<see cref="KraidLintState"/>), his foot (<see cref="KraidFootState"/>) and each fingernail
 /// (<see cref="KraidNailState"/>).
@@ -14,14 +15,22 @@ public abstract class KraidPartState
 {
     /// <summary>Makes a part of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the part is part of.</param>
-    private protected KraidPartState(KraidEnemyState kraid) => Kraid = kraid;
+    /// <param name="reference">Kraid's reference to the part, which it joins as it sets up.</param>
+    private protected KraidPartState(KraidEnemyState kraid, KraidPartReference reference)
+    {
+        Kraid = kraid;
+        Reference = Ensure.NotNull(reference);
+    }
 
     /// <summary>The encounter the part is part of, which the part holds from its setup (#2218).</summary>
     internal KraidEnemyState Kraid { get; }
 
-    /// <summary>The part's playing animation and where it stands; before the first start, the foot's initial animation.</summary>
-    internal AnimationPlayback<KraidPartSegment> Playback { get; set; } =
-        new(KraidAnimations.StartingWith(KraidPartSegment.FootInitial), AnimationPlace.StartOfAnimation);
+    /// <summary>Kraid's reference to the part, which it joins as it sets up.</summary>
+    private KraidPartReference Reference { get; }
+
+    /// <summary>The place the part occupies (#2298), which joined as it set up.</summary>
+    /// <exception cref="InvalidOperationException">The part has not set up.</exception>
+    internal RoomEnemyPlace Place => Reference.Place;
 
     /// <summary>
     /// The pose the part's animation shows (#2210): its picture, where the picture sits and the depth it is drawn at; null

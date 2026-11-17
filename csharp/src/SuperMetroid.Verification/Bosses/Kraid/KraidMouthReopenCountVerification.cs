@@ -15,12 +15,12 @@ internal static class KraidMouthReopenCountVerification
     {
         for (int pending = 0; pending <= 3; pending++)
         {
-            var armed = new KraidEnemyState { PendingMouthReopens = pending };
+            var armed = new KraidEnemyState(new KraidParts()) { PendingMouthReopens = pending };
             armed.ArmMouthReopens();
             AssertEqual(3, armed.PendingMouthReopens, $"arming from {pending} pending reopens leaves three");
         }
 
-        var state = new KraidEnemyState();
+        var state = new KraidEnemyState(new KraidParts());
         state.ArmMouthReopens();
         for (int expected = 2; expected >= 0; expected--)
         {
@@ -35,7 +35,7 @@ internal static class KraidMouthReopenCountVerification
         AssertEqual(KraidMouthFlags.None, state.MouthFlags, "clearing the mouth clears every latch");
         AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
 
-        var hurt = new KraidEnemyState { HurtFrame = 6 };
+        var hurt = new KraidEnemyState(new KraidParts()) { HurtFrame = 6 };
         hurt.StepHurtFrameDown();
         AssertEqual(5, hurt.HurtFrame, "a running hurt phase steps down by one");
         hurt.HurtFrame = 0;

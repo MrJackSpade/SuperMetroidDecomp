@@ -18,13 +18,15 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <inheritdoc />
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => DeathHidesBodyLayer;
 
-    /// <summary>Starts the shared encounter state with her body before her head is attached.</summary>
+    /// <summary>Starts the shared encounter state with her body and her head (#2298).</summary>
     /// <param name="body">Her body's place.</param>
+    /// <param name="head">Her head's place, which her room lists right after her body.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
-    internal MotherBrainEnemyState(RoomEnemyPlace body, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
+    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
     {
         Body = body;
+        Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
     }
@@ -32,8 +34,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>Her body, which owns the encounter and runs first.</summary>
     public RoomEnemyPlace Body { get; }
 
-    /// <summary>Her head, the brain, attached by its initializer.</summary>
-    public RoomEnemyPlace Head { get => field ?? throw new InvalidOperationException("Mother Brain's head place is not attached; head initialization attaches it."); internal set; }
+    /// <summary>Her head, the brain, which her room lists right after her body: her body's setup begins the encounter with it (#2298).</summary>
+    public RoomEnemyPlace Head { get; }
 
     /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>
     public MotherBrainForm Form { get; internal set; }

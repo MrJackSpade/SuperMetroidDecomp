@@ -294,8 +294,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         if (place.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot)
         {
             place.SetSpeciesState<SuperMetroid.Core.Bosses.Kraid.KraidPartState>(place.DefinitionId == EnemyDefinitionId.KraidArm
-                ? new SuperMetroid.Core.Bosses.Kraid.KraidArmState(new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState())
-                : new SuperMetroid.Core.Bosses.Kraid.KraidFootState(new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState()));
+                ? new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).ArmState
+                : new SuperMetroid.Core.Bosses.Kraid.KraidEnemyState(new SuperMetroid.Core.Bosses.Kraid.KraidParts()).FootState);
             place.SpritemapPointer = pointer;
         }
         if (frame is { } shown)

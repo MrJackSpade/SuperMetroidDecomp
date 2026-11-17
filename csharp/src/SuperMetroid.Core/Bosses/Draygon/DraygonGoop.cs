@@ -40,9 +40,7 @@ internal sealed class DraygonGoop
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
         state.Phase = DraygonPhase.GoopApproach;
-        DraygonParts.StartDraygonAnimation(
-            body,
-            direction == HorizontalDirection.Right
+        state.BodyPart.StartAnimation(direction == HorizontalDirection.Right
                 ? DraygonSegment.BodyFacingRightReset
                 : DraygonSegment.BodyFacingLeftReset);
         state.Facing = direction;
@@ -89,9 +87,7 @@ internal sealed class DraygonGoop
                 FinishDraygonGoopFiring(state, direction);
                 return;
             }
-            DraygonParts.StartDraygonAnimation(
-                state.Body,
-                direction == HorizontalDirection.Right
+            state.BodyPart.StartAnimation(direction == HorizontalDirection.Right
                     ? DraygonSegment.BodyFacingRightFireGoop
                     : DraygonSegment.BodyFacingLeftFireGoop);
         }
@@ -108,9 +104,7 @@ internal sealed class DraygonGoop
     /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
     private static void FinishDraygonGoopFiring(DraygonEnemyState state, HorizontalDirection direction)
     {
-        DraygonParts.StartDraygonAnimation(
-            state.Arms,
-            direction == HorizontalDirection.Right
+        state.ArmsPart.StartAnimation(direction == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightIdle
                 : DraygonSegment.ArmsFacingLeftIdle);
         state.Phase = DraygonPhase.GoopRecovery;

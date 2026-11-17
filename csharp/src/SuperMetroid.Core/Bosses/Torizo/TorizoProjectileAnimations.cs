@@ -351,17 +351,17 @@ internal static class TorizoProjectileAnimations
 
     /// <summary>
     /// The animation that starts at each segment a spawn, a reaction or a cue starts (#2235): the segments it plays whole,
-    /// once or a number of times, and whether it then loops or holds. A still picture holds, or loops on its held frame
-    /// where its list goes back to it.
+    /// once or a number of times, and whether it then loops or holds. An animation that reaches a still picture holds it
+    /// for good (#2353).
     /// </summary>
     internal static IReadOnlyDictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>> StartingAt { get; } = new Dictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>>
     {
         [P.LowHealthExplosion] = new([new(P.LowHealthExplosion, 0, 2, 1), new(P.LowHealthExplosionBurst, 0, 8, 3), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
         [P.DeathExplosion] = new([new(P.DeathExplosion, 0, 3, 1), new(P.DeathExplosionBurst, 0, 9, 2), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
         [P.DeathSmoke] = new([new(P.DeathSmoke, 0, 7, 2), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
-        [P.DroolFourFrameDelay] = new([new(P.DroolFourFrameDelay, 0, 1, 1), new(P.DroolTwoFrameDelay, 0, 1, 1), new(P.DroolNoDelay, 0, 4, 1), new(P.DroolFalling, 0, 1, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.DroolTwoFrameDelay] = new([new(P.DroolTwoFrameDelay, 0, 1, 1), new(P.DroolNoDelay, 0, 4, 1), new(P.DroolFalling, 0, 1, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.DroolNoDelay] = new([new(P.DroolNoDelay, 0, 4, 1), new(P.DroolFalling, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.DroolFourFrameDelay] = new([new(P.DroolFourFrameDelay, 0, 1, 1), new(P.DroolTwoFrameDelay, 0, 1, 1), new(P.DroolNoDelay, 0, 4, 1), new(P.DroolFalling, 0, 1, 1)], AnimationEnd.Holds),
+        [P.DroolTwoFrameDelay] = new([new(P.DroolTwoFrameDelay, 0, 1, 1), new(P.DroolNoDelay, 0, 4, 1), new(P.DroolFalling, 0, 1, 1)], AnimationEnd.Holds),
+        [P.DroolNoDelay] = new([new(P.DroolNoDelay, 0, 4, 1), new(P.DroolFalling, 0, 1, 1)], AnimationEnd.Holds),
         [P.DroolWallImpact] = new([new(P.DroolWallImpact, 0, 2, 1)], AnimationEnd.Holds),
         [P.DroolFloorImpact] = new([new(P.DroolFloorImpact, 0, 5, 1)], AnimationEnd.Holds),
         [P.ExplosiveSwipe] = new([new(P.ExplosiveSwipe, 0, 7, 1)], AnimationEnd.Holds),
@@ -373,13 +373,13 @@ internal static class TorizoProjectileAnimations
         [P.StatueFragmentBottomLeft] = new([new(P.StatueFragmentBottomLeft, 0, 5, 1)], AnimationEnd.Holds),
         [P.StatueFragmentBottomMiddle] = new([new(P.StatueFragmentBottomMiddle, 0, 5, 1)], AnimationEnd.Holds),
         [P.StatueFragmentBottomRight] = new([new(P.StatueFragmentBottomRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.ChozoOrbMovingLeft] = new([new(P.ChozoOrbMovingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChozoOrbMovingRight] = new([new(P.ChozoOrbMovingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ChozoOrbMovingLeft] = new([new(P.ChozoOrbMovingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.ChozoOrbMovingRight] = new([new(P.ChozoOrbMovingRight, 0, 1, 1)], AnimationEnd.Holds),
         [P.ChozoOrbWallImpact] = new([new(P.ChozoOrbWallImpact, 0, 8, 1)], AnimationEnd.Holds),
         [P.ChozoOrbFloorImpact] = new([new(P.ChozoOrbFloorImpact, 0, 11, 1)], AnimationEnd.Holds),
         [P.ChozoOrbShot] = new([new(P.ChozoOrbShot, 0, 9, 1)], AnimationEnd.Holds),
-        [P.SonicBoomFiredLeft] = new([new(P.SonicBoomFiredLeft, 0, 3, 1), new(P.SonicBoomFlyingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SonicBoomFiredRight] = new([new(P.SonicBoomFiredRight, 0, 3, 1), new(P.SonicBoomFlyingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.SonicBoomFiredLeft] = new([new(P.SonicBoomFiredLeft, 0, 3, 1), new(P.SonicBoomFlyingLeft, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SonicBoomFiredRight] = new([new(P.SonicBoomFiredRight, 0, 3, 1), new(P.SonicBoomFlyingRight, 0, 1, 1)], AnimationEnd.Holds),
         [P.SonicBoomWallImpact] = new([new(P.SonicBoomWallImpact, 0, 4, 1), new(P.SonicBoomWallImpactBurst, 0, 7, 5), new(P.Deletion, 0, 1, 1)], AnimationEnd.Holds),
         [P.LandingDustRightFoot] = new([new(P.LandingDustRightFoot, 0, 8, 1)], AnimationEnd.Holds),
         [P.LandingDustLeftFoot] = new([new(P.LandingDustLeftFoot, 0, 8, 1)], AnimationEnd.Holds),

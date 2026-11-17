@@ -366,19 +366,17 @@ internal static class NativeEnemyProjectileProgramOracle
                 // A typed held frame stands for a frame followed at once by its list's sleep, or by a goto back to the frame,
                 // which shows the same frame again and again for good, whatever duration it names (#1607, #2068, #2096):
                 // after it nothing the list plays shows anything else, so its duration only times a sleep that changes
-                // nothing (#2235, #2250). Where that frame is its list's only one the goto is read as the list's loop; where
-                // it follows the beats before it in one segment, the segment rests on it at the goto.
-                bool firstOfList = addresses.Count == 0 && cursor == entry;
+                // nothing (#2235, #2250). The segment rests on it at the goto, as at a sleep, whether it follows the beats
+                // before it or is its list's one record, which the goto returns to (#2353).
                 _ = Next("held frame");
                 VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(held.Shown), $"{at}: held frame's presentation key");
                 var afterHeld = (NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(address + 4);
                 ushort afterHeldOperand = cartridge.ReadCartridgeWord(address + 6);
                 bool loopsOnItself = afterHeld == NativeEnemyProjectileInstruction.GotoY && afterHeldOperand == cursor;
-                bool loopsAlone = loopsOnItself && firstOfList;
                 VerificationAssertions.AssertTrue(afterHeld == NativeEnemyProjectileInstruction.Sleep || loopsOnItself,
                     $"{at}: a held frame's native frame is followed by a sleep or by a goto back to the frame");
                 cursor = unchecked((ushort)(cursor + 4));
-                if (loopsOnItself && !loopsAlone)
+                if (loopsOnItself)
                 {
                     controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                     break;

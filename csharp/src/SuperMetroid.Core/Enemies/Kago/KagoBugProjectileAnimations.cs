@@ -59,7 +59,7 @@ internal static class KagoBugProjectileAnimations
     internal static IReadOnlyDictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>> StartingAt { get; } = new Dictionary<KagoBugProjectileSegment, Animation<KagoBugProjectileSegment>>
     {
         [P.Landed] = new([Whole(P.Landed)], AnimationEnd.LoopsFrom(0)),
-        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.LoopsFrom(0)),
+        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.Holds),
         [P.JumpStart] = new([Whole(P.JumpStart)], AnimationEnd.Holds),
         [P.Shot] = new([Whole(P.Shot)], AnimationEnd.Holds),
         [P.Waiting] = new([Whole(P.Waiting)], AnimationEnd.Holds),

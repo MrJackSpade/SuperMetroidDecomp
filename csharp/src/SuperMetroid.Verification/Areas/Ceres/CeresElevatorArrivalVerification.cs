@@ -187,10 +187,12 @@ internal static class CeresElevatorArrivalVerification
                 }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
-                    // Each arrival list jumps back to its own start: the animation loops its one phase.
+                    // Each arrival list jumps back to its own start: the animation loops its one phase, or, where the list's
+                    // one record is a held frame, rests on it for good (#2353).
                     VerificationAssertions.AssertEqual(operand,
                         NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, program), $"{at}: goto target");
-                    VerificationAssertions.AssertEqual(AnimationEnd.LoopsFrom(0), animation.End, $"{at}: goto");
+                    VerificationAssertions.AssertEqual(beats is [AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame] ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0),
+                        animation.End, $"{at}: goto");
                     break;
                 }
                 VerificationAssertions.AssertTrue(index < beats.Count, $"{at}: {program} has a beat for the native frame");

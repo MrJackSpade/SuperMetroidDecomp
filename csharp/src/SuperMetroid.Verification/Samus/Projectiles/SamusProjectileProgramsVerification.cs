@@ -39,39 +39,55 @@ internal static class SamusProjectileProgramsVerification
             var addresses = new List<ushort>();
             NativeEnemyControl<SamusProjectileSegment> end;
             ushort cursor = entry;
+            // A list repeating one still picture is the segment's one held beat (#2347): every record shows that picture,
+            // and the list goes back to its own start, so the shot keeps the picture.
+            bool still = beats is [AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame];
             for (int index = 0; ; index++, steps++)
             {
                 string at = $"projectile {program} place {index} at $93:{cursor:X4}";
-                AssertEqual(cursor, SamusProjectileProgramAddresses.Address(new SamusProjectileSegmentBeat(program, index)), $"{at}: native address");
+                AssertEqual(cursor, SamusProjectileProgramAddresses.ListPlaceAddresses[program][index], $"{at}: native address");
                 if (cursor != entry && byEntry.TryGetValue(cursor, out SamusProjectileSegment next))
                 {
-                    AssertEqual(beats.Count, index, $"{at}: the run on into the next list ends the segment");
-                    end = new(NativeEnemyControlKind.RunOnIntoNext, index, next, null, cursor);
+                    AssertEqual(beats.Count, addresses.Count, $"{at}: the run on into the next list ends the segment");
+                    AssertTrue(!still, $"{at}: a still picture's list goes back to its own start");
+                    end = new(NativeEnemyControlKind.RunOnIntoNext, addresses.Count, next, null, cursor);
                     break;
                 }
                 ushort word = Word(cursor);
                 if (unchecked((short)word) >= 0)
                 {
-                    AssertTrue(index < beats.Count, $"{at}: the segment has a beat for the timed record");
-                    var show = AssertIs<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
-                    AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertTrue(SamusProjectileProgramAddresses.RecordAddresses(show.Shown).Contains(cursor), $"{at}: record address");
+                    SamusProjectileFrameId shown;
+                    if (still)
+                        shown = AssertIs<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame>(beats[0], $"{at}: still picture").Shown;
+                    else
+                    {
+                        AssertTrue(index < beats.Count, $"{at}: the segment has a beat for the timed record");
+                        var show = AssertIs<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>(beats[index], $"{at}: timed record");
+                        AssertEqual(word, show.Duration, $"{at}: duration");
+                        shown = show.Shown;
+                    }
+                    AssertTrue(SamusProjectileProgramAddresses.RecordAddresses(shown).Contains(cursor), $"{at}: record address");
                     ushort radii = Word(cursor + 4);
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)),
-                        SamusProjectileFrameDefinitions.Radius(show.Shown), $"{at}: radii");
+                        SamusProjectileFrameDefinitions.Radius(shown), $"{at}: radii");
                     records.Add(cursor);
-                    shownFrames.Add(show.Shown);
-                    addresses.Add(cursor);
+                    shownFrames.Add(shown);
+                    if (!still || index == 0)
+                        addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount));
                     continue;
                 }
-                AssertEqual(beats.Count, index, $"{at}: the goto or delete ends the segment");
+                AssertEqual(beats.Count, addresses.Count, $"{at}: the goto or delete ends the segment");
+                if (still)
+                    AssertEqual((ushort)SamusProjectileInstruction.GoTo, word, $"{at}: a still picture's list repeats");
                 end = (SamusProjectileInstruction)word switch
                 {
-                    SamusProjectileInstruction.GoTo => new(NativeEnemyControlKind.Goto, index, byEntry[Word(cursor + 2)], null, cursor),
-                    SamusProjectileInstruction.Delete => new(NativeEnemyControlKind.Stop, index, null, null, cursor),
+                    SamusProjectileInstruction.GoTo => new(NativeEnemyControlKind.Goto, addresses.Count, byEntry[Word(cursor + 2)], null, cursor),
+                    SamusProjectileInstruction.Delete => new(NativeEnemyControlKind.Stop, addresses.Count, null, null, cursor),
                     _ => throw new InvalidDataException($"{at}: native word ${word:X4} has no typed form."),
                 };
+                if (still)
+                    AssertEqual<SamusProjectileSegment?>(program, end.Target, $"{at}: a still picture's list goes back to its own start");
                 break;
             }
             lists.Add(program, new NativeEnemyList<SamusProjectileSegment>([.. addresses], [end]));
@@ -171,15 +187,10 @@ internal static class SamusProjectileProgramsVerification
     }
 
     /// <summary>The frame of the timed record at bank-$93 record address <paramref name="address"/>.</summary>
-    internal static SamusProjectileFrameId RecordAt(ushort address)
-    {
-        if (address == 0 || !SamusProjectileProgramAddresses.Layout.TryPlaceAt(address, out SamusProjectileSegmentBeat place))
-            throw new InvalidDataException($"$93:{address:X4} is not a Samus projectile list position.");
-        IReadOnlyList<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(place.Segment);
-        return place.Beat < beats.Count && beats[place.Beat] is AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame show
-            ? show.Shown
+    internal static SamusProjectileFrameId RecordAt(ushort address) =>
+        SamusProjectileProgramAddresses.Layout.RecordFrames.TryGetValue(address, out SamusProjectileFrameId shown)
+            ? shown
             : throw new InvalidDataException($"$93:{address:X4} is not a timed record.");
-    }
 
     /// <summary>Runs the projectile program oracle.</summary>
     [VerificationCommand("--samus-projectile-programs")]

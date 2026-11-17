@@ -9,10 +9,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectilePlayback
 {
     /// <summary>
-    /// Plays <paramref name="playback"/> on to its next frame and returns it with its duration, leaving the
-    /// playback past it; returns null when the animation ends, as the game's animation deletes the projectile.
+    /// Plays <paramref name="playback"/> on to its next frame and returns it with its duration, or no duration for a still
+    /// picture the projectile keeps from now on (#2347), leaving the playback past it; returns null when the animation
+    /// ends, as the game's animation deletes the projectile.
     /// </summary>
-    internal static SamusProjectileFrameId? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int duration)
+    internal static SamusProjectileFrameId? PlayToNextFrame(ref AnimationPlayback<SamusProjectileSegment> playback, out int? duration)
     {
         AnimationPlace place = playback.Place;
         AnimationShown<SamusProjectileSegment, SamusProjectileFrameId> shown =
@@ -23,8 +24,11 @@ internal static class SamusProjectilePlayback
             case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.Frame frame:
                 duration = frame.Duration;
                 return frame.Shown;
+            case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.HeldFrame held:
+                duration = null;
+                return held.Shown;
             case AnimationShown<SamusProjectileSegment, SamusProjectileFrameId>.Ended:
-                duration = 0;
+                duration = null;
                 return null;
             default:
                 throw new InvalidOperationException($"Samus projectile animation at {BeatOf(playback)} ended a play with {shown}.");
@@ -69,9 +73,9 @@ internal static class SamusProjectilePlayback
         if (segment is not { } selected)
             return Extent16<RoomPixels>.Zero;
         AnimationPhase<SamusProjectileSegment> first = SamusProjectileAnimations.StartingWith(selected).Phases[0];
-        if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat] is not AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame frame)
+        if (SamusProjectileAnimations.Segments.Beats(first.Segment)[first.FirstBeat].ShownFrame is not { } frame)
             throw new InvalidDataException($"Samus projectile animation {selected} does not open with a frame.");
-        return SamusProjectileFrameDefinitions.Radius(frame.Shown);
+        return SamusProjectileFrameDefinitions.Radius(frame);
     }
 
     /// <summary>
@@ -83,8 +87,7 @@ internal static class SamusProjectilePlayback
         SamusProjectileSegmentBeat at = BeatOf(playback);
         if (at.Beat == 0)
             return null;
-        if (SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1] is not AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame frame)
-            throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that shows no frame.");
-        return frame.Shown;
+        return SamusProjectileAnimations.Segments.Beats(at.Segment)[at.Beat - 1].ShownFrame
+            ?? throw new InvalidOperationException($"Samus projectile segment {at.Segment} continues past a beat that shows no frame.");
     }
 }

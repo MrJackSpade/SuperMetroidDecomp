@@ -5,9 +5,8 @@ using P = SuperMetroid.Core.Samus.Projectiles.SamusProjectileSegment;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Samus projectiles' animations (#1301):
-/// each timed step shows a <see cref="SamusProjectileFrameId"/> for its duration, and a goto or
-/// delete ends its animation.
+/// The Samus projectiles' animations (#1301, #2347): each segment shows its frames for their durations or holds a still
+/// picture, and each animation plays whole segments, repeating its last or ending.
 /// </summary>
 internal static class SamusProjectileAnimations
 {
@@ -15,209 +14,209 @@ internal static class SamusProjectileAnimations
     internal static AnimationSegments<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<SamusProjectileSegment, AnimationBeat<SamusProjectileFrameId, NoAnimationCue>[]>
     {
-        [P.PowerUpFacingRight] =
+        [P.PowerUp] =
         [
-            Show(F.PowerUpFacingRight, 15),
+            Hold(F.PowerUp),
         ],
         [P.PowerUpRight] =
         [
-            Show(F.PowerUpRight, 15),
+            Hold(F.PowerUpRight),
         ],
         [P.PowerRight] =
         [
-            Show(F.PowerRight, 15),
+            Hold(F.PowerRight),
         ],
         [P.PowerDownRight] =
         [
-            Show(F.PowerDownRight, 15),
+            Hold(F.PowerDownRight),
         ],
-        [P.PowerDownFacingRight] =
+        [P.PowerDown] =
         [
-            Show(F.PowerDownFacingRight, 15),
+            Hold(F.PowerDown),
         ],
         [P.PowerDownLeft] =
         [
-            Show(F.PowerDownLeft, 15),
+            Hold(F.PowerDownLeft),
         ],
         [P.PowerLeft] =
         [
-            Show(F.PowerLeft, 15),
+            Hold(F.PowerLeft),
         ],
         [P.PowerUpLeft] =
         [
-            Show(F.PowerUpLeft, 15),
+            Hold(F.PowerUpLeft),
         ],
-        [P.WaveUpFacingRight] =
+        [P.WaveUp] =
         [
-            Show(F.WaveUpFacingRightHidden, 4),
+            Show(F.WaveUpHidden, 4),
         ],
-        [P.WaveDownFacingRight] =
+        [P.WaveVertical] =
         [
-            Show(F.WaveDownFacingRightCentre, 1),
-            Show(F.WaveDownFacingRightRightNear, 1),
-            Show(F.WaveDownFacingRightRightMidway, 1),
-            Show(F.WaveDownFacingRightRightFar, 1),
-            Show(F.WaveDownFacingRightRightPeak, 1),
-            Show(F.WaveDownFacingRightRightFar, 1),
-            Show(F.WaveDownFacingRightRightMidway, 1),
-            Show(F.WaveDownFacingRightRightNear, 1),
-            Show(F.WaveDownFacingRightCentre, 1),
-            Show(F.WaveDownFacingRightLeftNear, 1),
-            Show(F.WaveDownFacingRightLeftMidway, 1),
-            Show(F.WaveDownFacingRightLeftFar, 1),
-            Show(F.WaveDownFacingRightLeftPeak, 1),
-            Show(F.WaveDownFacingRightLeftFar, 1),
-            Show(F.WaveDownFacingRightLeftMidway, 1),
-            Show(F.WaveDownFacingRightLeftNear, 1),
+            Show(F.WaveVerticalCentre, 1),
+            Show(F.WaveVerticalRightNear, 1),
+            Show(F.WaveVerticalRightMidway, 1),
+            Show(F.WaveVerticalRightFar, 1),
+            Show(F.WaveVerticalRightPeak, 1),
+            Show(F.WaveVerticalRightFar, 1),
+            Show(F.WaveVerticalRightMidway, 1),
+            Show(F.WaveVerticalRightNear, 1),
+            Show(F.WaveVerticalCentre, 1),
+            Show(F.WaveVerticalLeftNear, 1),
+            Show(F.WaveVerticalLeftMidway, 1),
+            Show(F.WaveVerticalLeftFar, 1),
+            Show(F.WaveVerticalLeftPeak, 1),
+            Show(F.WaveVerticalLeftFar, 1),
+            Show(F.WaveVerticalLeftMidway, 1),
+            Show(F.WaveVerticalLeftNear, 1),
         ],
-        [P.WaveUpRight] =
+        [P.WaveRisingDiagonal] =
         [
-            Show(F.WaveUpRightCentre, 1),
-            Show(F.WaveUpRightUpLeftNear, 1),
-            Show(F.WaveUpRightUpLeftMidway, 1),
-            Show(F.WaveUpRightUpLeftFar, 1),
-            Show(F.WaveUpRightUpLeftPeak, 1),
-            Show(F.WaveUpRightUpLeftFar, 1),
-            Show(F.WaveUpRightUpLeftMidway, 1),
-            Show(F.WaveUpRightUpLeftNearNarrowHitbox, 1),
-            Show(F.WaveUpRightCentreNarrowHitbox, 1),
-            Show(F.WaveUpRightDownRightNear, 1),
-            Show(F.WaveUpRightDownRightMidway, 1),
-            Show(F.WaveUpRightDownRightFar, 1),
-            Show(F.WaveUpRightDownRightPeak, 1),
-            Show(F.WaveUpRightDownRightFar, 1),
-            Show(F.WaveUpRightDownRightMidway, 1),
-            Show(F.WaveUpRightDownRightNearWideHitbox, 1),
+            Show(F.WaveRisingDiagonalCentre, 1),
+            Show(F.WaveRisingDiagonalUpLeftNear, 1),
+            Show(F.WaveRisingDiagonalUpLeftMidway, 1),
+            Show(F.WaveRisingDiagonalUpLeftFar, 1),
+            Show(F.WaveRisingDiagonalUpLeftPeak, 1),
+            Show(F.WaveRisingDiagonalUpLeftFar, 1),
+            Show(F.WaveRisingDiagonalUpLeftMidway, 1),
+            Show(F.WaveRisingDiagonalUpLeftNearNarrowHitbox, 1),
+            Show(F.WaveRisingDiagonalCentreNarrowHitbox, 1),
+            Show(F.WaveRisingDiagonalDownRightNear, 1),
+            Show(F.WaveRisingDiagonalDownRightMidway, 1),
+            Show(F.WaveRisingDiagonalDownRightFar, 1),
+            Show(F.WaveRisingDiagonalDownRightPeak, 1),
+            Show(F.WaveRisingDiagonalDownRightFar, 1),
+            Show(F.WaveRisingDiagonalDownRightMidway, 1),
+            Show(F.WaveRisingDiagonalDownRightNearWideHitbox, 1),
         ],
-        [P.WaveRight] =
+        [P.WaveHorizontal] =
         [
-            Show(F.WaveRightCentre, 1),
-            Show(F.WaveRightUpNear, 1),
-            Show(F.WaveRightUpMidway, 1),
-            Show(F.WaveRightUpFar, 1),
-            Show(F.WaveRightUpPeak, 1),
-            Show(F.WaveRightUpFar, 1),
-            Show(F.WaveRightUpMidway, 1),
-            Show(F.WaveRightUpNear, 1),
-            Show(F.WaveRightCentre, 1),
-            Show(F.WaveRightDownNear, 1),
-            Show(F.WaveRightDownMidway, 1),
-            Show(F.WaveRightDownFar, 1),
-            Show(F.WaveRightDownPeak, 1),
-            Show(F.WaveRightDownFar, 1),
-            Show(F.WaveRightDownMidway, 1),
-            Show(F.WaveRightDownNear, 1),
+            Show(F.WaveHorizontalCentre, 1),
+            Show(F.WaveHorizontalUpNear, 1),
+            Show(F.WaveHorizontalUpMidway, 1),
+            Show(F.WaveHorizontalUpFar, 1),
+            Show(F.WaveHorizontalUpPeak, 1),
+            Show(F.WaveHorizontalUpFar, 1),
+            Show(F.WaveHorizontalUpMidway, 1),
+            Show(F.WaveHorizontalUpNear, 1),
+            Show(F.WaveHorizontalCentre, 1),
+            Show(F.WaveHorizontalDownNear, 1),
+            Show(F.WaveHorizontalDownMidway, 1),
+            Show(F.WaveHorizontalDownFar, 1),
+            Show(F.WaveHorizontalDownPeak, 1),
+            Show(F.WaveHorizontalDownFar, 1),
+            Show(F.WaveHorizontalDownMidway, 1),
+            Show(F.WaveHorizontalDownNear, 1),
         ],
-        [P.WaveDownRight] =
+        [P.WaveFallingDiagonal] =
         [
-            Show(F.WaveDownRightCentre, 1),
-            Show(F.WaveDownRightUpRightNear, 1),
-            Show(F.WaveDownRightUpRightMidway, 1),
-            Show(F.WaveDownRightUpRightFar, 1),
-            Show(F.WaveDownRightUpRightPeak, 1),
-            Show(F.WaveDownRightUpRightFar, 1),
-            Show(F.WaveDownRightUpRightMidway, 1),
-            Show(F.WaveDownRightUpRightNearNarrowHitbox, 1),
-            Show(F.WaveDownRightCentreNarrowHitbox, 1),
-            Show(F.WaveDownRightDownLeftNear, 1),
-            Show(F.WaveDownRightDownLeftMidway, 1),
-            Show(F.WaveDownRightDownLeftFar, 1),
-            Show(F.WaveDownRightDownLeftPeak, 1),
-            Show(F.WaveDownRightDownLeftFar, 1),
-            Show(F.WaveDownRightDownLeftMidway, 1),
-            Show(F.WaveDownRightDownLeftNearWideHitbox, 1),
+            Show(F.WaveFallingDiagonalCentre, 1),
+            Show(F.WaveFallingDiagonalUpRightNear, 1),
+            Show(F.WaveFallingDiagonalUpRightMidway, 1),
+            Show(F.WaveFallingDiagonalUpRightFar, 1),
+            Show(F.WaveFallingDiagonalUpRightPeak, 1),
+            Show(F.WaveFallingDiagonalUpRightFar, 1),
+            Show(F.WaveFallingDiagonalUpRightMidway, 1),
+            Show(F.WaveFallingDiagonalUpRightNearNarrowHitbox, 1),
+            Show(F.WaveFallingDiagonalCentreNarrowHitbox, 1),
+            Show(F.WaveFallingDiagonalDownLeftNear, 1),
+            Show(F.WaveFallingDiagonalDownLeftMidway, 1),
+            Show(F.WaveFallingDiagonalDownLeftFar, 1),
+            Show(F.WaveFallingDiagonalDownLeftPeak, 1),
+            Show(F.WaveFallingDiagonalDownLeftFar, 1),
+            Show(F.WaveFallingDiagonalDownLeftMidway, 1),
+            Show(F.WaveFallingDiagonalDownLeftNearWideHitbox, 1),
         ],
-        [P.IceUpFacingRight] =
+        [P.Ice] =
         [
-            Show(F.IceUpFacingRightStar, 1),
-            Show(F.IceUpFacingRightCrossed, 1),
-            Show(F.IceUpFacingRightNarrowStar, 1),
-            Show(F.IceUpFacingRightCrossedMirrored, 1),
+            Show(F.IceStar, 1),
+            Show(F.IceCrossed, 1),
+            Show(F.IceNarrowStar, 1),
+            Show(F.IceCrossedMirrored, 1),
         ],
-        [P.SpazerUpFacingRight] =
+        [P.SpazerUp] =
         [
-            Show(F.SpazerUpFacingRightSeed, 2),
-            Show(F.SpazerUpFacingRightParting, 2),
+            Show(F.SpazerUpSeed, 2),
+            Show(F.SpazerUpParting, 2),
         ],
-        [P.SpazerUpFacingRightLoop] =
+        [P.SpazerUpSpread] =
         [
-            Show(F.SpazerUpFacingRightSpread, 2),
+            Hold(F.SpazerUpSpread),
         ],
         [P.SpazerUpRight] =
         [
             Show(F.SpazerUpRightSeed, 2),
             Show(F.SpazerUpRightParting, 2),
         ],
-        [P.SpazerUpRightLoop] =
+        [P.SpazerUpRightSpread] =
         [
-            Show(F.SpazerUpRightSpread, 2),
+            Hold(F.SpazerUpRightSpread),
         ],
         [P.SpazerRight] =
         [
             Show(F.SpazerRightSeed, 2),
             Show(F.SpazerRightParting, 2),
         ],
-        [P.SpazerRightLoop] =
+        [P.SpazerRightSpread] =
         [
-            Show(F.SpazerRightSpread, 2),
+            Hold(F.SpazerRightSpread),
         ],
         [P.SpazerDownRight] =
         [
             Show(F.SpazerDownRightSeed, 2),
             Show(F.SpazerDownRightParting, 2),
         ],
-        [P.SpazerDownRightLoop] =
+        [P.SpazerDownRightSpread] =
         [
-            Show(F.SpazerDownRightSpread, 2),
+            Hold(F.SpazerDownRightSpread),
         ],
-        [P.SpazerDownFacingRight] =
+        [P.SpazerDown] =
         [
-            Show(F.SpazerDownFacingRightSeed, 2),
-            Show(F.SpazerDownFacingRightParting, 2),
+            Show(F.SpazerDownSeed, 2),
+            Show(F.SpazerDownParting, 2),
         ],
-        [P.SpazerDownFacingRightLoop] =
+        [P.SpazerDownSpread] =
         [
-            Show(F.SpazerDownFacingRightSpread, 2),
+            Hold(F.SpazerDownSpread),
         ],
         [P.SpazerDownLeft] =
         [
             Show(F.SpazerDownLeftSeed, 2),
             Show(F.SpazerDownLeftParting, 2),
         ],
-        [P.SpazerDownLeftLoop] =
+        [P.SpazerDownLeftSpread] =
         [
-            Show(F.SpazerDownLeftSpread, 2),
+            Hold(F.SpazerDownLeftSpread),
         ],
         [P.SpazerLeft] =
         [
             Show(F.SpazerLeftSeed, 2),
             Show(F.SpazerLeftParting, 2),
         ],
-        [P.SpazerLeftLoop] =
+        [P.SpazerLeftSpread] =
         [
-            Show(F.SpazerLeftSpread, 2),
+            Hold(F.SpazerLeftSpread),
         ],
         [P.SpazerUpLeft] =
         [
             Show(F.SpazerUpLeftSeed, 2),
             Show(F.SpazerUpLeftParting, 2),
         ],
-        [P.SpazerUpLeftLoop] =
+        [P.SpazerUpLeftSpread] =
         [
-            Show(F.SpazerUpLeftSpread, 2),
+            Hold(F.SpazerUpLeftSpread),
         ],
-        [P.SpazerWaveUpFacingRight] =
+        [P.SpazerWaveUp] =
         [
-            Show(F.SpazerWaveUpFacingRightSeed, 2),
-            Show(F.SpazerWaveUpFacingRightSplitting, 2),
-            Show(F.SpazerWaveUpFacingRightParting, 2),
-            Show(F.SpazerWaveUpFacingRightSpreading, 2),
-            Show(F.SpazerWaveUpFacingRightNearlySpread, 2),
-            Show(F.SpazerWaveUpFacingRightSpread, 2),
-            Show(F.SpazerWaveUpFacingRightNearlySpread, 2),
-            Show(F.SpazerWaveUpFacingRightSpreading, 2),
-            Show(F.SpazerWaveUpFacingRightPartingWithoutDefaultTrail, 2),
-            Show(F.SpazerWaveUpFacingRightSplittingWithoutDefaultTrail, 2),
+            Show(F.SpazerWaveUpSeed, 2),
+            Show(F.SpazerWaveUpSplitting, 2),
+            Show(F.SpazerWaveUpParting, 2),
+            Show(F.SpazerWaveUpSpreading, 2),
+            Show(F.SpazerWaveUpNearlySpread, 2),
+            Show(F.SpazerWaveUpSpread, 2),
+            Show(F.SpazerWaveUpNearlySpread, 2),
+            Show(F.SpazerWaveUpSpreading, 2),
+            Show(F.SpazerWaveUpPartingWithoutDefaultTrail, 2),
+            Show(F.SpazerWaveUpSplittingWithoutDefaultTrail, 2),
         ],
         [P.SpazerWaveUpRight] =
         [
@@ -258,18 +257,18 @@ internal static class SamusProjectileAnimations
             Show(F.SpazerWaveDownRightPartingWithoutDefaultTrail, 2),
             Show(F.SpazerWaveDownRightSplittingWithoutDefaultTrail, 2),
         ],
-        [P.SpazerWaveDownFacingRight] =
+        [P.SpazerWaveDown] =
         [
-            Show(F.SpazerWaveDownFacingRightSeed, 2),
-            Show(F.SpazerWaveDownFacingRightSplitting, 2),
-            Show(F.SpazerWaveDownFacingRightParting, 2),
-            Show(F.SpazerWaveDownFacingRightSpreading, 2),
-            Show(F.SpazerWaveDownFacingRightNearlySpread, 2),
-            Show(F.SpazerWaveDownFacingRightSpread, 2),
-            Show(F.SpazerWaveDownFacingRightNearlySpread, 2),
-            Show(F.SpazerWaveDownFacingRightSpreading, 2),
-            Show(F.SpazerWaveDownFacingRightPartingWithoutDefaultTrail, 2),
-            Show(F.SpazerWaveDownFacingRightSplittingWithoutDefaultTrail, 2),
+            Show(F.SpazerWaveDownSeed, 2),
+            Show(F.SpazerWaveDownSplitting, 2),
+            Show(F.SpazerWaveDownParting, 2),
+            Show(F.SpazerWaveDownSpreading, 2),
+            Show(F.SpazerWaveDownNearlySpread, 2),
+            Show(F.SpazerWaveDownSpread, 2),
+            Show(F.SpazerWaveDownNearlySpread, 2),
+            Show(F.SpazerWaveDownSpreading, 2),
+            Show(F.SpazerWaveDownPartingWithoutDefaultTrail, 2),
+            Show(F.SpazerWaveDownSplittingWithoutDefaultTrail, 2),
         ],
         [P.SpazerWaveDownLeft] =
         [
@@ -310,102 +309,102 @@ internal static class SamusProjectileAnimations
             Show(F.SpazerWaveUpLeftPartingWithoutDefaultTrail, 2),
             Show(F.SpazerWaveUpLeftSplittingWithoutDefaultTrail, 2),
         ],
-        [P.PlasmaUpFacingRight] =
+        [P.PlasmaVertical] =
         [
-            Show(F.PlasmaUpFacingRightCore, 1),
+            Show(F.PlasmaVerticalCore, 1),
         ],
-        [P.PlasmaUpFacingRightLoop] =
+        [P.PlasmaVerticalFullLength] =
         [
-            Show(F.PlasmaUpFacingRight, 15),
+            Hold(F.PlasmaVerticalFullLength),
         ],
-        [P.PlasmaUpRight] =
+        [P.PlasmaRisingDiagonal] =
         [
-            Show(F.PlasmaUpRightCore, 1),
+            Show(F.PlasmaRisingDiagonalCore, 1),
         ],
-        [P.PlasmaUpRightLoop] =
+        [P.PlasmaRisingDiagonalFullLength] =
         [
-            Show(F.PlasmaUpRight, 15),
+            Hold(F.PlasmaRisingDiagonalFullLength),
         ],
-        [P.PlasmaRight] =
+        [P.PlasmaHorizontal] =
         [
-            Show(F.PlasmaRightCore, 1),
+            Show(F.PlasmaHorizontalCore, 1),
         ],
-        [P.PlasmaRightLoop] =
+        [P.PlasmaHorizontalFullLength] =
         [
-            Show(F.PlasmaRight, 15),
+            Hold(F.PlasmaHorizontalFullLength),
         ],
-        [P.PlasmaDownRight] =
+        [P.PlasmaFallingDiagonal] =
         [
-            Show(F.PlasmaDownRightCore, 1),
+            Show(F.PlasmaFallingDiagonalCore, 1),
         ],
-        [P.PlasmaDownRightLoop] =
+        [P.PlasmaFallingDiagonalFullLength] =
         [
-            Show(F.PlasmaDownRight, 15),
+            Hold(F.PlasmaFallingDiagonalFullLength),
         ],
-        [P.PlasmaIceWaveUpFacingRight] =
+        [P.PlasmaIceWaveVertical] =
         [
-            Show(F.PlasmaIceWaveUpFacingRightCore, 1),
+            Show(F.PlasmaIceWaveVerticalCore, 1),
         ],
-        [P.PlasmaWaveUpFacingRight] =
+        [P.PlasmaWaveVertical] =
         [
-            Show(F.PlasmaWaveUpFacingRightShortCore, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesNear, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesFar, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesPeak, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesFar, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveUpFacingRightShortLobesNearWithoutDefaultTrail, 2),
+            Show(F.PlasmaWaveVerticalShortCore, 2),
+            Show(F.PlasmaWaveVerticalShortLobesNear, 2),
+            Show(F.PlasmaWaveVerticalShortLobesMidway, 2),
+            Show(F.PlasmaWaveVerticalShortLobesFar, 2),
+            Show(F.PlasmaWaveVerticalShortLobesPeak, 2),
+            Show(F.PlasmaWaveVerticalShortLobesFar, 2),
+            Show(F.PlasmaWaveVerticalShortLobesMidway, 2),
+            Show(F.PlasmaWaveVerticalShortLobesNearWithoutDefaultTrail, 2),
         ],
-        [P.PlasmaIceWaveUpRight] =
+        [P.PlasmaIceWaveRisingDiagonal] =
         [
-            Show(F.PlasmaIceWaveUpRightCore, 1),
+            Show(F.PlasmaIceWaveRisingDiagonalCore, 1),
         ],
-        [P.PlasmaWaveUpRight] =
+        [P.PlasmaWaveRisingDiagonal] =
         [
-            Show(F.PlasmaWaveUpRightShortCore, 2),
-            Show(F.PlasmaWaveUpRightShortLobesNear, 2),
-            Show(F.PlasmaWaveUpRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveUpRightShortLobesFar, 2),
-            Show(F.PlasmaWaveUpRightShortLobesPeak, 2),
-            Show(F.PlasmaWaveUpRightShortLobesFar, 2),
-            Show(F.PlasmaWaveUpRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveUpRightShortLobesNearWithoutDefaultTrail, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortCore, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesNear, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesMidway, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesFar, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesPeak, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesFar, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesMidway, 2),
+            Show(F.PlasmaWaveRisingDiagonalShortLobesNearWithoutDefaultTrail, 2),
         ],
-        [P.PlasmaWaveRight] =
+        [P.PlasmaWaveHorizontal] =
         [
-            Show(F.PlasmaWaveRightCore, 1),
+            Show(F.PlasmaWaveHorizontalCore, 1),
         ],
-        [P.PlasmaWaveRightLoop] =
+        [P.PlasmaWaveHorizontalSwing] =
         [
-            Show(F.PlasmaWaveRightShortCore, 2),
-            Show(F.PlasmaWaveRightShortLobesNear, 2),
-            Show(F.PlasmaWaveRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveRightShortLobesFar, 2),
-            Show(F.PlasmaWaveRightShortLobesPeak, 2),
-            Show(F.PlasmaWaveRightShortLobesFar, 2),
-            Show(F.PlasmaWaveRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveRightShortLobesNearWithoutDefaultTrail, 2),
+            Show(F.PlasmaWaveHorizontalShortCore, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesNear, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesMidway, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesFar, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesPeak, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesFar, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesMidway, 2),
+            Show(F.PlasmaWaveHorizontalShortLobesNearWithoutDefaultTrail, 2),
         ],
-        [P.PlasmaIceWaveDownRight] =
+        [P.PlasmaIceWaveFallingDiagonal] =
         [
-            Show(F.PlasmaIceWaveDownRightCore, 1),
+            Show(F.PlasmaIceWaveFallingDiagonalCore, 1),
         ],
-        [P.PlasmaWaveDownRight] =
+        [P.PlasmaWaveFallingDiagonal] =
         [
-            Show(F.PlasmaWaveDownRightShortCore, 2),
-            Show(F.PlasmaWaveDownRightShortLobesNear, 2),
-            Show(F.PlasmaWaveDownRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveDownRightShortLobesFar, 2),
-            Show(F.PlasmaWaveDownRightShortLobesPeak, 2),
-            Show(F.PlasmaWaveDownRightShortLobesFar, 2),
-            Show(F.PlasmaWaveDownRightShortLobesMidway, 2),
-            Show(F.PlasmaWaveDownRightShortLobesNearWithoutDefaultTrail, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortCore, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesNear, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesMidway, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesFar, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesPeak, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesFar, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesMidway, 2),
+            Show(F.PlasmaWaveFallingDiagonalShortLobesNearWithoutDefaultTrail, 2),
         ],
-        [P.ChargedPowerUpFacingRight] =
+        [P.ChargedPowerUp] =
         [
-            Show(F.ChargedPowerUpFacingRight, 1),
-            Show(F.ChargedPowerUpFacingRightAlternate, 1),
+            Show(F.ChargedPowerUp, 1),
+            Show(F.ChargedPowerUpAlternate, 1),
         ],
         [P.ChargedPowerUpRight] =
         [
@@ -422,10 +421,10 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedPowerDownRight, 1),
             Show(F.ChargedPowerDownRightAlternate, 1),
         ],
-        [P.ChargedPowerDownFacingRight] =
+        [P.ChargedPowerDown] =
         [
-            Show(F.ChargedPowerDownFacingRight, 1),
-            Show(F.ChargedPowerDownFacingRightAlternate, 1),
+            Show(F.ChargedPowerDown, 1),
+            Show(F.ChargedPowerDownAlternate, 1),
         ],
         [P.ChargedPowerDownLeft] =
         [
@@ -442,266 +441,266 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedPowerUpLeft, 1),
             Show(F.ChargedPowerUpLeftAlternate, 1),
         ],
-        [P.ChargedWaveUpFacingRight] =
+        [P.ChargedWaveUp] =
         [
-            Show(F.ChargedWaveUpFacingRightHidden, 3),
+            Show(F.ChargedWaveUpHidden, 3),
         ],
-        [P.ChargedWaveDownFacingRight] =
+        [P.ChargedWaveVertical] =
         [
-            Show(F.ChargedWaveDownFacingRightCore, 1),
-            Show(F.ChargedWaveDownFacingRightCoreAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesNear, 1),
-            Show(F.ChargedWaveDownFacingRightLobesNearAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesMidway, 1),
-            Show(F.ChargedWaveDownFacingRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesFar, 1),
-            Show(F.ChargedWaveDownFacingRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesPeak, 1),
-            Show(F.ChargedWaveDownFacingRightLobesPeakAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesFar, 1),
-            Show(F.ChargedWaveDownFacingRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesMidway, 1),
-            Show(F.ChargedWaveDownFacingRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesNearAlternate, 1),
-            Show(F.ChargedWaveDownFacingRightLobesNear, 1),
+            Show(F.ChargedWaveVerticalCore, 1),
+            Show(F.ChargedWaveVerticalCoreAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesNear, 1),
+            Show(F.ChargedWaveVerticalLobesNearAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesMidway, 1),
+            Show(F.ChargedWaveVerticalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesFar, 1),
+            Show(F.ChargedWaveVerticalLobesFarAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesPeak, 1),
+            Show(F.ChargedWaveVerticalLobesPeakAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesFar, 1),
+            Show(F.ChargedWaveVerticalLobesFarAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesMidway, 1),
+            Show(F.ChargedWaveVerticalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesNearAlternate, 1),
+            Show(F.ChargedWaveVerticalLobesNear, 1),
         ],
-        [P.ChargedWaveUpRight] =
+        [P.ChargedWaveRisingDiagonal] =
         [
-            Show(F.ChargedWaveUpRightCore, 1),
-            Show(F.ChargedWaveUpRightCoreAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesNear, 1),
-            Show(F.ChargedWaveUpRightLobesNearAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesMidway, 1),
-            Show(F.ChargedWaveUpRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesFar, 1),
-            Show(F.ChargedWaveUpRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesPeak, 1),
-            Show(F.ChargedWaveUpRightLobesPeakAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesFar, 1),
-            Show(F.ChargedWaveUpRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesMidway, 1),
-            Show(F.ChargedWaveUpRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveUpRightLobesNear, 1),
-            Show(F.ChargedWaveUpRightLobesNearAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalCore, 1),
+            Show(F.ChargedWaveRisingDiagonalCoreAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesNear, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesNearAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesMidway, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesFar, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesPeak, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesPeakAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesFar, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesMidway, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesNear, 1),
+            Show(F.ChargedWaveRisingDiagonalLobesNearAlternate, 1),
         ],
-        [P.ChargedWaveRight] =
+        [P.ChargedWaveHorizontal] =
         [
-            Show(F.ChargedWaveRightCore, 1),
-            Show(F.ChargedWaveRightCoreAlternate, 1),
-            Show(F.ChargedWaveRightLobesNear, 1),
-            Show(F.ChargedWaveRightLobesNearAlternate, 1),
-            Show(F.ChargedWaveRightLobesMidway, 1),
-            Show(F.ChargedWaveRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveRightLobesFar, 1),
-            Show(F.ChargedWaveRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveRightLobesPeak, 1),
-            Show(F.ChargedWaveRightLobesPeakAlternate, 1),
-            Show(F.ChargedWaveRightLobesFar, 1),
-            Show(F.ChargedWaveRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveRightLobesMidway, 1),
-            Show(F.ChargedWaveRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveRightLobesNearAlternate, 1),
-            Show(F.ChargedWaveRightLobesNear, 1),
+            Show(F.ChargedWaveHorizontalCore, 1),
+            Show(F.ChargedWaveHorizontalCoreAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesNear, 1),
+            Show(F.ChargedWaveHorizontalLobesNearAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesMidway, 1),
+            Show(F.ChargedWaveHorizontalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesFar, 1),
+            Show(F.ChargedWaveHorizontalLobesFarAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesPeak, 1),
+            Show(F.ChargedWaveHorizontalLobesPeakAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesFar, 1),
+            Show(F.ChargedWaveHorizontalLobesFarAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesMidway, 1),
+            Show(F.ChargedWaveHorizontalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesNearAlternate, 1),
+            Show(F.ChargedWaveHorizontalLobesNear, 1),
         ],
-        [P.ChargedWaveDownRight] =
+        [P.ChargedWaveFallingDiagonal] =
         [
-            Show(F.ChargedWaveDownRightCore, 1),
-            Show(F.ChargedWaveDownRightCoreAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesNear, 1),
-            Show(F.ChargedWaveDownRightLobesNearAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesMidway, 1),
-            Show(F.ChargedWaveDownRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesFar, 1),
-            Show(F.ChargedWaveDownRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesPeak, 1),
-            Show(F.ChargedWaveDownRightLobesPeakAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesFar, 1),
-            Show(F.ChargedWaveDownRightLobesFarAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesMidway, 1),
-            Show(F.ChargedWaveDownRightLobesMidwayAlternate, 1),
-            Show(F.ChargedWaveDownRightLobesNear, 1),
-            Show(F.ChargedWaveDownRightLobesNearAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalCore, 1),
+            Show(F.ChargedWaveFallingDiagonalCoreAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesNear, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesNearAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesMidway, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesFar, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesPeak, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesPeakAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesFar, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesMidway, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesNear, 1),
+            Show(F.ChargedWaveFallingDiagonalLobesNearAlternate, 1),
         ],
-        [P.ChargedIceUpFacingRight] =
+        [P.ChargedIce] =
         [
-            Show(F.ChargedIceUpFacingRightCrossed, 1),
-            Show(F.ChargedIceUpFacingRightStar, 1),
-            Show(F.ChargedIceUpFacingRightCrossed, 1),
-            Show(F.ChargedIceUpFacingRightStar, 1),
+            Show(F.ChargedIceCrossed, 1),
+            Show(F.ChargedIceStar, 1),
+            Show(F.ChargedIceCrossed, 1),
+            Show(F.ChargedIceStar, 1),
         ],
-        [P.ChargedIceWaveUpFacingRight] =
+        [P.ChargedIceWaveUp] =
         [
-            Show(F.ChargedIceWaveUpFacingRightHidden, 3),
+            Show(F.ChargedIceWaveUpHidden, 3),
         ],
-        [P.ChargedIceWaveDownFacingRight] =
+        [P.ChargedIceWaveVertical] =
         [
-            Show(F.ChargedIceWaveDownFacingRightCore, 1),
-            Show(F.ChargedIceWaveDownFacingRightCoreAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesNear, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesNearAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesMidway, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesFar, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesPeak, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesPeakAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesFar, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesMidway, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesNearAlternate, 1),
-            Show(F.ChargedIceWaveDownFacingRightLobesNear, 1),
+            Show(F.ChargedIceWaveVerticalCore, 1),
+            Show(F.ChargedIceWaveVerticalCoreAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesNear, 1),
+            Show(F.ChargedIceWaveVerticalLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesMidway, 1),
+            Show(F.ChargedIceWaveVerticalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesFar, 1),
+            Show(F.ChargedIceWaveVerticalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesPeak, 1),
+            Show(F.ChargedIceWaveVerticalLobesPeakAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesFar, 1),
+            Show(F.ChargedIceWaveVerticalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesMidway, 1),
+            Show(F.ChargedIceWaveVerticalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveVerticalLobesNear, 1),
         ],
-        [P.ChargedIceWaveUpRight] =
+        [P.ChargedIceWaveRisingDiagonal] =
         [
-            Show(F.ChargedIceWaveUpRightCore, 1),
-            Show(F.ChargedIceWaveUpRightCoreAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesNear, 1),
-            Show(F.ChargedIceWaveUpRightLobesNearAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesMidway, 1),
-            Show(F.ChargedIceWaveUpRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesFar, 1),
-            Show(F.ChargedIceWaveUpRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesPeak, 1),
-            Show(F.ChargedIceWaveUpRightLobesPeakAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesFar, 1),
-            Show(F.ChargedIceWaveUpRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesMidway, 1),
-            Show(F.ChargedIceWaveUpRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveUpRightLobesNear, 1),
-            Show(F.ChargedIceWaveUpRightLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalCore, 1),
+            Show(F.ChargedIceWaveRisingDiagonalCoreAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesNear, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesMidway, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesFar, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesPeak, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesPeakAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesFar, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesMidway, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesNear, 1),
+            Show(F.ChargedIceWaveRisingDiagonalLobesNearAlternate, 1),
         ],
-        [P.ChargedIceWaveRight] =
+        [P.ChargedIceWaveHorizontal] =
         [
-            Show(F.ChargedIceWaveRightCore, 1),
-            Show(F.ChargedIceWaveRightCoreAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesNear, 1),
-            Show(F.ChargedIceWaveRightLobesNearAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesMidway, 1),
-            Show(F.ChargedIceWaveRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesFar, 1),
-            Show(F.ChargedIceWaveRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesPeak, 1),
-            Show(F.ChargedIceWaveRightLobesPeakAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesFar, 1),
-            Show(F.ChargedIceWaveRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesMidway, 1),
-            Show(F.ChargedIceWaveRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesNearAlternate, 1),
-            Show(F.ChargedIceWaveRightLobesNear, 1),
+            Show(F.ChargedIceWaveHorizontalCore, 1),
+            Show(F.ChargedIceWaveHorizontalCoreAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesNear, 1),
+            Show(F.ChargedIceWaveHorizontalLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesMidway, 1),
+            Show(F.ChargedIceWaveHorizontalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesFar, 1),
+            Show(F.ChargedIceWaveHorizontalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesPeak, 1),
+            Show(F.ChargedIceWaveHorizontalLobesPeakAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesFar, 1),
+            Show(F.ChargedIceWaveHorizontalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesMidway, 1),
+            Show(F.ChargedIceWaveHorizontalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveHorizontalLobesNear, 1),
         ],
-        [P.ChargedIceWaveDownRight] =
+        [P.ChargedIceWaveFallingDiagonal] =
         [
-            Show(F.ChargedIceWaveDownRightCore, 1),
-            Show(F.ChargedIceWaveDownRightCoreAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesNear, 1),
-            Show(F.ChargedIceWaveDownRightLobesNearAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesMidway, 1),
-            Show(F.ChargedIceWaveDownRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesFar, 1),
-            Show(F.ChargedIceWaveDownRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesPeak, 1),
-            Show(F.ChargedIceWaveDownRightLobesPeakAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesFar, 1),
-            Show(F.ChargedIceWaveDownRightLobesFarAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesMidway, 1),
-            Show(F.ChargedIceWaveDownRightLobesMidwayAlternate, 1),
-            Show(F.ChargedIceWaveDownRightLobesNear, 1),
-            Show(F.ChargedIceWaveDownRightLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalCore, 1),
+            Show(F.ChargedIceWaveFallingDiagonalCoreAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesNear, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesNearAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesMidway, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesFar, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesPeak, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesPeakAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesFar, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesFarAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesMidway, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesMidwayAlternate, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesNear, 1),
+            Show(F.ChargedIceWaveFallingDiagonalLobesNearAlternate, 1),
         ],
-        [P.ChargedSpazerUpFacingRight] =
+        [P.ChargedSpazerVertical] =
         [
-            Show(F.ChargedSpazerUpFacingRightStartupShort, 1),
-            Show(F.ChargedSpazerUpFacingRightVerticalAlternateStartupShort, 1),
-            Show(F.ChargedSpazerUpFacingRightStartupLong, 1),
-            Show(F.ChargedSpazerUpFacingRightVerticalAlternateStartupLong, 1),
-            Show(F.ChargedSpazerUpFacingRightSeed, 1),
-            Show(F.ChargedSpazerUpFacingRightVerticalAlternateSeed, 1),
-            Show(F.ChargedSpazerUpFacingRightParting, 1),
-            Show(F.ChargedSpazerUpFacingRightVerticalAlternateParting, 1),
+            Show(F.ChargedSpazerVerticalStartupShort, 1),
+            Show(F.ChargedSpazerVerticalAlternateStartupShort, 1),
+            Show(F.ChargedSpazerVerticalStartupLong, 1),
+            Show(F.ChargedSpazerVerticalAlternateStartupLong, 1),
+            Show(F.ChargedSpazerVerticalSeed, 1),
+            Show(F.ChargedSpazerVerticalAlternateSeed, 1),
+            Show(F.ChargedSpazerVerticalParting, 1),
+            Show(F.ChargedSpazerVerticalAlternateParting, 1),
         ],
-        [P.ChargedSpazerUpFacingRightLoop] =
+        [P.ChargedSpazerVerticalSpread] =
         [
-            Show(F.ChargedSpazerUpFacingRightSpread, 1),
-            Show(F.ChargedSpazerUpFacingRightVerticalAlternateSpread, 1),
+            Show(F.ChargedSpazerVerticalSpread, 1),
+            Show(F.ChargedSpazerVerticalAlternateSpread, 1),
         ],
-        [P.ChargedSpazerUpRight] =
+        [P.ChargedSpazerRisingDiagonal] =
         [
-            Show(F.ChargedSpazerUpRightStartupShort, 1),
-            Show(F.ChargedSpazerUpRightAlternateStartupShort, 1),
-            Show(F.ChargedSpazerUpRightStartupLong, 1),
-            Show(F.ChargedSpazerUpRightAlternateStartupLong, 1),
-            Show(F.ChargedSpazerUpRightSeed, 1),
-            Show(F.ChargedSpazerUpRightAlternateSeed, 1),
-            Show(F.ChargedSpazerUpRightParting, 1),
-            Show(F.ChargedSpazerUpRightAlternateParting, 1),
+            Show(F.ChargedSpazerRisingDiagonalStartupShort, 1),
+            Show(F.ChargedSpazerRisingDiagonalAlternateStartupShort, 1),
+            Show(F.ChargedSpazerRisingDiagonalStartupLong, 1),
+            Show(F.ChargedSpazerRisingDiagonalAlternateStartupLong, 1),
+            Show(F.ChargedSpazerRisingDiagonalSeed, 1),
+            Show(F.ChargedSpazerRisingDiagonalAlternateSeed, 1),
+            Show(F.ChargedSpazerRisingDiagonalParting, 1),
+            Show(F.ChargedSpazerRisingDiagonalAlternateParting, 1),
         ],
-        [P.ChargedSpazerUpRightLoop] =
+        [P.ChargedSpazerRisingDiagonalSpread] =
         [
-            Show(F.ChargedSpazerUpRightSpread, 1),
-            Show(F.ChargedSpazerUpRightAlternateSpread, 1),
+            Show(F.ChargedSpazerRisingDiagonalSpread, 1),
+            Show(F.ChargedSpazerRisingDiagonalAlternateSpread, 1),
         ],
-        [P.ChargedSpazerRight] =
+        [P.ChargedSpazerHorizontal] =
         [
-            Show(F.ChargedSpazerRightStartupShort, 1),
-            Show(F.ChargedSpazerRightHorizontalAlternateStartupShort, 1),
-            Show(F.ChargedSpazerRightStartupLong, 1),
-            Show(F.ChargedSpazerRightHorizontalAlternateStartupLong, 1),
-            Show(F.ChargedSpazerRightLeftSeed, 1),
-            Show(F.ChargedSpazerRightHorizontalAlternateSeed, 1),
-            Show(F.ChargedSpazerRightLeftParting, 1),
-            Show(F.ChargedSpazerRightHorizontalAlternateParting, 1),
+            Show(F.ChargedSpazerHorizontalStartupShort, 1),
+            Show(F.ChargedSpazerHorizontalAlternateStartupShort, 1),
+            Show(F.ChargedSpazerHorizontalStartupLong, 1),
+            Show(F.ChargedSpazerHorizontalAlternateStartupLong, 1),
+            Show(F.ChargedSpazerHorizontalSeed, 1),
+            Show(F.ChargedSpazerHorizontalAlternateSeed, 1),
+            Show(F.ChargedSpazerHorizontalParting, 1),
+            Show(F.ChargedSpazerHorizontalAlternateParting, 1),
         ],
-        [P.ChargedSpazerRightLoop] =
+        [P.ChargedSpazerHorizontalSpread] =
         [
-            Show(F.ChargedSpazerRightLeftSpread, 1),
-            Show(F.ChargedSpazerRightHorizontalAlternateSpread, 1),
+            Show(F.ChargedSpazerHorizontalSpread, 1),
+            Show(F.ChargedSpazerHorizontalAlternateSpread, 1),
         ],
-        [P.ChargedSpazerDownRight] =
+        [P.ChargedSpazerFallingDiagonal] =
         [
-            Show(F.ChargedSpazerDownRightStartupShort, 1),
-            Show(F.ChargedSpazerDownRightAlternateStartupShort, 1),
-            Show(F.ChargedSpazerDownRightStartupLong, 1),
-            Show(F.ChargedSpazerDownRightAlternateStartupLong, 1),
-            Show(F.ChargedSpazerDownRightSeed, 1),
-            Show(F.ChargedSpazerDownRightAlternateSeed, 1),
-            Show(F.ChargedSpazerDownRightParting, 1),
-            Show(F.ChargedSpazerDownRightAlternateParting, 1),
+            Show(F.ChargedSpazerFallingDiagonalStartupShort, 1),
+            Show(F.ChargedSpazerFallingDiagonalAlternateStartupShort, 1),
+            Show(F.ChargedSpazerFallingDiagonalStartupLong, 1),
+            Show(F.ChargedSpazerFallingDiagonalAlternateStartupLong, 1),
+            Show(F.ChargedSpazerFallingDiagonalSeed, 1),
+            Show(F.ChargedSpazerFallingDiagonalAlternateSeed, 1),
+            Show(F.ChargedSpazerFallingDiagonalParting, 1),
+            Show(F.ChargedSpazerFallingDiagonalAlternateParting, 1),
         ],
-        [P.ChargedSpazerDownRightLoop] =
+        [P.ChargedSpazerFallingDiagonalSpread] =
         [
-            Show(F.ChargedSpazerDownRightSpread, 1),
-            Show(F.ChargedSpazerDownRightAlternateSpread, 1),
+            Show(F.ChargedSpazerFallingDiagonalSpread, 1),
+            Show(F.ChargedSpazerFallingDiagonalAlternateSpread, 1),
         ],
-        [P.ChargedSpazerWaveUpFacingRight] =
+        [P.ChargedSpazerWaveUp] =
         [
-            Show(F.ChargedSpazerWaveUpFacingRightStartupShort, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateStartupShort, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightStartupLong, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateStartupLong, 1),
+            Show(F.ChargedSpazerWaveUpStartupShort, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateStartupShort, 1),
+            Show(F.ChargedSpazerWaveUpStartupLong, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveUpFacingRightLoop] =
+        [P.ChargedSpazerWaveUpWaving] =
         [
-            Show(F.ChargedSpazerWaveUpFacingRightSeed, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateSeed, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightSplitting, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateSplitting, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightParting, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateParting, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightSpreading, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateSpreading, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightNearlySpread, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateNearlySpread, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightSpread, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateSpread, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightNearlySpread, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateNearlySpread, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightSpreading, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateSpreading, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightParting, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateParting, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightSplittingNarrowHitboxTrailless, 1),
-            Show(F.ChargedSpazerWaveUpFacingRightVerticalAlternateSplittingNarrowHitboxTrailless, 1),
+            Show(F.ChargedSpazerWaveUpSeed, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateSeed, 1),
+            Show(F.ChargedSpazerWaveUpSplitting, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateSplitting, 1),
+            Show(F.ChargedSpazerWaveUpParting, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateParting, 1),
+            Show(F.ChargedSpazerWaveUpSpreading, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateSpreading, 1),
+            Show(F.ChargedSpazerWaveUpNearlySpread, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateNearlySpread, 1),
+            Show(F.ChargedSpazerWaveUpSpread, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateSpread, 1),
+            Show(F.ChargedSpazerWaveUpNearlySpread, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateNearlySpread, 1),
+            Show(F.ChargedSpazerWaveUpSpreading, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateSpreading, 1),
+            Show(F.ChargedSpazerWaveUpParting, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateParting, 1),
+            Show(F.ChargedSpazerWaveUpSplittingNarrowHitboxTrailless, 1),
+            Show(F.ChargedSpazerWaveUpVerticalAlternateSplittingNarrowHitboxTrailless, 1),
         ],
         [P.ChargedSpazerWaveUpRight] =
         [
@@ -710,7 +709,7 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveUpRightStartupLong, 1),
             Show(F.ChargedSpazerWaveUpRightAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveUpRightLoop] =
+        [P.ChargedSpazerWaveUpRightWaving] =
         [
             Show(F.ChargedSpazerWaveUpRightSeed, 1),
             Show(F.ChargedSpazerWaveUpRightAlternateSeed, 1),
@@ -740,7 +739,7 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveRightStartupLong, 1),
             Show(F.ChargedSpazerWaveRightHorizontalAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveRightLoop] =
+        [P.ChargedSpazerWaveRightWaving] =
         [
             Show(F.ChargedSpazerWaveRightSeed, 1),
             Show(F.ChargedSpazerWaveRightHorizontalAlternateSeed, 1),
@@ -770,7 +769,7 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveDownRightStartupLong, 1),
             Show(F.ChargedSpazerWaveDownRightAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveDownRightLoop] =
+        [P.ChargedSpazerWaveDownRightWaving] =
         [
             Show(F.ChargedSpazerWaveDownRightSeed, 1),
             Show(F.ChargedSpazerWaveDownRightAlternateSeed, 1),
@@ -793,35 +792,35 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveDownRightSplittingTrailless, 1),
             Show(F.ChargedSpazerWaveDownRightAlternateSplittingTrailless, 1),
         ],
-        [P.ChargedSpazerWaveDownFacingRight] =
+        [P.ChargedSpazerWaveDown] =
         [
-            Show(F.ChargedSpazerWaveDownFacingRightStartupShort, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateStartupShort, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightStartupLong, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateStartupLong, 1),
+            Show(F.ChargedSpazerWaveDownStartupShort, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateStartupShort, 1),
+            Show(F.ChargedSpazerWaveDownStartupLong, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveDownFacingRightLoop] =
+        [P.ChargedSpazerWaveDownWaving] =
         [
-            Show(F.ChargedSpazerWaveDownFacingRightSeed, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateSeed, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightSplitting, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateSplitting, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightParting, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateParting, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightSpreading, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateSpreading, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightNearlySpread, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateNearlySpread, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightSpread, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateSpread, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightNearlySpread, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateNearlySpread, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightSpreading, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateSpreading, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightParting, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateParting, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightSplittingNarrowHitboxTrailless, 1),
-            Show(F.ChargedSpazerWaveDownFacingRightVerticalAlternateSplittingNarrowHitboxTrailless, 1),
+            Show(F.ChargedSpazerWaveDownSeed, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateSeed, 1),
+            Show(F.ChargedSpazerWaveDownSplitting, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateSplitting, 1),
+            Show(F.ChargedSpazerWaveDownParting, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateParting, 1),
+            Show(F.ChargedSpazerWaveDownSpreading, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateSpreading, 1),
+            Show(F.ChargedSpazerWaveDownNearlySpread, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateNearlySpread, 1),
+            Show(F.ChargedSpazerWaveDownSpread, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateSpread, 1),
+            Show(F.ChargedSpazerWaveDownNearlySpread, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateNearlySpread, 1),
+            Show(F.ChargedSpazerWaveDownSpreading, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateSpreading, 1),
+            Show(F.ChargedSpazerWaveDownParting, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateParting, 1),
+            Show(F.ChargedSpazerWaveDownSplittingNarrowHitboxTrailless, 1),
+            Show(F.ChargedSpazerWaveDownVerticalAlternateSplittingNarrowHitboxTrailless, 1),
         ],
         [P.ChargedSpazerWaveDownLeft] =
         [
@@ -830,7 +829,7 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveDownLeftUpRightStartupLong, 1),
             Show(F.ChargedSpazerWaveDownLeftUpRightAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveDownLeftLoop] =
+        [P.ChargedSpazerWaveDownLeftWaving] =
         [
             Show(F.ChargedSpazerWaveDownLeftSeed, 1),
             Show(F.ChargedSpazerWaveDownLeftUpRightAlternateSeed, 1),
@@ -860,7 +859,7 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveLeftStartupLong, 1),
             Show(F.ChargedSpazerWaveLeftHorizontalAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveLeftLoop] =
+        [P.ChargedSpazerWaveLeftWaving] =
         [
             Show(F.ChargedSpazerWaveLeftSeed, 1),
             Show(F.ChargedSpazerWaveLeftHorizontalAlternateSeed, 1),
@@ -890,7 +889,7 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveUpLeftStartupLong, 1),
             Show(F.ChargedSpazerWaveUpLeftDownRightAlternateStartupLong, 1),
         ],
-        [P.ChargedSpazerWaveUpLeftLoop] =
+        [P.ChargedSpazerWaveUpLeftWaving] =
         [
             Show(F.ChargedSpazerWaveUpLeftSeed, 1),
             Show(F.ChargedSpazerWaveUpLeftDownRightAlternateSeed, 1),
@@ -913,241 +912,241 @@ internal static class SamusProjectileAnimations
             Show(F.ChargedSpazerWaveUpLeftSplittingTrailless, 1),
             Show(F.ChargedSpazerWaveUpLeftDownRightAlternateSplittingTrailless, 1),
         ],
-        [P.ChargedPlasmaUpFacingRight] =
+        [P.ChargedPlasmaVertical] =
         [
-            Show(F.ChargedPlasmaUpFacingRightCore, 1),
-            Show(F.ChargedPlasmaUpFacingRightAlternateCore, 1),
-            Show(F.ChargedPlasmaUpFacingRightShort, 1),
-            Show(F.ChargedPlasmaUpFacingRightAlternateShort, 1),
-            Show(F.ChargedPlasmaUpFacingRightLong, 1),
-            Show(F.ChargedPlasmaUpFacingRightAlternateLong, 1),
+            Show(F.ChargedPlasmaVerticalCore, 1),
+            Show(F.ChargedPlasmaVerticalAlternateCore, 1),
+            Show(F.ChargedPlasmaVerticalShort, 1),
+            Show(F.ChargedPlasmaVerticalAlternateShort, 1),
+            Show(F.ChargedPlasmaVerticalLong, 1),
+            Show(F.ChargedPlasmaVerticalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaUpFacingRightLoop] =
+        [P.ChargedPlasmaVerticalFullLength] =
         [
-            Show(F.ChargedPlasmaUpFacingRightFull, 1),
-            Show(F.ChargedPlasmaUpFacingRightAlternateFull, 1),
+            Show(F.ChargedPlasmaVerticalFull, 1),
+            Show(F.ChargedPlasmaVerticalAlternateFull, 1),
         ],
-        [P.ChargedPlasmaUpRight] =
+        [P.ChargedPlasmaRisingDiagonal] =
         [
-            Show(F.ChargedPlasmaUpRightCore, 1),
-            Show(F.ChargedPlasmaUpRightAlternateCore, 1),
-            Show(F.ChargedPlasmaUpRightShort, 1),
-            Show(F.ChargedPlasmaUpRightAlternateShort, 1),
-            Show(F.ChargedPlasmaUpRightLong, 1),
-            Show(F.ChargedPlasmaUpRightAlternateLong, 1),
+            Show(F.ChargedPlasmaRisingDiagonalCore, 1),
+            Show(F.ChargedPlasmaRisingDiagonalAlternateCore, 1),
+            Show(F.ChargedPlasmaRisingDiagonalShort, 1),
+            Show(F.ChargedPlasmaRisingDiagonalAlternateShort, 1),
+            Show(F.ChargedPlasmaRisingDiagonalLong, 1),
+            Show(F.ChargedPlasmaRisingDiagonalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaUpRightLoop] =
+        [P.ChargedPlasmaRisingDiagonalFullLength] =
         [
-            Show(F.ChargedPlasmaUpRightFull, 1),
-            Show(F.ChargedPlasmaUpRightAlternateFull, 1),
+            Show(F.ChargedPlasmaRisingDiagonalFull, 1),
+            Show(F.ChargedPlasmaRisingDiagonalAlternateFull, 1),
         ],
-        [P.ChargedPlasmaRight] =
+        [P.ChargedPlasmaHorizontal] =
         [
-            Show(F.ChargedPlasmaRightCore, 1),
-            Show(F.ChargedPlasmaRightAlternateCore, 1),
-            Show(F.ChargedPlasmaRightShort, 1),
-            Show(F.ChargedPlasmaRightAlternateShort, 1),
-            Show(F.ChargedPlasmaRightLong, 1),
-            Show(F.ChargedPlasmaRightAlternateLong, 1),
+            Show(F.ChargedPlasmaHorizontalCore, 1),
+            Show(F.ChargedPlasmaHorizontalAlternateCore, 1),
+            Show(F.ChargedPlasmaHorizontalShort, 1),
+            Show(F.ChargedPlasmaHorizontalAlternateShort, 1),
+            Show(F.ChargedPlasmaHorizontalLong, 1),
+            Show(F.ChargedPlasmaHorizontalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaRightLoop] =
+        [P.ChargedPlasmaHorizontalFullLength] =
         [
-            Show(F.ChargedPlasmaRightFull, 1),
-            Show(F.ChargedPlasmaRightAlternateFull, 1),
+            Show(F.ChargedPlasmaHorizontalFull, 1),
+            Show(F.ChargedPlasmaHorizontalAlternateFull, 1),
         ],
-        [P.ChargedPlasmaDownRight] =
+        [P.ChargedPlasmaFallingDiagonal] =
         [
-            Show(F.ChargedPlasmaDownRightCore, 1),
-            Show(F.ChargedPlasmaDownRightAlternateCore, 1),
-            Show(F.ChargedPlasmaDownRightShort, 1),
-            Show(F.ChargedPlasmaDownRightAlternateShort, 1),
-            Show(F.ChargedPlasmaDownRightLong, 1),
-            Show(F.ChargedPlasmaDownRightAlternateLong, 1),
+            Show(F.ChargedPlasmaFallingDiagonalCore, 1),
+            Show(F.ChargedPlasmaFallingDiagonalAlternateCore, 1),
+            Show(F.ChargedPlasmaFallingDiagonalShort, 1),
+            Show(F.ChargedPlasmaFallingDiagonalAlternateShort, 1),
+            Show(F.ChargedPlasmaFallingDiagonalLong, 1),
+            Show(F.ChargedPlasmaFallingDiagonalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaDownRightLoop] =
+        [P.ChargedPlasmaFallingDiagonalFullLength] =
         [
-            Show(F.ChargedPlasmaDownRightFull, 1),
-            Show(F.ChargedPlasmaDownRightAlternateFull, 1),
+            Show(F.ChargedPlasmaFallingDiagonalFull, 1),
+            Show(F.ChargedPlasmaFallingDiagonalAlternateFull, 1),
         ],
-        [P.ChargedPlasmaWaveUpFacingRight] =
+        [P.ChargedPlasmaWaveVertical] =
         [
-            Show(F.ChargedPlasmaWaveUpFacingRightCore, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateCore, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightShort, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateShort, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLong, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLong, 1),
+            Show(F.ChargedPlasmaWaveVerticalCore, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateCore, 1),
+            Show(F.ChargedPlasmaWaveVerticalShort, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateShort, 1),
+            Show(F.ChargedPlasmaWaveVerticalLong, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaWaveUpFacingRightLoop] =
+        [P.ChargedPlasmaWaveVerticalWaving] =
         [
-            Show(F.ChargedPlasmaWaveUpFacingRightLongCore, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLongCore, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesNear, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveUpFacingRightAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongCore, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLongCore, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveVerticalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveVerticalAlternateLobesNear, 1),
         ],
-        [P.ChargedPlasmaWaveUpRight] =
+        [P.ChargedPlasmaWaveRisingDiagonal] =
         [
-            Show(F.ChargedPlasmaWaveUpRightCore, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateCore, 1),
-            Show(F.ChargedPlasmaWaveUpRightShort, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateShort, 1),
-            Show(F.ChargedPlasmaWaveUpRightLong, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLong, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalCore, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateCore, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalShort, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateShort, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLong, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaWaveUpRightLoop] =
+        [P.ChargedPlasmaWaveRisingDiagonalWaving] =
         [
-            Show(F.ChargedPlasmaWaveUpRightLongCore, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLongCore, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesNear, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveUpRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveUpRightAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongCore, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLongCore, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveRisingDiagonalAlternateLobesNear, 1),
         ],
-        [P.ChargedPlasmaWaveRight] =
+        [P.ChargedPlasmaWaveHorizontal] =
         [
-            Show(F.ChargedPlasmaWaveRightCore, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateCore, 1),
-            Show(F.ChargedPlasmaWaveRightShort, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateShort, 1),
-            Show(F.ChargedPlasmaWaveRightLong, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLong, 1),
+            Show(F.ChargedPlasmaWaveHorizontalCore, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateCore, 1),
+            Show(F.ChargedPlasmaWaveHorizontalShort, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateShort, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLong, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaWaveRightLoop] =
+        [P.ChargedPlasmaWaveHorizontalWaving] =
         [
-            Show(F.ChargedPlasmaWaveRightLongCore, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLongCore, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesNear, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveRightAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongCore, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLongCore, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveHorizontalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveHorizontalAlternateLobesNear, 1),
         ],
-        [P.ChargedPlasmaWaveDownRight] =
+        [P.ChargedPlasmaWaveFallingDiagonal] =
         [
-            Show(F.ChargedPlasmaWaveDownRightCore, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateCore, 1),
-            Show(F.ChargedPlasmaWaveDownRightShort, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateShort, 1),
-            Show(F.ChargedPlasmaWaveDownRightLong, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLong, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalCore, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateCore, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalShort, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateShort, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLong, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLong, 1),
         ],
-        [P.ChargedPlasmaWaveDownRightLoop] =
+        [P.ChargedPlasmaWaveFallingDiagonalWaving] =
         [
-            Show(F.ChargedPlasmaWaveDownRightLongCore, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLongCore, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesNear, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesPeak, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesFar, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesFar, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesMidway, 1),
-            Show(F.ChargedPlasmaWaveDownRightLongLobesNear, 1),
-            Show(F.ChargedPlasmaWaveDownRightAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongCore, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLongCore, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesNear, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesPeak, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesFar, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesFar, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesMidway, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalLongLobesNear, 1),
+            Show(F.ChargedPlasmaWaveFallingDiagonalAlternateLobesNear, 1),
         ],
-        [P.MissileUpFacingRight] =
+        [P.MissileUp] =
         [
-            Show(F.MissileUpFacingRight, 15),
+            Hold(F.MissileUp),
         ],
         [P.MissileUpRight] =
         [
-            Show(F.MissileUpRight, 15),
+            Hold(F.MissileUpRight),
         ],
         [P.MissileRight] =
         [
-            Show(F.MissileRight, 15),
+            Hold(F.MissileRight),
         ],
         [P.MissileDownRight] =
         [
-            Show(F.MissileDownRight, 15),
+            Hold(F.MissileDownRight),
         ],
-        [P.MissileDownFacingRight] =
+        [P.MissileDown] =
         [
-            Show(F.MissileDownFacingRight, 15),
+            Hold(F.MissileDown),
         ],
         [P.MissileDownLeft] =
         [
-            Show(F.MissileDownLeft, 15),
+            Hold(F.MissileDownLeft),
         ],
         [P.MissileLeft] =
         [
-            Show(F.MissileLeft, 15),
+            Hold(F.MissileLeft),
         ],
         [P.MissileUpLeft] =
         [
-            Show(F.MissileUpLeft, 15),
+            Hold(F.MissileUpLeft),
         ],
-        [P.SuperMissileUpFacingRight] =
+        [P.SuperMissileUp] =
         [
-            Show(F.SuperMissileUpFacingRight, 15),
+            Hold(F.SuperMissileUp),
         ],
         [P.SuperMissileUpRight] =
         [
-            Show(F.SuperMissileUpRight, 15),
+            Hold(F.SuperMissileUpRight),
         ],
         [P.SuperMissileRight] =
         [
-            Show(F.SuperMissileRight, 15),
+            Hold(F.SuperMissileRight),
         ],
         [P.SuperMissileDownRight] =
         [
-            Show(F.SuperMissileDownRight, 15),
+            Hold(F.SuperMissileDownRight),
         ],
-        [P.SuperMissileDownFacingRight] =
+        [P.SuperMissileDown] =
         [
-            Show(F.SuperMissileDownFacingRight, 15),
+            Hold(F.SuperMissileDown),
         ],
         [P.SuperMissileDownLeft] =
         [
-            Show(F.SuperMissileDownLeft, 15),
+            Hold(F.SuperMissileDownLeft),
         ],
         [P.SuperMissileLeft] =
         [
-            Show(F.SuperMissileLeft, 15),
+            Hold(F.SuperMissileLeft),
         ],
         [P.SuperMissileUpLeft] =
         [
-            Show(F.SuperMissileUpLeft, 15),
+            Hold(F.SuperMissileUpLeft),
         ],
         [P.SuperMissileLink] =
         [
-            Show(F.SuperMissileLinkHidden, 15),
+            Hold(F.SuperMissileLinkHidden),
         ],
         [P.PowerBomb] =
         [
@@ -1218,21 +1217,18 @@ internal static class SamusProjectileAnimations
             Show(F.SuperMissileExplosionRing, 5),
             Show(F.SuperMissileExplosionFadingRing, 5),
         ],
-        [P.ShinesparkEchoUpFacingRight] =
+        [P.ShinesparkEcho] =
         [
-            Show(F.ShinesparkEchoUpFacingRightHidden, 2),
-            Show(F.ShinesparkEchoUpFacingRightHidden, 2),
-            Show(F.ShinesparkEchoUpFacingRightHidden, 2),
-            Show(F.ShinesparkEchoUpFacingRightHidden, 2),
+            Hold(F.ShinesparkEchoHidden),
         ],
-        [P.SpazerSpecialAttackTrailUpFacingRight] =
+        [P.SpazerSpecialAttackTrail] =
         [
-            Show(F.SpazerSpecialAttackTrailUpFacingRightHidden, 2),
-            Show(F.SpazerSpecialAttackTrailUpFacingRightHiddenWide, 2),
+            Show(F.SpazerSpecialAttackTrailHidden, 2),
+            Show(F.SpazerSpecialAttackTrailHiddenWide, 2),
         ],
-        [P.SpazerSpecialAttackTrailUpFacingRightLoop] =
+        [P.SpazerSpecialAttackTrailWidest] =
         [
-            Show(F.SpazerSpecialAttackTrailUpFacingRightHiddenWidest, 2),
+            Hold(F.SpazerSpecialAttackTrailHiddenWidest),
         ],
         [P.WaveSpecialAttack] =
         [
@@ -1244,149 +1240,149 @@ internal static class SamusProjectileAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>> StartingAt { get; } = new Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>>
     {
-        [P.PowerUpFacingRight] = new([new(P.PowerUpFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerUpRight] = new([new(P.PowerUpRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerRight] = new([new(P.PowerRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerDownRight] = new([new(P.PowerDownRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerDownFacingRight] = new([new(P.PowerDownFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerDownLeft] = new([new(P.PowerDownLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerLeft] = new([new(P.PowerLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerUpLeft] = new([new(P.PowerUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WaveUpFacingRight] = new([new(P.WaveUpFacingRight, 0, 1, 1), new(P.WaveDownFacingRight, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.WaveDownFacingRight] = new([new(P.WaveDownFacingRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WaveUpRight] = new([new(P.WaveUpRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WaveRight] = new([new(P.WaveRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WaveDownRight] = new([new(P.WaveDownRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.IceUpFacingRight] = new([new(P.IceUpFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerUpFacingRight] = new([new(P.SpazerUpFacingRight, 0, 2, 1), new(P.SpazerUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerUpFacingRightLoop] = new([new(P.SpazerUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerUpRight] = new([new(P.SpazerUpRight, 0, 2, 1), new(P.SpazerUpRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerUpRightLoop] = new([new(P.SpazerUpRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerRight] = new([new(P.SpazerRight, 0, 2, 1), new(P.SpazerRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerRightLoop] = new([new(P.SpazerRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerDownRight] = new([new(P.SpazerDownRight, 0, 2, 1), new(P.SpazerDownRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerDownRightLoop] = new([new(P.SpazerDownRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerDownFacingRight] = new([new(P.SpazerDownFacingRight, 0, 2, 1), new(P.SpazerDownFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerDownFacingRightLoop] = new([new(P.SpazerDownFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerDownLeft] = new([new(P.SpazerDownLeft, 0, 2, 1), new(P.SpazerDownLeftLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerDownLeftLoop] = new([new(P.SpazerDownLeftLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerLeft] = new([new(P.SpazerLeft, 0, 2, 1), new(P.SpazerLeftLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerLeftLoop] = new([new(P.SpazerLeftLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerUpLeft] = new([new(P.SpazerUpLeft, 0, 2, 1), new(P.SpazerUpLeftLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerUpLeftLoop] = new([new(P.SpazerUpLeftLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveUpFacingRight] = new([new(P.SpazerWaveUpFacingRight, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveUpRight] = new([new(P.SpazerWaveUpRight, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveRight] = new([new(P.SpazerWaveRight, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveDownRight] = new([new(P.SpazerWaveDownRight, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveDownFacingRight] = new([new(P.SpazerWaveDownFacingRight, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveDownLeft] = new([new(P.SpazerWaveDownLeft, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveLeft] = new([new(P.SpazerWaveLeft, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerWaveUpLeft] = new([new(P.SpazerWaveUpLeft, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaUpFacingRight] = new([new(P.PlasmaUpFacingRight, 0, 1, 1), new(P.PlasmaUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaUpFacingRightLoop] = new([new(P.PlasmaUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaUpRight] = new([new(P.PlasmaUpRight, 0, 1, 1), new(P.PlasmaUpRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaUpRightLoop] = new([new(P.PlasmaUpRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaRight] = new([new(P.PlasmaRight, 0, 1, 1), new(P.PlasmaRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaRightLoop] = new([new(P.PlasmaRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaDownRight] = new([new(P.PlasmaDownRight, 0, 1, 1), new(P.PlasmaDownRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaDownRightLoop] = new([new(P.PlasmaDownRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaIceWaveUpFacingRight] = new([new(P.PlasmaIceWaveUpFacingRight, 0, 1, 1), new(P.PlasmaWaveUpFacingRight, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaWaveUpFacingRight] = new([new(P.PlasmaWaveUpFacingRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaIceWaveUpRight] = new([new(P.PlasmaIceWaveUpRight, 0, 1, 1), new(P.PlasmaWaveUpRight, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaWaveUpRight] = new([new(P.PlasmaWaveUpRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaWaveRight] = new([new(P.PlasmaWaveRight, 0, 1, 1), new(P.PlasmaWaveRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaWaveRightLoop] = new([new(P.PlasmaWaveRightLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PlasmaIceWaveDownRight] = new([new(P.PlasmaIceWaveDownRight, 0, 1, 1), new(P.PlasmaWaveDownRight, 0, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.PlasmaWaveDownRight] = new([new(P.PlasmaWaveDownRight, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerUpFacingRight] = new([new(P.ChargedPowerUpFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerUpRight] = new([new(P.ChargedPowerUpRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerRight] = new([new(P.ChargedPowerRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerDownRight] = new([new(P.ChargedPowerDownRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerDownFacingRight] = new([new(P.ChargedPowerDownFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerDownLeft] = new([new(P.ChargedPowerDownLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerLeft] = new([new(P.ChargedPowerLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPowerUpLeft] = new([new(P.ChargedPowerUpLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedWaveUpFacingRight] = new([new(P.ChargedWaveUpFacingRight, 0, 1, 1), new(P.ChargedWaveDownFacingRight, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedWaveDownFacingRight] = new([new(P.ChargedWaveDownFacingRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedWaveUpRight] = new([new(P.ChargedWaveUpRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedWaveRight] = new([new(P.ChargedWaveRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedWaveDownRight] = new([new(P.ChargedWaveDownRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedIceUpFacingRight] = new([new(P.ChargedIceUpFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedIceWaveUpFacingRight] = new([new(P.ChargedIceWaveUpFacingRight, 0, 1, 1), new(P.ChargedIceWaveDownFacingRight, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedIceWaveDownFacingRight] = new([new(P.ChargedIceWaveDownFacingRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedIceWaveUpRight] = new([new(P.ChargedIceWaveUpRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedIceWaveRight] = new([new(P.ChargedIceWaveRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedIceWaveDownRight] = new([new(P.ChargedIceWaveDownRight, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerUpFacingRight] = new([new(P.ChargedSpazerUpFacingRight, 0, 8, 1), new(P.ChargedSpazerUpFacingRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerUpFacingRightLoop] = new([new(P.ChargedSpazerUpFacingRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerUpRight] = new([new(P.ChargedSpazerUpRight, 0, 8, 1), new(P.ChargedSpazerUpRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerUpRightLoop] = new([new(P.ChargedSpazerUpRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerRight] = new([new(P.ChargedSpazerRight, 0, 8, 1), new(P.ChargedSpazerRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerRightLoop] = new([new(P.ChargedSpazerRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerDownRight] = new([new(P.ChargedSpazerDownRight, 0, 8, 1), new(P.ChargedSpazerDownRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerDownRightLoop] = new([new(P.ChargedSpazerDownRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveUpFacingRight] = new([new(P.ChargedSpazerWaveUpFacingRight, 0, 4, 1), new(P.ChargedSpazerWaveUpFacingRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveUpFacingRightLoop] = new([new(P.ChargedSpazerWaveUpFacingRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveUpRight] = new([new(P.ChargedSpazerWaveUpRight, 0, 4, 1), new(P.ChargedSpazerWaveUpRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveUpRightLoop] = new([new(P.ChargedSpazerWaveUpRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveRight] = new([new(P.ChargedSpazerWaveRight, 0, 4, 1), new(P.ChargedSpazerWaveRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveRightLoop] = new([new(P.ChargedSpazerWaveRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveDownRight] = new([new(P.ChargedSpazerWaveDownRight, 0, 4, 1), new(P.ChargedSpazerWaveDownRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveDownRightLoop] = new([new(P.ChargedSpazerWaveDownRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveDownFacingRight] = new([new(P.ChargedSpazerWaveDownFacingRight, 0, 4, 1), new(P.ChargedSpazerWaveDownFacingRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveDownFacingRightLoop] = new([new(P.ChargedSpazerWaveDownFacingRightLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveDownLeft] = new([new(P.ChargedSpazerWaveDownLeft, 0, 4, 1), new(P.ChargedSpazerWaveDownLeftLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveDownLeftLoop] = new([new(P.ChargedSpazerWaveDownLeftLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveLeft] = new([new(P.ChargedSpazerWaveLeft, 0, 4, 1), new(P.ChargedSpazerWaveLeftLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveLeftLoop] = new([new(P.ChargedSpazerWaveLeftLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedSpazerWaveUpLeft] = new([new(P.ChargedSpazerWaveUpLeft, 0, 4, 1), new(P.ChargedSpazerWaveUpLeftLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedSpazerWaveUpLeftLoop] = new([new(P.ChargedSpazerWaveUpLeftLoop, 0, 20, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaUpFacingRight] = new([new(P.ChargedPlasmaUpFacingRight, 0, 6, 1), new(P.ChargedPlasmaUpFacingRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaUpFacingRightLoop] = new([new(P.ChargedPlasmaUpFacingRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaUpRight] = new([new(P.ChargedPlasmaUpRight, 0, 6, 1), new(P.ChargedPlasmaUpRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaUpRightLoop] = new([new(P.ChargedPlasmaUpRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaRight] = new([new(P.ChargedPlasmaRight, 0, 6, 1), new(P.ChargedPlasmaRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaRightLoop] = new([new(P.ChargedPlasmaRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaDownRight] = new([new(P.ChargedPlasmaDownRight, 0, 6, 1), new(P.ChargedPlasmaDownRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaDownRightLoop] = new([new(P.ChargedPlasmaDownRightLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaWaveUpFacingRight] = new([new(P.ChargedPlasmaWaveUpFacingRight, 0, 6, 1), new(P.ChargedPlasmaWaveUpFacingRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaWaveUpFacingRightLoop] = new([new(P.ChargedPlasmaWaveUpFacingRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaWaveUpRight] = new([new(P.ChargedPlasmaWaveUpRight, 0, 6, 1), new(P.ChargedPlasmaWaveUpRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaWaveUpRightLoop] = new([new(P.ChargedPlasmaWaveUpRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaWaveRight] = new([new(P.ChargedPlasmaWaveRight, 0, 6, 1), new(P.ChargedPlasmaWaveRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaWaveRightLoop] = new([new(P.ChargedPlasmaWaveRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargedPlasmaWaveDownRight] = new([new(P.ChargedPlasmaWaveDownRight, 0, 6, 1), new(P.ChargedPlasmaWaveDownRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.ChargedPlasmaWaveDownRightLoop] = new([new(P.ChargedPlasmaWaveDownRightLoop, 0, 16, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileUpFacingRight] = new([new(P.MissileUpFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileUpRight] = new([new(P.MissileUpRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileRight] = new([new(P.MissileRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileDownRight] = new([new(P.MissileDownRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileDownFacingRight] = new([new(P.MissileDownFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileDownLeft] = new([new(P.MissileDownLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileLeft] = new([new(P.MissileLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MissileUpLeft] = new([new(P.MissileUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileUpFacingRight] = new([new(P.SuperMissileUpFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileUpRight] = new([new(P.SuperMissileUpRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileRight] = new([new(P.SuperMissileRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileDownRight] = new([new(P.SuperMissileDownRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileDownFacingRight] = new([new(P.SuperMissileDownFacingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileDownLeft] = new([new(P.SuperMissileDownLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileLeft] = new([new(P.SuperMissileLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileUpLeft] = new([new(P.SuperMissileUpLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileLink] = new([new(P.SuperMissileLink, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.PowerBomb] = new([new(P.PowerBomb, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FastPowerBomb] = new([new(P.FastPowerBomb, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Bomb] = new([new(P.Bomb, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FastBomb] = new([new(P.FastBomb, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BeamExplosion] = new([new(P.BeamExplosion, 0, 6, 1)], AnimationEnd.Stops),
-        [P.MissileExplosion] = new([new(P.MissileExplosion, 0, 6, 1)], AnimationEnd.Stops),
-        [P.BombExplosion] = new([new(P.BombExplosion, 0, 5, 1)], AnimationEnd.Stops),
-        [P.PlasmaSpecialAttack] = new([new(P.PlasmaSpecialAttack, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SuperMissileExplosion] = new([new(P.SuperMissileExplosion, 0, 6, 1)], AnimationEnd.Stops),
-        [P.ShinesparkEchoUpFacingRight] = new([new(P.ShinesparkEchoUpFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SpazerSpecialAttackTrailUpFacingRight] = new([new(P.SpazerSpecialAttackTrailUpFacingRight, 0, 2, 1), new(P.SpazerSpecialAttackTrailUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.SpazerSpecialAttackTrailUpFacingRightLoop] = new([new(P.SpazerSpecialAttackTrailUpFacingRightLoop, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WaveSpecialAttack] = new([new(P.WaveSpecialAttack, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.PowerUp] = Repeating(P.PowerUp),
+        [P.PowerUpRight] = Repeating(P.PowerUpRight),
+        [P.PowerRight] = Repeating(P.PowerRight),
+        [P.PowerDownRight] = Repeating(P.PowerDownRight),
+        [P.PowerDown] = Repeating(P.PowerDown),
+        [P.PowerDownLeft] = Repeating(P.PowerDownLeft),
+        [P.PowerLeft] = Repeating(P.PowerLeft),
+        [P.PowerUpLeft] = Repeating(P.PowerUpLeft),
+        [P.WaveUp] = OpeningThenRepeating(P.WaveUp, P.WaveVertical),
+        [P.WaveVertical] = Repeating(P.WaveVertical),
+        [P.WaveRisingDiagonal] = Repeating(P.WaveRisingDiagonal),
+        [P.WaveHorizontal] = Repeating(P.WaveHorizontal),
+        [P.WaveFallingDiagonal] = Repeating(P.WaveFallingDiagonal),
+        [P.Ice] = Repeating(P.Ice),
+        [P.SpazerUp] = OpeningThenRepeating(P.SpazerUp, P.SpazerUpSpread),
+        [P.SpazerUpSpread] = Repeating(P.SpazerUpSpread),
+        [P.SpazerUpRight] = OpeningThenRepeating(P.SpazerUpRight, P.SpazerUpRightSpread),
+        [P.SpazerUpRightSpread] = Repeating(P.SpazerUpRightSpread),
+        [P.SpazerRight] = OpeningThenRepeating(P.SpazerRight, P.SpazerRightSpread),
+        [P.SpazerRightSpread] = Repeating(P.SpazerRightSpread),
+        [P.SpazerDownRight] = OpeningThenRepeating(P.SpazerDownRight, P.SpazerDownRightSpread),
+        [P.SpazerDownRightSpread] = Repeating(P.SpazerDownRightSpread),
+        [P.SpazerDown] = OpeningThenRepeating(P.SpazerDown, P.SpazerDownSpread),
+        [P.SpazerDownSpread] = Repeating(P.SpazerDownSpread),
+        [P.SpazerDownLeft] = OpeningThenRepeating(P.SpazerDownLeft, P.SpazerDownLeftSpread),
+        [P.SpazerDownLeftSpread] = Repeating(P.SpazerDownLeftSpread),
+        [P.SpazerLeft] = OpeningThenRepeating(P.SpazerLeft, P.SpazerLeftSpread),
+        [P.SpazerLeftSpread] = Repeating(P.SpazerLeftSpread),
+        [P.SpazerUpLeft] = OpeningThenRepeating(P.SpazerUpLeft, P.SpazerUpLeftSpread),
+        [P.SpazerUpLeftSpread] = Repeating(P.SpazerUpLeftSpread),
+        [P.SpazerWaveUp] = Repeating(P.SpazerWaveUp),
+        [P.SpazerWaveUpRight] = Repeating(P.SpazerWaveUpRight),
+        [P.SpazerWaveRight] = Repeating(P.SpazerWaveRight),
+        [P.SpazerWaveDownRight] = Repeating(P.SpazerWaveDownRight),
+        [P.SpazerWaveDown] = Repeating(P.SpazerWaveDown),
+        [P.SpazerWaveDownLeft] = Repeating(P.SpazerWaveDownLeft),
+        [P.SpazerWaveLeft] = Repeating(P.SpazerWaveLeft),
+        [P.SpazerWaveUpLeft] = Repeating(P.SpazerWaveUpLeft),
+        [P.PlasmaVertical] = OpeningThenRepeating(P.PlasmaVertical, P.PlasmaVerticalFullLength),
+        [P.PlasmaVerticalFullLength] = Repeating(P.PlasmaVerticalFullLength),
+        [P.PlasmaRisingDiagonal] = OpeningThenRepeating(P.PlasmaRisingDiagonal, P.PlasmaRisingDiagonalFullLength),
+        [P.PlasmaRisingDiagonalFullLength] = Repeating(P.PlasmaRisingDiagonalFullLength),
+        [P.PlasmaHorizontal] = OpeningThenRepeating(P.PlasmaHorizontal, P.PlasmaHorizontalFullLength),
+        [P.PlasmaHorizontalFullLength] = Repeating(P.PlasmaHorizontalFullLength),
+        [P.PlasmaFallingDiagonal] = OpeningThenRepeating(P.PlasmaFallingDiagonal, P.PlasmaFallingDiagonalFullLength),
+        [P.PlasmaFallingDiagonalFullLength] = Repeating(P.PlasmaFallingDiagonalFullLength),
+        [P.PlasmaIceWaveVertical] = OpeningThenRepeating(P.PlasmaIceWaveVertical, P.PlasmaWaveVertical),
+        [P.PlasmaWaveVertical] = Repeating(P.PlasmaWaveVertical),
+        [P.PlasmaIceWaveRisingDiagonal] = OpeningThenRepeating(P.PlasmaIceWaveRisingDiagonal, P.PlasmaWaveRisingDiagonal),
+        [P.PlasmaWaveRisingDiagonal] = Repeating(P.PlasmaWaveRisingDiagonal),
+        [P.PlasmaWaveHorizontal] = OpeningThenRepeating(P.PlasmaWaveHorizontal, P.PlasmaWaveHorizontalSwing),
+        [P.PlasmaWaveHorizontalSwing] = Repeating(P.PlasmaWaveHorizontalSwing),
+        [P.PlasmaIceWaveFallingDiagonal] = OpeningThenRepeating(P.PlasmaIceWaveFallingDiagonal, P.PlasmaWaveFallingDiagonal),
+        [P.PlasmaWaveFallingDiagonal] = Repeating(P.PlasmaWaveFallingDiagonal),
+        [P.ChargedPowerUp] = Repeating(P.ChargedPowerUp),
+        [P.ChargedPowerUpRight] = Repeating(P.ChargedPowerUpRight),
+        [P.ChargedPowerRight] = Repeating(P.ChargedPowerRight),
+        [P.ChargedPowerDownRight] = Repeating(P.ChargedPowerDownRight),
+        [P.ChargedPowerDown] = Repeating(P.ChargedPowerDown),
+        [P.ChargedPowerDownLeft] = Repeating(P.ChargedPowerDownLeft),
+        [P.ChargedPowerLeft] = Repeating(P.ChargedPowerLeft),
+        [P.ChargedPowerUpLeft] = Repeating(P.ChargedPowerUpLeft),
+        [P.ChargedWaveUp] = OpeningThenRepeating(P.ChargedWaveUp, P.ChargedWaveVertical),
+        [P.ChargedWaveVertical] = Repeating(P.ChargedWaveVertical),
+        [P.ChargedWaveRisingDiagonal] = Repeating(P.ChargedWaveRisingDiagonal),
+        [P.ChargedWaveHorizontal] = Repeating(P.ChargedWaveHorizontal),
+        [P.ChargedWaveFallingDiagonal] = Repeating(P.ChargedWaveFallingDiagonal),
+        [P.ChargedIce] = Repeating(P.ChargedIce),
+        [P.ChargedIceWaveUp] = OpeningThenRepeating(P.ChargedIceWaveUp, P.ChargedIceWaveVertical),
+        [P.ChargedIceWaveVertical] = Repeating(P.ChargedIceWaveVertical),
+        [P.ChargedIceWaveRisingDiagonal] = Repeating(P.ChargedIceWaveRisingDiagonal),
+        [P.ChargedIceWaveHorizontal] = Repeating(P.ChargedIceWaveHorizontal),
+        [P.ChargedIceWaveFallingDiagonal] = Repeating(P.ChargedIceWaveFallingDiagonal),
+        [P.ChargedSpazerVertical] = OpeningThenRepeating(P.ChargedSpazerVertical, P.ChargedSpazerVerticalSpread),
+        [P.ChargedSpazerVerticalSpread] = Repeating(P.ChargedSpazerVerticalSpread),
+        [P.ChargedSpazerRisingDiagonal] = OpeningThenRepeating(P.ChargedSpazerRisingDiagonal, P.ChargedSpazerRisingDiagonalSpread),
+        [P.ChargedSpazerRisingDiagonalSpread] = Repeating(P.ChargedSpazerRisingDiagonalSpread),
+        [P.ChargedSpazerHorizontal] = OpeningThenRepeating(P.ChargedSpazerHorizontal, P.ChargedSpazerHorizontalSpread),
+        [P.ChargedSpazerHorizontalSpread] = Repeating(P.ChargedSpazerHorizontalSpread),
+        [P.ChargedSpazerFallingDiagonal] = OpeningThenRepeating(P.ChargedSpazerFallingDiagonal, P.ChargedSpazerFallingDiagonalSpread),
+        [P.ChargedSpazerFallingDiagonalSpread] = Repeating(P.ChargedSpazerFallingDiagonalSpread),
+        [P.ChargedSpazerWaveUp] = OpeningThenRepeating(P.ChargedSpazerWaveUp, P.ChargedSpazerWaveUpWaving),
+        [P.ChargedSpazerWaveUpWaving] = Repeating(P.ChargedSpazerWaveUpWaving),
+        [P.ChargedSpazerWaveUpRight] = OpeningThenRepeating(P.ChargedSpazerWaveUpRight, P.ChargedSpazerWaveUpRightWaving),
+        [P.ChargedSpazerWaveUpRightWaving] = Repeating(P.ChargedSpazerWaveUpRightWaving),
+        [P.ChargedSpazerWaveRight] = OpeningThenRepeating(P.ChargedSpazerWaveRight, P.ChargedSpazerWaveRightWaving),
+        [P.ChargedSpazerWaveRightWaving] = Repeating(P.ChargedSpazerWaveRightWaving),
+        [P.ChargedSpazerWaveDownRight] = OpeningThenRepeating(P.ChargedSpazerWaveDownRight, P.ChargedSpazerWaveDownRightWaving),
+        [P.ChargedSpazerWaveDownRightWaving] = Repeating(P.ChargedSpazerWaveDownRightWaving),
+        [P.ChargedSpazerWaveDown] = OpeningThenRepeating(P.ChargedSpazerWaveDown, P.ChargedSpazerWaveDownWaving),
+        [P.ChargedSpazerWaveDownWaving] = Repeating(P.ChargedSpazerWaveDownWaving),
+        [P.ChargedSpazerWaveDownLeft] = OpeningThenRepeating(P.ChargedSpazerWaveDownLeft, P.ChargedSpazerWaveDownLeftWaving),
+        [P.ChargedSpazerWaveDownLeftWaving] = Repeating(P.ChargedSpazerWaveDownLeftWaving),
+        [P.ChargedSpazerWaveLeft] = OpeningThenRepeating(P.ChargedSpazerWaveLeft, P.ChargedSpazerWaveLeftWaving),
+        [P.ChargedSpazerWaveLeftWaving] = Repeating(P.ChargedSpazerWaveLeftWaving),
+        [P.ChargedSpazerWaveUpLeft] = OpeningThenRepeating(P.ChargedSpazerWaveUpLeft, P.ChargedSpazerWaveUpLeftWaving),
+        [P.ChargedSpazerWaveUpLeftWaving] = Repeating(P.ChargedSpazerWaveUpLeftWaving),
+        [P.ChargedPlasmaVertical] = OpeningThenRepeating(P.ChargedPlasmaVertical, P.ChargedPlasmaVerticalFullLength),
+        [P.ChargedPlasmaVerticalFullLength] = Repeating(P.ChargedPlasmaVerticalFullLength),
+        [P.ChargedPlasmaRisingDiagonal] = OpeningThenRepeating(P.ChargedPlasmaRisingDiagonal, P.ChargedPlasmaRisingDiagonalFullLength),
+        [P.ChargedPlasmaRisingDiagonalFullLength] = Repeating(P.ChargedPlasmaRisingDiagonalFullLength),
+        [P.ChargedPlasmaHorizontal] = OpeningThenRepeating(P.ChargedPlasmaHorizontal, P.ChargedPlasmaHorizontalFullLength),
+        [P.ChargedPlasmaHorizontalFullLength] = Repeating(P.ChargedPlasmaHorizontalFullLength),
+        [P.ChargedPlasmaFallingDiagonal] = OpeningThenRepeating(P.ChargedPlasmaFallingDiagonal, P.ChargedPlasmaFallingDiagonalFullLength),
+        [P.ChargedPlasmaFallingDiagonalFullLength] = Repeating(P.ChargedPlasmaFallingDiagonalFullLength),
+        [P.ChargedPlasmaWaveVertical] = OpeningThenRepeating(P.ChargedPlasmaWaveVertical, P.ChargedPlasmaWaveVerticalWaving),
+        [P.ChargedPlasmaWaveVerticalWaving] = Repeating(P.ChargedPlasmaWaveVerticalWaving),
+        [P.ChargedPlasmaWaveRisingDiagonal] = OpeningThenRepeating(P.ChargedPlasmaWaveRisingDiagonal, P.ChargedPlasmaWaveRisingDiagonalWaving),
+        [P.ChargedPlasmaWaveRisingDiagonalWaving] = Repeating(P.ChargedPlasmaWaveRisingDiagonalWaving),
+        [P.ChargedPlasmaWaveHorizontal] = OpeningThenRepeating(P.ChargedPlasmaWaveHorizontal, P.ChargedPlasmaWaveHorizontalWaving),
+        [P.ChargedPlasmaWaveHorizontalWaving] = Repeating(P.ChargedPlasmaWaveHorizontalWaving),
+        [P.ChargedPlasmaWaveFallingDiagonal] = OpeningThenRepeating(P.ChargedPlasmaWaveFallingDiagonal, P.ChargedPlasmaWaveFallingDiagonalWaving),
+        [P.ChargedPlasmaWaveFallingDiagonalWaving] = Repeating(P.ChargedPlasmaWaveFallingDiagonalWaving),
+        [P.MissileUp] = Repeating(P.MissileUp),
+        [P.MissileUpRight] = Repeating(P.MissileUpRight),
+        [P.MissileRight] = Repeating(P.MissileRight),
+        [P.MissileDownRight] = Repeating(P.MissileDownRight),
+        [P.MissileDown] = Repeating(P.MissileDown),
+        [P.MissileDownLeft] = Repeating(P.MissileDownLeft),
+        [P.MissileLeft] = Repeating(P.MissileLeft),
+        [P.MissileUpLeft] = Repeating(P.MissileUpLeft),
+        [P.SuperMissileUp] = Repeating(P.SuperMissileUp),
+        [P.SuperMissileUpRight] = Repeating(P.SuperMissileUpRight),
+        [P.SuperMissileRight] = Repeating(P.SuperMissileRight),
+        [P.SuperMissileDownRight] = Repeating(P.SuperMissileDownRight),
+        [P.SuperMissileDown] = Repeating(P.SuperMissileDown),
+        [P.SuperMissileDownLeft] = Repeating(P.SuperMissileDownLeft),
+        [P.SuperMissileLeft] = Repeating(P.SuperMissileLeft),
+        [P.SuperMissileUpLeft] = Repeating(P.SuperMissileUpLeft),
+        [P.SuperMissileLink] = Repeating(P.SuperMissileLink),
+        [P.PowerBomb] = Repeating(P.PowerBomb),
+        [P.FastPowerBomb] = Repeating(P.FastPowerBomb),
+        [P.Bomb] = Repeating(P.Bomb),
+        [P.FastBomb] = Repeating(P.FastBomb),
+        [P.BeamExplosion] = PlayedOnce(P.BeamExplosion),
+        [P.MissileExplosion] = PlayedOnce(P.MissileExplosion),
+        [P.BombExplosion] = PlayedOnce(P.BombExplosion),
+        [P.PlasmaSpecialAttack] = Repeating(P.PlasmaSpecialAttack),
+        [P.SuperMissileExplosion] = PlayedOnce(P.SuperMissileExplosion),
+        [P.ShinesparkEcho] = Repeating(P.ShinesparkEcho),
+        [P.SpazerSpecialAttackTrail] = OpeningThenRepeating(P.SpazerSpecialAttackTrail, P.SpazerSpecialAttackTrailWidest),
+        [P.SpazerSpecialAttackTrailWidest] = Repeating(P.SpazerSpecialAttackTrailWidest),
+        [P.WaveSpecialAttack] = Repeating(P.WaveSpecialAttack),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
@@ -1394,4 +1390,23 @@ internal static class SamusProjectileAnimations
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<SamusProjectileFrameId, NoAnimationCue> Show(SamusProjectileFrameId frame, int duration) => new AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> from now on (#2347): a still picture the projectile keeps until it changes animation.</summary>
+    private static AnimationBeat<SamusProjectileFrameId, NoAnimationCue> Hold(SamusProjectileFrameId frame) => new AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame(frame);
+
+    /// <summary>The phase that plays all of <paramref name="segment"/> once, its beats counted from the segment itself (#2347).</summary>
+    private static AnimationPhase<SamusProjectileSegment> Whole(SamusProjectileSegment segment) =>
+        new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>An animation that plays <paramref name="segment"/> and, past its end, plays it again.</summary>
+    private static Animation<SamusProjectileSegment> Repeating(SamusProjectileSegment segment) =>
+        new([Whole(segment)], AnimationEnd.LoopsFrom(0));
+
+    /// <summary>An animation that plays <paramref name="opening"/> once, then plays <paramref name="repeated"/> over and over.</summary>
+    private static Animation<SamusProjectileSegment> OpeningThenRepeating(SamusProjectileSegment opening, SamusProjectileSegment repeated) =>
+        new([Whole(opening), Whole(repeated)], AnimationEnd.LoopsFrom(1));
+
+    /// <summary>An animation that plays <paramref name="segment"/> once and is over: an explosion.</summary>
+    private static Animation<SamusProjectileSegment> PlayedOnce(SamusProjectileSegment segment) =>
+        new([Whole(segment)], AnimationEnd.Stops);
 }

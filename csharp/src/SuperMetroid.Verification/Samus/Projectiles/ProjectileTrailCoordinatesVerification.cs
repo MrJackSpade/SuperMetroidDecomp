@@ -223,8 +223,7 @@ internal static class ProjectileTrailCoordinatesVerification
         return [.. kinds.SelectMany(SamusProjectileKinds.Animations)
             .SelectMany(start => SamusProjectileAnimations.StartingWith(start).Phases.Select(phase => phase.Segment))
             .SelectMany(segment => SamusProjectileAnimations.Segments.Beats(segment))
-            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
-            .Select(show => show.Shown)];
+            .Select(beat => beat.ShownFrame).OfType<SamusProjectileFrameId>()];
     }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>

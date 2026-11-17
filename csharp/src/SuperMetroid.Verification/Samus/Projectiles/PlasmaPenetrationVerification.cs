@@ -32,7 +32,7 @@ internal static class PlasmaPenetrationVerification
                 AssertEqual(100, slot.Damage, "Plasma preserves original damage");
                 AssertTrue(!slot.IsSpent, "Plasma is not marked spent");
                 AssertEqual(ProjectileFixturePlaybacks.Active, slot.Playback, "Plasma retains its animation");
-                AssertEqual((ushort)7, slot.FrameHold.RawValue, "Plasma retains animation timing");
+                AssertEqual<ushort?>(7, slot.FrameHold?.RawValue, "Plasma retains animation timing");
             }
         }
     }

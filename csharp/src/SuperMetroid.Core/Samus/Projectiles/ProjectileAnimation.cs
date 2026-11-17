@@ -27,21 +27,26 @@ internal sealed class ProjectileAnimation
         _pool = pool;
         _artwork = artwork;
     }
-    /// <summary>Plays timed frames, jumps and deletion; publishes frame radius and animation metadata when the countdown expires.</summary>
+    /// <summary>
+    /// Plays timed frames, still pictures and deletion; publishes frame radius and animation metadata when the countdown
+    /// expires. A shot showing a still picture keeps it.
+    /// </summary>
     internal bool AdvanceProjectileAnimation(
         SamusProjectile shot)
     {
-        shot.FrameHold = shot.FrameHold.Decrement().Remaining;
-        if (!shot.FrameHold.IsZero)
+        if (shot.FrameHold is not { } hold)
+            return false;
+        shot.FrameHold = hold.Decrement().Remaining;
+        if (!shot.FrameHold.Value.IsZero)
             return false;
         AnimationPlayback<SamusProjectileSegment> playback = shot.Playback
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
-        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int? duration) is not { } frame)
         {
             ClearProjectile(shot);
             return true;
         }
-        shot.FrameHold = WrappingCountdown.Start(duration);
+        shot.FrameHold = duration is { } updates ? WrappingCountdown.Start(updates) : null;
         shot.Sprite = _artwork.ProjectileFrames.Resolve(frame);
         shot.Radius = SamusProjectileFrameDefinitions.Radius(frame);
         shot.Playback = playback;

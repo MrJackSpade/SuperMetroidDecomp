@@ -44,7 +44,7 @@ internal static class ProjectileFrameBindingsVerification
             var nativeBomb = new SamusBomb(0)
             {
                 Playback = nativeShot.Playback,
-                FrameHold = nativeShot.FrameHold,
+                FrameHold = WrappingCountdown.Start(Word(0)),
                 SpritemapPointer = nativeShot.SpritemapPointer,
                 Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30,
@@ -55,24 +55,28 @@ internal static class ProjectileFrameBindingsVerification
                 { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
-            AssertTrue(nativeShot.FrameHold.RawValue is > 0 and < 0x8000,
+            // A list repeating one still picture is held, and no bomb shows one (#2347).
+            bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
+            AssertTrue(Word(0) is > 0 and < 0x8000,
                 "native inventory contains timed records");
             AssertEqual(false, shots.Animation.AdvanceProjectileAnimation(installedShot),
                 "installed projectile frame survives");
-            AssertEqual(false, bombs.AdvanceProjectileAnimation(installedBomb),
-                "installed bomb frame survives");
             AssertEqual(nativeShot.SpritemapPointer, installedShot.SpritemapPointer,
                 "installed projectile frame selects the native sprite");
-            AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
-                "installed bomb frame selects the native sprite");
-            AssertEqual(nativeShot.FrameHold.RawValue, installedShot.FrameHold.RawValue,
-                "projectile duration is independent of sprite binding");
+            AssertEqual<ushort?>(still ? null : nativeShot.FrameHold?.RawValue, installedShot.FrameHold?.RawValue,
+                "projectile duration is independent of sprite binding, a still picture held");
             AssertEqual(nativeShot.InstructionPointer, installedShot.InstructionPointer,
                 "projectile flow is independent of sprite binding");
             AssertEqual(nativeShot.Radius.X, installedShot.Radius.X,
                 "projectile X radius is independent of sprite binding");
             AssertEqual(nativeShot.Radius.Y, installedShot.Radius.Y,
                 "projectile Y radius is independent of sprite binding");
+            if (still)
+                continue;
+            AssertEqual(false, bombs.AdvanceProjectileAnimation(installedBomb),
+                "installed bomb frame survives");
+            AssertEqual(nativeBomb.SpritemapPointer, installedBomb.SpritemapPointer,
+                "installed bomb frame selects the native sprite");
             AssertEqual(nativeBomb.FrameHold.RawValue, installedBomb.FrameHold.RawValue,
                 "bomb duration is independent of sprite binding");
             AssertEqual(nativeBomb.Radius.X, installedBomb.Radius.X,
@@ -96,7 +100,7 @@ internal static class ProjectileFrameBindingsVerification
             .Where(name => name.Any(char.IsAsciiDigit))];
         AssertTrue(numbered.Length == 0, $"compositions are named for their poses and stages, not numbered: {string.Join(", ", numbered)}");
         AssertEqual("Power.UpRight", document.Frames[nameof(SamusProjectileFrameId.PowerUpRight)], "the up-right Power beam binds the up-right Power pose");
-        AssertEqual("Wave.Right.UpNear", document.Frames[nameof(SamusProjectileFrameId.WaveRightUpNear)], "the right-travelling Wave beam's first swing binds the composition of that stage");
+        AssertEqual("Wave.Right.UpNear", document.Frames[nameof(SamusProjectileFrameId.WaveHorizontalUpNear)], "the right-travelling Wave beam's first swing binds the composition of that stage");
         // #2295: the down-left Spazer group stores no splitting lanes; its frames bind the compositions of the stages they show.
         AssertEqual("Spazer.DownLeft.Parting", document.Frames[nameof(SamusProjectileFrameId.SpazerDownLeftParting)], "the down-left Spazer's parting lanes bind its parting composition");
         AssertEqual("Spazer.DownLeft.Spreading", document.Frames[nameof(SamusProjectileFrameId.SpazerWaveDownLeftSpreading)], "the down-left Spazer's spreading lanes bind its spreading composition");
@@ -104,9 +108,9 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual("Spazer.DownLeft.Spread", document.Frames[nameof(SamusProjectileFrameId.SpazerDownLeftSpread)], "the down-left Spazer's spread lanes bind its spread composition");
         // #2295: a record storing a composition again, byte for byte, binds that one composition: charged Ice's cross and star
         // are charged Wave's alternate core and core, and the Wave beam's centre is the leftward Power beam's character.
-        AssertEqual("ChargedWave.CoreAlternate", document.Frames[nameof(SamusProjectileFrameId.ChargedIceUpFacingRightCrossed)], "charged Ice's cross binds the composition it stores");
-        AssertEqual("ChargedWave.Core", document.Frames[nameof(SamusProjectileFrameId.ChargedIceUpFacingRightStar)], "charged Ice's star binds the composition it stores");
-        AssertEqual("Power.Left", document.Frames[nameof(SamusProjectileFrameId.WaveRightCentre)], "the Wave beam's centre binds the composition it stores");
+        AssertEqual("ChargedWave.CoreAlternate", document.Frames[nameof(SamusProjectileFrameId.ChargedIceCrossed)], "charged Ice's cross binds the composition it stores");
+        AssertEqual("ChargedWave.Core", document.Frames[nameof(SamusProjectileFrameId.ChargedIceStar)], "charged Ice's star binds the composition it stores");
+        AssertEqual("Power.Left", document.Frames[nameof(SamusProjectileFrameId.WaveHorizontalCentre)], "the Wave beam's centre binds the composition it stores");
         string[] unbound = [.. ProjectileSpriteDefinitions.All.Select(sprite => sprite.Name).Except(document.Frames.Values)];
         AssertTrue(unbound.Length == 0, $"every installed composition is one a frame binds: {string.Join(", ", unbound)}");
         document.Frames.Remove(frameName);

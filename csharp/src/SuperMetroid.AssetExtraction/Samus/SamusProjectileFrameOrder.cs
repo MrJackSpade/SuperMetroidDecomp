@@ -15,6 +15,5 @@ internal static class SamusProjectileFrameOrder
     /// </summary>
     internal static IReadOnlyList<SamusProjectileFrameId> Frames { get; } =
         [.. Enum.GetValues<SamusProjectileSegment>().SelectMany(program => SamusProjectileAnimations.Segments.Beats(program)
-            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
-            .Select(show => show.Shown)).Distinct()];
+            .Select(beat => beat.ShownFrame).OfType<SamusProjectileFrameId>()).Distinct()];
 }

@@ -165,7 +165,7 @@ internal static class SpacetimeBeamVerification
         }
         AssertTrue(reaching > 0, "Some SpaceTime animation positions copy into progression");
         AssertThrows<ArgumentOutOfRangeException>(() => service.For(new SamusProjectileSegmentBeat(
-            SamusProjectileSegment.PowerUpFacingRight, 0), 0), "A position no SpaceTime shot holds is rejected");
+            SamusProjectileSegment.PowerUp, 0), 0), "A position no SpaceTime shot holds is rejected");
         Console.WriteLine($"SpaceTime overwrite: {situations} positions and slots match the original copy, {reaching} of them reaching progression.");
     }
 

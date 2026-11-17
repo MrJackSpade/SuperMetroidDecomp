@@ -78,7 +78,7 @@ internal static class SpecialAttackParticlesVerification
     /// <summary>One shot's whole state, its Spazer partner by the place it holds.</summary>
     private sealed record ShotState(bool IsOccupied, int Damage, SamusProjectileType Type, SamusBeamCombination PicturedBeams,
         SamusProjectileDirection Direction, bool IsSpent, FixedPosition<RoomPixels> Position, EightEightVector<RoomPixels> Velocity,
-        Extent16<RoomPixels> Radius, AnimationPlayback<SamusProjectileSegment>? Playback, WrappingCountdown FrameHold,
+        Extent16<RoomPixels> Radius, AnimationPlayback<SamusProjectileSegment>? Playback, WrappingCountdown? FrameHold,
         ProjectileSpriteId? Sprite, WrappingCountdown TrailTimer, SamusMissileIgnition MissileIgnition, int? SuperMissileLinkPlace,
         TrigonometryAngle ComboAngle, SignedEightEight WaveComboVerticalSpeed, int ComboOrbitRadius, int ComboLifetime,
         PlasmaRingPhase PlasmaPhase, TrigonometryAngle SpazerTurnPerUpdate, SpazerComboPhase SpazerPhase,

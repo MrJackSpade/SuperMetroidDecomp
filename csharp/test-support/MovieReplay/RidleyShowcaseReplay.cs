@@ -788,7 +788,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     : behavior == SamusShotBehaviors.SuperMissileLink ? NativeSnapshotMemory.ProjectileSuperMissileLinkCallback
                     : throw new InvalidDataException($"Movie projectile behaviour {behavior.GetType().Name} needs a native identity mapping");
                 Check(owner + " FrameBehavior", callback, NativeSnapshotMemory.ProjectileFrameBehavior + index);
-                Check(owner + " FrameHold", unchecked(projectile.FrameHold.RawValue), NativeSnapshotMemory.ProjectileFrameHold + index);
+                // A shot holding a still picture has no timer: the native timer only re-shows the same picture (#2347).
+                if (projectile.FrameHold is { } hold)
+                    Check(owner + " FrameHold", unchecked(hold.RawValue), NativeSnapshotMemory.ProjectileFrameHold + index);
                 // Only missiles keep state in the variable word that this movie reaches: their ignition, and a Super
                 // Missile's link, which no other projectile has (UnlinkedSuperMissileLink).
                 if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)

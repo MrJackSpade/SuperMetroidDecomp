@@ -1012,13 +1012,14 @@ public sealed class SamusBombProjectileSystem
 
         AnimationPlayback<SamusProjectileSegment> playback = bomb.Playback
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
-        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
+        if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int? shown) is not { } frame)
         {
             ClearProjectile(bomb);
             return true;
         }
-        if (duration == 0)
-            throw new InvalidDataException($"Bomb frame {frame} has zero duration.");
+        // A bomb's animations show no still picture: every frame lasts its updates.
+        if (shown is not { } duration || duration == 0)
+            throw new InvalidDataException($"Bomb frame {frame} has no duration.");
         bomb.FrameHold = WrappingCountdown.Start(duration);
         bomb.Sprite = _artwork.ProjectileFrames.Resolve(frame);
         bomb.Radius = SamusProjectileFrameDefinitions.Radius(frame);

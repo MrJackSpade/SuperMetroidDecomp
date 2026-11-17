@@ -9,9 +9,14 @@ internal static class DeadTourianCorpseVisualDefinitionsConstants
     /// </summary>
     public const int CorpseFrameCount = 5;
     /// <summary>Total images in the shared corpse and Sidehopper atlas.</summary>
-    public const int FrameCount = CorpseFrameCount + SidehopperFrameCount;
-    /// <summary>Five Sidehopper images follow the corpse images in the extracted atlas.</summary>
+    public const int FrameCount = CorpseFrameCount + SidehopperOwnFrameCount;
+    /// <summary>
+    /// Five records the dead Sidehopper's programs show: its two sprawled pictures, and the large Sidehopper's three legs,
+    /// which its bank's records draw from the large Sidehopper's tiles (#2327).
+    /// </summary>
     public const int SidehopperFrameCount = 5;
+    /// <summary>The dead Sidehopper's two sprawled pictures follow the corpse images in the extracted atlas.</summary>
+    public const int SidehopperOwnFrameCount = 2;
 
     /// <summary>Provides the native corpse and Sidehopper frame counts used to check dead Tourian visual imports.</summary>
     extension(DeadTourianCorpseVisualDefinitions)
@@ -21,6 +26,5 @@ internal static class DeadTourianCorpseVisualDefinitionsConstants
         /// <inheritdoc cref="DeadTourianCorpseVisualDefinitionsConstants.FrameCount"/>
         internal static int FrameCount => DeadTourianCorpseVisualDefinitionsConstants.FrameCount;
         /// <inheritdoc cref="DeadTourianCorpseVisualDefinitionsConstants.SidehopperFrameCount"/>
-        internal static int SidehopperFrameCount => DeadTourianCorpseVisualDefinitionsConstants.SidehopperFrameCount;
-    }
+        internal static int SidehopperFrameCount => DeadTourianCorpseVisualDefinitionsConstants.SidehopperFrameCount;    }
 }

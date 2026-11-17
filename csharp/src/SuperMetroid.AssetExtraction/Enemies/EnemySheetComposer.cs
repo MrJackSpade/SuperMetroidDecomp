@@ -339,7 +339,6 @@ internal static class EnemySheetComposer
         {
             if (!EnemyDefinitionFrameDefinitions.Frames.TryGetValue(enemy, out IReadOnlyList<EnemyFrameId>? shown))
                 continue;
-            int tileBase = layout.TileBaseOf(enemy);
             // The sheet is coloured in the row the set loads, or the enemy's initialization selects, its colours in.
             int paletteBits = loaded.Colours.RowOf(enemy);
             (IReadOnlyList<SheetShade> fixedShades, IReadOnlyList<SheetRowShade> rowShades) = loaded.Shades.Fixed(enemy);
@@ -347,7 +346,7 @@ internal static class EnemySheetComposer
             var corpses = new Dictionary<string, CorpsePicturePlacement>(StringComparer.Ordinal);
             var blank = new HashSet<string>(StringComparer.Ordinal);
             var frames = new List<SheetFrameSource>();
-            FramePictures[] pictures = [.. Frames(inputs.Enemies, enemy, shown, checked((ushort)tileBase), loaded.Characters)];
+            FramePictures[] pictures = [.. Frames(inputs.Enemies, enemy, shown, layout, loaded.Characters)];
             // An enemy whose encounter sets its colours is coloured in those its frames first show in, and a frame family
             // always drawn in one colouring in that colouring (#1513).
             RgbColor[] colours = loaded.Shades.WithFrameColourings(loaded.Shades.FirstShownColours([enemy]), pictures, paletteBits,
@@ -484,13 +483,14 @@ internal static class EnemySheetComposer
 
     /// <summary>
     /// Each shown frame's pictures over the set's characters, every frame one whole picture: an extended frame's pieces
-    /// are composed into it at their placements (#1513).
+    /// are composed into it at their placements (#1513). Each frame counts from the characters <paramref name="layout"/>
+    /// gives <paramref name="enemy"/> for it: its own, or those of the artwork it draws the frame from (#2327).
     /// </summary>
     private static IEnumerable<FramePictures> Frames(EnemyTileSourceArtwork enemies, EnemyDefinitionId enemy, IReadOnlyList<EnemyFrameId> shown,
-        int tileBase, SetCharacters characters) =>
+        GraphicsSetCharacterLayout layout, SetCharacters characters) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row. A rotting corpse's
         // frames name where the corpse lies in them (#1539).
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(tileBase),
+        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(checked((ushort)layout.TileBaseOf(enemy, frame.Frame))),
             FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
 
     /// <summary>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -55,10 +56,36 @@ internal sealed class GraphicsSetCharacterLayout
         if (EnemyCharacterBaseDefinitions.DrawsAtTilesOf.TryGetValue(enemy, out EnemyDefinitionId tileOwner))
             tileBase = LoadedTileBaseOf(tileOwner);
         tileBase = EnemyCharacterBaseDefinitions.Fixed.GetValueOrDefault(enemy, tileBase);
-        return tileBase < DrawnCharacterIndexLimit ? tileBase
+        return WithinDrawnLimit(enemy, tileBase);
+    }
+
+    /// <summary>
+    /// The character index <paramref name="enemy"/>'s frame <paramref name="frame"/> counts from under this set: where the
+    /// artwork it draws the frame from lands, for a frame it draws from artwork the set loads for no enemy
+    /// (<see cref="EnemyCharacterBaseDefinitions.DrawnFromArtwork"/>, #2327), and the enemy's own index otherwise.
+    /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The set does not load the artwork the frame draws from, or the index lies past the first 256 characters.
+    /// </exception>
+    internal int TileBaseOf(EnemyDefinitionId enemy, EnemyFrameId frame)
+    {
+        if (!EnemyCharacterBaseDefinitions.DrawnFromArtwork.TryGetValue(enemy, out IReadOnlyDictionary<EnemyFrameId, UnplacedEnemyArtwork>? frames)
+            || !frames.TryGetValue(frame, out UnplacedEnemyArtwork artwork))
+            return TileBaseOf(enemy);
+        foreach (GraphicsSetMemberCharacters member in Members)
+        {
+            if (member.Member.Unplaced == artwork)
+                return WithinDrawnLimit(enemy, member.TileIndexBase);
+        }
+        throw new InvalidDataException($"Enemy {enemy} draws frame {frame} from {artwork}, which its graphics set does not load.");
+    }
+
+    /// <summary><paramref name="tileBase"/>, which <paramref name="enemy"/> counts pictures from, within the first 256 characters.</summary>
+    /// <exception cref="InvalidDataException">The index lies past the first 256 characters (<see cref="DrawnCharacterIndexLimit"/>).</exception>
+    private static int WithinDrawnLimit(EnemyDefinitionId enemy, int tileBase) =>
+        tileBase < DrawnCharacterIndexLimit ? tileBase
             : throw new InvalidDataException(
                 $"Enemy {enemy} would count its pictures from character {tileBase}, past the first {DrawnCharacterIndexLimit} its draws keep their index within.");
-    }
 
     /// <summary>
     /// The character index the set's record for <paramref name="definitionId"/> gives, or character zero when the set

@@ -36,13 +36,14 @@ internal static class RoomEnemyPlaceFrameAccess
     {
         /// <summary>
         /// The bank-local word of the frame the slot shows, zero before it shows any: the empty frame of a slot colliding by
-        /// its frames' hitboxes is the point-hitbox record.
+        /// its frames' hitboxes is the point-hitbox record, and a frame another bank stores is its own bank's record storing it
+        /// again (#2327).
         /// </summary>
         internal ushort SpritemapPointer
         {
             // One of Kraid's parts shows a pose, whose record is the first that stores it (#2210).
             get => self.SpeciesState<KraidPartState>()?.Pose is { } pose ? KraidPartFrameToolingDefinitions.Spritemap(pose)
-                : EnemyFrameCartridgeLookupTooling.Word(self.Frame, self.CollidesByFrameHitboxes);
+                : EnemyFrameCartridgeLookupTooling.WordIn(self.NativeHeader.Bank, self.Frame, self.CollidesByFrameHitboxes);
             set
             {
                 // Zero shows no frame in any bank, so a free slot, which names no header, imports it too.

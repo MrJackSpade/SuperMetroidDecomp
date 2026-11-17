@@ -252,7 +252,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDeadTourianCorpseFrameCount +
                 DeadTourianCorpseVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount,
-            "dead Zoomer, Ripper, Skree, and Sidehopper add ten compositions");
+            "dead Zoomer, Ripper, Skree, and Sidehopper add seven compositions; the dead Sidehopper's legs are the large Sidehopper's (#2327)");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreMochtroidFrameCount +
                 MochtroidVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreEvirFrameCount,

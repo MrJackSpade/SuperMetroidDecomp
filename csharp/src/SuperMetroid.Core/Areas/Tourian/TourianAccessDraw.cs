@@ -1,16 +1,13 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The five pictures the Tourian access floor's crumble draws.</summary>
+/// <summary>
+/// The two pictures the Tourian access floor draws besides its rows' crumbling (#2291,
+/// <see cref="TourianAccessDraws.Crumble"/>): a crumbled row cleared, and the whole floor cleared at once.
+/// </summary>
 internal enum TourianAccessDraw
 {
     /// <summary>Clear one row after its crumble frames.</summary>
     EmptyRow,
-    /// <summary>First visible crumble row.</summary>
-    CrumbleFirst,
-    /// <summary>Second visible crumble row.</summary>
-    CrumbleSecond,
-    /// <summary>Third visible crumble row.</summary>
-    CrumbleThird,
     /// <summary>Clear all six rows at once.</summary>
     Clear,
 }

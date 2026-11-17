@@ -15,14 +15,19 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 internal static class RoomObjectVisualIdDefinitions
 {
-    /// <summary>The artwork identity naming each empty, crumble or six-row clear frame in visual files.</summary>
+    /// <summary>The artwork identity naming the empty row and the six-row clear frame in visual files.</summary>
     internal static readonly IReadOnlyDictionary<TourianAccessDraw, string> TourianAccess = new Dictionary<TourianAccessDraw, string>
     {
         [TourianAccessDraw.EmptyRow] = "crumble-empty-row",
-        [TourianAccessDraw.CrumbleFirst] = "crumble-frame-0",
-        [TourianAccessDraw.CrumbleSecond] = "crumble-frame-1",
-        [TourianAccessDraw.CrumbleThird] = "crumble-frame-2",
         [TourianAccessDraw.Clear] = "clear-six-rows",
+    };
+
+    /// <summary>The artwork identity naming each drawn stage of a Tourian access row's crumble in visual files (#2291).</summary>
+    internal static readonly IReadOnlyDictionary<BlockBreakupStage, string> TourianAccessCrumble = new Dictionary<BlockBreakupStage, string>
+    {
+        [BlockBreakupStage.Rock] = "crumble-rock",
+        [BlockBreakupStage.Pieces] = "crumble-pieces",
+        [BlockBreakupStage.Dust] = "crumble-dust",
     };
 
     /// <summary>Each arena draw's editable artwork key.</summary>

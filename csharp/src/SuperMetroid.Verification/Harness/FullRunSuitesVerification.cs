@@ -668,6 +668,8 @@ internal static class FullRunSuitesVerification
             () => SuperMetroid.Verification.Runtime.DoorFadeSamusLitVerification.VerifyDoorFadeKeepsSamusLit()),
         new(nameof(SuperMetroid.Verification.Runtime.DoorFadeSamusLitVerification.VerifyDoorFadeIsTypedFade),
             () => SuperMetroid.Verification.Runtime.DoorFadeSamusLitVerification.VerifyDoorFadeIsTypedFade()),
+        new(nameof(SuperMetroid.Verification.Samus.Movement.SamusPoseMovementTypeVerification.VerifyPoseMovementTypesNameTheirExceptions),
+            () => SuperMetroid.Verification.Samus.Movement.SamusPoseMovementTypeVerification.VerifyPoseMovementTypesNameTheirExceptions()),
         new(nameof(VerifyDoorAlignmentParity), () => VerifyDoorAlignmentParity()),
         new(nameof(VerifyDoorOpeningTrajectories), () => VerifyDoorOpeningTrajectories()),
         new(nameof(VerifyCreditsObjectInterpreter), () => VerifyCreditsObjectInterpreter()),

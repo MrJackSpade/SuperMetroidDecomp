@@ -20,9 +20,9 @@ internal static class TourianAccessObjectDefinitions
     /// <summary>One row's crumble, three breakup images and then the empty row, the first drawn after <paramref name="moveBefore"/>.</summary>
     private static TerrainChangeFrame[] CrumbleRow(Offset16<RoomBlocks> moveBefore) =>
     [
-        new(TourianAccessDraws.Family.Of(TourianAccessDraw.CrumbleFirst), CrumbleFrameDuration, moveBefore),
-        new(TourianAccessDraws.Family.Of(TourianAccessDraw.CrumbleSecond), CrumbleFrameDuration),
-        new(TourianAccessDraws.Family.Of(TourianAccessDraw.CrumbleThird), CrumbleFrameDuration),
+        new(TourianAccessDraws.Crumble(BlockBreakupStage.Rock), CrumbleFrameDuration, moveBefore),
+        new(TourianAccessDraws.Crumble(BlockBreakupStage.Pieces), CrumbleFrameDuration),
+        new(TourianAccessDraws.Crumble(BlockBreakupStage.Dust), CrumbleFrameDuration),
         new(TourianAccessDraws.Family.Of(TourianAccessDraw.EmptyRow), CrumbleFrameDuration),
     ];
 

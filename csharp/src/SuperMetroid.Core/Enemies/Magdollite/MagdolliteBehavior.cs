@@ -98,7 +98,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Restarts the room's lava glow at its first frame, which every Magdollite and its lava show at once, holding it
     /// for <see cref="MagdolliteMotionDefinitions.GlowFrameDuration"/> updates.
     /// </summary>
-    internal void RestartGlow()
+    private void RestartGlow()
     {
         _glowStarted = true;
         GlowStepCountdown = MagdolliteMotionDefinitions.GlowFrameDuration;
@@ -535,13 +535,17 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowGlow();
     }
 
-    /// <summary>Shows the glow's current frame on every Magdollite part in the room and on the lava they have thrown.</summary>
+    /// <summary>
+    /// Shows the glow's current frame on every Magdollite part still in the place the species set it up in, and on the
+    /// lava they have thrown (#2306).
+    /// </summary>
     private void ShowGlow()
     {
         PictureShading glow = Glow;
-        foreach (RoomEnemyPlace part in _places.InUpdateOrder)
+        foreach (RoomEnemyPlace part in _partners.Placed)
         {
-            if (part.DefinitionId == EnemyDefinitionId.Magdollite)
+            // A place whose part has left it, and any enemy that took the place since, shows no glow.
+            if (part.SpeciesState<MagdollitePartState>() is not null)
                 part.Shading = glow;
         }
         foreach (EnemyProjectile lava in _projectiles.EnemyProjectiles)

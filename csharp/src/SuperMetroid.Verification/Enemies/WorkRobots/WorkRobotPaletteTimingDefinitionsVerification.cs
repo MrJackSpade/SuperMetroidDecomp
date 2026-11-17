@@ -46,7 +46,11 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         }
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = stock })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.WorkRobotBehavior.RestartGlow();
+        // A powered robot's initialization restarts the glow; the glow shows on the robot it placed and on no other place
+        // (#2306).
+        RoomEnemyPlace robot = enemies.Places.InUpdateOrder[0];
+        RoomEnemyPlace other = enemies.Places.InUpdateOrder[1];
+        enemies.WorkRobotBehavior.InitializePoweredWorkRobot(robot);
         var step = new Action(enemies.WorkRobotBehavior.StepGlow);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];
@@ -68,6 +72,10 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             // record (#1512); those colours are compared with bank $A3 above.
             AssertEqual(PictureShading.Shaded(WorkRobotShades.Glow(record)), enemies.WorkRobotBehavior.Glow,
                 $"production Work Robot palette load {nextLoad} shows the record's glow shade");
+            AssertEqual(enemies.WorkRobotBehavior.Glow, robot.Shading,
+                $"production Work Robot palette load {nextLoad} shows on the robot it placed");
+            AssertEqual(PictureShading.Standard, other.Shading,
+                $"production Work Robot palette load {nextLoad} leaves a place it did not set up in its standard colours");
             nextLoad++;
         }
 

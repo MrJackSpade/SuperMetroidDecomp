@@ -39,8 +39,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates lasers from the common enemy projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>The room's enemy places, whose powered robots all show the shared glow.</summary>
-    private readonly EnemyPlaces _places;
+    /// <summary>The places of the powered robots the room has set up, in the order they were placed; all show the shared glow (#2306).</summary>
+    private readonly List<RoomEnemyPlace> _poweredRobots = [];
 
     /// <summary>Whether Phantoon is defeated, which powers the work robots.</summary>
     internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss);
@@ -49,13 +49,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds robot locomotion, power state, lasers, and the glow to room services.</summary>
-    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPlaces places, EnemyAudioQueue audio)
+    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
-        _places = places;
     }
 
     /// <summary>Updates left before the powered robots' glow steps; zero while the glow is stopped.</summary>
@@ -73,6 +72,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new WorkRobotEnemyState();
         place.SetSpeciesState(state);
+        _poweredRobots.Add(place);
 
         // A powered robot is solid to Samus and animates; its placements already process it off screen in every retail
         // room.
@@ -93,7 +93,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Restarts the powered robots' glow so that it steps to its first step on the next update: it rests on its last
     /// step until then.
     /// </summary>
-    internal void RestartGlow()
+    private void RestartGlow()
     {
         GlowStepCountdown = 1;
         GlowStep = WorkRobotGlowDefinitions.StepCount - 1;
@@ -276,7 +276,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Counts down the powered robots' glow after the enemies' update unless it is stopped; when the step's time is up
-    /// the glow shows its next step on every powered robot and holds it for that step's duration.
+    /// the glow shows its next step on every powered robot still in the place it set up and holds it for that step's
+    /// duration.
     /// </summary>
     internal void StepGlow()
     {
@@ -287,8 +288,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         GlowStep = (GlowStep + 1) % WorkRobotGlowDefinitions.StepCount;
         PictureShading glow = Glow;
-        foreach (RoomEnemyPlace robot in _places.InUpdateOrder)
+        foreach (RoomEnemyPlace robot in _poweredRobots)
         {
+            // A place whose robot has left it, and any enemy that took the place since, shows no glow.
             if (robot.SpeciesState<WorkRobotEnemyState>() is not null)
                 robot.Shading = glow;
         }

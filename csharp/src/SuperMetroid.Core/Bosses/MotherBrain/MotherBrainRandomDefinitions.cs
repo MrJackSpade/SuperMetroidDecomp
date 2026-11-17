@@ -57,13 +57,13 @@ internal static class MotherBrainRandomDefinitions
     /// <summary>
     /// The chance her third phase attacks on an update she stands free to attack: the upper half of the samples, one in two.
     /// </summary>
-    internal static readonly RandomChance ThirdPhaseAttacks = RandomChance.Highest(32768, RandomSampleField.Whole);
+    internal static readonly RandomChance ThirdPhaseAttacks = RandomChance.Highest(RandomSampleField.Whole.Outcomes / 2, RandomSampleField.Whole);
 
     /// <summary>
     /// The chance each update of her attacks on the Baby that she fires a volley: the upper half of the samples, one in
     /// two.
     /// </summary>
-    internal static readonly RandomChance BabyVolleyFires = RandomChance.Highest(32768, RandomSampleField.Whole);
+    internal static readonly RandomChance BabyVolleyFires = RandomChance.Highest(RandomSampleField.Whole.Outcomes / 2, RandomSampleField.Whole);
 
     /// <summary>A rotting corpse's dust offset, 0 through 31 pixels added to the brain's X less sixteen: the sample modulo 32.</summary>
     internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);

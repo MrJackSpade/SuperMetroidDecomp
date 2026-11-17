@@ -64,6 +64,21 @@ public readonly record struct FadeLevelColour
     /// <summary>The plain colour these levels show: the levels spread evenly over each channel from none to full.</summary>
     public RgbColor ToColour() => new(Shown(Red), Shown(Green), Shown(Blue));
 
+    /// <summary>
+    /// The colour <paramref name="progress"/> of <paramref name="length"/> of the way from <paramref name="from"/> to
+    /// <paramref name="to"/> (#2289, #2294): each level moves by the fade's part of the way, truncated to a whole level, so
+    /// every colour a fade shows lies on the scale. Every typed fade, of a colour or of a picture's shadings, steps so.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">The length is not one or more, or the progress is not zero through it.</exception>
+    public static FadeLevelColour Partway(FadeLevelColour from, FadeLevelColour to, int progress, int length)
+    {
+        Ensure.BetweenInclusive(1, int.MaxValue, length);
+        Ensure.BetweenInclusive(0, length, progress);
+        return new(Step(from.Red, to.Red), Step(from.Green, to.Green), Step(from.Blue, to.Blue));
+
+        int Step(int start, int end) => start + ((end - start) * progress / length);
+    }
+
     /// <summary>These levels with one channel's replaced.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="channel"/> is not a defined channel.</exception>
     public FadeLevelColour With(ColorChannel channel, int value) => channel switch

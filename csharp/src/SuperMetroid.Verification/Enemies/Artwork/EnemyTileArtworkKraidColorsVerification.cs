@@ -223,30 +223,36 @@ internal static class EnemyTileArtworkKraidColorsVerification
     }
 
     /// <summary>
-    /// A fade between two shadings shows each colour partway between what each shading shows over it, each channel moved
-    /// by the fade's part of the way and truncated; a fade from a fade starts from that fade's colours (#2215).
+    /// A fade between two shadings shows each colour partway between what each shading shows over it, each fade level
+    /// moved by the fade's part of the way and truncated to a whole level, so every colour it shows lies on the game's fade
+    /// scale (#2294); a fade from a fade starts from that fade's colours (#2215).
     /// </summary>
     private static void VerifyPictureShadeFadeColours()
     {
-        SpriteImage picture = SpriteImageFixtures.Copied("Faded", new(2, 1), [new RgbaPixel(100, 0, 200), new RgbaPixel(10, 250, 31)],
+        RgbColor first = new FadeLevelColour(12, 0, 25).ToColour(), second = new FadeLevelColour(1, 30, 4).ToColour();
+        SpriteImage picture = SpriteImageFixtures.Copied("Faded", new(2, 1),
+            [new RgbaPixel((byte)first.Red, (byte)first.Green, (byte)first.Blue), new RgbaPixel((byte)second.Red, (byte)second.Green, (byte)second.Blue)],
             new PictureColours { Backdrop = ColourKeyConstants.Of(RgbColor.Black) });
         PictureShading white = PictureShading.Standard.With(new ColourFlash(RgbColor.White));
         PictureShading halfway = PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, white, 1, 2));
         RgbColor[] shown = halfway.KeyColours(picture);
+        const int full = FadeLevelColour.FullLevel;
         for (int key = 0; key < shown.Length; key++)
         {
-            RgbColor own = picture.ColourKeys[key].Colour;
-            AssertEqual(new RgbColor(own.Red + ((255 - own.Red) / 2), own.Green + ((255 - own.Green) / 2), own.Blue + ((255 - own.Blue) / 2)),
-                shown[key], $"key {key} shows halfway to white");
+            FadeLevelColour own = picture.ColourKeys[key].Colour.FadeLevels;
+            AssertEqual(new FadeLevelColour(own.Red + ((full - own.Red) / 2), own.Green + ((full - own.Green) / 2), own.Blue + ((full - own.Blue) / 2)).ToColour(),
+                shown[key], $"key {key} shows halfway to white on the fade levels");
         }
         PictureShading black = PictureShading.Standard.With(new ColourFlash(RgbColor.Black));
         RgbColor[] fromHalfway = PictureShading.Standard.With(new PictureShadeFade(halfway, black, 3, 4)).KeyColours(picture);
         for (int key = 0; key < shown.Length; key++)
         {
-            RgbColor start = shown[key];
-            AssertEqual(new RgbColor(start.Red - (start.Red * 3 / 4), start.Green - (start.Green * 3 / 4), start.Blue - (start.Blue * 3 / 4)),
-                fromHalfway[key], $"key {key} shows three quarters from the halfway colour to black");
+            FadeLevelColour start = shown[key].FadeLevels;
+            AssertEqual(new FadeLevelColour(start.Red - (start.Red * 3 / 4), start.Green - (start.Green * 3 / 4), start.Blue - (start.Blue * 3 / 4)).ToColour(),
+                fromHalfway[key], $"key {key} shows three quarters from the halfway colour to black on the fade levels");
         }
+        AssertTrue(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, white, 1, 3)).KeyColours(picture)
+            .All(colour => colour == colour.FadeLevels.ToColour()), "every colour a fade shows lies on the game's fade scale");
         AssertTrue(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, white, 0, 2)).KeyColours(picture)
             .SequenceEqual(PictureShading.Standard.KeyColours(picture)), "a fade that has not moved shows what it starts from");
         AssertTrue(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, white, 2, 2)).KeyColours(picture)

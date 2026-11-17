@@ -240,16 +240,13 @@ internal sealed class MotherBrainBody
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
         {
-            // Tests only middle joints one, two, and three. Joint zero is buried in
-            // the body and joint four is already covered by the separate brain rectangles.
-            Position16<RoomPixels>[] collisionSegments = state.NeckJoints[MotherBrainNeckJointDefinitions.CollisionJoints];
-            foreach (Position16<RoomPixels> segment in collisionSegments)
+            foreach (MotherBrainNeckJoint joint in state.Neck.ExposedJoints)
             {
                 if (ResolveMotherBrainSamusCollisionPart(
                         state,
                         samus,
                         MotherBrainContactPart.Neck,
-                        segment))
+                        joint.Position))
                 {
                     return true;
                 }

@@ -346,10 +346,8 @@ internal sealed class MotherBrainFakeDeath
         state.Head.Position = state.Head.Position.WithWholeY(MotherBrainFightDefinitions.BrainFloorY);
         state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
 
-        // The main tube's landing initializes the neck, not phase-two setup. These
-        // lengths and starting angles must exist before the ascent gets installed several
-        // frames later or the first visible neck frame collapses every joint onto zero.
-        MotherBrainNeckJointDefinitions.InitialDistances.CopyTo(state.NeckJointDistances);
+        // The main tube's landing sets the neck's starting angles, not phase-two setup, several updates before the ascent
+        // first shows the neck.
         state.LowerNeckAngle = MotherBrainNeckJointDefinitions.InitialLowerAngle;
         state.UpperNeckAngle = MotherBrainNeckJointDefinitions.InitialUpperAngle;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;

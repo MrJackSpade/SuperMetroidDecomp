@@ -253,22 +253,14 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool DrawNeck { get; internal set; }
 
     /// <summary>
-    /// Each neck joint's pixel distance from its anchor, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
-    /// the lower joints' from the shared body anchor, the upper joints' from the upper-neck anchor. The main tube's landing
-    /// initializes them.
+    /// Her neck (#2314): the lower joints hang from her body on the lower angle, the upper joints from the last lower joint
+    /// on the upper angle. Neck drawing and collision use them, and the last joint places the head.
     /// </summary>
-    public int[] NeckJointDistances { get; } = new int[MotherBrainNeckJointDefinitions.Count];
+    public MotherBrainNeck Neck { get; } = new();
 
-    /// <summary>
-    /// The neck joints' wrapping world-pixel positions, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
-    /// the lower joints hang from the body on the lower angle, the upper joints from the upper-neck anchor on the upper
-    /// angle. Neck drawing and collision use them, and the brain anchor places the head.
-    /// </summary>
-    public Position16<RoomPixels>[] NeckJoints { get; } = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
-
-    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its whole step places joints 0 through 2.</summary>
+    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its whole step places the lower joints.</summary>
     public RotationAngle LowerNeckAngle { get; internal set; }
-    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places joints 3 and 4.</summary>
+    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places the upper joints.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
     /// <summary>
     /// How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>), forward or

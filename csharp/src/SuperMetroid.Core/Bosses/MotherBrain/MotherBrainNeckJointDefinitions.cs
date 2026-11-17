@@ -3,25 +3,23 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Mother Brain's articulated neck joints, indexed from the body (joint 0) to the brain (joint 4), as
-/// the neck placement places them: the lower joints hang from the body reference on the lower-neck angle, and the
-/// upper joints hang from the upper-neck anchor on the upper-neck angle.
+/// Mother Brain's articulated neck (#2314): its lower joints hang from her body on the lower-neck angle, and its upper
+/// joints hang from the last lower joint on the upper-neck angle; her brain sits on the last upper joint.
 /// </summary>
 internal static class MotherBrainNeckJointDefinitions
 {
-    /// <summary>The number of neck joints.</summary>
-    internal const int Count = 5;
+    /// <summary>
+    /// Where the lower joints hang from: thirty-two pixels right of and fifty above her body's position.
+    /// </summary>
+    internal static readonly Offset16<RoomPixels> LowerNeckRoot = new(32, -50);
 
-    /// <summary>The number of lower joints, 0 through 2, placed from the body reference.</summary>
-    internal const int LowerCount = 3;
+    /// <summary>Each lower joint's pixel distance from <see cref="LowerNeckRoot"/>, from the body up.</summary>
+    internal static ImmutableArray<int> LowerJointDistances { get; } = [2, 10, 20];
 
-    /// <summary>Joint 2: the last lower joint, from which the upper joints hang.</summary>
-    internal const int UpperAnchor = 2;
+    /// <summary>Each upper joint's pixel distance from the last lower joint, from it up to the brain.</summary>
+    internal static ImmutableArray<int> UpperJointDistances { get; } = [10, 20];
 
-    /// <summary>Joint 4: the articulated head follows it, raised by <see cref="BrainAboveAnchor"/>.</summary>
-    internal const int BrainAnchor = 4;
-
-    /// <summary>Where the articulated head sits on <see cref="BrainAnchor"/>: twenty-one pixels above it.</summary>
+    /// <summary>Where the articulated head sits on the neck's last joint: twenty-one pixels above it.</summary>
     internal static readonly Offset16<RoomPixels> BrainAboveAnchor = new(0, -21);
 
     /// <summary>The lower-neck angle the main tube's landing gives the neck.</summary>
@@ -29,10 +27,4 @@ internal static class MotherBrainNeckJointDefinitions
 
     /// <summary>The upper-neck angle the main tube's landing gives the neck.</summary>
     internal static readonly RotationAngle InitialUpperAngle = RotationAngle.FromSteps(80);
-
-    /// <summary>The joints the neck hitboxes test: joint 0 is buried in the body and joint 4 is covered by the brain rectangles.</summary>
-    internal static Range CollisionJoints { get; } = 1..4;
-
-    /// <summary>Each joint's pixel distance from its anchor as the main tube's landing initializes it, indexed by joint.</summary>
-    internal static ImmutableArray<int> InitialDistances { get; } = [2, 10, 20, 10, 20];
 }

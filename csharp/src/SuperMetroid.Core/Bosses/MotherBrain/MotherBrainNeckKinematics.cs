@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -160,60 +158,38 @@ internal static class MotherBrainNeckKinematics
         }
     }
 
-    /// <summary>Computes all five signed sine/cosine positions: each joint's room-pixel position, indexed by joint.</summary>
+    /// <summary>
+    /// Places every joint of <paramref name="neck"/>: each lower joint at its distance from the lower neck's root on
+    /// <paramref name="lowerAngle"/>, then each upper joint at its distance from the last lower joint on
+    /// <paramref name="upperAngle"/>.
+    /// </summary>
+    /// <param name="neck">The neck whose joints are placed.</param>
     /// <param name="body">The body's position.</param>
     /// <param name="lowerAngle">The angle the lower joints hang at.</param>
     /// <param name="upperAngle">The angle the upper joints hang at.</param>
-    /// <param name="distances">Each joint's distance from its anchor, indexed by joint.</param>
-    internal static ImmutableArray<Position16<RoomPixels>> CalculateGeometry(Position16<RoomPixels> body, RotationAngle lowerAngle, RotationAngle upperAngle, IReadOnlyList<int> distances)
+    internal static void PlaceJoints(MotherBrainNeck neck, Position16<RoomPixels> body, RotationAngle lowerAngle, RotationAngle upperAngle)
     {
-        // The body reference point is deliberately offset. Adding (112,-96)
-        // below reduces it to body+(32,-50), but retaining the two stages keeps each
-        // segment's equation separately readable.
-        Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
+        Position16<RoomPixels> root = body + MotherBrainNeckJointDefinitions.LowerNeckRoot;
         TrigonometryAngle lower = lowerAngle.ToTrigonometryAngle();
         TrigonometryAngle upper = upperAngle.ToTrigonometryAngle();
-
-        var joints = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
-        for (int joint = 0; joint < MotherBrainNeckJointDefinitions.LowerCount; joint++)
-            joints[joint] = CalculateLowerSegment(reference, lower, distances[joint]);
-        for (int joint = MotherBrainNeckJointDefinitions.LowerCount; joint < MotherBrainNeckJointDefinitions.Count; joint++)
-            joints[joint] = joints[MotherBrainNeckJointDefinitions.UpperAnchor] + CalculatePolarOffset(upper, distances[joint]);
-        return [.. joints];
+        foreach (MotherBrainNeckJoint joint in neck.Lower)
+            joint.Position = root + CalculatePolarOffset(lower, joint.Distance);
+        Position16<RoomPixels> upperRoot = neck.UpperAnchor.Position;
+        foreach (MotherBrainNeckJoint joint in neck.Upper)
+            joint.Position = upperRoot + CalculatePolarOffset(upper, joint.Distance);
     }
 
-    /// <summary>Places a lower-neck joint from the body-relative reference point and its signed polar displacement.</summary>
-    private static Position16<RoomPixels> CalculateLowerSegment(
-        Position16<RoomPixels> reference,
-        TrigonometryAngle angle,
-        int distance) =>
-        reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
-
     /// <summary>
-    /// One joint's displacement: the sine multiply for the angle (X) and the angle plus a
-    /// quarter turn (Y), each added to the anchor wrapping at 65536.
+    /// One joint's displacement from its anchor: its distance along the angle's sine across (X) and along the sine of the
+    /// angle a quarter turn on down (Y).
     /// </summary>
     private static Offset16<RoomPixels> CalculatePolarOffset(TrigonometryAngle angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),
             CalculateSignedComponent(angle.TurnedBy(TrigonometryAngle.QuarterTurn), distance));
 
     /// <summary>
-    /// The farthest a joint lies from its anchor, in pixels (#1627): the game multiplies the sine by the distance as a
-    /// signed count of whole pixels, which goes no further, and the neck's distances are 2, 10 and 20, so a farther one is
-    /// rejected rather than given a product the game never forms.
+    /// One axis of a joint's displacement: its distance times the angle's sine, in whole pixels rounded down.
     /// </summary>
-    private const int FarthestJointDistance = 127;
-
-    /// <summary>
-    /// The signed sine multiply, keeping the product's whole pixels exactly as the game does. A joint lies at most
-    /// <see cref="FarthestJointDistance"/> pixels from its anchor.
-    /// </summary>
-    internal static int CalculateSignedComponent(
-        TrigonometryAngle angle,
-        int distance)
-    {
-        int sine = Trigonometry.SignedSine(angle);
-        int product = sine * Ensure.BetweenInclusive(0, FarthestJointDistance, distance);
-        return CoordinateAxis.AsSigned(EightEight.WholeOf(product));
-    }
+    internal static int CalculateSignedComponent(TrigonometryAngle angle, int distance) =>
+        EightEight.WholeOf(Trigonometry.SignedSine(angle) * distance);
 }

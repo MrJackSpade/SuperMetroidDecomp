@@ -101,8 +101,7 @@ internal sealed class MotherBrainHead
                 StepMotherBrainNeck(
                     state,
                     samus);
-                Position16<RoomPixels> brainAnchor = state.NeckJoints[MotherBrainNeckJointDefinitions.BrainAnchor];
-                head.Position = head.Position.WithWhole(brainAnchor + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
+                head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
                 state.DrawBrain = true;
                 state.DrawNeck = true;
                 return;
@@ -156,14 +155,12 @@ internal sealed class MotherBrainHead
         // last. Equal-priority overlap therefore follows the same drawing precedence.
         int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.FlashTimer);
         Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
-        Position16<RoomPixels>[] segments = state.NeckJoints;
-        for (int index = segments.Length - 1; index >= 0; index--)
+        foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {
-            Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldFrame(
                 sprites,
                 new SpriteSource(SpriteSourceKind.MotherBrainNeck),
-                new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, segment + neckShake,
+                new MotherBrainWorldFrame(MotherBrainVisualDefinitions.NeckJointFrame, joint.Position + neckShake,
                     state.Colours.OwnShading),
                 camera,
                 ShownCorpseRows(state));
@@ -246,8 +243,7 @@ internal sealed class MotherBrainHead
             state.UpperNeckMovement = upperMovement;
         }
 
-        MotherBrainNeckKinematics.CalculateGeometry(state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle, state.NeckJointDistances)
-            .CopyTo(state.NeckJoints);
+        MotherBrainNeckKinematics.PlaceJoints(state.Neck, state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle);
     }
 
     /// <summary>

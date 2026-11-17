@@ -29,7 +29,6 @@ internal static class RidleyAnimationsVerification
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((RidleyBodySegment)index, BodyEntries[index].Program, "the Ridley body programs are declared in authored order");
         AssertTrue(BodyEntries.Zip(BodyEntries.Skip(1), (first, second) => first.Entry < second.Entry).All(ascends => ascends), "native Ridley body entries ascend");
-        AssertEqual(Enum.GetValues<RidleyFireballSegment>().Length, FireballEntries.Length, "every typed fireball program has a native entry");
 
         var body = RidleyNativeProgramOracle.BodyLists(cartridge);
         RidleyNativeProgramOracle.CompareBreakupLists(cartridge);

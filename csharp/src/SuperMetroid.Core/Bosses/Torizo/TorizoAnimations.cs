@@ -31,9 +31,9 @@ internal static class TorizoAnimations
         [A.BombTorizoFaceBlowingUp] = new([Whole(A.BombTorizoFaceBlowingUp)], AnimationEnd.Holds),
         [A.Dying] = new([Whole(A.Dying), Repeat(A.DyingExplosions, 8), Whole(A.DyingFadeToBlack), Repeat(A.DyingFlickering, 14), Whole(A.DyingFinish)], AnimationEnd.Stops),
         [A.BombTorizoDormant] = new([Whole(A.BombTorizoDormant)], AnimationEnd.Holds),
-        [A.BombTorizoAwakening] = new([Whole(A.BombTorizoAwakening), Repeat(A.SeatedEyesLightingAgain, 2), Whole(A.BombTorizoStandingUp), Repeat(A.StandingColourFade, 16), Whole(A.BombTorizoFightStart), .. Walk(A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving)], AnimationEnd.LoopsFrom(5)),
+        [A.BombTorizoAwakening] = Animation<A>.LeadingInto([Whole(A.BombTorizoAwakening), Repeat(A.SeatedEyesLightingAgain, 2), Whole(A.BombTorizoStandingUp), Repeat(A.StandingColourFade, 16), Whole(A.BombTorizoFightStart)], Walk(A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving)),
         [A.Stunned] = new([Whole(A.Stunned), Repeat(A.StunnedEyesLightingAgain, 2), Whole(A.StunnedRecovery)], AnimationEnd.Holds),
-        [A.TurningLeft] = new([Whole(A.TurningLeft), .. Walk(A.FacingLeftWalkingRightLegMoving, A.FacingLeftWalkingLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.TurningLeft] = ThenWalking(A.TurningLeft, A.FacingLeftWalkingRightLegMoving, A.FacingLeftWalkingLeftLegMoving),
         [A.FacingLeftSpewingChozoOrbsRightFootForward] = Spew(A.FacingLeftSpewingChozoOrbsRightFootForward, A.BombChozoOrbBurst, 3, A.FacingLeftSpewingChozoOrbsRightFootForwardEnd),
         [A.FacingLeftSpewingChozoOrbsLeftFootForward] = Spew(A.FacingLeftSpewingChozoOrbsLeftFootForward, A.BombChozoOrbBurst, 3, A.FacingLeftSpewingChozoOrbsLeftFootForwardEnd),
         [A.FacingLeftSonicBoomsRightFootForward] = SonicBooms(A.FacingLeftSonicBoomsRightFootForward, A.FacingLeftSonicBoomsRightFootForwardThrowing, A.FacingLeftSonicBoomsRightFootForwardEnd),
@@ -42,17 +42,17 @@ internal static class TorizoAnimations
         [A.FacingLeftExplosiveSwipeLeftFootForward] = new([Whole(A.FacingLeftExplosiveSwipeLeftFootForward)], AnimationEnd.Holds),
         [A.FacingLeftJumpingForward] = Jump(A.FacingLeftJumpingForward, A.FacingLeftRising, A.FacingLeftFalling, A.FacingLeftFallingPose),
         [A.FacingLeftFalling] = Fall(A.FacingLeftFalling, A.FacingLeftFallingPose),
-        [A.FacingLeftLanding] = new([Whole(A.FacingLeftLanding), .. Walk(A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftLanding] = ThenWalking(A.FacingLeftLanding, A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving),
         [A.FacingLeftJumpingBackwardToLeftFoot] = Jump(A.FacingLeftJumpingBackwardToLeftFoot, A.FacingLeftRising, A.FacingLeftFallingBackwardToLeftFoot, A.FacingLeftFallingPose),
         [A.FacingLeftFallingBackwardToLeftFoot] = Fall(A.FacingLeftFallingBackwardToLeftFoot, A.FacingLeftFallingPose),
-        [A.FacingLeftLandingBackwardOnLeftFoot] = new([Whole(A.FacingLeftLandingBackwardOnLeftFoot), .. Walk(A.FacingLeftWalkingRightLegMoving, A.FacingLeftWalkingLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftLandingBackwardOnLeftFoot] = ThenWalking(A.FacingLeftLandingBackwardOnLeftFoot, A.FacingLeftWalkingRightLegMoving, A.FacingLeftWalkingLeftLegMoving),
         [A.FacingLeftJumpingBackwardToRightFoot] = Jump(A.FacingLeftJumpingBackwardToRightFoot, A.FacingLeftRising, A.FacingLeftFallingBackwardToRightFoot, A.FacingLeftFallingPose),
         [A.FacingLeftFallingBackwardToRightFoot] = Fall(A.FacingLeftFallingBackwardToRightFoot, A.FacingLeftFallingPose),
-        [A.FacingLeftLandingBackwardOnRightFoot] = new([Whole(A.FacingLeftLandingBackwardOnRightFoot), .. Walk(A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.FacelessTurningLeft] = new([Whole(A.FacelessTurningLeft), .. Walk(A.FacingLeftFacelessWalkingRightLegMoving, A.FacingLeftFacelessWalkingLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingLeftLandingBackwardOnRightFoot] = ThenWalking(A.FacingLeftLandingBackwardOnRightFoot, A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving),
+        [A.FacelessTurningLeft] = ThenWalking(A.FacelessTurningLeft, A.FacingLeftFacelessWalkingRightLegMoving, A.FacingLeftFacelessWalkingLeftLegMoving),
         [A.FacingLeftFacelessWalkingRightLegMoving] = Walking(A.FacingLeftFacelessWalkingRightLegMoving, A.FacingLeftFacelessWalkingLeftLegMoving),
         [A.FacingLeftFacelessWalkingLeftLegMoving] = Walking(A.FacingLeftFacelessWalkingLeftLegMoving, A.FacingLeftFacelessWalkingRightLegMoving),
-        [A.TurningRight] = new([Whole(A.TurningRight), .. Walk(A.FacingRightWalkingLeftLegMoving, A.FacingRightWalkingRightLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.TurningRight] = ThenWalking(A.TurningRight, A.FacingRightWalkingLeftLegMoving, A.FacingRightWalkingRightLegMoving),
         [A.FacingRightSpewingChozoOrbsLeftFootForward] = Spew(A.FacingRightSpewingChozoOrbsLeftFootForward, A.BombChozoOrbBurst, 3, A.FacingRightSpewingChozoOrbsLeftFootForwardEnd),
         [A.FacingRightSpewingChozoOrbsRightFootForward] = Spew(A.FacingRightSpewingChozoOrbsRightFootForward, A.BombChozoOrbBurst, 3, A.FacingRightSpewingChozoOrbsRightFootForwardEnd),
         [A.FacingRightSonicBoomsLeftFootForward] = SonicBooms(A.FacingRightSonicBoomsLeftFootForward, A.FacingRightSonicBoomsLeftFootForwardThrowing, A.FacingRightSonicBoomsLeftFootForwardEnd),
@@ -61,18 +61,18 @@ internal static class TorizoAnimations
         [A.FacingRightExplosiveSwipeRightFootForward] = new([Whole(A.FacingRightExplosiveSwipeRightFootForward)], AnimationEnd.Holds),
         [A.FacingRightJumpingForward] = Jump(A.FacingRightJumpingForward, A.FacingRightRising, A.FacingRightFalling, A.FacingRightFallingPose),
         [A.FacingRightFalling] = Fall(A.FacingRightFalling, A.FacingRightFallingPose),
-        [A.FacingRightLanding] = new([Whole(A.FacingRightLanding), .. Walk(A.FacingRightWalkingRightLegMoving, A.FacingRightWalkingLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightLanding] = ThenWalking(A.FacingRightLanding, A.FacingRightWalkingRightLegMoving, A.FacingRightWalkingLeftLegMoving),
         [A.FacingRightJumpingBackwardToRightFoot] = Jump(A.FacingRightJumpingBackwardToRightFoot, A.FacingRightRising, A.FacingRightFallingBackwardToRightFoot, A.FacingRightFallingPose),
         [A.FacingRightFallingBackwardToRightFoot] = Fall(A.FacingRightFallingBackwardToRightFoot, A.FacingRightFallingPose),
-        [A.FacingRightLandingBackwardOnRightFoot] = new([Whole(A.FacingRightLandingBackwardOnRightFoot), .. Walk(A.FacingRightWalkingLeftLegMoving, A.FacingRightWalkingRightLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightLandingBackwardOnRightFoot] = ThenWalking(A.FacingRightLandingBackwardOnRightFoot, A.FacingRightWalkingLeftLegMoving, A.FacingRightWalkingRightLegMoving),
         [A.FacingRightJumpingBackwardToLeftFoot] = Jump(A.FacingRightJumpingBackwardToLeftFoot, A.FacingRightRising, A.FacingRightFallingBackwardToLeftFoot, A.FacingRightFallingPose),
         [A.FacingRightFallingBackwardToLeftFoot] = Fall(A.FacingRightFallingBackwardToLeftFoot, A.FacingRightFallingPose),
-        [A.FacingRightLandingBackwardOnLeftFoot] = new([Whole(A.FacingRightLandingBackwardOnLeftFoot), .. Walk(A.FacingRightWalkingRightLegMoving, A.FacingRightWalkingLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.FacelessTurningRight] = new([Whole(A.FacelessTurningRight), .. Walk(A.FacingRightFacelessWalkingLeftLegMoving, A.FacingRightFacelessWalkingRightLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.FacingRightLandingBackwardOnLeftFoot] = ThenWalking(A.FacingRightLandingBackwardOnLeftFoot, A.FacingRightWalkingRightLegMoving, A.FacingRightWalkingLeftLegMoving),
+        [A.FacelessTurningRight] = ThenWalking(A.FacelessTurningRight, A.FacingRightFacelessWalkingLeftLegMoving, A.FacingRightFacelessWalkingRightLegMoving),
         [A.FacingRightFacelessWalkingLeftLegMoving] = Walking(A.FacingRightFacelessWalkingLeftLegMoving, A.FacingRightFacelessWalkingRightLegMoving),
         [A.FacingRightFacelessWalkingRightLegMoving] = Walking(A.FacingRightFacelessWalkingRightLegMoving, A.FacingRightFacelessWalkingLeftLegMoving),
         [A.GoldenTorizoDormant] = new([Whole(A.GoldenTorizoDormant)], AnimationEnd.Holds),
-        [A.GoldenTorizoAwakening] = new([Whole(A.GoldenTorizoAwakening), Whole(A.GoldenTorizoSettling), Repeat(A.SeatedEyesLightingAgain, 2), Whole(A.GoldenTorizoStandingUp), Repeat(A.StandingColourFade, 16), Whole(A.GoldenTorizoFightStart), .. Walk(A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving)], AnimationEnd.LoopsFrom(6)),
+        [A.GoldenTorizoAwakening] = Animation<A>.LeadingInto([Whole(A.GoldenTorizoAwakening), Whole(A.GoldenTorizoSettling), Repeat(A.SeatedEyesLightingAgain, 2), Whole(A.GoldenTorizoStandingUp), Repeat(A.StandingColourFade, 16), Whole(A.GoldenTorizoFightStart)], Walk(A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving)),
         [A.GoldenFacingLeftSpewingChozoOrbsRightFootForward] = Spew(A.GoldenFacingLeftSpewingChozoOrbsRightFootForward, A.GoldenChozoOrbBurst, 6, A.GoldenFacingLeftSpewingChozoOrbsRightFootForwardEnd),
         [A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward] = Spew(A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward, A.GoldenChozoOrbBurst, 6, A.GoldenFacingLeftSpewingChozoOrbsLeftFootForwardEnd),
         [A.GoldenFacingLeftSonicBoomsRightFootForward] = SonicBooms(A.GoldenFacingLeftSonicBoomsRightFootForward, A.GoldenFacingLeftSonicBoomsRightFootForwardThrowing, A.GoldenFacingLeftSonicBoomsRightFootForwardEnd),
@@ -81,23 +81,23 @@ internal static class TorizoAnimations
         [A.GoldenFacingRightSpewingChozoOrbsRightFootForward] = Spew(A.GoldenFacingRightSpewingChozoOrbsRightFootForward, A.GoldenChozoOrbBurst, 6, A.GoldenFacingRightSpewingChozoOrbsRightFootForwardEnd),
         [A.GoldenFacingRightSonicBoomsLeftFootForward] = SonicBooms(A.GoldenFacingRightSonicBoomsLeftFootForward, A.GoldenFacingRightSonicBoomsLeftFootForwardThrowing, A.GoldenFacingRightSonicBoomsLeftFootForwardEnd),
         [A.GoldenFacingRightSonicBoomsRightFootForward] = SonicBooms(A.GoldenFacingRightSonicBoomsRightFootForward, A.GoldenFacingRightSonicBoomsRightFootForwardThrowing, A.GoldenFacingRightSonicBoomsRightFootForwardEnd),
-        [A.GoldenFacingLeftLandedBackwardOnLeftFoot] = new([Whole(A.GoldenFacingLeftLandedBackwardOnLeftFoot), .. Walk(A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingLeftLandedBackwardOnRightFoot] = new([Whole(A.GoldenFacingLeftLandedBackwardOnRightFoot), .. Walk(A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingRightLandedBackwardOnRightFoot] = new([Whole(A.GoldenFacingRightLandedBackwardOnRightFoot), .. Walk(A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingRightLandedBackwardOnLeftFoot] = new([Whole(A.GoldenFacingRightLandedBackwardOnLeftFoot), .. Walk(A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingLeftCatchingSuperMissileLeftLegForward] = new([Whole(A.GoldenFacingLeftCatchingSuperMissileLeftLegForward), .. Walk(A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingLeftCatchingSuperMissileRightLegForward] = new([Whole(A.GoldenFacingLeftCatchingSuperMissileRightLegForward), .. Walk(A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingRightCatchingSuperMissileRightLegForward] = new([Whole(A.GoldenFacingRightCatchingSuperMissileRightLegForward), .. Walk(A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingRightCatchingSuperMissileLeftLegForward] = new([Whole(A.GoldenFacingRightCatchingSuperMissileLeftLegForward), .. Walk(A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingLeftSittingDownAttack] = new([Whole(A.GoldenFacingLeftSittingDownAttack), .. Walk(A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenFacingRightSittingDownAttack] = new([Whole(A.GoldenFacingRightSittingDownAttack), .. Walk(A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenFacingLeftLandedBackwardOnLeftFoot] = ThenWalking(A.GoldenFacingLeftLandedBackwardOnLeftFoot, A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving),
+        [A.GoldenFacingLeftLandedBackwardOnRightFoot] = ThenWalking(A.GoldenFacingLeftLandedBackwardOnRightFoot, A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving),
+        [A.GoldenFacingRightLandedBackwardOnRightFoot] = ThenWalking(A.GoldenFacingRightLandedBackwardOnRightFoot, A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving),
+        [A.GoldenFacingRightLandedBackwardOnLeftFoot] = ThenWalking(A.GoldenFacingRightLandedBackwardOnLeftFoot, A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving),
+        [A.GoldenFacingLeftCatchingSuperMissileLeftLegForward] = ThenWalking(A.GoldenFacingLeftCatchingSuperMissileLeftLegForward, A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving),
+        [A.GoldenFacingLeftCatchingSuperMissileRightLegForward] = ThenWalking(A.GoldenFacingLeftCatchingSuperMissileRightLegForward, A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving),
+        [A.GoldenFacingRightCatchingSuperMissileRightLegForward] = ThenWalking(A.GoldenFacingRightCatchingSuperMissileRightLegForward, A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving),
+        [A.GoldenFacingRightCatchingSuperMissileLeftLegForward] = ThenWalking(A.GoldenFacingRightCatchingSuperMissileLeftLegForward, A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving),
+        [A.GoldenFacingLeftSittingDownAttack] = ThenWalking(A.GoldenFacingLeftSittingDownAttack, A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving),
+        [A.GoldenFacingRightSittingDownAttack] = ThenWalking(A.GoldenFacingRightSittingDownAttack, A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving),
         [A.GoldenReleasingEggs] = new([Whole(A.GoldenReleasingEggs), Repeat(A.GoldenEggLaying, 6), Whole(A.GoldenChestClosing)], AnimationEnd.Holds),
         [A.GoldenEyeBeamAttack] = new([Whole(A.GoldenEyeBeamAttack), Repeat(A.GoldenEyeBeamFiring, 4), Whole(A.GoldenEyeBeamPause), Repeat(A.GoldenEyeBeamGlow, 2), Whole(A.GoldenEyeBeamEnd)], AnimationEnd.Holds),
-        [A.GoldenDodgeTurningLeft] = new([Whole(A.GoldenDodgeTurningLeft), .. Walk(A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenTurningLeft] = new([Whole(A.GoldenTurningLeft), .. Walk(A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenDodgeTurningLeft] = ThenWalking(A.GoldenDodgeTurningLeft, A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving),
+        [A.GoldenTurningLeft] = ThenWalking(A.GoldenTurningLeft, A.GoldenWalkingLeftRightLegMoving, A.GoldenWalkingLeftLeftLegMoving),
         [A.GoldenWalkingLeftLeftLegMoving] = Walking(A.GoldenWalkingLeftLeftLegMoving, A.GoldenWalkingLeftRightLegMoving),
-        [A.GoldenDodgeTurningRight] = new([Whole(A.GoldenDodgeTurningRight), .. Walk(A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving)], AnimationEnd.LoopsFrom(1)),
-        [A.GoldenTurningRight] = new([Whole(A.GoldenTurningRight), .. Walk(A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving)], AnimationEnd.LoopsFrom(1)),
+        [A.GoldenDodgeTurningRight] = ThenWalking(A.GoldenDodgeTurningRight, A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving),
+        [A.GoldenTurningRight] = ThenWalking(A.GoldenTurningRight, A.GoldenWalkingRightLeftLegMoving, A.GoldenWalkingRightRightLegMoving),
         [A.GoldenWalkingRightRightLegMoving] = Walking(A.GoldenWalkingRightRightLegMoving, A.GoldenWalkingRightLeftLegMoving),
         [A.FacingLeftWalkingRightLegMoving] = Walking(A.FacingLeftWalkingRightLegMoving, A.FacingLeftWalkingLeftLegMoving),
         [A.FacingLeftWalkingLeftLegMoving] = Walking(A.FacingLeftWalkingLeftLegMoving, A.FacingLeftWalkingRightLegMoving),
@@ -119,7 +119,11 @@ internal static class TorizoAnimations
 
     /// <summary>The walk that steps <paramref name="first"/>, then <paramref name="second"/>, and loops.</summary>
     private static Animation<TorizoAnimation> Walking(TorizoAnimation first, TorizoAnimation second) =>
-        new(Walk(first, second), AnimationEnd.LoopsFrom(0));
+        Animation<TorizoAnimation>.Looping(Walk(first, second));
+
+    /// <summary><paramref name="lead"/> played once, then the walk that steps <paramref name="first"/>, then <paramref name="second"/>, looping (#2331).</summary>
+    private static Animation<TorizoAnimation> ThenWalking(TorizoAnimation lead, TorizoAnimation first, TorizoAnimation second) =>
+        Animation<TorizoAnimation>.LeadingInto([Whole(lead)], Walk(first, second));
 
     /// <summary>A spew: its lead, <paramref name="plays"/> bursts, then its end, holding on its last frame.</summary>
     private static Animation<TorizoAnimation> Spew(TorizoAnimation lead, TorizoAnimation burst, int plays, TorizoAnimation end) =>
@@ -131,11 +135,11 @@ internal static class TorizoAnimations
 
     /// <summary>A jump: its lead and its rise, then its fall's start and the pose the fall loops on.</summary>
     private static Animation<TorizoAnimation> Jump(TorizoAnimation lead, TorizoAnimation rising, TorizoAnimation fallStart, TorizoAnimation pose) =>
-        new([Whole(lead), Whole(rising), Whole(fallStart), Whole(pose)], AnimationEnd.LoopsFrom(3));
+        Animation<TorizoAnimation>.LeadingInto([Whole(lead), Whole(rising), Whole(fallStart)], [Whole(pose)]);
 
     /// <summary>A fall: its start, then the pose it loops on.</summary>
     private static Animation<TorizoAnimation> Fall(TorizoAnimation start, TorizoAnimation pose) =>
-        new([Whole(start), Whole(pose)], AnimationEnd.LoopsFrom(1));
+        Animation<TorizoAnimation>.LeadingInto([Whole(start)], [Whole(pose)]);
 
     /// <summary>How <paramref name="animation"/> plays.</summary>
     internal static Animation<TorizoAnimation> StartingWith(TorizoAnimation animation) => StartingAt[animation];

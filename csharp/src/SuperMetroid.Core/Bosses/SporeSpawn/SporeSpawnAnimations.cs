@@ -31,15 +31,31 @@ internal static class SporeSpawnAnimations
     /// <summary>How wide he sways as the fight starts.</summary>
     private static readonly SporeSpawnSwayRadius FightSwayRadius = new(64);
 
-    /// <summary>The opening poses, closed through fully open; the death shows the second-to-last.</summary>
-    private static readonly EnemyFrameId[] OpeningFrames =
+    /// <summary>The head opening (#2331): its poses from cracked to fully open, each for its own dwell.</summary>
+    private static readonly AnimationBeat<EnemyFrameId, SporeSpawnCue>[] Opening =
     [
-        F.SporeSpawnCracked, F.SporeSpawnAjar, F.SporeSpawnParting, F.SporeSpawnHalfOpen,
-        F.SporeSpawnWideOpening, F.SporeSpawnNearlyOpen, F.SporeSpawnOpen,
+        Show(F.SporeSpawnCracked, 8),
+        Show(F.SporeSpawnAjar, 8),
+        Show(F.SporeSpawnParting, 8),
+        Show(F.SporeSpawnHalfOpen, 7),
+        Show(F.SporeSpawnWideOpening, 7),
+        Show(F.SporeSpawnNearlyOpen, 6),
+        Show(F.SporeSpawnOpen, 1),
     ];
 
-    /// <summary>The opening poses' dwells, closed through fully open.</summary>
-    private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
+    /// <summary>
+    /// The head closing (#2331): the opening's poses back from nearly open to cracked, each for the closing's dwell. The
+    /// fight's closing and his death's both show it.
+    /// </summary>
+    private static readonly AnimationBeat<EnemyFrameId, SporeSpawnCue>[] Closing =
+    [
+        Show(F.SporeSpawnNearlyOpen, PoseDuration),
+        Show(F.SporeSpawnWideOpening, PoseDuration),
+        Show(F.SporeSpawnHalfOpen, PoseDuration),
+        Show(F.SporeSpawnParting, PoseDuration),
+        Show(F.SporeSpawnAjar, PoseDuration),
+        Show(F.SporeSpawnCracked, PoseDuration),
+    ];
 
     /// <summary>Every body animation.</summary>
     internal static AnimationSegments<SporeSpawnBodySegment, EnemyFrameId, SporeSpawnCue> Segments { get; } = new(
@@ -68,7 +84,7 @@ internal static class SporeSpawnAnimations
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: true)),
             Cue(new SporeSpawnCue.QueueSound(Sound: SporeSpawnSoundDefinitions.Opening)),
             Show(F.SporeSpawnShut, 1),
-            .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(OpeningFrames[pose], OpeningDurations[pose])),
+            .. Opening,
             Cue(new SporeSpawnCue.Signal(K.ClearDamagedFlag)),
             SelectMovement(SporeSpawnMovement.Idle),
         ],
@@ -81,7 +97,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.CloseAndMove] =
         [
-            .. Closing(),
+            .. Closing,
             Show(F.SporeSpawnShut, 1),
             SelectMovement(SporeSpawnMovement.Moving),
             Cue(new SporeSpawnCue.SetSporeGeneration(SporeGenerationSuppressed: false)),
@@ -104,7 +120,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.DeathClosing] =
         [
-            .. Closing(),
+            .. Closing,
             Show(F.SporeSpawnHusk, 1),
             Cue(new SporeSpawnCue.Signal(K.Harden)),
         ],
@@ -115,12 +131,13 @@ internal static class SporeSpawnAnimations
         ],
         [P.DeathFade] =
         [
-            .. SporeSpawnDeathFadeStep.All.SelectMany(step => new[]
-            {
-                Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
-                Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
-                Show(F.SporeSpawnHusk, FadeStepDuration),
-            }),
+            .. FadeStep(SporeSpawnDeathFadeStep.All[0]),
+            .. FadeStep(SporeSpawnDeathFadeStep.All[1]),
+            .. FadeStep(SporeSpawnDeathFadeStep.All[2]),
+            .. FadeStep(SporeSpawnDeathFadeStep.All[3]),
+            .. FadeStep(SporeSpawnDeathFadeStep.All[4]),
+            .. FadeStep(SporeSpawnDeathFadeStep.All[5]),
+            .. FadeStep(SporeSpawnDeathFadeStep.Husk),
             Cue(new SporeSpawnCue.Signal(K.RequestDeathDrops)),
         ],
     });
@@ -146,9 +163,16 @@ internal static class SporeSpawnAnimations
     private static AnimationPhase<SporeSpawnBodySegment> Repeat(SporeSpawnBodySegment segment, int plays) =>
         new(segment, 0, Segments.Beats(segment).Count, plays);
 
-    /// <summary>The six closing poses, from the second-to-last opening pose back to the first.</summary>
-    private static IEnumerable<AnimationBeat<EnemyFrameId, SporeSpawnCue>> Closing() =>
-        Enumerable.Range(0, OpeningDurations.Length - 1).Reverse().Select(pose => Show(OpeningFrames[pose], PoseDuration));
+    /// <summary>
+    /// One step of the death fade (#2331): the step's shade, a hardening dust cloud, and the husk held for the step's
+    /// dwell.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, SporeSpawnCue>[] FadeStep(SporeSpawnDeathFadeStep step) =>
+    [
+        Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
+        Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),
+        Show(F.SporeSpawnHusk, FadeStepDuration),
+    ];
 
     /// <summary>Selects <paramref name="movement"/> as the main-AI movement.</summary>
     private static AnimationBeat<EnemyFrameId, SporeSpawnCue> SelectMovement(SporeSpawnMovement movement) =>

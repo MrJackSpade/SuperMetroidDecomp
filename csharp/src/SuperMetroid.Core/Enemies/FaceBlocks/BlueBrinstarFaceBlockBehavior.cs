@@ -24,21 +24,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BlueBrinstarFaceBlockEntity(this, place, common);
 
-    /// <summary>The room's enemy places, whose face blocks all show the room-wide glow.</summary>
-    private readonly EnemyPlaces _places;
+    /// <summary>The face blocks the room has set up, in the order they were placed; all show the room-wide glow (#2283).</summary>
+    private readonly List<RoomEnemyPlace> _blocks = [];
 
     /// <summary>Samus's passage through a door, which pauses the face blocks' glow.</summary>
     private readonly DoorPassage _doorPassage;
 
-    /// <summary>Binds the species to the room's places and Samus's passage through a door.</summary>
-    internal BlueBrinstarFaceBlockBehavior(EnemyPlaces places, DoorPassage doorPassage)
-    {
-        _doorPassage = doorPassage;
-        _places = places;
-    }
-
-    /// <summary>The updates each frame of the face blocks' glow holds for.</summary>
-    private const int GlowFrameUpdates = 16;
+    /// <summary>Binds the species to Samus's passage through a door.</summary>
+    internal BlueBrinstarFaceBlockBehavior(DoorPassage doorPassage) => _doorPassage = doorPassage;
 
     /// <summary>
     /// Whether a face block has started the room's glow, which it does once Samus has collected the Morph Ball. The room
@@ -61,6 +54,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     {
         var state = new BlueBrinstarFaceBlockEnemyState();
         place.SetSpeciesState(state);
+        _blocks.Add(place);
 
         // The neutral animation is a one-frame neutral picture followed by the common rest. All
         // authored directional animations show the same neutral picture as their first frame.
@@ -71,12 +65,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // collects it starts the glow at once.
         if (HasCollectedMorphBall(samus))
             StartGlow(place);
-        _glowStepCountdown = GlowFrameUpdates;
+        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
 
-        // Keeps only the facing its spawn names. This looks
-        // backwards until main AI is read: activation requires the Samus delta sign to be
-        // *different* from this marker.
-        state.FacesRight = place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right;
+        // Keeps only the facing its spawn names: main AI wakes the block only for Samus on that side.
+        state.Facing = place.SpawnSettings<FaceBlockSpawnSettings>().Facing;
         state.Activated = false;
     }
 
@@ -103,17 +95,17 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        bool samusToTheLeft = horizontalDelta < 0;
-        if (samusToTheLeft == state.FacesRight)
+        HorizontalDirection samusSide = horizontalDelta < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        if (samusSide != state.Facing)
             return;
 
-        state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(samusToTheLeft
+        state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(samusSide == HorizontalDirection.Left
             ? BlueBrinstarFaceBlockSegment.SamusLeft
             : BlueBrinstarFaceBlockSegment.SamusRight));
         state.Activated = true;
 
         // Waking restarts the room's glow countdown at sixteen updates but keeps the glow's frame.
-        _glowStepCountdown = GlowFrameUpdates;
+        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
     }
 
     /// <summary>Uses the collected items so unequipping Morph Ball does not put active blocks back to rest.</summary>
@@ -142,14 +134,11 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (--_glowStepCountdown != 0)
             return;
 
-        _glowStepCountdown = GlowFrameUpdates;
+        _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
         _glowFrame = (_glowFrame + 1) % FaceBlockShades.GlowFrames;
         PictureShading glow = Glow;
-        foreach (RoomEnemyPlace block in _places.InUpdateOrder)
-        {
-            if (block.DefinitionId == EnemyDefinitionId.FaceBlock)
-                block.Shading = glow;
-        }
+        foreach (RoomEnemyPlace block in _blocks)
+            block.Shading = glow;
     }
 
     /// <summary>Advances the blue Brinstar face block's typed animation.</summary>

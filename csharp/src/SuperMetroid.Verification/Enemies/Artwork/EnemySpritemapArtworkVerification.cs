@@ -155,11 +155,11 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitionsConstants.PreChootFrameCount,
             "Hoppers add twenty-four distinct floor/ceiling compositions");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreChootFrameCount + 4,
-            EnemySpritemapDefinitionsConstants.PreOrangeZoomerFrameCount,
+            EnemySpritemapDefinitionsConstants.PreSpinyCrawlerFrameCount,
             "Choot adds four idle, jumping, and falling compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreOrangeZoomerFrameCount + 20,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreSpinyCrawlerFrameCount + 20,
             EnemySpritemapDefinitionsConstants.PreSbugFrameCount,
-            "OrangeZoomer adds five frames in each of four surface orientations");
+            "The spiny crawlers add five frames in each of four surface orientations");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreSbugFrameCount + 24,
             EnemySpritemapDefinitionsConstants.PreFuneNamiheFrameCount,
             "Sbug adds three distinct frames in each of eight facing directions");

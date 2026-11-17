@@ -38,7 +38,7 @@ internal static class GrappleEnemyDeathVerification
         enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
-            GrappleResponse = EnemyGrappleResponse.Kill,
+            GrappleResponse = GrappleEnemyReaction.Kill,
             DeathExplosion = EnemyDeathExplosion.Big,
         });
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
@@ -118,7 +118,7 @@ internal static class GrappleEnemyDeathVerification
             enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                GrappleResponse = EnemyGrappleResponse.Kill,
+                GrappleResponse = GrappleEnemyReaction.Kill,
             });
             enemy.Position = enemy.Position.WithWhole(new(100, 100));
             enemy.Radius = new(8, 8);

@@ -14,8 +14,8 @@ internal interface IElevatorJourney
     /// <summary>What has armed the elevator's pseudo-door.</summary>
     ElevatorJourneyFlag ElevatorFlags { get; }
 
-    /// <summary>Whether the elevator travels upward.</summary>
-    bool ElevatorTravelsUpward { get; }
+    /// <summary>The way the elevator travels.</summary>
+    ElevatorTravelDirection ElevatorTravel { get; }
 
     /// <summary>Whether the elevator, not Samus's own movement, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }
@@ -26,8 +26,8 @@ internal interface IElevatorJourney
     /// <summary>Publishes the elevator's pseudo-door collision.</summary>
     void PublishElevatorDoorContact();
 
-    /// <summary>Clears the flags when gameplay resumes.</summary>
-    void ClearElevatorFlagsOnGameplayResume();
+    /// <summary>Gameplay resumes from the pause, which disarms the pseudo-door (<see cref="Compatibility.UnpauseDisarmsElevator"/>).</summary>
+    void ResumeFromPause();
 
     /// <summary>Prepares the destination elevator before the room load.</summary>
     void PrepareElevatorArrival();

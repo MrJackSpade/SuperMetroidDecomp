@@ -38,13 +38,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Lava Y threshold tested by both families' acid-height branch cues.</summary>
-    private const int EscapeAnimalLavaBranchY = 206;
-    /// <summary>The one whole pixel an exiting Etecoon probes downward each update, which settles it on the room's floor.</summary>
-    private static readonly SignedSixteenSixteen EscapeEtecoonGravity = SignedSixteenSixteen.FromWholePixels(1);
-    /// <summary>Signed 1/65536-pixel horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
-    private static readonly SignedSixteenSixteen EscapeEtecoonUncollidedExitSpeed = SignedSixteenSixteen.FromParts(3, 32768);
-
     /// <summary>Initializes the escape Etecoon.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemyPlace place)
     {
@@ -103,7 +96,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case EscapeEtecoonAction.Escaping:
-                AddEscapeAnimalX(place, EscapeEtecoonUncollidedExitSpeed);
+                AddEscapeAnimalX(place, EscapeAnimalMotionDefinitions.EtecoonExitSpeed);
                 return;
 
             case EscapeEtecoonAction.AwaitingEscape:
@@ -145,30 +138,33 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The animal moves down by its gravity even after meeting a wall, whether or not it meets the floor: the
         // one-pixel move settles it on the room's floor.
-        _ = _terrain.MoveEnemyVertically(level, place, EscapeEtecoonGravity);
+        _ = _terrain.MoveEnemyVertically(level, place, EscapeAnimalMotionDefinitions.EtecoonGravity);
     }
 
-    /// <summary>Runs an escaping Etecoon's or Dachora's typed animation where the shared enemy animation would.</summary>
-    private void AdvanceEscapeAnimal(RoomEnemyPlace place, SamusState samus)
+    /// <summary>Runs an escaping Etecoon's typed animation where the shared enemy animation would.</summary>
+    internal static void AdvanceEscapeEtecoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        if (place.DefinitionId == EnemyDefinitionId.EtecoonEscape)
-        {
-            EscapeEtecoonEnemyState state = place.RequireSpeciesState<EscapeEtecoonEnemyState>();
-            AnimationPlayback<EscapeEtecoonSegment> playback = state.Playback;
-            EnemyAnimationPlayback.Play(place, EscapeEtecoonAnimations.Segments, ref playback,
-                cue => ApplyEscapeEtecoonCue(place, state, samus, cue) is { } target
-                    ? new AnimationContinuation<EscapeEtecoonSegment>(EscapeEtecoonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                    : null);
-            state.Playback = playback;
+        EscapeEtecoonEnemyState state = place.RequireSpeciesState<EscapeEtecoonEnemyState>();
+        AnimationPlayback<EscapeEtecoonSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(place, EscapeEtecoonAnimations.Segments, ref playback,
+            cue => ApplyEscapeEtecoonCue(place, state, context.Samus, cue) is { } target
+                ? new AnimationContinuation<EscapeEtecoonSegment>(EscapeEtecoonAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
+                : null);
+        state.Playback = playback;
+    }
+
+    /// <summary>Runs the escaping Dachora's typed animation where the shared enemy animation would.</summary>
+    internal void AdvanceEscapeDachoraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    {
+        if (!place.AnimationClock.Expire())
             return;
-        }
-        EscapeDachoraEnemyState dachora = place.RequireSpeciesState<EscapeDachoraEnemyState>();
-        AnimationPlayback<EscapeDachoraSegment> dachoraPlayback = dachora.Playback;
-        EnemyAnimationPlayback.Play(place, EscapeDachoraAnimations.Segments, ref dachoraPlayback,
-            cue => ApplyEscapeDachoraCue(place, samus, cue));
-        dachora.Playback = dachoraPlayback;
+        EscapeDachoraEnemyState state = place.RequireSpeciesState<EscapeDachoraEnemyState>();
+        AnimationPlayback<EscapeDachoraSegment> playback = state.Playback;
+        EnemyAnimationPlayback.Play(place, EscapeDachoraAnimations.Segments, ref playback,
+            cue => ApplyEscapeDachoraCue(place, context.Samus, cue));
+        state.Playback = playback;
     }
 
     /// <summary>Carries out one cue of an Etecoon's animation, returning the segment a branch continues at, or null to run on.</summary>
@@ -234,11 +230,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasCrittersEscaped() => _room.Services.Events.Has(StoryEvent.CrittersEscaped);
 
     /// <summary>
-    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalLavaBranchY"/>, or absent
+    /// Whether the acid-height branches find the acid low: at or below <see cref="EscapeAnimalMotionDefinitions.LowAcidSurfaceY"/>, or absent
     /// from Samus's room.
     /// </summary>
     private static bool IsAcidLow(SamusState samus) =>
-        samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalLavaBranchY;
+        samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalMotionDefinitions.LowAcidSurfaceY;
 
     /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
     private static void AddEscapeAnimalX(RoomEnemyPlace place, SignedSixteenSixteen displacement) =>
@@ -247,9 +243,4 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the escape Etecoon's main AI.</summary>
     internal void RunEscapeEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
         RunEscapeEtecoonMain(place, place.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
-
-    /// <summary>Advances either escape animal's typed animation.</summary>
-    internal void AdvanceEscapeAnimalTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
-        AdvanceEscapeAnimal(place, context.Samus);
-
 }

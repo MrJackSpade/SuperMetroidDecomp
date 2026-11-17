@@ -55,11 +55,8 @@ internal static class CrawlerBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Segments, loop, CrawlerFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Segments, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
-            CrawlerAction expected = family == CrawlerAnimationFamily.OrangeZoomer
-                ? sideWall ? CrawlerAction.OrangeZoomerCrawlingVertically : CrawlerAction.OrangeZoomerCrawlingHorizontally
-                : sideWall ? CrawlerAction.CrawlingVertically : CrawlerAction.CrawlingHorizontally;
-            AssertEqual<CrawlerAction?>(family == CrawlerAnimationFamily.OrangeZoomer ? CrawlerAction.OrangeZoomerSettling : CrawlerAction.Settling,
-                state.Action, $"{context} settles first");
+            CrawlerAction expected = sideWall ? CrawlerAction.CrawlingVertically : CrawlerAction.CrawlingHorizontally;
+            AssertEqual<CrawlerAction?>(CrawlerAction.Settling, state.Action, $"{context} settles first");
             AssertEqual(expected, CrawlersBehavior.CrawlActionOn(state), $"{context} settles into its surface's crawl");
             if (artwork is not null)
                 foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(loop))

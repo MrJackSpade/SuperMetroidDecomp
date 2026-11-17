@@ -42,7 +42,7 @@ internal static class RoomEnemyDefinitionImporterAccess
                 HurtFlashFrames: HurtFlashFrames(Byte(13)),
                 HurtSoundEffect: SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, Word(14)),
                 Boss: AreaBossWords.Decode(Word(16)),
-                GrappleResponse: EnemyGrappleResponseWords.Responses.Decode(Word(26), "grapple response"),
+                GrappleResponse: EnemyGrappleResponseWords.Decode(Word(26)),
                 HurtResponse: EnemyInteractionCallbacks.HurtResponse(Word(28)),
                 DeathExplosion: EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
                 PowerBombReaction: EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),

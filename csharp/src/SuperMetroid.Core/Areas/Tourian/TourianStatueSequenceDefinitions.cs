@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public static class TourianStatueSequenceDefinitions
 {
-    /// <summary>The updates the statue waits, after the last release ends, before it starts to lower.</summary>
-    public const int DescentDelay = 300;
+    /// <summary>
+    /// The updates the statue holds, after the last release ends, before it starts to lower: 301, the last the one that
+    /// raises the descent's dust (#2281).
+    /// </summary>
+    public const int DescentDelay = 301;
 
     /// <summary>How far the statue lowers each update: a quarter of a pixel.</summary>
     public static readonly SignedSixteenSixteen DescentStep = SignedSixteenSixteen.FromSixteenthsOfPixel(4);

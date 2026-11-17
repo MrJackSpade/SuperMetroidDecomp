@@ -10,17 +10,20 @@ internal enum ChozoStatueSegment
     LowerNorfairInitial,
     /// <summary>The lower Norfair activated animation.</summary>
     LowerNorfairActivated,
-    /// <summary>The loop.</summary>
-    LowerNorfairActivatedLoop,
+    /// <summary>The Lower Norfair statue's finger flex, which its activation repeats.</summary>
+    LowerNorfairFlexing,
+    /// <summary>The Lower Norfair statue's release of Samus and the lowered acid.</summary>
+    LowerNorfairRelease,
     /// <summary>The wrecked ship initial animation.</summary>
     WreckedShipInitial,
     /// <summary>The wrecked ship activated animation.</summary>
     WreckedShipActivated,
-    /// <summary>The loop.</summary>
-    WreckedShipActivatedLoop,
-    /// <summary>
-    /// The Wrecked Ship statue's walk with Samus in its hand (#2061): its counted strides, then lowering her and letting
-    /// her go.
-    /// </summary>
+    /// <summary>The Wrecked Ship statue's finger flex, which its activation repeats.</summary>
+    WreckedShipFlexing,
+    /// <summary>The end of the Wrecked Ship statue's flexing: it stops awaiting the hand.</summary>
+    WreckedShipFlexEnd,
+    /// <summary>The Wrecked Ship statue's four strides with Samus in its hand (#2061), which its walk repeats.</summary>
     WreckedShipWalkingWithSamus,
+    /// <summary>The Wrecked Ship statue's last strides, lowering Samus and letting her go.</summary>
+    WreckedShipSettingSamusDown,
 }

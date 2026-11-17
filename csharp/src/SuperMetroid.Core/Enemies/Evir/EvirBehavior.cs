@@ -74,20 +74,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Strict horizontal distance required before aiming the projectile.</summary>
-    private const int EvirActivationDistance = 128;
-    /// <summary>Whole-pixel magnitude passed through the trig multipliers.</summary>
-    private const int EvirProjectileSpeed = 4;
-    /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
-    private const int EvirFarOffscreenDistance = 256;
-
-    /// <summary>The enemy-library sound the spit plays when it is launched or regenerates.</summary>
-    private static readonly SoundEffectId EvirSpitSound =
-        EnemySoundEffectDefinitions.EvirSpitSound;
-
-    /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
-    private const int RegenerationStartDistance = 8;
-
     /// <summary>Initializes an Evir's arms.</summary>
     internal void InitializeEvirArms(RoomEnemyPlace place)
     {
@@ -123,7 +109,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirSpawnSettings settings = place.SpawnSettings<EvirSpawnSettings>();
         state.BobbingSpeed = settings.Speed;
         state.DirectionChangePeriod = settings.DirectionChangePeriod;
-        state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance);
+        state.MovementTimer = EvirBorrowedFirstHalfCycle.Of(settings.Speed, _places.InUpdateOrder, PlaceLender.Instance) + EnemyWaitDefinitions.RunOutUpdate;
         state.MovingDown = false;
         state.ShowsSpawnAnimation = true;
     }
@@ -152,8 +138,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RequirePlacedBody(body, place, "spit");
         var state = new EvirSpitState(EvirSpitAction.Idle, body)
         {
-            Regenerating = false,
-            InFlight = false,
             RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
         place.SetSpeciesState(state);
@@ -184,16 +168,16 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // During regeneration the mouth, arms, and projectile retain their launch facing. The body reads its spit's place
         // whatever it holds: a spit a power bomb's follow-up deleted (FollowUpAfterStruckPart) as it left itself, and a
         // killed spit's cleared place as not regenerating.
-        if (state.Spit.FoundState<EvirSpitState>() is not { Regenerating: true })
+        if (state.Spit.FoundState<EvirSpitState>() is not { Action: EvirSpitAction.Regenerating })
             SetEvirBodyFacing(place, state, samus);
 
         place.Position = place.Position.AdvanceY(state.MovingDown ? state.BobbingSpeed : -state.BobbingSpeed);
 
-        // The countdown expires through zero, so zero expires immediately into -1. Every later reset uses the
-        // whole authored direction-change period, whatever first half-cycle initialization's aliasing bug chose.
-        if (--state.MovementTimer < 0)
+        // Every later half-cycle lasts the whole authored direction-change period and the update it turns on, whatever
+        // first half-cycle initialization's aliasing bug chose.
+        if (--state.MovementTimer <= 0)
         {
-            state.MovementTimer = state.DirectionChangePeriod;
+            state.MovementTimer = state.DirectionChangePeriod + EnemyWaitDefinitions.RunOutUpdate;
             state.MovingDown = !state.MovingDown;
         }
     }
@@ -207,14 +191,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (place.FrozenTimer == 0)
         {
-            if (state.InFlight)
+            if (state.Action == EvirSpitAction.Moving)
             {
                 RequestEvirAnimation(
                     place,
                     state,
                     EvirSegment.ProjectileNormal);
             }
-            else if (state.Regenerating)
+            else if (state.Action == EvirSpitAction.Regenerating)
             {
                 RequestEvirAnimation(
                     place,
@@ -294,7 +278,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
                 state.Body.Position.X.Whole,
-                EvirActivationDistance))
+                EvirMotionDefinitions.SpitActivationDistance))
         {
             return;
         }
@@ -305,10 +289,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTrigonometryAngle();
         SignedSixteenSixteen x = EnemyMath.CircleCosine(
             transformedAngle,
-            EvirProjectileSpeed);
+            EvirMotionDefinitions.SpitSpeed);
         SignedSixteenSixteen y = EnemyMath.CircleNegativeSine(
             transformedAngle,
-            EvirProjectileSpeed);
+            EvirMotionDefinitions.SpitSpeed);
         state.ProjectileVelocity = new FixedVector<RoomPixels>(
             x,
             y);
@@ -316,7 +300,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             state,
             EvirSegment.ProjectileNormal);
-        state.InFlight = true;
         state.Action = EvirSpitAction.Moving;
     }
 
@@ -336,14 +319,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         EvirSpitState state,
         Position16<RoomPixels> camera)
     {
-        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirFarOffscreenDistance))
+        if (EnemyView.ContainsWithMargin(projectile.Position.Whole, camera, EvirMotionDefinitions.SpitRegenerationMargin))
             return;
 
         if (state.Body.FrozenTimer != 0)
             return;
 
-        state.InFlight = false;
-        state.Regenerating = true;
         state.Action = EvirSpitAction.Regenerating;
         RequestEvirAnimation(
             projectile,
@@ -351,33 +332,22 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             EvirSegment.ProjectileRegenerating);
     }
 
-    /// <summary>Returns the spit toward its body and waits for the animation's completion flag.</summary>
+    /// <summary>Holds the growing spit at its body's mouth, offset as its animation moves it, until the animation finishes it.</summary>
     private static void RunRegeneratingEvirProjectile(RoomEnemyPlace projectile, EvirSpitState state)
     {
         if (state.Body.FrozenTimer != 0)
             return;
-
-        if (!state.Regenerating)
-        {
-            RequestEvirAnimation(
-                projectile,
-                state,
-                EvirSegment.ProjectileNormal);
-            state.InFlight = false;
-            state.Action = EvirSpitAction.Idle;
-            return;
-        }
 
         ResetEvirProjectilePosition(projectile, state);
         projectile.Position += state.RegenerationOffset;
     }
 
     /// <summary>Animation cue: queues the spit sound.</summary>
-    private void QueueEvirSpitSound() => _audio.QueueEnemySound(EvirSpitSound, priority: SoundRequestPriority.Normal);
+    private void QueueEvirSpitSound() => _audio.QueueEnemySound(EnemySoundEffectDefinitions.EvirSpitSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Animation cue: sets the initial regeneration offset.</summary>
     private static void SetInitialEvirRegenerationOffset(EvirSpitState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -RegenerationStartDistance : RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirBodyFacesRight(state) ? -EvirMotionDefinitions.RegenerationStartDistance : EvirMotionDefinitions.RegenerationStartDistance, 0);
 
     /// <summary>Animation cue: advances the regeneration offset.</summary>
     private static void AdvanceEvirRegenerationOffset(EvirSpitState state) =>
@@ -400,12 +370,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyPlace.FoundState<EvirBodyState>()?.Facing ?? EvirFacing.Left;
 
     /// <summary>Animation cue: finishes regeneration.</summary>
-    private static void FinishEvirRegeneration(EvirSpitState state)
-    {
-        state.Regenerating = false;
-        state.InFlight = false;
-        state.Action = EvirSpitAction.Idle;
-    }
+    private static void FinishEvirRegeneration(EvirSpitState state) => state.Action = EvirSpitAction.Idle;
 
     /// <summary>
     /// Starts <paramref name="segment"/>'s animation only when it differs from the one playing, or afresh while the part

@@ -27,7 +27,8 @@ internal static class DragonBehaviorVerification
             switch (selector)
             {
                 case DragonSegment.IdleFacingLeft or DragonSegment.IdleFacingRight:
-                    AssertEqual(EnemyInstructionRunner.ExpectedFrames([poses[0], poses[0]], [1, 1]),
+                    // A still picture shows once and holds (#2275).
+                    AssertEqual(EnemyInstructionRunner.ExpectedFrames([poses[0]], [1]),
                         EnemyInstructionRunner.ShownFrames(place, 3), $"Dragon {program} pose");
                     break;
                 case DragonSegment.WingsFacingLeft or DragonSegment.WingsFacingRight:
@@ -74,7 +75,7 @@ internal static class DragonBehaviorVerification
         {
             DragonEnemyState body = enemies.DragonStates[bodySlot] ?? throw new InvalidOperationException("Dragon has no state.");
             body.Action = DragonAction.Attacking;
-            body.FacingLeft = true;
+            body.Facing = HorizontalDirection.Left;
             body.AttackCounter = 3;
             body.AnimationFinished = true;
             enemies.DragonBehavior.RunDragonAttacking(enemies.Places.InUpdateOrder[bodySlot], body);

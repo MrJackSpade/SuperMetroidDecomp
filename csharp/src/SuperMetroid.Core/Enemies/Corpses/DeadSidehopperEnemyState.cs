@@ -84,8 +84,8 @@ public sealed class DeadSidehopperEnemyState
     }
 
     /// <summary>
-    /// The countdown initialized to <see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/> for the post-landing
-    /// pause; expiry requires decrementing through zero to -1, giving one more delay-state call than the pause.
+    /// The updates left in the post-landing pause, the one it ends on included: it starts at
+    /// <see cref="DeadSidehopperVictimDefinitions.PostLandingPause"/> and the step that takes it to zero ends the pause (#2281).
     /// </summary>
     public int StateTimer { get; internal set; }
 

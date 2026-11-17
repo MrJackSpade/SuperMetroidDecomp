@@ -69,8 +69,6 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.Facing = EvirFacing.Right;
-            state.InFlight = true;
-            state.Regenerating = true;
             state.Action = EvirSpitAction.Regenerating;
             enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { Facing = EvirFacing.Left });
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
@@ -85,9 +83,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirSegment.ProjectileNormal).Single(), place.SpritemapPointer,
                 "regenerating Evir projectile ends on its flight pose");
             AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
-            AssertTrue(!state.Regenerating, "regeneration finish cue clears regeneration ownership");
-            AssertTrue(!state.InFlight, "regeneration finish cue leaves the projectile stationary");
-            AssertEqual(EvirSpitAction.Idle, state.Action, "regeneration finish cue restores idle AI");
+            AssertEqual(EvirSpitAction.Idle, state.Action, "regeneration finish cue restores idle AI, the spit held at the mouth");
             const ushort nativeSpitSound = 0x005e;
             AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, nativeSpitSound),
                 enemies.Audio.LatestSound, "regeneration publishes the native library-two spit sound");

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -10,6 +10,6 @@ internal static class DachoraAnimationsTooling
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params DachoraSegment[] programs) =>
         programs.SelectMany(program => DachoraAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
-            .Select(frame => DachoraFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => DachoraFrameToolingDefinitions.Spritemap(frame));
 }

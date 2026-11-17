@@ -6,20 +6,16 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// </summary>
 internal enum AlcoonSegment
 {
-    /// <summary>The walking left animation.</summary>
+    /// <summary>The walk to the left: its move cue and four strides, one cycle.</summary>
     WalkingLeft,
-    /// <summary>The walking left loop animation.</summary>
-    WalkingLeftLoop,
     /// <summary>The fire left animation.</summary>
     FireLeft,
     /// <summary>The airborne left looking up animation.</summary>
     AirborneLeftLookingUp,
     /// <summary>The airborne left looking forward animation.</summary>
     AirborneLeftLookingForward,
-    /// <summary>The walking right animation.</summary>
+    /// <summary>The walk to the right: its move cue and four strides, one cycle.</summary>
     WalkingRight,
-    /// <summary>The walking right loop animation.</summary>
-    WalkingRightLoop,
     /// <summary>The fire right animation.</summary>
     FireRight,
     /// <summary>The airborne right looking up animation.</summary>

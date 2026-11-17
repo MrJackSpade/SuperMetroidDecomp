@@ -179,9 +179,9 @@ internal sealed class EyeDoorBehavior
         // Stores only the animation, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(animation));
 
-        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
-            8 + placement.Base.X + placement.XScatter.Of(random),
-            8 + placement.Base.Y + placement.YScatter.Of(random)));
+        projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + EyeDoorEffectDefinitions.SmokeCentre + new Offset16<RoomPixels>(
+            placement.Base.X + placement.XScatter.Of(random),
+            placement.Base.Y + placement.YScatter.Of(random)));
 
         // The spawn advances the global seed after sampling it for both coordinates.
         _room.Random.Generate();
@@ -217,14 +217,14 @@ internal sealed class EyeDoorBehavior
         bool collidedVertically = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule);
         if (!projectile.Velocity.Y.IsNegative && collidedVertically)
         {
-            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
+            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - EyeDoorEffectDefinitions.SweatSplashRise);
             // The floor splash stops the drop's movement, as the animation switch does.
             projectile.HoldStill();
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor));
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + EyeDoorSweatGravity);
+        projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + EyeDoorEffectDefinitions.SweatGravity);
     }
 
     /// <summary>
@@ -233,9 +233,6 @@ internal sealed class EyeDoorBehavior
     /// </summary>
     internal static SignedEightEight ReadEyeDoorAcceleration(TrigonometryAngle angle) =>
         EnemyMath.SineVelocity(angle, 1).DividedRoundingDown(16);
-
-    /// <summary>A falling sweat drop's downward acceleration per update, in 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight EyeDoorSweatGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12);
 
     /// <summary>Sends an eye-door shot into its typed impact animation, stopping its movement as the animation switch does.</summary>
     private static void StartEyeDoorProjectileImpact(EnemyProjectile projectile)

@@ -19,6 +19,7 @@ internal static class EtecoonNativeListAddresses
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.BeginRunningLeft, 0xe824),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.RunningLeft, 0xe828),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpLeft, 0xe83c),
+        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.JumpingLeft, 0xe840),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.HoppingFacingLeft, 0xe854),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.ContinueHoppingFacingLeft, 0xe85a),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpLeftEligible, 0xe870),
@@ -32,6 +33,7 @@ internal static class EtecoonNativeListAddresses
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.WallJumpRightEligible, 0xe8c8),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Initial, 0xe8ce),
         new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.Flexing, 0xe8da),
+        new NativeProgramEntry<EtecoonSegment>(EtecoonSegment.FlexEnd, 0xe8f6),
     ];
 
     /// <summary>The native entry the flex starts at (#2061): it loads the flex's count and runs on into the flex's list.</summary>

@@ -16,8 +16,12 @@ internal enum EvirSegment
     ArmsFacingRight,
     /// <summary>The projectile normal animation.</summary>
     ProjectileNormal,
-    /// <summary>The projectile regenerating animation.</summary>
+    /// <summary>A regenerating spit's start at the mouth, its entry cue.</summary>
     ProjectileRegenerating,
-    /// <summary>The projectile regeneration loop animation.</summary>
-    ProjectileRegenerationLoop,
+    /// <summary>A regenerating spit's sound, after its regrowth count is set.</summary>
+    ProjectileRegeneratingSound,
+    /// <summary>One step of a regenerating spit's regrowth out from the mouth, which its regeneration repeats.</summary>
+    ProjectileRegrowing,
+    /// <summary>The regenerated spit, whole again.</summary>
+    ProjectileRegrown,
 }

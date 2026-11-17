@@ -9,14 +9,15 @@ internal static class BeetomMotionDefinitions
     /// <summary>How many changes of Samus's held buttons it takes to throw off a Beetom draining her.</summary>
     internal const int MashCount = 64;
 
-    /// <summary>How long a Beetom idles before it decides again, in updates.</summary>
-    internal const int IdleDuration = 32;
+    /// <summary>How long a Beetom idles before it decides again, in updates: 33, the last the one its wait runs out on.</summary>
+    internal const int IdleDuration = 33;
 
     /// <summary>
-    /// How long a Beetom crawls before it decides again, in updates: each crawl that runs its course sets the next crawl's
-    /// length.
+    /// How long a Beetom crawls before it decides again, in updates: 65, the last the one its wait runs out on. Each crawl
+    /// that runs its course sets the next crawl's length; a crawl that starts with its wait already run out decides again
+    /// on its first update.
     /// </summary>
-    internal const int CrawlDuration = 64;
+    internal const int CrawlDuration = 65;
 
     /// <summary>How far ahead of itself a crawling Beetom looks for the floor's edge, in pixels.</summary>
     internal const int LedgeProbeReach = 8;

@@ -1130,11 +1130,12 @@ internal static class LookupStream4Verification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEffectActor spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
             AssertEqual(entry, spawned.InstructionPointer, "room sprite actual initial program");
-            // A held still picture (#2276) counts no timer: its native record is followed by its hold instead.
-            if (spawned.Holds)
-                AssertEqual(SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.GoBack4Bytes, CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (entry + 4)), "room sprite held initial record is followed by its hold");
-            else
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | entry)), spawned.FrameHold, "room sprite actual initial native duration");
+            // A still picture holds from its spawn and counts no timer (#2275).
+            // A picture the list shows in two records in a row is one frame of their summed durations.
+            if (!spawned.Holds)
+                AssertEqual(Enumerable.Range(0, RoomEffectActorProgramAddresses.RecordsOf(Enum.Parse<RoomEffectActorSegment>(kind.ToString()), 0))
+                        .Sum(record => CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb40000 | (entry + 4 * record))),
+                    spawned.FrameHold, "room sprite actual initial native duration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | (entry + 2))), spawned.SpritemapPointer, "room sprite actual initial native visual");
             AssertEqual(kind, spawned.Kind, "room sprite selected kind preserved");
             AssertEqual((ushort)0x1234, spawned.Position.X.Whole, "room sprite spawn X preserved");

@@ -7,10 +7,10 @@ internal static class CrawlerAnimationDefinitions
     internal static readonly Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new()
     {
         [CrawlerAnimationFamily.Shared] = new(
-            CrawlerSegment.SharedUpsideRight,
-            CrawlerSegment.SharedUpsideLeft,
-            CrawlerSegment.SharedUpsideDown,
-            CrawlerSegment.SharedUpsideUp),
+            CrawlerSegment.SpinyCrawlerUpsideRight,
+            CrawlerSegment.SpinyCrawlerUpsideLeft,
+            CrawlerSegment.SpinyCrawlerUpsideDown,
+            CrawlerSegment.SpinyCrawlerUpsideUp),
         [CrawlerAnimationFamily.Viola] = new(
             CrawlerSegment.ViolaNormal,
             CrawlerSegment.ViolaNormal,
@@ -27,9 +27,9 @@ internal static class CrawlerAnimationDefinitions
             CrawlerSegment.ZeroUpsideDown,
             CrawlerSegment.ZeroUpsideUp),
         [CrawlerAnimationFamily.OrangeZoomer] = new(
-            CrawlerSegment.OrangeZoomerUpsideRight,
-            CrawlerSegment.OrangeZoomerUpsideLeft,
-            CrawlerSegment.OrangeZoomerUpsideDown,
-            CrawlerSegment.OrangeZoomerUpsideUp),
+            CrawlerSegment.SpinyCrawlerUpsideRight,
+            CrawlerSegment.SpinyCrawlerUpsideLeft,
+            CrawlerSegment.SpinyCrawlerUpsideDown,
+            CrawlerSegment.SpinyCrawlerUpsideUp),
     };
 }

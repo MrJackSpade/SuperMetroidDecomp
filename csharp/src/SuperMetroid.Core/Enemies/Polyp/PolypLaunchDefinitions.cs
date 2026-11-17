@@ -12,8 +12,11 @@ internal static class PolypLaunchDefinitions
     /// <summary>The random number divided by two, modulo 16, selects the launch speed and the horizontal velocity.</summary>
     internal static readonly RandomSampleField LaunchSelector = new(1, 4);
 
-    /// <summary>The cooldown each RNG selector chooses: sixteen frames, eight longer per selector.</summary>
-    internal static readonly int[] Cooldowns = [16, 24, 32, 40, 48, 56, 64, 72];
+    /// <summary>
+    /// The cooldown each RNG selector chooses, in updates, the last the one the Polyp rearms on: seventeen, eight longer
+    /// per selector (#2281).
+    /// </summary>
+    internal static readonly int[] Cooldowns = [17, 25, 33, 41, 49, 57, 65, 73];
 
     /// <summary>
     /// The place along the quadratic speed curve, mark 28, the first launch selector starts a rock's rise at; each

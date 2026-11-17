@@ -23,6 +23,15 @@ internal static class EyeDoorEffectDefinitions
     /// <summary>A right-facing eye's sweat drifts right a quarter pixel and falls two pixels per update.</summary>
     internal static readonly EightEightVector<RoomPixels> RightSweatLaunch = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(64, 512);
 
+    /// <summary>A falling sweat drop's downward acceleration per update: twelve 256ths of a pixel per update.</summary>
+    internal static readonly SignedEightEight SweatGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(12);
+
+    /// <summary>How far a sweat drop that lands on the floor rises, in pixels, as it splashes.</summary>
+    internal const int SweatSplashRise = 4;
+
+    /// <summary>The middle of the eye's block, from which every smoke puff's placement is measured.</summary>
+    internal static readonly Offset16<RoomPixels> SmokeCentre = new(8, 8);
+
     /// <summary>The dust animation of the opening's scattered smoke puffs.</summary>
     internal const MiscDustAnimation ScatteredSmokeAnimation = MiscDustAnimation.CorpseDustCloud;
 

@@ -39,11 +39,11 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         foreach ((ushort parameter, DachoraSegment expected) in initializerCases)
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(parameter);
-            place.Bind(EnemyDefinitionId.Dachora, place.Definition);
-            enemies.DachoraBehavior.InitializeDachora(place);
+            // The placement's role picks the entity: a body, or a speed-boost echo (#2283).
+            InitializeThroughEntity(place);
             RoomEnemyPlace initialized = enemies.Places.InUpdateOrder[0];
             AssertEqual(new AnimationPlayback<DachoraSegment>(DachoraAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
-                initialized.EntityState<DachoraEntity, DachoraEnemyState>()?.Playback ?? initialized.EntityState<DachoraEntity, DachoraEchoState>()?.Playback,
+                initialized.EntityState<DachoraEntity, DachoraEnemyState>()?.Playback ?? initialized.EntityState<DachoraEchoEntity, DachoraEchoState>()?.Playback,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
@@ -51,7 +51,9 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             // The self-looping animations: one phase of their own segment, played again and again.
             if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraSegment>? animation) ||
-                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
+                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program ||
+                // A still picture shows for good: it has no timed loop to follow.
+                EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program) == 1)
                 continue;
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
             place.Bind(EnemyDefinitionId.Dachora, place.Definition);
@@ -99,11 +101,15 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+        place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
         place.Bind(EnemyDefinitionId.Dachora, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
         return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, place);
     }
+
+    /// <summary>Initializes <paramref name="place"/> through the entity its placement made, as a room's spawn does.</summary>
+    private static void InitializeThroughEntity(RoomEnemyPlace place) =>
+        (place.Entity as IEnemyInitialization ?? throw new InvalidOperationException("A Dachora place initializes.")).Initialize();
 
     /// <summary>Runs the Dachora animation verification.</summary>
     [VerificationCommand("--dachora-instruction-program-definitions")]

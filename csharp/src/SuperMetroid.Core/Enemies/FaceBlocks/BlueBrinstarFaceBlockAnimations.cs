@@ -26,22 +26,25 @@ internal static class BlueBrinstarFaceBlockAnimations
             Show(EnemyFrameId.BlueBrinstarFaceBlockGlancingRight, 16),
             Show(EnemyFrameId.BlueBrinstarFaceBlockLookingRight, 16),
         ],
-        [P.Initial] =
-        [
-            Show(EnemyFrameId.FaceBlockNeutral, 1),
-        ],
+        [P.Initial] = [Hold(EnemyFrameId.FaceBlockNeutral)],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>> StartingAt { get; } = new Dictionary<BlueBrinstarFaceBlockSegment, Animation<BlueBrinstarFaceBlockSegment>>
     {
-        [P.SamusLeft] = new([new(P.SamusLeft, 0, 3, 1)], AnimationEnd.Holds),
-        [P.SamusRight] = new([new(P.SamusRight, 0, 3, 1)], AnimationEnd.Holds),
-        [P.Initial] = new([new(P.Initial, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SamusLeft] = new([Whole(P.SamusLeft)], AnimationEnd.Holds),
+        [P.SamusRight] = new([Whole(P.SamusRight)], AnimationEnd.Holds),
+        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BlueBrinstarFaceBlockSegment> StartingWith(BlueBrinstarFaceBlockSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<BlueBrinstarFaceBlockSegment> Whole(BlueBrinstarFaceBlockSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

@@ -27,8 +27,9 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Velocity(phase).X.RawValue, "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Velocity(phase).Y.RawValue, "Native corpse Y launch");
             foreach (int drainStage in new[] { 0, 1 })
-            // The delay starts at 64 and the phase ends on the step below zero, so every count it can hold is swept.
-            for (int raw = 0; raw <= 64; raw++)
+            // The pause starts at its true duration and ends on the step that takes it to zero; one at zero ends on its next
+            // step. Every count it can hold is swept.
+            for (int raw = 0; raw <= DeadSidehopperVictimDefinitions.PostLandingPause; raw++)
             {
                 state.Action = DeadSidehopperAction.PostLandingDelay;
                 state.StateTimer = raw;
@@ -39,9 +40,9 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 place.AnimationClock.HoldFor(9);
                 dispatch(place, state, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), default);
                 int timer = raw - 1;
-                bool expired = timer < 0;
+                bool expired = timer <= 0;
                 bool launch = expired && drainStage == 0;
-                AssertEqual(timer, state.StateTimer, "Exact delay decrement, ending below zero");
+                AssertEqual(timer, state.StateTimer, "Exact delay decrement, ending at zero");
                 AssertEqual(launch ? vx : (ushort)0x1234, state.Velocity.X.RawValue, "Timer and drain gates control X launch");
                 AssertEqual(launch ? vy : (ushort)0x1234, state.Velocity.Y.RawValue, "Timer and drain gates control Y launch");
                 AssertEqual(expired ? (launch ? DeadSidehopperAction.ActivatedMovement : DeadSidehopperAction.Draining) : DeadSidehopperAction.PostLandingDelay,

@@ -1,23 +1,23 @@
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The behaviour a creepy-crawly enemy's main AI runs each frame.
-/// Its values are arbitrary.
+/// The behaviour a creepy-crawly enemy's main AI runs each frame; its entity decides how it crawls, the orange Zoomer by
+/// its own pursuit (#2283). Its values are arbitrary.
 /// </summary>
 public enum CrawlerAction
 {
-    /// <summary>The orange Zoomer settles for its first update, then crawls along the surface it starts on.</summary>
-    OrangeZoomerSettling,
-    /// <summary>Maintains wall contact and traverses vertical edges, reversing its tangent toward Samus while attached.</summary>
-    OrangeZoomerCrawlingVertically,
-    /// <summary>Maintains floor or ceiling contact and traverses edges, reversing its horizontal tangent toward Samus while attached.</summary>
-    OrangeZoomerCrawlingHorizontally,
-    /// <summary>The shared crawlers' starting state: it settles for its first update, then crawls along the surface it starts on.</summary>
+    /// <summary>The starting state: the crawler settles for its first update, then crawls along the surface it starts on.</summary>
     Settling,
-    /// <summary>Shared wall-crawling behaviour that probes horizontal attachment, advances vertically, and rotates the surface animation at inside or outside corners.</summary>
+    /// <summary>
+    /// Wall crawling: probes horizontal attachment, advances vertically and rotates the surface animation at inside or
+    /// outside corners; an orange Zoomer also reverses its tangent toward Samus while attached.
+    /// </summary>
     CrawlingVertically,
-    /// <summary>Shared detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached action.</summary>
+    /// <summary>Detachment fall with half-pixel downward acceleration until the whole velocity reaches four pixels per update; landing clears fall motion and restores the saved attached action.</summary>
     Falling,
-    /// <summary>Shared floor/ceiling-crawling behaviour that probes vertical attachment, advances horizontally with slope adjustment, and rotates the surface animation at corners.</summary>
+    /// <summary>
+    /// Floor or ceiling crawling: probes vertical attachment, advances horizontally with slope adjustment and rotates the
+    /// surface animation at corners; an orange Zoomer also reverses its tangent toward Samus while attached.
+    /// </summary>
     CrawlingHorizontally,
 }

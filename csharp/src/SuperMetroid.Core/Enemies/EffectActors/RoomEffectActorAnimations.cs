@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 internal static class RoomEffectActorAnimations
 {
     /// <summary>
-    /// Every room effect actor's segments: the beats each kind shows, and the cycle a Metroid's electricity and shell loop
-    /// after their opening (#2276).
+    /// Every room effect actor's runs (#2275): one segment per kind, the beats that kind shows, and a Metroid's electricity's
+    /// and shell's cycles, which their first pass runs on into.
     /// </summary>
     internal static AnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
         new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
@@ -148,8 +148,7 @@ internal static class RoomEffectActorAnimations
         ],
         [P.NuclearWaffleSplash] =
         [
-            Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 2),
-            Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 2),
+            Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 4),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash29Wide, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash39Wide, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash45Wide, 2),
@@ -297,14 +296,8 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
             Show(EnemyFrameId.EffectActorEmpty, 1),
         ],
-        [P.YappingMawBaseFacingDown] =
-        [
-            Hold(EnemyFrameId.EffectActorYappingMawBaseFacingDown),
-        ],
-        [P.YappingMawBaseFacingUp] =
-        [
-            Hold(EnemyFrameId.EffectActorYappingMawBaseFacingUp),
-        ],
+        [P.YappingMawBaseFacingDown] = [Hold(EnemyFrameId.EffectActorYappingMawBaseFacingDown)],
+        [P.YappingMawBaseFacingUp] = [Hold(EnemyFrameId.EffectActorYappingMawBaseFacingUp)],
         [P.EvirFacingLeft] =
         [
             Show(EnemyFrameId.EffectActorEvirFacingLeftLegsStretched, 10),
@@ -329,8 +322,8 @@ internal static class RoomEffectActorAnimations
     });
 
     /// <summary>
-    /// The animation each kind plays, each segment whole: its segment once and done, held or looping, or, for a Metroid's
-    /// electricity and shell, their opening and then their cycle looping (#2276).
+    /// The animation each kind plays: its segment once and done, or, for a Metroid's electricity and shell, a first pass
+    /// and then its cycle looping (#2275); a Yapping Maw's base is a still picture.
     /// </summary>
     internal static IReadOnlyDictionary<RoomEffectActorKind, Animation<RoomEffectActorSegment>> StartingAt { get; } = new Dictionary<RoomEffectActorKind, Animation<RoomEffectActorSegment>>
     {
@@ -364,7 +357,7 @@ internal static class RoomEffectActorAnimations
     /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
     private static AnimationPhase<RoomEffectActorSegment> Whole(RoomEffectActorSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
-    /// <summary>Shows enemy-sheet frame <paramref name="frame"/> for good (#2276): the Yapping Maw's base is a still picture.</summary>
+    /// <summary>A still picture (#2275): enemy-sheet frame <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Hold(EnemyFrameId frame) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame(RoomEffectActorPicture.OfEnemyFrame(frame));
 

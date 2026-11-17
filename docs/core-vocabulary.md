@@ -68,7 +68,7 @@ the word, and words that only share its letters stay the game's own (`Functional
 
 Two synonyms of `AiFunction` are reported too, with no delegate allowance (#1738, `CoreVocabularyAnalyzer.AiRoutinePhrases`):
 `AiRoutine` and `AiHandler`, the enemy record's initialization, main, grapple and hurt AI routine fields. A definition
-names the response it selects (`EnemyGrappleResponse`, `EnemyHurtResponse` with its `Inert` member), and a species
+names the response it selects (`GrappleEnemyReaction`, `EnemyHurtResponse` with its `Inert` member), and a species
 exposes its lifecycle on its entity (`IEnemyInitialization.Initialize`, `IEnemyMainAi.RunMainAi`) instead of handing
 out a handler delegate the record's pointer stood behind. Each word alone stays the game's own (`AiState`, `Routine`,
 `EnemyHurtHandler`).

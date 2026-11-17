@@ -21,9 +21,10 @@ internal static class DeadTorizoBehaviorVerification
         RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
-        DeadTorizoBehavior.InitializeDeadTorizo(corpse);
+        enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoSegment.Stationary).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
+        // A still picture shows once and holds (#2275).
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),
             EnemyInstructionRunner.ShownFrames(corpse, 3), "Dead Torizo stationary pose");
         Console.WriteLine("  Dead Torizo behavior: the initializer starts the stationary pose and it holds.");
     }

@@ -45,7 +45,11 @@ internal static class ChozoStatueAnimationsVerification
                             _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                         }, $"{at}: operand {index}");
                     }
-                }));
+                }),
+            onlyRunOnInto: new HashSet<ChozoStatueSegment>
+            {
+                ChozoStatueSegment.LowerNorfairRelease, ChozoStatueSegment.WreckedShipFlexEnd, ChozoStatueSegment.WreckedShipSettingSamusDown,
+            });
         Console.WriteLine($"  Chozo statue animations: {Entries.Length} segments ({beats} beats) and {ChozoStatueAnimations.StartingAt.Count} animations match bank $AA.");
     }
 }

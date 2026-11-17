@@ -1,58 +1,57 @@
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
-/// A run of beats a room effect actor's animation plays whole (#2276): each kind's own, and the cycle a Metroid's
-/// electricity and shell loop after their opening. Their beats are <see cref="RoomEffectActorAnimations"/>; their values
-/// are arbitrary.
+/// A run of a room effect actor's animation (#2275): each kind's own run, and the cycles a Metroid's electricity and shell
+/// loop after their first pass. Their beats are <see cref="RoomEffectActorAnimations"/>; its values are arbitrary.
 /// </summary>
 internal enum RoomEffectActorSegment
 {
-    /// <summary>The beats <see cref="RoomEffectActorKind.DraygonFoam"/> shows.</summary>
-    DraygonFoam,
-    /// <summary>The beats <see cref="RoomEffectActorKind.SmallExplosion"/> shows.</summary>
+    /// <summary>A small explosion: a spark swelling into a fireball, a ring and scattering embers.</summary>
     SmallExplosion,
-    /// <summary>The beats <see cref="RoomEffectActorKind.DudShot"/> shows.</summary>
-    DudShot,
-    /// <summary>The beats <see cref="RoomEffectActorKind.SmokePuff"/> shows.</summary>
-    SmokePuff,
-    /// <summary>The beats <see cref="RoomEffectActorKind.RisingDustPuff"/> shows.</summary>
-    RisingDustPuff,
-    /// <summary>The beats <see cref="RoomEffectActorKind.Smoke"/> shows.</summary>
+    /// <summary>Smoke rising and fading.</summary>
     Smoke,
-    /// <summary>The beats <see cref="RoomEffectActorKind.BigExplosion"/> shows.</summary>
+    /// <summary>A dud shot's flash: a dot opening into a ring that thins and fades.</summary>
+    DudShot,
+    /// <summary>A puff of dust rising.</summary>
+    RisingDustPuff,
+    /// <summary>A small puff of smoke rising and fading.</summary>
+    SmokePuff,
+    /// <summary>A big explosion: a fireball opening into a wide ring that fades.</summary>
     BigExplosion,
-    /// <summary>The beats <see cref="RoomEffectActorKind.ShortBigDustCloud"/> shows.</summary>
+    /// <summary>A big dust cloud's first half: a puff swelling until it billows.</summary>
     ShortBigDustCloud,
-    /// <summary>The beats <see cref="RoomEffectActorKind.BigDustCloud"/> shows.</summary>
+    /// <summary>A big dust cloud: a puff swelling, billowing, thinning and fading into wisps.</summary>
     BigDustCloud,
-    /// <summary>The beats <see cref="RoomEffectActorKind.DraygonBreathBubbles"/> shows.</summary>
+    /// <summary>Draygon's breath bubbles rising.</summary>
     DraygonBreathBubbles,
-    /// <summary>The beats <see cref="RoomEffectActorKind.NuclearWaffleBody"/> shows.</summary>
+    /// <summary>A Nuclear Waffle body link turning round, looping, placed by the Nuclear Waffle that owns it.</summary>
     NuclearWaffleBody,
-    /// <summary>The beats <see cref="RoomEffectActorKind.NuclearWaffleRightExplosion"/> shows.</summary>
+    /// <summary>A Nuclear Waffle's explosion bursting to the right.</summary>
     NuclearWaffleRightExplosion,
-    /// <summary>The beats <see cref="RoomEffectActorKind.NuclearWaffleLeftExplosion"/> shows.</summary>
+    /// <summary>A Nuclear Waffle's explosion bursting to the left.</summary>
     NuclearWaffleLeftExplosion,
-    /// <summary>The beats <see cref="RoomEffectActorKind.NuclearWaffleSplash"/> shows.</summary>
+    /// <summary>A Nuclear Waffle's splash, which shows beside either explosion.</summary>
     NuclearWaffleSplash,
-    /// <summary>The beats <see cref="RoomEffectActorKind.FallingSparkTrail"/> shows.</summary>
+    /// <summary>A falling spark's fading afterimage.</summary>
     FallingSparkTrail,
-    /// <summary>The beats <see cref="RoomEffectActorKind.MetroidElectricity"/> shows, its opening before its cycle.</summary>
+    /// <summary>A Metroid's electricity's first pass.</summary>
     MetroidElectricity,
-    /// <summary>The cycle <see cref="RoomEffectActorKind.MetroidElectricity"/> loops after its opening.</summary>
+    /// <summary>A Metroid's electricity's cycle, which loops after its first pass.</summary>
     MetroidElectricityCycle,
-    /// <summary>The beats <see cref="RoomEffectActorKind.MetroidShell"/> shows, its opening before its cycle.</summary>
+    /// <summary>A Metroid's shell's first pass.</summary>
     MetroidShell,
-    /// <summary>The cycle <see cref="RoomEffectActorKind.MetroidShell"/> loops after its opening.</summary>
+    /// <summary>A Metroid's shell's cycle, which loops after its first pass.</summary>
     MetroidShellCycle,
-    /// <summary>The beats <see cref="RoomEffectActorKind.YappingMawBaseFacingDown"/> shows.</summary>
+    /// <summary>The base of a Yapping Maw that reaches down, held eight pixels above it.</summary>
     YappingMawBaseFacingDown,
-    /// <summary>The beats <see cref="RoomEffectActorKind.YappingMawBaseFacingUp"/> shows.</summary>
+    /// <summary>The base of a Yapping Maw that reaches up, held eight pixels below it.</summary>
     YappingMawBaseFacingUp,
-    /// <summary>The beats <see cref="RoomEffectActorKind.EvirFacingLeft"/> shows.</summary>
+    /// <summary>An Evir facing left, its legs cycling.</summary>
     EvirFacingLeft,
-    /// <summary>The beats <see cref="RoomEffectActorKind.EvirFacingRight"/> shows.</summary>
+    /// <summary>An Evir facing right, its legs cycling.</summary>
     EvirFacingRight,
-    /// <summary>The beats <see cref="RoomEffectActorKind.HitBurst"/> shows.</summary>
+    /// <summary>Foam rising from Draygon's mouth.</summary>
+    DraygonFoam,
+    /// <summary>The hit burst on an enemy a shot or bomb hurts while it is not frozen.</summary>
     HitBurst,
 }

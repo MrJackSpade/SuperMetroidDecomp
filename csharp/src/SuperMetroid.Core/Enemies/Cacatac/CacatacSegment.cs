@@ -10,8 +10,10 @@ internal enum CacatacSegment
     UpsideUpIdle,
     /// <summary>The upside up attack animation.</summary>
     UpsideUpAttack,
-    /// <summary>The upside down idle animation.</summary>
+    /// <summary>The upside-down idle's start: its restore-patrol cue.</summary>
     UpsideDownIdle,
+    /// <summary>The upside-down idle's poses.</summary>
+    UpsideDownIdlePoses,
     /// <summary>The upside down attack animation.</summary>
     UpsideDownAttack,
 }

@@ -66,9 +66,8 @@ public sealed class RoomEffectActor
     }
 
     /// <summary>
-    /// Plays the animation to its next frame: a frame installs itself and its duration, a held frame (a still picture,
-    /// #2276) installs itself for good, the hold keeps the frame for good, and the animation's end ends the object. The
-    /// animations count no repeats and raise no events.
+    /// Plays the animation to its next frame: a frame installs itself and its duration, the hold keeps the frame for good,
+    /// and the animation's end ends the object. The animations count no repeats and raise no events.
     /// </summary>
     private void AdvanceAnimation()
     {
@@ -87,6 +86,7 @@ public sealed class RoomEffectActor
                 Timer = frame.Duration;
                 return;
             case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.HeldFrame held:
+                // A still picture shows from now on (#2275).
                 Playback = new(animation, place);
                 Frame = held.Shown;
                 Holds = true;

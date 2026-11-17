@@ -39,7 +39,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of the Alcoon's animations: spitting a fireball, starting to walk, or stepping. Starting to walk
     /// always continues at the walk for the Alcoon's facing, and a step that meets a wall turns it round to the other walk.
     /// </summary>
-    private AlcoonSegment? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
+    private AnimationContinuation<AlcoonSegment>? ApplyAlcoonCue(RoomEnemyPlace place, AlcoonEnemyState state, RoomLevelData level, AlcoonCue cue)
     {
         if (cue is AlcoonCue.Fire fire)
         {
@@ -317,21 +317,20 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Alcoon's start-walking cue and returns the walk the animation continues at.</summary>
-    private AlcoonSegment StartAlcoonWalking(AlcoonEnemyState state)
+    private AnimationContinuation<AlcoonSegment> StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Action = AlcoonAction.WalkingAndFiring;
         int count = AlcoonWalkDefinitions.StepCount.Of(_room.Random.Read());
         state.StepCounter = count == 0 ? AlcoonWalkDefinitions.StepsForZeroSample : count;
-        return FacesLeft(state)
-            ? AlcoonSegment.WalkingLeft
-            : AlcoonSegment.WalkingRight;
+        return new(AlcoonAnimations.StartingWith(FacesLeft(state) ? AlcoonSegment.WalkingLeft : AlcoonSegment.WalkingRight),
+            AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>
     /// Implements both movement cues: the animation runs on unless a wall turns the Alcoon
     /// round, when it continues at the other walk's first pose.
     /// </summary>
-    private AlcoonSegment? MoveAlcoonHorizontally(
+    private AnimationContinuation<AlcoonSegment>? MoveAlcoonHorizontally(
         RoomEnemyPlace place,
         AlcoonEnemyState state,
         RoomLevelData level)
@@ -358,8 +357,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => state.WalkingDirection,
         };
         return turnsLeft
-            ? AlcoonSegment.WalkingLeftLoop
-            : AlcoonSegment.WalkingRightLoop;
+            ? AlcoonAnimations.WalkingLeftFromFirstStride
+            : AlcoonAnimations.WalkingRightFromFirstStride;
     }
 
     /// <summary>Whether the Alcoon faces left: it does only once it has picked the left side.</summary>
@@ -385,9 +384,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceAlcoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context) =>
         EnemyAnimationPlayback.Advance(place, AlcoonAnimations.Segments,
             static (AlcoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue) is { } walk
-                ? new AnimationContinuation<AlcoonSegment>(AlcoonAnimations.StartingWith(walk), AnimationPlace.StartOfAnimation)
-                : null);
+            (state, cue) => ApplyAlcoonCue(place, state, context.Level, cue));
 
     /// <summary>Spits an Alcoon fireball with the vertical speed of <paramref name="launch"/>.</summary>
     internal void SpawnAlcoonFireball(RoomEnemyPlace alcoon, AlcoonFireballLaunch launch)

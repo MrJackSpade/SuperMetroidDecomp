@@ -52,14 +52,14 @@ public sealed class EtecoonEnemyState
     }
 
     /// <summary>
-    /// Whether the Etecoon is heading right: it is placed heading left, until it first takes a heading of its own.
+    /// The way the Etecoon is heading (#2277): it is placed heading left, until it first takes a heading of its own.
     /// </summary>
     /// <remarks>
     /// The teaching hops never change which way the Etecoon heads: every state that tests the heading is reached only
     /// after the Etecoon has taken a heading (<see cref="Head"/>), which empties <see cref="TeachingHops"/>, and the
     /// teaching hops that count again always end in the return run, whose wall takes a heading before the next test.
     /// </remarks>
-    public bool HeadingRight { get; internal set; }
+    public HorizontalDirection Heading { get; internal set; }
 
     /// <summary>
     /// Teaching hops taken since the count was last emptied, none when the Etecoon is placed: the count empties on reaching
@@ -74,7 +74,7 @@ public sealed class EtecoonEnemyState
     /// <summary>Takes a heading, which also empties the teaching-hop count.</summary>
     internal void Head(HorizontalDirection side)
     {
-        HeadingRight = side == HorizontalDirection.Right;
+        Heading = side;
         TeachingHops = 0;
     }
 

@@ -89,7 +89,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Its sections' origins follow from the spawn row, each eight pixels further along the growth.
         var state = new GrowingShutterEnemyState(action, place.Position.Y.Whole, growth)
         {
-            ActivationTimer = settings.ActivationWait,
+            ActivationTimer = settings.ActivationWait + EnemyWaitDefinitions.RunOutUpdate,
             ActivationDistance = settings.ActivationDistance,
         };
         place.SetSpeciesState(state);
@@ -150,17 +150,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>
-    /// Code tests the timer before decrementing it. Zero therefore activates on the
-    /// current call, while a positive N waits N complete calls and activates on call N + 1.
-    /// </summary>
-    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state)
-    {
-        if (state.ActivationTimer == 0)
-            return true;
-        state.ActivationTimer = Math.Max(0, state.ActivationTimer - 1);
-        return false;
-    }
+    /// <summary>Steps the timer-mode wait one call and reports whether it ran out on this call (#2281).</summary>
+    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => --state.ActivationTimer == 0;
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>
     private void ActivateGrowingShutter(
@@ -581,7 +572,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = VerticalShutterAction.Still;
             return;
         }
-        state.ActionTimer = WrappingCountdown.Start(rest.Updates);
+        state.RestTimer = rest.Updates + EnemyWaitDefinitions.RunOutUpdate;
         state.Action = moved == VerticalDirection.Up ? VerticalShutterAction.StoppedAfterMovingUp : VerticalShutterAction.StoppedAfterMovingDown;
     }
 
@@ -595,9 +586,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera,
         VerticalDirection end)
     {
-        CountdownStep timer = state.ActionTimer.Decrement();
-        state.ActionTimer = timer.Remaining;
-        if (timer.IsNonNegative)
+        if (--state.RestTimer > 0)
             return;
 
         bool reversesIntoPrimary = (state.PrimaryDirection == ShutterHeading.LeftOrUp) != (end == VerticalDirection.Up);

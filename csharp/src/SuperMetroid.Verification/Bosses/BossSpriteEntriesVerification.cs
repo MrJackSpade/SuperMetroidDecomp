@@ -35,7 +35,7 @@ internal static class BossSpriteEntriesVerification
         EnemyTileSourceArtwork artwork = InstalledFixtures.EnemyTiles;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.CorpseTorizo);
-        SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.InitializeDeadTorizo(enemies.Places.InUpdateOrder[0]);
+        enemies.DeadTorizoBehavior.InitializeDeadTorizo(enemies.Places.InUpdateOrder[0]);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         enemies.DeadTorizoBehavior.DrawDeadTorizoSandHeap(sprites, DeadTorizoCamera);

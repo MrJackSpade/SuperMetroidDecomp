@@ -21,8 +21,8 @@ public enum VerticalShutterAction
     MovingUp,
     /// <summary>Adds downward 1/65536-pixel velocity, carries a rider, and stops at the maximum Y boundary.</summary>
     MovingDown,
-    /// <summary>Waits for the timer to pass zero before moving down or restoring proximity waiting.</summary>
+    /// <summary>Waits out the rest at the upper end before moving down or restoring proximity waiting.</summary>
     StoppedAfterMovingUp,
-    /// <summary>Waits for the timer to pass zero before moving up or restoring proximity waiting.</summary>
+    /// <summary>Waits out the rest at the lower end before moving up or restoring proximity waiting.</summary>
     StoppedAfterMovingDown,
 }

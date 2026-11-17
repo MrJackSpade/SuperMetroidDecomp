@@ -17,12 +17,10 @@ internal static class AlcoonNativeListAddresses
     internal static readonly NativeProgramEntry<AlcoonSegment>[] Entries =
     [
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingLeft, 0xdbe7),
-        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingLeftLoop, 0xdbe9),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.FireLeft, 0xdc03),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneLeftLookingUp, 0xdc4b),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneLeftLookingForward, 0xdc51),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingRight, 0xdc57),
-        new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.WalkingRightLoop, 0xdc59),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.FireRight, 0xdc73),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneRightLookingUp, 0xdcbb),
         new NativeProgramEntry<AlcoonSegment>(AlcoonSegment.AirborneRightLookingForward, 0xdcc1),

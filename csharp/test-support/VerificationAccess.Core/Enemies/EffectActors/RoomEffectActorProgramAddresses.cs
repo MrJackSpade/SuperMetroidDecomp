@@ -34,34 +34,21 @@ internal static class RoomEffectActorProgramAddresses
     };
 
     /// <summary>
-    /// Each segment's first record (#2276): a kind's own at its list's address, and the cycle a Metroid's electricity and shell
-    /// loop at the record their opening runs on into.
+    /// Each segment's list address (#2275): a kind's own run starts at the kind's list, and a Metroid's electricity's and
+    /// shell's cycles at the records their first pass runs on into.
     /// </summary>
-    internal static IReadOnlyDictionary<RoomEffectActorSegment, ushort> SegmentEntries { get; } = new Dictionary<RoomEffectActorSegment, ushort>
-    {
-        [RoomEffectActorSegment.DraygonFoam] = Entries[RoomEffectActorKind.DraygonFoam],
-        [RoomEffectActorSegment.SmallExplosion] = Entries[RoomEffectActorKind.SmallExplosion],
-        [RoomEffectActorSegment.DudShot] = Entries[RoomEffectActorKind.DudShot],
-        [RoomEffectActorSegment.SmokePuff] = Entries[RoomEffectActorKind.SmokePuff],
-        [RoomEffectActorSegment.RisingDustPuff] = Entries[RoomEffectActorKind.RisingDustPuff],
-        [RoomEffectActorSegment.Smoke] = Entries[RoomEffectActorKind.Smoke],
-        [RoomEffectActorSegment.BigExplosion] = Entries[RoomEffectActorKind.BigExplosion],
-        [RoomEffectActorSegment.ShortBigDustCloud] = Entries[RoomEffectActorKind.ShortBigDustCloud],
-        [RoomEffectActorSegment.BigDustCloud] = Entries[RoomEffectActorKind.BigDustCloud],
-        [RoomEffectActorSegment.DraygonBreathBubbles] = Entries[RoomEffectActorKind.DraygonBreathBubbles],
-        [RoomEffectActorSegment.NuclearWaffleBody] = Entries[RoomEffectActorKind.NuclearWaffleBody],
-        [RoomEffectActorSegment.NuclearWaffleRightExplosion] = Entries[RoomEffectActorKind.NuclearWaffleRightExplosion],
-        [RoomEffectActorSegment.NuclearWaffleLeftExplosion] = Entries[RoomEffectActorKind.NuclearWaffleLeftExplosion],
-        [RoomEffectActorSegment.NuclearWaffleSplash] = Entries[RoomEffectActorKind.NuclearWaffleSplash],
-        [RoomEffectActorSegment.FallingSparkTrail] = Entries[RoomEffectActorKind.FallingSparkTrail],
-        [RoomEffectActorSegment.MetroidElectricity] = Entries[RoomEffectActorKind.MetroidElectricity],
-        [RoomEffectActorSegment.MetroidElectricityCycle] = 0xc436,
-        [RoomEffectActorSegment.MetroidShell] = Entries[RoomEffectActorKind.MetroidShell],
-        [RoomEffectActorSegment.MetroidShellCycle] = 0xc536,
-        [RoomEffectActorSegment.YappingMawBaseFacingDown] = Entries[RoomEffectActorKind.YappingMawBaseFacingDown],
-        [RoomEffectActorSegment.YappingMawBaseFacingUp] = Entries[RoomEffectActorKind.YappingMawBaseFacingUp],
-        [RoomEffectActorSegment.EvirFacingLeft] = Entries[RoomEffectActorKind.EvirFacingLeft],
-        [RoomEffectActorSegment.EvirFacingRight] = Entries[RoomEffectActorKind.EvirFacingRight],
-        [RoomEffectActorSegment.HitBurst] = Entries[RoomEffectActorKind.HitBurst],
-    };
+    internal static IReadOnlyDictionary<RoomEffectActorSegment, ushort> SegmentEntries { get; } =
+        new Dictionary<RoomEffectActorSegment, ushort>(Entries.Select(entry =>
+            KeyValuePair.Create(Enum.Parse<RoomEffectActorSegment>(entry.Key.ToString()), entry.Value)))
+        {
+            [RoomEffectActorSegment.MetroidElectricityCycle] = 0xc436,
+            [RoomEffectActorSegment.MetroidShellCycle] = 0xc536,
+        };
+
+    /// <summary>
+    /// The native records beat <paramref name="beat"/> of <paramref name="segment"/> stands for: one, except the splash's
+    /// first frame, which the list shows in two records of two updates each and the port as one frame of four (#2275).
+    /// </summary>
+    internal static int RecordsOf(RoomEffectActorSegment segment, int beat) =>
+        segment == RoomEffectActorSegment.NuclearWaffleSplash && beat == 0 ? 2 : 1;
 }

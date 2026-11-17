@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;

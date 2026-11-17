@@ -102,7 +102,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(session.GameplayRuntime.Player.Colours, resumedSamus.EquippedItems);
         session.GameplayRuntime.Room.LoadedScope.RoomObjects.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.Control.ReleaseRefillStationOnUnpause();
-        session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();
+        session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ResumeFromPause();
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.Close<PauseMenuState>();
         session.BeginPauseFade(0);

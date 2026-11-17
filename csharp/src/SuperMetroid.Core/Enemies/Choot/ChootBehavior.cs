@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>The Choot species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -11,15 +13,6 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ChootEntity(place, common);
-
-    /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
-    private const int ChootActivationDistance = 80;
-
-    /// <summary>
-    /// How far the ascent moves back along the quadratic speed curve each jumping update, two whole marks; the starting
-    /// place is found by moving on by the same step.
-    /// </summary>
-    private static readonly QuadraticSpeedCurvePlace ChootAscentStep = QuadraticSpeedCurvePlace.FromMarks(2);
 
     /// <summary>Initializes the Choot, selecting a falling pattern and calculating ascent speed from parameters.</summary>
     internal static void InitializeChoot(RoomEnemyPlace place)
@@ -74,17 +67,17 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootEnemyState state,
         SamusState samus)
     {
-        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootActivationDistance)
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ChootMotionDefinitions.ActivationDistance)
             return;
 
-        state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay;
+        state.JumpDelayTimer = place.SpawnSettings<ChootSpawnSettings>().JumpDelay + EnemyWaitDefinitions.RunOutUpdate;
         state.Action = ChootAction.PreparingJump;
     }
 
-    /// <summary>Decrements the delay until it turns negative, then starts the jumping animation.</summary>
+    /// <summary>Waits out the jump delay, then starts the jumping animation.</summary>
     internal static void PrepareChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
-        if (--state.JumpDelayTimer >= 0)
+        if (--state.JumpDelayTimer > 0)
             return;
 
         SetChootAnimation(place, state, ChootSegment.Jumping);
@@ -99,7 +92,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(upwardDisplacement));
 
-        state.YSpeedCurvePlace -= ChootAscentStep;
+        state.YSpeedCurvePlace -= ChootMotionDefinitions.AscentStep;
         if (!state.YSpeedCurvePlace.IsNegative)
             return;
 
@@ -108,8 +101,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        // A population loop count of zero starts below zero, so the fall ends at the first loop's end as a count of one does.
-        state.FallingPatternLoopCounter = place.SpawnSettings<ChootSpawnSettings>().PatternLoops - 1;
+        // A population loop count of zero falls one loop, as a count of one does.
+        state.FallingPatternLoopCounter = Math.Max(1, place.SpawnSettings<ChootSpawnSettings>().PatternLoops);
         SetChootAnimation(place, state, ChootSegment.Falling);
         state.Action = ChootAction.Falling;
     }
@@ -123,7 +116,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(
                 state.FallingOrigin.Y + state.FallingPatternYDistance));
             state.FallingPatternFrame = 0;
-            if (--state.FallingPatternLoopCounter >= 0)
+            if (--state.FallingPatternLoopCounter > 0)
                 return;
 
             // The last loop's end restores exact spawn coordinates/subpositions, reinstalls
@@ -146,7 +139,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     private static QuadraticSpeedCurvePlace CalculateInitialChootYSpeedCurvePlace(int jumpHeight)
     {
         FixedCoordinate accumulatedDistance = default;
-        for (QuadraticSpeedCurvePlace curvePlace = ChootAscentStep; curvePlace <= QuadraticSpeedCurvePlace.LastMark; curvePlace += ChootAscentStep)
+        for (QuadraticSpeedCurvePlace curvePlace = ChootMotionDefinitions.AscentStep; curvePlace <= QuadraticSpeedCurvePlace.LastMark; curvePlace += ChootMotionDefinitions.AscentStep)
         {
             accumulatedDistance = accumulatedDistance.MovedBy(curvePlace.Speed.Positive);
             if (accumulatedDistance.Whole >= jumpHeight)

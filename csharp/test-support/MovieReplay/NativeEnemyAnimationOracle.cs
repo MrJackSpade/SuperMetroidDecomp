@@ -401,12 +401,15 @@ internal static class NativeEnemyAnimationOracle
 
     /// <summary>
     /// The phases and end the native lists play from <paramref name="start"/>, by the typed animations' rules, the first
-    /// list's run playing <paramref name="firstPlays"/> times.
+    /// list's run playing <paramref name="firstPlays"/> times. A counter loaded before the play reaches the list it counts
+    /// (#2275), one a counted repeat replays, is that list's plays: a list the play passes through first plays once.
     /// </summary>
     internal static (List<AnimationPhase<TSegment>> Phases, AnimationEnd End) Linearize<TSegment>(
         IReadOnlyDictionary<TSegment, NativeEnemyList<TSegment>> lists, TSegment start, int firstPlays = 1)
         where TSegment : struct, Enum
     {
+        HashSet<TSegment> counted = [.. lists.Values.SelectMany(list => list.Controls)
+            .Where(control => control.Kind == NativeEnemyControlKind.Repeat).Select(control => control.Target!.Value)];
         var phases = new List<AnimationPhase<TSegment>>();
         // Where the play entered each list, at its entry (beat zero) or at a beat a goto in that list loops back to (#2144).
         var entered = new Dictionary<(TSegment Segment, int Beat), int> { [(start, 0)] = 0 };
@@ -456,8 +459,12 @@ internal static class NativeEnemyAnimationOracle
                         entered[(target, 0)] = phases.Count;
                         segment = target;
                         runStart = 0;
-                        plays = pending ?? 1;
-                        pending = null;
+                        plays = 1;
+                        if (counted.Contains(target))
+                        {
+                            plays = pending ?? 1;
+                            pending = null;
+                        }
                         break;
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");

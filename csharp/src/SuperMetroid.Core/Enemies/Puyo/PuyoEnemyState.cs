@@ -24,7 +24,10 @@ public sealed class PuyoEnemyState
     internal static readonly QuadraticSpeedCurvePlace LargestYSpeedCurvePlace =
         QuadraticSpeedCurvePlace.FromMarks(128) - QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(1);
 
-    /// <summary>Grounded-frame countdown copied from its spawn hop cooldown.</summary>
+    /// <summary>
+    /// The grounded updates left before the next hop, the one it hops on included: its placement's hop cooldown and the
+    /// update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>, #2281).
+    /// </summary>
     public int HopCooldownTimer { get; internal set; }
 
     /// <summary>Whether the Puyo is grounded or airborne.</summary>

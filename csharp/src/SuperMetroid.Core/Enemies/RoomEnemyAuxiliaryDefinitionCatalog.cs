@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -16,7 +17,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         HurtFlashFrames: 4,
         HurtSoundEffect: null,
         Boss: null,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
+        GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,
@@ -35,7 +36,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         HurtFlashFrames: 4,
         HurtSoundEffect: null,
         Boss: null,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
+        GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,
@@ -54,7 +55,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         HurtFlashFrames: 8,
         HurtSoundEffect: EnemySound.ShotTorizo,
         Boss: AreaBoss.Torizo,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
+        GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.SpeciesOwn,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,
@@ -73,7 +74,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         HurtFlashFrames: 8,
         HurtSoundEffect: EnemySound.ShotTorizo,
         Boss: AreaBoss.Torizo,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
+        GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.SpeciesOwn,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,
@@ -95,7 +96,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         HurtFlashFrames: 4,
         HurtSoundEffect: EnemySound.RidleyRoar,
         Boss: null,
-        GrappleResponse: EnemyGrappleResponse.Cancel,
+        GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
         PowerBombReaction: null,

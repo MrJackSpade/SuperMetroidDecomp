@@ -14,11 +14,11 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>Initial countdown that ends the 49-update destruction when it passes zero.</summary>
-    private const int RumbleDuration = 48;
+    /// <summary>How many calls the door's destruction lasts, the last the one it ends on (#2281).</summary>
+    private const int RumbleDuration = 49;
 
-    /// <summary>Reload value for the interval between destruction explosions.</summary>
-    private const int RumbleInterval = 4;
+    /// <summary>How many calls apart the destruction's explosions burst (#2281).</summary>
+    private const int RumbleInterval = 5;
 
     /// <inheritdoc/>
     public void Initialize()
@@ -43,7 +43,8 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     // until the following enemy frame.
                     state.Phase = CeresElevatorDoorPhase.Exploding;
                     state.RumbleCallsLeft = RumbleDuration;
-                    state.ExplosionIntervalLeft = 0;
+                    // The first explosion bursts on the destruction's first call.
+                    state.ExplosionIntervalLeft = 1;
                     state.LastExplosionPlace = 0;
                 }
                 return;
@@ -64,17 +65,14 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 
-    /// <summary>Runs one call of the 49-call destruction exactly.</summary>
+    /// <summary>Runs one call of the destruction.</summary>
     internal void Explode()
     {
         CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
-        // The counters are small counts that each run below zero only once before the call ends the destruction or
-        // reloads them, so nothing reaches the counter's range.
-        state.RumbleCallsLeft--;
-        if (state.RumbleCallsLeft < 0)
+        if (--state.RumbleCallsLeft == 0)
         {
-            // The 49th call takes zero to -1. The door hides, keeps cycling the glow and platform from the next call on,
-            // and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
+            // The last call ends the destruction: the door hides, keeps cycling the glow and platform from the next call
+            // on, and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
             Place.Presence = Place.Presence.With(EnemyPresence.Hidden);
             state.Phase = CeresElevatorDoorPhase.Destroyed;
             if (doors.Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
@@ -82,8 +80,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
             return;
         }
 
-        state.ExplosionIntervalLeft--;
-        if (state.ExplosionIntervalLeft >= 0)
+        if (--state.ExplosionIntervalLeft != 0)
             return;
 
         state.ExplosionIntervalLeft = RumbleInterval;

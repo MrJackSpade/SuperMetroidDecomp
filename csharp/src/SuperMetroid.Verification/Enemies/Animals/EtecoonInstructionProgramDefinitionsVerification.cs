@@ -33,7 +33,9 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             AssertEqual(new AnimationPlayback<EtecoonSegment>(EtecoonAnimations.StartingWith(EtecoonSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
             // The self-looping animations: one phase of their own segment, played again and again.
             if (!EtecoonAnimations.StartingAt.TryGetValue(program, out Animation<EtecoonSegment>? animation) ||
-                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
+                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program ||
+                // A still picture shows for good: it has no timed loop to follow.
+                EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Segments, program) == 1)
                 continue;
             state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
@@ -57,7 +59,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             _ = EnemyInstructionRunner.ShownFrames(place, 8);
             AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
                 "Etecoon flex stays asleep");
-            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.Flexing).Last(), place.SpritemapPointer, "Etecoon flex ends on its last pose");
+            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.FlexEnd).Last(), place.SpritemapPointer, "Etecoon flex ends on its last pose");
         }
 
         AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonSegment>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(

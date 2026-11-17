@@ -10,7 +10,11 @@ public sealed class FlyEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FlySegment> Playback { get; set; }
 
-    /// <summary>Counts up per attack update, down below zero during retreat, and then down from <see cref="FlyMotionDefinitions.AttackCooldown"/> to gate another idle attack.</summary>
+    /// <summary>
+    /// The fly's dive and retreat clock (#2281): it counts the dive's updates, then the retreat's updates left, the dive's
+    /// and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, to zero, and then the circling updates left from
+    /// <see cref="FlyMotionDefinitions.AttackCooldown"/> before another dive.
+    /// </summary>
     public int RetreatTimer { get; internal set; }
 
     /// <summary>
@@ -28,8 +32,10 @@ public sealed class FlyEnemyState
     /// <summary>The current circling, attacking or retreating behaviour.</summary>
     public FlyAction Action { get; internal set; }
 
-    /// <summary>One circling update's phase advance, one way or the other, wrapping after a full turn.</summary>
-    /// <param name="clockwise">Whether the fly circles clockwise.</param>
-    internal void AdvanceCircle(bool clockwise) =>
-        Angle = Angle.TurnedBySteps(clockwise ? FlyMotionDefinitions.CircleTurnSteps : -FlyMotionDefinitions.CircleTurnSteps);
+    /// <summary>The way the fly circles (#2277): it starts clockwise and reverses after each full turn.</summary>
+    public RotationDirection Rotation { get; internal set; }
+
+    /// <summary>One circling update's phase advance the way the fly circles, wrapping after a full turn.</summary>
+    internal void AdvanceCircle() =>
+        Angle = Angle.TurnedBySteps(Rotation == RotationDirection.Clockwise ? FlyMotionDefinitions.CircleTurnSteps : -FlyMotionDefinitions.CircleTurnSteps);
 }

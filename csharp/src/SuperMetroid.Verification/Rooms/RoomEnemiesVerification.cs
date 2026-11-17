@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Video;
@@ -182,7 +183,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = place.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(EnemySound.Squeaks, definition.HurtSoundEffect, "definition hurt cry offset $0E");
-    AssertEqual(EnemyGrappleResponse.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
+    AssertEqual<GrappleEnemyReaction?>(GrappleEnemyReaction.Cancel, definition.GrappleResponse, "definition grapple response offset $1A");
     // Offset $28 names the species' own Power Bomb routine, which a definition leaves to the species (#1759).
     AssertEqual<EnemyReaction?>(null, definition.PowerBombReaction,
         "definition power-bomb reaction offset $28 names no shared reaction");
@@ -1399,7 +1400,7 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteTestWord(bus, address + 34, 0); // The small death explosion.
     WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
-    WriteTestWord(bus, address + 26, EnemyGrappleResponseWords.Responses.Word(EnemyGrappleResponse.Cancel)); // The grapple response must be a real routine.
+    WriteTestWord(bus, address + 26, EnemyGrappleResponseWords.Reactions.Word(GrappleEnemyReaction.Cancel)); // The grapple response must be a real routine.
     WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
     WriteTestWord(bus, address + 58, 0xf206); // Item-drop table 3, six bytes each from $F1F4.

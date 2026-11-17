@@ -18,8 +18,11 @@ internal static class YappingMawAttackDefinitions
     /// <summary>How long after it releases Samus the Maw waits before it can grab again, in updates.</summary>
     internal const int GrabCooldown = 48;
 
-    /// <summary>How long after the tongue fully retracts the Maw holds before it releases Samus's input, in updates.</summary>
-    internal const int RetractedHold = 64;
+    /// <summary>
+    /// How long after the tongue fully retracts the Maw holds before it releases Samus's input, in updates: 65, the last
+    /// the one it releases her on.
+    /// </summary>
+    internal const int RetractedHold = 65;
 
     /// <summary>How far from the Maw its root sits, on the side away from its attack, in pixels.</summary>
     internal const int RootDistance = 8;

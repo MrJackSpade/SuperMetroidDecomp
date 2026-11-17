@@ -72,6 +72,9 @@ internal static class RoomEffectActorNativeLists
         /// <summary>Whether the list has reached its go-back-four-bytes hold, which shows the same record for good.</summary>
         internal bool Holds { get; private set; }
 
+        /// <summary>A copy of this handler's state, to run ahead without moving this one.</summary>
+        internal Reference Copy() => (Reference)MemberwiseClone();
+
         /// <summary>Runs one handler call.</summary>
         internal void Step()
         {

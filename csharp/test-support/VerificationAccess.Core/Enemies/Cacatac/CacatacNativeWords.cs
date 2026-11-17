@@ -8,13 +8,17 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// </summary>
 internal static class CacatacNativeWords
 {
-    /// <summary>The routine word naming each <see cref="CacatacAction"/>.</summary>
-    internal static readonly NativeWordIdentities<CacatacAction> CacatacActions = new(new Dictionary<CacatacAction, ushort>
-    {
-        [CacatacAction.MovingLeft] = 0x9fba,
-        [CacatacAction.MovingRight] = 0x9fec,
-        [CacatacAction.Stopped] = 0xa01b,
-    });
+    /// <summary>
+    /// The routine word naming each <see cref="CacatacAction"/> and, for its patrol, the way it goes (#2277), the
+    /// cartridge giving each way a routine of its own.
+    /// </summary>
+    internal static readonly NativeWordIdentities<(CacatacAction Action, HorizontalDirection? Patrol)> CacatacActions =
+        new(new Dictionary<(CacatacAction Action, HorizontalDirection? Patrol), ushort>
+        {
+            [(CacatacAction.Patrolling, HorizontalDirection.Left)] = 0x9fba,
+            [(CacatacAction.Patrolling, HorizontalDirection.Right)] = 0x9fec,
+            [(CacatacAction.Stopped, null)] = 0xa01b,
+        });
 
     /// <summary>The direction word naming each <see cref="CacatacDirection"/>, as the placement and the enemy's state hold it.</summary>
     internal static readonly NativeWordIdentities<CacatacDirection> Directions = new(new Dictionary<CacatacDirection, ushort>

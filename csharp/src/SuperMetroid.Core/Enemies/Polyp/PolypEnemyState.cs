@@ -13,6 +13,6 @@ public sealed class PolypEnemyState
     /// <summary>The current Polyp behaviour.</summary>
     public PolypAction Action { get; internal set; }
 
-    /// <summary>The launch cooldown, decremented through -1 before the Polyp rearms.</summary>
+    /// <summary>The updates left in the launch cooldown, the one the Polyp rearms on included (#2281).</summary>
     public int CooldownTimer { get; internal set; }
 }

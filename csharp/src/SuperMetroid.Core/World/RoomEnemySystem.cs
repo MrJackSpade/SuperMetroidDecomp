@@ -715,12 +715,12 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         DragonBehavior = new DragonBehavior(Projectiles, Places, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, CorpseRowDust);
-        DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio, Places);
+        DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation, Audio);
         DachoraBehavior = new DachoraBehavior(Terrain, Places, Audio);
         var crocomireAccess = new CrocomireEncounterAccess(BossFrameResults, Room, Projectiles, Audio);
         CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Access = crocomireAccess, Places = Places, BodyLayer = new CrocomireBodyLayer(EffectActors, BossPresentation.Surfaces, crocomireAccess, RoomFx), Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, CameraDistance = CameraDistance, RoomStatus = RoomStatus, Encounters = BossEncounters });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
-        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx, Places);
+        ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, RoomFx);
         ChootBehavior = new ChootBehavior();
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresFallingTiles = new CeresFallingTiles(Projectiles, Audio);
@@ -734,7 +734,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         AnimationPlayer = new EnemyAnimationPlayer(Presentation);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { BossEncounters = BossEncounters, DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, AnimationPlayer = AnimationPlayer, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, PuyoCeilingTurn = PuyoCeilingTurn });
         TorizoBehavior = new TorizoBehavior(new TorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults });
-        BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Places, doorPassage);
+        BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(doorPassage);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision, compatibility.BeetomInheritance);
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);

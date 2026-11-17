@@ -13,20 +13,20 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 internal static class RoomEffectActorAccess
 {
     /// <summary>
-    /// The bytes a beat occupies in its native list: timed frames, four bytes each, and a held still picture, the timed
-    /// record its list shows before its hold (#2276).
+    /// The bytes beat <paramref name="index"/> of <paramref name="segment"/> occupies in its native list: a timed frame or a
+    /// still picture four bytes a record, a frame the list shows in two records in a row (#2275) eight.
     /// </summary>
-    private static int BeatBytes(AnimationBeat<RoomEffectActorPicture, NoAnimationCue> beat) => beat switch
+    private static int BeatBytes(RoomEffectActorSegment segment, int index) => RoomEffectActorAnimations.Segments.Beats(segment)[index] switch
     {
-        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame or AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame => 4,
-        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Pause or AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
-        _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
+        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame or AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame =>
+            4 * RoomEffectActorProgramAddresses.RecordsOf(segment, index),
+        var beat => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
     };
 
     /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="segment"/>.</summary>
     internal static ushort RecordAddress(RoomEffectActorSegment segment, int beat) =>
         checked((ushort)(RoomEffectActorProgramAddresses.SegmentEntries[segment] +
-            RoomEffectActorAnimations.Segments.Beats(segment).Take(beat).Sum(BeatBytes)));
+            Enumerable.Range(0, beat).Sum(index => BeatBytes(segment, index))));
 
     /// <summary>Native views of a sprite object.</summary>
     extension(RoomEffectActor self)

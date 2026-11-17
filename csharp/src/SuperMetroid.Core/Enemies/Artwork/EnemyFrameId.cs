@@ -764,46 +764,46 @@ public enum EnemyFrameId
     ChootFolded,
     /// <summary>Choot: spread out wide as it drifts down.</summary>
     ChootSpreadOut,
-    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 0 degrees.</summary>
-    OrangeZoomerUpsideRightSpinesTurned0,
-    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 12 degrees.</summary>
-    OrangeZoomerUpsideRightSpinesTurned12,
-    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 24 degrees.</summary>
-    OrangeZoomerUpsideRightSpinesTurned24,
-    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 36 degrees.</summary>
-    OrangeZoomerUpsideRightSpinesTurned36,
-    /// <summary>The horizontal Zoomer: crawling with its top right, its spines turned 48 degrees.</summary>
-    OrangeZoomerUpsideRightSpinesTurned48,
-    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 0 degrees.</summary>
-    OrangeZoomerUpsideLeftSpinesTurned0,
-    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 12 degrees.</summary>
-    OrangeZoomerUpsideLeftSpinesTurned12,
-    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 24 degrees.</summary>
-    OrangeZoomerUpsideLeftSpinesTurned24,
-    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 36 degrees.</summary>
-    OrangeZoomerUpsideLeftSpinesTurned36,
-    /// <summary>The horizontal Zoomer: crawling with its top left, its spines turned 48 degrees.</summary>
-    OrangeZoomerUpsideLeftSpinesTurned48,
-    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 0 degrees.</summary>
-    OrangeZoomerUpsideDownSpinesTurned0,
-    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 12 degrees.</summary>
-    OrangeZoomerUpsideDownSpinesTurned12,
-    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 24 degrees.</summary>
-    OrangeZoomerUpsideDownSpinesTurned24,
-    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 36 degrees.</summary>
-    OrangeZoomerUpsideDownSpinesTurned36,
-    /// <summary>The horizontal Zoomer: crawling with its top down, its spines turned 48 degrees.</summary>
-    OrangeZoomerUpsideDownSpinesTurned48,
-    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 0 degrees.</summary>
-    OrangeZoomerUpsideUpSpinesTurned0,
-    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 12 degrees.</summary>
-    OrangeZoomerUpsideUpSpinesTurned12,
-    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 24 degrees.</summary>
-    OrangeZoomerUpsideUpSpinesTurned24,
-    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 36 degrees.</summary>
-    OrangeZoomerUpsideUpSpinesTurned36,
-    /// <summary>The horizontal Zoomer: crawling with its top up, its spines turned 48 degrees.</summary>
-    OrangeZoomerUpsideUpSpinesTurned48,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 0 degrees.</summary>
+    SpinyCrawlerUpsideRightSpinesTurned0,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 12 degrees.</summary>
+    SpinyCrawlerUpsideRightSpinesTurned12,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 24 degrees.</summary>
+    SpinyCrawlerUpsideRightSpinesTurned24,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 36 degrees.</summary>
+    SpinyCrawlerUpsideRightSpinesTurned36,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top right, its spines turned 48 degrees.</summary>
+    SpinyCrawlerUpsideRightSpinesTurned48,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 0 degrees.</summary>
+    SpinyCrawlerUpsideLeftSpinesTurned0,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 12 degrees.</summary>
+    SpinyCrawlerUpsideLeftSpinesTurned12,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 24 degrees.</summary>
+    SpinyCrawlerUpsideLeftSpinesTurned24,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 36 degrees.</summary>
+    SpinyCrawlerUpsideLeftSpinesTurned36,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top left, its spines turned 48 degrees.</summary>
+    SpinyCrawlerUpsideLeftSpinesTurned48,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 0 degrees.</summary>
+    SpinyCrawlerUpsideDownSpinesTurned0,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 12 degrees.</summary>
+    SpinyCrawlerUpsideDownSpinesTurned12,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 24 degrees.</summary>
+    SpinyCrawlerUpsideDownSpinesTurned24,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 36 degrees.</summary>
+    SpinyCrawlerUpsideDownSpinesTurned36,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top down, its spines turned 48 degrees.</summary>
+    SpinyCrawlerUpsideDownSpinesTurned48,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 0 degrees.</summary>
+    SpinyCrawlerUpsideUpSpinesTurned0,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 12 degrees.</summary>
+    SpinyCrawlerUpsideUpSpinesTurned12,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 24 degrees.</summary>
+    SpinyCrawlerUpsideUpSpinesTurned24,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 36 degrees.</summary>
+    SpinyCrawlerUpsideUpSpinesTurned36,
+    /// <summary>A spiny crawler (a Zoomer, Zeela, Sova or orange Zoomer): crawling with its top up, its spines turned 48 degrees.</summary>
+    SpinyCrawlerUpsideUpSpinesTurned48,
     /// <summary>Sbug: facing right, wings up.</summary>
     SbugFacingRightWingsUp,
     /// <summary>Sbug: facing right, wings level.</summary>

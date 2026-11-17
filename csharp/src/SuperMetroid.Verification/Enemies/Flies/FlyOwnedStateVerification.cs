@@ -22,12 +22,13 @@ internal static class FlyOwnedStateVerification
 
         for (int update = 1; update < 16; update++)
         {
-            state.AdvanceCircle(clockwise: true);
+            state.AdvanceCircle();
             AssertTrue(state.Angle != RotationAngle.Zero, $"circling update {update} is mid-revolution");
         }
-        state.AdvanceCircle(clockwise: true);
+        state.AdvanceCircle();
         AssertEqual(RotationAngle.Zero, state.Angle, "sixteen circling updates complete a revolution");
-        state.AdvanceCircle(clockwise: false);
+        state.Rotation = RotationDirection.Counterclockwise;
+        state.AdvanceCircle();
         AssertEqual((byte)240, state.Angle.ToTrigonometryAngle().RawValue, "an anticlockwise step from zero wraps to the last step");
         Console.WriteLine("Fly owned state: the circling revolution and its wrap match.");
     }

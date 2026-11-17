@@ -96,69 +96,37 @@ internal static class CrawlerAnimations
             Show(EnemyFrameId.ViolaFaceForming, 10),
             Show(EnemyFrameId.ViolaFaceFaint, 10),
         ],
-        [P.OrangeZoomerUpsideRight] =
+        [P.SpinyCrawlerUpsideRight] =
         [
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideRightSpinesTurned48, 3),
         ],
-        [P.OrangeZoomerUpsideLeft] =
+        [P.SpinyCrawlerUpsideLeft] =
         [
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideLeftSpinesTurned48, 3),
         ],
-        [P.OrangeZoomerUpsideDown] =
+        [P.SpinyCrawlerUpsideDown] =
         [
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideDownSpinesTurned48, 3),
         ],
-        [P.OrangeZoomerUpsideUp] =
+        [P.SpinyCrawlerUpsideUp] =
         [
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned48, 3),
-        ],
-        [P.SharedUpsideRight] =
-        [
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideRightSpinesTurned48, 3),
-        ],
-        [P.SharedUpsideLeft] =
-        [
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideLeftSpinesTurned48, 3),
-        ],
-        [P.SharedUpsideDown] =
-        [
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideDownSpinesTurned48, 3),
-        ],
-        [P.SharedUpsideUp] =
-        [
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned0, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned12, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned24, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned36, 3),
-            Show(EnemyFrameId.OrangeZoomerUpsideUpSpinesTurned48, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned0, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned12, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned24, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned36, 3),
+            Show(EnemyFrameId.SpinyCrawlerUpsideUpSpinesTurned48, 3),
         ],
     });
 
@@ -174,14 +142,10 @@ internal static class CrawlerAnimations
         [P.ZeroUpsideDown] = new([new(P.ZeroUpsideDown, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ZeroUpsideUp] = new([new(P.ZeroUpsideUp, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
         [P.ViolaNormal] = new([new(P.ViolaNormal, 0, 14, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.OrangeZoomerUpsideRight] = new([new(P.OrangeZoomerUpsideRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.OrangeZoomerUpsideLeft] = new([new(P.OrangeZoomerUpsideLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.OrangeZoomerUpsideDown] = new([new(P.OrangeZoomerUpsideDown, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.OrangeZoomerUpsideUp] = new([new(P.OrangeZoomerUpsideUp, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideRight] = new([new(P.SharedUpsideRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideLeft] = new([new(P.SharedUpsideLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideDown] = new([new(P.SharedUpsideDown, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.SharedUpsideUp] = new([new(P.SharedUpsideUp, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideRight] = new([new(P.SpinyCrawlerUpsideRight, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideLeft] = new([new(P.SpinyCrawlerUpsideLeft, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideDown] = new([new(P.SpinyCrawlerUpsideDown, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.SpinyCrawlerUpsideUp] = new([new(P.SpinyCrawlerUpsideUp, 0, 5, 1)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

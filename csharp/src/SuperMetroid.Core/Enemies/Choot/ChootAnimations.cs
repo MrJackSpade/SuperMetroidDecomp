@@ -18,29 +18,38 @@ internal static class ChootAnimations
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Show(EnemyFrameId.ChootLyingFlat, 1),
+            Hold(EnemyFrameId.ChootLyingFlat),
         ],
         [P.Jumping] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(EnemyFrameId.ChootSpringing, 8),
-            Show(EnemyFrameId.ChootFolded, 1),
+            Hold(EnemyFrameId.ChootFolded),
         ],
         [P.Falling] =
         [
             Cue(new(K.ProcessOffScreen)),
             Show(EnemyFrameId.ChootSpringing, 8),
-            Show(EnemyFrameId.ChootSpreadOut, 1),
+            Hold(EnemyFrameId.ChootSpreadOut),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at: each switches off-screen processing and
+    /// ends on a still picture (#2275).
+    /// </summary>
     internal static IReadOnlyDictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 2, 1)], AnimationEnd.Holds),
-        [P.Jumping] = new([new(P.Jumping, 0, 3, 1)], AnimationEnd.Holds),
-        [P.Falling] = new([new(P.Falling, 0, 3, 1)], AnimationEnd.Holds),
+        [P.Idle] = new([Whole(P.Idle)], AnimationEnd.Holds),
+        [P.Jumping] = new([Whole(P.Jumping)], AnimationEnd.Holds),
+        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.Holds),
     };
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ChootSegment> Whole(ChootSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, ChootCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, ChootCue>.HeldFrame(frame);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChootSegment> StartingWith(ChootSegment segment) => StartingAt[segment];

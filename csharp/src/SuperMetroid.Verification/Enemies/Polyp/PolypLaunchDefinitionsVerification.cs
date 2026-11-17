@@ -12,7 +12,8 @@ internal static class PolypLaunchDefinitionsVerification
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b520 + (random & 0x0e))), PolypLaunches.Cooldown((ushort)random), "Polyp native cooldown selection");
+            // The cartridge's cooldown runs out on the step below zero; the port holds its true duration, one update more (#2281).
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b520 + (random & 0x0e))) + 1, PolypLaunches.Cooldown((ushort)random), "Polyp native cooldown selection");
             AssertEqual(QuadraticSpeedCurvePlace.FromMarks(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b530 + (random & 0x1e)))), PolypLaunches.LaunchPlace((ushort)random), "Polyp native launch place, the speed-curve mark of the native Y-index selection");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2b550 + (random & 0x1e))), PolypLaunches.XVelocity((ushort)random).RawValue, "Polyp native signed X selection");
         }

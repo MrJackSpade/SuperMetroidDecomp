@@ -119,7 +119,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AnimationPlayback<BeetomSegment> program = fixture.State.Playback;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
-            AssertEqual(expected, BeetomNativeWords.BeetomActions.Word(fixture.State.Action), "Beetom distant action matches native pointer for every RNG word");
+            AssertEqual(expected, BeetomNativeWords.ActionWord(fixture.State), "Beetom distant action matches native pointer for every RNG word");
             AssertEqual(0x1234, fixture.State.ActionTimer, "Beetom choice preserves timer until setup runs");
             AssertEqual(program, fixture.State.Playback, "Beetom choice preserves program until setup runs");
             AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");
@@ -135,10 +135,10 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             random = (ushort)value;
-            bool expectedFacingRight = value % 2 == 1;
-            fixture.State.FacingRight = !expectedFacingRight;
+            HorizontalDirection expectedFacing = value % 2 == 1 ? HorizontalDirection.Right : HorizontalDirection.Left;
+            fixture.State.Facing = expectedFacing == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right;
             fixture.Choose(fixture.State);
-            AssertEqual(expectedFacingRight, fixture.State.FacingRight, "Beetom facing preserves native low-bit mapping independently of selected action");
+            AssertEqual(expectedFacing, fixture.State.Facing, "Beetom facing preserves native low-bit mapping independently of selected action");
         }
     }
     /// <summary>Checks the native entry counts of the Beetom's five- and six-entry maps.</summary>
@@ -172,9 +172,9 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AnimationPlayback<BeetomSegment> playback = state.Playback;
         int cycle = playback.Animation.CyclePhase;
         AnimationPhase<BeetomSegment> loop = playback.Animation.Phases[cycle];
-        AssertTrue(playback.Place.Phase == cycle && playback.Place.Beat == 1 && loop.Segment == animation,
+        AssertTrue(playback.Place.Phase == cycle && playback.Place.Beat == 1 && ReferenceEquals(playback.Animation, BeetomAnimations.StartingWith(animation)),
             $"Beetom {animation} loops back and shows its loop's first pose");
-        var first = AssertIs<AnimationBeat<EnemyFrameId, BeetomCue>.Frame>(BeetomAnimations.Segments.Beats(animation)[loop.FirstBeat], $"Beetom {animation} loop's first beat");
+        var first = AssertIs<AnimationBeat<EnemyFrameId, BeetomCue>.Frame>(BeetomAnimations.Segments.Beats(loop.Segment)[loop.FirstBeat], $"Beetom {animation} loop's first beat");
         AssertEqual(BeetomFrameToolingDefinitions.Spritemap(first.Shown), place.SpritemapPointer, $"Beetom {animation} loop's first pose");
     }
 

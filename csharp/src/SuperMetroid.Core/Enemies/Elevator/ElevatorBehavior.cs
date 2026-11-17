@@ -1,13 +1,16 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
 {
     /// <inheritdoc/>
@@ -36,9 +39,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         _audio = audio;
     }
 
-    /// <summary>Elevator travel advances one and a half pixels per enemy update.</summary>
-    private static readonly SignedSixteenSixteen ElevatorSpeed = SignedSixteenSixteen.FromParts(1, 32768);
-
     /// <summary>What has armed the elevator's pseudo-door: nothing, a collision with it, or an elevator door load.</summary>
     public ElevatorJourneyFlag ElevatorFlags
     {
@@ -53,21 +53,21 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         internal set => _room.Session.Elevator.Status = value;
     }
 
-    /// <summary>Whether the active elevator is travelling upward; otherwise it travels downward.</summary>
-    public bool ElevatorTravelsUpward
+    /// <summary>The way the active elevator travels (#2277).</summary>
+    public ElevatorTravelDirection ElevatorTravel
     {
-        get => _room.Session.Elevator.TravelsUpward;
-        private set => _room.Session.Elevator.TravelsUpward = value;
+        get => _room.Session.Elevator.Travel;
+        private set => _room.Session.Elevator.Travel = value;
     }
 
     /// <summary>
     /// The elevator setup hands Samus's movement to the elevator on departure. On arrival,
     /// downward arrivals reinstall it, but upward arrivals retain the lock's no-op.
-    /// The test reads the upward travel direction.
+    /// The test reads the travel direction.
     /// </summary>
     public bool ElevatorRunsSamusMovement =>
         ElevatorStatus == ElevatorActorStatus.Departing ||
-        (ElevatorStatus != ElevatorActorStatus.Inactive && !ElevatorTravelsUpward);
+        (ElevatorStatus != ElevatorActorStatus.Inactive && ElevatorTravel == ElevatorTravelDirection.Down);
 
     /// <summary>The arriving elevator whose setup placed Samus; consumed by the door loader this update.</summary>
     private RoomEnemyPlace? _arrivalPlacement;
@@ -91,11 +91,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     public void PublishElevatorDoorContact() => ElevatorFlags = ElevatorJourneyFlag.DoorContact;
 
     /// <summary>
-    /// Resuming gameplay reloads the room's pictures through the elevator's picture reload, whose first
-    /// write clears the elevator's journey status. Unpausing mid-ride therefore leaves the elevator's pseudo-door
-    /// unarmed: reaching it starts the door at once, without the 48-frame down-elevator wait.
+    /// Gameplay resumes from the pause, which disarms the pseudo-door (<see cref="UnpauseDisarmsElevator"/>): reaching it
+    /// mid-ride starts the door at once, without the down-elevator wait.
     /// </summary>
-    public void ClearElevatorFlagsOnGameplayResume() => ElevatorFlags = ElevatorJourneyFlag.None;
+    public void ResumeFromPause() => ElevatorFlags = UnpauseDisarmsElevator.ArmingAfterResume(ElevatorJourneyFlag.None);
 
     /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination
@@ -219,16 +218,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorEnemyState state,
         SamusState samus)
     {
-        if (state.Direction is ElevatorTravelDirection.Up)
-        {
-            ElevatorTravelsUpward = true;
-            AddElevatorYVelocity(place, -ElevatorSpeed);
-        }
-        else
-        {
-            ElevatorTravelsUpward = false;
-            AddElevatorYVelocity(place, ElevatorSpeed);
-        }
+        ElevatorTravel = state.Direction;
+        AddElevatorYVelocity(place, state.Direction is ElevatorTravelDirection.Up
+            ? -ElevatorActorDefinitions.TravelSpeed
+            : ElevatorActorDefinitions.TravelSpeed);
         PinSamusToElevator(place, samus);
     }
 
@@ -241,12 +234,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         bool stillReturning;
         if (state.Direction is ElevatorTravelDirection.Up)
         {
-            AddElevatorYVelocity(place, ElevatorSpeed);
+            AddElevatorYVelocity(place, ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole < state.RestingY;
         }
         else
         {
-            AddElevatorYVelocity(place, -ElevatorSpeed);
+            AddElevatorYVelocity(place, -ElevatorActorDefinitions.TravelSpeed);
             stillReturning = place.Position.Y.Whole >= state.RestingY;
         }
 

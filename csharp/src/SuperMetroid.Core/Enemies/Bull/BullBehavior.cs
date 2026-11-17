@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
@@ -11,17 +13,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BullEntity(this, place, common);
-
-    /// <summary>Each Bull acceleration or deceleration tick changes the acceleration by 24 256ths of a pixel an update.</summary>
-    private static readonly SignedEightEight BullAccelerationDelta = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
-
-    /// <summary>The acceleration an immune shot's kick starts the Bull's braking with: a pixel an update.</summary>
-    private static readonly SignedEightEight ShotKickAcceleration = SignedEightEight.FromPixels(1);
-
-    /// <summary>The speed an immune shot kicks the Bull away at: six pixels an update.</summary>
-    private static readonly SignedEightEight ShotKickSpeed = SignedEightEight.FromPixels(6);
-    /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
-    private const int BullMovementDelayFrames = 16;
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;
@@ -43,7 +34,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AccelerationIntervalTimerReset = intervals.Acceleration;
         state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
-        state.ActivationTimer = BullMovementDelayFrames;
+        state.ActivationTimer = BullMovementDefinitions.MovementDelay;
         state.MaxSpeed = settings.MaximumSpeed;
     }
 
@@ -64,7 +55,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             case BullAction.MovementDelay:
                 if (--state.ActivationTimer == 0)
                 {
-                    state.ActivationTimer = BullMovementDelayFrames;
+                    state.ActivationTimer = BullMovementDefinitions.MovementDelay;
                     state.Action = BullAction.TargetSamus;
                 }
                 return;
@@ -73,7 +64,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AngleToSamus = CalculateBullAngleToSamus(place, samus);
                 state.Angle = state.AngleToSamus.ToTrigonometryAngle();
                 state.Action = BullAction.Accelerating;
-                state.AccelerationDelta = BullAccelerationDelta;
+                state.AccelerationDelta = BullMovementDefinitions.AccelerationStep;
                 return;
 
             case BullAction.Accelerating:
@@ -142,7 +133,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Action = BullAction.Decelerating;
-        state.AccelerationDelta = BullAccelerationDelta;
+        state.AccelerationDelta = BullMovementDefinitions.AccelerationStep;
     }
 
     /// <summary>Integrates both 1/65536-pixel position components from the committed angle and 1/256-pixel speed.</summary>
@@ -194,10 +185,10 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Playback = EnemyAnimationPlayback.Start(bull, BullAnimations.Shot);
         state.Angle = BullMotion.ShotAngle(projectileDirection);
-        state.Acceleration = ShotKickAcceleration;
-        state.Speed = ShotKickSpeed;
+        state.Acceleration = BullMovementDefinitions.ShotKickAcceleration;
+        state.Speed = BullMovementDefinitions.ShotKickSpeed;
         state.Action = BullAction.Decelerating;
-        state.ShotReactionDisableTimer = WrappingCountdown.Start(48);
+        state.ShotReactionDisableTimer = WrappingCountdown.Start(BullMovementDefinitions.ShotReactionGuardDuration);
         state.ShotReactionDisabled = true;
     }
 

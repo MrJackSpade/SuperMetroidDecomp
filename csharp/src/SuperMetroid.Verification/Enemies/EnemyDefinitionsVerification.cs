@@ -221,7 +221,7 @@ internal static class EnemyDefinitionsVerification
         return new RoomEnemyDefinition(
             Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
             SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Enemies, Word(14)), AreaBossWords.Decode(Word(16)),
-            EnemyGrappleResponseWords.Responses.Decode(Word(26), "grapple response"), EnemyInteractionCallbacks.HurtResponse(Word(28)),
+            EnemyGrappleResponseWords.Decode(Word(26)), EnemyInteractionCallbacks.HurtResponse(Word(28)),
             EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
             EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
             EnemyInteractionCallbacks.DecodeTouch(bank, Word(48)),

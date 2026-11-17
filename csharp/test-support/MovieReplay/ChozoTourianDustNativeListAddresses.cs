@@ -14,6 +14,7 @@ internal static class ChozoTourianDustNativeListAddresses
     [
         new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.Footsteps, 0xaec4),
         new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDust, 0xaf18),
+        new NativeProgramEntry<ChozoTourianDustSegment>(ChozoTourianDustSegment.TourianDescentDustEnd, 0xaf34),
     ];
 
     /// <summary>The native entry the descent dust starts at (#2061): it loads the puffs' count and runs on into the puff's list.</summary>
@@ -27,5 +28,6 @@ internal static class ChozoTourianDustNativeListAddresses
 
     /// <summary>The family's typed programs beside their native lists.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, ChozoTourianDustAnimations.Segments, ChozoTourianDustAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), NativeEnemyProjectileCommonCues.Rules,
-        countedEntries: [new NativeCountedEntry<ChozoTourianDustSegment>("the descent dust", ChozoTourianDustAnimations.TourianDescentDust, DescentDustStart)]);
+        countedEntries: [new NativeCountedEntry<ChozoTourianDustSegment>("the descent dust", ChozoTourianDustAnimations.TourianDescentDust, DescentDustStart)],
+        onlyRunOnInto: new HashSet<ChozoTourianDustSegment> { ChozoTourianDustSegment.TourianDescentDustEnd });
 }

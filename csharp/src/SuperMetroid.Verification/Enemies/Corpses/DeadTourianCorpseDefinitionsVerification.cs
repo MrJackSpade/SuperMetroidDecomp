@@ -84,7 +84,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         ushort variantEntry = cartridge.ReadCartridgeWord(family.InstructionTable + variantIndex * 2);
         ushort variantSpritemap = cartridge.ReadCartridgeWord(DeadTourianNativeListAddresses.Bank << 16 | variantEntry + 2);
         EnemyFrameId corpseFrame = DeadTourianAnimations.Segments.Beats(definition.InitialAnimation)
-            .OfType<AnimationBeat<EnemyFrameId, DeadTourianCue>.Frame>().Single().Shown;
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>().Single();
         NativeProgramEntry<DeadTourianSegment>[] entries =
         [
             .. DeadTourianNativeListAddresses.Entries.Select(entry => entry.Program == definition.InitialAnimation

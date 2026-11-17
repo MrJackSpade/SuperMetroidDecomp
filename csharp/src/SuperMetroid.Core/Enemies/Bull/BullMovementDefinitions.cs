@@ -2,9 +2,24 @@ using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.Bull;
 
-/// <summary>Immutable authored Bull shot-reaction angles; live timers remain enemy state.</summary>
+/// <summary>How a Bull accelerates, waits, retargets and reacts to a shot (#2279); live timers remain enemy state.</summary>
 public static class BullMovementDefinitions
 {
+    /// <summary>How much each acceleration or deceleration tick changes a Bull's acceleration: 24 256ths of a pixel an update.</summary>
+    internal static readonly SignedEightEight AccelerationStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
+
+    /// <summary>The acceleration an immune shot's kick starts the Bull's braking with: a pixel an update.</summary>
+    internal static readonly SignedEightEight ShotKickAcceleration = SignedEightEight.FromPixels(1);
+
+    /// <summary>The speed an immune shot kicks the Bull away at: six pixels an update.</summary>
+    internal static readonly SignedEightEight ShotKickSpeed = SignedEightEight.FromPixels(6);
+
+    /// <summary>How long a Bull waits before it retargets Samus, in updates.</summary>
+    internal const int MovementDelay = 16;
+
+    /// <summary>How long a Bull ignores further shots after a shot kicks it, in updates.</summary>
+    internal const int ShotReactionGuardDuration = 48;
+
     /// <summary>The turn from a Bull's heading to Samus's bearing, in 256ths of a turn, from which it is off target and brakes.</summary>
     internal const int OffTargetTurn = 48;
 

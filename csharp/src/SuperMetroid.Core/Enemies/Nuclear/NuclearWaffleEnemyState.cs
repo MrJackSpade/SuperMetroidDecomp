@@ -19,8 +19,8 @@ public sealed class NuclearWaffleEnemyState
     public NuclearWaffleAction Action { get; internal set; }
 
     /// <summary>
-    /// The wait countdown in enemy AI calls. It starts at <see cref="WaitingTimerReset"/>, at most 255, and the wait expires
-    /// on the call whose decrement takes it below zero, which reloads it; it never comes near a wrap.
+    /// The AI calls left in the wait, the one the sweep starts on included. It starts at <see cref="WaitingTimerReset"/>, and
+    /// the call that takes it to zero starts the sweep and reloads it (#2281).
     /// </summary>
     public int WaitingTimer { get; internal set; }
 
@@ -34,8 +34,8 @@ public sealed class NuclearWaffleEnemyState
     public bool SweepsForward { get; internal set; }
 
     /// <summary>
-    /// The wait, in AI updates, reloaded into <see cref="WaitingTimer"/> at room load and whenever a wait expires:
-    /// the spawn settings' wait time.
+    /// The wait, in AI updates, reloaded into <see cref="WaitingTimer"/> at room load and whenever a wait expires: the spawn
+    /// settings' wait time and the update it runs out on (<see cref="EnemyWaitDefinitions.RunOutUpdate"/>).
     /// </summary>
     public int WaitingTimerReset { get; internal set; }
 

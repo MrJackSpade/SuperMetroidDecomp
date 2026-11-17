@@ -14,9 +14,11 @@ internal static class RoomEffectActorKindsVerification
     private const int UpdatesPerKind = 0x8000 + 64;
 
     /// <summary>
-    /// Runs each named kind beside the cartridge's own list, comparing occupancy, record, timer and spritemap until the
-    /// list ends or holds; a held list shows its frame for good, which the object's hold reproduces without the native
-    /// list's countdown reload.
+    /// Runs each named kind beside the cartridge's own list, comparing occupancy, spritemap and the updates before the
+    /// picture changes until the list ends or holds; a held list shows its frame for good, which the object's hold
+    /// reproduces without the native list's countdown reload. A still picture holds from its first update, where the native
+    /// list holds once its frame's one update has run out (#2275), and a picture the list shows in two records in a row is
+    /// one frame of their summed updates.
     /// </summary>
     internal static void VerifyRoomEffectActorKinds(CartridgeImportAddressSpace rom)
     {
@@ -34,20 +36,21 @@ internal static class RoomEffectActorKindsVerification
                 AssertEqual(native.IsActive, slot.IsActive, $"room sprite object {kind} occupancy after {update} updates");
                 if (!native.IsActive)
                     break;
-                AssertEqual(native.Pointer, slot.InstructionPointer, $"room sprite object {kind} record after {update} updates");
                 AssertEqual(native.Spritemap, slot.SpritemapPointer, $"room sprite object {kind} spritemap after {update} updates");
                 if (slot.Holds && !native.Holds)
                 {
-                    // A still picture is held from its spawn (#2276): the native list shows its record once and then holds
-                    // it with go-back-four-bytes, which shows the same record for good.
-                    AssertEqual(RoomEffectActorNativeLists.GoBack4Bytes, RoomEffectActorNativeLists.Word(rom, native.Pointer + 4),
-                        $"room sprite object {kind}'s held record is followed by its hold after {update} updates");
-                    break;
+                    // A still picture: the native list's frame runs out into its hold, showing the same picture.
+                    ushort held = native.Spritemap;
+                    while (!native.Holds)
+                    {
+                        native.Step();
+                        AssertEqual(held, native.Spritemap, $"room sprite object {kind}'s still picture is the one its native list holds");
+                    }
                 }
                 AssertEqual(native.Holds, slot.Holds, $"room sprite object {kind} hold after {update} updates");
                 if (native.Holds)
                     break;
-                AssertEqual(native.Timer, slot.FrameHold, $"room sprite object {kind} timer after {update} updates");
+                AssertEqual(UpdatesBeforeChange(native), slot.FrameHold, $"room sprite object {kind} updates before its picture changes after {update} updates");
                 native.Step();
                 enemies.EffectActors.StepRoomEffectActors();
                 updates++;
@@ -55,6 +58,26 @@ internal static class RoomEffectActorKindsVerification
             kinds++;
         }
         Console.WriteLine($"Room sprite objects: {kinds} spawned kinds' programs match their native bank-$B4 lists over {updates} updates.");
+    }
+
+    /// <summary>
+    /// The updates before the native list's picture changes, holds or ends: its timer, and the whole timers of the records
+    /// straight after it that show the same picture.
+    /// </summary>
+    private static int UpdatesBeforeChange(RoomEffectActorNativeLists.Reference native)
+    {
+        int updates = native.Timer;
+        ushort spritemap = native.Spritemap;
+        RoomEffectActorNativeLists.Reference ahead = native.Copy();
+        for (int step = 0; step < native.Timer; step++)
+            ahead.Step();
+        while (ahead.IsActive && !ahead.Holds && ahead.Spritemap == spritemap)
+        {
+            updates += ahead.Timer;
+            for (int step = ahead.Timer; step > 0; step--)
+                ahead.Step();
+        }
+        return updates;
     }
 
     /// <summary>Dispatches the cartridge-backed room sprite-object verification command.</summary>

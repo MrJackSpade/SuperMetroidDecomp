@@ -39,7 +39,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersClenched, 96),
             Cue(new ChozoStatueCue.Signal(K.StartLoweringAcid)),
         ],
-        [P.LowerNorfairActivatedLoop] =
+        [P.LowerNorfairFlexing] =
         [
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpenTwin, 11),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurling, 8),
@@ -47,6 +47,9 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersClenched, 8),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurled, 6),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurling, 8),
+        ],
+        [P.LowerNorfairRelease] =
+        [
             Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpening, 128),
@@ -82,7 +85,7 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurled, 12),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersClenched, 128),
         ],
-        [P.WreckedShipActivatedLoop] =
+        [P.WreckedShipFlexing] =
         [
             Show(EnemyFrameId.ChozoStatueWreckedShipHandOpenTwin, 11),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 8),
@@ -90,6 +93,9 @@ internal static class ChozoStatueAnimations
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersClenched, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurled, 6),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 8),
+        ],
+        [P.WreckedShipFlexEnd] =
+        [
             Cue(new ChozoStatueCue.Signal(K.StopAwaitingHand)),
         ],
         [P.WreckedShipWalkingWithSamus] =
@@ -120,6 +126,9 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.StrideSwing))),
             Cue(new ChozoStatueCue.Footstep(OffsetX: 0)),
             Show(EnemyFrameId.ChozoStatueWreckedShipWalkingFarLegPlanted, 6),
+        ],
+        [P.WreckedShipSettingSamusDown] =
+        [
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.StridePlant))),
             Cue(new ChozoStatueCue.Footstep(OffsetX: -8)),
             Show(EnemyFrameId.ChozoStatueWreckedShipWalkingNearLegLifting, 8),
@@ -145,14 +154,39 @@ internal static class ChozoStatueAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>How many times the Lower Norfair statue flexes its fingers before it releases Samus.</summary>
+    private const int LowerNorfairFlexes = 5;
+
+    /// <summary>How many times the Wrecked Ship statue flexes its fingers before it walks.</summary>
+    private const int WreckedShipFlexes = 4;
+
+    /// <summary>How many times the Wrecked Ship statue takes its four strides with Samus in its hand.</summary>
+    private const int WreckedShipStrideRuns = 16;
+
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2275): each statue grabs Samus, flexes
+    /// its fingers a counted number of times and lets her go; the Wrecked Ship statue walks its counted strides with her
+    /// before it sets her down.
+    /// </summary>
     internal static IReadOnlyDictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>> StartingAt { get; } = new Dictionary<ChozoStatueSegment, Animation<ChozoStatueSegment>>
     {
-        [P.LowerNorfairInitial] = new([new(P.LowerNorfairInitial, 0, 2, 1)], AnimationEnd.Holds),
-        [P.LowerNorfairActivated] = new([new(P.LowerNorfairActivated, 0, 16, 1), new(P.LowerNorfairActivatedLoop, 0, 6, 5), new(P.LowerNorfairActivatedLoop, 6, 11, 1)], AnimationEnd.Holds),
-        [P.WreckedShipInitial] = new([new(P.WreckedShipInitial, 0, 2, 1)], AnimationEnd.Holds),
-        [P.WreckedShipActivated] = new([new(P.WreckedShipActivated, 0, 15, 1), new(P.WreckedShipActivatedLoop, 0, 6, 4), new(P.WreckedShipActivatedLoop, 6, 1, 1), new(P.WreckedShipWalkingWithSamus, 0, 26, 16), new(P.WreckedShipWalkingWithSamus, 26, 22, 1)], AnimationEnd.Holds),
+        [P.LowerNorfairInitial] = new([Whole(P.LowerNorfairInitial)], AnimationEnd.Holds),
+        [P.LowerNorfairActivated] = new(
+            [Whole(P.LowerNorfairActivated), Repeated(P.LowerNorfairFlexing, LowerNorfairFlexes), Whole(P.LowerNorfairRelease)],
+            AnimationEnd.Holds),
+        [P.WreckedShipInitial] = new([Whole(P.WreckedShipInitial)], AnimationEnd.Holds),
+        [P.WreckedShipActivated] = new(
+            [Whole(P.WreckedShipActivated), Repeated(P.WreckedShipFlexing, WreckedShipFlexes), Whole(P.WreckedShipFlexEnd),
+                Repeated(P.WreckedShipWalkingWithSamus, WreckedShipStrideRuns), Whole(P.WreckedShipSettingSamusDown)],
+            AnimationEnd.Holds),
     };
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ChozoStatueSegment> Whole(ChozoStatueSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ChozoStatueSegment> Repeated(ChozoStatueSegment segment, int plays) =>
+        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoStatueSegment> StartingWith(ChozoStatueSegment segment) => StartingAt[segment];

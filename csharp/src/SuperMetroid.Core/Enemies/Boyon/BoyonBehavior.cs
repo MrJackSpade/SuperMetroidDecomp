@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The Boyon species owner: its per-room state, behaviour and the interactions it registers.</summary>
+[RoomLifetime]
 internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
@@ -38,10 +40,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         return null;
     }
-
-    /// <summary>The enemy-library sound the start-bounce cue queues.</summary>
-    private static readonly SoundEffectId BoyonBounceSound =
-        EnemySoundEffectDefinitions.BoyonBounceSound;
 
     /// <summary>Initializes the Boyon.</summary>
     internal static void InitializeBoyon(RoomEnemyPlace place)
@@ -193,7 +191,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;
-        _audio.QueueEnemySound(BoyonBounceSound, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.BoyonBounceSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops (#641).</summary>

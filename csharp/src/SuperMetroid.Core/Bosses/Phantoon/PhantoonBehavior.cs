@@ -99,7 +99,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.StartingFlames.NextFlame = 0;
         state.StartingFlames.Orbiting = false;
         body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
-        StartPhantoonPart(state.BodyPart, PhantoonPartSegment.InvulnerableBody);
+        StartPhantoonPart(state.BodyPart);
         // The body starts asking for no flame rain; no reader consumes it before a phase sets it (#1472).
         state.FlameRainRequested = false;
         body.SetSpeciesState(state.BodyPart);
@@ -117,7 +117,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonEye(RoomEnemyPlace eye)
     {
         PhantoonEnemyState state = JoiningEncounter(eye, placesAfterBody: 1);
-        StartPhantoonPart(state.EyePart, PhantoonPartSegment.EyeClosed);
+        StartPhantoonPart(state.EyePart);
         state.Wave.Length = null;
         JoinPhantoon(state.EyePart);
     }
@@ -126,7 +126,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonTentacles(RoomEnemyPlace tentacles)
     {
         PhantoonEnemyState state = JoiningEncounter(tentacles, placesAfterBody: 2);
-        StartPhantoonPart(state.TentaclesPart, PhantoonPartSegment.Tentacles);
+        StartPhantoonPart(state.TentaclesPart);
         JoinPhantoon(state.TentaclesPart);
     }
 
@@ -134,7 +134,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonMouth(RoomEnemyPlace mouth)
     {
         PhantoonEnemyState state = JoiningEncounter(mouth, placesAfterBody: 3);
-        StartPhantoonPart(state.MouthPart, PhantoonPartSegment.MouthInitial);
+        StartPhantoonPart(state.MouthPart);
         JoinPhantoon(state.MouthPart);
     }
 
@@ -145,14 +145,16 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetPhantoonMouthControls(part.Phantoon);
     }
 
-    /// <summary>Gives a drawing part the body's colours and starts its chosen animation.</summary>
-    private static void StartPhantoonPart(PhantoonPart part, PhantoonPartSegment segment)
+    /// <summary>
+    /// Gives a drawing part the body's colours and runs the animation it was made playing (#2319), its first step on the
+    /// next update.
+    /// </summary>
+    private static void StartPhantoonPart(PhantoonPart part)
     {
         RoomEnemyPlace place = part.Place;
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();
         place.Shading = part.Phantoon.Body.Shading;
-        part.Playback = PhantoonPart.Starting(segment);
     }
 
     /// <summary>

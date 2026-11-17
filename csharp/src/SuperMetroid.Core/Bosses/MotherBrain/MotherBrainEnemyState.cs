@@ -436,16 +436,6 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>The Baby Metroid's cutscene at that place: on its own turn it latches on, drains, heals Samus and dies.</summary>
     public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
 
-
-    /// <summary>
-    /// Last Baby animation started on the Baby's enemy. That enemy's playback advances
-    /// independently, so this latch changes only when the Baby's own behaviour starts a new animation.
-    /// </summary>
-    internal MotherBrainBabySegment BabyAppliedAnimation { get; set; }
-
-    /// <summary>The cutscene Baby's place animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<MotherBrainBabySegment> BabyPlayback { get; set; } = MotherBrainBabyAnimations.Starting(default);
-
     /// <summary>
     /// The Baby's cries still to come: each onion ring that hits it adds one, and its later healing and idle phases take
     /// them. It is a count, not a flag: more than one ring can land before the Baby's next turn.

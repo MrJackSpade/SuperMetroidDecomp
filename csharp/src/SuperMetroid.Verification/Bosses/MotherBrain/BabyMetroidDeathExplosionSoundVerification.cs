@@ -32,7 +32,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
             DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
-            BabyFadeImage: null, RecoveryLightsFrame: null);
+            BabyFadeImage: null, RecoveryLightsFrame: null, StartedAnimation: null);
 
         runtime.Enemies.Audio.BeginFrame();
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state.Colours, step);

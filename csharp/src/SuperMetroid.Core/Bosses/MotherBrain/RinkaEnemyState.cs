@@ -6,14 +6,22 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class RinkaEnemyState
 {
     /// <summary>The typed animation (#641, #1600) and where it stands.</summary>
-    internal AnimationPlayback<RinkaSegment> Playback { get; set; } = new(RinkaAnimations.StartingWith(default), AnimationPlace.StartOfAnimation);
+    internal AnimationPlayback<RinkaSegment> Playback { get; set; }
 
-    /// <summary>Starts the state in <paramref name="action"/>, with the shared <paramref name="spawnPoint"/> a special Rinka starts at.</summary>
-    internal RinkaEnemyState(RinkaAction action, RinkaSpawnPoint? spawnPoint)
+    /// <summary>
+    /// Starts the state in <paramref name="action"/>, playing the animation starting at <paramref name="animation"/>
+    /// (#2319), with the shared <paramref name="spawnPoint"/> a special Rinka starts at.
+    /// </summary>
+    internal RinkaEnemyState(RinkaAction action, RinkaSegment animation, RinkaSpawnPoint? spawnPoint)
     {
         Action = action;
+        Playback = Starting(animation);
         SpawnPoint = spawnPoint;
     }
+
+    /// <summary>The Rinka's animation starting at <paramref name="segment"/>, before its first play.</summary>
+    internal static AnimationPlayback<RinkaSegment> Starting(RinkaSegment segment) =>
+        new(RinkaAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
 
     /// <summary>
     /// The behaviour the Rinka runs each update, changed by initialization, the fire step, aim completion, or the special

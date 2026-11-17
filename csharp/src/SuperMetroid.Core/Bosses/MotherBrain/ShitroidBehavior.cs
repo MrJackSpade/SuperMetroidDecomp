@@ -67,9 +67,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A Shitroid entered with the camera left of the room's start lies dormant; any other waits for the camera.
         bool dormant = CoordinateAxis.AsSigned(cameraX) < 0;
-        var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera)
+        var state = new ShitroidEnemyState(dormant ? ShitroidAction.Dormant : ShitroidAction.WaitForCamera, ShitroidSegment.Normal)
         {
-            Playback = ShitroidAnimations.Starting(ShitroidSegment.Normal),
             Velocity = default,
             ColourDelay = ShitroidFightDefinitions.CalmPulseDelay,
         };

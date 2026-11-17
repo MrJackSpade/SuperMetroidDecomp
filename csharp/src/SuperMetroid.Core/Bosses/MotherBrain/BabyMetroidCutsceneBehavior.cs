@@ -100,11 +100,10 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         baby.Initialize(place.Position, place.Contact, place.Processing, place.Presence);
         state.BabyMetroidPlace = place;
         state.BabyMetroid = baby;
-        state.BabyAppliedAnimation = baby.Animation;
-        state.BabyPlayback = MotherBrainBabyAnimations.Starting(baby.Animation);
 
         CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
-        place.AnimationClock.RestartAfter(baby.FrameHold);
+        // The Baby's opening pulse, which it is made playing, plays its first step on the next update.
+        place.AnimationClock.Restart();
 
         // The Baby arrives in its own colours; where it is transparent the room's backdrop shows.
         ShowBabyMetroidArrival(state.Colours);
@@ -158,8 +157,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             _audio.QueueEnemySound(RoomSound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
 
-        if (baby.Animation != state.BabyAppliedAnimation)
-            SetBabyMetroidCutsceneAnimation(state, place, baby.Animation);
+        if (step.StartedAnimation is { } started)
+            baby.Playback = EnemyAnimationPlayback.Start(place, MotherBrainBabyAnimations.StartingAt[started]);
         CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
         ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
@@ -240,20 +239,13 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// </summary>
     internal static void AdvanceBabyMetroidCutsceneAnimation(RoomEnemyPlace place)
     {
-        MotherBrainEnemyState state = place.RequireSpeciesState<MotherBrainEnemyState>();
+        BabyMetroidCutsceneState baby = place.RequireSpeciesState<MotherBrainEnemyState>().BabyMetroid ??
+            throw new InvalidOperationException("The Baby's animation ran without its cutscene state.");
         if (!place.AnimationClock.Expire())
             return;
-        AnimationPlayback<MotherBrainBabySegment> playback = state.BabyPlayback;
+        AnimationPlayback<MotherBrainBabySegment> playback = baby.Playback;
         EnemyAnimationPlayback.Play(place, MotherBrainBabyAnimations.Segments, ref playback, BabyMetroidVisualDefinitions.ShownFrames.Of,
             cue => throw new InvalidOperationException($"The cutscene Baby's animations raise no event {cue}."));
-        state.BabyPlayback = playback;
-    }
-
-    /// <summary>Restarts the Baby's place on <paramref name="segment"/>, as starting an enemy's animation does.</summary>
-    private static void SetBabyMetroidCutsceneAnimation(MotherBrainEnemyState state, RoomEnemyPlace place, MotherBrainBabySegment segment)
-    {
-        state.BabyPlayback = MotherBrainBabyAnimations.Starting(segment);
-        state.BabyAppliedAnimation = segment;
-        place.AnimationClock.Restart();
+        baby.Playback = playback;
     }
 }

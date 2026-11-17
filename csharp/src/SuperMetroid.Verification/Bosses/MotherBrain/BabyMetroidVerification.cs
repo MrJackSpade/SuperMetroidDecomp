@@ -85,7 +85,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
     // their own palette rows (#1422, #1513).
-    AssertEqual(MotherBrainBabySegment.Initial, baby.Animation, "Baby initial program");
+    AssertEqual(MotherBrainBabySegment.Initial, baby.Playback.PlayingSegment, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;
     static FixedPosition<RoomPixels> ExpectedBabyPoint(
@@ -117,6 +117,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Baby first curve fixed-point displacement");
 
     BabyMetroidCutsceneStepResult latch;
+    MotherBrainBabySegment? startedAnimation = null;
 
     bool sawMotherBrainInterrupt = false;
     bool sawLatchSound = false;
@@ -130,6 +131,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
         sawMotherBrainInterrupt |= (motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.TakenAback);
         sawLatchSound |= latch.LatchSoundQueued;
+        startedAnimation = latch.StartedAnimation ?? startedAnimation;
 
         if (calls == 259)
         {
@@ -161,7 +163,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     AssertTrue(sawMotherBrainInterrupt, "Baby overwrites Mother Brain final-beam function");
     AssertTrue(sawLatchSound, "Baby latch queues sound library one effect $40");
-    AssertEqual(MotherBrainBabySegment.DrainingMotherBrain, baby.Animation, "Baby pin installs draining animation");
+    AssertEqual<MotherBrainBabySegment?>(MotherBrainBabySegment.DrainingMotherBrain, startedAnimation, "Baby pin starts the draining animation");
     AssertEqual(ExpectedBabyPoint(0x0040, 0xc500, 0x0048, 0xf000),
         BabyPoint(),
         "Baby pin changes whole coordinates but retains native subpositions");

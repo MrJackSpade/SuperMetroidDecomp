@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Samus;
@@ -47,11 +48,11 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public bool HurtFlashShown { get; private set; }
 
-    /// <summary>The Baby's current animation.</summary>
-    public MotherBrainBabySegment Animation { get; private set; }
-
-    /// <summary>The current frame's remaining hold, restarted at one whenever the animation changes.</summary>
-    public int FrameHold { get; private set; }
+    /// <summary>
+    /// The Baby's animation and where it stands (#2319): it arrives playing its opening pulse, which its setup begins, and
+    /// each animation a step starts (<see cref="BabyMetroidCutsceneStepResult.StartedAnimation"/>) replaces it.
+    /// </summary>
+    internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.Initial);
 
     /// <summary>
     /// Room position. This actor's 1/256-pixel mover moves it in 256ths of a pixel; its precision finer
@@ -149,7 +150,6 @@ public sealed class BabyMetroidCutsceneState
         Processing = populationProcessing.With(EnemyProcessing.Animates);
         Presence = populationPresence;
         HurtFlashShown = false;
-        SetAnimation(MotherBrainBabySegment.Initial);
         RouteLeg = null;
         Health = BabyMetroidCutsceneDefinitions.ArrivalHealth;
         OnionRingHitFlashTimer = 0;
@@ -204,6 +204,7 @@ public sealed class BabyMetroidCutsceneState
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
         int? recoveryLightsFrame = null;
+        MotherBrainBabySegment? startedAnimation = null;
 
         // Enemy collision handling runs touch AI before main AI, against the Baby's
         // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
@@ -295,7 +296,7 @@ public sealed class BabyMetroidCutsceneState
                     // the Baby exactly to the target.
                     Velocity = default;
                     Position = Position.WithWhole(target);
-                    SetAnimation(MotherBrainBabySegment.DrainingMotherBrain);
+                    startedAnimation = MotherBrainBabySegment.DrainingMotherBrain;
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     motherBrain.InterruptFinalBeamForBabyDrain();
                     latchSoundQueued = true; // The rainbow-drain sound starts as the Baby latches on.
@@ -321,7 +322,7 @@ public sealed class BabyMetroidCutsceneState
                 Position = Position.WithWhole(head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (PhaseTimer.StepRunsOut())
                 {
-                    SetAnimation(MotherBrainBabySegment.Initial);
+                    startedAnimation = MotherBrainBabySegment.Initial;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
                     PhaseTimer.Count = 32;
                     Velocity = default;
@@ -527,7 +528,7 @@ public sealed class BabyMetroidCutsceneState
                     // The fatal-blow step changes graphics/animation state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and takes the first of its 17 updates of shaking in
                     // this same update.
-                    SetAnimation(MotherBrainBabySegment.TakingFatalBlow);
+                    startedAnimation = MotherBrainBabySegment.TakingFatalBlow;
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
                     PhaseTimer.Count = BabyMetroidCutsceneDefinitions.FatalBlowShakeCount;
@@ -677,7 +678,8 @@ public sealed class BabyMetroidCutsceneState
             ambientCrySoundQueued,
             deathExplosion,
             babyFadeImage,
-            recoveryLightsFrame);
+            recoveryLightsFrame,
+            startedAnimation);
     }
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>
@@ -775,12 +777,6 @@ public sealed class BabyMetroidCutsceneState
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Switches the Baby's animation and restarts its frame timer.</summary>
-    private void SetAnimation(MotherBrainBabySegment segment)
-    {
-        Animation = segment;
-        FrameHold = 1;
-    }
 
     /// <summary>
     /// Moves the speed toward <paramref name="targetSpeed"/> and turns the heading clockwise by

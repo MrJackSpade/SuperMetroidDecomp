@@ -66,7 +66,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sets a Rinka up when the room spawns it.</summary>
     internal void InitializeRinka(RoomEnemyPlace place)
     {
-        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
+        var state = new RinkaEnemyState(RinkaAction.WatchForLeavingViewport, LifeAnimation(place), place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint);
         place.SetSpeciesState(state);
 
         // Every Rinka starts animating and untouchable. Mother Brain's Rinkas also run off-screen and never respawn;
@@ -119,21 +119,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DelayTimer.Count = RinkaLifeDefinitions.AimDelay;
         state.Velocity = default;
 
-        if (IsSpecialRinka(place))
+        if (IsSpecialRinka(place) && _rinkaTerminationFlag)
         {
-            if (_rinkaTerminationFlag)
-            {
-                place.Presence = place.Presence.With(EnemyPresence.Deleted);
-                return;
-            }
-            state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Special), AnimationPlace.StartOfAnimation);
+            place.Presence = place.Presence.With(EnemyPresence.Deleted);
+            return;
         }
-        else
-        {
-            state.Playback = new(RinkaAnimations.StartingWith(RinkaSegment.Ordinary), AnimationPlace.StartOfAnimation);
-        }
+        state.Playback = RinkaEnemyState.Starting(LifeAnimation(place));
         place.AnimationClock.Restart();
     }
+
+    /// <summary>The animation each of <paramref name="place"/>'s lives starts: a special Rinka's or an ordinary one's.</summary>
+    private static RinkaSegment LifeAnimation(RoomEnemyPlace place) =>
+        IsSpecialRinka(place) ? RinkaSegment.Special : RinkaSegment.Ordinary;
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
     public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnPlaces.Count != 0;

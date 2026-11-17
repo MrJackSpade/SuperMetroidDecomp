@@ -265,11 +265,10 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
-        var state = new MotherBrainFallingTubeState(piece == MotherBrainTubePiece.Main
+        var state = new MotherBrainFallingTubeState(piece, piece == MotherBrainTubePiece.Main
             ? MotherBrainTubeAction.WaitingToFall
             : MotherBrainTubeAction.NonMainTube)
         {
-            Playback = MotherBrainTubeAnimations.Starting(piece),
             FloorY = tubeBody.Floor,
             FallDelay = { Count = settings.FallDelay },
         };

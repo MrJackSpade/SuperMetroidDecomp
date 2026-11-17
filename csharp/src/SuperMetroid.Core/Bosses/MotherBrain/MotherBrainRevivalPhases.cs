@@ -177,7 +177,7 @@ internal sealed class MotherBrainRevivalPhases
     internal bool RunSecondPhaseMurderBabyAttack(RainbowBeamAttackFrame frame)
     {
         _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
-        if (frame.RandomNumberSeed.IsNegative)
+        if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.BabyVolleyFires))
         {
             // She fires her volley at the Baby once the Baby has appeared; before that, at Samus.
             _state.SetHeadAnimation(_state.BabyMetroidSpawned

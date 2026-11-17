@@ -258,7 +258,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // Her walking animation changes her pose later in the update, so on the update she asks to walk she still
         // stands and may also choose an attack.
         if (Encounter.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
-            !frame.RandomNumberSeed.IsNegative)
+            !frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.ThirdPhaseAttacks))
             return false;
 
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.ThirdPhaseBombs))

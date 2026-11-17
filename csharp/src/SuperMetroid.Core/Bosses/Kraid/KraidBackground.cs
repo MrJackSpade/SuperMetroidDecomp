@@ -33,19 +33,19 @@ internal sealed class KraidBackground
 
     /// <summary>
     /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour
-    /// change (#1512): steps zero through thirteen move the backdrop, the step after completes the fade and resets the
-    /// shared counter. When the fade completes is what gameplay sees: his growth and death wait on it, and a door's fade
-    /// sharing the counter brings it sooner. The backdrop shows a typed fade of its colours (#2215).
+    /// change (#1512): while the shared counter stands at zero through thirteen the backdrop takes a step, and once it has
+    /// passed them the fade completes and resets the counter. When the fade completes is what gameplay sees: his growth
+    /// and death wait on it, and a door's fade sharing the counter brings it sooner. The backdrop shows a typed fade of its
+    /// colours (#2215) as far as its own steps have taken it (#2302).
     /// </summary>
     /// <returns>Whether the fade completed on this call.</returns>
     internal bool AdvanceKraidRoomBackgroundFade(
         KraidBackdropFade fade)
     {
         KraidBackdropColours backdrop = _access.Backdrop;
-        int step = _presentation.FadeStepCount.Step;
-        if (step <= KraidBackgroundDefinitions.BackdropFadeLastStep)
+        if (_presentation.FadeStepCount.Step <= KraidBackgroundDefinitions.BackdropFadeLastStep)
         {
-            backdrop.Step(fade, step);
+            backdrop.Step(fade);
             _presentation.FadeStepCount.Advance();
             return false;
         }

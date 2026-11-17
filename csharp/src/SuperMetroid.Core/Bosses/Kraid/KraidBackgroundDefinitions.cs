@@ -9,7 +9,9 @@ public static class KraidBackgroundDefinitions
 
 
     /// <summary>
-    /// The last step of the room backdrop's fades that moves its colours (#1512): the step after it completes the fade.
+    /// The shared fade counter's last value at which a step of the room backdrop's fades moves its colours (#1512): the
+    /// step after it completes the fade. A fade's colours move in this many parts, one for each of its own steps after its
+    /// first (#2302).
     /// </summary>
     public const int BackdropFadeLastStep = 13;
 }

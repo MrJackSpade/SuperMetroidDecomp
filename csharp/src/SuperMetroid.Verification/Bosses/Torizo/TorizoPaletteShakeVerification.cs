@@ -77,14 +77,17 @@ internal static class TorizoPaletteShakeVerification
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<TorizoColours>(saved);
         AssertEqual(state.Colours.Shading, restored.Shading, "Mid-fade save preserves the fade's step");
 
-        // A hurt colouring written mid-fade restarts the fade from it at the counter value it stands at (#1512): at counter
-        // value two, one of the twelve parts left from there toward the normal colours (#2236).
+        // A hurt colouring written mid-fade restarts the fade from it (#1512, #2236): its first step shows the white, and
+        // its next moves one of its thirteen parts toward the normal colours, whatever value the counter stands at (#2302).
         state.Colours.Show(new TorizoLook(TorizoLookKind.White));
+        PictureShading white = PictureShading.Shaded(TorizoShades.Shared).With(TorizoShades.Body(new TorizoLook(TorizoLookKind.White)));
+        Execute(TorizoCueKind.AdvanceColourFade);
+        AssertEqual(white, state.Colours.Shading, "The restarted fade's first step shows the hurt flash's white");
         Execute(TorizoCueKind.AdvanceColourFade);
         PictureShadeFade fromWhite = new(PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.White))),
-            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), 1, 12);
+            PictureShading.Shaded(TorizoShades.Body(new TorizoLook(TorizoLookKind.Normal))), 1, TorizoShadeDefinitions.FadeLastStep);
         AssertEqual(PictureShading.Shaded(TorizoShades.Shared).With(fromWhite), state.Colours.Shading,
-            "The fade restarts from the hurt flash's white at the counter value it stands at");
+            "The fade restarts from the hurt flash's white by its own steps");
 
         // The import pre-colours each settled colouring over sprite rows one and two, and no fade partway.
         IReadOnlyList<SheetShade> shades = TorizoSheetShades.Of(InstalledFixtures.EnemyTiles.AuxiliaryColors
@@ -164,8 +167,9 @@ internal static class TorizoPaletteShakeVerification
         colours.ShowBellyGlow(shown);
         AssertEqual(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, shown), colours.Shading.Shades[^1], "The glow's record lies over the statue's colouring");
         colours.FadeToward(new TorizoLook(TorizoLookKind.Black));
+        // The fade's first step shows the record unmoved and its second moves one part (#2302).
         var counter = new SharedFadeStepCount();
-        counter.Advance();
+        colours.Step(counter);
         colours.Step(counter);
         var fading = new PictureShadeFade(PictureShading.Shaded(ColourEffectShades.Of(ColourEffectColours.TorizoBelly, shown)),
             PictureShading.Shaded(TorizoShades.GlowingBelly(new TorizoLook(TorizoLookKind.Black))), 1, 13);

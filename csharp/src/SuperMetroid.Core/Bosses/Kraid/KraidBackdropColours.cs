@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -7,8 +8,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// The colours Kraid's room backdrop shows (#1512, #2215). Each fade takes the backdrop toward its goal from whatever the
 /// backdrop shows when it starts, a fade still running among them: his growth fades the room's colours into his, his
 /// death fades the backdrop to black, and once his body has sunk the backdrop fades back into his colours. A fade is
-/// published as a typed fade between the backdrop's shadings, its progress the shared fade counter's; a completed fade
-/// shows its goal. The backdrop's colours never reach gameplay; only when a fade completes does, through the counter.
+/// published as a typed fade between the backdrop's shadings, its progress the fade's own steps (#2302); a completed
+/// fade shows its goal. The backdrop's colours never reach gameplay; only when a fade completes does, through the shared
+/// counter.
 /// </summary>
 internal sealed class KraidBackdropColours : IGameplayShadingSource
 {
@@ -31,23 +33,22 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     }
 
     /// <summary>
-    /// Takes the step at counter value <paramref name="step"/> of a fade toward <paramref name="fade"/>'s colours: the
-    /// running fade's next step when it fades that way, otherwise the first step of a fade from what the backdrop shows.
+    /// Takes a step of a fade toward <paramref name="fade"/>'s colours: the running fade's next step when it fades that
+    /// way, one more of its parts, otherwise the first step of a fade from what the backdrop shows, which shows it unmoved.
+    /// A fade moves in one part for each moving value a fade alone on the shared counter takes
+    /// (<see cref="KraidBackgroundDefinitions.BackdropFadeLastStep"/>), whatever values the counter takes (#2302).
     /// </summary>
     /// <param name="fade">The colours faded toward.</param>
-    /// <param name="step">The shared counter's value at this step, zero through the last moving value.</param>
-    /// <exception cref="InvalidOperationException">The step does not follow the running fade's latest.</exception>
-    internal void Step(KraidBackdropFade fade, int step)
+    internal void Step(KraidBackdropFade fade)
     {
-        Ensure.BetweenInclusive(0, KraidBackgroundDefinitions.BackdropFadeLastStep, step);
         KraidBackdropSettledColours goal = GoalOf(fade);
         if (running is not null && running.Goal == goal)
         {
-            running = running with { Progress = running.Progress.Then(step) };
+            running = running with { Progress = running.Progress.Then() };
             return;
         }
         StartedFrom = Shows;
-        running = new RunningKraidBackdropFade(goal, KraidBackdropFadeProgress.At(step));
+        running = new RunningKraidBackdropFade(goal, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
     }
 
     /// <summary>Completes the fade toward <paramref name="fade"/>'s colours: the backdrop shows them from now on.</summary>
@@ -114,5 +115,5 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// <summary>The fade that took the backdrop's latest step.</summary>
     /// <param name="Goal">The colours it ends on.</param>
     /// <param name="Progress">How far it has come.</param>
-    private sealed record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, KraidBackdropFadeProgress Progress);
+    private sealed record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress);
 }

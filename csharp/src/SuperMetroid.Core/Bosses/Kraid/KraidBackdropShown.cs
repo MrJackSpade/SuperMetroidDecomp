@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx.ColourEffects;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -19,7 +21,7 @@ internal abstract record KraidBackdropShown
     /// <param name="from">What the backdrop showed when the fade started.</param>
     /// <param name="goal">The colours the fade ends on.</param>
     /// <param name="progress">How far the fade has come.</param>
-    internal static KraidBackdropShown Fade(KraidBackdropShown from, KraidBackdropSettledColours goal, KraidBackdropFadeProgress progress)
+    internal static KraidBackdropShown Fade(KraidBackdropShown from, KraidBackdropSettledColours goal, StepCountedFadeProgress progress)
     {
         Ensure.NotNull(from);
         if (from == new Settled(goal) || progress.IsComplete)
@@ -40,5 +42,5 @@ internal abstract record KraidBackdropShown
     /// <param name="From">What the backdrop showed when the fade started.</param>
     /// <param name="Goal">The colours the fade ends on.</param>
     /// <param name="Progress">How far the fade has come, neither none nor the whole way.</param>
-    internal sealed record Fading(KraidBackdropShown From, KraidBackdropSettledColours Goal, KraidBackdropFadeProgress Progress) : KraidBackdropShown;
+    internal sealed record Fading(KraidBackdropShown From, KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress) : KraidBackdropShown;
 }

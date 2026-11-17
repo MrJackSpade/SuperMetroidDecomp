@@ -3449,65 +3449,65 @@ public enum EnemyFrameId
     CrocomireBodySkeletonLeaning,
     /// <summary>Crocomire: its skeleton tipping over.</summary>
     CrocomireBodySkeletonTipping,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its arm swinging down and out.</summary>
-    CrocomireBodySkeletonCollapseStage1,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its arm swinging down and out.</summary>
-    CrocomireBodySkeletonCollapseStage2,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its arm swinging down and out.</summary>
-    CrocomireBodySkeletonCollapseStage3,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its arm swinging down and out.</summary>
-    CrocomireBodySkeletonCollapseStage4,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its arm swinging down and out.</summary>
-    CrocomireBodySkeletonCollapseStage5,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its arm swinging down and out.</summary>
-    CrocomireBodySkeletonCollapseStage6,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its body sagging to the floor.</summary>
-    CrocomireBodySkeletonCollapseStage7,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its body sagging to the floor.</summary>
-    CrocomireBodySkeletonCollapseStage8,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its body sagging to the floor.</summary>
-    CrocomireBodySkeletonCollapseStage9,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its body sagging to the floor.</summary>
-    CrocomireBodySkeletonCollapseStage10,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage11,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage12,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage13,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage14,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage15,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage16,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage17,
-    /// <summary>Crocomire: its skeleton collapsing, one of the eighteen pictures its collapse shows in turn: its bones falling apart about its skull.</summary>
-    CrocomireBodySkeletonCollapseStage18,
+    /// <summary>Crocomire: its skeleton collapsing: its arm held out level from its shoulder.</summary>
+    CrocomireBodySkeletonArmHeldLevel,
+    /// <summary>Crocomire: its skeleton collapsing: its arm dropping, bent at the elbow.</summary>
+    CrocomireBodySkeletonArmDropping,
+    /// <summary>Crocomire: its skeleton collapsing: its arm lowered, its forearm reaching along the floor.</summary>
+    CrocomireBodySkeletonArmLowered,
+    /// <summary>Crocomire: its skeleton collapsing: its arm planted, upright from its shoulder, its hand on the floor.</summary>
+    CrocomireBodySkeletonArmPlanted,
+    /// <summary>Crocomire: its skeleton collapsing: its body settling onto its planted arm beneath its skull.</summary>
+    CrocomireBodySkeletonBodySettling,
+    /// <summary>Crocomire: its skeleton collapsing: its arm splaying out along the floor as its shoulder drops.</summary>
+    CrocomireBodySkeletonArmSplaying,
+    /// <summary>Crocomire: its skeleton collapsing: its arm lying flat along the floor under its ribs.</summary>
+    CrocomireBodySkeletonArmFlat,
+    /// <summary>Crocomire: its skeleton collapsing: its ribs sagging onto its flattened arm.</summary>
+    CrocomireBodySkeletonRibsSagging,
+    /// <summary>Crocomire: its skeleton collapsing: its ribs slumped low over its arm, its tail along the floor.</summary>
+    CrocomireBodySkeletonRibsSlumped,
+    /// <summary>Crocomire: its skeleton collapsing: its ribs down on the floor, its arm fallen off below them.</summary>
+    CrocomireBodySkeletonArmFallenOff,
+    /// <summary>Crocomire: its skeleton collapsing: its arm gone and its tail's bones scattering behind its ribs.</summary>
+    CrocomireBodySkeletonTailScattering,
+    /// <summary>Crocomire: its skeleton collapsing: its spine falling apart into loose bones behind its ribs.</summary>
+    CrocomireBodySkeletonSpineFallingApart,
+    /// <summary>Crocomire: its skeleton collapsing: its ribs splaying out flat behind its skull among loose bones.</summary>
+    CrocomireBodySkeletonRibsSplaying,
+    /// <summary>Crocomire: its skeleton collapsing: its ribs flattened behind its skull, its loose bones gathering in.</summary>
+    CrocomireBodySkeletonRibsFlattened,
+    /// <summary>Crocomire: its skeleton collapsing: its loose bones gathering in toward its skull.</summary>
+    CrocomireBodySkeletonBonesGathering,
+    /// <summary>Crocomire: its skeleton collapsing: its last loose bones huddled against its flattened ribs.</summary>
+    CrocomireBodySkeletonBonesHuddled,
+    /// <summary>Crocomire: its skeleton collapsing: only its ribs and a few bones left beside its skull.</summary>
+    CrocomireBodySkeletonRibsBesideSkull,
+    /// <summary>Crocomire: its skeleton collapsing: the last few bones left beside its skull.</summary>
+    CrocomireBodySkeletonLastBones,
     /// <summary>Crocomire: body skeleton stable.</summary>
     CrocomireBodySkeletonStable,
     /// <summary>Crocomire: body dead.</summary>
     CrocomireBodyDead,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage1,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage2,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage3,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage4,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage5,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage6,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage7,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage8,
-    /// <summary>Crocomire: bubbles rising from its skeleton, one of the nine pictures their rise shows in turn.</summary>
-    CrocomireBubblesRisingStage9,
-    /// <summary>Crocomire: bubbles rising from its skeleton, drifted off: the picture of <see cref="CrocomireBubblesRisingStage9"/>, drawn 32 pixels right and 32 pixels lower.</summary>
+    /// <summary>Crocomire: bubbles rising from its skeleton: a bubble forming.</summary>
+    CrocomireBubblesForming,
+    /// <summary>Crocomire: bubbles rising from its skeleton: bubbles welling up in a cluster.</summary>
+    CrocomireBubblesWelling,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the cluster of bubbles spreading apart.</summary>
+    CrocomireBubblesSpreading,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the bubbles bursting into droplets.</summary>
+    CrocomireBubblesBursting,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the burst bubbles' droplets spraying out.</summary>
+    CrocomireBubblesSpraying,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the droplets scattered wide.</summary>
+    CrocomireBubblesScattered,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the scattered droplets thinning out.</summary>
+    CrocomireBubblesThinning,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the last droplets fading.</summary>
+    CrocomireBubblesFading,
+    /// <summary>Crocomire: bubbles rising from its skeleton: the last two droplets vanishing.</summary>
+    CrocomireBubblesVanishing,
+    /// <summary>Crocomire: bubbles rising from its skeleton, drifted off: the picture of <see cref="CrocomireBubblesVanishing"/>, drawn 32 pixels right and 32 pixels lower.</summary>
     CrocomireBubblesAdrift,
     /// <summary>Kraid: its foot planted, its leg angled back.</summary>
     KraidFootPlanted,

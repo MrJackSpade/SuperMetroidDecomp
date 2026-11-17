@@ -69,8 +69,13 @@ internal static class NativeSnapshotMotherBrainImport
         if (brainRow == NativeCorpseRow)
             state.Colours.DetachBrain();
         ushort brain = W(MotherBrainMemory.BrainAnimationScript);
-        // Bit 15 clear means the brain list is not live.
-        ImportBrainAnimation(state.Brain, unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(cartridge, brain), W(MotherBrainMemory.BrainFrameHold));
+        // Bit 15 clear means the brain list is not live. A pointer at a record showing the picture before it again stands
+        // in the beat that shows both, after the updates its earlier records show (#2318).
+        var shownAgain = new Dictionary<ushort, NativeFrameShownAgain>();
+        Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> head = MotherBrainNativeListAddresses.CompareHead(cartridge, shownAgain);
+        NativeFrameShownAgain beat = shownAgain.TryGetValue(brain, out NativeFrameShownAgain again) ? again : new NativeFrameShownAgain(brain, 0);
+        ImportBrainAnimation(state.Brain, unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(head, beat.FirstRecord),
+            beat.UpdatesBefore + W(MotherBrainMemory.BrainFrameHold));
         Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         // Each record's instruction-list word is read from the snapshot; the port keeps the typed playback it stands for.
         ushort AnimationScript(RoomEnemyPlace place) => W(NativeSnapshotMemory.EnemyBase +
@@ -176,9 +181,9 @@ internal static class NativeSnapshotMotherBrainImport
     /// The brain playback the recorded brain list pointer <paramref name="pointer"/> stands for. The native pointer rests
     /// on the beat it plays next, so a pointer at a list's entry rests on that list's first beat, entered.
     /// </summary>
-    private static AnimationPlayback<MotherBrainHeadSegment> BrainPlaybackAt(IImportCartridgeSource cartridge, ushort pointer)
+    private static AnimationPlayback<MotherBrainHeadSegment> BrainPlaybackAt(IReadOnlyDictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> head, ushort pointer)
     {
-        AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(MotherBrainNativeListAddresses.CompareHead(cartridge),
+        AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(head,
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
         return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }

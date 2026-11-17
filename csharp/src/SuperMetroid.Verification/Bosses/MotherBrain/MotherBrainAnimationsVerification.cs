@@ -198,10 +198,10 @@ internal static class MotherBrainAnimationsVerification
         {
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurret,
                 new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(direction)),
-                turretPose, 4, $"turret {direction}");
+                turretPose, 4, $"turret {direction}", timesItsFrames: false);
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
                 new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction)),
-                bulletPose, 4, $"bullet {direction}");
+                bulletPose, 4, $"bullet {direction}", timesItsFrames: false);
             // The bullet list's direction selector jumps to this pose; the typed bullet starts it directly.
             AssertEqual(bulletPose, cartridge.ReadCartridgeWord(selectorEntry),
                 $"the bullet selector's {direction} entry");
@@ -212,9 +212,12 @@ internal static class MotherBrainAnimationsVerification
         Console.WriteLine($"  Mother Brain projectile programs: {compared} updates of glass, turret, bullet and hand-beam frames match bank $86.");
     }
 
-    /// <summary>Runs <paramref name="animation"/> on a projectile of <paramref name="kind"/> beside its native list; returns the updates compared.</summary>
+    /// <summary>
+    /// Runs <paramref name="animation"/> on a projectile of <paramref name="kind"/> beside its native list; returns the
+    /// updates compared. A still pose, which holds its frame for good (#2318), times nothing, so its timer is not compared.
+    /// </summary>
     private static int CompareProjectile(IImportCartridgeSource cartridge, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation,
-        ushort entry, int updates, string name)
+        ushort entry, int updates, string name, bool timesItsFrames = true)
     {
         (RoomEnemySystem enemies, _) = NewMotherBrain();
         EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles[^1];
@@ -230,7 +233,8 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
             if (native.Deleted)
                 break;
-            AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
+            if (timesItsFrames)
+                AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, projectile.ShownGraphics, $"{at}: the frame after the cleared graphics word draws from the room's sheet in its standard colours");

@@ -33,7 +33,7 @@ internal static class NativeSnapshotPauseImport
         menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         var highlight = menu.mapHighlight;
         PrivateState.Set(highlight, nameof(highlight.Timer), (int)memory[PauseMemory.PaletteAnimationTimer]);
-        PrivateState.Set(highlight, nameof(highlight.Frame), (int)memory[PauseMemory.PaletteAnimationFrame]);
+        PrivateState.Set(highlight, nameof(highlight.Frame), SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame.At(memory[PauseMemory.PaletteAnimationFrame]));
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
         PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationFrame), W(PauseMemory.IndicatorAnimationFrame) / 2);
         PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationTimer), (int)W(PauseMemory.IndicatorAnimationTimer));

@@ -20,7 +20,7 @@ internal static class PhantoonWaveVerification
             new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()),
             new RoomEnemyPlace(3, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()));
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
-        boss.Wave.PhaseStep = 8;
+        boss.Wave.PhaseStep = RotationAngle.FromSteps(8);
         var wave = boss.BodyWave;
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
@@ -35,7 +35,7 @@ internal static class PhantoonWaveVerification
         foreach (var (phase, first) in new[] { new VerifyPhantoonWaveLifecycleCase(14, 2), new VerifyPhantoonWaveLifecycleCase(30, 4), new VerifyPhantoonWaveLifecycleCase(46, 6), new VerifyPhantoonWaveLifecycleCase(62, 8) })
         {
             wave.Step(boss);
-            AssertEqual(phase, wave.Phase, "original-CPU phase progression");
+            AssertEqual(RotationAngle.FromHalfSteps(phase), wave.Phase, "original-CPU phase progression");
             PhantoonWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
             AssertEqual(new PhantoonWave(3072, new TrigonometryAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod),
                 current, "the wave stands at its amplitude, phase's angle and period");

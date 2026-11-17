@@ -173,7 +173,7 @@ internal static class CeresRidleyColorsVerification
                     AssertEqual(nativeCgram[color], stockCgram[color],
                         $"stock Ceres alarm frame {frame} CGRAM {color}");
             }
-            AssertEqual(0, stockEscape.Warning.AlarmStep,
+            AssertEqual(0, stockEscape.Warning.AlarmStep.Step,
                 "Ceres alarm frame sixteen wraps to zero");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres alarm never reads its source color rows");

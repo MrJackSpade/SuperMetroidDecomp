@@ -23,12 +23,15 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <param name="head">Her head's place, which her room lists right after her body.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
-    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts)
+    /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
+    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
+        MotherBrainBrainAnimation brain)
     {
         Body = body;
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
+        Brain = Ensure.NotNull(brain);
     }
 
     /// <summary>Her body, which owns the encounter and runs first.</summary>
@@ -187,8 +190,11 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>The wait before the next fake-death explosion (<see cref="MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates"/>).</summary>
     public BossCountdown FakeDeathExplosionTimer { get; } = new();
-    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer runs out.</summary>
-    public int FakeDeathExplosionIndex { get; internal set; }
+    /// <summary>
+    /// Where the next fake-death explosion bursts (#2315): each burst takes the next of
+    /// <see cref="MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions"/>, the first after the last.
+    /// </summary>
+    public ListStep<Position16<RoomPixels>> NextFakeDeathExplosion { get; internal set; } = ListStep<Position16<RoomPixels>>.FirstOf(MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions);
 
     /// <summary>
     /// The room flash's current image (#641, #2259), or null while no flash runs. Its timer counts upward, unlike enemy
@@ -208,18 +214,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     internal MotherBrainColours Colours { get; } = new();
 
     /// <summary>
-    /// The brain's own animation (#641, #1600), separate from the head place, which shows her brain's hit area: its place rests on the
-    /// frame being shown, which its next beat is. Null means the brain is not live and not drawn. Only the animation
-    /// setter and the draw-time runner write it.
+    /// Her brain's own animation (#641, #1600, #2317), separate from the head place, which shows her brain's hit area; it
+    /// plays at her brain's draw.
     /// </summary>
-    internal AnimationPlayback<MotherBrainHeadSegment>? BrainPlayback { get; set; }
-
-    /// <summary>
-    /// How long the brain's frame has shown. It counts draws up from one
-    /// and the animation advances once it exceeds the frame's duration, so each frame shows for
-    /// its duration plus one draw.
-    /// </summary>
-    public int BrainFrameTimer { get; internal set; }
+    public MotherBrainBrainAnimation Brain { get; }
 
     /// <summary>
     /// The body enemy's animation and where it stands (#641, #1600), or null before its first animation, while her body
@@ -237,9 +235,8 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool DeleteTurretsAndRinkas { get; internal set; }
 
     /// <summary>
-    /// Set by the head main on frames where her brain is drawn after the ordinary enemy
-    /// queues. It is deliberately rebuilt every frame rather than treated as
-    /// ordinary visibility because both the body and the brain carry the hide-drawing property.
+    /// Set by the head main, as her brain's action selects, on updates her brain is drawn by her own draw after the ordinary
+    /// enemy queues; rebuilt every update. Her head's place is hidden from the ordinary enemy draw throughout.
     /// </summary>
     public bool DrawBrain { get; internal set; }
 
@@ -253,22 +250,14 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool DrawNeck { get; internal set; }
 
     /// <summary>
-    /// Each neck joint's pixel distance from its anchor, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
-    /// the lower joints' from the shared body anchor, the upper joints' from the upper-neck anchor. The main tube's landing
-    /// initializes them.
+    /// Her neck (#2314): the lower joints hang from her body on the lower angle, the upper joints from the last lower joint
+    /// on the upper angle. Neck drawing and collision use them, and the last joint places the head.
     /// </summary>
-    public int[] NeckJointDistances { get; } = new int[MotherBrainNeckJointDefinitions.Count];
+    public MotherBrainNeck Neck { get; } = new();
 
-    /// <summary>
-    /// The neck joints' wrapping world-pixel positions, indexed by joint (<see cref="MotherBrainNeckJointDefinitions"/>):
-    /// the lower joints hang from the body on the lower angle, the upper joints from the upper-neck anchor on the upper
-    /// angle. Neck drawing and collision use them, and the brain anchor places the head.
-    /// </summary>
-    public Position16<RoomPixels>[] NeckJoints { get; } = new Position16<RoomPixels>[MotherBrainNeckJointDefinitions.Count];
-
-    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its whole step places joints 0 through 2.</summary>
+    /// <summary>Lower-neck angle; the neck steps add and subtract the angular speed with full-turn wraparound, and its whole step places the lower joints.</summary>
     public RotationAngle LowerNeckAngle { get; internal set; }
-    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places joints 3 and 4.</summary>
+    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its whole step places the upper joints.</summary>
     public RotationAngle UpperNeckAngle { get; internal set; }
     /// <summary>
     /// How far both neck angles turn each update the neck moves (<see cref="MotherBrainNeckTurnDefinitions"/>), forward or
@@ -353,11 +342,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// The place in <see cref="MotherBrainFightDefinitions.DroolMouthOffsets"/> of the mouth point the last drool hung from.
-    /// Each drool takes the next of the six points, the first after the last, so a fresh encounter's first drool hangs
-    /// from the second.
+    /// The mouth point her next drool hangs from (#2315): each drool takes the next of
+    /// <see cref="MotherBrainFightDefinitions.DroolMouthOffsets"/>, the first after the last.
     /// </summary>
-    public int LastDroolMouthPoint { get; internal set; }
+    public ListStep<Offset16<RoomPixels>> NextDroolMouthPoint { get; internal set; } = ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainFightDefinitions.DroolMouthOffsets);
 
     /// <summary>The walk credit this encounter holds, over which an attached sequence is built.</summary>
     internal MotherBrainWalkCounter Walk { get; }
@@ -443,16 +431,6 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public RoomEnemyPlace? BabyMetroidPlace { get; internal set; }
     /// <summary>The Baby Metroid's cutscene at that place: on its own turn it latches on, drains, heals Samus and dies.</summary>
     public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
-
-
-    /// <summary>
-    /// Last Baby animation started on the Baby's enemy. That enemy's playback advances
-    /// independently, so this latch changes only when the Baby's own behaviour starts a new animation.
-    /// </summary>
-    internal MotherBrainBabySegment BabyAppliedAnimation { get; set; }
-
-    /// <summary>The cutscene Baby's place animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<MotherBrainBabySegment> BabyPlayback { get; set; } = MotherBrainBabyAnimations.Starting(default);
 
     /// <summary>
     /// The Baby's cries still to come: each onion ring that hits it adds one, and its later healing and idle phases take

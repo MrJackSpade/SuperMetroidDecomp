@@ -63,7 +63,7 @@ internal static class ImportedBossLooks
         internal void ApplyRoomEntry(IPaletteColors cgram) => self.ShowImported(cgram, MotherBrainShades.RoomEntry);
 
         /// <summary>Shows step <paramref name="frame"/> of the room lights' recovery over <paramref name="cgram"/>.</summary>
-        internal void ApplyRecoveryLights(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.RecoveryLights(MotherBrainRecoveryLights.All[frame]));
+        internal void ApplyRecoveryLights(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.RecoveryLights.Images[frame]));
 
         /// <summary>Lays <paramref name="shade"/> over <paramref name="cgram"/>.</summary>
         internal void ShowImported(IPaletteColors cgram, PictureShade shade) =>

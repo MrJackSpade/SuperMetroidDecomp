@@ -10,13 +10,16 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="UpdatesHeld">The updates held after the last shade, zero through <see cref="HoldUpdates"/>.</param>
 public readonly record struct RidleyEyeFadeProgress(int ShadesShown, int UpdatesHeld)
 {
-    /// <summary>The shade the next update shows, fifteen (darkest) down to zero, or null once every shade has shown and the fade holds.</summary>
-    internal int? NextShade => ShadesShown < ShadeCount ? ShadeCount - 1 - ShadesShown : null;
+    /// <summary>
+    /// The image the next update shows, from the fade's last (darkest) back to its first (his own eye colours), or null
+    /// once every image has shown and the fade holds.
+    /// </summary>
+    internal RidleyFadeImage? NextImage => ShadesShown < ShadeCount ? RidleyFadeDefinitions.EyeFade.Images[^(ShadesShown + 1)] : null;
 
     /// <summary>Whether the fade has shown every shade and held for the whole hold.</summary>
     internal bool IsComplete => ShadesShown == ShadeCount && UpdatesHeld == HoldUpdates;
 
     /// <summary>The progress once the next update has shown its shade, or spent an update of the hold.</summary>
     internal RidleyEyeFadeProgress Next() =>
-        NextShade is null ? this with { UpdatesHeld = UpdatesHeld + 1 } : this with { ShadesShown = ShadesShown + 1 };
+        NextImage is null ? this with { UpdatesHeld = UpdatesHeld + 1 } : this with { ShadesShown = ShadesShown + 1 };
 }

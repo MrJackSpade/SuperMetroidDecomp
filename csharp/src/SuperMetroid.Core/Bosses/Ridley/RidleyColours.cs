@@ -24,11 +24,11 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>His own colours cleared to black as he arrives, which his fades and health bands then show over, or null before.</summary>
     private PictureShade? hidden;
 
-    /// <summary>The shade his eyes' fade in has reached, or null before it starts.</summary>
-    private int? eyeFade;
+    /// <summary>The image his eyes' fade in has reached, or null before it starts.</summary>
+    private RidleyFadeImage? eyeFade;
 
-    /// <summary>The shade his body's fade in has reached, or null before it starts.</summary>
-    private int? bodyFade;
+    /// <summary>The image his body's fade in has reached, or null before it starts.</summary>
+    private RidleyFadeImage? bodyFade;
 
     /// <summary>The health colouring his own colours show, or null before any.</summary>
     private RidleyHealthShade? healthShade;
@@ -39,8 +39,8 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>Whether Norfair's arena is hidden in black as he arrives.</summary>
     private bool arenaHidden;
 
-    /// <summary>The step Norfair's arena reveal has reached, or null before it starts.</summary>
-    private int? arenaReveal;
+    /// <summary>The image Norfair's arena reveal has reached, or null before it starts.</summary>
+    private RidleyFadeImage? arenaReveal;
 
     /// <summary>The shading his room's pictures show: the Ceres retreat, or the arena hidden and its reveal.</summary>
     internal PictureShading RoomShading
@@ -52,7 +52,7 @@ internal sealed class RidleyColours : IGameplayShadingSource
                 shading = shading.With(RidleyShades.RetreatRoom).With(RidleyShades.RetreatShared);
             if (arenaHidden)
                 shading = shading.With(RidleyShades.NorfairHidden);
-            return arenaReveal is { } reveal ? shading.With(RidleyShades.NorfairReveal(reveal)) : shading;
+            return arenaReveal is { } reveal ? shading.With(RidleyShades.Fade(reveal)) : shading;
         }
     }
 
@@ -77,11 +77,13 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>Shows the Ceres Baby and its container in <paramref name="shade"/>.</summary>
     internal void ShowBaby(CeresBabyShade shade) => baby = shade;
 
-    /// <summary>Shows shade <paramref name="shade"/> of his eyes' fade in.</summary>
-    internal void ShowEyeFade(int shade) => eyeFade = shade;
+    /// <summary>Shows image <paramref name="image"/> of his eyes' fade in.</summary>
+    /// <exception cref="ArgumentException">The image is not one of the eye fade's.</exception>
+    internal void ShowEyeFade(RidleyFadeImage image) => eyeFade = image.Of(RidleyFadeDefinitions.EyeFade);
 
-    /// <summary>Shows shade <paramref name="shade"/> of his body's fade in.</summary>
-    internal void ShowBodyFade(int shade) => bodyFade = shade;
+    /// <summary>Shows image <paramref name="image"/> of his body's fade in.</summary>
+    /// <exception cref="ArgumentException">The image is not one of the body fade's.</exception>
+    internal void ShowBodyFade(RidleyFadeImage image) => bodyFade = image.Of(RidleyFadeDefinitions.BodyFade);
 
     /// <summary>Shows health colouring <paramref name="shade"/> over his own colours.</summary>
     internal void ShowHealth(RidleyHealthShade shade) => healthShade = Ensure.NotNull(shade);
@@ -89,8 +91,9 @@ internal sealed class RidleyColours : IGameplayShadingSource
     /// <summary>Shows the colours his Ceres retreat gives his room.</summary>
     internal void ShowRetreat() => retreated = true;
 
-    /// <summary>Shows step <paramref name="step"/> of Norfair's arena reveal.</summary>
-    internal void ShowArenaReveal(int step) => arenaReveal = step;
+    /// <summary>Shows image <paramref name="image"/> of Norfair's arena reveal.</summary>
+    /// <exception cref="ArgumentException">The image is not one of the reveal's.</exception>
+    internal void ShowArenaReveal(RidleyFadeImage image) => arenaReveal = image.Of(RidleyFadeDefinitions.ArenaReveal);
 
     /// <summary>
     /// The shading the encounter's sprites draw in: his arrival's colours, the Baby's shade, his own colours hidden, his
@@ -107,9 +110,9 @@ internal sealed class RidleyColours : IGameplayShadingSource
         if (hidden is { } black)
             shading = shading.With(black);
         if (eyeFade is { } eyes)
-            shading = shading.With(RidleyShades.EyeFade(eyes));
+            shading = shading.With(RidleyShades.Fade(eyes));
         if (bodyFade is { } body)
-            shading = shading.With(RidleyShades.BodyFade(body));
+            shading = shading.With(RidleyShades.Fade(body));
         if (healthShade is { } health)
             shading = shading.With(RidleyShades.Health(health));
         return flashing ? shading.With(EnemyShades.HurtFlash) : shading;

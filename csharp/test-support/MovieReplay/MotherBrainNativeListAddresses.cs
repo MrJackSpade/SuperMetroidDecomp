@@ -225,11 +225,28 @@ internal static class MotherBrainNativeListAddresses
     /// phases the lists' control flow plays. Returns each segment's native list, which also maps a native snapshot's list
     /// pointers to typed playbacks.
     /// </summary>
+    /// <param name="cartridge">The pinned cartridge.</param>
+    /// <param name="bank">The lists' bank.</param>
+    /// <param name="segments">The typed segments.</param>
+    /// <param name="startingAt">The typed animations, by the segment each starts at.</param>
+    /// <param name="entries">Each segment's native entry, in authored order.</param>
+    /// <param name="spritemap">The spritemap a frame shows.</param>
+    /// <param name="ops">What each native opcode of the lists becomes.</param>
+    /// <param name="onlyRunOnInto">The segments no owner starts, which animations only run on into.</param>
+    /// <param name="shownUpdates">
+    /// The updates a frame of the list's stated duration shows for, where the family counts its frames otherwise than the
+    /// enemy animation pass does; null for the duration itself.
+    /// </param>
+    /// <param name="shownAgain">
+    /// Filled, where given, with each native frame record that shows the picture of the record before it again straight
+    /// after it, which its typed beat shows as one frame of both durations (#2318).
+    /// </param>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge, int bank, AnimationSegments<TSegment, TFrame, TEvent> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         NativeProgramEntry<TSegment>[] entries, Func<TFrame, ushort> spritemap,
-        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops, IReadOnlySet<TSegment>? onlyRunOnInto = null)
+        IReadOnlyDictionary<ushort, NativeListOp<TSegment, TEvent>> ops, IReadOnlySet<TSegment>? onlyRunOnInto = null,
+        Func<ushort, int>? shownUpdates = null, IDictionary<ushort, NativeFrameShownAgain>? shownAgain = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -257,21 +274,46 @@ internal static class MotherBrainNativeListAddresses
                 switch (NativeEnemyListDefinitions.Classify(word))
                 {
                     case NativeEnemyListDefinitions.WordKind.Frame when Beat(beats, addresses.Count, at) is AnimationBeat<TFrame, TEvent>.HeldFrame held:
+                    {
                         // A held frame stands for a frame its list's sleep follows: its duration only times a sleep that
-                        // shows nothing else (#2250).
+                        // shows nothing else (#2250). It stands too for a list's only frame followed by a goto back to the
+                        // list, which shows it again and again, for good, whatever duration it names (#2318).
                         VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(held.Shown), $"{at}: held frame's spritemap");
-                        VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep,
-                            NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(bank | (cursor + 4))), $"{at}: the held frame's sleep");
+                        ushort following = cartridge.ReadCartridgeWord(bank | (cursor + 4));
+                        bool sleeps = NativeEnemyListDefinitions.Classify(following) == NativeEnemyListDefinitions.WordKind.Sleep;
+                        bool loopsOnItself = addresses.Count == 0 && ops.TryGetValue(following, out NativeListOp<TSegment, TEvent> loop)
+                            && loop.Effect([.. Enumerable.Range(0, loop.Operands).Select(operand => cartridge.ReadCartridgeWord(bank | (cursor + 6 + 2 * operand)))],
+                                address => segmentAt[address]) is { Events.Length: 0, GoesTo: { } target }
+                            && EqualityComparer<TSegment>.Default.Equals(target, segment);
+                        VerificationAssertions.AssertTrue(sleeps || loopsOnItself, $"{at}: the held frame's sleep, or the goto back to its own list");
                         addresses.Add(cursor);
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
+                    }
                     case NativeEnemyListDefinitions.WordKind.Frame:
+                    {
                         var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Beat(beats, addresses.Count, at), $"{at}: frame");
-                        VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
-                        VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(frame.Shown), $"{at}: spritemap");
+                        ushort pictured = cartridge.ReadCartridgeWord(bank | (cursor + 2));
+                        VerificationAssertions.AssertEqual(pictured, spritemap(frame.Shown), $"{at}: spritemap");
+                        ushort first = cursor;
+                        int shown = shownUpdates?.Invoke(word) ?? word;
                         addresses.Add(cursor);
                         cursor = unchecked((ushort)(cursor + 4));
+                        // A beat shows one frame of the durations of the records that show its picture again straight after
+                        // it, with nothing between (#2318).
+                        while (shown < frame.Duration)
+                        {
+                            ushort again = cartridge.ReadCartridgeWord(bank | cursor);
+                            VerificationAssertions.AssertEqual(NativeEnemyListDefinitions.WordKind.Frame, NativeEnemyListDefinitions.Classify(again),
+                                $"{at}: the frame shown again straight after");
+                            VerificationAssertions.AssertEqual(pictured, cartridge.ReadCartridgeWord(bank | (cursor + 2)), $"{at}: the picture shown again");
+                            shownAgain?.Add(cursor, new NativeFrameShownAgain(first, shown));
+                            shown += shownUpdates?.Invoke(again) ?? again;
+                            cursor = unchecked((ushort)(cursor + 4));
+                        }
+                        VerificationAssertions.AssertEqual(shown, frame.Duration, $"{at}: duration");
                         continue;
+                    }
                     case NativeEnemyListDefinitions.WordKind.Sleep:
                         controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                         continue;
@@ -366,8 +408,18 @@ internal static class MotherBrainNativeListAddresses
 
     /// <summary>Compares every typed brain segment and animation with its native list; returns each brain segment's native list.</summary>
     internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(IImportCartridgeSource cartridge) =>
+        CompareHead(cartridge, new Dictionary<ushort, NativeFrameShownAgain>());
+
+    /// <summary>
+    /// Compares the brain as the other overload does, filling <paramref name="shownAgain"/> with each frame record that shows
+    /// the picture before it again, which its beat shows as one frame (#2318).
+    /// </summary>
+    internal static Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> CompareHead(
+        IImportCartridgeSource cartridge, IDictionary<ushort, NativeFrameShownAgain> shownAgain) =>
         Lists(cartridge, MotherBrainBank, MotherBrainAnimations.HeadSegments, MotherBrainAnimations.HeadStartingAt, HeadEntries,
-            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps, HeadSegmentsOnlyRunOnInto);
+            frame => MotherBrainVisualDefinitionsConstants.Frame(frame).Pointer, HeadNativeOps, HeadSegmentsOnlyRunOnInto,
+            // Her brain counts its draws up from one and moves on once the count passes the duration: one draw more.
+            duration => duration + 1, shownAgain);
 
     /// <summary>The brain segments only the animations before them run on into, which start no animation (#1948).</summary>
     private static readonly HashSet<MotherBrainHeadSegment> HeadSegmentsOnlyRunOnInto =

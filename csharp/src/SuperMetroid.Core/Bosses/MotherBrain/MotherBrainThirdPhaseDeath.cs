@@ -96,10 +96,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             : MotherBrainDeathExplosionDefinitions.SmokyIntervalUpdates))
             return;
 
-        int group = _bursts.NextPlace(MotherBrainDeathExplosionDefinitions.GroupCount);
-        int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : MotherBrainDeathExplosionDefinitions.SmokyPerBurst;
-        int pairIndex = group * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
-        for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
+        MotherBrainDeathExplosionGroup group = _bursts.NextOf(MotherBrainDeathExplosionDefinitions.Groups);
+        foreach (Offset16<RoomPixels> anchor in style == MotherBrainDeathExplosionStyle.Mixed ? group.Mixed : group.Smoky)
         {
             // The shared random sequence advances once per projectile, not once per visual batch.
             int random = nextRandomNumber();
@@ -107,7 +105,7 @@ internal sealed class MotherBrainThirdPhaseDeath
                 ? MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose(random)
                 : MotherBrainDeathExplosionAnimation.Smoke;
             requests.Add(new MotherBrainDeathExplosionRequest(
-                Offset: MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex),
+                Offset: anchor,
                 Animation: animation,
                 SoundEffect: MotherBrainSoundDefinitions.Explosion));
         }
@@ -125,8 +123,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (!_bursts.IntervalRunsOut(MotherBrainDeathDefinitions.EscapeDoorDustIntervalUpdates))
             return null;
 
-        int place = _bursts.NextPlace(MotherBrainDeathDefinitions.EscapeDoorDustPositions.Length);
-        Position16<RoomPixels> position = Ensure.Element(MotherBrainDeathDefinitions.EscapeDoorDustPositions, place);
+        Position16<RoomPixels> position = _bursts.NextOf(MotherBrainDeathDefinitions.EscapeDoorDustPositions);
 
         // The escape-door dust advances the one shared RNG exactly once per emitted projectile.
         // Its smoke chance selects the smoke animation; every other sample retains the preloaded small explosion.

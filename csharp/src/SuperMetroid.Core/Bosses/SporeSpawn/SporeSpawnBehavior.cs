@@ -612,7 +612,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Shows step <paramref name="step"/> of his death fade over his body, the room's level and its background (#1512),
     /// as the import's shades of it.
     /// </summary>
-    internal static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, int step)
+    internal static void ShowSporeSpawnDeathShade(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnDeathFadeStep step)
     {
         state.Colours.ShowDeath(step);
         body.Shading = state.Colours.Sprites;

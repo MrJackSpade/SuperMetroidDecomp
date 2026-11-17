@@ -25,6 +25,6 @@ public sealed class PhantoonWaveState
     /// <summary>Whether the amplitude is shrinking rather than growing.</summary>
     public bool AmplitudeShrinking { get; internal set; }
 
-    /// <summary>The steps the wave's phase advances by each update.</summary>
-    public int PhaseStep { get; internal set => field = Ensure.AtLeastZero(value); }
+    /// <summary>How far the wave's phase turns each update.</summary>
+    public RotationAngle PhaseStep { get; internal set; }
 }

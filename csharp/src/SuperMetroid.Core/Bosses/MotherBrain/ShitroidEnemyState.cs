@@ -8,10 +8,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class ShitroidEnemyState
 {
     /// <summary>The Shitroid's animation and where it stands (#641, #1600).</summary>
-    internal AnimationPlayback<ShitroidSegment> Playback { get; set; } = ShitroidAnimations.Starting(default);
+    internal AnimationPlayback<ShitroidSegment> Playback { get; set; }
 
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal ShitroidEnemyState(ShitroidAction action) => Action = action;
+    /// <summary>Starts the state in <paramref name="action"/>, playing the animation starting at <paramref name="animation"/> (#2319).</summary>
+    internal ShitroidEnemyState(ShitroidAction action, ShitroidSegment animation)
+    {
+        Action = action;
+        Playback = ShitroidAnimations.Starting(animation);
+    }
 
     /// <summary>Gets the Shitroid's current action.</summary>
     public ShitroidAction Action { get; internal set; }

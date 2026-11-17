@@ -397,7 +397,7 @@ internal static class LookupStream4Verification
             for (int row = 0; row < 16; row++)
             {
                 ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0), shades,
-                    eyes ? RidleyShades.EyeFade(row) : RidleyShades.BodyFade(row), BossShadeColours.Sprites);
+                    RidleyShades.Fade((eyes ? RidleyFadeDefinitions.EyeFade : RidleyFadeDefinitions.BodyFade).Images[row]), BossShadeColours.Sprites);
                 for (int color = 0; color < count; color++)
                 {
                     ushort expected = Native(row, color);
@@ -435,13 +435,13 @@ internal static class LookupStream4Verification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         CeresEscape escape = enemies.CeresEscape;
         var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
-        escape.Warning.AlarmStep = 15;
+        escape.Warning.AlarmStep = RidleyFadeDefinitions.SelfDestructAlarm.Images[15];
         for (ushort nmi = 0; nmi < 64; nmi++)
         {
             escape.StepAlarm(nmi);
             ushort[] laid = RidleyLaidColours.Of(ridley, escape, [], room, 0x1234);
             int row = nmi / 4;
-            AssertEqual((ushort)row, escape.Warning.AlarmStep, "actual alarm advances only every fourth NMI and wraps");
+            AssertEqual(row, escape.Warning.AlarmStep.Step, "actual alarm advances only every fourth NMI and wraps");
             for (int color = 0; color < 256; color++)
                 AssertEqual(color is >= 97 and <= 99 ? Native(row, color - 97) : (ushort)0x1234, laid[color], "actual gated producer preserves exact row and other CGRAM colors");
         }
@@ -449,7 +449,7 @@ internal static class LookupStream4Verification
         {
             ushort[] cgram = BossShadeColours.Filled(0);
             cgram[96] = 0x1234; cgram[100] = 0x2345;
-            BossShadeColours.Lay(cgram, room, RidleyShades.Alarm(row), BossShadeColours.Room);
+            BossShadeColours.Lay(cgram, room, RidleyShades.Fade(RidleyFadeDefinitions.SelfDestructAlarm.Images[row]), BossShadeColours.Room);
             for (int color = 0; color < 3; color++)
                 AssertEqual(Native(row, color), cgram[97 + color], "actual alarm CGRAM write");
             AssertEqual(0x1234, cgram[96], "alarm preceding CGRAM unchanged");
@@ -1942,7 +1942,7 @@ internal static class LookupStream4Verification
             AssertEqual(hash, selected.ContentIdentity, "Reveal canonical content hash");
             for (int row = 0; row < 15; row++)
             {
-                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.NorfairReveal(row), BossShadeColours.Room);
+                ushort[] cgram = BossShadeColours.Lay(BossShadeColours.Filled(0x1234), RidleySheetShades.NorfairRoom(selected), RidleyShades.Fade(RidleyFadeDefinitions.ArenaReveal.Images[row]), BossShadeColours.Room);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 113 and < 127 ? Pack(document.Reveal[row][color - 113]) : (ushort)0x1234,
                         cgram[color], "Every reveal row's full CGRAM copy");

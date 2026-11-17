@@ -91,19 +91,19 @@ internal static class MotherBrainTubeCollapseDefinitions
     internal static IReadOnlyList<int> SmokeXOffsets { get; } = [-8, 2, -4, 6];
 
     /// <summary>
-    /// Where the explosions about her tank burst as she fakes her death, by place: each explosion takes the place before
-    /// the last, so they burst from the last place back to the first and then again.
+    /// Where the explosions about her tank burst as she fakes her death, in the order they burst (#2315), starting again
+    /// after the last.
     /// </summary>
     internal static IReadOnlyList<Position16<RoomPixels>> FakeDeathExplosionPositions { get; } =
     [
-        new(136, 116),
-        new(120, 132),
-        new(124, 90),
-        new(138, 146),
-        new(120, 52),
-        new(124, 170),
-        new(138, 72),
         new(120, 206),
+        new(138, 72),
+        new(124, 170),
+        new(120, 52),
+        new(138, 146),
+        new(124, 90),
+        new(120, 132),
+        new(136, 116),
     ];
 
     /// <summary>The ceiling block her fake death's flash clears above her tank.</summary>

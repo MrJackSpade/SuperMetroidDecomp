@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -37,11 +38,11 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public bool HurtFlashShown { get; private set; }
 
-    /// <summary>The Baby's current animation.</summary>
-    public MotherBrainBabySegment Animation { get; private set; }
-
-    /// <summary>The current frame's remaining hold, restarted at one whenever the animation changes.</summary>
-    public int FrameHold { get; private set; }
+    /// <summary>
+    /// The Baby's animation and where it stands (#2319): it arrives playing its opening pulse, which its setup begins, and
+    /// each animation a step starts (<see cref="BabyMetroidCutsceneStepResult.StartedAnimation"/>) replaces it.
+    /// </summary>
+    internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.Initial);
 
     /// <summary>
     /// Room position. This actor's 1/256-pixel mover moves it in 256ths of a pixel; its precision finer
@@ -99,10 +100,13 @@ public sealed class BabyMetroidCutsceneState
     public BossCountdown DeathExplosionTimer { get; } = new();
 
     /// <summary>
-    /// Index into the shared death-explosion scatter pattern, cycling through its ten offsets.
-    /// This actor owns its increment and wrap.
+    /// Where the Baby's next death explosion bursts (#2315): each takes the next point of the scatter shared with Ridley's
+    /// death, the first after the last, starting from the scatter's second point.
     /// </summary>
-    public int DeathExplosionPatternIndex { get; private set; }
+    public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; private set; } = FirstDeathExplosion;
+
+    /// <summary>Where the Baby's first death explosion bursts: the shared scatter's second point.</summary>
+    private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, 1);
 
     /// <summary>
     /// The updates the cutscene has spent readying Mother Brain's attacks again so far, zero through
@@ -110,8 +114,8 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public int AttacksAgainReadyingElapsed { get; private set; }
 
-    /// <summary>The step the phase-three room lights' restoration has reached, 0 through 8.</summary>
-    public int RoomLightsTransitionCounter { get; private set; }
+    /// <summary>How far the room lights' recovery has come (#2316): each update of the final cutscene shows its next image.</summary>
+    public MotherBrainFadeProgress RecoveryLights { get; } = new();
 
     /// <summary>
     /// The part of a rainbow colour frame accumulated toward slowing Samus's rainbow: each update adds to it, and every
@@ -134,7 +138,6 @@ public sealed class BabyMetroidCutsceneState
     public void Initialize(FixedPosition<RoomPixels> leftInPlace)
     {
         HurtFlashShown = false;
-        SetAnimation(MotherBrainBabySegment.Initial);
         RouteLeg = null;
         Health = BabyMetroidCutsceneDefinitions.ArrivalHealth;
         OnionRingHitFlashTimer = 0;
@@ -142,9 +145,9 @@ public sealed class BabyMetroidCutsceneState
         FadeToBlackTimer.LastFor(1);
         FadeToBlackImagesShown = 0;
         DeathExplosionTimer.LastFor(1);
-        DeathExplosionPatternIndex = 0;
+        NextDeathExplosion = FirstDeathExplosion;
         AttacksAgainReadyingElapsed = 0;
-        RoomLightsTransitionCounter = 0;
+        RecoveryLights.Restart();
         SamusRainbowFraction = RainbowFramePart.None;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
         Position = BabyMetroidArrivalFractions.StartingPosition(BabyMetroidCutsceneFlightDefinitions.ArrivalPoint, leftInPlace);
@@ -188,7 +191,8 @@ public sealed class BabyMetroidCutsceneState
         bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
-        int? recoveryLightsFrame = null;
+        MotherBrainFadeImage? recoveryLightsImage = null;
+        MotherBrainBabySegment? startedAnimation = null;
         BabyMetroidVisibilityRequest visibility = BabyMetroidVisibilityRequest.Unchanged;
 
         // Enemy collision handling runs touch AI before main AI, against the Baby's
@@ -281,7 +285,7 @@ public sealed class BabyMetroidCutsceneState
                     // the Baby exactly to the target.
                     Velocity = default;
                     Position = Position.WithWhole(target);
-                    SetAnimation(MotherBrainBabySegment.DrainingMotherBrain);
+                    startedAnimation = MotherBrainBabySegment.DrainingMotherBrain;
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     motherBrain.InterruptFinalBeamForBabyDrain();
                     latchSoundQueued = true; // The rainbow-drain sound starts as the Baby latches on.
@@ -307,7 +311,7 @@ public sealed class BabyMetroidCutsceneState
                 Position = Position.WithWhole(head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (PhaseTimer.StepRunsOut())
                 {
-                    SetAnimation(MotherBrainBabySegment.Initial);
+                    startedAnimation = MotherBrainBabySegment.Initial;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.LetGoUpdates);
                     Velocity = default;
@@ -513,7 +517,7 @@ public sealed class BabyMetroidCutsceneState
                     // The fatal-blow step changes graphics/animation state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and takes the first of its 17 updates of shaking in
                     // this same update.
-                    SetAnimation(MotherBrainBabySegment.TakingFatalBlow);
+                    startedAnimation = MotherBrainBabySegment.TakingFatalBlow;
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.FatalBlowShakeUpdates);
@@ -607,20 +611,18 @@ public sealed class BabyMetroidCutsceneState
                 if (PhaseTimer.StepRunsOut())
                 {
                     Phase = BabyMetroidCutscenePhase.FinalCutscene;
-                    RoomLightsTransitionCounter = 0;
+                    RecoveryLights.Restart();
                     goto case BabyMetroidCutscenePhase.FinalCutscene;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.FinalCutscene:
             {
-                // Each update shows the next of the room lights' seven recovery steps; the call after the last ends
-                // the cutscene.
-                int lightsStep = RoomLightsTransitionCounter;
-                RoomLightsTransitionCounter++;
-                if (lightsStep < MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
+                // Each update shows the next image of the room lights' recovery; the update after the last ends the
+                // cutscene.
+                if (MotherBrainFadeDefinitions.RecoveryLights.ImageAt(RecoveryLights.TakeStep()) is { } lights)
                 {
-                    recoveryLightsFrame = lightsStep;
+                    recoveryLightsImage = lights;
                     break;
                 }
 
@@ -663,7 +665,8 @@ public sealed class BabyMetroidCutsceneState
             ambientCrySoundQueued,
             deathExplosion,
             babyFadeImage,
-            recoveryLightsFrame,
+            recoveryLightsImage,
+            startedAnimation,
             visibility);
     }
 
@@ -751,23 +754,14 @@ public sealed class BabyMetroidCutsceneState
             return null;
 
         DeathExplosionTimer.LastFor(BabyMetroidCutsceneDefinitions.DeathExplosionIntervalUpdates);
-        DeathExplosionPatternIndex++;
-        if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
-            DeathExplosionPatternIndex = 0;
-        // The death explosions hold the scatter shared with Ridley's death. The explosion step advances its
-        // index before looking up a pair, so a freshly cleared counter begins at the scatter's second place.
+        Offset16<RoomPixels> scatter = NextDeathExplosion.Entry;
+        NextDeathExplosion = NextDeathExplosion.NextInCycle;
         return new DustExplosionRequest(
-            Position: Position.Whole + DeathExplosionScatter.Offset(DeathExplosionPatternIndex),
+            Position: Position.Whole + scatter,
             Animation: MiscDustAnimation.SmallExplosion,
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }
 
-    /// <summary>Switches the Baby's animation and restarts its frame timer.</summary>
-    private void SetAnimation(MotherBrainBabySegment segment)
-    {
-        Animation = segment;
-        FrameHold = 1;
-    }
 
     /// <summary>
     /// Moves the speed toward <paramref name="targetSpeed"/> and turns the heading clockwise by

@@ -103,7 +103,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.Round.Damage = words.B;
                 phantoon.Swoop.Velocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
                 PhantoonNativeWords.ImportSwoopTarget(phantoon.Swoop, words.E);
-                phantoon.Death.NextExplosion = words.F;
+                phantoon.Death.NextExplosion = SuperMetroid.Core.Bosses.ListStep<PhantoonDeathExplosionDefinition>.At(PhantoonDeathExplosions.Schedule, words.F);
             }
             else if (part == EnemyDefinitionId.PhantoonMouth)
             {
@@ -115,7 +115,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoon.CasualFlames.Remaining = casualFlames < 0 ? null : casualFlames;
                 phantoon.Wave.Amplitude = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(words.D);
                 phantoon.Wave.AmplitudeShrinking = words.E != 0;
-                phantoon.Wave.PhaseStep = words.F;
+                phantoon.Wave.PhaseStep = RotationAngle.WrappedSteps(words.F);
             }
             else if (part == EnemyDefinitionId.PhantoonBody)
             {

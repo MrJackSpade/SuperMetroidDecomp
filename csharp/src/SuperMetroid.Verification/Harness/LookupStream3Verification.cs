@@ -998,15 +998,15 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks death explosion program selectors, native scatter anchors, and their generated burst cadence.</summary>
-    private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
+    internal static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MiscDustProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
                 "stream 3 native death explosion variant");
-        // Confirm the retained visual payload's catalog move and the independent group arithmetic.
+        // The groups are listed in the order they burst, which steps back through the cartridge's groups.
         for (int index = 0; index < 28; index++)
             AssertEqual(new Offset16<RoomPixels>((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
-                MotherBrainDeathExplosionDefinitions.Anchor(index), "stream 3 native decorative death anchor");
+                MotherBrainDeathExplosionDefinitions.Groups[^(index / 4 + 1)].Mixed[index % 4], "stream 3 native decorative death anchor");
         foreach (bool mixed in new[] { false, true })
         {
             var bursts = new MotherBrainBurstCycle();
@@ -1063,31 +1063,31 @@ internal static class LookupStream3Verification
             ?? throw new InvalidOperationException($"A {speed} forward walk starts no body animation.");
         return MotherBrainAnimations.BodySegments.Beats(segment).OfType<AnimationBeat<EnemyFrameId, MotherBrainBodyCue>.Frame>().First().Duration;
     }
-    /// <summary>Checks eight painful-walk delay, neck, and pause rows against ROM and the sequence's stage behavior.</summary>
+    /// <summary>
+    /// Checks the stagger's eight stages' walk, neck and pause against ROM, the stage the beam runs out at, and the pause
+    /// each stage's walk leaves when it reaches its end.
+    /// </summary>
     internal static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
     {
-        for (int stage = 0; stage < 8; stage++)
+        IReadOnlyList<MotherBrainStaggerStage> stages = MotherBrainPainfulWalkingDefinitions.Stages;
+        AssertEqual(8, stages.Count, "stream 3 stagger stage count");
+        for (int stage = 0; stage < stages.Count; stage++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), WalkPoseDuration(MotherBrainPainfulWalking.Speed(stage)), "stream 3 native stagger animation delay");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalking.NeckTurn(stage).RawValue, "stream 3 native stagger neck angle delta");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalking.PauseTimer(stage), "stream 3 native stagger pause timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), WalkPoseDuration(stages[stage].Speed), "stream 3 native stagger animation delay");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), stages[stage].NeckTurn.RawValue, "stream 3 native stagger neck angle delta");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), stages[stage].PauseUpdates, "stream 3 native stagger pause timer");
+            AssertEqual(stage == 6, ReferenceEquals(stages[stage], MotherBrainPainfulWalkingDefinitions.BeamRunsOut), "stream 3 the beam runs out as the seventh stage begins");
         }
-        foreach (int invalid in new[] { -1, 8, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.Speed(invalid), "stream 3 stagger speed bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.NeckTurn(invalid), "stream 3 stagger neck bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainPainfulWalking.PauseTimer(invalid), "stream 3 stagger timer bounds");
-        }
-        foreach (int stage in new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, ushort.MaxValue })
+        for (int stage = 0; stage < stages.Count; stage++)
         {
             var sequence = MotherBrainLateFightFixtures.NewSequence();
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(0);
-            sequence.DrainedByBaby.PainfulWalkingStage = stage;
-            // As the stagger's setup does before each walk: the stage selects its speed (terminal stages keep the last).
-            sequence.DrainedByBaby.PainfulWalkingSpeed = MotherBrainPainfulWalking.Speed(Math.Min(stage, 7));
+            sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage);
+            // As the stagger's setup does before each walk: the stage selects its speed.
+            sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * Math.Min(stage, 7)), sequence.DrainedByBaby.PainfulWalkingPauseTimer,
-                "stream 3 real stagger timer clamps terminal stages");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage), sequence.DrainedByBaby.PainfulWalkingPauseTimer,
+                "stream 3 real stagger pause after each stage's walk");
         }
     }
 

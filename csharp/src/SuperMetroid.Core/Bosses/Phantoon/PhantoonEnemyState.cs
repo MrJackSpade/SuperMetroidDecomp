@@ -23,10 +23,10 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <param name="mouth">The place his mouth occupies.</param>
     internal PhantoonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
     {
-        BodyPart = new PhantoonPart(this, body);
-        EyePart = new PhantoonPart(this, eye);
-        TentaclesPart = new PhantoonPart(this, tentacles);
-        MouthPart = new PhantoonPart(this, mouth);
+        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.InvulnerableBody);
+        EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
+        TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
+        MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
     }
 
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>

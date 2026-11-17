@@ -2,9 +2,10 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// Where Mother Brain's next dust cloud or explosion bursts, and on which update (#1872). Her ascent's dust, her death
-/// explosions and the escape door's dust each step back through their own list of positions, a step before the first
-/// continuing from the last; but the three step one place between them, so each effect starts where the one before it
-/// left off: her first death explosions burst at the place before the one the ascent's last dust cloud took, and the
+/// explosions and the escape door's dust each show their own list of positions from its first to its last and then
+/// again (#2315), the cycle stepping back one place a burst and counting it back from the list's end; but the three step
+/// one place between them, so each effect starts where the one before it left off: her first death explosions burst at
+/// the place before the one the ascent's last dust cloud took, and the
 /// door's first dust at the place before the last death explosions'. The death explosions and the door's dust also count
 /// down one interval between bursts, so the door's first dust bursts once the interval the last death explosions left
 /// runs out. Her death restarts the place and the interval before her fade-out explosions and again once the door's dust
@@ -33,16 +34,20 @@ public sealed class MotherBrainBurstCycle
     public int Interval { get; private set; }
 
     /// <summary>
-    /// Steps to the place before the last, continuing from the last of <paramref name="positions"/> places once it passes
-    /// the first, and returns it.
+    /// Steps to the bursting effect's next burst and returns its entry of <paramref name="shown"/>, the effect's list in
+    /// the order its bursts show it (#2315): the cycle steps to the place before the last, continuing from the last place
+    /// once it passes the first, and counts that place back from the list's end, so a whole run of the cycle shows the list
+    /// from its first entry to its last.
     /// </summary>
-    /// <param name="positions">How many positions the bursting effect's list holds.</param>
-    /// <returns>The place the burst takes.</returns>
-    public int NextPlace(int positions)
+    /// <param name="shown">The bursting effect's entries, in the order its bursts show them.</param>
+    /// <returns>The entry the burst takes.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The place the cycle continues from lies past the effect's list.</exception>
+    public T NextOf<T>(IReadOnlyList<T> shown)
     {
+        int positions = Ensure.NotNull(shown).Count;
         Ensure.BetweenInclusive(1, int.MaxValue, positions);
         Place = Place - 1 < 0 ? positions - 1 : Place - 1;
-        return Place;
+        return Ensure.Element(shown, positions - 1 - Place);
     }
 
     /// <summary>

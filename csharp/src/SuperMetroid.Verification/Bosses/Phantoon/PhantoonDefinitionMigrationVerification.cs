@@ -22,10 +22,10 @@ internal static class PhantoonDefinitionMigrationVerification
         AssertEqual(0xa7ca41, PhantoonSourceDefinitions.FadeOutColors, "fade-out source");
         AssertEqual(0xa7ca61, PhantoonSourceDefinitions.PowerOnColors, "power-on source");
 
-        // The wave: the seed two before the cycle's start leaves every first remainder the cartridge's $FFFE seed does.
+        // The wave: the seed a step before a whole turn shows every first angle the cartridge's $FFFE half-step seed does.
         for (int step = 0; step <= ushort.MaxValue / 2; step++)
-            AssertEqual((0xfffe + 2 * step) & 0x1ff, PhantoonBodyWaveEffect.PhaseInCycle(PhantoonWaveDefinitions.InitialPhase + 2 * step),
-                $"wave seed's first remainder after a step of {step}");
+            AssertEqual(((0xfffe + 2 * step) & 0x1ff) / 2, (PhantoonWaveDefinitions.InitialPhase + RotationAngle.WrappedSteps(step)).ToTrigonometryAngle().RawValue,
+                $"wave seed's first angle after a step of {step}");
         // The cartridge's intro mode word 2 and death mode word 1 select the wave's length by bit zero.
         AssertEqual(PhantoonWaveLength.Short, PhantoonWaveDefinitions.IntroLength, "intro wave is the 64-line wave");
         AssertEqual(PhantoonWaveLength.Long, PhantoonWaveDefinitions.DeathLength, "death wave is the 128-line wave");

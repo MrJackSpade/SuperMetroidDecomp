@@ -79,10 +79,11 @@ internal sealed class MotherBrainBody
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         body.Shading = EnemyShades.HurtFlashLook;
 
-        // The encounter's setup creates the walk credit and the burst cycle the encounter and its later sequence share.
+        // The encounter's setup creates the walk credit, the burst cycle and the brain animation the encounter and its later
+        // sequence share.
         // The body begins the encounter, which it holds from here and her head joins (#2218).
         MotherBrainEnemyState state = _motherBrainEncounter.Begin(new MotherBrainEnemyState(body, _places.ListedRunAfter(body, count: 1)[0],
-            new MotherBrainWalkCounter(), new MotherBrainBurstCycle())
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation())
         {
             Form = MotherBrainForm.Glass,
             HitboxesEnabled = MotherBrainHitboxParts.Brain,
@@ -236,16 +237,13 @@ internal sealed class MotherBrainBody
 
         if ((enabled & MotherBrainHitboxParts.Neck) != MotherBrainHitboxParts.None)
         {
-            // Tests only middle joints one, two, and three. Joint zero is buried in
-            // the body and joint four is already covered by the separate brain rectangles.
-            Position16<RoomPixels>[] collisionSegments = state.NeckJoints[MotherBrainNeckJointDefinitions.CollisionJoints];
-            foreach (Position16<RoomPixels> segment in collisionSegments)
+            foreach (MotherBrainNeckJoint joint in state.Neck.ExposedJoints)
             {
                 if (ResolveMotherBrainSamusCollisionPart(
                         state,
                         samus,
                         MotherBrainContactPart.Neck,
-                        segment))
+                        joint.Position))
                 {
                     return true;
                 }

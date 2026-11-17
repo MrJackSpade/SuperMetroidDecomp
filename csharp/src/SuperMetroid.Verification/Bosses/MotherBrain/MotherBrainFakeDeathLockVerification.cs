@@ -68,17 +68,19 @@ internal static class MotherBrainFakeDeathLockVerification
         state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
         state.PhaseTimer.Count = 100;
         state.TubeCollapseStep = MotherBrainTubeCollapseStep.Finished;
-        state.FakeDeathExplosionIndex = 0;
+        IReadOnlyList<Position16<RoomPixels>> positions = MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions;
+        state.NextFakeDeathExplosion = SuperMetroid.Core.Bosses.ListStep<Position16<RoomPixels>>.At(positions, positions.Count - 1);
 
-        int[] expectedIndices = [7, 6];
-        foreach (int expected in expectedIndices)
+        // The last position, which the game's place counted back from the first reaches first, is followed by the first.
+        int[] expectedNext = [0, 1];
+        foreach (int expected in expectedNext)
         {
             state.FakeDeathExplosionTimer.Count = 0;
             runtime.Enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFadeToGray(state);
-            AssertEqual(expected, state.FakeDeathExplosionIndex,
-                $"an expired explosion timer steps back to position {expected}");
+            AssertEqual(expected, state.NextFakeDeathExplosion.Place,
+                $"an expired explosion timer moves on to position {expected}");
         }
-        Console.WriteLine("  Mother Brain fake-death explosions: the first position wraps back to the last.");
+        Console.WriteLine("  Mother Brain fake-death explosions: the last position is followed by the first.");
     }
 
     /// <summary>Runs the fake-death explosion position order check.</summary>

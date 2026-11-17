@@ -76,7 +76,7 @@ internal sealed class PhantoonDeath
 
         state.Phase = PhantoonPhase.DyingExplosions;
         state.PhaseTimer = PhantoonArenaDefinitions.FirstDyingExplosionUpdates;
-        state.Death.NextExplosion = 0;
+        state.Death.NextExplosion = PhantoonDeathExplosions.First;
         state.Death.ExplosionPasses = 0;
     }
 
@@ -88,7 +88,7 @@ internal sealed class PhantoonDeath
         if (!PhantoonPresentation.TickPhantoonPhaseTimer(state))
             return;
 
-        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.Death.NextExplosion);
+        PhantoonDeathExplosionDefinition explosion = state.Death.NextExplosion.Entry;
         state.PhaseTimer = explosion.Delay;
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
@@ -97,11 +97,13 @@ internal sealed class PhantoonDeath
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound);
 
-        state.Death.NextExplosion++;
-        if (state.Death.NextExplosion < PhantoonDeathExplosions.Count)
+        if (state.Death.NextExplosion.Following is { } next)
+        {
+            state.Death.NextExplosion = next;
             return;
+        }
 
-        state.Death.NextExplosion = PhantoonDeathExplosions.RepeatStart;
+        state.Death.NextExplosion = PhantoonDeathExplosions.FirstRepeated;
         state.Death.ExplosionPasses++;
         if (state.Death.ExplosionPasses >= PhantoonDeathExplosionDefinitions.PassCount)
             state.Phase = PhantoonPhase.BeginFinalWavyDeath;

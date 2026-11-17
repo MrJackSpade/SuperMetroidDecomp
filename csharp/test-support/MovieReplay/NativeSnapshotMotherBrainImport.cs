@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -52,7 +54,12 @@ internal static class NativeSnapshotMotherBrainImport
         state.TubeCollapseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         state.FakeDeathExplosionTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
-        state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
+        // The recorded place is the position the last explosion took, counted in the order the game stepped back through
+        // them; the positions are listed in the order they burst, so the next is the one after it there.
+        int lastExplosion = W(MotherBrainMemory.FakeDeathExplosionIndex);
+        int explosions = MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions.Count;
+        state.NextFakeDeathExplosion = ListStep<Position16<RoomPixels>>.At(MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions,
+            (explosions - lastExplosion) % explosions);
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
         // copied her brain's colours there, in the corpse's (#1512).
         int neckRow = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
@@ -62,9 +69,13 @@ internal static class NativeSnapshotMotherBrainImport
         if (brainRow == NativeCorpseRow)
             state.Colours.DetachBrain();
         ushort brain = W(MotherBrainMemory.BrainAnimationScript);
-        // Bit 15 clear means the brain list is not live.
-        state.BrainPlayback = unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(cartridge, brain);
-        state.BrainFrameTimer = W(MotherBrainMemory.BrainFrameHold);
+        // Bit 15 clear means the brain list is not live. A pointer at a record showing the picture before it again stands
+        // in the beat that shows both, after the updates its earlier records show (#2318).
+        var shownAgain = new Dictionary<ushort, NativeFrameShownAgain>();
+        Dictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> head = MotherBrainNativeListAddresses.CompareHead(cartridge, shownAgain);
+        NativeFrameShownAgain beat = shownAgain.TryGetValue(brain, out NativeFrameShownAgain again) ? again : new NativeFrameShownAgain(brain, 0);
+        ImportBrainAnimation(state.Brain, unchecked((short)brain) >= 0 ? null : BrainPlaybackAt(head, beat.FirstRecord),
+            beat.UpdatesBefore + W(MotherBrainMemory.BrainFrameHold));
         Dictionary<MotherBrainBodySegment, NativeEnemyList<MotherBrainBodySegment>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
         // Each record's instruction-list word is read from the snapshot; the port keeps the typed playback it stands for.
         ushort AnimationScript(RoomEnemyPlace place) => W(NativeSnapshotMemory.EnemyBase +
@@ -85,11 +96,11 @@ internal static class NativeSnapshotMotherBrainImport
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowImage = MotherBrainRainbowImage.All[DecodeNextRainbowFrame(W(MotherBrainMemory.RainbowPaletteIndex))];
         state.DrawNeck = state.BrainAction == MotherBrainBrainAction.SetupBrainAndNeckToBeDrawn;
-        for (int joint = 0; joint < MotherBrainNeckJointDefinitions.Count; joint++)
+        // Each joint's distance is the neck's own; only where each lies is imported.
+        for (int joint = 0; joint < state.Neck.Joints.Count; joint++)
         {
             int record = MotherBrainMemory.NeckSegments + joint * 6;
-            state.NeckJoints[joint] = new(W(record), W(record + 2));
-            state.NeckJointDistances[joint] = W(record + 4);
+            state.Neck.Joints[joint].Position = new(W(record), W(record + 2));
         }
         state.LowerNeckAngle = RotationAngleConstants.FromRaw(W(MotherBrainMemory.LowerNeckAngle));
         state.UpperNeckAngle = RotationAngleConstants.FromRaw(W(MotherBrainMemory.UpperNeckAngle));
@@ -106,7 +117,10 @@ internal static class NativeSnapshotMotherBrainImport
         foreach (MotherBrainFadeProgress fade in new[] { state.FromFakeDeathGrey, state.DrainedGreying, state.RevivalFromGrey, state.DeathBodyFade, state.CorpseGreying })
             fade.Steps = transitionSteps;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        state.LastDroolMouthPoint = W(MotherBrainMemory.DroolProjectileParameter);
+        // The recorded place is the mouth point the last drool took; the points are listed from the one a fresh encounter's
+        // first drool takes, so the next point sits at the recorded place there.
+        state.NextDroolMouthPoint = ListStep<Offset16<RoomPixels>>.At(MotherBrainFightDefinitions.DroolMouthOffsets,
+            W(MotherBrainMemory.DroolProjectileParameter));
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));
@@ -129,12 +143,47 @@ internal static class NativeSnapshotMotherBrainImport
     }
 
     /// <summary>
+    /// Imports the brain animation from the playback resting on the beat the recorded pointer stands at and the recorded
+    /// count of draws the frame there has shown (#2317): a frame shows on with the updates its count leaves it, the
+    /// playback past it; a held frame shows for good; a cue, which only a start leaves the pointer on, plays at the next
+    /// draw.
+    /// </summary>
+    private static void ImportBrainAnimation(MotherBrainBrainAnimation brain, AnimationPlayback<MotherBrainHeadSegment>? resting, int drawsShown)
+    {
+        if (resting is not { } playback)
+        {
+            brain.Playback = null;
+            return;
+        }
+        AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
+        switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
+        {
+            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
+                brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
+                brain.ShownFrame = frame.Shown;
+                // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
+                brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
+                return;
+            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
+                brain.Playback = playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) };
+                brain.ShownFrame = held.Shown;
+                brain.Clock.ShowForGood();
+                return;
+            default:
+                brain.Playback = playback;
+                brain.ShownFrame = null;
+                brain.Clock.StepOnNextUpdate();
+                return;
+        }
+    }
+
+    /// <summary>
     /// The brain playback the recorded brain list pointer <paramref name="pointer"/> stands for. The native pointer rests
     /// on the beat it plays next, so a pointer at a list's entry rests on that list's first beat, entered.
     /// </summary>
-    private static AnimationPlayback<MotherBrainHeadSegment> BrainPlaybackAt(IImportCartridgeSource cartridge, ushort pointer)
+    private static AnimationPlayback<MotherBrainHeadSegment> BrainPlaybackAt(IReadOnlyDictionary<MotherBrainHeadSegment, NativeEnemyList<MotherBrainHeadSegment>> head, ushort pointer)
     {
-        AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(MotherBrainNativeListAddresses.CompareHead(cartridge),
+        AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(head,
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
         return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }

@@ -37,8 +37,6 @@ public static class MotherBrainShades
     /// <summary>Her room's lights cleared to black as the Baby dies.</summary>
     public static PictureShade LightsOut { get; } = new("mother-brain-lights-out", 0);
 
-    /// <summary>Her room's lights at image <paramref name="lights"/> of their recovery (#2259).</summary>
-    public static PictureShade RecoveryLights(MotherBrainRecoveryLights lights) => new("mother-brain-recovery-lights", lights.Step);
 
     /// <summary>The Baby's colours the cutscene loads as it arrives.</summary>
     public static PictureShade BabyArrives { get; } = new("mother-brain-baby-arrives", 0);

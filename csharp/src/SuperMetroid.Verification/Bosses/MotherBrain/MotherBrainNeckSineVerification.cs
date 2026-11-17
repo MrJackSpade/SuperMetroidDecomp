@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -35,14 +34,12 @@ internal static class MotherBrainNeckSineVerification
                 body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
-            ImmutableArray<Position16<RoomPixels>> actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), RotationAngleConstants.FromRaw(lowerAngle), RotationAngleConstants.FromRaw(upperAngle), MotherBrainNeckJointDefinitions.InitialDistances);
-            AssertSequenceEqual(expectedGeometry, actualGeometry,
+            var neck = new MotherBrainNeck();
+            MotherBrainNeckKinematics.PlaceJoints(neck, body: new(0x0038, 0x00b6), RotationAngleConstants.FromRaw(lowerAngle), RotationAngleConstants.FromRaw(upperAngle));
+            AssertSequenceEqual(expectedGeometry, neck.Joints.Select(joint => joint.Position).ToArray(),
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }
 
-        // #1627: a joint farther than the original's signed multiply reaches is rejected rather than given a product it never forms.
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainNeckKinematics.CalculateSignedComponent(new TrigonometryAngle(0), 128),
-            "a joint 128 pixels from its anchor is rejected");
         Console.WriteLine(
             "Mother Brain neck sine: all 32,768 signed products and 256 complete five-joint geometries match an independent ROM-backed reference without a runtime bus.");
     }

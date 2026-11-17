@@ -89,17 +89,17 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health band {band}");
         }
 
-        for (int frame = 0; frame < SporeSpawnColorFormat.DeathSceneFrameCount; frame++)
+        foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)
         {
-            int shown = frame;
-            SporeSpawnBehavior.ShowSporeSpawnDeathShade(body, state, frame);
-            AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(frame)), body.Shading,
+            int frame = step.Step;
+            SporeSpawnBehavior.ShowSporeSpawnDeathShade(body, state, step);
+            AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(step)), body.Shading,
                 $"live Spore Spawn death frame {frame}");
-            AssertShade(sprites, SporeSpawnShades.DeathSprite(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, shown, colour),
+            AssertShade(sprites, SporeSpawnShades.DeathSprite(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, frame, colour),
                 $"live Spore Spawn Sprite death frame {frame}");
-            AssertShade(room, SporeSpawnShades.DeathLevel(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Level, shown, colour),
+            AssertShade(room, SporeSpawnShades.DeathLevel(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Level, frame, colour),
                 $"live Spore Spawn Level death frame {frame}");
-            AssertShade(room, SporeSpawnShades.DeathBackground(frame), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Background, shown, colour),
+            AssertShade(room, SporeSpawnShades.DeathBackground(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Background, frame, colour),
                 $"live Spore Spawn Background death frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

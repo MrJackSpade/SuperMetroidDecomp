@@ -106,13 +106,13 @@ internal static class RidleyFullMovieVerification
         body.Position = body.Position.WithWhole(new(212, 200)); state.Flight.FacingDirection = RidleyFacing.Right;
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."), runtime.BombProjectiles.PowerBombExplosion);
         AssertEqual(112, state.PhaseTimer.Count, "native swoop setup retains general AI timer");
-        AssertEqual(10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
-        state.Phase = NorfairRidleyPhase.SwoopAimDown; state.SwoopPhaseTimer = 1;
+        state.Phase = NorfairRidleyPhase.SwoopAimDown; state.SwoopPhaseTimer.LastFor(2);
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
-        AssertEqual(0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
+        AssertEqual(NorfairRidleyPhase.SwoopAimDown, state.Phase, "the dive's first of two updates keeps diving");
         AssertEqual(112, state.PhaseTimer.Count, "native swoop countdown retains general timer");
         runtime.Enemies.NorfairRidleyBehavior.RunNorfairRidleyPhase(body, state, runtime.Player.IntroducedSamus, 0, runtime.Room.LevelData, runtime.BombProjectiles.PowerBombExplosion);
-        AssertEqual(20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
+        AssertEqual(NorfairRidleyPhase.SwoopAimSideways, state.Phase, "the dive's last update begins the sweep");
+        AssertEqual(NorfairRidleyMotionDefinitions.SwoopSweepUpdates - 1, state.SwoopPhaseTimer.Count, "native next swoop phase installs its own duration");
         AssertEqual(112, state.PhaseTimer.Count, "native phase transition retains general timer");
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }

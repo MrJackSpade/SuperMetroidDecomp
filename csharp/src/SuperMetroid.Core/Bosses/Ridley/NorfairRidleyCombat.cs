@@ -131,28 +131,25 @@ internal sealed class NorfairRidleyCombat
             return;
 
         state.Phase = NorfairRidleyPhase.SwoopAimDown;
-        state.SwoopPhaseTimer = NorfairRidleyMotionDefinitions.SwoopDiveUpdates;
+        state.SwoopPhaseTimer.LastFor(NorfairRidleyMotionDefinitions.SwoopDiveUpdates);
         state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
     }
 
-    /// <summary>Advances the swoop velocity arc and changes phase when its timer expires.</summary>
+    /// <summary>Advances the swoop velocity arc and changes phase, for <paramref name="nextUpdates"/>, as its countdown runs out.</summary>
     internal static bool TickNorfairRidleySwoopPhase(
         NorfairRidleyState state,
         RidleySwoopTurn turn,
         RotationAngle targetAngle,
         SignedEightEight targetSpeed,
         NorfairRidleyPhase nextPhase,
-        int nextTimer)
+        int nextUpdates)
     {
         RidleyFlight.UpdateSwoopVelocity(state.Flight, turn, targetAngle, targetSpeed);
-        if (state.SwoopPhaseTimer != 0)
-        {
-            state.SwoopPhaseTimer--;
+        if (state.SwoopPhaseTimer.StepKeepsRunning())
             return false;
-        }
 
         state.Phase = nextPhase;
-        state.SwoopPhaseTimer = nextTimer;
+        state.SwoopPhaseTimer.LastFor(nextUpdates);
         return true;
     }
 

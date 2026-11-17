@@ -596,7 +596,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (ridleyState.LiftedOff && ridleyState.Phase is NorfairRidleyPhase.SwoopMoveToStart or
                     NorfairRidleyPhase.SwoopAimDown or NorfairRidleyPhase.SwoopAimSideways or
                     NorfairRidleyPhase.SwoopAimUp or NorfairRidleyPhase.SwoopClimb or NorfairRidleyPhase.SwoopRecover)
-                    Check("Ridley swoop timer", checked((ushort)ridleyState.SwoopPhaseTimer), NativeSnapshotMemory.RidleySwoopTimer);
+                    Check("Ridley swoop timer", NativeSwoopTimer(ridleyState), NativeSnapshotMemory.RidleySwoopTimer);
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.
@@ -1076,6 +1076,19 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
         }
         throw new InvalidDataException("Samus's solid-enemy contact names an enemy that is not one of the room's places.");
     }
+
+    /// <summary>The count the cartridge loads its swoop timer with as Ridley's swoop is set up.</summary>
+    private const ushort NativeSwoopSetupTimer = 10;
+
+    /// <summary>
+    /// The cartridge's swoop timer for <paramref name="ridley"/>'s swoop: the count his swoop countdown runs below zero
+    /// from, and while he flies to the swoop's start the count the cartridge loads as the swoop is set up, which the
+    /// dive's load replaces before any update reads it.
+    /// </summary>
+    private static ushort NativeSwoopTimer(NorfairRidleyState ridley) =>
+        ridley.Phase == NorfairRidleyPhase.SwoopMoveToStart
+            ? NativeSwoopSetupTimer
+            : checked((ushort)ridley.SwoopPhaseTimer.Count);
 
     /// <inheritdoc/>
     /// <remarks>The frame sequence owns the trace it opens; ending or disposing the sequence closes it.</remarks>

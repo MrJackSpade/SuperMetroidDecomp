@@ -1474,7 +1474,7 @@ internal static class LookupStream4Verification
         for (ushort parameter = 0; parameter <= 22; parameter += 2)
         {
             var actual = RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), actual.Lifetime, "stream4 native breakup lifetime");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)) + 1, actual.LifetimeUpdates, "stream4 native breakup lifetime, one short of the updates it lasts");
         }
         // The cartridge's tip list is the one its orientation, the direction half a pose on, numbers in sixteenths of a turn.
         for (int direction = 0; direction < 256; direction++)

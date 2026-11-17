@@ -70,8 +70,8 @@ internal sealed class NorfairRidleyDeath
         state.Flight.Velocity = EightEightVector<RoomPixels>.Zero;
         RidleyLiquidMotion.Publish(_roomFx, RidleyLiquidDefinitions.DrainedHeight,
             RidleyLiquidDefinitions.DrainVelocity, RidleyLiquidDefinitions.DrainDelay);
-        state.DeathExplosionTimer = 0;
-        state.DeathExplosionCount = 0;
+        state.DeathExplosionTimer.LastFor(1);
+        state.NextDeathExplosion = NorfairRidleyState.FirstDeathExplosion;
         state.Phase = NorfairRidleyPhase.DeathExplosions;
         state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.DeathExplosionUpdates);
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
@@ -155,24 +155,20 @@ internal sealed class NorfairRidleyDeath
         state.Phase = NorfairRidleyPhase.DeathComplete;
     }
 
-    /// <summary>Spawns a small explosion at one of its ten signed X/Y offset pairs.</summary>
+    /// <summary>Spawns his death's next small explosion, once its wait runs out, at the next point of the shared scatter.</summary>
     internal void SpawnSmallExplosionNearNorfairRidley(
         RoomEnemyPlace body,
         NorfairRidleyState state)
     {
-        if (state.DeathExplosionTimer != 0)
-        {
-            state.DeathExplosionTimer--;
+        if (state.DeathExplosionTimer.StepKeepsRunning())
             return;
-        }
 
-        state.DeathExplosionTimer = NorfairRidleyMotionDefinitions.DeathExplosionInterval;
-        state.DeathExplosionCount++;
-        if (state.DeathExplosionCount >= DeathExplosionScatterDefinitions.Count)
-            state.DeathExplosionCount = 0;
+        state.DeathExplosionTimer.LastFor(NorfairRidleyMotionDefinitions.DeathExplosionIntervalUpdates);
+        Offset16<RoomPixels> scatter = state.NextDeathExplosion.Entry;
+        state.NextDeathExplosion = state.NextDeathExplosion.NextInCycle;
 
         _ridleyProjectiles.SpawnRidleyDust(
-            body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
+            body.Position.Whole + scatter,
             MiscDustAnimation.SmallExplosion);
         _audio.RequestRidleyDeathExplosionSound();
     }
@@ -237,12 +233,13 @@ internal sealed class NorfairRidleyDeath
             fragment.Position = fragment.Position.WithWhole(source.Body + RidleyBreakup.BodyPartOffset(part, facing));
             picture = RidleyBreakup.BodyPartFrame(part, facing);
         }
-        fragment.SetSpeciesState(new RidleyExplosionFragmentState
+        var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = { Count = RidleyExplosionDefinitions.GetPart(part).Lifetime },
             Velocity = new(BossRandomRolls.InLowerHalf(random) ? horizontalSpeed : -horizontalSpeed, default),
             Picture = picture,
-        });
+        };
+        fragmentState.Lifetime.LastFor(RidleyExplosionDefinitions.GetPart(part).LifetimeUpdates);
+        fragment.SetSpeciesState(fragmentState);
     }
 
     /// <summary>Runs a breakup piece's update: flicker, drag, gravity, movement, and lifetime.</summary>

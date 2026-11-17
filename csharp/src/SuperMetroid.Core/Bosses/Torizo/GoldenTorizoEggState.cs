@@ -16,5 +16,13 @@ internal sealed class GoldenTorizoEggState(HorizontalDirection laidFacing) : Ene
     internal HorizontalDirection Facing { get; set; } = laidFacing;
 
     /// <summary>The countdown to hatching; the egg hatches on the update it runs out (#2233).</summary>
-    internal BossCountdown HatchTimer { get; } = new() { Count = TorizoMotionDefinitions.EggHatchTimer };
+    internal BossCountdown HatchTimer { get; } = HatchCountdown();
+
+    /// <summary>A countdown that lasts the updates an egg rolls before it hatches.</summary>
+    private static BossCountdown HatchCountdown()
+    {
+        var countdown = new BossCountdown();
+        countdown.LastFor(TorizoMotionDefinitions.EggHatchUpdates);
+        return countdown;
+    }
 }

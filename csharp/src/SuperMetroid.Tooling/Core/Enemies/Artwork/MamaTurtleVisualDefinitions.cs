@@ -9,6 +9,6 @@ internal static class MamaTurtleVisualDefinitions
 {
     /// <summary>Tatori instruction and OAM bank $A2.</summary>
     internal const byte Bank = 0xa2;
-    /// <summary>Twenty-nine selected Spritemap_BabyTurtle/MamaTurtle records at $A2:94D9..983F.</summary>
-    internal const int FrameCount = 29;
+    /// <summary>Twenty-seven pictures the Spritemap_BabyTurtle/MamaTurtle records at $A2:94D9..983F store (#2272).</summary>
+    internal const int FrameCount = 27;
 }

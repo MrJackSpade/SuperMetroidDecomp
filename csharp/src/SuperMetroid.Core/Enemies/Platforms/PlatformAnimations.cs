@@ -38,7 +38,7 @@ internal static class PlatformAnimations
             Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
             Show(EnemyFrameId.TripperHoveringFacingLeftJetLong, 8),
             Show(EnemyFrameId.TripperHoveringFacingLeftJetShort, 7),
-            Show(EnemyFrameId.TripperHoveringFacingLeftJetLongTwin, 8),
+            Show(EnemyFrameId.TripperHoveringFacingLeftJetLong, 8),
         ],
         [P.TripperMovingRight] =
         [
@@ -49,7 +49,7 @@ internal static class PlatformAnimations
             Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
             Show(EnemyFrameId.TripperHoveringFacingRightJetLong, 8),
             Show(EnemyFrameId.TripperHoveringFacingRightJetShort, 7),
-            Show(EnemyFrameId.TripperHoveringFacingRightJetLongTwin, 8),
+            Show(EnemyFrameId.TripperHoveringFacingRightJetLong, 8),
         ],
         [P.TripperStillMovingLeft] =
         [

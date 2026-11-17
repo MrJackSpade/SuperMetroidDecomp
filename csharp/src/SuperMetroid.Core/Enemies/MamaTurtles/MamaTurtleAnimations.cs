@@ -132,19 +132,19 @@ internal static class MamaTurtleAnimations
             Show(EnemyFrameId.TurtleMamaWithdrawingFacingRight, 5),
             Show(EnemyFrameId.TurtleMamaWithdrawnFacingRight, 5),
             Cue(new MamaTurtleCue.RiseToHover(HorizontalDirection.Right)),
-            Hold(EnemyFrameId.TurtleMamaInShellFacingRightTwin),
+            Hold(EnemyFrameId.TurtleMamaInShellFacingRight),
         ],
         [P.BabyHidingRight] =
         [
             Show(EnemyFrameId.TurtleBabyCrawlingRightLegsReturning, 5),
             Show(EnemyFrameId.TurtleBabyCrawlingRightLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyShellTurned180Twin, 64),
+            Show(EnemyFrameId.TurtleBabyShellTurned180, 64),
             Cue(new MamaTurtleCue.Signal(K.LeaveShell)),
-            Hold(EnemyFrameId.TurtleBabyShellTurned180Twin),
+            Hold(EnemyFrameId.TurtleBabyShellTurned180),
         ],
         [P.MamaLeaveShellRight] =
         [
-            Show(EnemyFrameId.TurtleMamaInShellFacingRightTwin, 16),
+            Show(EnemyFrameId.TurtleMamaInShellFacingRight, 16),
             Show(EnemyFrameId.TurtleMamaWithdrawnFacingRight, 5),
             Show(EnemyFrameId.TurtleMamaWithdrawingFacingRight, 5),
             Show(EnemyFrameId.TurtleMamaOutOfShellFacingRight, 96),

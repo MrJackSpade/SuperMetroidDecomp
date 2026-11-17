@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 /// <summary>Checks published Walking and Wall Pirate artwork keys and their ordering.</summary>
 internal static class PirateArtworkNamesVerification
 {
-    /// <summary>Checks 37 walking, firing, looking, and flinching frame names.</summary>
+    /// <summary>Checks 35 walking, firing, looking, and flinching frame names.</summary>
     internal static void VerifyWalkingPirateArtworkNames()
     {
         string[] expected = [
@@ -18,7 +18,7 @@ internal static class PirateArtworkNamesVerification
         "walking_pirate_fire_left_0", "walking_pirate_fire_left_1",
         "walking_pirate_fire_left_2", "walking_pirate_fire_left_3",
         "walking_pirate_fire_left_4", "walking_pirate_fire_left_5",
-        "walking_pirate_look_left_0", "walking_pirate_look_left_1",
+        "walking_pirate_look_left_0",
         "walking_pirate_look_left_2", "walking_pirate_look_shared",
         "walking_pirate_walk_right_0", "walking_pirate_walk_right_1",
         "walking_pirate_walk_right_2", "walking_pirate_walk_right_3",
@@ -27,7 +27,7 @@ internal static class PirateArtworkNamesVerification
         "walking_pirate_fire_right_0", "walking_pirate_fire_right_1",
         "walking_pirate_fire_right_2", "walking_pirate_fire_right_3",
         "walking_pirate_fire_right_4", "walking_pirate_fire_right_5",
-        "walking_pirate_look_right_0", "walking_pirate_look_right_1",
+        "walking_pirate_look_right_0",
         "walking_pirate_look_right_2",
     ];
         Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitionsConstants.Walking));
@@ -70,7 +70,7 @@ internal static class PirateArtworkNamesVerification
     {
         Suite(nameof(VerifyWalkingPirateArtworkNames), () => VerifyWalkingPirateArtworkNames());
         Suite(nameof(VerifyWallPirateArtworkNames), () => VerifyWallPirateArtworkNames());
-        Console.WriteLine("Pirate artwork names: all 55 published keys and bounds pass.");
+        Console.WriteLine("Pirate artwork names: all 53 published keys and bounds pass.");
         return 0;
     }
 }

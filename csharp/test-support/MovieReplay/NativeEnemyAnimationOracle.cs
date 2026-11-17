@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 
@@ -566,8 +567,10 @@ internal static class NativeEnemyAnimationOracle
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
-            // A frame word repeating another record's picture shows the frame read from that record (#2249).
-            ushort pictured = kind == NativeEnemyListDefinitions.WordKind.Frame && picturedAt is not null ? picturedAt(operand) : operand;
+            // A frame word repeating another record's picture shows the frame read from that record (#2249): the owner's own
+            // rule where it has one, otherwise the record of the frame the import's repeated records name (#2272).
+            ushort pictured = kind != NativeEnemyListDefinitions.WordKind.Frame ? operand
+                : picturedAt?.Invoke(operand) ?? EnemyFrameCartridgeLookupTooling.OwnWord(bank, operand);
             if (kind == NativeEnemyListDefinitions.WordKind.Callback && goesTo?.Invoke(word) is { } goneTo)
             {
                 // An owner routine that only goes on to another list (#2167) is that list's goto.

@@ -59,9 +59,9 @@ internal static class LowerNorfairRioAnimations
         ],
         [P.AscendingWingbeat] =
         [
-            Show(EnemyFrameId.LowerNorfairRioWingsSweptTwin, 2),
-            Show(EnemyFrameId.LowerNorfairRioWingsSweptTwinB, 2),
-            Show(EnemyFrameId.LowerNorfairRioWingsSweptTwinC, 2),
+            Show(EnemyFrameId.LowerNorfairRioWingsSwept, 2),
+            Show(EnemyFrameId.LowerNorfairRioWingsSwept, 2),
+            Show(EnemyFrameId.LowerNorfairRioWingsSwept, 2),
         ],
         [P.Cooldown] =
         [

@@ -19,7 +19,7 @@ internal static class KiHunterAnimations
         [
             Show(EnemyFrameId.KiHunterHoveringFacingLeft, 2),
             Show(EnemyFrameId.KiHunterHoveringFacingLeftDropped, 2),
-            Show(EnemyFrameId.KiHunterHoveringFacingLeftTwin, 1),
+            Show(EnemyFrameId.KiHunterHoveringFacingLeft, 1),
             Cue(new KiHunterCue.Signal(K.ReturnToFlying)),
         ],
         [P.SwoopLeft] =
@@ -27,7 +27,7 @@ internal static class KiHunterAnimations
             Show(EnemyFrameId.KiHunterSwoopingFacingLeftArmsBack, 2),
             Show(EnemyFrameId.KiHunterSwoopingFacingLeftArmsIn, 6),
             Show(EnemyFrameId.KiHunterSwoopingFacingLeftArmsBack, 2),
-            Show(EnemyFrameId.KiHunterHoveringFacingLeftTwinB, 2),
+            Show(EnemyFrameId.KiHunterHoveringFacingLeft, 2),
             Show(EnemyFrameId.KiHunterSwoopingFacingLeftLegsReaching, 2),
             Show(EnemyFrameId.KiHunterSwoopingFacingLeftLegsStretched, 32),
         ],
@@ -35,7 +35,7 @@ internal static class KiHunterAnimations
         [
             Show(EnemyFrameId.KiHunterHoveringFacingRight, 2),
             Show(EnemyFrameId.KiHunterHoveringFacingRightDropped, 2),
-            Show(EnemyFrameId.KiHunterHoveringFacingRightTwin, 1),
+            Show(EnemyFrameId.KiHunterHoveringFacingRight, 1),
             Cue(new KiHunterCue.Signal(K.ReturnToFlying)),
         ],
         [P.SwoopRight] =
@@ -43,7 +43,7 @@ internal static class KiHunterAnimations
             Show(EnemyFrameId.KiHunterSwoopingFacingRightArmsBack, 2),
             Show(EnemyFrameId.KiHunterSwoopingFacingRightArmsIn, 6),
             Show(EnemyFrameId.KiHunterSwoopingFacingRightArmsBack, 2),
-            Show(EnemyFrameId.KiHunterHoveringFacingRightTwinB, 2),
+            Show(EnemyFrameId.KiHunterHoveringFacingRight, 2),
             Show(EnemyFrameId.KiHunterSwoopingFacingRightLegsReaching, 2),
             Show(EnemyFrameId.KiHunterSwoopingFacingRightLegsStretched, 32),
         ],
@@ -103,25 +103,25 @@ internal static class KiHunterAnimations
         ],
         [P.SpitLeft] =
         [
-            Show(EnemyFrameId.KiHunterCrouchedFacingLeftTwin, 32),
+            Show(EnemyFrameId.KiHunterCrouchedFacingLeft, 32),
             Show(EnemyFrameId.KiHunterSpittingFacingLeftAcidGathering, 6),
             Show(EnemyFrameId.KiHunterSpittingFacingLeftAcidSwollen, 16),
             Show(EnemyFrameId.KiHunterSpittingFacingLeftAcidSpat, 2),
             Cue(new KiHunterCue.Spit(HorizontalDirection.Left)),
             Show(EnemyFrameId.KiHunterSpittingFacingLeftAcidSpent, 24),
             Cue(new KiHunterCue.Signal(K.StartWinglessThinking)),
-            Show(EnemyFrameId.KiHunterCrouchedFacingLeftTwin, 1),
+            Show(EnemyFrameId.KiHunterCrouchedFacingLeft, 1),
         ],
         [P.SpitRight] =
         [
-            Show(EnemyFrameId.KiHunterCrouchedFacingRightTwin, 32),
+            Show(EnemyFrameId.KiHunterCrouchedFacingRight, 32),
             Show(EnemyFrameId.KiHunterSpittingFacingRightAcidGathering, 6),
             Show(EnemyFrameId.KiHunterSpittingFacingRightAcidSwollen, 16),
             Show(EnemyFrameId.KiHunterSpittingFacingRightAcidSpat, 2),
             Cue(new KiHunterCue.Spit(HorizontalDirection.Right)),
             Show(EnemyFrameId.KiHunterSpittingFacingRightAcidSpent, 24),
             Cue(new KiHunterCue.Signal(K.StartWinglessThinking)),
-            Show(EnemyFrameId.KiHunterCrouchedFacingRightTwin, 1),
+            Show(EnemyFrameId.KiHunterCrouchedFacingRight, 1),
         ],
     });
 

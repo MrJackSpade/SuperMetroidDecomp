@@ -34,7 +34,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 StringComparison.Ordinal))
             .Select(frame => frame.Pointer).ToHashSet();
         var ninjaFramePointers = new HashSet<ushort>();
-        AssertEqual(132, SpacePirateCollisionDefinitions.FrameCount,
+        AssertEqual(129, SpacePirateCollisionDefinitions.FrameCount,
             "compiled Space Pirate extended-frame count");
         int componentCount = 0;
         int hitboxCount = 0;
@@ -85,11 +85,11 @@ internal static class SpacePirateCollisionDefinitionsVerification
             AssertEqual(hitbox, frame.Hitboxes.Length, $"Space Pirate frame $B2:{frame.Pointer:X4} hitbox count");
             hitboxCount += hitbox;
         }
-        AssertEqual(229, componentCount,
+        AssertEqual(223, componentCount,
             "Space Pirate native collision-component count");
         AssertEqual(147, nativeLists.Count, "Space Pirate native hitbox-list count");
         AssertEqual(155, rectangleCount, "Space Pirate native collision-rectangle count");
-        AssertEqual(237, hitboxCount, "Space Pirate compiled hitbox count");
+        AssertEqual(231, hitboxCount, "Space Pirate compiled hitbox count");
         AssertTrue(EnemyExtendedFrameDefinitions.Frames.Any(
                 frame => frame.Bank != EnemyExtendedFrameDefinitions.Bank),
             "shared extended artwork catalog also contains non-Pirate boss frames");
@@ -112,7 +112,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             AssertTrue(SpacePirateCollisionDefinitions.HitboxesAt(pointer).Length > 0,
                 $"ninja-Pirate shown frame $B2:{pointer:X4} has fixed collision");
         }
-        AssertEqual(76, ninjaFramePointers.Count,
+        AssertEqual(75, ninjaFramePointers.Count,
             "distinct ninja-Pirate collision-frame identities");
         AssertTrue(SpacePirateCollisionDefinitions.HitboxesAt(
                 EnemyB2ExtendedSpritemaps.EmptyExtendedSpritemap).Length > 0,
@@ -195,11 +195,11 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 }
             }
         }
-        AssertEqual(237 * 3 * 6 * 6 * 2, probes,
+        AssertEqual(231 * 3 * 6 * 6 * 2, probes,
             "Space Pirate exhaustive authored-rectangle boundary probes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "compiled Space Pirate collision does not read native component or hitbox bytes");
-        Console.WriteLine($"Space Pirate collision: 132 frames, 229 components, " +
+        Console.WriteLine($"Space Pirate collision: 129 frames, 223 components, " +
             $"147 lists, 155 rectangles and {probes} native/compiled touch-shot " +
             "boundary probes pass with authored ROM bytes blocked.");
 

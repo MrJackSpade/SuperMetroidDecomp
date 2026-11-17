@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <typeparam name="TState">The encounter's state.</typeparam>
 internal interface IRidleyRevealEncounter<in TState> where TState : RidleyEncounterState
 {
-    /// <summary>The updates Ridley waits, once Samus's door has finished, before his eyes fade.</summary>
-    int InitialDelay { get; }
+    /// <summary>The updates Ridley waits once Samus's door has finished; on the last his eyes begin to fade in.</summary>
+    int InitialDelayUpdates { get; }
 
-    /// <summary>The updates his roar's hold before take-off counts down from.</summary>
-    int RoarHold { get; }
+    /// <summary>The updates of the hold that starts with his roar, which <see cref="TakesOff"/> runs.</summary>
+    int RoarHoldUpdates { get; }
 
     /// <summary>Runs one update of the hold before Ridley's take-off, returning whether he takes off on it.</summary>
     /// <param name="place">Ridley's body.</param>

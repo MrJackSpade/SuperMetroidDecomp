@@ -13,10 +13,10 @@ internal static class MotherBrainTubeCollapseDefinitions
     internal const int FreeProjectilesNeeded = 4;
 
     /// <summary>The updates the collapse waits after clearing a tube's blocks before the next tube falls.</summary>
-    internal const int StepWaitUpdates = 32;
+    internal const int StepWaitUpdates = 33;
 
     /// <summary>The updates the collapse waits after clearing the last side tube's blocks before the main tube falls.</summary>
-    internal const int MainTubeWaitUpdates = 2;
+    internal const int MainTubeWaitUpdates = 3;
 
     /// <summary>The blocks the bottom left tube leaves as it falls.</summary>
     internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomLeftTubeBlocks =
@@ -85,7 +85,7 @@ internal static class MotherBrainTubeCollapseDefinitions
     internal const int LandingShakeUpdates = 32;
 
     /// <summary>The updates between the smoke puffs of the falling main tube.</summary>
-    internal const int SmokeIntervalUpdates = 8;
+    internal const int SmokeIntervalUpdates = 9;
 
     /// <summary>The height the falling main tube's smoke puffs show at.</summary>
     internal const int SmokeY = 208;

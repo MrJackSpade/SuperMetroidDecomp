@@ -27,10 +27,9 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveInanimateGrey()
     {
-        // The grey body only moves on to its signs of life, with a timer of 768 whose first step comes on the
-        // next update.
+        // The grey body only moves on to its signs of life, whose wait starts on the next update.
         Encounter.RevivalPhase = MotherBrainRevivalPhase.ShowSignsOfLife;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.InanimateUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.InanimateUpdates);
         return false;
     }
 
@@ -40,14 +39,14 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveShowSignsOfLife()
     {
-        // The inanimate count lasts one updates. As it runs out, her breath and drool start again and the transition from
-        // grey starts at 224, in this same update.
+        // As her inanimate wait runs out, her breath and drool start again and the transition from grey starts, its first
+        // update this same update.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.SmallPurpleBreathGenerationEnabled = true;
             Encounter.DroolGenerationEnabled = true;
             Encounter.RevivalPhase = MotherBrainRevivalPhase.TransitionFromGrey;
-            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.RevivalFirstGreyStepUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.RevivalFirstGreyStepUpdates);
             Encounter.RevivalFromGrey.Restart();
             return true;
         }
@@ -62,7 +61,7 @@ internal sealed class MotherBrainRevivalPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
 
             // The revival reverses the same greying steps used by the corpse transition. Its ninth step shows no
             // new colours and completes the revival into her waking up.
@@ -93,7 +92,7 @@ internal sealed class MotherBrainRevivalPhases
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
             Encounter.NeckMovementEnabled = true;
             Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUpStretch;
-            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.WakeUpStretchUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.WakeUpStretchUpdates);
             return true;
         }
         return false;
@@ -109,7 +108,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase3);
             Encounter.RevivalPhase = MotherBrainRevivalPhase.WalkUpToBaby;
-            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BeforeWalkUpToBabyUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BeforeWalkUpToBabyUpdates);
             return true;
         }
         return false;
@@ -121,8 +120,8 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool RunSecondPhaseReviveWalkUpToBaby()
     {
-        // Once the timer of 128 runs out it stays run out, and she asks to walk forward on every update until she
-        // is past X the walk's target.
+        // Once the wait has run out it stays run out, and she asks to walk forward on every update until she is past the
+        // walk's target.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.RequestWalkForward(MotherBrainLateFightDefinitions.BabyWalkUpX, MotherBrainWalkSpeed.Fast);
@@ -185,7 +184,7 @@ internal sealed class MotherBrainRevivalPhases
                 ? MotherBrainHeadSegment.AttackingBabyMetroid
                 : MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
             Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttackCooldown;
-            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BabyAttackCooldownUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.BabyAttackCooldownUpdates);
         }
         return false;
     }

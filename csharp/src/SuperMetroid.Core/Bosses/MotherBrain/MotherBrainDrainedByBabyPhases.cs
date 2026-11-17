@@ -61,14 +61,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyTakenAback()
     {
         // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
-        // actor turn, changes form/neck geometry, seeds the regain-balance wait, and falls through so
-        // that this first regain-balance update immediately decrements it.
+        // actor turn, changes form/neck geometry, starts the regain-balance wait, and falls through so
+        // that this update is the wait's first.
         Encounter.Form = MotherBrainForm.DrainedByBabyMetroid;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.TakenAback;
         Encounter.DrainedPhase = MotherBrainDrainedPhase.RegainBalance;
-        Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.RegainBalanceUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.RegainBalanceUpdates);
         return true;
     }
 
@@ -175,7 +175,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
                 return false;
             _state.SetBodyAnimation(MotherBrainBodySegment.CrouchFast);
             Encounter.DrainedPhase = MotherBrainDrainedPhase.PrepareTransitionToGrey;
-            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.BeforeGreyUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.BeforeGreyUpdates);
         }
         return false;
     }
@@ -190,7 +190,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             Encounter.DrainedGreying.Restart();
             Encounter.DrainedPhase = MotherBrainDrainedPhase.TransitionToGrey;
-            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
             return true;
         }
         return false;
@@ -204,7 +204,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainFightDefinitions.GreyStepUpdates);
 
             // The body greys over its grey steps, one each time the timer runs out; the ninth finishes the transition
             // without new colours.

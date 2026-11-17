@@ -26,8 +26,8 @@ public static class MotherBrainDeathDefinitions
     public static readonly EarthquakeShake EscapeEarthquake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
 
-    /// <summary>The count an escape-door fragment's lifetime is loaded with (<see cref="BossCountdown"/>).</summary>
-    public const int DoorFragmentLifetime = 32;
+    /// <summary>The updates an escape-door fragment falls; on the last it turns to dust.</summary>
+    public const int DoorFragmentLifetimeUpdates = 33;
 
     /// <summary>The drag subtracted from a door fragment's 1/256-pixel horizontal speed each update.</summary>
     public static readonly SignedEightEight DoorFragmentDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(16);

@@ -185,7 +185,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>How far her greying at her fake death has come: its eight colourings, then the step that completes it.</summary>
     public MotherBrainFadeProgress FakeDeathGreying { get; } = new();
 
-    /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
+    /// <summary>The wait before the next fake-death explosion (<see cref="MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates"/>).</summary>
     public BossCountdown FakeDeathExplosionTimer { get; } = new();
     /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer runs out.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }

@@ -3,10 +3,10 @@
 /// <summary>The phases of Mother Brain's second-phase fight (#2208): her stretch, her thinking and her bomb, laser and hand-beam attacks. Its values are arbitrary.</summary>
 public enum MotherBrainPhase2FightPhase
 {
-    /// <summary>Expires the 23-count menacing shake and starts the stretching head animation with a 256-count hold.</summary>
+    /// <summary>Waits out the menacing shake and starts the stretching head animation and its hold.</summary>
     StretchingShakeHead,
 
-    /// <summary>Expires the long stretch hold, changes both neck targets, and begins the 64-count final wait.</summary>
+    /// <summary>Waits out the long stretch hold, changes both neck targets, and begins the final wait.</summary>
     StretchingBringHeadUp,
 
     /// <summary>Completes the final wait, enables small purple breath, and enters ordinary phase-two thinking.</summary>
@@ -27,16 +27,16 @@ public enum MotherBrainPhase2FightPhase
     /// <summary>Requests the slow crouch and waits for its pose before starting the bomb-firing head animation.</summary>
     BombCrouch,
 
-    /// <summary>Holds the 44-count post-fire pause, then tries to stand her up in the update it ends.</summary>
+    /// <summary>Holds the post-fire pause, then tries to stand her up in the update it ends.</summary>
     BombFired,
 
     /// <summary>Asks her to stand until she stands, then returns to phase-two thinking.</summary>
     BombStandUp,
 
-    /// <summary>Chooses neck targets from head/Samus Y ordering and seeds a four-count quick-positioning wait.</summary>
+    /// <summary>Chooses neck targets from head/Samus Y ordering and starts the quick-positioning wait.</summary>
     LaserPositionHeadQuickly,
 
-    /// <summary>When the timer runs out, slows neck rotation, installs the laser head animation, and seeds a 16-count recovery wait.</summary>
+    /// <summary>When the quick positioning runs out, slows neck rotation, installs the laser head animation, and starts the recovery wait.</summary>
     LaserPositionHeadSlowlyAndFire,
 
     /// <summary>Restores neutral neck targets after the wait and immediately re-enters thinking without the ordinary attack sequence's end phase.</summary>

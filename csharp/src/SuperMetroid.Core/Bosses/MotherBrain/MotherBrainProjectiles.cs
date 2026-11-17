@@ -357,7 +357,7 @@ internal sealed class MotherBrainProjectiles
         {
             // The speed loses the drag, stopping at rest, and keeps its direction.
             fragment.Velocity = fragment.Velocity.WithX(fragment.Velocity.X.SlowedBy(MotherBrainDeathDefinitions.DoorFragmentDrag));
-            // A fragment falls for its lifetime of 32 updates at most, so its gravity adds at most four pixels an update.
+            // A fragment falls for its lifetime at most, so its gravity adds at most a few pixels an update.
             fragment.Velocity = fragment.Velocity.WithY(fragment.Velocity.Y + MotherBrainDeathDefinitions.DoorFragmentGravity);
             fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
             // The fragment turns to dust as its lifetime runs out.

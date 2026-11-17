@@ -59,7 +59,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.SetHeadAnimation(MotherBrainHeadSegment.FiringRainbowBeam);
         AngularWidth = NarrowestWidth;
         NextExplosion = 0;
-        ExplosionTimer.Count = 0;
+        ExplosionTimer.LastFor(1);
         SoundAttemptsLeft = MotherBrainBeamDefinitions.SoundAttempts;
         _state.RainbowBeamSoundPlaying = false;
         BeamActive = true;
@@ -81,14 +81,14 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// <summary>Resets the phase-two head animation and starts the neck extension before beam charging.</summary>
     internal void BeginExtendingNeckForAttack()
     {
-        // The rainbow's setup shows the neutral head and bobs the neck slowly before its first wait of 256.
+        // The rainbow's setup shows the neutral head and bobs the neck slowly before its neck extends.
         _state.SetHeadAnimation(MotherBrainHeadSegment.NeutralPhase2);
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
         Encounter.NeckMovementEnabled = true;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         Encounter.RainbowPhase = MotherBrainRainbowPhase.StartCharging;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.NeckExtendUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.NeckExtendUpdates);
     }
 
     /// <summary>Widens the beam by one and a half steps up to twelve and refreshes its angle toward Samus.</summary>
@@ -141,7 +141,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (ExplosionTimer.StepKeepsRunning())
             return null;
 
-        ExplosionTimer.Count = MotherBrainLateFightDefinitions.BeamExplosionIntervalUpdates;
+        ExplosionTimer.LastFor(MotherBrainLateFightDefinitions.BeamExplosionIntervalUpdates);
         Offset16<RoomPixels> offset = MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[NextExplosion];
         NextExplosion = (NextExplosion + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
         return new MotherBrainRainbowExplosionRequest(offset);
@@ -202,7 +202,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeck()
     {
-        // The rainbow's restart only sets the attack up; its wait of 256 takes its first step on the next update.
+        // The rainbow's restart only sets the attack up; its neck's extension starts on the next update.
         BeginExtendingNeckForAttack();
         return false;
     }
@@ -233,7 +233,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             _state.RetractHead();
             Encounter.RainbowPhase = MotherBrainRainbowPhase.WaitForCharge;
-            Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.ChargeWaitUpdates;
+            Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.ChargeWaitUpdates);
             return true;
         }
         return false;
@@ -266,7 +266,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast; // The Japanese and North American turn; the European release turns seven steps an update.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.StartFiring;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.NeckLoweringUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.NeckLoweringUpdates);
         return true;
     }
 
@@ -304,7 +304,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             Encounter.RainbowPhase = MotherBrainRainbowPhase.OneFrameDelay;
-            Encounter.PhaseTimer.Count = 0;
+            Encounter.PhaseTimer.LastFor(1);
         }
         return false;
     }
@@ -321,7 +321,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         requests.Movement = _movement.MoveTowardWall(samus, frame.CameraCheckpoint);
 
-        // The start-draining step's countdown of zero runs out on this very update.
+        // The one-update delay runs out on this very update.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.BeamPinShakeUpdates);
@@ -336,10 +336,10 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowStartDrainingSamus(MotherBrainRainbowBeamStepRequests requests)
     {
-        // The drain starts with both its timer and the earthquake at the drain's length, and drains in this same update.
+        // The drain starts with the earthquake, which ends on the drain's last update but one, and drains in this same update.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.DrainingSamus;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.DrainUpdates;
-        requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.DrainUpdates);
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.DrainUpdates);
+        requests.StartEarthquake(MotherBrainDeathDefinitions.RainbowBeamEarthquake, MotherBrainLateFightDefinitions.DrainShakeUpdates);
         return true;
     }
 
@@ -422,9 +422,9 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowLowerHead()
     {
-        // Lowering the head waits 128 updates before Mother Brain decides what comes next.
+        // Lowering the head waits before Mother Brain decides what comes next.
         Encounter.RainbowPhase = MotherBrainRainbowPhase.DecideNextAction;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.LowerHeadUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.LowerHeadUpdates);
         return false;
     }
 

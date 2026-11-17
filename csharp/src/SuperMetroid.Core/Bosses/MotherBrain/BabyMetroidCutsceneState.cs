@@ -93,13 +93,13 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Saved whole-pixel origin used by the fatal-blow shake.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
-    /// <summary>Reload-eight timer producing the nine-update cadence of the Baby's fade to black.</summary>
+    /// <summary>The wait between the images of the Baby's fade to black.</summary>
     public BossCountdown FadeToBlackTimer { get; } = new();
 
     /// <summary>The images of its fade to black the Baby has shown, zero through all six (#2270).</summary>
     public int FadeToBlackImagesShown { get; private set; }
 
-    /// <summary>Five-update cadence timer for the dust explosions surrounding the dying Baby.</summary>
+    /// <summary>The wait between the dust explosions surrounding the dying Baby.</summary>
     public BossCountdown DeathExplosionTimer { get; } = new();
 
     /// <summary>
@@ -154,9 +154,9 @@ public sealed class BabyMetroidCutsceneState
         Health = BabyMetroidCutsceneDefinitions.ArrivalHealth;
         OnionRingHitFlashTimer = 0;
         FatalBlowOrigin = Position16<RoomPixels>.Zero;
-        FadeToBlackTimer.Count = 0;
+        FadeToBlackTimer.LastFor(1);
         FadeToBlackImagesShown = 0;
-        DeathExplosionTimer.Count = 0;
+        DeathExplosionTimer.LastFor(1);
         DeathExplosionPatternIndex = 0;
         AttacksAgainReadyingElapsed = 0;
         RoomLightsTransitionCounter = 0;
@@ -167,7 +167,7 @@ public sealed class BabyMetroidCutsceneState
         Speed = SignedEightEight.Zero;
         Angle = RotationAngle.Zero;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
-        PhaseTimer.Count = BabyMetroidCutsceneDefinitions.ArrivalWaitCount;
+        PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.ArrivalWaitUpdates);
     }
 
     /// <summary>
@@ -224,14 +224,14 @@ public sealed class BabyMetroidCutsceneState
         switch (Phase)
         {
             case BabyMetroidCutscenePhase.DashOntoScreen:
-                // The Baby holds still for the 249 updates its count of 248 lasts. The update it runs out on immediately
-                // executes the first curve update before the common mover consumes its new velocity.
+                // The Baby holds still through its arrival wait. The update the wait runs out on immediately executes the
+                // first curve update before the common mover consumes its new velocity.
                 if (PhaseTimer.StepRunsOut())
                 {
                     Angle = BabyMetroidCutsceneFlightDefinitions.CurveStartHeading;
                     Speed = BabyMetroidCutsceneFlightDefinitions.CurveSpeed;
                     Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
-                    PhaseTimer.Count = 10;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.CurveUpdates);
                     goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
                 }
                 break;
@@ -241,7 +241,7 @@ public sealed class BabyMetroidCutsceneState
                 if (PhaseTimer.StepRunsOut())
                 {
                     Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
-                    PhaseTimer.Count = 9;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.FaceApproachUpdates);
                 }
                 break;
 
@@ -251,7 +251,7 @@ public sealed class BabyMetroidCutsceneState
                     head,
                     TargetRadius);
 
-                // Collision skips the countdown's step. Otherwise its count of nine lasts ten approach updates.
+                // Collision skips the approach's step. Otherwise the approach ends on its last update.
                 if (!brainCollision)
                 {
                     brainCollision = PhaseTimer.StepRunsOut();
@@ -310,28 +310,28 @@ public sealed class BabyMetroidCutsceneState
                 if (motherBrain.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
-                    PhaseTimer.Count = 64;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.StopDrainingUpdates);
                 }
                 break;
             }
 
             case BabyMetroidCutscenePhase.StopDraining:
                 // Shaking ceases immediately: every update of the wait pins the Baby to the brain
-                // before decrementing the timer of 64, which expires only after 65 updates.
+                // before stepping the wait.
                 Position = Position.WithWhole(head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (PhaseTimer.StepRunsOut())
                 {
                     SetAnimation(MotherBrainBabySegment.Initial);
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
-                    PhaseTimer.Count = 32;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.LetGoUpdates);
                     Velocity = default;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds:
-                // The release branches *into* its acceleration while the timer is nonnegative. Thus the
-                // Baby accelerates ceilingward for all 32 visible release calls; the dust
-                // burst happens on call 33 and that update also performs another acceleration.
+                // The release runs on into its acceleration on every update. Thus the Baby accelerates
+                // ceilingward through the whole release; the dust burst happens on its last update, which
+                // also accelerates.
                 if (PhaseTimer.StepRunsOut())
                 {
                     // The three dust clouds on Mother Brain's head are spawned in this
@@ -530,7 +530,7 @@ public sealed class BabyMetroidCutsceneState
                     SetAnimation(MotherBrainBabySegment.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
-                    PhaseTimer.Count = BabyMetroidCutsceneDefinitions.FatalBlowShakeCount;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.FatalBlowShakeUpdates);
                     FatalBlowOrigin = Position.Whole;
                     goto case BabyMetroidCutscenePhase.TakeFinalBlow;
                 }
@@ -548,19 +548,19 @@ public sealed class BabyMetroidCutsceneState
                 {
                     Position = Position.WithWhole(FatalBlowOrigin);
                     Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
-                    PhaseTimer.Count = 56;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.SamusThemeUpdates);
                     goto case BabyMetroidCutscenePhase.PlaySamusTheme;
                 }
                 break;
             }
 
             case BabyMetroidCutscenePhase.PlaySamusTheme:
-                // The expiry call queues the two delayed music requests and immediately
-                // performs the first twelve-count prepare-Hyper-Beam decrement.
+                // The theme's last update queues the two delayed music requests and is immediately
+                // the first update of the Hyper Beam's preparation.
                 if (PhaseTimer.StepRunsOut())
                 {
                     Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
-                    PhaseTimer.Count = 12;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.HyperBeamPreparationUpdates);
                     goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
                 }
                 break;
@@ -583,10 +583,10 @@ public sealed class BabyMetroidCutsceneState
                 if (StepFadeToBlack(ref babyFadeImage))
                 {
                     // Completion does not write the Baby's eighth colour. It hides the actor,
-                    // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
+                    // and waits out the pause before it readies Mother Brain's attacks again.
                     Presence = Presence.With(EnemyPresence.Hidden);
                     Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
-                    PhaseTimer.Count = 128;
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.BeforeReadyingAttacksUpdates);
                 }
                 else
                 {
@@ -609,10 +609,9 @@ public sealed class BabyMetroidCutsceneState
 
                     if (AttacksAgainReadyingElapsed == MotherBrainReadyingDefinitions.AttacksAgainDuration)
                     {
-                        // Letting Samus rainbow some more starts in the last readying update, so its timer of 176 already
-                        // reads 175 when the update ends.
+                        // Letting Samus rainbow some more starts in the last readying update, which is its first.
                         Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
-                        PhaseTimer.Count = 176;
+                        PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.RainbowSomeMoreUpdates);
                         goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
                     }
                 }
@@ -748,7 +747,7 @@ public sealed class BabyMetroidCutsceneState
         if (FadeToBlackTimer.StepKeepsRunning())
             return false;
 
-        FadeToBlackTimer.Count = 8;
+        FadeToBlackTimer.LastFor(BabyMetroidCutsceneDefinitions.FadeToBlackStepUpdates);
         if (MotherBrainFadeDefinitions.BabyFade.ImageAt(FadeToBlackImagesShown) is not { } image)
             return true;
 
@@ -763,7 +762,7 @@ public sealed class BabyMetroidCutsceneState
         if (DeathExplosionTimer.StepKeepsRunning())
             return null;
 
-        DeathExplosionTimer.Count = 4;
+        DeathExplosionTimer.LastFor(BabyMetroidCutsceneDefinitions.DeathExplosionIntervalUpdates);
         DeathExplosionPatternIndex++;
         if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
             DeathExplosionPatternIndex = 0;

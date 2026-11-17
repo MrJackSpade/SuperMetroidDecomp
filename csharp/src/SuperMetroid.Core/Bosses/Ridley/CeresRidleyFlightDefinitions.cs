@@ -39,36 +39,36 @@ internal static class CeresRidleyFlightDefinitions
     /// <summary>The updates above the hover line after which his move into his fireball position gives up for a swoop.</summary>
     internal const int FireballMoveGiveUp = 48;
 
-    /// <summary>The countdown of his fireballing, during which he hovers about his fireball position.</summary>
-    internal const int FireballingUpdates = 224;
+    /// <summary>The updates of his fireballing, during which he hovers about his fireball position.</summary>
+    internal const int FireballingUpdates = 225;
 
-    /// <summary>The countdown his fireballing is cut short to when Samus's energy runs low.</summary>
-    internal const int FireballingCutShort = 8;
+    /// <summary>The updates left of his fireballing once it is cut short as Samus's energy runs low.</summary>
+    internal const int FireballingCutShortUpdates = 9;
 
-    /// <summary>The countdown of his lunge at Samus.</summary>
-    internal const int LungeUpdates = 64;
+    /// <summary>The updates of his lunge at Samus, unless he reaches her first.</summary>
+    internal const int LungeUpdates = 65;
 
-    /// <summary>The countdown of his swoop's first dive, aiming down, as his swoop is set up and again as it begins.</summary>
-    internal const int SwoopDiveUpdates = 10;
+    /// <summary>The updates of his swoop's first dive, aiming down, as his swoop is set up and again as it begins.</summary>
+    internal const int SwoopDiveUpdates = 11;
 
-    /// <summary>The countdown of his swoop's sweep, aiming left along the bottom of the swoop.</summary>
-    internal const int SwoopSweepUpdates = 36;
+    /// <summary>The updates of his swoop's sweep, aiming left along the bottom of the swoop.</summary>
+    internal const int SwoopSweepUpdates = 37;
 
-    /// <summary>The countdown of his swoop's climb, aiming up.</summary>
-    internal const int SwoopClimbUpdates = 28;
+    /// <summary>The updates of his swoop's climb, aiming up.</summary>
+    internal const int SwoopClimbUpdates = 29;
 
-    /// <summary>The countdown of his swoop's last, faster climb.</summary>
-    internal const int SwoopFinalClimbUpdates = 1;
+    /// <summary>The updates of his swoop's last, faster climb.</summary>
+    internal const int SwoopFinalClimbUpdates = 2;
 
     /// <summary>The speed every stage of his swoop moves toward: three pixels an update.</summary>
     internal static readonly SignedEightEight SwoopSpeed = SignedEightEight.FromPixels(3);
 
-    /// <summary>The countdown, after the Baby falls, before he flies to retrieve it.</summary>
-    internal const int BabyRetrievalDelay = 21;
+    /// <summary>The updates he waits after the Baby falls; on the last he flies to retrieve it.</summary>
+    internal const int BabyRetrievalDelayUpdates = 22;
 
     /// <summary>The upward speed his real retreat starts at as he catches the Baby: two pixels an update.</summary>
     internal static readonly SignedEightEight RetreatStartSpeed = SignedEightEight.FromPixels(-2);
 
-    /// <summary>The countdown, once he is above the chamber, before the getaway begins.</summary>
-    internal const int RetreatDelay = 64;
+    /// <summary>The updates he waits once he is above the chamber; on the last the getaway begins.</summary>
+    internal const int RetreatDelayUpdates = 65;
 }

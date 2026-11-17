@@ -88,7 +88,7 @@ internal sealed class NorfairRidleyCombat
         if (state.PhaseTimer.StepKeepsRunning())
             return false;
 
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.ArenaRevealStepHold;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.ArenaRevealStepUpdates);
         NorfairArenaRevealProgress reveal = state.ArenaReveal;
         if (reveal.Step > NorfairRidleyRevealDefinitions.RevealStepCount)
             throw new InvalidDataException($"Norfair Ridley reveal step {reveal.Step} is past the reveal's end.");
@@ -192,7 +192,7 @@ internal sealed class NorfairRidleyCombat
         state.Phase = wall == RidleyWallSweepTarget.WallBehind
             ? NorfairRidleyPhase.SweepToWallAhead
             : NorfairRidleyPhase.SweepToWallBehind;
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.WallSweepLegUpdates;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.WallSweepLegUpdates);
         SelectNorfairRidleyFacingAnimation(place, state);
     }
 
@@ -215,7 +215,7 @@ internal sealed class NorfairRidleyCombat
         {
             SelectNorfairRidleyFacingAnimation(place, state);
             state.Phase = NorfairRidleyPhase.PogoMoveToHeight;
-            state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.PogoSettleUpdates;
+            state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.PogoSettleUpdates);
             TickNorfairRidleyPogoMoveToHeight(place, state, samus);
             return;
         }
@@ -238,7 +238,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail.TickRidleyPogoTail(place, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Phase = NorfairRidleyPhase.PogoFall;
-        state.PhaseTimer.Count = RidleyRandomDefinitions.PogoTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.PogoMinimumUpdates;
+        state.PhaseTimer.LastFor(RidleyRandomDefinitions.PogoTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.PogoLeastUpdates);
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -408,7 +408,7 @@ internal sealed class NorfairRidleyCombat
                 ? NorfairRidleyArenaDefinitions.FlightLineY
                 : CoordinateAxis.Wrap(place.Position.Y.Whole - NorfairRidleyArenaDefinitions.CarryLift));
         state.Phase = NorfairRidleyPhase.CarryMoveToAnchor;
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.CarryToAnchorUpdates;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryToAnchorUpdates);
         NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target, NorfairRidleyMotionDefinitions.CarryDivisor);
         state.PhaseTimer.StepRunsOut();
     }
@@ -541,7 +541,7 @@ internal sealed class NorfairRidleyCombat
     {
         RidleyFlight.StartAnimation(state.Flight, body, RidleyAnimations.DeathRoar);
         state.Phase = NorfairRidleyPhase.DeathRoar;
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.DeathRoarUpdates;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.DeathRoarUpdates);
     }
 
     /// <summary>Handles a missed lunge: death has priority over power-bomb dodge and ordinary retreat.</summary>

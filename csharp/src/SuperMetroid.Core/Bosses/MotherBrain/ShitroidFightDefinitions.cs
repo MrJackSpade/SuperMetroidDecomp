@@ -14,7 +14,7 @@ internal static class ShitroidFightDefinitions
     internal static IReadOnlyList<Position16<RoomBlocks>> WallBlocks { get; } = [new(48, 3), new(31, 3)];
 
     /// <summary>The updates of its entrance delay, once the camera is held, before it flies in.</summary>
-    internal const int EntranceDelayUpdates = 464;
+    internal const int EntranceDelayUpdates = 465;
 
     /// <summary>The point it rushes to first, above its Sidehopper.</summary>
     internal static readonly Position16<RoomPixels> SidehopperRendezvous = new(584, 74);
@@ -26,16 +26,16 @@ internal static class ShitroidFightDefinitions
     internal static readonly Offset16<RoomPixels> LatchOffset = new(0, -32);
 
     /// <summary>The updates it rises after feeding, and after draining Samus.</summary>
-    internal const int RiseUpdates = 192;
+    internal const int RiseUpdates = 193;
 
     /// <summary>The height it rises to after feeding and after draining Samus.</summary>
     internal const int RiseY = 104;
 
     /// <summary>The updates it pauses after draining Samus before rising.</summary>
-    internal const int PostDrainPauseUpdates = 120;
+    internal const int PostDrainPauseUpdates = 121;
 
     /// <summary>The updates of each of its flights beside Samus, to her left and then to her right.</summary>
-    internal const int FlyBesideUpdates = 88;
+    internal const int FlyBesideUpdates = 89;
 
     /// <summary>How far left of Samus it flies to her left.</summary>
     internal const int BesideLeftX = -64;
@@ -50,7 +50,7 @@ internal static class ShitroidFightDefinitions
     internal const int BesideRightY = 104;
 
     /// <summary>The updates it holds the drained Samus, remorseful, before releasing her.</summary>
-    internal const int HoldBeforeReleaseUpdates = 256;
+    internal const int HoldBeforeReleaseUpdates = 257;
 
     /// <summary>The point left of the room it leaves to.</summary>
     internal static readonly Position16<RoomPixels> ExitPoint = Position16<RoomPixels>.Wrapped(-128, 64);

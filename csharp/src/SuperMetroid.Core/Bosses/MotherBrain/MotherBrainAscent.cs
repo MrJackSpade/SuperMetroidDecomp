@@ -61,10 +61,9 @@ internal sealed class MotherBrainAscent
         state.Head.Contact = state.Head.Contact.Without(EnemyContact.IgnoresSamus);
         state.Head.Health = MotherBrainFightDefinitions.SecondPhaseHealth;
         state.AscentPhase = MotherBrainAscentPhase.PauseForSuspense;
-        state.PhaseTimer.Count = 128;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.SuspenseUpdates);
 
-        // The setup falls directly into the suspense wait; the freshly written timer is observed as
-        // 127 before another enemy can run.
+        // The setup falls directly into the suspense wait, whose first update is this same update.
         PauseBeforeMotherBrainRises(state);
     }
 
@@ -76,7 +75,7 @@ internal sealed class MotherBrainAscent
             return;
 
         state.AscentPhase = MotherBrainAscentPhase.PrepareForRising;
-        state.PhaseTimer.Count = 32;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeRisingUpdates);
         PrepareMotherBrainForRising(state);
     }
 
@@ -94,7 +93,7 @@ internal sealed class MotherBrainAscent
         state.Head.Presence = state.Head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Initial);
         state.AscentPhase = MotherBrainAscentPhase.ReadyStandingBody;
-        state.PhaseTimer.Count = 256;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.StandingBodyPauseUpdates);
 
         // The first readying update runs on the same frame the floor-clipping effect starts.
         ReadyMotherBrainStandingBody(state);
@@ -111,8 +110,8 @@ internal sealed class MotherBrainAscent
 
         state.AscentPhase = MotherBrainAscentPhase.ContinuePausing;
 
-        // The final artwork step runs straight into the next step; the still-256 timer
-        // loses its first tick on the final artwork frame.
+        // The final artwork step runs straight into the next step; the pause's first update is the final artwork
+        // update.
         ContinueMotherBrainAscentPause(state);
     }
 
@@ -204,7 +203,7 @@ internal sealed class MotherBrainAscent
 
         state.FromFakeDeathGrey.Restart();
         state.AscentPhase = MotherBrainAscentPhase.TransitionFromGray;
-        state.PhaseTimer.Count = 0;
+        state.PhaseTimer.LastFor(1);
     }
 
     /// <summary>Applies the phase-two head shake before normal combat begins.</summary>
@@ -217,7 +216,7 @@ internal sealed class MotherBrainAscent
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.StretchingBringHeadUp;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
-        state.PhaseTimer.Count = 256;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.StretchUpdates);
         BringMotherBrainHeadBackUp(state);
     }
 
@@ -231,7 +230,7 @@ internal sealed class MotherBrainAscent
         state.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
         state.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.StretchingFinish;
-        state.PhaseTimer.Count = 64;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.AfterStretchUpdates);
         FinishMotherBrainStretching(state);
     }
 

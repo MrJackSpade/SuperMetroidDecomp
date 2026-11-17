@@ -54,7 +54,7 @@ internal static class MotherBrainFightDefinitions
     internal const int BombWalkLongRetreatX = 64;
 
     /// <summary>The updates she waits after firing a bomb.</summary>
-    internal const int AfterBombUpdates = 44;
+    internal const int AfterBombUpdates = 45;
 
     /// <summary>How far below her head the attack choice measures Samus's height from.</summary>
     internal const int AttackMeasureBelowHead = 4;
@@ -123,14 +123,14 @@ internal static class MotherBrainFightDefinitions
     internal const int DroolSplashRise = 4;
 
     /// <summary>The updates she reels, taken aback, before regaining her balance as the Baby drains her.</summary>
-    internal const int RegainBalanceUpdates = 48;
+    internal const int RegainBalanceUpdates = 49;
 
     /// <summary>The stagger stage at which her rainbow beam runs out as the Baby drains her.</summary>
     internal const int BeamRunsOutStage = 6;
 
     /// <summary>The updates she waits, crouched, before turning grey.</summary>
-    internal const int BeforeGreyUpdates = 64;
+    internal const int BeforeGreyUpdates = 65;
 
     /// <summary>The updates each step of her turn to grey lasts.</summary>
-    internal const int GreyStepUpdates = 16;
+    internal const int GreyStepUpdates = 17;
 }

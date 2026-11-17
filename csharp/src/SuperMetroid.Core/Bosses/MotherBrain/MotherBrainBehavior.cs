@@ -167,10 +167,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.DescentPhase)
         {
             case MotherBrainDescentPhase.InitialPause:
-                // The fake death's start begins the pause before the lock, whose countdown of 64 takes its first step in
-                // this same update, so it first reads 63.
+                // The fake death's start begins the pause before the lock, whose first update is this same update.
                 state.DescentPhase = MotherBrainDescentPhase.PauseBeforeLock;
-                state.PhaseTimer.Count = 64;
+                state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeLockUpdates);
                 RunMotherBrainPauseBeforeLock(state, samus);
                 return;
 
@@ -184,7 +183,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
                 _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.MotherBrain), MusicQueueDelay.Shortest);
                 state.DescentPhase = MotherBrainDescentPhase.PauseBeforeUnlock;
-                state.PhaseTimer.Count = 12;
+                state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeUnlockUpdates);
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
@@ -194,7 +193,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Restoring Samus's control reinstalls the normal input and movement modes.
                 samus.Control.Unlock();
                 state.DescentPhase = MotherBrainDescentPhase.PauseBeforeFlash;
-                state.PhaseTimer.Count = 8;
+                state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeFlashUpdates);
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
@@ -208,9 +207,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainAcidChange = MotherBrainRoomFxDefinitions.AcidDrains;
                 state.TubeCollapseStep = MotherBrainTubeCollapseStep.SpawnBottomLeftTube;
-                state.TubeCollapseTimer.Count = 0;
+                state.TubeCollapseTimer.LastFor(1);
                 state.DescentPhase = MotherBrainDescentPhase.FadeToGray;
-                state.PhaseTimer.Count = 0;
+                state.PhaseTimer.LastFor(1);
                 state.FakeDeathGreying.Restart();
                 Access.RequestMotherBrainObject(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
                 return;
@@ -244,7 +243,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), RoomScrollState.Closed);
 
         state.DescentPhase = MotherBrainDescentPhase.PauseBeforeMusic;
-        state.PhaseTimer.Count = 32;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.BeforeMusicUpdates);
         RunMotherBrainFakeDeath(state, samus);
     }
 

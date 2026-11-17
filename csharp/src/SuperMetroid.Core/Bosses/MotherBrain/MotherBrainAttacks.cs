@@ -295,7 +295,7 @@ internal sealed class MotherBrainAttacks
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.BombPhase2);
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.BombFired;
-        state.PhaseTimer.Count = MotherBrainFightDefinitions.AfterBombUpdates;
+        state.PhaseTimer.LastFor(MotherBrainFightDefinitions.AfterBombUpdates);
     }
 
     /// <summary>Waits after the bomb, then stands her up in the update the wait ends.</summary>
@@ -404,7 +404,7 @@ internal sealed class MotherBrainAttacks
         state.UpperNeckMovement = targetMovement;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Quick;
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserPositionHeadSlowlyAndFire;
-        state.PhaseTimer.Count = 4;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.LaserQuickAimUpdates);
     }
 
     /// <summary>
@@ -420,7 +420,7 @@ internal sealed class MotherBrainAttacks
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Steady;
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.Laser);
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.LaserFinishAttack;
-        state.PhaseTimer.Count = 16;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.LaserRecoveryUpdates);
     }
 
     /// <summary>

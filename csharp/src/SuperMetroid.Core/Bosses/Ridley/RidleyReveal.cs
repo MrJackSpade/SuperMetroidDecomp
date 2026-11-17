@@ -40,7 +40,7 @@ internal sealed class RidleyReveal
                 if (_doorPassage.IsUnderWay)
                     return;
                 ridley.RevealPhase = RidleyRevealPhase.InitialDelay;
-                ridley.PhaseTimer.Count = encounter.InitialDelay;
+                ridley.PhaseTimer.LastFor(encounter.InitialDelayUpdates);
                 TickInitialDelay(ridley);
                 return;
 
@@ -60,7 +60,7 @@ internal sealed class RidleyReveal
                 if (ridley.PhaseTimer.StepRunsOut())
                 {
                     RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.OpeningRoar);
-                    ridley.PhaseTimer.Count = encounter.RoarHold;
+                    ridley.PhaseTimer.LastFor(encounter.RoarHoldUpdates);
                     ridley.RevealPhase = RidleyRevealPhase.WaitBeforeLiftoff;
                 }
                 return;
@@ -128,11 +128,11 @@ internal sealed class RidleyReveal
         if (!ridley.BodyFade.IsComplete)
             return;
 
-        // After the final shade Ridley stops ignoring Samus, so the ordinary touch check meets his body again; he waits
-        // five updates, then begins the opening-roar animation.
+        // After the final shade Ridley stops ignoring Samus, so the ordinary touch check meets his body again; he waits,
+        // then begins the opening-roar animation.
         place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
         ridley.RevealPhase = RidleyRevealPhase.WaitBeforeRoar;
-        ridley.PhaseTimer.Count = 4;
+        ridley.PhaseTimer.LastFor(RidleyShadeDefinitions.BeforeRoarUpdates);
         // The fade queues the battle music immediately after the final body shade. It
         // intentionally continues after Ridley retreats, so omitting this single publication
         // silences both scenes.

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies.Kzan.Artwork;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Kzan;

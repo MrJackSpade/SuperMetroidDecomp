@@ -2,7 +2,6 @@ using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Projectiles;
-using HorizontalDirection = SuperMetroid.Core.Spatial.HorizontalDirection;
 
 namespace SuperMetroid.TestSupport.MovieReplay;
 

@@ -35,7 +35,7 @@ internal static class HibashiDefinitionsVerification
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
 
-        HibashiEruptionStep[] steps = HibashiAnimationsTooling.EruptionSteps();
+        HibashiEruptionStep[] steps = HibashiAnimationsToolingConstants.EruptionSteps();
         AssertEqual(22, steps.Length, "Hibashi eruption steps");
         for (int frameIndex = 0; frameIndex < steps.Length; frameIndex++)
         {

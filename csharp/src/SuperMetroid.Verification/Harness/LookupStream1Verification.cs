@@ -1127,7 +1127,7 @@ internal static class LookupStream1Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBombSpreadLaunches.ForPlace(invalid), "spread native slot rejection");
-        HibashiEruptionStep[] hibashiSteps = HibashiAnimationsTooling.EruptionSteps();
+        HibashiEruptionStep[] hibashiSteps = HibashiAnimationsToolingConstants.EruptionSteps();
         for (int index = 0; index < hibashiSteps.Length; index++)
         {
             var frame = hibashiSteps[index];

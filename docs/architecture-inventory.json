@@ -44010,6 +44010,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonGrabDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonGrabDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthBand",
       "kind": "class",
       "scope": "product",
@@ -44433,6 +44446,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonSoundDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonSwoopDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonSwoopDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -46403,14 +46429,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidMovementChoices.Destination",
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidMovementDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidMovementDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidMovementRow",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidMovementChoices.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidMovementRow.cs"
       ],
       "partial": "none",
       "disposition": "record"
@@ -58395,6 +58434,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.CrocomireSpeedGain",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CrocomireSpeedGain.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.CrocomireSpikeWallCrumbleSounds",

@@ -14,6 +14,7 @@ namespace SuperMetroid.Core.World;
 /// The installed pictures of every room-object family's blocks (#2034, #2290), one catalog per family, each required: the
 /// installation holds every family's pictures, so there is no family a room draws without them.
 /// </summary>
+[ArchitectureReview("context-bag", "The installed room-object pictures as one value (#2290), as GameplayArtwork carries its catalogs; every member is an immutable picture catalog of one family, not a service.")]
 internal sealed record RoomObjectArtwork
 {
     /// <summary>Visual-only shot-block selection; collision remains compiled.</summary>

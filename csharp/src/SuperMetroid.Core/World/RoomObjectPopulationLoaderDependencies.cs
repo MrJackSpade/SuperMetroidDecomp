@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomObjectPopulationLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [RoomLifetime]
+[ArchitectureReview("context-bag", "The room-object population loader's constructor dependencies (#621): each member is a room-object family it sets up as placements load (#2288), read only by that one constructor, not a context handed on.")]
 internal sealed record RoomObjectPopulationLoaderDependencies
 {
     /// <summary>The Bomb Torizo statue's hand, which sets up by whether the Torizo is beaten.</summary>

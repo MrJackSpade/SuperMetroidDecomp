@@ -10173,6 +10173,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayoutAccess3",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/CartridgeTables/SamusProjectileListLayoutAccess3.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayoutAccess3.extension(SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/CartridgeTables/SamusProjectileListLayoutAccess3.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.CartridgeTables.SamusSourceDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -29970,6 +30002,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColorsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/InstalledSamusVisorColorsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColorsAccess.extension(SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColors)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Artwork/InstalledSamusVisorColorsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Samus.Artwork.SamusChargeColours",
       "kind": "class",
       "scope": "product",
@@ -41137,7 +41201,11 @@
         "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonEnemyState.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "context-bag"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonEntity",
@@ -41270,6 +41338,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBand",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonHealthBand.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -41313,19 +41394,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBands",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonHealthBands.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonHole",
@@ -41568,33 +41636,33 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedDefinition",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedStage",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonSpeedDefinition.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonSpeedStage.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedDefinitions",
+      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedStageDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonSpeedDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonSpeedStageDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedDefinitionsConstants",
+      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedStageDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -41604,13 +41672,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Botwoon/BotwoonSpeedDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Botwoon/BotwoonSpeedStageDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedDefinitions)",
+      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedStageDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeedStageDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -41620,23 +41688,10 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Botwoon/BotwoonSpeedDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Botwoon/BotwoonSpeedStageDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpeeds",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonSpeeds.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonSpitVolley",
@@ -43085,6 +43140,22 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonFrameToolingDefinitionsConstants2",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Bosses/Draygon/Artwork/DraygonFrameToolingDefinitionsConstants2.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonShades",
       "kind": "static class",
       "scope": "product",
@@ -43868,20 +43939,33 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthShadeDefinitions",
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthBand",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonHealthBand.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonHealthShadeDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonHealthBandDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthShadeDefinitionsConstants",
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -43891,13 +43975,13 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonHealthShadeDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonHealthBandDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthShadeDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Draygon.DraygonHealthShadeDefinitions)",
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitionsConstants.extension(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -43907,23 +43991,10 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonHealthShadeDefinitionsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonHealthBandDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonHealthShades",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonHealthShades.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonIntro",
@@ -48598,6 +48669,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFade",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFade.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFadeDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeImage",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFadeImage.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFadeProgress",
@@ -120902,19 +121012,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Grapple.GrappleConnectedPose",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleConnectedPose.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Grapple.GrappleConnection",
       "kind": "record struct",
       "scope": "product",
@@ -120975,19 +121072,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleConnectionPolicy.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Grapple.GrappleConnectionPose",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleConnectionPose.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -124438,6 +124522,38 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ChargeFlareAnimationsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationsAccess.extension(SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimations)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ChargeFlareAnimationsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareArtwork",
       "kind": "record struct",
       "scope": "product",
@@ -124503,6 +124619,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlarePlace",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlarePlace.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlarePose",
       "kind": "record struct",
       "scope": "product",
@@ -124511,6 +124640,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlarePose.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChargeFlareSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ChargeFlareSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -125673,19 +125815,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusFiringStance",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusFiringStance.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusHitBurstArtwork",
       "kind": "record struct",
       "scope": "product",
@@ -125710,6 +125839,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Projectiles.SamusMuzzleOriginDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMuzzleOriginDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusMuzzleOrigins",
@@ -126951,6 +127093,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/SamusDraygonHoldDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusEnergyDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusEnergyDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"

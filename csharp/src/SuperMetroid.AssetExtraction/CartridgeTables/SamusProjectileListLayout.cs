@@ -29,7 +29,7 @@ internal sealed class SamusProjectileListLayout
     /// </summary>
     private readonly Dictionary<SamusProjectileFrameId, List<int>> _recordPositions;
     /// <summary>The frame each timed record's instruction pointer shows.</summary>
-    private readonly Dictionary<int, SamusProjectileFrameId> _recordFrames;
+    internal readonly Dictionary<int, SamusProjectileFrameId> recordFrames;
     /// <summary>Each segment's list entry and the word just before it.</summary>
     internal readonly IReadOnlyDictionary<SamusProjectileSegment, ListPosition> positions;
 
@@ -52,8 +52,8 @@ internal sealed class SamusProjectileListLayout
         this.positions = positions;
         beatPositions = Enum.GetValues<SamusProjectileSegment>().ToDictionary(program => program, Layout);
         _places = BuildPlaces();
-        _recordFrames = BuildRecordFrames();
-        _recordPositions = BuildRecordPositions(_recordFrames);
+        recordFrames = BuildRecordFrames();
+        _recordPositions = BuildRecordPositions(recordFrames);
     }
 
     /// <summary>The instruction pointer <paramref name="place"/> stands for.</summary>
@@ -64,9 +64,6 @@ internal sealed class SamusProjectileListLayout
 
     /// <summary>The instruction pointers of every timed record that shows <paramref name="record"/>, in list order.</summary>
     internal IReadOnlyList<int> RecordPositions(SamusProjectileFrameId record) => _recordPositions[record];
-
-    /// <summary>The frame each timed record's instruction pointer shows.</summary>
-    internal IReadOnlyDictionary<int, SamusProjectileFrameId> RecordFrames => _recordFrames;
 
     /// <summary>The animation place a nonzero instruction pointer <paramref name="pointer"/> stands for, when it is a list position.</summary>
     internal bool TryPlaceAt(int pointer, out SamusProjectileSegmentBeat place) =>

@@ -1783,7 +1783,7 @@ internal static class LookupStream1Verification
             Frames = NativeFrameBindings(rom, records),
         };
         var bindings = ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document)));
-        var guard = NewLookupFlareForbiddenBus();
+        _ = NewLookupFlareForbiddenBus();
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {

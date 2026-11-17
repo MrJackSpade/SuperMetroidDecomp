@@ -105,7 +105,7 @@ internal static class DraygonAnimationsVerification
                     var frame = AssertIs<AnimationBeat<EnemyFrameId, DraygonCue>.Frame>(Beat(beat, at), $"{at}: frame");
                     AssertEqual(word, frame.Duration, $"{at}: duration");
                     // The shut jaw shows from two roots (#2268): the list's operand is one of the shown frame's.
-                    AssertTrue(DraygonFrameToolingDefinitions.Spritemaps(frame.Shown).Contains(operand), $"{at}: spritemap ${operand:X4} shows {frame.Shown}");
+                    AssertTrue(DraygonFrameToolingDefinitionsConstants2.Spritemaps(frame.Shown).Contains(operand), $"{at}: spritemap ${operand:X4} shows {frame.Shown}");
                     drawn.Add(operand);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));

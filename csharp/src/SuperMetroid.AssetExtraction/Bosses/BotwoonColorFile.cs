@@ -2,7 +2,6 @@ using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Bosses;

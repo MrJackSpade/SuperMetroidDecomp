@@ -933,14 +933,14 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
         var stock = InstalledProjectileTrails.Load(new MemoryStream(json));
-        foreach (ProjectileTrailFrame frame in ProjectileTrailVisualDefinitions.Frames)
+        foreach (ProjectileTrailFrame frame in Enum.GetValues<ProjectileTrailFrame>())
         {
             // The appearance has no packed word: the native attribute word is decoded by the import pipeline's codec and
             // compared by character, palette row, priority and mirroring.
             AssertEqual(new SnesObjAttributeWord(ReadVerificationWord(rom, 0x900000 | (ProjectileTrailNative.Address(frame) + 2))).ToSinglePart(),
                 stock.Resolve(frame), "Native trail appearance");
         }
-        AssertThrows<InvalidDataException>(() => stock.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.FrameCount), "Unknown trail frame rejected");
+        AssertThrows<InvalidDataException>(() => stock.Resolve((ProjectileTrailFrame)Enum.GetValues<ProjectileTrailFrame>().Length), "Unknown trail frame rejected");
         Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(rom));
         Console.WriteLine("Trail appearance:42 native words and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
@@ -987,29 +987,33 @@ internal static class LookupStream2Verification
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { new VerifyLookupStream2TrailProgramsCase(nativeTrail.Left, authoredTrail.Left), new VerifyLookupStream2TrailProgramsCase(nativeTrail.Right, authoredTrail.Right) })
                 {
-                    AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
+                    // A sparkle whose animation has ended has no place: the pointer the native one leaves behind is not
+                    // state (#2348).
+                    AssertEqual(sides.First.FrameHold == 0, sides.Second.HasEnded, "Trail artwork cannot change when a sparkle ends");
+                    if (sides.First.FrameHold != 0)
+                        AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
                     AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
-        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.Select(ProjectileTrailNative.Address)), "Independent native stream walk finds exactly the catalog's appearance records");
+        AssertTrue(encountered.SetEquals(ProjectileTrailNative.RecordAddresses), "Independent native stream walk finds exactly the catalog's appearance records");
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
-            if (ProjectileTrailAnimationDefinitions.TryRead(address, out _))
+            if (ProjectileTrailSparkleAnimations.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailAnimationDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailSparkleAnimations.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailSparkleAnimations.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
             }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailSparkleAnimations.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         Console.WriteLine("Stream 2 trail programs: 67 native mechanics words,42 visual record addresses, all four actual paired trail lifetimes/freeze states and mutable alias pass.");
         // A side that has read no tile word yet draws nothing, as the port's sparkle that has shown no pose (#1625).
         void StepNative(SamusProjectileTrail pair, SamusProjectileTrailSide side, OamBuffer oam, bool frozen)

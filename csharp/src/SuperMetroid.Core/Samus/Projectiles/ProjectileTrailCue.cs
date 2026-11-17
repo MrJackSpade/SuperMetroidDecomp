@@ -1,12 +1,13 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The beam-trail cues; either side may run any of them.</summary>
+/// <summary>
+/// A trail animation's move cue (#2348): it nudges the sparkle it names a pixel down, whichever sparkle's animation raises
+/// it, so a pair both running the left ice sparkle's animation moves only its left sparkle, twice.
+/// </summary>
 public enum ProjectileTrailCue
 {
-    /// <summary>Left-side step that moves its sprite one pixel down.</summary>
+    /// <summary>Moves the trail's left sparkle one pixel down.</summary>
     MoveLeftDown,
-    /// <summary>Right-side step that moves its sprite one pixel down.</summary>
+    /// <summary>Moves the trail's right sparkle one pixel down.</summary>
     MoveRightDown,
-    /// <summary>Left-side step that moves its sprite one pixel up.</summary>
-    MoveLeftUp,
 }

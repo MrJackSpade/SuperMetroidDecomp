@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -94,21 +95,25 @@ internal static class ProjectileTrailPlacementSources
             [ProjectileTrailPlacementList.ChargedWaveIcePlasmaDownLeft] = 22,
             [ProjectileTrailPlacementList.ChargedWaveIcePlasmaLeft] = 22,
             [ProjectileTrailPlacementList.ChargedWaveIcePlasmaUpLeft] = 22,
-            [ProjectileTrailPlacementList.SpecialAttackWaveSpazerVertical] = 4,
-            [ProjectileTrailPlacementList.SpecialAttackWaveSpazerRisingDiagonal] = 4,
-            [ProjectileTrailPlacementList.SpecialAttackWaveSpazerHorizontal] = 4,
-            [ProjectileTrailPlacementList.SpecialAttackWaveSpazerFallingDiagonal] = 4,
-            [ProjectileTrailPlacementList.SpecialAttackSpazer] = 3,
-            [ProjectileTrailPlacementList.SpecialAttackSpazerDown] = 3,
+            [ProjectileTrailPlacementList.SpazerAttackTrailingPair] = 3,
+            [ProjectileTrailPlacementList.SpazerAttackTrailingPairDown] = 3,
         };
 
     /// <summary>
     /// The address of <paramref name="list"/>'s first placement, read through the selector row and direction entry of a
-    /// family that names it.
+    /// family that names it, or of the Spazer special attack's trailing pair, whose row is the Spazer row of the special
+    /// beam attacks' selector table (#2348).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">No selector row's family names <paramref name="list"/>.</exception>
     internal static SnesAddress Start(IImportCartridgeSource cartridge, ProjectileTrailPlacementList list)
     {
+        if (SamusProjectileDirectionCodec.InAimOrder.Where(direction => ProjectileTrailPlacements.SpazerAttackTrailingPairList(direction) == list).ToArray()
+            is [var trailing, ..])
+        {
+            SnesAddress row = SamusSourceDefinitionsConstants2.SpecialBeamAttackTrailSelectors
+                .AddWithinBank(SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail).BeamCombination.TableIndex * sizeof(ushort));
+            return Pointer(cartridge, Pointer(cartridge, row).AddWithinBank(trailing.ToAimIndex() * sizeof(ushort)));
+        }
         foreach ((ProjectileTrailChoice row, ProjectileTrailFamily? family) in ProjectileTrailPlacementDefinitions.Families)
         {
             if (family is not { } named)
@@ -128,7 +133,6 @@ internal static class ProjectileTrailPlacementSources
     {
         ProjectileTrailFamilyGroup.Uncharged => SamusSourceDefinitionsConstants2.UnchargedTrailSelectors,
         ProjectileTrailFamilyGroup.Charged => SamusSourceDefinitionsConstants2.ChargedTrailSelectors,
-        ProjectileTrailFamilyGroup.SpecialBeamAttack => SamusSourceDefinitionsConstants2.SpecialBeamAttackTrailSelectors,
         _ => throw new ArgumentOutOfRangeException(nameof(group), group, "Undefined trail selector table."),
     };
 

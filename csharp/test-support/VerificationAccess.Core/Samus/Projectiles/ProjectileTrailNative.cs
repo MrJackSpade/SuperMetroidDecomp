@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -19,7 +20,6 @@ internal static class ProjectileTrailNative
     {
         ProjectileTrailCue.MoveLeftDown => 0xb525,
         ProjectileTrailCue.MoveRightDown => 0xb587,
-        ProjectileTrailCue.MoveLeftUp => 0xb5b3,
         _ => throw new ArgumentOutOfRangeException(nameof(movement), movement, "Undefined trail movement."),
     };
 
@@ -39,33 +39,38 @@ internal static class ProjectileTrailNative
     }
 
     /// <summary>The programs' native mechanics words.</summary>
-    extension(ProjectileTrailAnimationDefinitions)
+    extension(ProjectileTrailSparkleAnimations)
     {
-        /// <summary>The native word of the step stored at bus address <paramref name="address"/>: a pose's duration, a move's instruction, zero for the end.</summary>
+        /// <summary>
+        /// The native word stored at bus address <paramref name="address"/> for a beat or an end: a frame's duration, a
+        /// move cue's instruction, zero for the end after a program's last beat.
+        /// </summary>
         internal static bool TryRead(int address, out ushort word)
         {
             word = 0;
             if ((address & ~0xffff) != SamusSourceDefinitions.MovementBank.Value)
                 return false;
-            foreach ((ProjectileTrailSegment program, ProjectileTrailStep[] steps) in ProjectileTrailAnimationDefinitions.Animations)
-            for (int step = 0; step < steps.Length; step++)
+            foreach (ProjectileTrailSegment program in Enum.GetValues<ProjectileTrailSegment>())
             {
-                if (ProjectileTrailSources.Address(new ProjectileTrailCursor(program, step)) != (ushort)address)
-                    continue;
-                word = steps[step] switch
+                IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.Segments.Beats(program);
+                for (int beat = 0; beat <= beats.Count; beat++)
                 {
-                    ProjectileTrailStep.End => 0,
-                    ProjectileTrailStep.Move move => InstructionAddress(move.Movement),
-                    ProjectileTrailStep.Pose pose => checked((ushort)pose.Duration),
-                    _ => throw new InvalidOperationException($"Undefined trail step {steps[step]}."),
-                };
-                return true;
+                    if (ProjectileTrailSources.Address(program, beat) != (ushort)address)
+                        continue;
+                    word = beat == beats.Count ? (ushort)0 : beats[beat] switch
+                    {
+                        AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>.Event move => InstructionAddress(move.Raised),
+                        AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>.Frame frame => checked((ushort)frame.Duration),
+                        _ => throw new InvalidOperationException($"Undefined trail beat {beats[beat]}."),
+                    };
+                    return true;
+                }
             }
             return false;
         }
 
-        /// <summary>The native word of the step stored at <paramref name="address"/>; any other address is rejected.</summary>
-        internal static ushort Read(int address) => ProjectileTrailAnimationDefinitions.TryRead(address, out ushort word)
+        /// <summary>The native word stored at <paramref name="address"/>; any other address is rejected.</summary>
+        internal static ushort Read(int address) => ProjectileTrailSparkleAnimations.TryRead(address, out ushort word)
             ? word
             : throw new InvalidDataException($"Projectile trail program word ${address:X6} is outside compiled mechanics data.");
     }
@@ -86,14 +91,17 @@ internal static class ProjectileTrailNative
         _ => throw new ArgumentOutOfRangeException(nameof(trailing), trailing, "Undefined projectile family."),
     };
 
-    /// <summary>The bank-$90 address of <paramref name="frame"/>'s pose.</summary>
+    /// <summary>The bank-$90 address of the first record that shows <paramref name="frame"/>.</summary>
     internal static ushort Address(ProjectileTrailFrame frame) => ProjectileTrailSources.FrameAddress(frame);
 
-    /// <summary>The frame whose pose is stored at bank-$90 address <paramref name="address"/>.</summary>
+    /// <summary>The bank-$90 address of every timed record the trail programs store, in address order.</summary>
+    internal static IEnumerable<ushort> RecordAddresses => ProjectileTrailSources.Records.Select(record => record.Key);
+
+    /// <summary>The frame the record stored at bank-$90 address <paramref name="address"/> shows.</summary>
     internal static ProjectileTrailFrame FrameAt(ushort address) =>
-        ProjectileTrailVisualDefinitions.Frames.FirstOrDefault(frame => Address(frame) == address) is var found && Address(found) == address
-            ? found
-            : throw new InvalidDataException($"No trail pose is stored at $90:{address:X4}.");
+        ProjectileTrailSources.Records.FirstOrDefault(record => record.Key == address) is { Key: not 0 } found
+            ? found.Value
+            : throw new InvalidDataException($"No trail record is stored at $90:{address:X4}.");
 
     /// <summary>The cartridge's retained tile word for a side's shown pose: the pose's stock appearance, or zero once cleared.</summary>
     internal static ushort NativeWord(ProjectileTrailFrame? shownPose) =>
@@ -102,15 +110,15 @@ internal static class ProjectileTrailNative
             : (ushort)0;
 
     /// <summary>
-    /// The shown pose a retained tile word stands for: none for the cleared word, otherwise the first pose whose stock
-    /// appearance it is. Poses that share a word look alike.
+    /// The shown frame a retained tile word stands for: none for the cleared word, otherwise the frame whose stock
+    /// appearance it is.
     /// </summary>
-    /// <exception cref="InvalidDataException">No pose has the word as its appearance.</exception>
+    /// <exception cref="InvalidDataException">No frame has the word as its appearance.</exception>
     internal static ProjectileTrailFrame? ShownPose(ushort nativeWord)
     {
         if (nativeWord == 0)
             return null;
-        foreach (ProjectileTrailFrame pose in ProjectileTrailVisualDefinitions.Frames)
+        foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
         {
             if (NativeWord(pose) == nativeWord)
                 return pose;
@@ -118,7 +126,7 @@ internal static class ProjectileTrailNative
         throw new InvalidDataException($"No trail pose appears as tile word ${nativeWord:X4}.");
     }
 
-    /// <summary>The installed name of <paramref name="frame"/>.</summary>
+    /// <summary>The import document's name of the first record that shows <paramref name="frame"/>.</summary>
     internal static string Name(ProjectileTrailFrame frame) =>
-        ProjectileTrailVisualDefinitions.FrameNames[ProjectileTrailVisualDefinitions.Frames.ToList().IndexOf(frame)];
+        ProjectileTrailVisualDefinitions.RecordNames[ProjectileTrailSources.Records.Select(record => record.Value).ToList().IndexOf(frame)];
 }

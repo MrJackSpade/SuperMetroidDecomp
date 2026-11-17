@@ -27,5 +27,5 @@ public sealed class SamusProjectileTrail
     public SamusBeamCombination PicturedBeams { get; }
 
     /// <summary>Whether both sparkles' animations have ended, so the trail shows nothing more.</summary>
-    internal bool IsFinished => Left.FrameHold == 0 && Right.FrameHold == 0;
+    internal bool IsFinished => Left.HasEnded && Right.HasEnded;
 }

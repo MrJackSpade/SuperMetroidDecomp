@@ -1,33 +1,60 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Where the bank-$90 trail programs and their steps are stored.</summary>
+/// <summary>
+/// Where the bank-$90 trail programs store each sparkle animation's beats (#2348): a frame's timed record takes four bytes,
+/// a move instruction two, and each program ends with a two-byte end word after its last beat.
+/// </summary>
 internal static class ProjectileTrailSources
 {
-    /// <summary>The bank-$90 address of <paramref name="program"/>'s first step.</summary>
+    /// <summary>The bank-$90 address of <paramref name="program"/>'s first beat.</summary>
     internal static ushort Start(ProjectileTrailSegment program) =>
         ProjectileTrailSourceDefinitions.Starts.ContainsKey(program)
             ? ProjectileTrailSourceDefinitions.Starts[program]
             : throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined trail program.");
 
-    /// <summary>The bank-$90 address of the step <paramref name="cursor"/> names: a pose takes four bytes, other steps two.</summary>
-    internal static ushort Address(ProjectileTrailCursor cursor)
+    /// <summary>
+    /// The bank-$90 address of beat <paramref name="beat"/> of <paramref name="program"/>; at the beat count, the program's
+    /// end word.
+    /// </summary>
+    internal static ushort Address(ProjectileTrailSegment program, int beat)
     {
-        ProjectileTrailStep[] steps = ProjectileTrailAnimationDefinitions.Animations[cursor.Animation];
-        int address = Start(cursor.Animation);
-        for (int step = 0; step < cursor.Step; step++)
-            address += steps[step] is ProjectileTrailStep.Pose ? 4 : 2;
+        IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.Segments.Beats(program);
+        if (beat < 0 || beat > beats.Count)
+            throw new ArgumentOutOfRangeException(nameof(beat), beat, $"Trail program {program} has no beat there.");
+        int address = Start(program);
+        for (int before = 0; before < beat; before++)
+            address += beats[before] is AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>.Frame ? 4 : 2;
         return checked((ushort)address);
     }
 
-    /// <summary>The bank-$90 address of the pose that shows trail frame <paramref name="frame"/>.</summary>
-    internal static ushort FrameAddress(ProjectileTrailFrame frame)
+    /// <summary>
+    /// Every timed record the trail programs store, in address order, with the frame it shows: a frame shown again is shown
+    /// from every record that stores it.
+    /// </summary>
+    internal static IReadOnlyList<KeyValuePair<ushort, ProjectileTrailFrame>> Records { get; } = ReadRecords();
+
+    /// <summary>Finds every timed record the programs store, from each program's frame beats, in address order.</summary>
+    private static List<KeyValuePair<ushort, ProjectileTrailFrame>> ReadRecords()
     {
-        foreach ((ProjectileTrailSegment program, ProjectileTrailStep[] steps) in ProjectileTrailAnimationDefinitions.Animations)
-            for (int step = 0; step < steps.Length; step++)
-                if (steps[step] is ProjectileTrailStep.Pose pose && pose.Frame == frame)
-                    return Address(new ProjectileTrailCursor(program, step));
-        throw new ArgumentOutOfRangeException(nameof(frame), frame, "No trail pose shows this frame.");
+        var records = new List<KeyValuePair<ushort, ProjectileTrailFrame>>();
+        foreach (ProjectileTrailSegment program in Enum.GetValues<ProjectileTrailSegment>())
+        {
+            IReadOnlyList<AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>> beats = ProjectileTrailSparkleAnimations.Segments.Beats(program);
+            for (int beat = 0; beat < beats.Count; beat++)
+            {
+                if (beats[beat] is AnimationBeat<ProjectileTrailFrame, ProjectileTrailCue>.Frame frame)
+                    records.Add(KeyValuePair.Create(Address(program, beat), frame.Shown));
+            }
+        }
+        return [.. records.OrderBy(record => record.Key)];
     }
+
+    /// <summary>The bank-$90 address of the first timed record that shows <paramref name="frame"/>.</summary>
+    internal static ushort FrameAddress(ProjectileTrailFrame frame) =>
+        Records.FirstOrDefault(record => record.Value == frame) is { Key: not 0 } found
+            ? found.Key
+            : throw new ArgumentOutOfRangeException(nameof(frame), frame, "No trail record shows this frame.");
 }

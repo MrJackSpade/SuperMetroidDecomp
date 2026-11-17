@@ -15,6 +15,10 @@ internal static class ProjectileTrailPlacements
             ? ProjectileTrailPlacementDefinitions.Lists[family].For(direction)
             : null;
 
+    /// <summary>The list the Spazer special attack's trailing pair, fired in <paramref name="direction"/>, starts its trail from (#2348).</summary>
+    internal static ProjectileTrailPlacementList SpazerAttackTrailingPairList(SamusProjectileDirection direction) =>
+        ProjectileTrailPlacementDefinitions.SpazerAttackTrailingPairLists.For(direction);
+
     /// <summary>
     /// The placement <paramref name="list"/> gives a trail from a shot showing <paramref name="frame"/>, or null for a frame
     /// the list places no trail for, which leaves none: what lies past a list is not part of the game's design (#1625).

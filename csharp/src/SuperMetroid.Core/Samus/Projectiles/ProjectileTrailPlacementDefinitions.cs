@@ -14,8 +14,7 @@ internal static class ProjectileTrailPlacementDefinitions
 {
     /// <summary>
     /// The family each choice names. Null is a choice that names no family, which draws no trail: a Spazer and Plasma
-    /// combination's, which the game authors none for (#1926), an empty one, and a special beam attack with no trail of
-    /// its own.
+    /// combination's, which the game authors none for (#1926).
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailChoice, ProjectileTrailFamily?> Families =
         new Dictionary<ProjectileTrailChoice, ProjectileTrailFamily?>
@@ -52,23 +51,16 @@ internal static class ProjectileTrailPlacementDefinitions
             [new(ProjectileTrailFamilyGroup.Charged, SamusBeamCombination.SpazerPlasmaWave)] = null,
             [new(ProjectileTrailFamilyGroup.Charged, SamusBeamCombination.SpazerPlasmaIce)] = null,
             [new(ProjectileTrailFamilyGroup.Charged, SamusBeamCombination.SpazerPlasmaIceWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Power)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Wave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Ice)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.IceWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Spazer)] = ProjectileTrailFamily.SpecialAttackSpazer,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerWave)] = ProjectileTrailFamily.SpecialAttackWaveSpazer,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerIce)] = ProjectileTrailFamily.SpecialAttackSpazer,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerIceWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.Plasma)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.PlasmaWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.PlasmaIce)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.PlasmaIceWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerPlasma)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerPlasmaWave)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerPlasmaIce)] = null,
-            [new(ProjectileTrailFamilyGroup.SpecialBeamAttack, SamusBeamCombination.SpazerPlasmaIceWave)] = null,
         }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The list the Spazer special attack's trailing pair starts its trail from in each direction it flies (#2348): its own
+    /// list, and a list of its own for downward travel.
+    /// </summary>
+    internal static readonly SamusProjectileDirectionMap<ProjectileTrailPlacementList> SpazerAttackTrailingPairLists =
+        new(L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair,
+            L.SpazerAttackTrailingPairDown, L.SpazerAttackTrailingPairDown, L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair,
+            L.SpazerAttackTrailingPair, L.SpazerAttackTrailingPair);
 
     /// <summary>The list each family gives a shot in each direction it is fired in; null names no trail list.</summary>
     internal static readonly FrozenDictionary<ProjectileTrailFamily, SamusProjectileDirectionMap<ProjectileTrailPlacementList?>> Lists =
@@ -86,15 +78,12 @@ internal static class ProjectileTrailPlacementDefinitions
             [ProjectileTrailFamily.ChargedWaveIceSpazer] = new(L.ChargedWaveIceSpazerUp, L.ChargedWaveIceSpazerUpRight, L.ChargedWaveIceSpazerRight, L.ChargedWaveIceSpazerDownRight, L.ChargedWaveIceSpazerDown, L.ChargedWaveIceSpazerDown, L.ChargedWaveIceSpazerDownLeft, L.ChargedWaveIceSpazerLeft, L.ChargedWaveIceSpazerUpLeft, L.ChargedWaveIceSpazerUp),
             [ProjectileTrailFamily.ChargedIcePlasma] = new(L.ChargedIcePlasmaUp, L.ChargedIcePlasmaUpRight, L.ChargedIcePlasmaRight, L.ChargedIcePlasmaDownRight, L.ChargedIcePlasmaDown, L.ChargedIcePlasmaDown, L.ChargedIcePlasmaDownLeft, L.ChargedIcePlasmaLeft, L.ChargedIcePlasmaUpLeft, L.ChargedIcePlasmaUp),
             [ProjectileTrailFamily.ChargedWaveIcePlasma] = new(L.ChargedWaveIcePlasmaUp, L.ChargedWaveIcePlasmaUpRight, L.ChargedWaveIcePlasmaRight, L.ChargedWaveIcePlasmaDownRight, L.ChargedWaveIcePlasmaDown, L.ChargedWaveIcePlasmaDown, L.ChargedWaveIcePlasmaDownLeft, L.ChargedWaveIcePlasmaLeft, L.ChargedWaveIcePlasmaUpLeft, L.ChargedWaveIcePlasmaUp),
-            [ProjectileTrailFamily.SpecialAttackWaveSpazer] = new(L.SpecialAttackWaveSpazerVertical, L.SpecialAttackWaveSpazerRisingDiagonal, L.SpecialAttackWaveSpazerHorizontal, L.SpecialAttackWaveSpazerFallingDiagonal, L.SpecialAttackWaveSpazerVertical, L.SpecialAttackWaveSpazerVertical, L.SpecialAttackWaveSpazerRisingDiagonal, L.SpecialAttackWaveSpazerHorizontal, L.SpecialAttackWaveSpazerFallingDiagonal, L.SpecialAttackWaveSpazerVertical),
-            [ProjectileTrailFamily.SpecialAttackSpazer] = new(L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazerDown, L.SpecialAttackSpazerDown, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer, L.SpecialAttackSpazer),
         }.ToFrozenDictionary();
 
     /// <summary>
     /// Where each list starts a trail for each frame a shot that selects it can show: the two sparkles' offsets (#1926,
     /// #2124). A frame a list holds no placement for leaves no trail (<see cref="ProjectileTrailPlacements.Start"/>): what
-    /// lies past a list's placements is not part of the game's design (#1625). No shot selects the Wave Spazer special
-    /// attack's lists, so they hold none.
+    /// lies past a list's placements is not part of the game's design (#1625).
     /// </summary>
     internal static readonly FrozenDictionary<ProjectileTrailPlacementList, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement>> PlacementsByList =
         new Dictionary<ProjectileTrailPlacementList, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement>>
@@ -4249,19 +4238,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 [F.ChargedPlasmaWaveFallingDiagonalLongLobesPeak] = new(new(32, 8), new(8, 32)),
                 [F.ChargedPlasmaWaveFallingDiagonalAlternateLobesPeak] = new(new(32, 8), new(8, 32)),
             }.ToFrozenDictionary(),
-            [L.SpecialAttackWaveSpazerVertical] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
-            {
-            }.ToFrozenDictionary(),
-            [L.SpecialAttackWaveSpazerRisingDiagonal] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
-            {
-            }.ToFrozenDictionary(),
-            [L.SpecialAttackWaveSpazerHorizontal] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
-            {
-            }.ToFrozenDictionary(),
-            [L.SpecialAttackWaveSpazerFallingDiagonal] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
-            {
-            }.ToFrozenDictionary(),
-            [L.SpecialAttackSpazer] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
+            [L.SpazerAttackTrailingPair] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
             {
                 [F.SpazerUpSeed] = new(new(0, 0), new(0, 0)),
                 [F.SpazerUpParting] = new(new(-8, 8), new(8, 8)),
@@ -4270,7 +4247,7 @@ internal static class ProjectileTrailPlacementDefinitions
                 [F.SpazerSpecialAttackTrailHiddenWide] = new(new(-8, 8), new(8, 8)),
                 [F.SpazerSpecialAttackTrailHiddenWidest] = new(new(-16, 8), new(16, 8)),
             }.ToFrozenDictionary(),
-            [L.SpecialAttackSpazerDown] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
+            [L.SpazerAttackTrailingPairDown] = new Dictionary<SamusProjectileFrameId, ProjectileTrailPlacement>
             {
                 [F.SpazerUpSeed] = new(new(0, 0), new(0, 0)),
                 [F.SpazerUpParting] = new(new(-8, -8), new(8, -8)),

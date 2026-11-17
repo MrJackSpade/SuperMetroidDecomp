@@ -97,17 +97,16 @@ internal static class SamusProjectileSelectionDefinitions
         };
 
     /// <summary>
-    /// The kind of each special attack's particles, by the beam combination that fires it; the Ice attack's
-    /// particles are charged Ice shots instead, and the other combinations' attacks have no particles of their own.
+    /// The kind of each special attack's particles, by the beam combination that fires it: Wave, Spazer and Plasma alone.
+    /// The Ice attack's particles are charged Ice shots instead, and no other combination fires a special attack
+    /// (<see cref="SamusComboMechanics.ComboKind"/>).
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> SpecialAttacks =
         new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
             [SamusBeamCombination.Wave] = SamusProjectileKind.WaveSpecialAttack,
             [SamusBeamCombination.Spazer] = SamusProjectileKind.SpazerSpecialAttack,
-            [SamusBeamCombination.SpazerWave] = SamusProjectileKind.SpazerSpecialAttack,
             [SamusBeamCombination.Plasma] = SamusProjectileKind.PlasmaSpecialAttack,
-            [SamusBeamCombination.PlasmaWave] = SamusProjectileKind.PlasmaSpecialAttack,
         };
 
     /// <summary>The kind of each echo.</summary>

@@ -36,7 +36,7 @@ internal static class MapSpritesVerification
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Labels))] = 0,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.DimLabels))] = 1,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Highlighted))] = 3,
-        [PictureShading.Shaded(MapSpriteShades.Highlight(0))] = 3,
+        [PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightStep.First))] = 3,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.DefeatedBossMarker))] = 6,
         [PictureShading.Shaded(MapSpriteShades.Drawn(MapSpriteScreen.FileSelect, MapSpriteColouring.Markers))] = 7,
     };

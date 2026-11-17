@@ -39,12 +39,12 @@ internal static class FileSelectSheetComposer
             string name = FileSelectParts.BorderSpriteName(border);
             frames.Add(new(name, source.borderSprites[border].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+        foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             string name = MenuMissileFrames.Name(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < FileSelectPresentationFormat.HelmetFrameCount; frame++)
+        foreach (FileSelectHelmetFrame frame in FileSelectHelmetAnimation.Turn)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             frames.Add(new(name, source.helmetSprites[frame].ToFrame(name, 0), page, palette));

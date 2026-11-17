@@ -55,13 +55,14 @@ internal static class EndingShootingStarFieldVerification
                 stars.Step();
                 updates++;
                 EndingShootingStar star = stars.stars[index];
-                returned = star.Timer == EndingShootingStarDefinitions.InitialTimer;
-                AssertTrue(star.AnimationFrame <= 1, $"still star {index} shows no frame past its first, update {updates}");
-                if (updates > EndingShootingStarDefinitions.InitialTimer && !returned)
-                    AssertEqual(1, star.AnimationFrame, $"still star {index} shows its first visible frame after its lead-in, update {updates}");
+                returned = star.Look == EndingShootingStarLook.LeadIn && star.Flight.UpdatesLeft == EndingShootingStarDefinitions.LeadInDuration;
+                AssertTrue(star.Look is EndingShootingStarLook.LeadIn or EndingShootingStarLook.FaintSpeck,
+                    $"still star {index} shows no picture past its first, update {updates}");
+                if (updates > EndingShootingStarDefinitions.LeadInDuration && !returned)
+                    AssertEqual(EndingShootingStarLook.FaintSpeck, star.Look, $"still star {index} shows its first visible picture after its lead-in, update {updates}");
             }
             AssertTrue(returned, $"still star {index} returns to the origin within the cartridge's {CartridgeStillStarPeriod}-update period");
-            AssertEqual(0, stars.stars[index].AnimationFrame, $"still star {index} restarts its lead-in when it returns");
+            AssertEqual(EndingShootingStarLook.LeadIn, stars.stars[index].Look, $"still star {index} restarts its lead-in when it returns");
         }
         AssertEqual(12, still, "the post-credits sky holds twelve still stars");
     }

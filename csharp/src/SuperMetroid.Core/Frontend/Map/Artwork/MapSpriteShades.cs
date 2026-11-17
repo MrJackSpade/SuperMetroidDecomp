@@ -12,8 +12,8 @@ public static class MapSpriteShades
     public static PictureShade Drawn(MapSpriteScreen screen, MapSpriteColouring colouring) => new($"MapSprite{screen}{colouring}", 0);
 
     /// <summary>
-    /// A map sprite's recolourable parts drawn in the highlight colours, at frame <paramref name="frame"/> of the
-    /// highlight cycle: the scroll arrows on both map screens.
+    /// A map sprite's recolourable parts drawn in the highlight colours of <paramref name="step"/> of the highlight cycle:
+    /// the scroll arrows on both map screens.
     /// </summary>
-    public static PictureShade Highlight(int frame) => new("MapHighlight", frame);
+    public static PictureShade Highlight(MapHighlightStep step) => new("MapHighlight", step.Place);
 }

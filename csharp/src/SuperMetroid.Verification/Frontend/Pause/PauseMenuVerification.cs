@@ -158,7 +158,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Right);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.MorphBall, pause.SelectedControl, "pause Right selects the first collected suit and miscellaneous control, Morph Ball");
         pause.Render();
-        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites)).Origin,
             "pause shows the suits category's selector frame at the Morph Ball's origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 805) & 0x1c00,
@@ -182,7 +182,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Bombs, pause.SelectedControl, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites)).Origin,
             "pause shows the equipment selector at the Bombs' origin");
         pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
@@ -290,10 +290,10 @@ internal static class PauseMenuVerification
     /// The one draw of the display packet showing the suits and boots categories' selector frame for the selector's
     /// current phase, which a beam or reserve selector does not show.
     /// </summary>
-    private static ImageSpriteDraw ShownEquipmentSelector(PauseMenuState pause, SpriteSheet pauseSheet, PauseSelectorPresentation selectors)
+    private static ImageSpriteDraw ShownEquipmentSelector(PauseMenuState pause, SpriteSheet pauseSheet)
     {
         SpriteSheetFrame frame = pauseSheet.Frame(PauseSelectorAnchors.SheetFrameName(
-            selectors.equipment[selectors.NormalizePhase(pause.ItemSelectorAnimationState.Frame)]));
+            pause.ItemSelectorAnimationState.Look.Equipment));
         return ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, frame));
     }
 

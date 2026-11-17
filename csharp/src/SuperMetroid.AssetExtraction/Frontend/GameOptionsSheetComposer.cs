@@ -35,7 +35,7 @@ internal static class GameOptionsSheetComposer
             string name = GameOptionsNames.HeadingSpriteName(menuPage);
             frames.Add(new(name, source.headingSprites[menuPage].ToFrame(name, 0), page, palette));
         }
-        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+        foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             string name = MenuMissileFrames.Name(frame);
             frames.Add(new(name, source.cursorSprites[frame].ToFrame(name, 0), page, palette));

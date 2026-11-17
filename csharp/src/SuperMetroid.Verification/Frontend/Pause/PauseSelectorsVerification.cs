@@ -35,7 +35,7 @@ internal static class PauseSelectorsVerification
             // The two menus are built and stepped alike, so only the restored menu's ticks, from its round trip on, are
             // compared with the menu that was never restored (#1680). Each compared tick compares the complete render
             // inputs; the pixels are compared once per displayed selector frame (#1532).
-            int renderedFrame = -1;
+            SuperMetroid.Core.Animation.AnimationPlace? renderedFrame = null;
             for (int tick = 0; tick < 100; tick++)
             {
                 continuing.Step(0, 0); pause.Step(0, 0);
@@ -51,9 +51,9 @@ internal static class PauseSelectorsVerification
                 AssertTrue(continuingInputs.SpriteParts().SequenceEqual(restoredInputs.SpriteParts()) && PauseShownColours.Of(continuing, catalog).SequenceEqual(PauseShownColours.Of(pause, catalog)) &&
                     PauseScreenMemory.SameImage(continuing, pause, catalog) && continuingInputs.Brightness == restoredInputs.Brightness,
                     "every restored selector keeps the render inputs of the menu never restored");
-                if (pause.ItemSelectorAnimationState.Frame != renderedFrame)
+                if (pause.ItemSelectorAnimationState.Place != renderedFrame)
                 {
-                    renderedFrame = pause.ItemSelectorAnimationState.Frame;
+                    renderedFrame = pause.ItemSelectorAnimationState.Place;
                     AssertTrue(ScenePixels.Same(continuingInputs, restoredInputs), "every restored selector keeps the pixels of the menu never restored");
                 }
             }

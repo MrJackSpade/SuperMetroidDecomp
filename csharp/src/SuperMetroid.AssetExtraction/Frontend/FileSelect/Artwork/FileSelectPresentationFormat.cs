@@ -33,8 +33,6 @@ public static class FileSelectPresentationFormat
     public const int CharacterColumns = 32;
     /// <summary>Height in characters of the sheet addressed by authored background tile cells.</summary>
     public const int CharacterRows = 32;
-    /// <summary>The selected slot's helmet animation frames.</summary>
-    public const int HelmetFrameCount = 8;
     /// <summary>The JSON name of the common background tilemap, separate from the foreground menu pages.</summary>
     public const string BackgroundPageName = "Background";
     /// <summary>The foreground pages, in document order.</summary>
@@ -74,7 +72,7 @@ public static class FileSelectPresentationFormat
     /// <summary>Every sprite the document names: the three borders, the missile's pictures and the helmet's pictures.</summary>
     public static IEnumerable<string> SpriteNames =>
         [.. Borders.Select(FileSelectParts.BorderSpriteName), .. MenuMissileFrames.Names,
-            .. FileSelectPresentationDefinitions.HelmetSpriteNames];
+            .. FileSelectHelmetAnimation.Turn.Select(FileSelectParts.HelmetSpriteName)];
 
     /// <summary>Every frame of the file-select sheet: each sprite the document names, then each file-copy arrow.</summary>
     public static IEnumerable<string> SheetFrames =>

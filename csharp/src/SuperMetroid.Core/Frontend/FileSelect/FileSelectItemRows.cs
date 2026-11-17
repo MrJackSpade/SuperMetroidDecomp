@@ -1,31 +1,31 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Orders file-select items into the main and data-management page rows and maps save slots to their items.</summary>
+/// <summary>
+/// File select's rows on each page, from the top (#2359): the order the cursor moves through and the order of each page's
+/// installed cursor anchors; and the save slot each slot row selects.
+/// </summary>
 internal static class FileSelectItemRows
 {
-    /// <summary>Main-page rows from top to bottom; the save slots lead, in slot order.</summary>
-    private static readonly FileSelectItem[] MainRows =
-        [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Copy, FileSelectItem.Clear, FileSelectItem.Exit];
+    /// <summary>The main page's rows while a save exists: the save slots in slot order, Copy, Clear and Exit.</summary>
+    internal static MenuRowOrder<FileSelectItem> MainWithData { get; } = new(
+        [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Copy, FileSelectItem.Clear, FileSelectItem.Exit]);
 
-    /// <summary>Copy and clear page rows from top to bottom.</summary>
-    private static readonly FileSelectItem[] DataRows =
-        [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Exit];
+    /// <summary>The main page's rows while every slot is empty: the save slots and Exit, Copy and Clear hidden.</summary>
+    internal static MenuRowOrder<FileSelectItem> MainEmpty { get; } = new(
+        [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Exit]);
 
-    /// <summary>The main-page row an item occupies.</summary>
-    /// <exception cref="InvalidDataException">The item is not a main-page row.</exception>
-    internal static int MainRow(FileSelectItem item) => Row(MainRows, item, "main");
+    /// <summary>The copy and clear pages' rows: the save slots and Exit.</summary>
+    internal static MenuRowOrder<FileSelectItem> Data { get; } = new(
+        [FileSelectItem.SlotA, FileSelectItem.SlotB, FileSelectItem.SlotC, FileSelectItem.Exit]);
 
-    /// <summary>The item on a main-page row.</summary>
-    internal static FileSelectItem MainItem(int row) => MainRows[row];
+    /// <summary>The copy and clear confirmations' rows: Yes above No.</summary>
+    internal static MenuRowOrder<YesNoChoice> Confirmation { get; } = new([YesNoChoice.Yes, YesNoChoice.No]);
 
-    /// <summary>The copy/clear page row an item occupies.</summary>
-    /// <exception cref="InvalidDataException">The item is not a data-management row.</exception>
-    internal static int DataRow(FileSelectItem item) => Row(DataRows, item, "data-management");
-
-    /// <summary>The item on a copy/clear page row.</summary>
-    internal static FileSelectItem DataItem(int row) => DataRows[row];
+    /// <summary>The main page's rows: with Copy and Clear while a save exists, without them while every slot is empty.</summary>
+    internal static MenuRowOrder<FileSelectItem> Main(bool hasAnySave) => hasAnySave ? MainWithData : MainEmpty;
 
     /// <summary>The item that selects <paramref name="slot"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The slot is not one of the three save slots.</exception>
@@ -66,11 +66,4 @@ internal static class FileSelectItemRows
     /// <exception cref="InvalidDataException">The item is not a save slot.</exception>
     internal static SaveSlot SaveSlotOf(FileSelectItem item) =>
         TryGetSaveSlot(item, out SaveSlot slot) ? slot : throw new InvalidDataException($"File-select item {item} is not a save slot.");
-
-    /// <summary>Finds an item's row on one page.</summary>
-    private static int Row(FileSelectItem[] rows, FileSelectItem item, string page)
-    {
-        int row = Array.IndexOf(rows, item);
-        return row >= 0 ? row : throw new InvalidDataException($"File-select item {item} is not on the {page} page.");
-    }
 }

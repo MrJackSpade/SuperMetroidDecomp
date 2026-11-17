@@ -32,7 +32,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>The screen's brightness, stepped one level on every fade update; the menu opens black.</summary>
     private readonly ScreenFade fade = new(0);
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
-    internal readonly MenuMissileAnimation missile = new();
+    internal readonly MenuMissileAnimation missile;
     /// <summary>Where the Baby's animation stands, or null before its first update of this visit.</summary>
     internal AnimationPlace? BabyPlace { get; private set; }
     /// <summary>The pose and colours the Baby shows: its resting look before its animation starts.</summary>
@@ -63,6 +63,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
         this.audio = Ensure.NotNull(audio);
         this.screenContent = Ensure.NotNull(screenContent);
+        missile = new MenuMissileAnimation(screenContent.GameOver.CursorFrameDuration);
         screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
         Phase = GameOverMenuPhase.ConfigureGraphics;
@@ -100,6 +101,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     {
         string previousIdentity = screenContent.ContentIdentity;
         screenContent = Ensure.NotNull(catalog);
+        missile.Rebind(catalog.GameOver.CursorFrameDuration);
         if (string.Equals(previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
             return;
         screen.Backdrop = catalog.Backdrops.Menus;
@@ -134,7 +136,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         // Only the fade-in, the interaction and the two fade-outs draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
-            missile.Step(screenContent.GameOver.CursorFrameDuration);
+            missile.Step();
 
         switch (Phase)
         {
@@ -234,7 +236,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         SpriteSheet sheet = spriteSheets.Get(SpriteSheetId.GameOver);
         content.GameOver.DrawBaby(sprites, sheet, BabyLook.Frame, BabyLook.Colours);
         content.GameOver.DrawEgg(sprites, sheet);
-        content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem != YesNoChoice.Yes);
+        content.GameOver.DrawCursor(sprites, sheet, missile.Frame, SelectedItem);
         sprites.FinishFrame();
     }
 

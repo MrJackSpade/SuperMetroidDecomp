@@ -127,11 +127,8 @@ internal static class IntroNarrationPresentationVerification
         IntroNarrationActors state,
         IntroNarrationPageId page) => page switch
     {
-        IntroNarrationPageId.Page1 => state.PageOneAwaitingInput,
-        IntroNarrationPageId.Page2 => state.PageTwoAwaitingInput,
-        IntroNarrationPageId.Page3 => state.PageThreeAwaitingInput,
-        IntroNarrationPageId.Page4 => state.PageFourAwaitingInput,
-        IntroNarrationPageId.Page5 => state.PageFiveAwaitingInput,
+        IntroNarrationPageId.Page1 or IntroNarrationPageId.Page2 or IntroNarrationPageId.Page3 or IntroNarrationPageId.Page4
+            or IntroNarrationPageId.Page5 => state.AwaitingInputPage == page,
         IntroNarrationPageId.Page6 => state.IntroFinishRequested,
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };

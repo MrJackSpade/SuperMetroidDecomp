@@ -284,8 +284,8 @@ internal static class FrontendSheetColouringsVerification
     /// <summary>Records each shooting star frame in the stars' colouring.</summary>
     private static void AddStars(Dictionary<string, HashSet<int>> sets)
     {
-        for (int frame = 1; frame <= EndingShootingStarDefinitions.FullStarFrame; frame++)
-            Add(sets, EndingShootingStarFrames.SheetFrameName(frame), EndingScreenInks.SpriteSet(EndingSpriteColouring.ShootingStars));
+        foreach (EndingShootingStarLook look in EndingShootingStarFrames.Visible)
+            Add(sets, EndingShootingStarFrames.SheetFrameName(look), EndingScreenInks.SpriteSet(EndingSpriteColouring.ShootingStars));
     }
 
     /// <summary>Records every pose <paramref name="program"/> shows, through every program it goes or falls into, in <paramref name="colouring"/>.</summary>

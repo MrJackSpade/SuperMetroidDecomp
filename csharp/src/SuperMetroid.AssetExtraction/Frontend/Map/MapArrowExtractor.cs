@@ -12,12 +12,18 @@ public static class MapArrowExtractor
     private static readonly MapScrollDirection[] ArrowDirections =
         [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
 
-    /// <summary>Exports the four map-scroll arrows' drawing anchors and cosmetic phase durations while verifying their fixed native spritemap bindings.</summary>
+    /// <summary>The most phases an arrow's $FF-terminated animation program may hold before it is rejected as unterminated.</summary>
+    private const int MaximumPhases = 255;
+
+    /// <summary>
+    /// Exports the four map-scroll arrows' drawing anchors while verifying their fixed native spritemap bindings and that each
+    /// arrow is a still picture: its animation program's phases change no picture, so their timing is not exported (#2359).
+    /// </summary>
     /// <param name="bus">Import-capable cartridge source for mixed arrow records, sprite-program tables, and byte-timed animation streams.</param>
-    /// <returns>A new UTF-8 JSON buffer keyed by direction, with screen-pixel X/Y anchors and positive update-tick durations.</returns>
+    /// <returns>A new UTF-8 JSON buffer keyed by direction, with screen-pixel X/Y anchors.</returns>
     /// <remarks>Y is normalized to native record Y minus one. Controller masks and animation shape operands are not exported; the shape must remain fixed through a bounded, $FF-terminated program.</remarks>
     /// <exception cref="ArgumentException"><paramref name="bus"/> does not provide cartridge import access, including null.</exception>
-    /// <exception cref="InvalidDataException">An animation ID, spritemap binding, phase shape, termination, anchor, or duration is invalid.</exception>
+    /// <exception cref="InvalidDataException">An animation ID, spritemap binding, phase shape, termination or anchor is invalid.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var arrows = new Dictionary<string, MapArrowEntry>();
@@ -31,19 +37,16 @@ public static class MapArrowExtractor
             int variants = Read(MapSourceDefinitions.Animation.SpriteBases + (animation - 1) * 2);
             if (Read(MapSourceDefinitions.Menu.ObjectBank | variants) != MapSpriteOrdinals.Spritemaps.Word(MapArrowSprites.SpriteBase(direction)))
                 throw new InvalidDataException($"Cartridge arrow shape differs for {direction}.");
-            var durations = new List<int>();
             for (int phase = 0; ; phase++)
             {
                 int address = MapSourceDefinitions.Menu.ObjectBank | (program + phase * 3);
-                int duration = bus.ReadCartridgeByte(address);
-                if (duration == byte.MaxValue) break;
-                if (phase == MapArrowFormat.MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");
+                if (bus.ReadCartridgeByte(address) == byte.MaxValue) break;
+                if (phase == MaximumPhases) throw new InvalidDataException("Unterminated map arrow animation.");
                 // Native ignores the middle byte and uses only the final byte as
                 // a shape offset. All four retail arrows use their one fixed shape.
                 if (bus.ReadCartridgeByte(address + 2) != 0) throw new InvalidDataException("Unexpected varying map arrow shape.");
-                durations.Add(duration);
             }
-            arrows.Add(direction.ToString(), new() { X = Read(record), Y = Read(record + 2) - 1, DurationTicks = durations.ToArray() });
+            arrows.Add(direction.ToString(), new() { X = Read(record), Y = Read(record + 2) - 1 });
         }
         using var stream = new MemoryStream();
         MapArrowFile.Write(stream, new() { Version = MapArrowFormat.Version, Arrows = arrows });

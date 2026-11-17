@@ -119,10 +119,10 @@ public static class FileSelectPresentationExtractor
             [FileSelectParts.BorderSpriteName(FileSelectBorder.Clear)] =
                 MenuSpriteExtractor.Read(bus, FileSelectNativeLayout.ClearBorderSpritemap),
         };
-        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+        foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
             sprites.Add(MenuMissileFrames.Name(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));
-        for (int frame = 0; frame < FileSelectHelmetAnimation.FrameCount; frame++)
+        foreach (FileSelectHelmetFrame frame in FileSelectHelmetAnimation.Turn)
             sprites.Add(FileSelectParts.HelmetSpriteName(frame),
                 MenuSpriteExtractor.Read(bus, FileSelectHelmetSpritemaps.SpritemapId(frame)));
 
@@ -168,7 +168,7 @@ public static class FileSelectPresentationExtractor
             MainCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.MainSelectionCount)
                 .Select(FileSelectCursorPositions.MainSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(14, y)).ToArray(),
-            DataCursorAnchors = Enumerable.Range(0, FileSelectLayout.DataSelectionCount)
+            DataCursorAnchors = Enumerable.Range(0, FileSelectCursorPositions.DataSelectionCount)
                 .Select(FileSelectCursorPositions.DataSelectionY)
                 .Select(y => new Offset16<ScreenPixels>(22, y)).ToArray(),
             ConfirmationCursorAnchors =

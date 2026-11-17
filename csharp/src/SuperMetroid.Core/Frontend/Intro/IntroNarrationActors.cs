@@ -70,20 +70,11 @@ internal sealed class IntroNarrationActors
         this.narrationPresentation = Ensure.NotNull(narrationPresentation);
     }
 
-    /// <summary>Set when the narration reaches the English page-one input marker.</summary>
-    public bool PageOneAwaitingInput { get; private set; }
-
-    /// <summary>Set when the narration reaches the English page-two input marker.</summary>
-    public bool PageTwoAwaitingInput { get; private set; }
-
-    /// <summary>Set when the narration completes English page three.</summary>
-    public bool PageThreeAwaitingInput { get; private set; }
-
-    /// <summary>Set when the narration completes English page four.</summary>
-    public bool PageFourAwaitingInput { get; private set; }
-
-    /// <summary>Set when the narration completes English page five.</summary>
-    public bool PageFiveAwaitingInput { get; private set; }
+    /// <summary>
+    /// The page, one to five, whose input wait has started (#2359): set as its text ends, or, for a Japanese page that waits
+    /// for it, as its second subtitle shows; null from the start of the next page until that page's wait starts.
+    /// </summary>
+    public IntroNarrationPageId? AwaitingInputPage { get; private set; }
 
     /// <summary>Set after page six's final 128-frame hold.</summary>
     public bool IntroFinishRequested { get; private set; }
@@ -137,7 +128,7 @@ internal sealed class IntroNarrationActors
     {
         StartNarration(
             IntroNarrationPageId.Page2);
-        PageTwoAwaitingInput = false;
+        AwaitingInputPage = null;
         ResetCaret();
     }
 
@@ -148,7 +139,7 @@ internal sealed class IntroNarrationActors
     {
         StartNarration(
             IntroNarrationPageId.Page3);
-        PageThreeAwaitingInput = false;
+        AwaitingInputPage = null;
         ResetCaret();
     }
 
@@ -157,7 +148,7 @@ internal sealed class IntroNarrationActors
     {
         StartNarration(
             IntroNarrationPageId.Page4);
-        PageFourAwaitingInput = false;
+        AwaitingInputPage = null;
         ResetCaret();
     }
 
@@ -166,7 +157,7 @@ internal sealed class IntroNarrationActors
     {
         StartNarration(
             IntroNarrationPageId.Page5);
-        PageFiveAwaitingInput = false;
+        AwaitingInputPage = null;
         ResetCaret();
     }
 
@@ -310,20 +301,15 @@ internal sealed class IntroNarrationActors
             MarkAwaitingInput(page);
     }
 
-    /// <summary>Publishes the completed page's input marker to the outer intro state machine.</summary>
-    private void MarkAwaitingInput(IntroNarrationPageId page)
+    /// <summary>Publishes the completed page's input wait to the outer intro state machine.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The page is page six, which ends the intro instead of waiting, or undefined.</exception>
+    private void MarkAwaitingInput(IntroNarrationPageId page) => AwaitingInputPage = page switch
     {
-        switch (page)
-        {
-            case IntroNarrationPageId.Page1: PageOneAwaitingInput = true; break;
-            case IntroNarrationPageId.Page2: PageTwoAwaitingInput = true; break;
-            case IntroNarrationPageId.Page3: PageThreeAwaitingInput = true; break;
-            case IntroNarrationPageId.Page4: PageFourAwaitingInput = true; break;
-            case IntroNarrationPageId.Page5: PageFiveAwaitingInput = true; break;
-            case IntroNarrationPageId.Page6:
-            default: throw new ArgumentOutOfRangeException(nameof(page), page, null);
-        }
-    }
+        IntroNarrationPageId.Page1 or IntroNarrationPageId.Page2 or IntroNarrationPageId.Page3 or IntroNarrationPageId.Page4
+            or IntroNarrationPageId.Page5 => page,
+        IntroNarrationPageId.Page6 => throw new ArgumentOutOfRangeException(nameof(page), page, "Page six ends the intro instead of waiting for input."),
+        _ => throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined narration page."),
+    };
 
     /// <summary>
     /// Advances the portrait eye one cinematic update: when its frame expires, the animation shows its next frame for

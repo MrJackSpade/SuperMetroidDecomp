@@ -52,13 +52,19 @@ public sealed class GameOverPresentation
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
-    /// <param name="frame">The step of the missile's roll.</param>
-    /// <param name="selectNo">True draws at the No position; false draws at the Yes position.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The frame is not a step of the roll.</exception>
+    /// <param name="frame">The missile's picture.</param>
+    /// <param name="answer">The answer the missile points at.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The frame is not one of the missile's pictures, or the answer is undefined.</exception>
     /// <param name="sheet">The installed game-over sheet.</param>
-    public void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, bool selectNo)
+    internal void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, MenuMissileFrame frame, YesNoChoice answer)
     {
+        int y = answer switch
+        {
+            YesNoChoice.Yes => YesCursorY,
+            YesNoChoice.No => NoCursorY,
+            _ => throw new ArgumentOutOfRangeException(nameof(answer), answer, "Undefined answer."),
+        };
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(MenuMissileFrames.Name(frame)),
-            new Offset16<ScreenPixels>(CursorX, selectNo ? NoCursorY : YesCursorY), shading: PictureShading.Standard);
+            new Offset16<ScreenPixels>(CursorX, y), shading: PictureShading.Standard);
     }
 }

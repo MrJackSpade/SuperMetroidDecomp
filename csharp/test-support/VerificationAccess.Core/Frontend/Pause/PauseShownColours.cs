@@ -30,10 +30,10 @@ internal static class PauseShownColours
     /// <summary>The highlight frame <paramref name="pause"/>'s highlighted map sprites show, or null when none is drawn.</summary>
     private static int? ShownHighlight(PauseMenuState pause)
     {
-        int frame = pause.mapHighlight.Frame;
+        MapHighlightStep step = pause.mapHighlight.Shown;
         return pause.CaptureRenderSnapshot().SpriteDraws.OfType<ImageSpriteDraw>()
-            .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(frame)))
-            ? frame : null;
+            .Any(draw => Ensure.NotNull(draw.Shading).Shades.Contains(MapSpriteShades.Highlight(step)))
+            ? step.Place : null;
     }
 
     /// <summary>

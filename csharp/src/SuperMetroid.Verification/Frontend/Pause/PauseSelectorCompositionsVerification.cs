@@ -21,7 +21,6 @@ internal static class PauseSelectorCompositionsVerification
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes));
         for (int group = 0; group < 3; group++) VerifyPauseSelectorNativeCompositions(rom, stock, group);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Presentation.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), PauseEquipmentControls.ReserveMode, -1), "negative composition phase");
     }
 
     /// <summary>
@@ -49,7 +48,7 @@ internal static class PauseSelectorCompositionsVerification
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 SpriteSheet sheet = MenuSheetFixtures.PauseSprites(selector);
-                selector.Presentation.Draw(actual, sheet, columns[table][item], phase);
+                selector.Presentation.Draw(actual, sheet, columns[table][item], selector.Presentation.Looks[phase]);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),
                     "native selector composition, attributes and order");

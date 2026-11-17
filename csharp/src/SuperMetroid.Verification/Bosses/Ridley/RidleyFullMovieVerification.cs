@@ -700,10 +700,10 @@ internal static class RidleyFullMovieVerification
             AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(initial), "pause fade-in retains all palette colors");
         }
         AssertEqual(SuperMetroidGameState.Paused, game.GameState, "pause fade-in completes");
-        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(0)),
+        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(new(0))),
             pause.mapHighlight.Shading, "before the highlight cycle's first step the pause arrows show the cycle's frame zero");
         game.Step(0);
-        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(1)),
+        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(new(1))),
             pause.mapHighlight.Shading, "the first stable pause step shows the highlight cycle's frame one");
         RgbColor[] animated = PauseShownColours.Of(pause, maps);
         game.GameState = SuperMetroidGameState.PauseScreenFadeOut;

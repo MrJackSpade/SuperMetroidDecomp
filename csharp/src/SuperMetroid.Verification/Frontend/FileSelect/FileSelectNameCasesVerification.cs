@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -41,7 +42,7 @@ internal static class FileSelectNameCasesVerification
          "Helmet.TurnedAway", "Helmet.Turning", "Helmet.ShineLeft", "Helmet.ShineLeftOfMiddle", "Helmet.ShineRightOfMiddle",
          "Helmet.ShineRight", "Helmet.SparkleTall", "Helmet.SparkleWide"],
         [.. FileSelectPresentationFormat.SpriteNames],
-        () => FileSelectParts.HelmetSpriteName(FileSelectPresentationFormat.HelmetFrameCount));
+        () => FileSelectParts.HelmetSpriteName((FileSelectHelmetFrame)FileSelectHelmetAnimation.Turn.Count));
 
     /// <summary>Checks exact names and their codec's rejection of an undefined identity, then rejects missing, extra, or case-changed JSON keys.</summary>
     private static void VerifyFileSelectNames(FileSelectExtraction source, string field, string[] expected,

@@ -1169,7 +1169,7 @@ internal static class LookupStream5Verification
             for (int frame = 0; frame < cycle.FrameCount; frame++)
             {
                 AssertEqual((byte)document.Frames[frame].DurationTicks, cycle.Duration(frame), "Highlight hold");
-                AssertEqual(cycle.Duration(frame), cycle.Timing.Duration(frame), "Gameplay steps the highlight by the installed hold");
+                AssertEqual(cycle.Duration(frame), cycle.Timing.Duration(new(frame)), "Gameplay steps the highlight by the installed hold");
                 // Each frame's highlight colour is the one the import pre-colours the frame's highlight shade from (#1512).
                 var rgb = document.Frames[frame].Highlight;
                 AssertEqual(new FadeLevelColour(rgb.Red, rgb.Green, rgb.Blue).ToColour(), cycle.Highlight(frame), "Highlight shade colour");

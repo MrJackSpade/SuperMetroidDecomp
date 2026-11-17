@@ -18,6 +18,6 @@ internal static class FileSelectMenuStateAccess
             BackgroundTileWordBytes.Words(Ensure.NotNull(maps).FileSelect.LayOut(self.ShownPage));
 
         /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
-        internal int SelectedHelmetFrame => self.HelmetAnimationFrame;
+        internal FileSelectHelmetFrame SelectedHelmetFrame => self.HelmetAnimationFrame;
     }
 }

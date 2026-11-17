@@ -48,7 +48,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The page's vertical scroll, which exposes the lower controller rows.</summary>
     private int pageVerticalScroll;
     /// <summary>The selection missile's frame cycle.</summary>
-    private readonly MenuMissileAnimation missile = new();
+    private readonly MenuMissileAnimation missile;
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
     /// <param name="audio">The audio queues the cursor and confirmation sounds join.</param>
@@ -70,6 +70,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         this.audio = Ensure.NotNull(audio);
         this.screenContent = Ensure.NotNull(screenContent);
+        missile = new MenuMissileAnimation(screenContent.GameOptions.CursorFrameDuration);
         screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
 
@@ -86,6 +87,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     public void BindScreenContent(InstalledScreenContent catalog)
     {
         screenContent = Ensure.NotNull(catalog);
+        missile.Rebind(catalog.GameOptions.CursorFrameDuration);
         screen.Backdrop = catalog.Backdrops.Menus;
         LoadVisiblePage();
     }
@@ -134,7 +136,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         // The selection missile is spawned while the menu loads; it then animates
         // after every step's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
-            missile.Step(screenContent.GameOptions.CursorFrameDuration);
+            missile.Step();
 
         switch (Phase)
         {

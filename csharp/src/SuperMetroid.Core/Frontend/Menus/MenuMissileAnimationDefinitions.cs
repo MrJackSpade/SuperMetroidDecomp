@@ -6,13 +6,16 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 public static class MenuMissileAnimationDefinitions
 {
-    /// <summary>The pictures the missile rolls through before it starts its roll again.</summary>
-    public const int FrameCount = 4;
+    /// <summary>The pictures the missile's roll shows, in order, before it starts its roll again.</summary>
+    internal static IReadOnlyList<MenuMissileFrame> Roll { get; } =
+        [MenuMissileFrame.FinUp, MenuMissileFrame.FinsUpAndDown, MenuMissileFrame.FinDown, MenuMissileFrame.FinsFlat];
 
-    /// <summary>
-    /// The name each of the missile's pictures is installed under, in the order its roll shows them (#2202): a fin raised
-    /// behind the red flame, fins above and below as the flame dims, a fin lowered behind the red flame, and the fins
-    /// turned flat to the screen behind a yellow flame.
-    /// </summary>
-    internal static readonly string[] FrameNames = ["Cursor.FinUp", "Cursor.FinsUpAndDown", "Cursor.FinDown", "Cursor.FinsFlat"];
+    /// <summary>The name each of the missile's pictures is installed under (#2202).</summary>
+    internal static IReadOnlyDictionary<MenuMissileFrame, string> FrameNames { get; } = new Dictionary<MenuMissileFrame, string>
+    {
+        [MenuMissileFrame.FinUp] = "Cursor.FinUp",
+        [MenuMissileFrame.FinsUpAndDown] = "Cursor.FinsUpAndDown",
+        [MenuMissileFrame.FinDown] = "Cursor.FinDown",
+        [MenuMissileFrame.FinsFlat] = "Cursor.FinsFlat",
+    };
 }

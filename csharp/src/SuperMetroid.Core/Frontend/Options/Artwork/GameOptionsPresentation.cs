@@ -50,6 +50,6 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
-    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, int frame, Offset16<ScreenPixels> point) =>
+    internal static void DrawCursor(ScreenSprites sprites, SpriteSheet sheet, MenuMissileFrame frame, Offset16<ScreenPixels> point) =>
         sprites.AddImage(sheet.Frame(MenuMissileFrames.Name(frame)), point, shading: PictureShading.Standard);
 }

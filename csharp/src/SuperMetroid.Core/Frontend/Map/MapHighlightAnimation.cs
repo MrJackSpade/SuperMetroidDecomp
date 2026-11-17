@@ -1,52 +1,69 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
-/// The map highlight cycle shared by the pause and file-select maps (#1512, #1597): its frame and hold, and the shade the
-/// highlighted sprites show, which the import pre-colours the map sprite sheet in. The highlighted sprites always show the
-/// shade of the cycle's current frame. Only the highlighted sprites show the cycle (#1544): the pause screen's other
-/// sprites show their own colours.
+/// The map highlight cycle shared by the pause and file-select maps (#1512, #1597, #2359), played by the shared animation
+/// player: each installed step shows for its installed hold, and past the last the cycle starts again from the first,
+/// which requests the map's highlight-loop sound. The highlighted sprites always show the shade of the step shown, which
+/// the import pre-colours the map sprite sheet in. Only the highlighted sprites show the cycle (#1544): the pause screen's
+/// other sprites show their own colours.
 /// </summary>
 public sealed class MapHighlightAnimation
 {
-    /// <summary>
-    /// Updates remaining before the next highlight frame; starts with one update. Zero holds the animation: a step
-    /// decrements only a positive count, so the value stays within zero through the longest authored hold.
-    /// </summary>
-    internal int Timer { get; private set; } = 1;
-    /// <summary>The cycle's current frame index, below the installed cycle's frame count; the highlighted sprites show its shade.</summary>
-    internal int Frame { get; private set; }
-    /// <summary>The installed cycle's timing.</summary>
-    private MapHighlightCycle content;
+    /// <summary>The cycle as it plays.</summary>
+    private readonly AnimationPlayer<MapHighlightSegment, MapHighlightStep, MapHighlightCue> player;
 
-    /// <summary>Starts the highlight cycle at its first frame, one update from its next, over the installed cycle's timing.</summary>
+    /// <summary>Starts the highlight cycle at its first step, one update from its next, over the installed cycle's timing.</summary>
     /// <param name="cycle">The installed cycle's timing.</param>
-    public MapHighlightAnimation(MapHighlightCycle cycle) => content = Ensure.NotNull(cycle);
+    public MapHighlightAnimation(MapHighlightCycle cycle)
+    {
+        AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> segments = Segments(cycle);
+        player = AnimationPlayer<MapHighlightSegment, MapHighlightStep, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
+    }
 
-    /// <summary>Binds the installed cycle's timing when the game is bound to its installed content, without resetting the cycle's timer.</summary>
-    public void Bind(MapHighlightCycle cycle) => content = Ensure.NotNull(cycle);
+    /// <summary>
+    /// Binds the installed cycle's timing when the game is bound to its installed content, keeping the step shown and its
+    /// updates left: a shorter replacement cycle wraps at the next step's boundary, not at the bind.
+    /// </summary>
+    public void Bind(MapHighlightCycle cycle)
+    {
+        AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> segments = Segments(cycle);
+        player.Rebind(segments, Cycling(segments));
+    }
 
-    /// <summary>Restores the cycle's initial frame and one-tick delay.</summary>
-    public void Reset() { Timer = 1; Frame = 0; }
+    /// <summary>Restores the cycle's first step, one update from its next.</summary>
+    public void Reset() => player.Show(player.Playback.Animation, 1);
 
-    /// <summary>The shading the map's highlighted sprites show (#1512, #1597): the highlight shade of the cycle's current frame.</summary>
-    public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));
+    /// <summary>The step the highlighted sprites show.</summary>
+    internal MapHighlightStep Shown => player.Showing;
 
-    /// <summary>Advances to the next highlight frame when its hold ends; true requests the room library's map highlight-loop sound.</summary>
+    /// <summary>The shading the map's highlighted sprites show (#1512, #1597): the highlight shade of the step shown.</summary>
+    public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Shown));
+
+    /// <summary>Runs one update of the cycle; true requests the room library's map highlight-loop sound.</summary>
     public bool Step()
     {
-        if (Timer == 0) return false;
-        Timer--;
-        if (Timer != 0) return false;
-        MapHighlightCycle cycle = content;
-        // Preserve the game's increment-before-read and loop sound ownership. A
-        // shorter replacement cycle wraps at the next frame boundary, not bind.
-        int next = Frame + 1;
-        bool wrapped = next >= cycle.FrameCount;
-        Frame = wrapped ? 0 : next;
-        Timer = cycle.Duration(Frame);
+        bool wrapped = false;
+        player.Step(_ => wrapped = true);
         return wrapped;
     }
+
+    /// <summary>The cycle's segments: its steps, each for its hold, and the wrap that starts it again.</summary>
+    private static AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> Segments(MapHighlightCycle cycle)
+    {
+        Ensure.NotNull(cycle);
+        return new(new Dictionary<MapHighlightSegment, AnimationBeat<MapHighlightStep, MapHighlightCue>[]>
+        {
+            [MapHighlightSegment.Steps] =
+                [.. cycle.Steps.Select(step => new AnimationBeat<MapHighlightStep, MapHighlightCue>.Frame(step, cycle.Duration(step)))],
+            [MapHighlightSegment.Wrap] = [new AnimationBeat<MapHighlightStep, MapHighlightCue>.Event(MapHighlightCue.Wrapped)],
+        });
+    }
+
+    /// <summary>The cycle played over and over, each pass ending in its wrap.</summary>
+    private static Animation<MapHighlightSegment> Cycling(AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> segments) =>
+        new([segments.Whole(MapHighlightSegment.Steps), segments.Whole(MapHighlightSegment.Wrap)], AnimationEnd.LoopsFrom(0));
 }

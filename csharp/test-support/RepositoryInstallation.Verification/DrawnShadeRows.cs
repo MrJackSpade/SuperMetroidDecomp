@@ -51,7 +51,7 @@ internal static class DrawnShadeRows
             if (Rows.TryGetValue(shade, out int row))
                 return row;
             // The highlight cycle recolours the highlighted sprites' inks, whatever frame of the cycle it stands at.
-            if (shade == MapSpriteShades.Highlight(shade.Step))
+            if (shade == MapSpriteShades.Highlight(new MapHighlightStep(shade.Step)))
                 return MapSpriteColouringSets.SpriteSet(MapSpriteColouring.Highlighted);
         }
         return null;

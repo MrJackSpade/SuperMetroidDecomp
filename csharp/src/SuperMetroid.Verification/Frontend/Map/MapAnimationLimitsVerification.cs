@@ -4,8 +4,8 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.Map;
 
 /// <summary>
-/// Checks the map animations' own limits (#1627): the highlight cycle wraps at its frame count and holds each frame for
-/// its count of updates, with no byte limit on either, and a map arrow's cycle has at least one phase.
+/// Checks the map highlight cycle's own limits (#1627): it wraps at its frame count and holds each frame for its count of
+/// updates, with no byte limit on either, and each hold lasts at least one update.
 /// </summary>
 internal static class MapAnimationLimitsVerification
 {
@@ -25,12 +25,12 @@ internal static class MapAnimationLimitsVerification
             if (wrapped)
                 wraps++;
             int expectedFrame = (update - 1) / hold + 1;
-            AssertEqual(expectedFrame == frames ? 0 : expectedFrame, animation.Frame, $"update {update}: the frame the holds have reached");
+            AssertEqual(expectedFrame == frames ? 0 : expectedFrame, animation.Shown.Place, $"update {update}: the frame the holds have reached");
             AssertEqual(update == 1 + (frames - 1) * hold, wrapped, $"update {update}: the cycle wraps only past its last frame");
         }
         AssertEqual(1, wraps, "one pass through the cycle wraps once");
         AssertThrows<InvalidDataException>(() => new MapHighlightCycle([]), "a highlight cycle has at least one frame");
         AssertThrows<InvalidDataException>(() => new MapHighlightCycle([1, -1]), "a highlight hold is not below zero");
-        AssertThrows<InvalidDataException>(() => new MapArrowVisual(new(0, 0), []), "a map arrow cycles through at least one phase");
+        AssertThrows<InvalidDataException>(() => new MapHighlightCycle([1, 0]), "a highlight hold lasts at least one update");
     }
 }

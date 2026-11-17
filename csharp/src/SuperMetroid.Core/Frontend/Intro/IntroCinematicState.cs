@@ -500,19 +500,20 @@ public sealed class IntroCinematicState : IFrontendScreen
         if (CurrentNarration is not null)
         {
             CurrentNarration.Step(controller.NewlyPressed);
-            if (CurrentNarration.PageOneAwaitingInput)
+            // A page's text phase becomes its input wait once the narration's wait for that page starts.
+            IntroCinematicPhase? waiting = CurrentNarration.AwaitingInputPage switch
             {
-                if (Phase == IntroCinematicPhase.PageOneText)
-                    Phase = IntroCinematicPhase.PageOneAwaitingInput;
-            }
-            if (CurrentNarration.PageTwoAwaitingInput && Phase == IntroCinematicPhase.PageTwoText)
-                Phase = IntroCinematicPhase.PageTwoAwaitingInput;
-            if (CurrentNarration.PageThreeAwaitingInput && Phase == IntroCinematicPhase.PageThreeText)
-                Phase = IntroCinematicPhase.PageThreeAwaitingInput;
-            if (CurrentNarration.PageFourAwaitingInput && Phase == IntroCinematicPhase.PageFourText)
-                Phase = IntroCinematicPhase.PageFourAwaitingInput;
-            if (CurrentNarration.PageFiveAwaitingInput && Phase == IntroCinematicPhase.PageFiveText)
-                Phase = IntroCinematicPhase.PageFiveAwaitingInput;
+                IntroNarrationPageId.Page1 when Phase == IntroCinematicPhase.PageOneText => IntroCinematicPhase.PageOneAwaitingInput,
+                IntroNarrationPageId.Page2 when Phase == IntroCinematicPhase.PageTwoText => IntroCinematicPhase.PageTwoAwaitingInput,
+                IntroNarrationPageId.Page3 when Phase == IntroCinematicPhase.PageThreeText => IntroCinematicPhase.PageThreeAwaitingInput,
+                IntroNarrationPageId.Page4 when Phase == IntroCinematicPhase.PageFourText => IntroCinematicPhase.PageFourAwaitingInput,
+                IntroNarrationPageId.Page5 when Phase == IntroCinematicPhase.PageFiveText => IntroCinematicPhase.PageFiveAwaitingInput,
+                null or IntroNarrationPageId.Page1 or IntroNarrationPageId.Page2 or IntroNarrationPageId.Page3 or IntroNarrationPageId.Page4
+                    or IntroNarrationPageId.Page5 or IntroNarrationPageId.Page6 => null,
+                _ => throw new InvalidOperationException($"Undefined narration page {CurrentNarration.AwaitingInputPage}."),
+            };
+            if (waiting is { } wait)
+                Phase = wait;
             if (CurrentNarration.IntroFinishRequested && Phase == IntroCinematicPhase.PageSixText)
             {
                 // Page six starts the final fade-out; the screen on this request frame is still full-brightness page six.

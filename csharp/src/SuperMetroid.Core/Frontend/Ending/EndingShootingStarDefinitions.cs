@@ -12,10 +12,8 @@ internal static class EndingShootingStarDefinitions
     internal const int Count = 40;
     /// <summary>Initialization and reset put both coordinates at the screen center.</summary>
     internal const int Origin = 128;
-    /// <summary>Initialization and reset start the invisible animation lead-in.</summary>
-    internal const int InitialTimer = 32;
-    /// <summary>Acceleration doubles from the second visible animation frame.</summary>
-    internal const int DoubleAccelerationFrame = 2;
+    /// <summary>The updates of the hidden lead-in each flight starts with, at the origin.</summary>
+    internal const int LeadInDuration = 32;
     /// <summary>Each small sprite is centered four pixels before its position.</summary>
     internal const int SpriteOffset = 4;
     /// <summary>
@@ -71,16 +69,16 @@ internal static class EndingShootingStarDefinitions
     ];
     /// <summary>The forty stars in order, for their setup and their flights.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Stars => stars;
-    /// <summary>The animation frames a shooting star shows.</summary>
-    internal const int FrameCount = 20;
-
-    /// <summary>The first animation frame showing the full star; every later frame shows it too.</summary>
-    internal const int FullStarFrame = 4;
 
     /// <summary>
-    /// The name each picture a visible star shows is installed under, from its first visible animation frame to the full
-    /// star (#2202): a faint speck, a bright speck, a dim star and the full star.
+    /// The name each picture a visible star shows is installed under (#2202): a faint speck, a bright speck, a dim star and
+    /// the full star.
     /// </summary>
-    internal static readonly string[] SheetFrameNames =
-        ["ShootingStar.FaintSpeck", "ShootingStar.BrightSpeck", "ShootingStar.DimStar", "ShootingStar.FullStar"];
+    internal static readonly IReadOnlyDictionary<EndingShootingStarLook, string> SheetFrameNames = new Dictionary<EndingShootingStarLook, string>
+    {
+        [EndingShootingStarLook.FaintSpeck] = "ShootingStar.FaintSpeck",
+        [EndingShootingStarLook.BrightSpeck] = "ShootingStar.BrightSpeck",
+        [EndingShootingStarLook.DimStar] = "ShootingStar.DimStar",
+        [EndingShootingStarLook.FullStar] = "ShootingStar.FullStar",
+    };
 }

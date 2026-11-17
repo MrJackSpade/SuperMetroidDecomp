@@ -63,7 +63,7 @@ internal static class ClosedPresentationContractChecks
                     ScreenSprites oam, SpriteSheet sheet, int dynamicIndex) {
                     hud.Ammo((SuperMetroid.Core.Hud.HudAmmoCounter)dynamicIndex, 123);
                     hud.MinimapCell(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.MapTiles>(99, 0), SuperMetroid.Core.Hud.MinimapHiddenCell.Instance);
-                    FileSelectPresentation.DrawCursor(oam, sheet, dynamicIndex, new(0,0));
+                    FileSelectPresentation.DrawCursor(oam, sheet, (SuperMetroid.Core.Frontend.Menus.MenuMissileFrame)dynamicIndex, new(0,0));
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);

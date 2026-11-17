@@ -32,11 +32,23 @@ internal static class EndingShootingStarsTests
                 "Native animation period");
             Require(definition.Delay == Word(0x8be9d5 + index * 8), "Native start delay");
         }
-        for (int frame = 0; frame < EndingShootingStarDefinitions.FrameCount; frame++)
+        for (int frame = 0; frame < 20; frame++)
+        {
+            // The cartridge's twenty animation frames are the lead-in, the three growing pictures and the full star sixteen
+            // times over, which the star holds (#2359).
+            EndingShootingStarLook look = frame switch
+            {
+                0 => EndingShootingStarLook.LeadIn,
+                1 => EndingShootingStarLook.FaintSpeck,
+                2 => EndingShootingStarLook.BrightSpeck,
+                3 => EndingShootingStarLook.DimStar,
+                _ => EndingShootingStarLook.FullStar,
+            };
             // The cartridge's attribute word is decoded by the import codec; the definitions hold the piece it describes
             // (character, palette row, priority and mirroring), which is what is compared.
-            Require(SuperMetroid.AssetExtraction.Frontend.Ending.EndingShootingStarParts.Appearance(frame) == new SnesObjAttributeWord(Word(0x8be9a7 + frame * 2)).ToSinglePart(),
+            Require(SuperMetroid.AssetExtraction.Frontend.Ending.EndingShootingStarParts.Appearance(look) == new SnesObjAttributeWord(Word(0x8be9a7 + frame * 2)).ToSinglePart(),
                 "Native OBJ attributes");
+        }
         var stars = new EndingShootingStars();
         for (int frame = 1; frame <= 68; frame++)
         {
@@ -51,7 +63,7 @@ internal static class EndingShootingStarsTests
                 Require(star.Position.Y == SignedSixteenSixteen.FromParts(128, 0) - SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sum), "Star Y trajectory");
             }
             if (frame == 9)
-                Require(stars.Stars[0].Position.X.WholePixels == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Timer == 31,
+                Require(stars.Stars[0].Position.X.WholePixels == 128 && stars.Stars[0].Velocity.X.RawValue == 0 && stars.Stars[0].Flight.UpdatesLeft == 31,
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
@@ -61,7 +73,8 @@ internal static class EndingShootingStarsTests
             }
         }
         Require(stars.Stars[1].Position.Whole == new Offset16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
-            !stars.Stars[1].Delayed && stars.Stars[1].AnimationFrame == 0 && stars.Stars[1].Timer == 32, "Offscreen reset restarts animation without its initial delay");
+            !stars.Stars[1].Delayed && stars.Stars[1].Look == EndingShootingStarLook.LeadIn && stars.Stars[1].Flight.UpdatesLeft == 32,
+            "Offscreen reset restarts animation without its initial delay");
         using (var saved = new MemoryStream())
         {
             DebuggerObjectGraphSerializer.Serialize(saved, stars);
@@ -69,7 +82,7 @@ internal static class EndingShootingStarsTests
             var restored = DebuggerObjectGraphSerializer.Deserialize<EndingShootingStars>(saved);
             stars.Step(); restored.Step();
             for (int index = 0; index < 40; index++)
-                Require(stars.Stars[index].Equals(restored.Stars[index]), "Debugger restore preserves star motion and animation");
+                Require(SameFlight(stars.Stars[index], restored.Stars[index]), "Debugger restore preserves star motion and animation");
         }
 
         var installed = RepositoryInstallation.Installation;
@@ -116,6 +129,11 @@ internal static class EndingShootingStarsTests
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 
         ushort Word(int address) => rom.ReadCartridgeWord(address);
+        // Whether two stars fly alike: where they are and how fast, their delay, and where their pictures stand.
+        static bool SameFlight(EndingShootingStar star, EndingShootingStar restored) =>
+            star.Position == restored.Position && star.Velocity == restored.Velocity && star.Delayed == restored.Delayed &&
+            star.DelayLeft == restored.DelayLeft && star.Look == restored.Look && star.Flight.UpdatesLeft == restored.Flight.UpdatesLeft &&
+            star.Flight.Playback.Place == restored.Flight.Playback.Place;
         static void Require(bool value, string message) { if (!value) throw new InvalidDataException(message); }
     }
 }

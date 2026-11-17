@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
@@ -63,11 +64,11 @@ internal static class TitleSpriteExtractor
                  })
         {
             int entry = TitleSourceDefinitions.TextLists[sequence.Phase];
-            foreach (TitleCardStep step in TitleCards.Steps(sequence.Phase))
+            foreach (AnimationBeat<TitleCardTyping, TitleCardCue> beat in TitleCards.Segments.Beats(sequence.Phase))
             {
                 int durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
                 bool nativeCommand = (durationOrCommand & TitleSourceDefinitions.CommandBit) != 0;
-                if (step.Cue is not null)
+                if (beat is AnimationBeat<TitleCardTyping, TitleCardCue>.Event)
                 {
                     if (!nativeCommand)
                         throw new InvalidDataException($"Title card {sequence.Phase} continues where its typed steps run a command.");
@@ -76,7 +77,7 @@ internal static class TitleSpriteExtractor
                 if (nativeCommand)
                     throw new InvalidDataException($"Title card {sequence.Phase} ends before its typed steps do.");
                 int spritemap = RomDataReader.ReadWordFixedBank(cartridge, entry + sizeof(ushort));
-                if (step.Typed is not { } typed)
+                if (beat.ShownFrame is not { } typed)
                 {
                     if (spritemap != FrontendSourceDefinitions.TitleBlankSpritemap)
                         throw new InvalidDataException($"Title card {sequence.Phase} shows art where its typed step is blank.");

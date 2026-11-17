@@ -1,4 +1,6 @@
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -11,24 +13,28 @@ namespace SuperMetroid.Verification.Frontend.Map;
 /// <summary>Checks pause-map save marker frames and timing against the native animation.</summary>
 internal static class MapIndicatorAnimationVerification
 {
+    /// <summary>The pulse's pictures and their holds, in the order it shows them.</summary>
+    private static AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame[] Pulse =>
+        [.. PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse).OfType<AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame>()];
+
     /// <summary>Compares the pulse's four pictures, in order, to bank $82.</summary>
     internal static void VerifyMapIndicatorSprites(ISnesAddressSpace rom)
     {
-        AssertEqual(4, PauseMapIndicatorAnimation.Pulse.Count, "the marker pulse has four steps");
-        for (int step = 0; step < PauseMapIndicatorAnimation.Pulse.Count; step++)
+        AssertEqual(4, Pulse.Length, "the marker pulse has four steps");
+        for (int step = 0; step < Pulse.Length; step++)
             AssertEqual(ReadVerificationWord(rom, 0x82ba2d + step * 2),
-                MapSpriteOrdinals.Spritemaps.Word(PauseMapIndicatorAnimation.Pulse[step].Sprite), "original marker sprite phase");
+                MapSpriteOrdinals.Spritemaps.Word(Pulse[step].Shown), "original marker sprite phase");
     }
 
     /// <summary>Compares native frame delays and 49 ticks of marker phase and backing alternation.</summary>
     internal static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0xe0, rom.ReadCartridgeByte(0x82ba06), "native marker frame CPX");
-        AssertEqual(ReadVerificationWord(rom, 0x82ba07), PauseMapIndicatorAnimation.Pulse.Count * 2,
+        AssertEqual(ReadVerificationWord(rom, 0x82ba07), Pulse.Length * 2,
             "native marker word-offset wrap boundary");
-        for (int step = 0; step < PauseMapIndicatorAnimation.Pulse.Count; step++)
+        for (int step = 0; step < Pulse.Length; step++)
             AssertEqual(ReadVerificationWord(rom, 0x82ba25 + step * 2),
-                PauseMapIndicatorAnimation.Pulse[step].Duration, "original marker phase delay");
+                Pulse[step].Duration, "original marker phase delay");
 
         using var json = new MemoryStream(MapSaveMarkerExtractor.Extract(rom), writable: false);
         var marker = new FileSelectStationMarker(LoadStationDefinitions.Gunship,

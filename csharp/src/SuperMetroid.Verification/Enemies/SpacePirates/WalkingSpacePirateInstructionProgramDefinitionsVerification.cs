@@ -115,7 +115,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             place.Bind(EnemyDefinitionId.PirateGreyWalking, place.Definition);
             place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
             // A left-facing Pirate's population entry with no options and no patrol reach, as the room load gives it.
-            place.SetSpawnSettings(new WalkingSpacePirateSpawnSettings(WalkingSpacePirateOptions.None, PatrolReach: 0));
+            place.SetSpawnSettings(new WalkingSpacePirateSpawnSettings(HorizontalDirection.Left, PirateLaserSpeed.Fast, PatrolReach: 0));
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(place);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())

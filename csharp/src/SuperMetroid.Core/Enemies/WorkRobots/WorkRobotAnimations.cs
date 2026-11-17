@@ -42,7 +42,7 @@ internal static class WorkRobotAnimations
             Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.Horizontal, WorkRobotSegment.FacingLeftShotLaserLeft)),
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootUpright, 9),
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 1),
-            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.UpLeft, WorkRobotSegment.FacingLeftShotLaserUpLeft)),
+            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.Upward, WorkRobotSegment.FacingLeftShotLaserUpLeft)),
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootEasingForward, 9),
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanForward, 10),
             Cue(new WorkRobotCue.Signal(K.Footstep)),
@@ -59,7 +59,7 @@ internal static class WorkRobotAnimations
             Show(EnemyFrameId.WorkRobotWalkingLeftFarFootSettling, 10),
             Cue(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.LeftForwardWatchingLedges)),
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 1),
-            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.DownLeft, WorkRobotSegment.FacingLeftShotLaserDownLeft)),
+            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.Downward, WorkRobotSegment.FacingLeftShotLaserDownLeft)),
             Show(EnemyFrameId.WorkRobotWalkingLeftNearFootLeanBack, 9),
         ],
         [P.FacingLeftHitWallMovingForwards] =
@@ -233,7 +233,7 @@ internal static class WorkRobotAnimations
         [P.FacingRightWalkingStride] =
         [
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 1),
-            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.DownRight, WorkRobotSegment.FacingRightShotLaserDownRight)),
+            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.Downward, WorkRobotSegment.FacingRightShotLaserDownRight)),
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanBack, 9),
             Cue(new WorkRobotCue.Signal(K.CountDownLaserCooldown)),
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingUp, 10),
@@ -241,7 +241,7 @@ internal static class WorkRobotAnimations
             Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.Horizontal, WorkRobotSegment.FacingRightShotLaserRight)),
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootUpright, 9),
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 1),
-            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.UpRight, WorkRobotSegment.FacingRightShotLaserUpRight)),
+            Cue(new WorkRobotCue.TryLaser(WorkRobotLaser.Upward, WorkRobotSegment.FacingRightShotLaserUpRight)),
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootEasingForward, 9),
             Show(EnemyFrameId.WorkRobotWalkingRightNearFootLeanForward, 10),
             Cue(new WorkRobotCue.Signal(K.Footstep)),

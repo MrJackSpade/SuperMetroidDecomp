@@ -14,17 +14,18 @@ internal static class SkreeMetareeParticles
         context => Fly(context.Projectile, context.Camera));
 
     /// <summary>
-    /// Spawns the four particles of <paramref name="burst"/> into <paramref name="projectiles"/> either side of
-    /// <paramref name="source"/>, the left pair mirroring the right pair's launch (<see cref="MetalParticleBurstDefinitions"/>).
+    /// Spawns the four particles a Skree or Metaree bursts into, showing its <paramref name="look"/>, into
+    /// <paramref name="projectiles"/> either side of <paramref name="source"/>, the left pair mirroring the right pair's
+    /// launch (<see cref="MetalParticleBurstDefinitions"/>). Each enemy's particles are its own: they show its look and draw
+    /// from its own spawned-object sheet (#1435).
     /// </summary>
-    internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemyPlace source, MetalParticleBurst burst)
+    internal static void SpawnBurst(EnemyProjectileEngine projectiles, RoomEnemyPlace source, SkreeMetareeParticleSegment look)
     {
         Ensure.NotNull(projectiles);
-        Ensure.NotNull(burst);
-        SpawnParticle(projectiles, source, burst.OuterRight, burst.Look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity);
-        SpawnParticle(projectiles, source, burst.InnerRight, burst.Look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity);
-        SpawnParticle(projectiles, source, burst.OuterLeft, burst.Look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity.ReversedX());
-        SpawnParticle(projectiles, source, burst.InnerLeft, burst.Look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity.ReversedX());
+        SpawnParticle(projectiles, source, look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity);
+        SpawnParticle(projectiles, source, look, MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity);
+        SpawnParticle(projectiles, source, look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.OuterRightVelocity.ReversedX());
+        SpawnParticle(projectiles, source, look, -MetalParticleBurstDefinitions.SideOffset, MetalParticleBurstDefinitions.InnerRightVelocity.ReversedX());
     }
 
     /// <summary>Flies a particle under gravity, removing it once it leaves the view, whose right and bottom edges are already outside.</summary>
@@ -44,7 +45,6 @@ internal static class SkreeMetareeParticles
     private static void SpawnParticle(
         EnemyProjectileEngine projectiles,
         RoomEnemyPlace source,
-        RoomEnemyProjectileKind kind,
         SkreeMetareeParticleSegment look,
         int xOffset,
         EightEightVector<RoomPixels> velocity)
@@ -55,7 +55,7 @@ internal static class SkreeMetareeParticles
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             particle,
-            kind,
+            RoomEnemyProjectileKind.SkreeMetareeParticle,
             Behavior,
             SpriteGraphics.SpawnedBy(source));
         particle.StartAnimation(new SkreeMetareeParticleAnimation(look));

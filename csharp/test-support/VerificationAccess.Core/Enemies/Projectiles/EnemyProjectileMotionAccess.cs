@@ -10,6 +10,12 @@ internal static class EnemyProjectileMotionAccess
     /// <summary>The motion the bank-$86 routine <paramref name="word"/> stands for, or null for holding still.</summary>
     internal static Enum? FromWord(ushort word) => EnemyProjectileMotionWordsConstants.FromWord(word);
 
+    /// <summary>The bank-$86 routine that flies a Space Pirate's or Mother Brain's laser <paramref name="direction"/> (#2278).</summary>
+    internal static ushort PirateLaserFlight(HorizontalDirection direction) => EnemyProjectileMotionWords.PirateLaserFlights[direction];
+
+    /// <summary>The bank-$86 routine that flies a Ninja Space Pirate's claw thrown <paramref name="direction"/> (#2278).</summary>
+    internal static ushort PirateClawThrow(HorizontalDirection direction) => EnemyProjectileMotionWords.PirateClawThrows[direction];
+
     /// <summary>Every bank-$86 routine word that stands for a motion or for holding still, with the word zero of a freed slot.</summary>
     internal static IReadOnlyCollection<ushort> RoutineWords => EnemyProjectileMotionWords.Motions.Keys;
 }

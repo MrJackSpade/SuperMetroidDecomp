@@ -64,12 +64,12 @@ internal static class WorkRobotNativeListAddresses
         [0xcfb0] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackwardWatchingLedges), ""),
         [0xd04b] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Step(WorkRobotMoveStepDefinitions.RightBackward), ""),
         [0xd091] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Signal(WorkRobotCueKind.Footstep), ""),
-        [0xd0c6] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.UpRight, WorkRobotSegment.FacingRightShotLaserUpRight), ""),
-        [0xd0d2] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.UpLeft, WorkRobotSegment.FacingLeftShotLaserUpLeft), ""),
+        [0xd0c6] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Upward, WorkRobotSegment.FacingRightShotLaserUpRight), ""),
+        [0xd0d2] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Upward, WorkRobotSegment.FacingLeftShotLaserUpLeft), ""),
         [0xd100] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Horizontal, WorkRobotSegment.FacingRightShotLaserRight), ""),
         [0xd107] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Horizontal, WorkRobotSegment.FacingLeftShotLaserLeft), ""),
-        [0xd131] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.DownRight, WorkRobotSegment.FacingRightShotLaserDownRight), ""),
-        [0xd13d] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.DownLeft, WorkRobotSegment.FacingLeftShotLaserDownLeft), ""),
+        [0xd131] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Downward, WorkRobotSegment.FacingRightShotLaserDownRight), ""),
+        [0xd13d] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.TryLaser(WorkRobotLaser.Downward, WorkRobotSegment.FacingLeftShotLaserDownLeft), ""),
         [0xd16b] = new WorkRobotNativeListAddressesInstruction(new WorkRobotCue.Signal(WorkRobotCueKind.CountDownLaserCooldown), ""),
     };
 }

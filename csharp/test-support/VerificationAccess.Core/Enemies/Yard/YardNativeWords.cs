@@ -8,19 +8,35 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 internal static class YardNativeWords
 {
-    /// <summary>The routine word naming each <see cref="YardMovement"/>.</summary>
-    internal static readonly NativeWordIdentities<YardMovement> YardMovements = new(new Dictionary<YardMovement, ushort>
+    /// <summary>
+    /// The routine word naming each <see cref="YardMovement"/>: <see cref="YardMovement.Crawling"/> has one routine for
+    /// each way a Yard crawls (<see cref="Crawls"/>, #2278).
+    /// </summary>
+    internal static readonly NativeWordIdentities<YardMovement> YardMovements = new(new Dictionary<ushort, YardMovement>
     {
-        [YardMovement.HoldingStill] = 0xcf5f,
-        [YardMovement.Hiding] = 0xcf60,
-        [YardMovement.CrawlingUpsideUpMovingLeft] = 0xcfa6,
-        [YardMovement.CrawlingUpsideLeftMovingDown] = 0xcfb7,
-        [YardMovement.CrawlingUpsideDownMovingRight] = 0xcfbd,
-        [YardMovement.CrawlingUpsideRightMovingUp] = 0xcfce,
-        [YardMovement.CrawlingUpsideUpMovingRight] = 0xcfd4,
-        [YardMovement.CrawlingUpsideRightMovingDown] = 0xcfe5,
-        [YardMovement.CrawlingUpsideDownMovingLeft] = 0xcfeb,
-        [YardMovement.CrawlingUpsideLeftMovingUp] = 0xcffc,
-        [YardMovement.Airborne] = 0xd1b3,
+        [0xcf5f] = YardMovement.HoldingStill,
+        [0xcf60] = YardMovement.Hiding,
+        [0xcfa6] = YardMovement.Crawling,
+        [0xcfb7] = YardMovement.Crawling,
+        [0xcfbd] = YardMovement.Crawling,
+        [0xcfce] = YardMovement.Crawling,
+        [0xcfd4] = YardMovement.Crawling,
+        [0xcfe5] = YardMovement.Crawling,
+        [0xcfeb] = YardMovement.Crawling,
+        [0xcffc] = YardMovement.Crawling,
+        [0xd1b3] = YardMovement.Airborne,
+    });
+
+    /// <summary>The crawl routine word naming each way a Yard crawls (#2278).</summary>
+    internal static readonly NativeWordIdentities<YardDirection> Crawls = new(new Dictionary<YardDirection, ushort>
+    {
+        [YardDirection.UpsideUpMovingLeft] = 0xcfa6,
+        [YardDirection.UpsideLeftMovingDown] = 0xcfb7,
+        [YardDirection.UpsideDownMovingRight] = 0xcfbd,
+        [YardDirection.UpsideRightMovingUp] = 0xcfce,
+        [YardDirection.UpsideUpMovingRight] = 0xcfd4,
+        [YardDirection.UpsideRightMovingDown] = 0xcfe5,
+        [YardDirection.UpsideDownMovingLeft] = 0xcfeb,
+        [YardDirection.UpsideLeftMovingUp] = 0xcffc,
     });
 }

@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Enemies.WorkRobots;
 /// <summary>#1291: the Work Robot's lasers run their typed prefix and loop as their native lists did.</summary>
 internal static class WorkRobotLaserBehaviorVerification
 {
-    /// <summary>All five laser definitions start the typed prefix and run it and the loop update for update beside the native list.</summary>
+    /// <summary>Every laser, each way, starts the typed prefix and runs it and the loop update for update beside the native list.</summary>
     internal static void VerifyWorkRobotLaserBehavior(CartridgeImportAddressSpace rom)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
@@ -27,15 +27,15 @@ internal static class WorkRobotLaserBehaviorVerification
         var state = new WorkRobotEnemyState();
         foreach ((WorkRobotLaser definition, short xVelocity) in new VerifyWorkRobotLaserBehaviorCase[]
                  {
-                     new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.UpLeft, -512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Horizontal, -512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.DownLeft, -512),
-                     new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.UpRight, 512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.DownRight, 512),
+                     new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Upward, -512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Horizontal, -512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Downward, -512),
+                     new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Upward, 512), new VerifyWorkRobotLaserBehaviorCase(WorkRobotLaser.Downward, 512),
                  })
         {
             state.Facing = xVelocity < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
             enemies.WorkRobotBehavior.SpawnWorkRobotLaser(robot, state, definition, Position16<RoomPixels>.Zero);
         }
         EnemyProjectile[] lasers = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Animation is WorkRobotLaserAnimation)];
-        AssertEqual(5, lasers.Length, "all five laser definitions start the typed program");
+        AssertEqual(5, lasers.Length, "every laser, each way, starts the typed program");
         foreach (EnemyProjectile laser in lasers)
         {
             AssertTrue(laser.Animation is WorkRobotLaserAnimation { PlayingSegment: WorkRobotLaserSegment.Initial }, $"the {laser.Kind} laser starts its prefix");

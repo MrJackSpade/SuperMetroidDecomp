@@ -62,18 +62,17 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         {
             new FakeKraidProjectileInstructionProgramDefinitionsCase(Kind:RoomEnemyProjectileKind.FakeKraidSpit, Pose:FakeKraidProjectilePose.Spit,
 List:FakeKraidProjectileInstructionProgramToolingDefinitions.Spit),
-            new FakeKraidProjectileInstructionProgramDefinitionsCase(Kind:RoomEnemyProjectileKind.FakeKraidSpikeLeft, Pose:FakeKraidProjectilePose.SpikeLeft,
+            new FakeKraidProjectileInstructionProgramDefinitionsCase(Kind:RoomEnemyProjectileKind.FakeKraidSpike, Pose:FakeKraidProjectilePose.SpikeLeft,
 List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeLeft),
-            new FakeKraidProjectileInstructionProgramDefinitionsCase(Kind:RoomEnemyProjectileKind.FakeKraidSpikeRight, Pose:FakeKraidProjectilePose.SpikeRight,
+            new FakeKraidProjectileInstructionProgramDefinitionsCase(Kind:RoomEnemyProjectileKind.FakeKraidSpike, Pose:FakeKraidProjectilePose.SpikeRight,
 List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
         };
 
         foreach (var testCase in cases)
         {
+            // Both spikes are one kind, their poses their way (#2278).
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(
-                candidate => candidate.Kind == testCase.Kind);
-            AssertTrue(projectile.Animation is FakeKraidProjectileAnimation animation && animation.Pose == testCase.Pose,
-                $"{testCase.Kind} plays its typed pose program");
+                candidate => candidate.Kind == testCase.Kind && candidate.Animation is FakeKraidProjectileAnimation animation && animation.Pose == testCase.Pose);
             AssertTrue(projectile.Animation is not null, $"{testCase.Kind} runs no native list");
 
             RunForcedTick(projectile);

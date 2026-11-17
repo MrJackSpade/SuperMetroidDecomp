@@ -34,21 +34,18 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Initializes the wall Space Pirate.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemyPlace place)
     {
-        WallSpacePirateOptions flags = place.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
-        bool startsOnRight = (flags & WallSpacePirateOptions.StartsOnRightWall) != WallSpacePirateOptions.None;
-        bool slowJump = (flags & WallSpacePirateOptions.SlowJumpAndLaser) != WallSpacePirateOptions.None;
-        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing,
-            startsOnRight ? HorizontalDirection.Right : HorizontalDirection.Left);
+        WallSpacePirateSpawnSettings settings = place.SpawnSettings<WallSpacePirateSpawnSettings>();
+        var state = new WallSpacePirateEnemyState(WallSpacePirateAction.Climbing, settings.Wall);
         place.SetSpeciesState(state);
 
-        state.Playback = new(WallSpacePirateAnimations.StartingWith(startsOnRight
+        state.Playback = new(WallSpacePirateAnimations.StartingWith(settings.Wall == HorizontalDirection.Right
             ? WallSpacePirateSegment.MovingDownRightWall
             : WallSpacePirateSegment.MovingDownLeftWall), AnimationPlace.StartOfAnimation);
         state.ClimbDirection = WallSpacePirateClimbDirection.Down;
 
         // Angles are 256ths of a turn. A slow jump turns two steps a frame for 63 frames; a fast one turns four steps a
         // frame for 32 frames, to endpoints two steps further round.
-        WallSpacePirateJump jump = slowJump ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
+        WallSpacePirateJump jump = settings.JumpsSlowly ? SpacePirateMotionDefinitions.SlowWallJump : SpacePirateMotionDefinitions.FastWallJump;
         state.RightJumpTargetAngle = jump.RightTarget;
         state.LeftJumpTargetAngle = jump.LeftTarget;
         state.JumpAngleDelta = jump.StepsPerUpdate;

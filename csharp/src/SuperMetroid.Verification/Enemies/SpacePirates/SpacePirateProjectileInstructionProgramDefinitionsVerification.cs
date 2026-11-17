@@ -52,12 +52,12 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop,
-                         PirateLaserMotion.FlyingLeft,
+                         SingleMotion.Moving,
                          124),
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(true,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop,
-                         PirateLaserMotion.FlyingRight,
+                         SingleMotion.Moving,
                          132),
                  })
         {
@@ -76,6 +76,8 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RunForcedTick(enemies, laser);
             AssertEqual<Enum?>(movement, laser.Motion,
                 "laser program installs its facing movement callback");
+            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, laser.StateOf<PirateLaserState>().Direction,
+                "the laser flies the way its producer chose");
             AssertEqual(expectedX, laser.Position.X.Whole,
                 "laser callback executes immediately on installation");
             RunForcedTicks(enemies, laser, 10);
@@ -88,11 +90,11 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(0,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop,
-                         PirateClawMotion.ThrownLeft),
+                         SingleMotion.Moving),
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(1,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop,
-                         PirateClawMotion.ThrownRight),
+                         SingleMotion.Moving),
                  })
         {
             RoomEnemySystem enemies = NewSystem();
@@ -106,6 +108,8 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RunForcedTick(enemies, claw);
             AssertEqual<Enum?>(movement, claw.Motion,
                 "claw program installs its facing movement callback");
+            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, claw.StateOf<NinjaPirateClawState>().Thrown,
+                "the claw flies along the throw its producer chose");
             RunForcedTicks(enemies, claw, 8);
             AssertEqual(unchecked((ushort)(loop + 4)), NativePointer(claw),
                 "claw completes all eight authored frames and loops");
@@ -184,7 +188,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
     /// </summary>
     private static void VerifyNinjaPirateClawFlightSpeed()
     {
-        var claw = new NinjaPirateClawState(SignedEightEight.FromPixels(8));
+        var claw = new NinjaPirateClawState(SignedEightEight.FromPixels(8), HorizontalDirection.Left);
         int nativeWord = 2048;
         bool nativeOutbound = true;
         bool wrapped = false;

@@ -20,9 +20,9 @@ internal abstract record YardCue
     /// <param name="OptionalTarget">The animation the Yard hides with, or none where it does not hide.</param>
     internal sealed record SetHidingAnimation(YardSegment? OptionalTarget) : YardCue;
 
-    /// <summary>The Yard begins the crawl <paramref name="Crawl"/> along its surface, as its crawl animation starts.</summary>
-    /// <param name="Crawl">The crawl the Yard begins: along which surface, which way.</param>
-    internal sealed record BeginCrawling(YardMovement Crawl) : YardCue;
+    /// <summary>The Yard begins crawling <paramref name="Crawl"/> along its surface, as its crawl animation starts.</summary>
+    /// <param name="Crawl">The way the Yard begins to crawl: along which surface, which way.</param>
+    internal sealed record BeginCrawling(YardDirection Crawl) : YardCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

@@ -54,17 +54,13 @@ internal static class FamilyProjectileStarts
     internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) => kind switch
     {
         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace => PrePhantoonRoomBehavior.HoldingProjectile,
-        RoomEnemyProjectileKind.SkreeParticleOuterRight or RoomEnemyProjectileKind.SkreeParticleInnerRight or
-            RoomEnemyProjectileKind.SkreeParticleOuterLeft or RoomEnemyProjectileKind.SkreeParticleInnerLeft or
-            RoomEnemyProjectileKind.MetareeParticleOuterRight or RoomEnemyProjectileKind.MetareeParticleInnerRight or
-            RoomEnemyProjectileKind.MetareeParticleOuterLeft or RoomEnemyProjectileKind.MetareeParticleInnerLeft =>
+        RoomEnemyProjectileKind.SkreeMetareeParticle =>
             SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.Behavior,
         RoomEnemyProjectileKind.CrocomireProjectile => enemies.CrocomireBehavior.Combat.MouthShot,
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces =>
             enemies.CrocomireBehavior.Combat.Debris,
         RoomEnemyProjectileKind.KraidSpitRock => KraidProjectiles.SpitRock,
-        RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRockLeft or
-            RoomEnemyProjectileKind.KraidRisingRockRight => KraidProjectiles.Rocks,
+        RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRock => KraidProjectiles.Rocks,
         RoomEnemyProjectileKind.PhantoonDestroyableFlame => enemies.PhantoonBehavior.Combat.DestroyableFlame,
         RoomEnemyProjectileKind.PhantoonStartingFlame => enemies.PhantoonBehavior.Combat.StartingFlame,
         RoomEnemyProjectileKind.DraygonGoop => enemies.DraygonBehavior.Shots.Goop,
@@ -91,13 +87,10 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud => SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.Behavior,
         RoomEnemyProjectileKind.AlcoonFireball => AlcoonBehavior.Fireball,
         RoomEnemyProjectileKind.PowampSpike => PowampBehavior.Spike,
-        RoomEnemyProjectileKind.WorkRobotLaserUpLeft or RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
-            RoomEnemyProjectileKind.WorkRobotLaserDownLeft or RoomEnemyProjectileKind.WorkRobotLaserUpRight or
-            RoomEnemyProjectileKind.WorkRobotLaserDownRight => WorkRobotBehavior.Laser,
+        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => WorkRobotBehavior.Laser,
         RoomEnemyProjectileKind.FallingSpark => enemies.FallingSparksBehavior.Spark,
-        RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpikeLeft or
-            RoomEnemyProjectileKind.FakeKraidSpikeRight => FakeKraidBehavior.SpitAndSpikes,
-        RoomEnemyProjectileKind.KiHunterAcidSpitLeft or RoomEnemyProjectileKind.KiHunterAcidSpitRight => KiHunterBehavior.Acid,
+        RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpike => FakeKraidBehavior.SpitAndSpikes,
+        RoomEnemyProjectileKind.KiHunterAcidSpit => KiHunterBehavior.Acid,
         RoomEnemyProjectileKind.PirateMotherBrainLaser => WalkingSpacePirateBehavior.Laser,
         RoomEnemyProjectileKind.PirateClaw => NinjaSpacePirateBehavior.Claw,
         RoomEnemyProjectileKind.PolypRock => PolypBehavior.Rock,
@@ -150,24 +143,14 @@ internal static class FamilyProjectileStarts
     internal static EnemyProjectileAnimation? StartingAnimation(RoomEnemyProjectileKind kind) => kind switch
     {
         RoomEnemyProjectileKind.DragonFireball => new DragonFireballAnimation(DragonFireballSegment.RisingLeft),
-        RoomEnemyProjectileKind.WorkRobotLaserUpLeft or RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
-            RoomEnemyProjectileKind.WorkRobotLaserDownLeft or RoomEnemyProjectileKind.WorkRobotLaserUpRight or
-            RoomEnemyProjectileKind.WorkRobotLaserDownRight => new WorkRobotLaserAnimation(WorkRobotLaserSegment.Initial),
+        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => new WorkRobotLaserAnimation(WorkRobotLaserSegment.Initial),
         RoomEnemyProjectileKind.FallingSpark => new FallingSparkAnimation(FallingSparkSegment.Falling),
         RoomEnemyProjectileKind.PowampSpike => new PowampSpikeAnimation(PowampSpikeSegment.Initial),
-        RoomEnemyProjectileKind.KiHunterAcidSpitLeft => new KiHunterAcidSpitAnimation(KiHunterAcidSpitSegment.Left),
-        RoomEnemyProjectileKind.KiHunterAcidSpitRight => new KiHunterAcidSpitAnimation(KiHunterAcidSpitSegment.Right),
         RoomEnemyProjectileKind.AlcoonFireball => new AlcoonFireballAnimation(AlcoonFireballSegment.Initial),
         RoomEnemyProjectileKind.FuneFireball or RoomEnemyProjectileKind.NamiheFireball =>
             new FuneNamiheFireballAnimation(FuneNamiheFireballSegment.Left),
         RoomEnemyProjectileKind.PolypRock => new PolypRockAnimation(PolypRockSegment.Initial),
         RoomEnemyProjectileKind.LavaThrownByMagdollite => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Left),
-        RoomEnemyProjectileKind.SkreeParticleOuterRight or RoomEnemyProjectileKind.SkreeParticleInnerRight or
-            RoomEnemyProjectileKind.SkreeParticleOuterLeft or RoomEnemyProjectileKind.SkreeParticleInnerLeft =>
-            new SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment.Skree),
-        RoomEnemyProjectileKind.MetareeParticleOuterRight or RoomEnemyProjectileKind.MetareeParticleInnerRight or
-            RoomEnemyProjectileKind.MetareeParticleOuterLeft or RoomEnemyProjectileKind.MetareeParticleInnerLeft =>
-            new SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment.Metaree),
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)),
         RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
@@ -210,10 +193,13 @@ internal static class FamilyProjectileStarts
             new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.BaseDecoration),
         RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter),
         RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter),
-        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
+        // The Skree's and Metaree's particles show their enemy's look and Ki-Hunter acid its way, which their spawners
+        // choose (#2278).
+        RoomEnemyProjectileKind.SkreeMetareeParticle or RoomEnemyProjectileKind.KiHunterAcidSpit or
+            RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
             RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.KraidCeilingRock or
-            RoomEnemyProjectileKind.KraidRisingRockLeft or RoomEnemyProjectileKind.KraidRisingRockRight or
+            RoomEnemyProjectileKind.KraidRisingRock or
             RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
             RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.DraygonWallTurret or
             RoomEnemyProjectileKind.MotherBrainRoomTurret or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
@@ -224,8 +210,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
             RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or RoomEnemyProjectileKind.CeresFallingDebrisLight or
             RoomEnemyProjectileKind.CeresFallingDebrisDark or RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
-            RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpikeLeft or
-            RoomEnemyProjectileKind.FakeKraidSpikeRight or RoomEnemyProjectileKind.PirateMotherBrainLaser or
+            RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpike or RoomEnemyProjectileKind.PirateMotherBrainLaser or
             RoomEnemyProjectileKind.PirateClaw or RoomEnemyProjectileKind.MiscDustExplosion or RoomEnemyProjectileKind.KagoBug or
             RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
             RoomEnemyProjectileKind.BombTorizoLowHealthDrool or RoomEnemyProjectileKind.TorizoInitialDrool or

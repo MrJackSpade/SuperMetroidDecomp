@@ -52,8 +52,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                 RoomEnemyProjectileKind.CrocomireSpikeWallPieces or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.DraygonWallTurret or RoomEnemyProjectileKind.KraidSpitRock or
-                RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRockLeft or
-                RoomEnemyProjectileKind.KraidRisingRockRight or RoomEnemyProjectileKind.KagoBug or
+                RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRock or RoomEnemyProjectileKind.KagoBug or
                 RoomEnemyProjectileKind.MotherBrainRoomTurret or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
@@ -84,23 +83,27 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                 // Fake Kraid's spit and spikes and the old Tourian fake-wall explosion run typed programs (SME6341).
                 RoomEnemyProjectileKind.FakeKraidSpit or
-                RoomEnemyProjectileKind.FakeKraidSpikeLeft or
-                RoomEnemyProjectileKind.FakeKraidSpikeRight or
+                RoomEnemyProjectileKind.FakeKraidSpike or
                 RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or
                 // The Pirate/Mother Brain laser and the Ninja Pirate claw run typed programs.
                 RoomEnemyProjectileKind.PirateMotherBrainLaser or
                 RoomEnemyProjectileKind.PirateClaw or
+                // The Skree's and Metaree's particles and Ki-Hunter acid run the typed programs their spawners choose (#2278).
+                RoomEnemyProjectileKind.SkreeMetareeParticle or RoomEnemyProjectileKind.KiHunterAcidSpit or
                 // Mother Brain's death explosion plays a typed misc-dust program, and so does every shared dust cloud and
                 // explosion, whose spawners start the program they choose.
                 RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.MiscDustExplosion ||
                 // The projectiles whose spawners start typed programs (#1291, #1395, #1760).
                 FamilyProjectileStarts.StartingAnimation(kind) is not null;
             AssertTrue(typed, $"Projectile {kind} starts a typed program");
+            // Every cartridge definition of the kind is checked: identical definitions name one kind (#2278).
+            foreach (ushort definitionWord in EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind])
+            {
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
                 VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
-                    NativeEnemyProjectileListDefinitions.ProjectileBank | (EnemyProjectileNativeWords.Kinds.Word(kind) + TouchListOffset)), "touch");
+                    NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + TouchListOffset)), "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
@@ -114,7 +117,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
                 VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
-                    NativeEnemyProjectileListDefinitions.ProjectileBank | (EnemyProjectileNativeWords.Kinds.Word(kind) + ShotListOffset)), "shot");
+                    NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + ShotListOffset)), "shot");
+            }
 
             // Production runs every untyped reaction as the shared delete, so each such list must delete at once.
             void VerifySharedDelete(ushort address, string role)

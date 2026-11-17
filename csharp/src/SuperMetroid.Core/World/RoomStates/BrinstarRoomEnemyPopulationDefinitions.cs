@@ -452,9 +452,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.MiniKraid),
         [
-            new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
-            new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
-            new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch, PatrolReach: 80)),
+            new(EnemyDefinitionId.PirateGreenWalking, new(217, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, PatrolReach: 80)),
+            new(EnemyDefinitionId.PirateGreenWalking, new(288, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, PatrolReach: 80)),
+            new(EnemyDefinitionId.PirateGreenWalking, new(500, 160), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, PatrolReach: 80)),
             new(EnemyDefinitionId.FakeKraid, new(1328, 160), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, EnemySpawnSettings.None),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.SporeSpawn),

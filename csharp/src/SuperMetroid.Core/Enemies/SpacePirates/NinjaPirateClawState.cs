@@ -2,10 +2,17 @@ using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>What a ninja pirate's thrown claw keeps: its speed, and whether it is still flying out or coming back.</summary>
+/// <summary>
+/// What a ninja pirate's thrown claw keeps: the way it was thrown, its speed, and whether it is still flying out or coming
+/// back.
+/// </summary>
 /// <param name="launchSpeed">The claw's launch speed.</param>
-internal sealed class NinjaPirateClawState(SignedEightEight launchSpeed) : EnemyProjectileState
+/// <param name="thrown">The way the claw is thrown: it flies out that way and comes back the other.</param>
+internal sealed class NinjaPirateClawState(SignedEightEight launchSpeed, HorizontalDirection thrown) : EnemyProjectileState
 {
+    /// <summary>The way the claw is thrown, which its pirate chose: it flies out that way and comes back the other.</summary>
+    internal HorizontalDirection Thrown { get; } = thrown;
+
     /// <summary>How much a claw flying out slows each update: an eighth of a pixel an update.</summary>
     private static readonly SignedEightEight OutwardDeceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 

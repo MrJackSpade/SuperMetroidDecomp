@@ -15,22 +15,11 @@ public enum RoomEnemyProjectileKind
     PrePhantoonRoomHeldPlace,
     /// <summary>The Maw's projectile-backed body.</summary>
     YappingMawBody,
-    /// <summary>Skree's downward-right burst particle.</summary>
-    SkreeParticleOuterRight,
-    /// <summary>Skree's upward-right burst particle.</summary>
-    SkreeParticleInnerRight,
-    /// <summary>Skree's downward-left burst particle.</summary>
-    SkreeParticleOuterLeft,
-    /// <summary>Skree's upward-left burst particle.</summary>
-    SkreeParticleInnerLeft,
-    /// <summary>Metaree's downward-right metal particle.</summary>
-    MetareeParticleOuterRight,
-    /// <summary>Metaree's upward-right metal particle.</summary>
-    MetareeParticleInnerRight,
-    /// <summary>Metaree's downward-left metal particle.</summary>
-    MetareeParticleOuterLeft,
-    /// <summary>Metaree's upward-left metal particle.</summary>
-    MetareeParticleInnerLeft,
+    /// <summary>
+    /// One of the four particles a Skree or Metaree bursts into (#2278): its launch velocity is its way, and its animation
+    /// shows the enemy's own look.
+    /// </summary>
+    SkreeMetareeParticle,
     /// <summary>Crocomire's fired attack projectile.</summary>
     CrocomireProjectile,
     /// <summary>The collapsing bridge's debris actor.</summary>
@@ -41,10 +30,8 @@ public enum RoomEnemyProjectileKind
     KraidSpitRock,
     /// <summary>Falling ceiling debris in Kraid's room.</summary>
     KraidCeilingRock,
-    /// <summary>The left member of Kraid's rising floor-rock pair.</summary>
-    KraidRisingRockLeft,
-    /// <summary>The right member of Kraid's rising floor-rock pair.</summary>
-    KraidRisingRockRight,
+    /// <summary>A rock Kraid's rise throws up from the floor (#2278): its animation shows the pose its random side chooses.</summary>
+    KraidRisingRock,
     /// <summary>Phantoon's destructible flame actor.</summary>
     PhantoonDestroyableFlame,
     /// <summary>Phantoon's opening flame actor.</summary>
@@ -121,30 +108,20 @@ public enum RoomEnemyProjectileKind
     AlcoonFireball,
     /// <summary>The spike actor emitted by Powamp.</summary>
     PowampSpike,
-    /// <summary>A Work Robot laser directed upward and left.</summary>
-    WorkRobotLaserUpLeft,
-    /// <summary>The Work Robot's horizontal laser definition.</summary>
+    /// <summary>A Work Robot laser fired up or down ahead of the robot (#2278): its velocity is its way.</summary>
+    WorkRobotLaserDiagonal,
+    /// <summary>A Work Robot laser fired straight ahead of the robot: its velocity is its way.</summary>
     WorkRobotLaserHorizontal,
-    /// <summary>A Work Robot laser directed downward and left.</summary>
-    WorkRobotLaserDownLeft,
-    /// <summary>A Work Robot laser directed upward and right.</summary>
-    WorkRobotLaserUpRight,
-    /// <summary>A Work Robot laser directed downward and right.</summary>
-    WorkRobotLaserDownRight,
     /// <summary>A falling spark actor.</summary>
     FallingSpark,
     /// <summary>A persistent projectile-backed Nuclear Waffle body link.</summary>
     NuclearWaffleBody,
     /// <summary>Fake Kraid's spit projectile.</summary>
     FakeKraidSpit,
-    /// <summary>Fake Kraid's left spike projectile.</summary>
-    FakeKraidSpikeLeft,
-    /// <summary>Fake Kraid's right spike projectile.</summary>
-    FakeKraidSpikeRight,
-    /// <summary>The left-facing Ki-Hunter acid-spit definition.</summary>
-    KiHunterAcidSpitLeft,
-    /// <summary>The right-facing Ki-Hunter acid-spit definition.</summary>
-    KiHunterAcidSpitRight,
+    /// <summary>A spike Fake Kraid fires the way he faces (#2278): its velocity and pose are its way.</summary>
+    FakeKraidSpike,
+    /// <summary>Acid a Ki-Hunter spits (#2278): its velocity and animation are its way.</summary>
+    KiHunterAcidSpit,
     /// <summary>The Space Pirate laser used in Mother Brain's room.</summary>
     PirateMotherBrainLaser,
     /// <summary>A Space Pirate claw projectile.</summary>

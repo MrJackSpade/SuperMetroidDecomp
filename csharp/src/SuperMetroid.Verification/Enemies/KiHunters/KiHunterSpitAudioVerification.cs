@@ -65,7 +65,7 @@ internal static class KiHunterSpitAudioVerification
             starts += frame.Audio.Events.Count(audioEvent => audioEvent is AudioEvent.StartSoundEffect started && started.SoundEffect == spit);
         }
         Step();
-        AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
+        AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpit && !projectile.Velocity.X.IsNegative), "staged attack spawns one real acid projectile");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.Priority.Requests == 6), "the spit sound has normal priority");
         // Remain in the post-spit waiting state without introducing another attack.
         // The right spit animation's final sleep.

@@ -31,8 +31,8 @@ internal static class SkreeMetareeParticleBehaviorVerification
         };
         foreach ((Action<RoomEnemyPlace> spawn, SkreeMetareeParticleSegment program) in new VerifySkreeMetareeParticleBehaviorCase[]
                  {
-                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Skree),
-                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst), SkreeMetareeParticleSegment.Metaree),
+                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SkreeMetareeParticleSegment.Skree), SkreeMetareeParticleSegment.Skree),
+                     new VerifySkreeMetareeParticleBehaviorCase(place => SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place, SkreeMetareeParticleSegment.Metaree), SkreeMetareeParticleSegment.Metaree),
                  })
         {
             foreach (EnemyProjectile stale in enemies.Projectiles.EnemyProjectiles)

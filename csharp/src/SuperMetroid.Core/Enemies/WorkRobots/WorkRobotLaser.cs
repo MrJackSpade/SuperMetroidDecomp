@@ -1,24 +1,17 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The projectile definitions Work Robot fire cues spawn. The horizontal definition uses the owner's
-/// signed X velocity for both directions.
-/// Its values are arbitrary.
+/// The lasers Work Robot fire cues spawn (#2278): each flies ahead of the robot, the way it faces, and up, straight or
+/// down. Its values are arbitrary.
 /// </summary>
 internal enum WorkRobotLaser
 {
-    /// <summary>The up-left laser.</summary>
-    UpLeft,
+    /// <summary>The laser that flies up and ahead.</summary>
+    Upward,
 
-    /// <summary>The horizontal laser.</summary>
+    /// <summary>The laser that flies straight ahead.</summary>
     Horizontal,
 
-    /// <summary>The down-left laser.</summary>
-    DownLeft,
-
-    /// <summary>The up-right laser.</summary>
-    UpRight,
-
-    /// <summary>The down-right laser.</summary>
-    DownRight,
+    /// <summary>The laser that flies down and ahead.</summary>
+    Downward,
 }

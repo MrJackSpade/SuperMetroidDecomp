@@ -693,7 +693,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SpawnKiHunterAcidFromCue(RoomEnemyPlace body, HorizontalDirection direction)
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
-        SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
+        SpawnKiHunterAcidSpit(body, direction);
         body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterSpitWaitFrames;
     }
 
@@ -842,18 +842,16 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Spawns an acid spit from its definition and initializer.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
-    internal void SpawnKiHunterAcidSpit(RoomEnemyPlace body, bool movingRight)
+    internal void SpawnKiHunterAcidSpit(RoomEnemyPlace body, HorizontalDirection direction)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
-        RoomEnemyProjectileKind kind = movingRight
-            ? RoomEnemyProjectileKind.KiHunterAcidSpitRight
-            : RoomEnemyProjectileKind.KiHunterAcidSpitLeft;
+        bool movingRight = direction == HorizontalDirection.Right;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
-            kind,
+            RoomEnemyProjectileKind.KiHunterAcidSpit,
             Acid,
             SpriteGraphics.SpawnedBy(body));
         projectile.StartAnimation(new KiHunterAcidSpitAnimation(movingRight

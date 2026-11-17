@@ -144,6 +144,13 @@ public sealed class ScrollBoundaryCamera
     public void SetCameraXFromEnemyAi(int xPosition) => SetWholeX(xPosition);
 
     /// <summary>
+    /// Moves the camera <paramref name="pixels"/> whole pixels right, as a room's main does (#2293): the fraction, the
+    /// vertical axis and the ideal position keep what Samus's tracking left, and her next tracking starts from here.
+    /// </summary>
+    /// <param name="pixels">How far right the camera moves, in whole pixels.</param>
+    internal void NudgeRight(int pixels) => SetWholeX(CoordinateAxis.Wrap(Position.X.Whole + pixels));
+
+    /// <summary>
     /// Raises the camera to <paramref name="floor"/>'s lowest Y when it has tracked Samus above it, after both axes have
     /// tracked her and before her previous position is published. Only the whole Y changes: its fraction and the ideal
     /// position keep what the tracking left.

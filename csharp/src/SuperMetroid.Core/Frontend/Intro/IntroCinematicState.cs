@@ -602,6 +602,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             SamusCompatibility.ForNewSamus(), flashbackProjectiles.Charge, flashbackSamusArtwork)
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
+            // No room loads for the flashback: before any game starts, her footsteps and landings go by the Landing Site.
+            Room = RoomDefinitions.LandingSite,
             Position = FixedPosition<RoomPixels>.FromWhole(IntroCinematicDefinitions.Flashback.SamusPosition),
             SelectedHudItem = HudItem.Missile,
             Missiles = IntroCinematicDefinitions.Flashback.Missiles,

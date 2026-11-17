@@ -12,7 +12,6 @@ using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.NoobTube;
-using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;

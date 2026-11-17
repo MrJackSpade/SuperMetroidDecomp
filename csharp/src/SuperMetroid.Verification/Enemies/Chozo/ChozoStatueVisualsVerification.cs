@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 

@@ -47,7 +47,7 @@ internal static class RoomObjectPopulationImporter
             records.Add(new RoomObjectPlacement(header,
                 new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, argument, area),
                 storedScroll is null || retailScroll is not null ? null : ConstructedScroll(argument, storedScroll),
-                DraygonCannonObjects.IsDraygonCannonKind(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
+                DraygonCannonObjectsConstants.IsDraygonCannonKind(header) ? DraygonWallCannonAddresses.Decode(argument) : null)
             {
                 CompiledScrollChange = retailScroll,
             });

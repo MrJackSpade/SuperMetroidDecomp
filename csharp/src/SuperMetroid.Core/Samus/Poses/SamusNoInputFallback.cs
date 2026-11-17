@@ -29,7 +29,4 @@ public readonly record struct SamusNoInputFallback
         pose = _pose.GetValueOrDefault();
         return _pose is not null;
     }
-
-    /// <summary>A pose's authored fallback: <paramref name="pose"/>, or keeping the current pose where it names none.</summary>
-    internal static SamusNoInputFallback Of(SamusPoseId? pose) => new(pose);
 }

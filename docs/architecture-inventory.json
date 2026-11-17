@@ -31115,7 +31115,7 @@
         "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpriteDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument",
@@ -31142,19 +31142,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Samus.ProjectileSpriteFamily",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Samus/ProjectileSpriteFamily.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Samus.ProjectileSpriteLocations",
@@ -59494,6 +59481,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.PuyoFallRestart",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/PuyoFallRestart.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.QuicksandSurfaceSpeedLeftover",
       "kind": "static class",
       "scope": "product",
@@ -59612,7 +59612,7 @@
     },
     {
       "type": "SuperMetroid.Core.Compatibility.ReturningClawSpeed",
-      "kind": "static class",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -59621,7 +59621,7 @@
         "csharp/src/SuperMetroid.Core/Compatibility/ReturningClawSpeed.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.RidleyTailMissileTarget",
@@ -69614,7 +69614,7 @@
         "csharp/test-support/VerificationAccess.Core/Enemies/EnemyProjectileNativeWords.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyReaction",
@@ -75603,19 +75603,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeParticleDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Metroids.Artwork.MetroidFrameToolingDefinitions",
       "kind": "static class",
       "scope": "tool",
@@ -80863,32 +80850,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolAnimationChoices",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimationChoices.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolAnimationDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimationDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolAnimations",
       "kind": "static class",
       "scope": "product",
@@ -80994,6 +80955,32 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolHeadPictureDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolHeadPictureDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolHeadPictures",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolHeadPictures.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolMotionFlags",
@@ -81534,19 +81521,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Skree.MetalParticleBurst",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Skree/MetalParticleBurst.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Skree.MetalParticleBurstDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -81769,19 +81743,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Enemies/Skree/SkreeNativeWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeParticleDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -82351,19 +82312,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.SpacePirates.PirateClawMotion",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/PirateClawMotion.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.PirateHitboxShotActions",
       "kind": "static class",
       "scope": "product",
@@ -82385,19 +82333,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/PirateHitboxShotActions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.SpacePirates.PirateLaserMotion",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/PirateLaserMotion.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -82834,19 +82769,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateOptions",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateOptions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateSegment",
       "kind": "enum",
       "scope": "product",
@@ -83108,19 +83030,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateOptions",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateOptions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateSegment",
@@ -160766,7 +160675,7 @@
         "csharp/src/SuperMetroid.Verification/Enemies/Shaktool/ShaktoolNativeListAddresses.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Shaktool.ShaktoolNativeListAddressesInstruction",

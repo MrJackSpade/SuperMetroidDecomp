@@ -57,7 +57,7 @@ internal static class MotherBrainMissileWalkResetVerification
     internal static void VerifyMotherBrainWalkCreditShared()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
         var sequence = new MotherBrainRainbowBeamAttackSequence(state);
         state.RainbowBeamSequence = sequence;
         AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.ThirdPhaseFight.Phase3WalkCounter, "an attached sequence reads the encounter's credit");

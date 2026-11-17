@@ -190,7 +190,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace foot = enemies.Places.InUpdateOrder[5];
         foot.Bind(EnemyDefinitionId.KraidFoot, foot.Definition);
         // The foot binds after the encounter began, and joins it as its setup would.
-        enemies.KraidBehavior.Access.AttachKraidPart(foot, state);
+        KraidEncounterAccess.AttachKraidPart(state.FootState);
         state.FootState.Playback = Started(KraidPartSegment.FootNeutral);
         foot.AnimationClock.StepOnNextUpdate();
         Pass(foot);
@@ -225,7 +225,7 @@ internal static class KraidAnimationsVerification
         RoomEnemyPlace lint = enemies.Places.InUpdateOrder[2];
         lint.Bind(EnemyDefinitionId.KraidLintTop, lint.Definition);
         // The lint binds after the encounter began, and joins it as its setup would.
-        enemies.KraidBehavior.Access.AttachKraidPart(lint, state);
+        KraidEncounterAccess.AttachKraidPart(state.TopLintState);
         state.TopLintState.Playback = Started(KraidPartSegment.LintInitial);
         lint.AnimationClock.Stop();
         lint.AnimationClock.Extend(1);
@@ -323,7 +323,7 @@ internal static class KraidAnimationsVerification
         enemies.KraidBehavior.Background.SpawnKraidCeilingRock(96);
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.KraidCeilingRock),
             "the real ceiling producer allocates its rock in the enemy projectile pool");
-        var state = new KraidEnemyState();
+        var state = new KraidEnemyState(new KraidParts());
         random = 0;
         enemies.KraidBehavior.Rise.RequestKraidRisingRock(source);
         random = 16;

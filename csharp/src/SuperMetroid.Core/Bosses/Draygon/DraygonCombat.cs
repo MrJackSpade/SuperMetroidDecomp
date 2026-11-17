@@ -125,17 +125,13 @@ internal sealed class DraygonCombat
     {
         RoomEnemyPlace body = state.Body;
         samus.Grapple.Phase = GrapplePhase.Dropped;
-        DraygonParts.StartDraygonAnimation(
-            body,
-            state.Facing == HorizontalDirection.Right
+        state.BodyPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightDying
                 : DraygonSegment.ArmsFacingLeftDying);
-        DraygonParts.StartDraygonAnimation(
-            state.Eye,
-            state.Facing == HorizontalDirection.Right
+        state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDying
                 : DraygonSegment.EyeFacingLeftDying);
-        state.Eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
+        state.EyeTracking.Action = DraygonEyeAction.Inert;
         state.Phase = DraygonPhase.Dying;
 
         // The death behaviour releases Samus unconditionally, even during an

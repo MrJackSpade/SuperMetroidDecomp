@@ -38,9 +38,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (definition == EnemyDefinitionId.KraidLintBottom)
             return new KraidLintEntity(this, place, common, Parts.BottomLintReference, KraidLintPart.Bottom);
         if (definition == EnemyDefinitionId.KraidFirstNail)
-            return new KraidNailEntity(this, place, common, Parts.FirstNailReference);
+            return new KraidNailEntity(this, place, common, Parts.FirstNailReference, KraidNailPart.First);
         if (definition == EnemyDefinitionId.KraidSecondNail)
-            return new KraidNailEntity(this, place, common, Parts.SecondNailReference);
+            return new KraidNailEntity(this, place, common, Parts.SecondNailReference, KraidNailPart.Second);
         throw new InvalidOperationException($"The Kraid species creates no {place.DefinitionId}.");
     }
     /// <summary>Kraid's body layer: the body frame he shows, drawn from his installed body sheet.</summary>

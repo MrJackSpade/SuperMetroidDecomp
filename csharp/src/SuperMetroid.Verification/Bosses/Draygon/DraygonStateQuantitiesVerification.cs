@@ -194,22 +194,16 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
-        var state = new DraygonEnemyState(body)
-        {
-            Eye = enemies.Places.InUpdateOrder[1],
-            Tail = enemies.Places.InUpdateOrder[2],
-            Arms = enemies.Places.InUpdateOrder[3],
-        };
+        var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
         body.SetSpeciesState(state);
         state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
-        var eyeState = new DraygonEyeState(state, DraygonEyeAction.Inert);
-        state.Eye.SetSpeciesState(eyeState);
+        state.Eye.SetSpeciesState(state.EyePart);
         state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
-        state.Tail.SetSpeciesState(new DraygonPartState(state));
+        state.Tail.SetSpeciesState(state.TailPart);
         state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
-        state.Arms.SetSpeciesState(new DraygonPartState(state));
-        foreach (RoomEnemyPlace part in new[] { body, state.Eye, state.Tail, state.Arms })
-            state.StartAnimation(part, DraygonSegment.Rest);
+        state.Arms.SetSpeciesState(state.ArmsPart);
+        foreach (DraygonPart part in new[] { state.BodyPart, state.EyePart, state.TailPart, state.ArmsPart })
+            part.SetAnimation(DraygonSegment.Rest);
         // A nonzero low byte keeps the spiral from inserting a tail whip.
         enemies.VerificationServices().NextRandom = () => 4660;
         enemies.VerificationServices().ReadRandom = () => 4660;

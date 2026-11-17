@@ -5,12 +5,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// far it has travelled out of his mouth.
 /// </summary>
 [ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
-public sealed class KraidLintState : KraidPartState
+public sealed class KraidLintState : KraidAnimatedPartState
 {
     /// <summary>Makes a lint of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the lint is part of.</param>
-    internal KraidLintState(KraidEnemyState kraid)
-        : base(kraid)
+    /// <param name="reference">Kraid's reference to the lint, which it joins as it sets up.</param>
+    internal KraidLintState(KraidEnemyState kraid, KraidPartReference reference)
+        : base(kraid, reference, KraidPartSegment.LintInitial)
     {
     }
 

@@ -84,7 +84,7 @@ internal static class KraidMovementChoicesVerification
         int reads = 0;
         enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Movement choice must not advance RNG.");
-        Action<RoomEnemyPlace, RoomEnemyPlace, KraidFootState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
+        Action<RoomEnemyPlace, KraidFootState> think = enemies.KraidBehavior.Limbs.RunKraidSecondPhaseThinking;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.Position = body.Position.WithWholeX((ushort)raw);
@@ -95,7 +95,7 @@ internal static class KraidMovementChoicesVerification
                 part.ThinkTimer = 1;
                 foot.AnimationClock.HoldFor(99);
                 var expected = Expected(body.Position.X.Whole, rng);
-                think(body, foot, part);
+                think(body, part);
                 bool right = unchecked((short)(expected.TargetX - raw)) >= 0;
                 AssertEqual(expected.TargetX, state.WalkTargetX, "Actual target includes fallback row");
                 AssertEqual(expected.ThinkTimer, part.ThinkTimer, "Actual thinking delay includes weighted final choice");
@@ -110,7 +110,7 @@ internal static class KraidMovementChoicesVerification
             }
             part.ThinkTimer = raw;
             reads = 0;
-            think(body, foot, part);
+            think(body, part);
             if (raw != 1)
             {
                 AssertEqual(raw - 1, part.ThinkTimer, "Only zero after decrement triggers choice");

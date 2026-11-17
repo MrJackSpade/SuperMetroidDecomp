@@ -48,7 +48,10 @@ internal sealed class DraygonParts
         _places = dependencies.Places;
     }
 
-    /// <summary>Sets Draygon's body up when the room spawns it.</summary>
+    /// <summary>
+    /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
+    /// lists right after his body (#2298), each playing the animation its setup starts.
+    /// </summary>
     internal void InitializeDraygonBody(RoomEnemyPlace body)
     {
         // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
@@ -56,7 +59,8 @@ internal sealed class DraygonParts
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
-        var draygon = new DraygonEnemyState(body)
+        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, count: 3);
+        var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
         {
             Phase = DraygonPhase.IntroInitialDelay,
         };
@@ -70,51 +74,31 @@ internal sealed class DraygonParts
         // any hit shows it, and a reaction changes it only when his health leaves it.
         DraygonCombat.ShowDraygonHealthBand(draygon);
         body.Shading = draygon.Colours.Sprites;
-        draygon.StartAnimation(body, DraygonSegment.BodyFacingLeftIdle);
     }
 
     /// <summary>
-    /// The encounter a part other than the body joins as it sets up, which his body, listed
-    /// <paramref name="placesAfterBody"/> places before the part, has set up first; the part's animation steps on its next
-    /// update.
+    /// The part a part other than the body joins as it sets up, of the encounter his body, listed
+    /// <paramref name="placesAfterBody"/> places before the part, began (#2298): the part holds it as its species state, and
+    /// its animation, the one the encounter began it with, steps on its next update.
     /// </summary>
-    private DraygonEnemyState JoiningPart(RoomEnemyPlace part, int placesAfterBody)
+    private DraygonPart JoiningPart(RoomEnemyPlace place, int placesAfterBody, Func<DraygonEnemyState, DraygonPart> part)
     {
-        DraygonEnemyState state = _places.ListedBefore(part, placesAfterBody).RequireSpeciesState<DraygonEnemyState>();
-        part.AnimationClock.StepOnNextUpdate();
-        return state;
+        DraygonPart joined = part(_places.ListedBefore(place, placesAfterBody).RequireSpeciesState<DraygonEnemyState>());
+        place.SetSpeciesState(joined);
+        place.AnimationClock.StepOnNextUpdate();
+        return joined;
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    internal void InitializeDraygonEye(RoomEnemyPlace eye)
-    {
-        DraygonEnemyState state = JoiningPart(eye, placesAfterBody: 1);
-        var eyeState = new DraygonEyeState(state, DraygonEyeAction.Inert);
-        eye.SetSpeciesState(eyeState);
-        state.Eye = eye;
-        state.StartAnimation(eye, DraygonSegment.EyeFacingLeftIdle);
-    }
+    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, placesAfterBody: 1, draygon => draygon.EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
-    internal void InitializeDraygonTail(RoomEnemyPlace tail)
-    {
-        DraygonEnemyState state = JoiningPart(tail, placesAfterBody: 2);
-        tail.SetSpeciesState(new DraygonPartState(state));
-        state.Tail = tail;
-        tail.Shading = state.Colours.Sprites;
-        state.StartAnimation(tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
-    }
+    internal void InitializeDraygonTail(RoomEnemyPlace tail) =>
+        tail.Shading = JoiningPart(tail, placesAfterBody: 2, draygon => draygon.TailPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
-    internal void InitializeDraygonArms(RoomEnemyPlace arms)
-    {
-        DraygonEnemyState state = JoiningPart(arms, placesAfterBody: 3);
-        arms.SetSpeciesState(new DraygonPartState(state));
-        // The body's setup sets a phase before this part joins; joining clears it and starts the arms' idle loop.
-        arms.Shading = state.Colours.Sprites;
-        state.Arms = arms;
-        state.StartAnimation(arms, DraygonSegment.ArmsFacingLeftIdle);
-    }
+    internal void InitializeDraygonArms(RoomEnemyPlace arms) =>
+        arms.Shading = JoiningPart(arms, placesAfterBody: 3, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
     private static void Track(DraygonEyeState eye, HorizontalDirection facing)
@@ -124,26 +108,19 @@ internal sealed class DraygonParts
     }
 
     /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
-    internal void RunDraygonEyeMain(RoomEnemyPlace part, SamusState samus)
+    internal void RunDraygonEyeMain(DraygonEnemyState state, SamusState samus)
     {
-        DraygonEyeState eye = part.RequireSpeciesState<DraygonEyeState>();
+        DraygonEyeState eye = state.EyeTracking;
         switch (eye.Action)
         {
             case DraygonEyeAction.Inert:
                 return;
             case DraygonEyeAction.Tracking:
-                TrackSamusWithDraygonEye(part, samus, eye.Facing);
+                TrackSamusWithDraygonEye(state, samus, eye.Facing);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined Draygon eye action {eye.Action}.");
         }
-    }
-
-    /// <summary>Restarts a linked Draygon part's animation on its next update, as starting an animation does.</summary>
-    internal static void StartDraygonAnimation(RoomEnemyPlace part, DraygonSegment segment)
-    {
-        DraygonEntity.EncounterOf(part).StartAnimation(part, segment);
-        part.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>
@@ -151,34 +128,36 @@ internal sealed class DraygonParts
     /// its timer would, a new frame raises the new-frame flag, waits keep the frame, and a stop deletes the
     /// part.
     /// </summary>
-    internal void AdvanceDraygonPartAnimation(DraygonEnemyState state, RoomEnemyPlace part, SamusState samus)
+    internal void AdvanceDraygonPartAnimation(DraygonPart running, SamusState samus)
     {
+        RoomEnemyPlace part = running.Place;
+        DraygonEnemyState state = running.Draygon;
         if (!part.AnimationClock.Expire())
             return;
 
-        AnimationPlayback<DraygonSegment> playback = state.Playback(part);
+        AnimationPlayback<DraygonSegment> playback = running.Playback;
         Animation<DraygonSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
         AnimationShown<DraygonSegment, EnemyFrameId> shown = DraygonAnimations.Segments.PlayToNextFrame(ref animation, ref place,
             cue =>
             {
-                ApplyDraygonCue(state, part, samus, cue);
+                ApplyDraygonCue(state, samus, cue);
                 return null;
             });
         switch (shown)
         {
             case AnimationShown<DraygonSegment, EnemyFrameId>.Frame frame:
-                state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
+                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
                 part.Frame = frame.Shown;
                 part.AnimationClock.Show(frame.Duration);
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Paused paused:
-                state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
+                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
                 part.AnimationClock.Pause(paused.Duration);
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Held:
                 // A rest: the timer wraps from zero and the last frame stays.
-                state.SetPlayback(part, new AnimationPlayback<DraygonSegment>(animation, place));
+                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
                 return;
             case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
                 // The end deletes the part and leaves its animation's place unwritten.
@@ -190,30 +169,31 @@ internal sealed class DraygonParts
     }
 
     /// <summary>
-    /// Carries out one cue of a Draygon animation run by <paramref name="part"/>. Animation starts write the parts'
-    /// stored playbacks, so the running part's own write is replaced when its update ends, as the animation runner's
-    /// final store of the running part's position replaces it.
+    /// Carries out one cue of a Draygon animation. Animation starts write the parts' stored playbacks, so the running
+    /// part's own write is replaced when its update ends, as the animation runner's final store of the running part's
+    /// position replaces it.
     /// </summary>
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
-    private void ApplyDraygonCue(DraygonEnemyState state, RoomEnemyPlace part, SamusState samus, DraygonCue cue)
+    private void ApplyDraygonCue(DraygonEnemyState state, SamusState samus, DraygonCue cue)
     {
         switch (cue)
         {
             case DraygonCue.StartPartAnimations start:
-                state.StartAnimation(state.Body, start.Body);
-                state.StartAnimation(state.Eye, start.Eye);
-                state.StartAnimation(state.Tail, start.Tail);
-                state.StartAnimation(state.Arms, start.Arms);
+                state.BodyPart.SetAnimation(start.Body);
+                state.EyePart.SetAnimation(start.Eye);
+                state.TailPart.SetAnimation(start.Tail);
+                state.ArmsPart.SetAnimation(start.Arms);
                 state.Arms.AnimationClock.StepOnNextUpdate();
                 state.Tail.AnimationClock.StepOnNextUpdate();
                 state.Eye.AnimationClock.StepOnNextUpdate();
                 state.Body.AnimationClock.StepOnNextUpdate();
                 return;
+            // Only his eye's animations track with its own eye, so both cues set the eye's tracking.
             case DraygonCue.TrackWithEye track:
-                Track(state.Eye.RequireSpeciesState<DraygonEyeState>(), track.Facing);
+                Track(state.EyeTracking, track.Facing);
                 return;
             case DraygonCue.TrackWithOwnEye track:
-                Track(part.RequireSpeciesState<DraygonEyeState>(), track.Facing);
+                Track(state.EyeTracking, track.Facing);
                 return;
             case DraygonCue.ShiftBodyPicture shift:
                 state.BodyPictureShift = shift.Shift;
@@ -225,8 +205,8 @@ internal sealed class DraygonParts
                 SpawnRandomDyingDraygonEffect(state, dying.Kind);
                 return;
             case DraygonCue.ParalyseTailAndArms:
-                StartDraygonAnimation(state.Tail, DraygonSegment.Rest);
-                StartDraygonAnimation(state.Arms, DraygonSegment.Rest);
+                state.TailPart.StartAnimation(DraygonSegment.Rest);
+                state.ArmsPart.StartAnimation(DraygonSegment.Rest);
                 return;
             case DraygonCue.SetBodyIntangible:
                 state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
@@ -254,8 +234,9 @@ internal sealed class DraygonParts
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Runs the eye direction partition.</summary>
-    internal void TrackSamusWithDraygonEye(RoomEnemyPlace eye, SamusState samus, HorizontalDirection facing)
+    internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
+        RoomEnemyPlace eye = state.Eye;
         // Emission precedes the angle-change early return, so a stationary
         // target must not suppress the periodic particle. It shares the real pool.
         if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
@@ -266,7 +247,7 @@ internal sealed class DraygonParts
         Position16<RoomPixels> gaze = eye.Position.Whole +
             TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
         Bearing bearing = EnemyMath.CalculateBearing(samus.Position.Whole - gaze);
-        DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
+        DraygonEyeState eyeState = state.EyeTracking;
         if (bearing == eyeState.LookAngle)
             return;
 
@@ -291,7 +272,7 @@ internal sealed class DraygonParts
                 throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest the diagonal {direction}."),
             _ => throw new InvalidOperationException($"Draygon's eye bearing {bearing} is nearest no straight direction."),
         };
-        StartDraygonAnimation(eye, look);
+        state.EyePart.StartAnimation(look);
     }
 
     /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>

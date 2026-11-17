@@ -1757,7 +1757,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=DraygonHealthBandDefinitions.HighestFirst[5]};
+                                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { HealthBand=DraygonHealthBandDefinitions.HighestFirst[5]};
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -1809,7 +1809,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
                 var artworkBosses = new BossSourceArtwork { DraygonColors = selected };
                 var enemies=EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses); var cgram=new SnesCgram();
-                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body){Eye=enemies.Places.InUpdateOrder[1],Tail=enemies.Places.InUpdateOrder[2],Arms=enemies.Places.InUpdateOrder[3],HealthBand=DraygonHealthBandDefinitions.HighestFirst[3]};
+                var body=enemies.Places.InUpdateOrder[0]; var state=new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { HealthBand=DraygonHealthBandDefinitions.HighestFirst[3]};
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -1854,7 +1854,7 @@ internal static class LookupStream4Verification
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artworkBosses);
                 var cgram = new SnesCgram();
                 RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-                var state = new DraygonEnemyState(body) { Eye = enemies.Places.InUpdateOrder[1], Tail = enemies.Places.InUpdateOrder[2], Arms = enemies.Places.InUpdateOrder[3] };
+                var state = new DraygonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]){};
                 Action<DraygonEnemyState> update = DraygonCombat.UpdateDraygonHealthBand;
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)

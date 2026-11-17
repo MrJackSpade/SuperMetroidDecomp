@@ -12,6 +12,9 @@ internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place
     /// <inheritdoc/>
     protected override void SetUp() => Species.Limbs.InitializeKraidArm(Place);
 
+    /// <summary>The arm's own part of the encounter.</summary>
+    protected override KraidAnimatedPartState Part => Encounter.ArmState;
+
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
 

@@ -61,34 +61,6 @@ internal sealed class KraidParts
     /// <summary>His second fingernail, which runs last.</summary>
     internal RoomEnemyPlace SecondNail => SecondNailReference.Place;
 
-    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's parts <paramref name="place"/> is.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="place"/> has not initialized as one of his parts.</exception>
-    internal KraidPartState StateOf(KraidEnemyState state, RoomEnemyPlace place) =>
-        BodyReference.Holds(place) ? state.BodyState
-        : ArmReference.Holds(place) ? state.ArmState
-        : TopLintReference.Holds(place) ? state.TopLintState
-        : MiddleLintReference.Holds(place) ? state.MiddleLintState
-        : BottomLintReference.Holds(place) ? state.BottomLintState
-        : FootReference.Holds(place) ? state.FootState
-        : FirstNailReference.Holds(place) ? state.FirstNailState
-        : SecondNailReference.Holds(place) ? state.SecondNailState
-        : throw new InvalidOperationException($"Enemy {place.Ordinal} is not one of Kraid's parts.");
-
-    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's lints <paramref name="place"/> is.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="place"/> is not one of his lints.</exception>
-    internal KraidLintState LintStateOf(KraidEnemyState state, RoomEnemyPlace place) =>
-        ReferenceEquals(place, TopLint) ? state.TopLintState
-        : ReferenceEquals(place, MiddleLint) ? state.MiddleLintState
-        : ReferenceEquals(place, BottomLint) ? state.BottomLintState
-        : throw new InvalidOperationException($"Enemy {place.Ordinal} is not one of Kraid's lints.");
-
-    /// <summary>The state <paramref name="state"/> keeps for whichever of Kraid's fingernails <paramref name="place"/> is.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="place"/> is not one of his fingernails.</exception>
-    internal KraidNailState NailStateOf(KraidEnemyState state, RoomEnemyPlace place) =>
-        ReferenceEquals(place, FirstNail) ? state.FirstNailState
-        : ReferenceEquals(place, SecondNail) ? state.SecondNailState
-        : throw new InvalidOperationException($"Enemy {place.Ordinal} is not one of Kraid's fingernails.");
-
     /// <summary>His lint part <paramref name="part"/>.</summary>
     internal RoomEnemyPlace Lint(KraidLintPart part) => part switch
     {

@@ -5,8 +5,9 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide state and the values of his body. The four visible enemy parts remain physical <see cref="RoomEnemyPlace"/> instances; the eye's values live
-/// in its own <see cref="DraygonEyeState"/>.
+/// Draygon's encounter-wide state and the values of his body. His four parts, body, eye, tail and arms, are each its own
+/// enemy made with the encounter by his body's setup and keeping its own animation (#2298); the eye's tracking lives in
+/// <see cref="EyeTracking"/>.
 /// </summary>
 public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
@@ -16,10 +17,20 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// <summary>His body shows nothing once his body is deleted, as his room keeps showing it (#2194).</summary>
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => Body.Presence.HasAny(EnemyPresence.Deleted);
 
-    /// <summary>Anchors the encounter-wide state to Draygon's body, in the health band his health starts in (#2304).</summary>
-    internal DraygonEnemyState(RoomEnemyPlace body)
+    /// <summary>
+    /// Begins the encounter of the body at <paramref name="body"/> and the parts his room lists with it, each playing the
+    /// animation its setup starts, in the health band his health starts in (#2304).
+    /// </summary>
+    /// <param name="body">The place his body occupies.</param>
+    /// <param name="eye">The place his eye occupies.</param>
+    /// <param name="tail">The place his tail occupies.</param>
+    /// <param name="arms">The place his arms occupy.</param>
+    internal DraygonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tail, RoomEnemyPlace arms)
     {
-        Body = body;
+        BodyPart = new DraygonPart(this, body, DraygonSegment.BodyFacingLeftIdle);
+        EyePart = new DraygonPart(this, eye, DraygonSegment.EyeFacingLeftIdle);
+        TailPart = new DraygonPart(this, tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
+        ArmsPart = new DraygonPart(this, arms, DraygonSegment.ArmsFacingLeftIdle);
         HealthBand = DraygonHealthBand.Of(body.Health);
     }
 
@@ -36,29 +47,31 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     }
 
     /// <summary>His body, which owns encounter movement, health, and the body's phases, and runs first.</summary>
-    public RoomEnemyPlace Body { get; }
-    /// <summary>Each part's playing animation and where it stands, keyed by the part.</summary>
-    private readonly Dictionary<RoomEnemyPlace, AnimationPlayback<DraygonSegment>> _playbacks = new(ReferenceEqualityComparer.Instance);
+    public DraygonPart BodyPart { get; }
 
-    /// <summary><paramref name="part"/>'s playing animation and where it stands.</summary>
-    internal AnimationPlayback<DraygonSegment> Playback(RoomEnemyPlace part) =>
-        _playbacks.TryGetValue(part, out AnimationPlayback<DraygonSegment> playback)
-            ? playback
-            : throw new InvalidOperationException("A Draygon part has no animation.");
+    /// <summary>His eye, which tracks Samus using coordinates copied from the body.</summary>
+    public DraygonPart EyePart { get; }
 
-    /// <summary>Sets <paramref name="part"/>'s playing animation and where it stands.</summary>
-    internal void SetPlayback(RoomEnemyPlace part, AnimationPlayback<DraygonSegment> playback) => _playbacks[Ensure.NotNull(part)] = playback;
+    /// <summary>His tail, whose animations drive whips and the final release handshake.</summary>
+    public DraygonPart TailPart { get; }
 
-    /// <summary>Starts the animation beginning at <paramref name="segment"/> on <paramref name="part"/>, before its first play.</summary>
-    internal void StartAnimation(RoomEnemyPlace part, DraygonSegment segment) =>
-        SetPlayback(part, new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation));
+    /// <summary>His arms, whose animation follows the body's authoritative coordinates.</summary>
+    public DraygonPart ArmsPart { get; }
 
-    /// <summary>His eye, attached by its initializer; tracks Samus using coordinates copied from the body.</summary>
-    public RoomEnemyPlace Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>His tail, attached by its initializer; its animations drive whips and the final release handshake.</summary>
-    public RoomEnemyPlace Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>His arms, attached by their initializer; their animation follows the body's authoritative coordinates.</summary>
-    public RoomEnemyPlace Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
+    /// <summary>The place his body occupies.</summary>
+    public RoomEnemyPlace Body => BodyPart.Place;
+
+    /// <summary>The place his eye occupies.</summary>
+    public RoomEnemyPlace Eye => EyePart.Place;
+
+    /// <summary>The place his tail occupies.</summary>
+    public RoomEnemyPlace Tail => TailPart.Place;
+
+    /// <summary>The place his arms occupy.</summary>
+    public RoomEnemyPlace Arms => ArmsPart.Place;
+
+    /// <summary>His eye's tracking: inert until his body publishes the way he faces, then tracking Samus.</summary>
+    internal DraygonEyeState EyeTracking { get; } = new(DraygonEyeAction.Inert);
 
 
 

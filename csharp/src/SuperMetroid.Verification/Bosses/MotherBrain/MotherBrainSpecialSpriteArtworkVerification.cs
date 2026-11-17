@@ -99,7 +99,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             .SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain, EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), resolver))];
         AssertEqual(MotherBrainReadyingDefinitions.StandingBodyDuration, standing.Length, "her rise readies her standing body one update a page her looks copy");
         SnesVram ObjVram(int copied) => ObjCharacterVramImage.Of(EncounterArtworkPlacements.Of(standing.Take(copied)), resolver);
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
 
         for (int page = 0; page < MotherBrainReadyingDefinitions.StandingBodyDuration; page++)
         {

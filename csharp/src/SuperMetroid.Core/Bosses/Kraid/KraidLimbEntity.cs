@@ -22,10 +22,13 @@ internal abstract class KraidLimbEntity(KraidBehavior species, RoomEnemyPlace pl
     public ActorDepth? PictureDepth => Pose?.Depth;
 
     /// <summary>The pose the limb's animation shows, or null before it shows one.</summary>
-    private KraidPartPose? Pose => Place.RequireSpeciesState<KraidPartState>().Pose;
+    private KraidPartPose? Pose => Part.Pose;
+
+    /// <summary>The limb's own part of the encounter, its animation included (#2298).</summary>
+    protected abstract KraidAnimatedPartState Part { get; }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Place);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Limbs.AdvanceKraidPartAnimation(Part);
 
     /// <summary>The limb's shot reaction behind its ignoring definition, or the shared one.</summary>
     public override EnemyShotReaction? ShotReaction =>

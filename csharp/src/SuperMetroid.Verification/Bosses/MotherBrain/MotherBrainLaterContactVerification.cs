@@ -24,7 +24,7 @@ internal static class MotherBrainLaterContactVerification
         var body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         body.Bind(body.DefinitionId, RoomEnemyDefinitionLookup.Get(body.DefinitionId));
-        var state = new MotherBrainEnemyState(body, new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = enemies.Places.InUpdateOrder[1], Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        var state = new MotherBrainEnemyState(body, enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Form = MotherBrainForm.SecondPhase, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckJoints[1] = new(250, 80);
         state.NeckJoints[2] = state.NeckJoints[3] = new(500, 500);

@@ -14,8 +14,8 @@ internal sealed class DraygonArmsEntity(DraygonBehavior species, RoomEnemyPlace 
     /// <inheritdoc/>
     public override void Initialize() => Species.Parts.InitializeDraygonArms(Place);
 
-    /// <summary>The encounter the arms joined as they set up.</summary>
-    internal override DraygonEnemyState Encounter => Place.RequireSpeciesState<DraygonPartState>().Draygon;
+    /// <summary>The arms' part of the encounter they joined as they set up.</summary>
+    internal override DraygonPart Part => Place.RequireSpeciesState<DraygonPart>();
 
     /// <summary>Takes no action of their own; his body's fight animates the arms.</summary>
     /// <param name="frame">The enemy frame.</param>

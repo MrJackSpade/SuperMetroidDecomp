@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkKraidVerification
     private static RunKraidHeadFrameResult RunKraidHeadFrame(ImportEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadTilemapFormat.HeadsByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
-        var state = new KraidEnemyState { BodyAppearance = KraidBodyAppearance.BehindSprites, DisplayedHeadFrame = frame };
+        var state = new KraidEnemyState(new KraidParts()) { BodyAppearance = KraidBodyAppearance.BehindSprites, DisplayedHeadFrame = frame };
         state.ShowBody();
         return new RunKraidHeadFrameResult(state, KraidBodyFixtures.Shown(artwork.Bosses, state));
     }
@@ -121,7 +121,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
     private static KraidEnemyState InitializeKraidBackground()
     {
-        var state = new KraidEnemyState();
+        var state = new KraidEnemyState(new KraidParts());
         state.InitializeBodyLayer();
         return state;
     }

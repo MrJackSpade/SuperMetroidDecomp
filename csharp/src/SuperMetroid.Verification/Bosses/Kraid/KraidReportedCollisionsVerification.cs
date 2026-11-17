@@ -91,9 +91,9 @@ internal static class KraidReportedCollisionsVerification
             var lint = runtime.Enemies.Places.InUpdateOrder[2];
             lint.Position = lint.Position.WithWhole(new(126, 400));
             lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
-            runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint).Phase = KraidLintPhase.Inactive;
+            ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()).Phase = KraidLintPhase.Inactive;
             ResetSamus(100, 400);
-            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, runtime.Enemies.KraidBehavior.Parts.LintStateOf(state, lint), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
+            runtime.Enemies.KraidBehavior.Projectiles.RunKraidLintMain(lint, ((KraidLintState)lint.RequireSpeciesState<KraidPartState>()), samus, RoomEnemyFrameFixtures.StandalonePseudoScrew());
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
             AssertEqual(-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Contact.HasAny(EnemyContact.IgnoresSamus), "Lint becomes intangible after contact");

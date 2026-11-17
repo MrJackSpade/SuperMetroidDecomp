@@ -67,9 +67,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        DraygonParts.StartDraygonAnimation(
-            state.Arms,
-            state.Facing == HorizontalDirection.Right
+        state.ArmsPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightGrab
                 : DraygonSegment.ArmsFacingLeftGrab);
 
@@ -117,9 +115,7 @@ internal sealed class DraygonGrab
         if (reachedTarget)
         {
             state.Phase = DraygonPhase.FlailWithSamus;
-            DraygonParts.StartDraygonAnimation(
-                body,
-                state.Facing == HorizontalDirection.Right
+            state.BodyPart.StartAnimation(state.Facing == HorizontalDirection.Right
                     ? DraygonSegment.BodyFacingRightRoar
                     : DraygonSegment.BodyFacingLeftRoar);
             body.Contact = body.Contact.With(EnemyContact.IgnoresSamus);
@@ -200,9 +196,7 @@ internal sealed class DraygonGrab
 
         if (state.TailWhipTimer == DraygonBehavior.DraygonTailWhipStartFrame)
         {
-            DraygonParts.StartDraygonAnimation(
-                state.Tail,
-                state.Facing == HorizontalDirection.Right
+            state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
                     ? DraygonSegment.TailFacingRightWhip
                     : DraygonSegment.TailFacingLeftWhip);
         }
@@ -212,9 +206,7 @@ internal sealed class DraygonGrab
     internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState samus)
     {
         MoveSamusWithDraygon(state, samus);
-        DraygonParts.StartDraygonAnimation(
-            state.Tail,
-            state.Facing == HorizontalDirection.Right
+        state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.TailFacingRightFinalWhips
                 : DraygonSegment.TailFacingLeftFinalWhips);
         state.Phase = DraygonPhase.FinalTailWhipsWait;
@@ -243,9 +235,7 @@ internal sealed class DraygonGrab
 
         state.Phase = DraygonPhase.FlyStraightUp;
         state.Body.Contact = state.Body.Contact.Without(EnemyContact.IgnoresSamus);
-        DraygonParts.StartDraygonAnimation(
-            state.Tail,
-            state.Facing == HorizontalDirection.Right
+        state.TailPart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.TailFacingRightFlail
                 : DraygonSegment.TailFacingLeftFlail);
     }

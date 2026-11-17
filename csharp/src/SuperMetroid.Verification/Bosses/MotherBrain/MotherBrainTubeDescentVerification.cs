@@ -12,7 +12,7 @@ internal static class MotherBrainTubeDescentVerification
     internal static int VerifyMotherBrainTubeDescent()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], new MotherBrainWalkCounter(), new MotherBrainBurstCycle()) { Head = enemies.Places.InUpdateOrder[1] };
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle());
         enemies.MotherBrainEncounter.BeginAsSetUp(state, state.Head);
         var tube = enemies.Places.InUpdateOrder[2];
         tube.SetSpawnParameter1(EnemyDefinitionId.MotherBrainTubes, 8);

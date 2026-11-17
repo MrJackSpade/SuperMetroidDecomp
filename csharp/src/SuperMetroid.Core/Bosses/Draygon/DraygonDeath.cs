@@ -65,24 +65,22 @@ internal sealed class DraygonDeath
         state.Phase = DraygonPhase.DyingWaitForEvirs;
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         state.BurialWait = DraygonBehavior.DraygonBurialWaitUpdates;
-        DraygonParts.StartDraygonAnimation(body, DraygonSegment.Rest);
+        state.BodyPart.StartAnimation(DraygonSegment.Rest);
 
-        // The tail and arms take the body's properties, deleted.
-        EnemyPresence deletedPartPresence = body.Presence.With(EnemyPresence.Deleted);
-        state.Tail.Contact = body.Contact;
-        state.Tail.Processing = body.Processing;
-        state.Tail.Presence = deletedPartPresence;
-        state.Arms.Contact = body.Contact;
-        state.Arms.Processing = body.Processing;
-        state.Arms.Presence = deletedPartPresence;
-        RoomEnemyPlace eye = state.Eye;
-        DraygonParts.StartDraygonAnimation(
-            eye,
-            state.Facing == HorizontalDirection.Right
+        // The tail and arms are deleted (#2298).
+        DeleteDraygonPart(state.Tail);
+        DeleteDraygonPart(state.Arms);
+        state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDead
                 : DraygonSegment.EyeFacingLeftDead);
-        eye.RequireSpeciesState<DraygonEyeState>().Action = DraygonEyeAction.Inert;
+        state.EyeTracking.Action = DraygonEyeAction.Inert;
     }
+
+    /// <summary>
+    /// Deletes one of his parts as he dies (#2298): a deleted part neither draws, collides nor runs, so its other
+    /// properties are left as they are.
+    /// </summary>
+    private static void DeleteDraygonPart(RoomEnemyPlace part) => part.Presence = part.Presence.With(EnemyPresence.Deleted);
 
     /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>
     internal void WaitForDraygonBurialEvirs(
@@ -112,7 +110,7 @@ internal sealed class DraygonDeath
         if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonBehavior.DraygonBurialFinishedY) < 0)
             return;
 
-        DraygonParts.StartDraygonAnimation(body, DraygonSegment.Delete);
+        state.BodyPart.StartAnimation(DraygonSegment.Delete);
 
         // The death drops use Draygon's body definition for sixteen independent drops over the
         // lower half of the arena. The drops spawn before the body is deleted.
@@ -124,11 +122,9 @@ internal sealed class DraygonDeath
             yBase: DraygonArenaDefinitions.DeathDropOrigin.Y,
             yScatter: EnemyDropScatterDefinitions.ArenaBandVerticalScatter,
             samus: samus);
-        // The body is deleted, and the eye takes the body's properties.
-        body.Presence = body.Presence.With(EnemyPresence.Deleted);
-        state.Eye.Contact = body.Contact;
-        state.Eye.Processing = body.Processing;
-        state.Eye.Presence = body.Presence;
+        // The body and the eye are deleted (#2298).
+        DeleteDraygonPart(body);
+        DeleteDraygonPart(state.Eye);
         if (!state.BossDefeatPersisted)
         {
             _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);

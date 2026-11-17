@@ -30,21 +30,17 @@ public sealed class CeresHazeState
     private Phase _phase;
     /// <summary>How far the haze has faded: the strength fading in shows next, or the strength fading out shows next.</summary>
     private int _counter;
-    /// <summary>Whether the loaded room setup owns a haze effect; false makes updates inert and suppresses the renderer's layer, independently of the stored fade phase.</summary>
-    public bool Enabled { get; private set; }
     /// <summary>Channel selection sampled once when the haze starts: true chooses the Ridley-dead red ramp, false the Ridley-alive blue ramp; later defeats do not retarget it.</summary>
     public bool IsRed { get; private set; }
     /// <summary>The strength the haze shows, in steps of its fade: 0 through 15 as it fades in, 16 down to 1 as it fades out, and 1 once it has faded out.</summary>
     public int Intensity { get; private set; }
 
-    /// <summary>Samples Ridley's defeat once, as the room's haze starts.</summary>
-    /// <param name="enabled">Whether the room's setup spawns the Ceres haze owner.</param>
+    /// <summary>Samples Ridley's defeat once, as the room's haze starts; only a room whose setup spawns the haze builds one.</summary>
     /// <param name="ridleyIsDead">Whether the loaded area's boss is defeated, selecting red rather than blue for this owner's lifetime.</param>
     /// <param name="immediateViewport">True for immediate viewport installation: starts holding at counter 16 with published strength 15; false starts waiting at zero for the door fade-in phase.</param>
-    [IndependentFlag("independent facts of the loaded room: whether it spawns the haze, whether Ridley is defeated, and immediate viewport installation")]
-    public CeresHazeState(bool enabled, bool ridleyIsDead, bool immediateViewport)
+    [IndependentFlag("independent facts of the loaded room: whether Ridley is defeated, and immediate viewport installation")]
+    public CeresHazeState(bool ridleyIsDead, bool immediateViewport)
     {
-        Enabled = enabled;
         IsRed = ridleyIsDead;
         _phase = immediateViewport ? Phase.Holding : Phase.Waiting;
         _counter = immediateViewport ? CeresHazeDefinitions.FadeSteps : 0;
@@ -58,7 +54,6 @@ public sealed class CeresHazeState
     /// </param>
     public void Step(CeresHazeRoomFade roomFade = CeresHazeRoomFade.None)
     {
-        if (!Enabled) return;
         if (_phase == Phase.Waiting)
         {
             if (roomFade != CeresHazeRoomFade.FadeIn) return;

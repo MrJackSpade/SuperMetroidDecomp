@@ -7,7 +7,8 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Escape-sequence room effects: their setup on room entry and their per-frame step.
+/// The escape rooms' mains' shared work (#2287): their explosions and the diagonal turns of their shaking. Each room's
+/// setup starts its own quake (<see cref="RoomStates.RoomSetupBehavior"/>).
 /// </summary>
 internal sealed class EscapeRoomEffects
 {
@@ -15,78 +16,39 @@ internal sealed class EscapeRoomEffects
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Paces the explosions on the escape's two- or four-update cadence.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Provides the active room behaviour, camera and level.</summary>
-    private readonly ActiveRoomState _room;
     /// <summary>Supplies the game's random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape behaviours.</summary>
-    internal EscapeRoomEffects(GameplayTimeFreeze freeze, FrameClock clock, ActiveRoomState room, SharedGameState system)
+    /// <summary>Binds the freeze, clock and system owners the escape rooms' mains read.</summary>
+    internal EscapeRoomEffects(GameplayTimeFreeze freeze, FrameClock clock, SharedGameState system)
     {
         _freeze = freeze;
         _clock = clock;
-        _room = room;
         _system = system;
     }
-    /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two switchers.</summary>
-    internal void SetupEscapeRoomEffects(RoomSetupBehavior setup, RoomEnemySystem enemies, EscapeDiagonalQuakeState diagonalQuake)
-    {
-        // The two rooms whose mains switch between quakes clear the diagonal countdown in their setup; the other
-        // setups leave the countdown the previous room's main left.
-        if (setup is RoomSetupBehavior.SetLightHorizontalRoomShaking or
-            RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid)
-            diagonalQuake.Countdown = WrappingCountdown.Start(0);
-        EarthquakeShake? shake = setup switch
-        {
-            RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking or
-            RoomSetupBehavior.SetLightHorizontalRoomShaking => ZebesEscapeDefinitions.LightHorizontal,
-            RoomSetupBehavior.SetMediumHorizontalRoomShaking or
-            RoomSetupBehavior.MediumHorizontalShakingWithRisingAcid => ZebesEscapeDefinitions.MediumHorizontal,
-            RoomSetupBehavior.OpenRescuedAnimalsPassageAndQuake => ZebesEscapeDefinitions.MainstreetQuake,
-            RoomSetupBehavior.LandSkyWithLandingSiteQuake => ZebesEscapeDefinitions.LandingQuake,
-            RoomSetupBehavior.None or RoomSetupBehavior.AutoDestroyWallDuringEscape or
-                RoomSetupBehavior.TurnWallIntoShotBlocksDuringEscape or
-                RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean or
-                RoomSetupBehavior.RunStatueUnlockingAnimations or
-                RoomSetupBehavior.HoldPrePhantoonProjectilePlace or
-                RoomSetupBehavior.SpawnShaktoolController or
-                RoomSetupBehavior.SetCollectedMap or
-                RoomSetupBehavior.SealCeresDoorAndSpawnHaze or RoomSetupBehavior.SpawnCeresHaze or
-                RoomSetupBehavior.SpawnCeresRidleyArenaHaze => null,
-            _ => throw new InvalidOperationException($"Undefined room setup {setup}."),
-        };
-        if (shake is { } quake)
-            enemies.Earthquake.ShakeIndefinitely(quake);
-        if (setup == RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking)
-            _system.SetEvent(SuperMetroid.Core.Progression.StoryEvent.ZebesTimebombSet);
-    }
-
-    /// <summary>Runs the escape room-main behaviours at the post-draw boundary.</summary>
-    internal void StepEscapeRoomEffects(RoomScope room)
+    /// <summary>
+    /// Runs one escape room's main at the post-draw boundary (#2287): its diagonal shaking where it has one, then its
+    /// explosions at its site's cadence.
+    /// </summary>
+    /// <param name="room">The loaded room.</param>
+    /// <param name="site">Where the room's explosions go off.</param>
+    /// <param name="diagonal">The room's diagonal shaking and its countdown, or null for a room whose shaking never turns diagonal.</param>
+    internal void StepEscapeRoom(RoomScope room, EscapeExplosionSite site, EscapeDiagonalQuake? diagonal)
     {
         RoomEnemySystem enemies = room.Enemies;
-        EscapeDiagonalQuakeState diagonalQuake = room.EscapeDiagonalQuake;
-        if (_room.ActiveRoom is null || _room.Camera is null || _room.LevelData is null) return;
-        RoomMainBehavior main = _room.ActiveRoom.State.MainBehavior;
-        bool outdoors = main is RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions or
-            RoomMainBehavior.ShakeScreenWithRandomExplosions;
-        bool light = main == RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal;
-        bool medium = main == RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal;
-        if (!ZebesEscapeDefinitions.ExplosionRoomMains.Contains(main))
-            return;
-        if (light || medium)
+        bool outdoors = site == EscapeExplosionSite.Outdoors;
+        if (diagonal is { Shaking: var shaking, Countdown: var countdown })
         {
-            if (!diagonalQuake.Countdown.IsZero)
+            if (!countdown.Countdown.IsZero)
             {
-                diagonalQuake.Countdown = diagonalQuake.Countdown.Decrement().Remaining;
-                if (diagonalQuake.Countdown.IsZero)
-                    enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.LightHorizontal : ZebesEscapeDefinitions.MediumHorizontal);
+                countdown.Countdown = countdown.Countdown.Decrement().Remaining;
+                if (countdown.Countdown.IsZero)
+                    enemies.Earthquake.ChangeShake(shaking.Horizontal);
             }
-            else if ((light ? ZebesEscapeDefinitions.LightShakeTurnsDiagonal : ZebesEscapeDefinitions.MediumShakeTurnsDiagonal)
-                .IsTakenBy(_system.NextRandom()))
+            else if (shaking.TurnsDiagonal.IsTakenBy(_system.NextRandom()))
             {
-                diagonalQuake.Countdown = WrappingCountdown.Start(ZebesEscapeDefinitions.DiagonalFrames);
-                enemies.Earthquake.ChangeShake(light ? ZebesEscapeDefinitions.MediumDiagonal : ZebesEscapeDefinitions.StrongDiagonal);
+                countdown.Countdown = WrappingCountdown.Start(ZebesEscapeDefinitions.DiagonalFrames);
+                enemies.Earthquake.ChangeShake(shaking.Diagonal);
             }
         }
         UpdateCadence explosionCadence = outdoors
@@ -96,12 +58,12 @@ internal sealed class EscapeRoomEffects
         {
             int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
-                CoordinateAxis.Wrap(_room.Camera.PixelPosition.X + ZebesEscapeDefinitions.ExplosionScreenX.Of(random)),
-                CoordinateAxis.Wrap(_room.Camera.PixelPosition.Y + ZebesEscapeDefinitions.ExplosionScreenY.Of(random)));
+                CoordinateAxis.Wrap(room.Camera.PixelPosition.X + ZebesEscapeDefinitions.ExplosionScreenX.Of(random)),
+                CoordinateAxis.Wrap(room.Camera.PixelPosition.Y + ZebesEscapeDefinitions.ExplosionScreenY.Of(random)));
             Position16<RoomBlocks> block = explosion.ToRoomBlock();
             // Outdoors an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the kind
             // its block's column phase gives it; indoors such an explosion is a small explosion.
-            if (!outdoors || !_room.LevelData.GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing)
+            if (!outdoors || !room.LevelData.GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing)
                 enemies.RoomObjectSpawns.SpawnEscapeExplosion(explosion, _system.NextRandom(), outdoors
                     ? ZebesEscapeExplosions.OutdoorKindLeftOpen(block)
                     : ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen);

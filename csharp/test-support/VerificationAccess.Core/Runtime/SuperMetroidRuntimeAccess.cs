@@ -104,20 +104,24 @@ internal static class SuperMetroidRuntimeAccess
         /// <summary>The loaded room's palette FX.</summary>
         internal ColourEffectSystem RoomPaletteFx => self.Room.LoadedScope.ColourEffects;
 
-        /// <summary>The loaded room's Ceres haze.</summary>
-        internal CeresHazeState CeresHaze => self.Room.LoadedScope.CeresHaze;
+        /// <summary>The loaded room's Ceres haze; the room's setup must spawn one.</summary>
+        internal CeresHazeState CeresHaze => self.Room.LoadedScope.CeresHaze ??
+            throw new InvalidOperationException("The loaded room's setup spawns no Ceres haze.");
 
         /// <summary>The loaded room's block animations: its effect's and a door's Wrecked Ship treadmill.</summary>
         internal RoomBlockAnimations BlockAnimations => self.Room.LoadedScope.BlockAnimations;
 
-        /// <summary>The loaded room's Maridia elevatube room main.</summary>
-        internal MaridiaElevatubeRoomMainState MaridiaElevatube => self.Room.LoadedScope.MaridiaElevatube;
+        /// <summary>The loaded room's Maridia elevatube room main; the room must be the elevatube.</summary>
+        internal MaridiaElevatubeRoomMainState MaridiaElevatube => self.Room.LoadedScope.MaridiaElevatube ??
+            throw new InvalidOperationException("The loaded room runs no elevatube.");
 
-        /// <summary>The loaded room's Ceres elevator shaft room main.</summary>
-        internal CeresElevatorShaftRoomMainState CeresElevatorShaft => self.Room.LoadedScope.CeresElevatorShaft;
+        /// <summary>The loaded room's Ceres elevator shaft room main; the room must be the shaft entered through its elevator door.</summary>
+        internal CeresElevatorShaftRoomMainState CeresElevatorShaft => self.Room.LoadedScope.CeresElevatorShaft ??
+            throw new InvalidOperationException("The loaded room runs no turning elevator shaft.");
 
-        /// <summary>The loaded room's Tourian statue sequence.</summary>
-        internal TourianStatueSequence TourianStatues => self.Room.LoadedScope.TourianStatues;
+        /// <summary>The loaded room's Tourian statue sequence; the room's setup must unlock the statues.</summary>
+        internal TourianStatueSequence TourianStatues => self.Room.LoadedScope.TourianStatues ??
+            throw new InvalidOperationException("The loaded room's setup does not unlock the Tourian statues.");
 
 
         /// <summary>

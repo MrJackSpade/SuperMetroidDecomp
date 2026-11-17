@@ -101,26 +101,29 @@ internal sealed record RoomScope
     /// <summary>The room's colour effects.</summary>
     public required ColourEffectSystem ColourEffects { get; init; }
 
-    /// <summary>The room's Ceres haze, enabled only where the room's setup spawns it.</summary>
-    public required CeresHazeState CeresHaze { get; init; }
+    /// <summary>The room's Ceres haze, or null for a room whose setup spawns none (#2287).</summary>
+    public required CeresHazeState? CeresHaze { get; init; }
 
     /// <summary>The room's block animations: those its effect lists and the Wrecked Ship entrance treadmill a door's setup may start.</summary>
     public required RoomBlockAnimations BlockAnimations { get; init; }
 
-    /// <summary>The room's Tourian statue animations and descent, enabled only in the statue room.</summary>
-    public required TourianStatueSequence TourianStatues { get; init; }
+    /// <summary>The room's Tourian statue animations and descent, or null for a room whose setup does not unlock the statues (#2287).</summary>
+    public required TourianStatueSequence? TourianStatues { get; init; }
 
-    /// <summary>The room's Maridia elevatube room main, active only in the elevatube.</summary>
-    public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
+    /// <summary>
+    /// The room's main behaviour, composed from the main its state names with the state it keeps, or null for a room whose
+    /// state runs none (#2287).
+    /// </summary>
+    public required IRoomMain? Main { get; init; }
 
-    /// <summary>The room's Ceres elevator shaft room main, active only when the elevator door enters it.</summary>
-    public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
+    /// <summary>The Maridia elevatube's ride, which the tube's doors start, or null outside the elevatube (#2287).</summary>
+    public required MaridiaElevatubeRoomMainState? MaridiaElevatube { get; init; }
 
-    /// <summary>The room's Ceres falling-debris room main, which runs only in the pre-elevator hall.</summary>
-    public required CeresFallingDebrisRoomMainState CeresFallingDebris { get; init; }
-
-    /// <summary>The room's escape diagonal-quake countdown, which the escape rooms' shaking mains keep.</summary>
-    public required EscapeDiagonalQuakeState EscapeDiagonalQuake { get; init; }
+    /// <summary>
+    /// The Ceres elevator shaft's turn and elevator, or null outside the shaft and in the shaft entered other than through its
+    /// elevator door (#2287).
+    /// </summary>
+    public required CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; init; }
 
     /// <summary>The room's enemy population and the species owners that run it.</summary>
     public required RoomEnemySystem Enemies { get; init; }

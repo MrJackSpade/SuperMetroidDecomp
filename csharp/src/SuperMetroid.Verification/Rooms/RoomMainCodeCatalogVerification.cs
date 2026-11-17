@@ -22,14 +22,14 @@ internal static class RoomMainCodeCatalogVerification
     /// <summary>
     /// Enumerates every state reachable from every named retail room header and proves every nonzero main callback the
     /// cartridge stores belongs to the import's bank-$8F catalog, every catalogued routine occurs, each acting
-    /// behaviour has one routine, and exactly the routines that return at once decode to <see cref="RoomMainBehavior.None"/>
-    /// (#1787).
+    /// behaviour has one routine, and exactly the routines that return at once or that the port does not run decode to
+    /// <see cref="RoomMainBehavior.None"/> (#1787, #2287).
     /// </summary>
     internal static void VerifyRoomMainCodeCatalog()
     {
-        IReadOnlyDictionary<ushort, RoomMainBehavior> routines = RoomBehaviorDefinitions.MainRoutines;
+        IReadOnlyDictionary<ushort, RoomMainBehavior> routines = RoomBehaviorRoutines.MainRoutines;
         ushort[] catalog = [.. routines.Keys];
-        foreach (RoomMainBehavior acting in Enum.GetValues<RoomMainBehavior>().Where(callback => callback != RoomMainBehavior.None))
+        foreach (RoomMainBehavior acting in RoomMainBehavior.All.Where(callback => callback != RoomMainBehavior.None))
         {
             AssertEqual(1, routines.Values.Count(callback => callback == acting),
                 $"room-main behaviour {acting} is one routine");
@@ -71,8 +71,14 @@ internal static class RoomMainCodeCatalogVerification
         foreach ((ushort pointer, RoomMainBehavior callback) in routines)
         {
             AssertEqual(callback == RoomMainBehavior.None,
-                SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
-                $"room-main routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once");
+                SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer) ||
+                    RoomBehaviorRoutines.UnrunMainRoutines.Contains(pointer),
+                $"room-main routine $8F:{pointer:X4} decodes to no behaviour exactly when it returns at once or the port does not run it");
+        }
+        foreach (ushort pointer in RoomBehaviorRoutines.UnrunMainRoutines)
+        {
+            AssertTrue(!SuperMetroid.AssetExtraction.Rooms.CartridgeRoomStateImporter.RoutineReturnsAtOnce(bus, pointer),
+                $"unrun room-main routine $8F:{pointer:X4} does not return at once");
         }
 
         foreach (ushort pointer in retailMainPointers)

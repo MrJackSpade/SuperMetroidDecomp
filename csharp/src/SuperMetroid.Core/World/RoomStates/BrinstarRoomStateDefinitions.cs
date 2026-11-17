@@ -50,7 +50,7 @@ public static class BrinstarRoomStateDefinitions
 
     /// <summary>The Dachora room's state.</summary>
     public static RoomStateSettings Dachora { get; } =
-        new(nameof(Dachora), RoomLevelDefinitions.Dachora, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Dachora, RoomEnemyPopulationDefinitions.Dachora, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Dachora, null, RoomMainBehavior.ScrollScreenRightInDachoraRoom, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Dachora, null, RoomSetupBehavior.None);
+        new(nameof(Dachora), RoomLevelDefinitions.Dachora, RoomGraphicsSet.GreenBlueBrinstar, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.Dachora, RoomEnemyPopulationDefinitions.Dachora, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Dachora, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Dachora, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Big Pink room's state.</summary>

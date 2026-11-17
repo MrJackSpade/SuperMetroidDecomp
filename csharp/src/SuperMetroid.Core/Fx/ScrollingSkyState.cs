@@ -28,40 +28,6 @@ public sealed class ScrollingSkyState(ScrollingSky sky, bool hasBands = true)
         ScrollingSkyBandDefinitions.Drifts.ToDictionary(drift => drift, _ => default(FixedCoordinate));
 
     /// <summary>
-    /// Returns whether a room state's main behaviour runs the land sky. This is the
-    /// same choice of room-main behaviour the game makes; nothing infers it
-    /// from a room number, area, door, or camera position.
-    /// </summary>
-    public static bool IsLandRoomMain(RoomMainBehavior main) =>
-        main is RoomMainBehavior.ScrollingSkyLand or
-            RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions;
-
-    /// <summary>Identifies the scrolling-sky room mains; spawning the bands is a separate decision.</summary>
-    public static bool IsScrollingSkyRoomMain(RoomMainBehavior main) =>
-        IsLandRoomMain(main) || main == RoomMainBehavior.ScrollingSkyOcean;
-
-    /// <summary>
-    /// Whether a room state's setup spawns the sky's bands, whichever door the room is entered through; a room's
-    /// effect can spawn them too (<see cref="SpawnsBands"/>).
-    /// </summary>
-    public static bool SetupSpawnsBands(RoomSetupBehavior setup) =>
-        setup is RoomSetupBehavior.ScrollingSkyLand or RoomSetupBehavior.ScrollingSkyOcean
-            or RoomSetupBehavior.LandSkyWithLandingSiteQuake;
-
-    /// <summary>
-    /// Whether a room state spawns the sky's bands when entered with <paramref name="selectedFx"/> as its effect: the sky
-    /// effect or the state's setup spawns them; the room-main behaviour alone does not.
-    /// </summary>
-    public static bool SpawnsBands(RoomFxType? selectedFx, RoomSetupBehavior setup) =>
-        selectedFx == RoomFxType.ScrollingSky || SetupSpawnsBands(setup);
-
-    /// <summary>The sky a scrolling-sky room main shows.</summary>
-    public static ScrollingSky SkyOf(RoomMainBehavior main) =>
-        IsLandRoomMain(main) ? ScrollingSky.Land
-            : main == RoomMainBehavior.ScrollingSkyOcean ? ScrollingSky.Ocean
-            : throw new ArgumentOutOfRangeException(nameof(main), main, "The room main runs no scrolling sky.");
-
-    /// <summary>
     /// The room row at the camera when the sky last moved: the background shows the sky from that row down. A camera above
     /// the room's top is at a negative row. The sky never moves its whole background sideways; its bands shift each line instead.
     /// </summary>

@@ -41,8 +41,11 @@ public sealed class TourianStatueAnimationDefinition
     /// <summary>The statue's eye, where its release's eye glow and soul appear, and the glow it lights.</summary>
     public required TourianStatueEye Eye { get; init; }
 
-    /// <summary>The colour effect spawned during release.</summary>
+    /// <summary>The colour effect spawned during release, the statue's grey-out.</summary>
     public required ColourEffectId ColourEffect { get; init; }
+
+    /// <summary>Where the statue's grey-out shows: on the room's background or on the entrance statue's sprites (#2288).</summary>
+    public required TourianStatueGreyOutSite GreyOutSite { get; init; }
 
     /// <summary>The statue greyed, which it shows once its eight colours take the common grey colours (#1512).</summary>
     public required PictureShade GreyShade { get; init; }

@@ -52,7 +52,7 @@ internal static class PicturedLibraryBackgrounds
                 }
                 return false;
             case LibraryBackgroundView.SkyRows:
-                if (!ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior) || !ScrollingSkyState.SetupSpawnsBands(state.SetupBehavior))
+                if (state.MainBehavior.Sky is null || !state.SetupBehavior.SpawnsSkyBands)
                 {
                     throw new InvalidDataException(
                         $"Room state {state.Name} shows the sky's rows on its background {background}, but does not run the sky's bands.");

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -24,4 +25,10 @@ internal interface ITourianStatueActors
     /// Shows a released statue's look, its blacked-out eyes or its grey, as the shade the import pre-coloured it in (#1512).
     /// </summary>
     void ShowStatueLook(PictureShade look);
+
+    /// <summary>
+    /// The entrance statue's sprite statue in <paramref name="colours"/>, the Ridley or Phantoon statue's, which that statue's
+    /// grey-out shows on (#2288).
+    /// </summary>
+    IGlowingEnemy SpriteStatueGreyOut(ColourEffectColours colours);
 }

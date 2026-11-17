@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -182,47 +183,24 @@ internal sealed class SamusFramePhases
     {
         RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(
             "Uninitialized-pose movement requires active room level data.");
-        switch (SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus))
+        // The drained pose is stored uninitialized only over the special movement type, whose momentum reset only clears the
+        // momentum-transition selector, and the two jumps (#2291).
+        SamusMovementType movement = SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus);
+        if (movement == SamusMovementType.SpinJumping)
         {
-            case SamusMovementType.Special:
-                // The momentum reset only clears the momentum-transition selector.
-                break;
-            case SamusMovementType.SpinJumping:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-                    level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter,
-                    _playerActions.NewlyPressed, roomObjects);
-                break;
-            case SamusMovementType.NormalJumping:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-                    level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusMovementType.Standing:
-            case SamusMovementType.Running:
-            case SamusMovementType.MorphBallGround:
-            case SamusMovementType.Crouching:
-            case SamusMovementType.Falling:
-            case SamusMovementType.GlitchBall:
-            case SamusMovementType.MorphBallFalling:
-            case SamusMovementType.GlitchBallKnockback:
-            case SamusMovementType.Knockback:
-            case SamusMovementType.CompactAirborne:
-            case SamusMovementType.TurningOnGround:
-            case SamusMovementType.PostureTransition:
-            case SamusMovementType.Moonwalking:
-            case SamusMovementType.SpringBallGround:
-            case SamusMovementType.SpringBallInAir:
-            case SamusMovementType.SpringBallFalling:
-            case SamusMovementType.WallJumping:
-            case SamusMovementType.RanIntoWall:
-            case SamusMovementType.Grappling:
-            case SamusMovementType.TurningWhileJumping:
-            case SamusMovementType.TurningWhileFalling:
-            case SamusMovementType.DamageBoost:
-            case SamusMovementType.DraygonHeld:
-            default:
-                throw new NotSupportedException(
-                    $"Cached movement type {SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus)} under " +
-                    $"uninitialized pose {_player.IntroducedSamus.Pose} has no translated movement-type mover.");
+            _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
+                level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter,
+                _playerActions.NewlyPressed, roomObjects);
+        }
+        else if (movement == SamusMovementType.NormalJumping)
+        {
+            _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
+                level, _player.IntroducedSamus, _playerActions.Current, _clock.Counter, roomObjects);
+        }
+        else if (movement != SamusMovementType.Special)
+        {
+            throw new NotSupportedException(
+                $"Cached movement type {movement} under uninitialized pose {_player.IntroducedSamus.Pose} has no translated movement-type mover.");
         }
     }
 
@@ -741,304 +719,132 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs the pose's normal movement. Every pose the retail producers reach has a branch; any
-    /// other pose is corrupt state.
+    /// Runs the pose's normal movement (#2291): the pose's movement type selects it, as the game's movement for each type
+    /// does, with the few poses whose step their own family takes named in their type's movement.
     /// </summary>
+    /// <exception cref="InvalidDataException">The pose's movement type has no movement its pose owns.</exception>
     private void RunPoseMovement(SamusState samus, ISamusRoomObjects roomObjects, RoomScope room)
     {
-        if (_room.LevelData is null)
-            throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
-
-        switch (samus.Pose)
-        {
-            case SamusPoseId.ForwardFacingPowerSuitPose:
-            case SamusPoseId.ForwardFacingSuitedPose:
-                StepForwardFacingMovement(samus, roomObjects, room);
-                break;
-            case SamusPoseId.FacingRightNormalPose:
-            case SamusPoseId.StandingAimUpRightPose:
-            case SamusPoseId.StandingAimDiagonalUpRightPose:
-            case SamusPoseId.StandingAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
-                break;
-            case SamusPoseId.MovingRightNormalPose:
-            case SamusPoseId.MovingRightGunExtendedPose:
-            case SamusPoseId.RunningAimDiagonalUpRightPose:
-            case SamusPoseId.RunningAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
-                break;
-            case SamusPoseId.FacingLeftNormalPose:
-            case SamusPoseId.StandingAimUpLeftPose:
-            case SamusPoseId.StandingAimDiagonalUpLeftPose:
-            case SamusPoseId.StandingAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
-                break;
-            case SamusPoseId.MovingLeftNormalPose:
-            case SamusPoseId.MovingLeftGunExtendedPose:
-            case SamusPoseId.RunningAimDiagonalUpLeftPose:
-            case SamusPoseId.RunningAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunning(_room.LevelData, samus, _clock.Counter, _playerActions.Current, roomObjects);
-                break;
-            case SamusPoseId.MoonwalkFacingLeftPose:
-            case SamusPoseId.MoonwalkFacingRightPose:
-            case SamusPoseId.MoonwalkAimUpLeftPose:
-            case SamusPoseId.MoonwalkAimUpRightPose:
-            case SamusPoseId.MoonwalkAimDownLeftPose:
-            case SamusPoseId.MoonwalkAimDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepMoonwalking(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.RanIntoWallRightPose:
-            case SamusPoseId.RanIntoWallLeftPose:
-            case SamusPoseId.RanIntoWallAimUpRightPose:
-            case SamusPoseId.RanIntoWallAimUpLeftPose:
-            case SamusPoseId.RanIntoWallAimDownRightPose:
-            case SamusPoseId.RanIntoWallAimDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRanIntoWall(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.TurningRightToLeftPose:
-            case SamusPoseId.TurningLeftToRightPose:
-            case SamusPoseId.TurningRightToLeftAimUpPose:
-            case SamusPoseId.TurningLeftToRightAimUpPose:
-            case SamusPoseId.TurningRightToLeftAimDiagonalUpPose:
-            case SamusPoseId.TurningLeftToRightAimDiagonalUpPose:
-            case SamusPoseId.TurningRightToLeftAimDiagonalDownPose:
-            case SamusPoseId.TurningLeftToRightAimDiagonalDownPose:
-            case SamusPoseId.TurningRightToLeftCrouchingPose:
-            case SamusPoseId.TurningLeftToRightCrouchingPose:
-            case SamusPoseId.TurningRightToLeftCrouchingAimUpPose:
-            case SamusPoseId.TurningLeftToRightCrouchingAimUpPose:
-            case SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose:
-            case SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose:
-            case SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose:
-            case SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose:
-            case SamusPoseId.MoonwalkTurnJumpLeftPose:
-            case SamusPoseId.MoonwalkTurnJumpRightPose:
-            case SamusPoseId.MoonwalkTurnJumpAimUpLeftPose:
-            case SamusPoseId.MoonwalkTurnJumpAimUpRightPose:
-            case SamusPoseId.MoonwalkTurnJumpAimDownLeftPose:
-            case SamusPoseId.MoonwalkTurnJumpAimDownRightPose:
-                StepTurningPoseMovement(samus, roomObjects);
-                break;
-            case SamusPoseId.NormalLandingRightPose:
-            case SamusPoseId.NormalLandingLeftPose:
-            case SamusPoseId.SpinLandingRightPose:
-            case SamusPoseId.SpinLandingLeftPose:
-            case SamusPoseId.LandingAimUpRightPose:
-            case SamusPoseId.LandingAimUpLeftPose:
-            case SamusPoseId.LandingAimDiagonalUpRightPose:
-            case SamusPoseId.LandingAimDiagonalUpLeftPose:
-            case SamusPoseId.LandingAimDiagonalDownRightPose:
-            case SamusPoseId.LandingAimDiagonalDownLeftPose:
-            case SamusPoseId.FiringLandingRightPose:
-            case SamusPoseId.FiringLandingLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.MorphBallGroundRightPose:
-            case SamusPoseId.MorphBallGroundLeftPose:
-            case SamusPoseId.MorphBallMovingRightPose:
-            case SamusPoseId.MorphBallMovingLeftPose:
-            case SamusPoseId.SpringBallGroundRightPose:
-            case SamusPoseId.SpringBallGroundLeftPose:
-            case SamusPoseId.SpringBallMovingRightPose:
-            case SamusPoseId.SpringBallMovingLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepGrounded(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.MorphBallFallingRightPose:
-            case SamusPoseId.MorphBallFallingLeftPose:
-            case SamusPoseId.SpringBallFallingRightPose:
-            case SamusPoseId.SpringBallFallingLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepFalling(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.SpringBallJumpRightPose:
-            case SamusPoseId.SpringBallJumpLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.NeutralJumpTransitionRightPose:
-            case SamusPoseId.NeutralJumpTransitionLeftPose:
-            case SamusPoseId.NeutralJumpRightPose:
-            case SamusPoseId.NeutralJumpLeftPose:
-            case SamusPoseId.NormalJumpGunExtendedRightPose:
-            case SamusPoseId.NormalJumpGunExtendedLeftPose:
-            case SamusPoseId.NormalJumpForwardRightPose:
-            case SamusPoseId.NormalJumpForwardLeftPose:
-            case SamusPoseId.NormalJumpAimUpRightPose:
-            case SamusPoseId.NormalJumpAimUpLeftPose:
-            case SamusPoseId.NormalJumpTransitionAimUpRightPose:
-            case SamusPoseId.NormalJumpTransitionAimUpLeftPose:
-            case SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose:
-            case SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose:
-            case SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose:
-            case SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose:
-            case SamusPoseId.NormalJumpAimDiagonalUpRightPose:
-            case SamusPoseId.NormalJumpAimDiagonalUpLeftPose:
-            case SamusPoseId.NormalJumpAimDiagonalDownRightPose:
-            case SamusPoseId.NormalJumpAimDiagonalDownLeftPose:
-            case SamusPoseId.NormalJumpAimDownRightPose:
-            case SamusPoseId.NormalJumpAimDownLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.SpinJumpRightPose:
-            case SamusPoseId.SpinJumpLeftPose:
-            case SamusPoseId.SpaceJumpRightPose:
-            case SamusPoseId.SpaceJumpLeftPose:
-            case SamusPoseId.ScrewAttackRightPose:
-            case SamusPoseId.ScrewAttackLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(_room.LevelData, samus, _playerActions.Current, _clock.Counter, _playerActions.NewlyPressed, roomObjects);
-                break;
-            case SamusPoseId.WallJumpRightPose:
-            case SamusPoseId.WallJumpLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepWallJump(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.DamageBoostRightPose:
-            case SamusPoseId.DamageBoostLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.TurningRightToLeftJumpPose:
-            case SamusPoseId.TurningLeftToRightJumpPose:
-            case SamusPoseId.TurningRightToLeftJumpAimUpPose:
-            case SamusPoseId.TurningLeftToRightJumpAimUpPose:
-            case SamusPoseId.TurningRightToLeftJumpAimDownPose:
-            case SamusPoseId.TurningLeftToRightJumpAimDownPose:
-            case SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose:
-            case SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose:
-            case SamusPoseId.TurningRightToLeftFallingPose:
-            case SamusPoseId.TurningLeftToRightFallingPose:
-            case SamusPoseId.TurningRightToLeftFallingAimUpPose:
-            case SamusPoseId.TurningLeftToRightFallingAimUpPose:
-            case SamusPoseId.TurningRightToLeftFallingAimDownPose:
-            case SamusPoseId.TurningLeftToRightFallingAimDownPose:
-            case SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose:
-            case SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.FallingRightPose:
-            case SamusPoseId.FallingLeftPose:
-            case SamusPoseId.FallingGunExtendedRightPose:
-            case SamusPoseId.FallingGunExtendedLeftPose:
-            case SamusPoseId.FallingAimUpRightPose:
-            case SamusPoseId.FallingAimUpLeftPose:
-            case SamusPoseId.FallingAimDiagonalUpRightPose:
-            case SamusPoseId.FallingAimDiagonalUpLeftPose:
-            case SamusPoseId.FallingAimDiagonalDownRightPose:
-            case SamusPoseId.FallingAimDiagonalDownLeftPose:
-            case SamusPoseId.FallingAimDownRightPose:
-            case SamusPoseId.FallingAimDownLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepFalling(_room.LevelData, samus, _playerActions.Current, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.CrouchingRightPose:
-            case SamusPoseId.CrouchingLeftPose:
-            case SamusPoseId.CrouchingAimUpRightPose:
-            case SamusPoseId.CrouchingAimUpLeftPose:
-            case SamusPoseId.CrouchingAimDiagonalUpRightPose:
-            case SamusPoseId.CrouchingAimDiagonalUpLeftPose:
-            case SamusPoseId.CrouchingAimDiagonalDownRightPose:
-            case SamusPoseId.CrouchingAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouching(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.KnockbackRightPose:
-            case SamusPoseId.KnockbackLeftPose:
-                StepKnockbackEndingMovement(samus, roomObjects);
-                break;
-            case SamusPoseId.CrouchingTransitionRightPose:
-            case SamusPoseId.CrouchingTransitionLeftPose:
-            case SamusPoseId.StandingTransitionRightPose:
-            case SamusPoseId.StandingTransitionLeftPose:
-            case SamusPoseId.CrouchingTransitionAimUpRightPose:
-            case SamusPoseId.CrouchingTransitionAimUpLeftPose:
-            case SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose:
-            case SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose:
-            case SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose:
-            case SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose:
-            case SamusPoseId.StandingTransitionAimUpRightPose:
-            case SamusPoseId.StandingTransitionAimUpLeftPose:
-            case SamusPoseId.StandingTransitionAimDiagonalUpRightPose:
-            case SamusPoseId.StandingTransitionAimDiagonalUpLeftPose:
-            case SamusPoseId.StandingTransitionAimDiagonalDownRightPose:
-            case SamusPoseId.StandingTransitionAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.MorphingTransitionRightPose:
-            case SamusPoseId.MorphingTransitionLeftPose:
-            case SamusPoseId.UnmorphingTransitionRightPose:
-            case SamusPoseId.UnmorphingTransitionLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepTransition(_room.LevelData, samus, _clock.Counter, roomObjects);
-                break;
-            case SamusPoseId.DraygonGrabbedNeutralLeftPose:
-            case SamusPoseId.DraygonGrabbedAimUpLeftPose:
-            case SamusPoseId.DraygonGrabbedFiringLeftPose:
-            case SamusPoseId.DraygonGrabbedAimDownLeftPose:
-            case SamusPoseId.DraygonGrabbedMovingLeftPose:
-            case SamusPoseId.DraygonGrabbedNeutralRightPose:
-            case SamusPoseId.DraygonGrabbedAimUpRightPose:
-            case SamusPoseId.DraygonGrabbedFiringRightPose:
-            case SamusPoseId.DraygonGrabbedAimDownRightPose:
-            case SamusPoseId.DraygonGrabbedMovingRightPose:
-            case SamusPoseId.DraygonHeldBallLeftPose:
-                // This is the normal step, which only clears
-                // the vertical solid-collision result. The actual boss grab above
-                // keeps Samus still instead (SamusMovementOwner.DraygonHold). The Draygon-held
-                // ball the Hyper Beam freeze installs (#1535) has no Draygon, so it stays put.
-                SamusDraygonGrabbedState.StepMovement(samus);
-                break;
-            case SamusPoseId.GlitchBallRightPose:
-            case SamusPoseId.GlitchBallLeftPose:
-            case SamusPoseId.DraygonHeldStandingUpLeftPose:
-                // The glitch-ball movement type's normal entry only clears the vertical solid-collision
-                // result, and so does the posture transition's for the compact transitions, which skips
-                // their horizontal and vertical movement; nothing lands them, so the landed cleanup never runs.
-                // Both hold Samus where the over-read installed them (#1535).
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
-                break;
-            case SamusPoseId.GlitchBallKnockbackRightPose:
-            case SamusPoseId.GlitchBallKnockbackLeftPose:
-                // The glitch-ball knockback's movement type has an empty normal entry: once its knockback
-                // ends, Samus holds still in it (#1535).
-                break;
-            case SamusPoseId.TallStillRightPose:
-            case SamusPoseId.ForwardStandingPose:
-            case SamusPoseId.ForwardStillCrouchHeightPose:
-            case SamusPoseId.ShinesparkWindupRightPose:
-            case SamusPoseId.ShinesparkWindupLeftPose:
-            case SamusPoseId.ShinesparkHorizontalRightPose:
-            case SamusPoseId.ShinesparkHorizontalLeftPose:
-            case SamusPoseId.ShinesparkVerticalRightPose:
-            case SamusPoseId.ShinesparkVerticalLeftPose:
-            case SamusPoseId.ShinesparkDiagonalRightPose:
-            case SamusPoseId.ShinesparkDiagonalLeftPose:
-            case SamusPoseId.CrystalFlashRightPose:
-            case SamusPoseId.CrystalFlashLeftPose:
-            case SamusPoseId.XrayingStandingRightPose:
-            case SamusPoseId.XrayingStandingLeftPose:
-            case SamusPoseId.DeathSequenceRightPose:
-            case SamusPoseId.DeathSequenceLeftPose:
-            case SamusPoseId.XrayingCrouchingRightPose:
-            case SamusPoseId.XrayingCrouchingLeftPose:
-            case SamusPoseId.DrainedCrouchingRightPose:
-            case SamusPoseId.DrainedCrouchingLeftPose:
-            case SamusPoseId.DrainedStandingRightPose:
-            case SamusPoseId.DrainedStandingLeftPose:
-            case SamusPoseId.GrappleSwingRightPose:
-            case SamusPoseId.GrappleSwingLeftPose:
-            case SamusPoseId.GrappleStandingRightPose:
-            case SamusPoseId.GrappleStandingLeftPose:
-            case SamusPoseId.GrappleStandingDownRightPose:
-            case SamusPoseId.GrappleStandingDownLeftPose:
-            case SamusPoseId.GrappleCrouchingRightPose:
-            case SamusPoseId.GrappleCrouchingLeftPose:
-            case SamusPoseId.GrappleCrouchingDownRightPose:
-            case SamusPoseId.GrappleCrouchingDownLeftPose:
-            case SamusPoseId.GrappleWallContactLeftPose:
-            case SamusPoseId.GrappleWallContactRightPose:
-            default:
-                // Every pose reachable from the retail input, animation,
-                // enemy-grab, death, drained, grapple, Morph Ball, and shinespark
-                // producers has an explicit branch above. Reaching this point means
-                // the pose no longer agrees with the game-backed producer
-                // set; it is corrupt state, not a recoverable movement family.
-                throw new InvalidDataException(
-                    $"Runtime movement step received invalid pose {samus.Pose}.");
-        }
+        RoomLevelData level = _room.LevelData
+            ?? throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
+        SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus.Pose);
+        // The special movement type returns before this, and grappling, a compact airborne pose and the unused movement
+        // types are owned by their own movers; any other is corrupt pose state.
+        Action<PoseMove> step = PoseMovements.TryGetValue(movement, out Action<PoseMove>? found) ? found
+            : throw new InvalidDataException(
+                $"Runtime movement step received pose {samus.Pose}, whose movement type {movement} has no movement its pose owns.");
+        step(new PoseMove(samus, roomObjects, room, level));
     }
+
+    /// <summary>
+    /// The movement each movement type runs for the pose that owns Samus's movement (#2291), built once; a movement type it
+    /// does not hold has no movement its pose owns.
+    /// </summary>
+    private Dictionary<SamusMovementType, Action<PoseMove>> PoseMovements => field ??= new()
+    {
+        [SamusMovementType.Standing] = StepStandingPose,
+        [SamusMovementType.Running] = move => _player.LastGroundedSamusMovement =
+            SamusGroundedMovement.StepRunning(move.Level, move.Samus, _clock.Counter, _playerActions.Current, move.RoomObjects),
+        [SamusMovementType.Moonwalking] = move => _player.LastGroundedSamusMovement =
+            SamusGroundedMovement.StepMoonwalking(move.Level, move.Samus, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.RanIntoWall] = move => _player.LastGroundedSamusMovement =
+            SamusGroundedMovement.StepRanIntoWall(move.Level, move.Samus, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.TurningOnGround] = move => StepTurningPoseMovement(move.Samus, move.RoomObjects),
+        [SamusMovementType.TurningWhileJumping] = StepTurningWhileJumpingPose,
+        [SamusMovementType.TurningWhileFalling] = StepTurningInAir,
+        [SamusMovementType.MorphBallGround] = StepMorphBallGrounded,
+        [SamusMovementType.SpringBallGround] = StepMorphBallGrounded,
+        [SamusMovementType.MorphBallFalling] = StepMorphBallFalling,
+        [SamusMovementType.SpringBallFalling] = StepMorphBallFalling,
+        [SamusMovementType.SpringBallInAir] = move => _player.LastMorphBallMovement =
+            SamusMorphBallMovement.StepSpringBallInAir(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.NormalJumping] = move => _player.LastAerialSamusMovement =
+            SamusAerialMovement.StepNormalJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.SpinJumping] = move => _player.LastAerialSamusMovement =
+            SamusAerialMovement.StepSpinJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, _playerActions.NewlyPressed, move.RoomObjects),
+        [SamusMovementType.WallJumping] = move => _player.LastAerialSamusMovement =
+            SamusAerialMovement.StepWallJump(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.DamageBoost] = move => _player.LastAerialSamusMovement =
+            SamusAerialMovement.StepDamageBoost(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.Falling] = move => _player.LastAerialSamusMovement =
+            SamusAerialMovement.StepFalling(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.Crouching] = move => _player.LastGroundedSamusMovement =
+            SamusPostureMovement.StepCrouching(move.Level, move.Samus, _clock.Counter, move.RoomObjects),
+        [SamusMovementType.Knockback] = move => StepKnockbackEndingMovement(move.Samus, move.RoomObjects),
+        [SamusMovementType.PostureTransition] = StepPostureTransitionPose,
+        [SamusMovementType.GlitchBall] = HoldWhereInstalled,
+        // This is the normal step, which only clears the vertical solid-collision result. The actual boss grab keeps Samus
+        // still instead (SamusMovementOwner.DraygonHold). The Draygon-held ball the Hyper Beam freeze installs (#1535) has no
+        // Draygon, so it stays put.
+        [SamusMovementType.DraygonHeld] = move => SamusDraygonGrabbedState.StepMovement(move.Samus),
+        // The glitch-ball knockback's movement type has an empty normal entry: once its knockback ends, Samus holds still in
+        // it (#1535).
+        [SamusMovementType.GlitchBallKnockback] = static _ => { },
+    };
+
+    /// <summary>The standing movement type's movement: the forward-facing poses' and the landings' own steps, otherwise standing's.</summary>
+    private void StepStandingPose(PoseMove move)
+    {
+        if (SamusPoseMetadata.IsForwardFacingPose(move.Samus.Pose))
+            StepForwardFacingMovement(move.Samus, move.RoomObjects, move.Room);
+        else if (SamusPoseMetadata.IsLandingPose(move.Samus.Pose))
+            _player.LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(move.Level, move.Samus, _clock.Counter, move.RoomObjects);
+        else
+            _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStanding(move.Level, move.Samus, _clock.Counter, _playerActions.Current, move.RoomObjects);
+    }
+
+    /// <summary>
+    /// The turning-while-jumping movement type's movement: the aimed crouched turns take the turning step that reads her
+    /// vertical direction, every jumping turn the turn in the air.
+    /// </summary>
+    private void StepTurningWhileJumpingPose(PoseMove move)
+    {
+        if (SamusPoseMetadata.IsAimedCrouchingTurnPose(move.Samus.Pose))
+            StepTurningPoseMovement(move.Samus, move.RoomObjects);
+        else
+            StepTurningInAir(move);
+    }
+
+    /// <summary>The turn in the air.</summary>
+    private void StepTurningInAir(PoseMove move) => _player.LastAerialSamusMovement =
+        SamusAerialMovement.StepTurningInAir(move.Level, move.Samus, _clock.Counter, move.RoomObjects);
+
+    /// <summary>The Morph Ball's and the Spring Ball's movement on the ground.</summary>
+    private void StepMorphBallGrounded(PoseMove move) => _player.LastMorphBallMovement =
+        SamusMorphBallMovement.StepGrounded(move.Level, move.Samus, _clock.Counter, move.RoomObjects);
+
+    /// <summary>The Morph Ball's and the Spring Ball's fall.</summary>
+    private void StepMorphBallFalling(PoseMove move) => _player.LastMorphBallMovement =
+        SamusMorphBallMovement.StepFalling(move.Level, move.Samus, _playerActions.Current, _clock.Counter, move.RoomObjects);
+
+    /// <summary>
+    /// The posture transition movement type's movement: the morph transitions' own step, the Draygon-held stand-up's hold,
+    /// otherwise the crouch and stand transitions'.
+    /// </summary>
+    private void StepPostureTransitionPose(PoseMove move)
+    {
+        if (SamusPoseMetadata.IsMorphTransitionPose(move.Samus.Pose))
+            _player.LastMorphBallMovement = SamusMorphBallMovement.StepTransition(move.Level, move.Samus, _clock.Counter, move.RoomObjects);
+        else if (move.Samus.Pose == SamusPoseId.DraygonHeldStandingUpLeftPose)
+            HoldWhereInstalled(move);
+        else
+            _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(move.Level, move.Samus, _clock.Counter, move.RoomObjects);
+    }
+
+    /// <summary>
+    /// The glitch ball's normal entry, which only clears the vertical solid-collision result, as does the posture transition's
+    /// for the compact Draygon-held stand-up, which skips its horizontal and vertical movement; nothing lands them, so the
+    /// landed cleanup never runs. Both hold Samus where the over-read installed them (#1535).
+    /// </summary>
+    private static void HoldWhereInstalled(PoseMove move) => move.Samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
+
+    /// <summary>What a pose's movement runs against on one update (#2291).</summary>
+    /// <param name="Samus">Samus.</param>
+    /// <param name="RoomObjects">The room's room objects her movement collides with.</param>
+    /// <param name="Room">The loaded room.</param>
+    /// <param name="Level">The room's level data.</param>
+    [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
+    private readonly record struct PoseMove(SamusState Samus, ISamusRoomObjects RoomObjects, RoomScope Room, RoomLevelData Level);
 
     /// <summary>Runs the forward-facing poses' movement, including the elevator's one-pixel downward block scan.</summary>
     private void StepForwardFacingMovement(SamusState samus, ISamusRoomObjects roomObjects, RoomScope room)

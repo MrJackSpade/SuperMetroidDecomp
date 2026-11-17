@@ -28,9 +28,6 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The elevator hold reaching the Ceres elevator writes.</summary>
     public const int DepartureHoldFrames = 60;
 
-    /// <summary>Whether the active room owns this room-main behaviour.</summary>
-    public bool IsActive { get; private set; }
-
     /// <summary>The further updates the shaft holds its tilt; the update after the last of them turns it.</summary>
     public int HoldFramesLeft { get; private set; }
 
@@ -56,27 +53,17 @@ public sealed class CeresElevatorShaftRoomMainState
     public TurningFloorTransform Transform { get; private set; } = CreateInitialTransform();
 
     /// <summary>
-    /// Builds one room's shaft owner, selecting whether the room runs the shaft's main behaviour. An active entry is the elevator
-    /// door, whose setup starts the turn place and timer.
+    /// Builds the shaft's turn for the shaft entered through its elevator door, whose setup starts the turn place and timer
+    /// (#2287); the shaft entered otherwise never turns, and has no turn.
     /// </summary>
-    /// <param name="active">Whether the room's main behaviour is the shaft and its entry door uses the turning floor.</param>
     /// <param name="carryover">The room-main value the following room inherits, which receives the starting turn.</param>
-    public CeresElevatorShaftRoomMainState(bool active, RoomMainCarryover carryover)
+    public CeresElevatorShaftRoomMainState(RoomMainCarryover carryover)
     {
         Ensure.NotNull(carryover);
-        IsActive = active;
-        if (active)
-        {
-            TiltSteps = 0;
-            LeaveTurnStep(carryover);
-            HoldFramesLeft = LevelHoldFrames;
-        }
+        TiltSteps = 0;
+        LeaveTurnStep(carryover);
+        HoldFramesLeft = LevelHoldFrames;
     }
-
-    /// <summary>
-    /// The door setup leaving the elevator's turning-floor rendering: the destination's shaft no longer owns the room.
-    /// </summary>
-    public void Deactivate() => IsActive = false;
 
     /// <summary>Runs the shaft's room main behaviour once.</summary>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
@@ -100,7 +87,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // The room code is entirely dormant until the Ceres door's destruction publishes
         // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
         // turn.
-        if (!IsActive || !elevatorDoorDestroyed)
+        if (!elevatorDoorDestroyed)
             return new(Transform, TiltChanged: false, DepartureRequestedThisFrame);
 
         if (allowDeparture &&

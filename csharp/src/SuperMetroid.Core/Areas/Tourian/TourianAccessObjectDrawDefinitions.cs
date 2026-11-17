@@ -16,14 +16,20 @@ internal static class TourianAccessObjectDrawDefinitions
     /// <summary>The cleared floor: six opened rows down from the object's block.</summary>
     private static readonly RoomBlockShape ClearedFloor = RoomBlockShapes.Rectangle(new(4, 6), RoomCollisionType.Air);
 
-    /// <summary>The block shape each Tourian access draw draws: clear opens six rows; the empty row and the three crumbles one.</summary>
+    /// <summary>The block shape each Tourian access draw draws: clear opens six rows; the empty row one.</summary>
     internal static readonly IReadOnlyDictionary<TourianAccessDraw, RoomBlockShape> Shapes =
         new Dictionary<TourianAccessDraw, RoomBlockShape>
         {
             [TourianAccessDraw.Clear] = ClearedFloor,
             [TourianAccessDraw.EmptyRow] = OpenRow,
-            [TourianAccessDraw.CrumbleFirst] = OpenRow,
-            [TourianAccessDraw.CrumbleSecond] = OpenRow,
-            [TourianAccessDraw.CrumbleThird] = OpenRow,
+        };
+
+    /// <summary>The block shape each drawn stage of a row's crumble draws (#2291): one opened row.</summary>
+    internal static readonly IReadOnlyDictionary<BlockBreakupStage, RoomBlockShape> CrumbleShapes =
+        new Dictionary<BlockBreakupStage, RoomBlockShape>
+        {
+            [BlockBreakupStage.Rock] = OpenRow,
+            [BlockBreakupStage.Pieces] = OpenRow,
+            [BlockBreakupStage.Dust] = OpenRow,
         };
 }

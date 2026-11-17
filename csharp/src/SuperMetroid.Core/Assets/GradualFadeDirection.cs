@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Which way a <see cref="GradualColourFade"/> runs between the colour shown and its endpoint colour (#1512).</summary>
+/// <summary>Which way a <see cref="ColourFade"/> runs between the colour shown and its endpoint colour (#1512, #2289).</summary>
 public enum GradualFadeDirection
 {
     /// <summary>The colour shown fades toward the endpoint colour, as a room's colours fade out to black.</summary>

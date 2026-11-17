@@ -255,10 +255,15 @@ internal static class RoomObjectDrawSourceDefinitions
     internal static IReadOnlyDictionary<TourianAccessDraw, SnesAddress> TourianAccess { get; } = new Dictionary<TourianAccessDraw, SnesAddress>
     {
         [TourianAccessDraw.EmptyRow] = new(Bank, 0x9297),
-        [TourianAccessDraw.CrumbleFirst] = new(Bank, 0x92a3),
-        [TourianAccessDraw.CrumbleSecond] = new(Bank, 0x92af),
-        [TourianAccessDraw.CrumbleThird] = new(Bank, 0x92bb),
         [TourianAccessDraw.Clear] = new(Bank, 0x92c7),
+    };
+
+    /// <summary>The address of each drawn stage of a Tourian access row's crumble (<see cref="TourianAccessDraws.CrumbleDraw"/>).</summary>
+    internal static IReadOnlyDictionary<BlockBreakupStage, SnesAddress> TourianAccessCrumble { get; } = new Dictionary<BlockBreakupStage, SnesAddress>
+    {
+        [BlockBreakupStage.Rock] = new(Bank, 0x92a3),
+        [BlockBreakupStage.Pieces] = new(Bank, 0x92af),
+        [BlockBreakupStage.Dust] = new(Bank, 0x92bb),
     };
 
     /// <summary>The top row of Mother Brain's mural; each row below it follows thirty bytes on.</summary>

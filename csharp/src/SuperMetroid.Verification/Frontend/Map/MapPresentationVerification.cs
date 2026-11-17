@@ -214,7 +214,7 @@ internal static class MapPresentationVerification
             runtime.BossArtwork.KraidEyes = (EnemyTiles.Bosses.KraidColors ?? throw new InvalidOperationException("The enemy artwork holds Kraid's colours.")).Eyes();
 
             runtime.Artwork.SamusBodyArt = SamusBody.Gameplay;
-            runtime.RoomObjectVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;
+            runtime.RoomObjectVisuals.Rebind(RoomObjectFixtures.Installed with { RoomObjectElevatorPlatformVisuals = elevatorPlatform });
         }
     }
 

@@ -1,12 +1,15 @@
+using SuperMetroid.Core.World.RoomStates;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// The import oracle's map from the bank-$8F code offsets the cartridge stores to the typed room callbacks; production
-/// knows only the typed identities. Every offset whose routine returns at once decodes to the callback's <c>None</c>,
-/// as offset zero does, so the many return instructions the cartridge points at are one behaviour (#1787), and so does
-/// Draygon's room's setup, which acts only on the room's display (#1827); an offset the map does not know is refused.
+/// The import oracle's map from the bank-$8F code offsets the cartridge stores to the room states' main and setup
+/// behaviour objects; production knows only the behaviours. Every offset whose routine returns at once decodes to the
+/// behaviour's <c>None</c>, as offset zero does, so the many return instructions the cartridge points at are one behaviour
+/// (#1787), and so do Draygon's room's setup, which acts only on the room's display (#1827), and the two mains the port
+/// does not run (#2287); an offset the map does not know is refused.
 /// </summary>
-internal static class RoomBehaviorDefinitionsAccess
+internal static class RoomBehaviorRoutines
 {
     /// <summary>The room-main callback each bank-$8F code offset names.</summary>
     private static readonly Dictionary<ushort, RoomMainBehavior> MainCallbacks = new()
@@ -16,7 +19,7 @@ internal static class RoomBehaviorDefinitionsAccess
         [0xc11b] = RoomMainBehavior.ScrollingSkyOcean,
         [0xc120] = RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions,
         [0xc124] = RoomMainBehavior.ShakeScreenWithRandomExplosions,
-        [0xc1e6] = RoomMainBehavior.ScrollScreenRightInDachoraRoom,
+        [0xc1e6] = RoomMainBehavior.None,
         [0xe2b6] = RoomMainBehavior.MaridiaElevatube,
         [0xe51f] = RoomMainBehavior.CeresElevatorShaft,
         [0xe524] = RoomMainBehavior.None,
@@ -26,7 +29,7 @@ internal static class RoomBehaviorDefinitionsAccess
         [0xe5a0] = RoomMainBehavior.RandomExplosionEveryFourthUpdate,
         [0xe5a4] = RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
         [0xe8cd] = RoomMainBehavior.CrocomireRoomShaking,
-        [0xe950] = RoomMainBehavior.RidleyRoomShaking,
+        [0xe950] = RoomMainBehavior.None,
     };
 
     /// <summary>The room-setup callback each bank-$8F code offset names.</summary>
@@ -72,34 +75,43 @@ internal static class RoomBehaviorDefinitionsAccess
     /// <summary>The setup offsets whose routine acts only on the room's display, which decode to no behaviour.</summary>
     private static readonly HashSet<ushort> DisplayOnlySetups = [0xc8dd];
 
-    /// <summary>Decodes the room main and setup callbacks the cartridge's room states point at.</summary>
-    extension(RoomBehaviorDefinitions)
-    {
-        /// <summary>Every nonzero bank-$8F room-main code offset the import knows, each naming a routine.</summary>
-        internal static IReadOnlyDictionary<ushort, RoomMainBehavior> MainRoutines =>
-            MainCallbacks.Where(pair => pair.Key != 0).ToDictionary();
+    /// <summary>
+    /// The main offsets whose routine does not return at once but which decode to no behaviour because the port does not
+    /// run it (#2287): Ridley's room's, which only offsets the display's layers while his body's shake counter runs, and the
+    /// Dachora room's, which nudges the camera right while one of the room's screens stands open.
+    /// </summary>
+    private static readonly HashSet<ushort> UnrunMains = [0xc1e6, 0xe950];
 
-        /// <summary>Every nonzero bank-$8F room-setup code offset the import knows, each naming a routine.</summary>
-        internal static IReadOnlyDictionary<ushort, RoomSetupBehavior> SetupRoutines =>
-            SetupCallbacks.Where(pair => pair.Key != 0).ToDictionary();
+    /// <summary>Every nonzero bank-$8F room-main code offset the import knows, each naming a routine.</summary>
+    internal static IReadOnlyDictionary<ushort, RoomMainBehavior> MainRoutines =>
+        MainCallbacks.Where(pair => pair.Key != 0).ToDictionary();
 
-        /// <summary>
-        /// The bank-$8F room-setup code offsets that decode to <see cref="RoomSetupBehavior.None"/> although their routine
-        /// does not return at once: Draygon's room's, which only has the room restore its display effects when the game
-        /// unpauses, and the port draws the room without them (#1827).
-        /// </summary>
-        internal static IReadOnlySet<ushort> DisplayOnlySetupRoutines => DisplayOnlySetups;
+    /// <summary>Every nonzero bank-$8F room-setup code offset the import knows, each naming a routine.</summary>
+    internal static IReadOnlyDictionary<ushort, RoomSetupBehavior> SetupRoutines =>
+        SetupCallbacks.Where(pair => pair.Key != 0).ToDictionary();
 
-        /// <summary>Resolves a bank-$8F room-main pointer read from the cartridge to its typed callback.</summary>
-        internal static RoomMainBehavior ResolveMain(ushort pointer) =>
-            MainCallbacks.TryGetValue(pointer, out RoomMainBehavior callback)
-                ? callback
-                : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a retail room-main callback.");
+    /// <summary>
+    /// The bank-$8F room-main code offsets that decode to <see cref="RoomMainBehavior.None"/> although their routine does
+    /// not return at once: the two mains the port does not run (#2287).
+    /// </summary>
+    internal static IReadOnlySet<ushort> UnrunMainRoutines => UnrunMains;
 
-        /// <summary>Resolves a bank-$8F room-setup pointer read from the cartridge to its typed callback.</summary>
-        internal static RoomSetupBehavior ResolveSetup(ushort pointer) =>
-            SetupCallbacks.TryGetValue(pointer, out RoomSetupBehavior callback)
-                ? callback
-                : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a retail room-setup callback.");
-    }
+    /// <summary>
+    /// The bank-$8F room-setup code offsets that decode to <see cref="RoomSetupBehavior.None"/> although their routine
+    /// does not return at once: Draygon's room's, which only has the room restore its display effects when the game
+    /// unpauses, and the port draws the room without them (#1827).
+    /// </summary>
+    internal static IReadOnlySet<ushort> DisplayOnlySetupRoutines => DisplayOnlySetups;
+
+    /// <summary>Resolves a bank-$8F room-main pointer read from the cartridge to its typed callback.</summary>
+    internal static RoomMainBehavior ResolveMain(ushort pointer) =>
+        MainCallbacks.TryGetValue(pointer, out RoomMainBehavior? callback)
+            ? callback
+            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a retail room-main callback.");
+
+    /// <summary>Resolves a bank-$8F room-setup pointer read from the cartridge to its typed callback.</summary>
+    internal static RoomSetupBehavior ResolveSetup(ushort pointer) =>
+        SetupCallbacks.TryGetValue(pointer, out RoomSetupBehavior? callback)
+            ? callback
+            : throw new ArgumentOutOfRangeException(nameof(pointer), pointer, "Pointer is not a retail room-setup callback.");
 }

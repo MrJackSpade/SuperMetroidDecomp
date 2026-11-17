@@ -57,12 +57,16 @@ internal static class TourianAccessObjectProgramsVerification
         AssertEqual(5, draws.Length, "Tourian access owns four frames and a six-row clear");
         ushort[] pointers = [0x9297,0x92a3,0x92af,0x92bb,0x92c7];
         RoomObjectTourianAccessVisuals pictures = RoomObjectTourianAccessVisuals.Stock();
+        // The floor's frames at an address: its empty row or clear, or a stage of a row's crumble (#2291).
+        static RoomObjectDraw TourianDrawAt(ushort pointer) =>
+            NativeObjectDraws.At<TourianAccessDraw>(pointer) is var frame && frame != NativeObjectDraws.Unowned
+                ? frame : NativeObjectDraws.At<TourianAccessDraws.CrumbleDraw>(pointer);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryDescribe(NativeObjectDraws.At<TourianAccessDraw>(pointer), out int rows), "Tourian draw descriptor ownership");
-            AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryGet(NativeObjectDraws.At<TourianAccessDraw>(pointer), out var dto), "Tourian draw DTO ownership");
+            AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryDescribe(TourianDrawAt(pointer), out int rows), "Tourian draw descriptor ownership");
+            AssertEqual(index >= 0, TourianAccessObjectDrawDefinitionsConstants.TryGet(TourianDrawAt(pointer), out var dto), "Tourian draw DTO ownership");
             if (index < 0)
             {
                 AssertEqual(0, rows, "missing Tourian rows zero");
@@ -76,8 +80,10 @@ internal static class TourianAccessObjectProgramsVerification
             for (int column = 0; column < 4; column++)
             {
                 RoomTerrainBlock native = RoomLevelWordCodec.Decode(ReadSamusEaterObjectWord(rom, 0x840000 | (pointer + row * 12 + column * 2 + 2)));
-                AssertEqual(native.Collision, TourianAccessObjectDrawDefinitions.Shapes[RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(dto.Draw, "Tourian access")]
-                    .CollisionAt(new(column, row)), "Tourian block shape covers every cartridge cell");
+                RoomBlockShape shape = RoomObjectDrawIdentity.TryFrame(dto.Draw, out TourianAccessDraws.CrumbleDraw crumble)
+                    ? TourianAccessObjectDrawDefinitions.CrumbleShapes[crumble.Stage]
+                    : TourianAccessObjectDrawDefinitions.Shapes[RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(dto.Draw, "Tourian access")];
+                AssertEqual(native.Collision, shape.CollisionAt(new(column, row)), "Tourian block shape covers every cartridge cell");
                 AssertEqual(native.Collision, dto.Runs.Span[row].Collisions.Span[column], "Tourian direct DTO collision");
                 AssertEqual(native.Appearance, pictures.Image(dto.Draw).At(new Offset16<RoomBlocks>(column, row)), "Tourian installed picture");
             }

@@ -12,6 +12,8 @@ using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.World;
 
@@ -22,8 +24,11 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 [RoomLifetime]
 internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom room, LoadedRoomAssets assets,
-    LoadStation? loadStation)
+    LoadStation? loadStation, RoomMainCarryover carryover)
 {
+    /// <summary>The working value the previous room's main left, which the main the room composes adopts or replaces.</summary>
+    private readonly RoomMainCarryover _carryover = Ensure.NotNull(carryover);
+
     /// <summary>The destination door.</summary>
     public DoorDefinition Door { get; } = Ensure.NotNull(door);
 
@@ -55,8 +60,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     public ScrollBoundaryCamera? Camera { get; set; }
 
 
-    /// <summary>The scrolling-sky updater, if the room has one.</summary>
-    public ScrollingSkyState? ScrollingSky { get; set; }
+    /// <summary>The scrolling-sky updater, once the definition step has composed a sky room's main.</summary>
+    public ScrollingSkyState? ScrollingSky { get; private set; }
 
     /// <summary>The turning floor the room shows, or null when it shows none (#1649).</summary>
     public RoomFloor? Floor { get; set; }
@@ -73,32 +78,79 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The colour effects, once the FX step has built them.</summary>
     public ColourEffectSystem? ColourEffects { get; set; }
 
-    /// <summary>The Ceres haze, once the FX step has built it.</summary>
+    /// <summary>The Ceres haze, once the FX step has built it for a room whose setup spawns one.</summary>
     public CeresHazeState? CeresHaze { get; set; }
 
     /// <summary>The block animations, once the definition step has built them.</summary>
     public RoomBlockAnimations? BlockAnimations { get; set; }
 
-    /// <summary>The Tourian statues, once the post-enemy step has built them.</summary>
+    /// <summary>The Tourian statues, once the post-enemy step has built them for the statue room.</summary>
     public TourianStatueSequence? TourianStatues { get; set; }
 
-    /// <summary>The elevatube room main, once the definition step has built it.</summary>
-    public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; set; }
+    /// <summary>The room's main, once the definition step has composed the one its state names.</summary>
+    public IRoomMain? Main { get; private set; }
 
-    /// <summary>The Ceres elevator shaft room main, once the definition step has built it.</summary>
-    public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; set; }
+    /// <summary>The elevatube's ride, once the definition step has composed the elevatube's main.</summary>
+    public MaridiaElevatubeRoomMainState? MaridiaElevatube { get; private set; }
 
-    /// <summary>The Ceres falling-debris room main, once the definition step has built it.</summary>
-    public CeresFallingDebrisRoomMainState? CeresFallingDebris { get; set; }
-
-    /// <summary>The escape diagonal-quake countdown, once the definition step has built it.</summary>
-    public EscapeDiagonalQuakeState? EscapeDiagonalQuake { get; set; }
+    /// <summary>The Ceres elevator shaft's turn, once the definition step has composed the shaft's main.</summary>
+    public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; private set; }
 
     /// <summary>The enemy system, once the enemy step has built it.</summary>
     public RoomEnemySystem? Enemies { get; set; }
 
     /// <summary>The room-object system, once the room-object population step has built it.</summary>
     public RoomObjectSystem? RoomObjects { get; set; }
+
+    /// <summary>
+    /// Composes the scrolling sky's main (#2287): the sky, whose bands drift only where the room's effect or its setup
+    /// spawns them, and in the escape's Landing Site its outdoor explosions.
+    /// </summary>
+    /// <param name="sky">The sky the main scrolls.</param>
+    /// <param name="explosions">Where the room's escape explosions go off, or null for a room that sets off none.</param>
+    internal void ComposeSkyMain(ScrollingSky sky, EscapeExplosionSite? explosions)
+    {
+        bool bands = Room.State.Fx?.Select(Door)?.Type == RoomFxType.ScrollingSky || Room.State.SetupBehavior.SpawnsSkyBands;
+        var state = new ScrollingSkyState(sky, bands);
+        ScrollingSky = state;
+        Main = new ScrollingSkyMain(state, explosions);
+    }
+
+    /// <summary>
+    /// Composes an escape room's main (#2287): its explosions and, for a room whose shaking turns diagonal, the countdown
+    /// of its diagonal shake, carried from the previous room's main.
+    /// </summary>
+    /// <param name="site">Where the room's explosions go off.</param>
+    /// <param name="diagonal">How the room's shaking turns diagonal, or null for a room whose shaking never does.</param>
+    internal void ComposeEscapeMain(EscapeExplosionSite site, EscapeDiagonalShaking? diagonal) =>
+        Main = new EscapeShakingMain(site,
+            diagonal is { } shaking ? new EscapeDiagonalQuake(shaking, new EscapeDiagonalQuakeState(_carryover)) : null);
+
+    /// <summary>Composes the Maridia elevatube's main and its ride, which the tube's doors start (#2287).</summary>
+    internal void ComposeElevatubeMain()
+    {
+        var tube = new MaridiaElevatubeRoomMainState(_carryover);
+        MaridiaElevatube = tube;
+        Main = new MaridiaElevatubeMain(tube);
+    }
+
+    /// <summary>Composes the Ceres elevator shaft's main and its turn, which its elevator door's setup starts (#2287).</summary>
+    internal void ComposeElevatorShaftMain()
+    {
+        var shaft = new CeresElevatorShaftRoomMainState(_carryover);
+        CeresElevatorShaft = shaft;
+        Main = new CeresElevatorShaftMain(shaft);
+    }
+
+    /// <summary>Composes the Ceres pre-elevator hall's main and its debris countdown, carried from the previous room's main (#2287).</summary>
+    internal void ComposeFallingDebrisMain() =>
+        Main = new CeresFallingDebrisMain(new CeresFallingDebrisRoomMainState(_carryover));
+
+    /// <summary>Composes Ceres Ridley's arena's main, his getaway (#2287).</summary>
+    internal void ComposeRidleyGetawayMain() => Main = new CeresRidleyGetawayMain();
+
+    /// <summary>Composes the Crocomire room's main, the rumble while his death uncovers the hidden wall (#2287).</summary>
+    internal void ComposeCrocomireRumbleMain() => Main = new CrocomireRoomShakingMain();
 
     /// <summary>The finished scope.</summary>
     /// <exception cref="InvalidOperationException">A required load step has not run.</exception>
@@ -132,13 +184,12 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         BombProjectiles = BombProjectiles ?? throw Missing(nameof(BombProjectiles)),
         FxOverlay = FxOverlay ?? throw Missing(nameof(FxOverlay)),
         ColourEffects = ColourEffects ?? throw Missing(nameof(ColourEffects)),
-        CeresHaze = CeresHaze ?? throw Missing(nameof(CeresHaze)),
+        CeresHaze = CeresHaze,
         BlockAnimations = BlockAnimations ?? throw Missing(nameof(BlockAnimations)),
-        TourianStatues = TourianStatues ?? throw Missing(nameof(TourianStatues)),
-        MaridiaElevatube = MaridiaElevatube ?? throw Missing(nameof(MaridiaElevatube)),
-        CeresElevatorShaft = CeresElevatorShaft ?? throw Missing(nameof(CeresElevatorShaft)),
-        CeresFallingDebris = CeresFallingDebris ?? throw Missing(nameof(CeresFallingDebris)),
-        EscapeDiagonalQuake = EscapeDiagonalQuake ?? throw Missing(nameof(EscapeDiagonalQuake)),
+        TourianStatues = TourianStatues,
+        Main = Main,
+        MaridiaElevatube = MaridiaElevatube,
+        CeresElevatorShaft = CeresElevatorShaft,
         Enemies = Enemies ?? throw Missing(nameof(Enemies)),
         RoomObjects = RoomObjects ?? throw Missing(nameof(RoomObjects)),
     };

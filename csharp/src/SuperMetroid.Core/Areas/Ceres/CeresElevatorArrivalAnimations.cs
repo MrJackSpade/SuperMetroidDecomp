@@ -16,8 +16,8 @@ internal static class CeresElevatorArrivalAnimations
     {
         [P.Pad] =
         [
-            Show(CeresElevatorArrivalPose.PadFirst, 1),
-            Show(CeresElevatorArrivalPose.PadSecond, 1),
+            Show(CeresElevatorArrivalPose.PadUnlit, 1),
+            Show(CeresElevatorArrivalPose.PadLit, 1),
         ],
         [P.Platform] =
         [

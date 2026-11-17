@@ -9,6 +9,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rooms;
+using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 namespace SuperMetroid.Verification.Areas.Tourian;
 
 /// <summary>Compares Tourian statue animated-object initialization with the
@@ -33,12 +37,13 @@ internal static class LookupTourianSpawnVerification
         }
         AssertEqual(4, expected.Count, "Four native calls before RTS");
 
-        // Outside the statue room the sequence starts disabled with no objects; the spawn routine is then called alone.
-        var sequence = new TourianStatueSequence(RepositoryInstallation.CreateRuntime().TourianStatueDependencies,
-            new RoomFxOverlayState(), new ColourEffectSystem(new ColourEffectSessionState()), RoomObjectFixtures.Unbound(),
-            EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()));
-        sequence.SpawnStatueAnimations();
-        var objects = sequence.statues;
+        // Only the statue room builds the sequence, which spawns the four statues as the room loads (#2287).
+        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
+        var objects = runtime.TourianStatues.Statues;
         AssertEqual(expected.Count, objects.Count, "Production spawn count");
         for (int index = 0; index < objects.Count; index++)
         {

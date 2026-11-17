@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.RoomStates;
 using System.Globalization;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -76,7 +77,7 @@ internal static class RoomBlockInventoryVerification
 
         // The elevator shaft's screen is its turning floor alone, so a state running its room main shows none of the blocks
         // its level places (#1647), though its tileset is still inventoried.
-        InventoriedRoomState shaft = ceres with { MainBehavior = RoomMainBehavior.CeresElevatorShaft };
+        InventoriedRoomState shaft = ceres with { MainBehavior = RoomMainBehavior.CeresElevatorShaft, TurningFloor = RoomTurningFloor.ElevatorShaft };
         AssertTrue(RoomBlockInventory.Of([shaft], writers).Shown(holding).Count == 0,
             "a state showing the elevator shaft's floor shows none of its level's blocks");
         Console.WriteLine("Room block inventory: a writer's blocks count for the room states whose installed data holds its start, and for no other.");
@@ -111,7 +112,8 @@ internal static class RoomBlockInventoryVerification
     /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
     private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectKind[] headers) =>
         new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
-            headers.ToHashSet(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None, new HashSet<DoorDefinition>(), null);
+            headers.ToHashSet(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None, RoomTurningFloor.None,
+            new HashSet<DoorDefinition>(), null);
 
     /// <summary>
     /// A Brinstar room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/> and holding nothing else that
@@ -121,7 +123,7 @@ internal static class RoomBlockInventoryVerification
     private static InventoriedRoomState Quiet(TilesetDefinition tileset, params RoomTerrainReaction[] straddledShots) =>
         new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
             new HashSet<RoomObjectKind>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None,
-            new HashSet<DoorDefinition>(), null);
+            RoomTurningFloor.None, new HashSet<DoorDefinition>(), null);
 
     /// <summary>
     /// The installation's real writers, from its installed room-object catalogs and X-ray reveal (#1650): a room state

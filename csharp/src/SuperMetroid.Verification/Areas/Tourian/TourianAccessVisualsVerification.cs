@@ -47,8 +47,8 @@ internal static class TourianAccessVisualsVerification
     private static void VerifyTourianAccessStockMapping(CartridgeImportAddressSpace rom,
         RoomObjectTourianAccessVisuals installed)
     {
-        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9297,"crumble-empty-row"), new LookupEscapeGateStockFrame(0x92a3,"crumble-frame-0"),
-            new LookupEscapeGateStockFrame(0x92af,"crumble-frame-1"), new LookupEscapeGateStockFrame(0x92bb,"crumble-frame-2"), new LookupEscapeGateStockFrame(0x92c7,"clear-six-rows")];
+        LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9297,"crumble-empty-row"), new LookupEscapeGateStockFrame(0x92a3,"crumble-rock"),
+            new LookupEscapeGateStockFrame(0x92af,"crumble-pieces"), new LookupEscapeGateStockFrame(0x92bb,"crumble-dust"), new LookupEscapeGateStockFrame(0x92c7,"clear-six-rows")];
         foreach (RoomObjectTourianAccessVisuals pictures in new[] { RoomObjectTourianAccessVisuals.Stock(), installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectTourianAccessVisualFiles.Family, frames, WrittenCells(RoomObjectTourianAccessVisualFiles.Family));

@@ -8,10 +8,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="Intensity">Last published strength in steps of the haze's fade.</param>
 public readonly record struct CeresHazeRenderSnapshot(bool IsRed, int Intensity)
 {
-    /// <summary>Copies an enabled haze owner, or null when the room has none.</summary>
-    public static CeresHazeRenderSnapshot? Capture(CeresHazeState haze)
-    {
-        Ensure.NotNull(haze);
-        return haze.Enabled ? new(haze.IsRed, haze.Intensity) : null;
-    }
+    /// <summary>Copies the room's haze, or null when the room has none.</summary>
+    public static CeresHazeRenderSnapshot? Capture(CeresHazeState? haze) =>
+        haze is { } shown ? new(shown.IsRed, shown.Intensity) : null;
 }

@@ -70,7 +70,7 @@ internal sealed class DoorTransitionRunner
     /// behaviour, not room-name patches: every door that names a setup receives the same
     /// screen changes and room event.
     /// </remarks>
-    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, RoomBlockAnimations blockAnimations, CeresElevatorShaftRoomMainState ceresElevatorShaft, MaridiaElevatubeRoomMainState maridiaElevatube)
+    internal void RunDoorSetup(DoorDefinition door, RoomObjectSystem roomObjects, RoomBlockAnimations blockAnimations, MaridiaElevatubeRoomMainState? maridiaElevatube)
     {
         if (_room.Camera is null)
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
@@ -99,10 +99,10 @@ internal sealed class DoorTransitionRunner
                 // the screen from the turning floor to the ordinary room display, removing
                 // both the active and the shown transforms. Do this explicitly here rather
                 // than relying on the destination loader's defensive state reset: this is
-                // the door setup that owns the transition back to the ordinary display.
+                // the door setup that owns the transition back to the ordinary display. Its
+                // door leads out of the shaft, so the destination has no shaft's turn to end (#2287).
                 _display.ActiveTurningFloor = null;
                 _display.PublishDoorElevatorFloor(null);
-                ceresElevatorShaft.Deactivate();
                 return;
 
             case DoorRoomEvent.StartsTreadmillRightwards:
@@ -122,8 +122,10 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorRoomEvent.EndsElevatubeRide:
-                maridiaElevatube.ResetOnExit(_player.Samus ?? throw new InvalidOperationException(
-                    "Maridia elevatube exit setup requires an active Samus state."));
+                // Both exit doors lead out of the tube, so the destination has no ride to end; the setup only restores
+                // Samus's control (#2287).
+                (_player.Samus ?? throw new InvalidOperationException(
+                    "Maridia elevatube exit setup requires an active Samus state.")).Control.Unlock();
                 return;
 
             default:
@@ -152,10 +154,13 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room-object spawn.</summary>
-    private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomObjectSystem roomObjects, MaridiaElevatubeRoomMainState maridiaElevatube)
+    private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomObjectSystem roomObjects, MaridiaElevatubeRoomMainState? maridiaElevatube)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
+        if (maridiaElevatube is null)
+            throw new InvalidDataException(
+                $"Door setup event {entry} drives the elevatube in a room whose room behaviour is not the elevatube.");
         SamusState samus = _player.Samus ?? throw new InvalidOperationException(
             "Maridia elevatube setup requires an active Samus state.");
 

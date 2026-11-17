@@ -1,10 +1,13 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The statue sequence's operations over the entrance statue and the unlock effects.</summary>
 /// <param name="statue">The entrance statue.</param>
 /// <param name="unlock">The unlock effects.</param>
+[RoomLifetime]
 internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
     /// <inheritdoc/>
@@ -28,4 +31,7 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
 
     /// <inheritdoc/>
     public void ShowStatueLook(PictureShade look) => statue.ShowStatueLook(look);
+
+    /// <inheritdoc/>
+    public IGlowingEnemy SpriteStatueGreyOut(ColourEffectColours colours) => new TourianSpriteStatueGreyOut(statue, colours);
 }

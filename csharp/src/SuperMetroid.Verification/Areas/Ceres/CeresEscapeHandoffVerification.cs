@@ -124,7 +124,7 @@ internal static class CeresEscapeHandoffVerification
         // lifecycle consumes application-owned records, not synthetic ROM artwork.
 
         var carryover = new RoomMainCarryover();
-        var state = new CeresElevatorShaftRoomMainState(active: true, carryover);
+        var state = new CeresElevatorShaftRoomMainState(carryover);
         SamusState outsideTrigger = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(32, 100));
@@ -158,7 +158,7 @@ internal static class CeresEscapeHandoffVerification
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
         var triggerCarryover = new RoomMainCarryover();
-        var trigger = new CeresElevatorShaftRoomMainState(active: true, triggerCarryover);
+        var trigger = new CeresElevatorShaftRoomMainState(triggerCarryover);
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(113, 75));

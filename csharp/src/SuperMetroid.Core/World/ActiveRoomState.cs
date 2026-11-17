@@ -48,7 +48,7 @@ internal sealed class ActiveRoomState
     {
         if (_construction is not null)
             throw new InvalidOperationException("A room load is already building its scope.");
-        _construction = new RoomScopeConstruction(door, room, assets, loadStation);
+        _construction = new RoomScopeConstruction(door, room, assets, loadStation, RoomMainCarryover);
         return _construction;
     }
 

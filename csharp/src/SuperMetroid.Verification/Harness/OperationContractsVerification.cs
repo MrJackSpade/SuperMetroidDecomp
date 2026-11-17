@@ -47,7 +47,7 @@ internal static class OperationContractsVerification
             MetadataShape.ParameterTypes(typeof(SamusBlockCollision), "ScanVerticalTerrain", shared)[3],
             "the vertical terrain scan takes its probe, not the whole vertical move");
         AssertEqual(typeof(IAreaBossFlagReader),
-            MetadataShape.ParameterTypes(typeof(RoomObjectPopulationLoader), "TryRunRoomPopulationSetup", instance)[1],
+            typeof(RoomObjectSetupContext).GetProperty(nameof(RoomObjectSetupContext.Bosses))?.PropertyType,
             "PLM setup reads boss flags without being able to set them");
 
         // Concrete contexts validate required values at construction.

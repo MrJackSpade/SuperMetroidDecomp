@@ -39,7 +39,7 @@ internal static class CollectibleVisualsVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, 0xeed7, roomArgument: 0, precollected: false);
-            RoomObjectFixtures.VisualsOf(fixture.RoomObjects).RoomObjectCollectibleVisuals = visuals;
+            RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = visuals });
             fixture.RoomObjects.Step(fixture.Level);
             var result = new CollectibleVisualsRenderResult(fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
                 fixture.Level.DisplayedAppearance(fixture.BlockIndex),
@@ -67,7 +67,7 @@ internal static class CollectibleVisualsVerification
             SeedCollectibleRom(bus);
             // Each kind stands at its own retail item location, numbered from the first of the contiguous run 128 through 152.
             CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)(128 + kind)), precollected: false);
-            RoomObjectFixtures.VisualsOf(fixture.RoomObjects).RoomObjectCollectibleVisuals = stock;
+            RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
                 $"item kind {kind} still owns its live pickup after ROM-free drawing");
@@ -77,7 +77,7 @@ internal static class CollectibleVisualsVerification
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, header, 0, false);
-            RoomObjectFixtures.VisualsOf(fixture.RoomObjects).RoomObjectCollectibleVisuals = stock;
+            RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
             if (header == 0xef7f)
                 AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
                         fixture.Block),

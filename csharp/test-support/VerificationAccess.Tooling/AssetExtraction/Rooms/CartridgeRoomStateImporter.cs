@@ -31,8 +31,8 @@ public static class CartridgeRoomStateImporter
             Word(6) == 0 ? null : SuperMetroid.Core.Fx.RoomFxDefinitions.Get(Word(6)), SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitions.Get(Word(8)),
             BackgroundScrollCodec.Decode(Byte(12), Byte(13)),
             SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.Get(Word(14)), Word(16) == 0 ? null : XrayRoomOverlaySourcesConstants.Overlay(Word(16)),
-            RoomBehaviorDefinitions.ResolveMain(MainCodePointer(bus, statePointer)), SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Get(Word(20)),
-            Word(22) == 0 ? null : LibraryBackgroundSources.Program(Word(22)).Background, RoomBehaviorDefinitions.ResolveSetup(SetupCodePointer(bus, statePointer)));
+            RoomBehaviorRoutines.ResolveMain(MainCodePointer(bus, statePointer)), SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.Get(Word(20)),
+            Word(22) == 0 ? null : LibraryBackgroundSources.Program(Word(22)).Background, RoomBehaviorRoutines.ResolveSetup(SetupCodePointer(bus, statePointer)));
     }
 
     /// <summary>

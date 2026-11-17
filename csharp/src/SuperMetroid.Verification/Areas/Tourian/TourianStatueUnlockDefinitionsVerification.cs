@@ -126,7 +126,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-        AssertTrue(runtime.TourianStatues.Enabled,
+        AssertTrue(runtime.Room.LoadedScope.TourianStatues is not null,
             "retail Tourian statue room enables the production sequence");
         forbidArtworkReads = true;
 

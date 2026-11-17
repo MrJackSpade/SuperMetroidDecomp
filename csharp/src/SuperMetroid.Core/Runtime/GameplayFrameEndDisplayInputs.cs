@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="MotherBrainAscentShowing">Whether Mother Brain's rising-body display owns the gameplay layers.</param>
 /// <param name="RainbowBeam">The shown rainbow beam's cone, or null while it is hidden; its colour comes from the frame-boundary latch.</param>
 /// <param name="CeresHaze">The Ceres haze's colour gradient down the screen, when the room spawned one.</param>
-/// <param name="CeresHazeTints">The installed tints of the haze gradient, or null while no map presentation is bound; a haze that shows requires them.</param>
+/// <param name="CeresHazeTints">The installed tints of the haze gradient, which a haze that shows colours with (#2290).</param>
 /// <param name="PowerBomb">Power-bomb glow window inputs; its glow colour comes from the frame-boundary latch.</param>
 /// <param name="MessageBox">The message box overlay, which runs its own display loop.</param>
 /// <param name="SuitPickupBeam">Suit pickup light-beam window description; its colour comes from the frame-boundary latch.</param>
@@ -36,7 +36,7 @@ public sealed record GameplayFrameEndDisplayInputs(
     bool MotherBrainAscentShowing,
     MotherBrainRainbowBeamRenderSnapshot? RainbowBeam,
     CeresHazeRenderSnapshot? CeresHaze,
-    CeresHazeTints? CeresHazeTints,
+    CeresHazeTints CeresHazeTints,
     PowerBombRenderSnapshot PowerBomb,
     MessageBoxLayer? MessageBox,
     SamusSuitPickupBeam? SuitPickupBeam,

@@ -53,12 +53,12 @@ internal static class MotherBrainFakeDeathVisualsVerification
     /// <summary>Checks a selected mutation's physical block and redrawn visual tile with source reads guarded.</summary>
     private static void VerifyMotherBrainVisualDraw(RoomObjectSpawnRequest<MotherBrainRoomMutation> mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        InstalledMotherBrainFakeDeathFrames? visuals)
+        InstalledMotherBrainFakeDeathFrames visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
-        var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectMotherBrainFakeDeathVisuals = visuals });
+        var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectMotherBrainFakeDeathVisuals = visuals });
         AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, mutation),
             $"Mother Brain visual mutation {mutation} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());

@@ -42,9 +42,9 @@ internal static class RoomCallbackDefinitionsVerification
 
             RoomMainBehavior main = state.MainBehavior;
             RoomSetupBehavior setup = state.SetupBehavior;
-            AssertEqual(RoomBehaviorDefinitions.ResolveMain(CartridgeRoomStateImporter.MainCodePointer(bus, state.Pointer)), main,
+            AssertEqual(RoomBehaviorRoutines.ResolveMain(CartridgeRoomStateImporter.MainCodePointer(bus, state.Pointer)), main,
                 $"room state $8F:{state.Pointer:X4} main callback is the one its cartridge pointer decodes to");
-            AssertEqual(RoomBehaviorDefinitions.ResolveSetup(CartridgeRoomStateImporter.SetupCodePointer(bus, state.Pointer)), setup,
+            AssertEqual(RoomBehaviorRoutines.ResolveSetup(CartridgeRoomStateImporter.SetupCodePointer(bus, state.Pointer)), setup,
                 $"room state $8F:{state.Pointer:X4} setup callback is the one its cartridge pointer decodes to");
             mainCallbacks.Add(main);
             setupCallbacks.Add(setup);
@@ -52,21 +52,19 @@ internal static class RoomCallbackDefinitionsVerification
 
         AssertEqual(RoomStateDefinitions.RetailStateCount, states.Count,
             "callback audit reaches every compiled retail room state");
-        AssertTrue(mainCallbacks.SetEquals(Enum.GetValues<RoomMainBehavior>()),
+        AssertTrue(mainCallbacks.SetEquals(RoomMainBehavior.All),
             "every typed room-main callback occurs in the retail state graph");
-        AssertTrue(setupCallbacks.SetEquals(Enum.GetValues<RoomSetupBehavior>()),
+        AssertTrue(setupCallbacks.SetEquals(RoomSetupBehavior.All),
             "every typed room-setup callback occurs in the retail state graph");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomBehaviorDefinitions.ResolveMain(0xffff),
+            () => RoomBehaviorRoutines.ResolveMain(0xffff),
             "room-main dispatch rejects unknown native pointers");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => RoomBehaviorDefinitions.ResolveSetup(0xffff),
+            () => RoomBehaviorRoutines.ResolveSetup(0xffff),
             "room-setup dispatch rejects unknown native pointers");
-        AssertTrue(RoomBehaviorDefinitions.CeresHazeSetups.Contains(
-                RoomSetupBehavior.SealCeresDoorAndSpawnHaze),
+        AssertTrue(RoomSetupBehavior.SealCeresDoorAndSpawnHaze.SpawnsCeresHaze,
             "Ceres solid-door callback retains its haze side effect");
-        AssertTrue(!RoomBehaviorDefinitions.CeresHazeSetups.Contains(
-                RoomSetupBehavior.SetMediumHorizontalRoomShaking),
+        AssertTrue(!RoomSetupBehavior.SetMediumHorizontalRoomShaking.SpawnsCeresHaze,
             "unrelated callback does not acquire Ceres haze");
 
         Console.WriteLine(

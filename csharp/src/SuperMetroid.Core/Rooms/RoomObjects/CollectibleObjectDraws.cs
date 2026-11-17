@@ -101,7 +101,7 @@ internal static class CollectibleObjectDraws
     /// <summary>The collectibles' family: a block pair's frame writes its terrain alone; every other frame draws as pictured.</summary>
     private sealed class CollectibleDrawFamily() : RoomObjectDrawFamily<CollectibleDraw>("collectible",
         frame => RoomBlockShapes.Block(CollisionOf(frame)),
-        (drawing, draw) => drawing.Installed<InstalledRoomObjectCollectibleVisuals>("collectible").Image(draw))
+        (drawing, draw) => drawing.Installed<InstalledRoomObjectCollectibleVisuals>().Image(draw))
     {
         /// <inheritdoc/>
         internal override void Draw(RoomLevelData level, Position16<RoomBlocks> origin, IRoomObjectDrawing drawing,

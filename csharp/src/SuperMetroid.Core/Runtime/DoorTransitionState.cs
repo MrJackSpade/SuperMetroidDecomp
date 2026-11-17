@@ -102,7 +102,7 @@ internal sealed class DoorTransitionState
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 
-        runtime.Room.LoadedScope.CeresHaze.Step(Phase switch
+        runtime.Room.LoadedScope.CeresHaze?.Step(Phase switch
         {
             DoorTransitionPhase.FadeInDestinationRoom => CeresHazeRoomFade.FadeIn,
             DoorTransitionPhase.FadeOutSourceRoom => CeresHazeRoomFade.FadeOut,

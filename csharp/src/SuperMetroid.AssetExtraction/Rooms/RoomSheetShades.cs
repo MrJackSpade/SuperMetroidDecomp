@@ -125,15 +125,11 @@ internal static class RoomSheetShades
     }
 
     /// <summary>
-    /// The shades of <paramref name="tileset"/>'s pictures of the HUD (#1731): a door's fades of the HUD and the room effects'
+    /// The shades of a tileset's pictures of the HUD (#1731, #2289): a door's dark shades of the HUD and the room effects'
     /// palette blends, which shade the HUD as they shade the effects.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> Hud(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
-    {
-        Ensure.NotNull(inputs);
-        RgbColor[] standard = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
-        return [.. DoorFadeHudShades.Of(standard), .. RoomFxBlendSheetShades.Of(inputs.Maps.RoomFxPaletteBlends)];
-    }
+    internal static IReadOnlyList<SheetShade> Hud(RoomBlockSheetInputs inputs) =>
+        [.. DoorFadeHudShades.Of(), .. RoomFxBlendSheetShades.Of(Ensure.NotNull(inputs).Maps.RoomFxPaletteBlends)];
 
     /// <summary><paramref name="sheet"/>, also pre-coloured in <paramref name="shades"/>.</summary>
     internal static ComposedWrittenPictureSheet With(ComposedWrittenPictureSheet sheet, IReadOnlyList<SheetShade> shades) =>

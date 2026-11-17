@@ -140,36 +140,22 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// Sets up the station or elevator platform the room's population placed as <paramref name="placed"/>: installs a
-    /// station's collision blocks and animation state, a save station saving at the load station its placement names
-    /// (<paramref name="savedAt"/>), or deactivates an elevator platform's block.
+    /// Sets up the elevator platform the room's population placed: the deactivating setup leaves a solid block solid and
+    /// any other block air, keeping its appearance; the platform then plays its loop.
     /// </summary>
-    /// <returns>False when <paramref name="placed"/> is neither a station nor an elevator platform.</returns>
-    internal static bool TrySetupStationOrElevator(
-        RoomLevelData level,
-        SharedGameState system,
-        AreaId area,
-        RoomObjectPlace place,
-        RoomObjectKind placed,
-        SaveStationArgument? savedAt)
+    internal static void SetupElevatorPlatform(RoomLevelData level, RoomObjectPlace place)
     {
+        Ensure.NotNull(level);
         Ensure.NotNull(place);
-        if (placed == RoomObjectKind.ElevatorPlatform)
-        {
-            // The deactivating setup leaves a solid block solid and any other block air, keeping its appearance; the
-            // platform then plays its loop.
-            place.Become(new ElevatorPlatformObject());
-            level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
-            return true;
-        }
-        if (!StationKindDefinitions.Kinds.TryGetValue(placed, out StationKind kind))
-            return false;
-        SetupStation(level, system, area, place, kind, savedAt?.Station);
-        return true;
+        place.Become(new ElevatorPlatformObject());
+        level.SetTerrain(place.Block, level.GetCollisionBlock(place.Block).Terrain.Deactivated());
     }
 
-    /// <summary>Installs station and access blocks and selects the current animation for saved map state.</summary>
-    private static void SetupStation(
+    /// <summary>
+    /// Sets up the station the room's population placed: installs its collision blocks and animation state, a save station
+    /// saving at the load station its placement names (<paramref name="savedAt"/>).
+    /// </summary>
+    internal static void SetupStation(
         RoomLevelData level,
         SharedGameState system,
         AreaId area,

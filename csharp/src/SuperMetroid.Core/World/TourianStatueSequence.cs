@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.Core.World;
 
@@ -96,7 +97,7 @@ public sealed class TourianStatueSequence
     /// The four statue animations in Kraid, Phantoon, Draygon, Ridley order, the order they run in each update and so the
     /// order in which a waiting statue can claim the one release that plays at a time.
     /// </summary>
-    internal readonly List<StatueBlockAnimation> statues = [];
+    private readonly List<StatueBlockAnimation> _statues = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
     /// <summary>Calls left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
@@ -106,8 +107,6 @@ public sealed class TourianStatueSequence
     /// exposed as a negative background vertical offset.
     /// </summary>
     internal SignedSixteenSixteen Descent { get; private set; }
-    /// <summary>Whether the last loaded room uses <see cref="RoomSetupBehavior.RunStatueUnlockingAnimations"/>; remains true after the descent finishes; the next room builds its own sequence.</summary>
-    public bool Enabled { get; private set; }
     /// <summary>
     /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
     /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
@@ -126,7 +125,7 @@ public sealed class TourianStatueSequence
     /// <param name="roomObjects">The room's room-object system.</param>
     internal void RestartWithStatuesOpen(RoomObjectSystem roomObjects)
     {
-        statues.Clear();
+        _statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
         _holdCalls = 0;
         Descent = SignedSixteenSixteen.Zero;
@@ -134,15 +133,13 @@ public sealed class TourianStatueSequence
         Begin(roomObjects);
     }
 
-    /// <summary>Begins the room's statue sequence, enabling the four statue animations only for the statue-unlocking room setup.</summary>
+    /// <summary>Begins the room's statue sequence with its four statue animations; only the statue room, whose setup unlocks the statues, builds one (#2287).</summary>
     /// <remarks>
     /// A prior unlock event or the open-statues assist starts at the fully descended offset, clears the access obstruction through its room object, and enables vertical scrolling.
-    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no statue animations.
+    /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish.
     /// </remarks>
     private void Begin(RoomObjectSystem roomObjects)
     {
-        Enabled = _room.ActiveRoom?.State.SetupBehavior == RoomSetupBehavior.RunStatueUnlockingAnimations;
-        if (!Enabled) return;
         SpawnStatueAnimations();
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked))
         {
@@ -161,7 +158,7 @@ public sealed class TourianStatueSequence
     /// Spawns the four statue animations in order. They run in the order they were spawned, so the spawn order also
     /// decides which waiting statue claims the one release that plays at a time.
     /// </summary>
-    internal void SpawnStatueAnimations()
+    private void SpawnStatueAnimations()
     {
         Spawn(TourianGreyStatues.Kraid);
         Spawn(TourianGreyStatues.Phantoon);
@@ -174,7 +171,7 @@ public sealed class TourianStatueSequence
             if (!TourianStatueAnimationDefinitions.Statues.TryGetValue(statue, out TourianStatueAnimationDefinition? definition))
                 throw new InvalidDataException($"Tourian statue {statue} is not cataloged.");
 
-            statues.Add(new(definition));
+            _statues.Add(new(definition));
         }
     }
 
@@ -184,9 +181,8 @@ public sealed class TourianStatueSequence
     /// </summary>
     public void StepBlockAnimations()
     {
-        if (!Enabled) return;
         if (_assists.Current.TourianStatuesOpen) return;
-        foreach (StatueBlockAnimation statueAnimation in statues)
+        foreach (StatueBlockAnimation statueAnimation in _statues)
         {
             if (!statueAnimation.CountDown() || statueAnimation.Playback is not { } playback) continue;
             TourianStatueAnimationDefinition definition = statueAnimation.Definition;
@@ -242,7 +238,7 @@ public sealed class TourianStatueSequence
                     statue.SpawnSoul(definition.Eye);
                     return null;
                 case TourianStatueBlockCueKind.SpawnGreyColourEffect:
-                    _roomColourEffects.Start(definition.ColourEffect, _player.IntroducedSamus.EquippedItems);
+                    StartGreyOut(definition, statue);
                     return null;
                 case TourianStatueBlockCueKind.SetGreyEvent:
                     _system.SetEvent(definition.GreyEvent);
@@ -256,6 +252,26 @@ public sealed class TourianStatueSequence
                     return null;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(TourianStatueBlockCueKind)} {cue.Kind}.");
+            }
+        }
+
+        // A statue drawn in the room's background greys out on the room's pictures; a sprite statue greys out on its sprite,
+        // which the grey-out hands its frames to (#2288).
+        void StartGreyOut(TourianStatueAnimationDefinition definition, ITourianStatueActors statue)
+        {
+            SamusEquipmentFlags equipped = _player.IntroducedSamus.EquippedItems;
+            switch (definition.GreyOutSite)
+            {
+                case TourianStatueGreyOutSite.RoomBackground:
+                    _roomColourEffects.Start(definition.ColourEffect, equipped);
+                    return;
+                case TourianStatueGreyOutSite.EntranceStatue:
+                    _roomColourEffects.StartShownOn(definition.ColourEffect,
+                        statue.SpriteStatueGreyOut(ColourEffectAnimations.Definition(definition.ColourEffect).Colours), equipped);
+                    return;
+                default:
+                    throw new InvalidOperationException(
+                        $"Tourian statue {definition.Statue} greys out at undefined {nameof(TourianStatueGreyOutSite)} {definition.GreyOutSite}.");
             }
         }
 
@@ -278,7 +294,6 @@ public sealed class TourianStatueSequence
     /// </summary>
     public void StepDescent(RoomObjectSystem roomObjects)
     {
-        if (!Enabled) return;
         if (_assists.Current.TourianStatuesOpen || _system.HasEvent(StoryEvent.TourianUnlocked)) { EnableScrolling(); return; }
         if (_descentPhase == TourianStatueDescentPhase.AwaitingReleases)
         {

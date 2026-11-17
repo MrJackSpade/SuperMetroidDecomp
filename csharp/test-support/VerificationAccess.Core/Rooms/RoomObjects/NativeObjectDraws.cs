@@ -47,6 +47,7 @@ internal static class NativeObjectDraws
             .Concat(Enum.GetValues<SporeSpawnCeilingDraw>().Select(SporeSpawnCeilingDraws.Family.Of))
             .Concat(Enum.GetValues<StationDraw>().Select(StationObjectDraws.Family.Of))
             .Concat(Enum.GetValues<TourianAccessDraw>().Select(TourianAccessDraws.Family.Of))
+            .Concat(new[] { BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust }.Select(TourianAccessDraws.Crumble))
             .Concat(Enum.GetValues<GrappleBlockDraw>().Select(GrappleBlockObjectDraws.Family.Of))
             .Concat(RoomObjectShotBlockVisualFiles.Calculated)
             .Concat(RoomObjectCollectibleVisualFiles.All.Select(frame => CollectibleObjectDraws.Family.Of(frame.Draw)))

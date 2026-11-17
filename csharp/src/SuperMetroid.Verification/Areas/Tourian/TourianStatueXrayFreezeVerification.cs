@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -26,10 +27,10 @@ internal static class TourianStatueXrayFreezeVerification
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-        AssertTrue(runtime.TourianStatues.Enabled, "the statue room runs the statue sequence");
+        AssertTrue(runtime.Room.LoadedScope.TourianStatues is not null, "the statue room runs the statue sequence");
         runtime.Player.IntroducedSamus.Control.LockOutPlayer();
 
-        var objects = runtime.TourianStatues.statues;
+        var objects = runtime.TourianStatues.Statues;
         string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Playback?.Place}/{o.Timer}"));
 
         runtime.StepFrame(0);

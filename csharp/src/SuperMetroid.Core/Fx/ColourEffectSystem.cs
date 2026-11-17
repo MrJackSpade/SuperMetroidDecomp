@@ -39,9 +39,9 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     private readonly List<RoomColourEffect> settled = [];
     /// <summary>The frames Samus's suit groups showed during the current update, in order (#1512).</summary>
     private readonly List<ShownColourEffectFrame> suitShown = [];
-    /// <summary>The frames the enemies' groups showed during the current update, in order (#1512).</summary>
-    private readonly List<ShownColourEffectFrame> enemyShown = [];
-    /// <summary>The frames the enemies' own glows showed during the current update, in order, each for the enemy that started it (#1783).</summary>
+    /// <summary>The frames the escape's shutter flash showed during the current update, in order (#1512).</summary>
+    private readonly List<ColourEffectFrame> shutterFlashShown = [];
+    /// <summary>The frames the effects enemies show showed during the current update, in order, each for the enemy its start handed it (#1783).</summary>
     private readonly List<ShownEnemyGlow> glowsShown = [];
     /// <summary>Whether the effects run at all and the heat phases, which outlive each room's effects.</summary>
     private readonly ColourEffectSessionState _session;
@@ -69,17 +69,30 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     public bool IsRunning(ColourEffectId effect) => effects.Exists(running => running.Effect == effect);
 
     /// <summary>
-    /// Starts an effect outside the room's effect during gameplay: Samus's load appearance, a statue's grey-out or the
-    /// escape's flashes. It must start: the start is rejected loudly when it does not. A frontend screen starts its
-    /// effects with <see cref="StartScreen"/>.
+    /// Starts an effect outside the room's effect during gameplay: Samus's load appearance, a background statue's grey-out
+    /// or the escape's flashes. It must start: the start is rejected loudly when it does not. A frontend screen starts its
+    /// effects with <see cref="StartScreen"/>, and an effect an enemy shows starts with that enemy
+    /// (<see cref="StartShownOn"/>).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The effect did not start: its start skips it.</exception>
+    /// <exception cref="InvalidOperationException">The effect did not start: its start skips it, or an enemy shows it.</exception>
     public void Start(
         ColourEffectId effect,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
         if (!TryStart(effect, equippedItems, areaMiniBossDefeated, litTorizo: null, glowingEnemy: null))
+            throw new InvalidOperationException($"Colour effect {effect} could not start.");
+    }
+
+    /// <summary>
+    /// Starts an effect whose frames <paramref name="enemy"/> shows on its draws (#2288): a sprite statue's grey-out, handed
+    /// the statue it greys, as the gunship's glow is handed the gunship (#1783). It must start: the start is rejected loudly
+    /// when it does not.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The effect did not start: its start skips it, or no enemy shows it.</exception>
+    internal void StartShownOn(ColourEffectId effect, IGlowingEnemy enemy, SamusEquipmentFlags equippedItems)
+    {
+        if (!TryStart(effect, equippedItems, areaMiniBossDefeated: false, litTorizo: null, Ensure.NotNull(enemy)))
             throw new InvalidOperationException($"Colour effect {effect} could not start.");
     }
 
@@ -172,7 +185,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// <remarks>
     /// No colour is written (#1512, #1597): each effect shows the frame it holds now, which the room's pictures take as a
     /// shade, and the frames of Samus's and the enemies' groups are handed to their owners through
-    /// <see cref="SuitShown"/>, <see cref="EnemyShown"/> and <see cref="GlowsShown"/>, whose colourings the import
+    /// <see cref="SuitShown"/>, <see cref="ShutterFlashShown"/> and <see cref="GlowsShown"/>, whose colourings the import
     /// pre-colours per frame.
     /// </remarks>
     /// <param name="conditions">The update's conditions the effects watch.</param>
@@ -206,7 +219,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     private void RunTurns(Action<RoomColourEffect> checkCondition, Action<RoomColourEffect, ColourEffectFrame> show)
     {
         suitShown.Clear();
-        enemyShown.Clear();
+        shutterFlashShown.Clear();
         glowsShown.Clear();
 
         foreach (RoomColourEffect effect in effects)
@@ -243,6 +256,11 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
         IGlowingEnemy? glowingEnemy)
     {
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
+        // An effect an enemy shows starts with the enemy that shows it, and only such an effect does (#2288).
+        if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(definition.Colours) != glowingEnemy is not null)
+            throw new InvalidOperationException(glowingEnemy is null
+                ? $"Colour effect {effect} shows on an enemy, which its start must hand it."
+                : $"Colour effect {effect} shows on no enemy, but its start handed it one.");
         SuperMetroid.Core.Animation.Animation<ColourEffectId> animation;
         switch (definition.Start)
         {
@@ -378,14 +396,14 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     internal IReadOnlyList<ShownColourEffectFrame> SuitShown => suitShown;
 
     /// <summary>
-    /// The frames the enemies' groups showed during the last update, in order (#1512): each enemy lays the shade of
-    /// each over its draws, as each frame overwrote its colours then.
+    /// The frames the escape's shutter flash showed during the last update, in order (#1512, #2288): the room's destroyable
+    /// shutters lay the shade of each over their draws, as each frame overwrote their colours then.
     /// </summary>
-    internal IReadOnlyList<ShownColourEffectFrame> EnemyShown => enemyShown;
+    internal IReadOnlyList<ColourEffectFrame> ShutterFlashShown => shutterFlashShown;
 
     /// <summary>
-    /// The frames the enemies' own glows showed during the last update, in order (#1783): each is shown by the enemy whose
-    /// placement started its glow, which lays its shade over that enemy's draws.
+    /// The frames the effects enemies show showed during the last update, in order (#1783, #2288): each is shown by the enemy
+    /// its start handed it, which lays its shade over that enemy's draws.
     /// </summary>
     internal IReadOnlyList<ShownEnemyGlow> GlowsShown => glowsShown;
 
@@ -464,13 +482,17 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             suitShown.Add(new ShownColourEffectFrame(animated, frame));
             return;
         }
+        if (animated == ColourEffectEnemyColourDefinitions.EscapeShutterColours)
+        {
+            // The escape's shutter flash shows on whichever destroyable shutters the room holds.
+            shutterFlashShown.Add(frame);
+            return;
+        }
         if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(animated))
         {
-            // An enemy's own glow shows on the enemy that started it; the other enemy groups show on the room's enemies.
-            if (effect.GlowingEnemy is { } glowing)
-                glowsShown.Add(new ShownEnemyGlow(glowing, frame));
-            else
-                enemyShown.Add(new ShownColourEffectFrame(animated, frame));
+            // An effect an enemy shows shows on the enemy its start handed it (#2288).
+            glowsShown.Add(new ShownEnemyGlow(effect.GlowingEnemy ?? throw new InvalidOperationException(
+                $"Colour effect {effect.Effect} shows on an enemy but holds none."), frame));
             return;
         }
         throw new InvalidOperationException($"Colour effect {effect.Effect} showed {animated}, which no gameplay picture shows.");

@@ -28,31 +28,40 @@ public static class RoomObjectTourianAccessVisualFiles
     public static RoomObjectTourianAccessVisuals Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
-    /// <summary>The draw lists of every Tourian access draw.</summary>
-    internal static IEnumerable<RoomObjectDrawLists.DrawList> All
-    {
-        get
-        {
-            foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>())
-                yield return Compile(draw);
-        }
-    }
+    /// <summary>The draw lists of every Tourian access draw, in the cartridge's order: the empty row, the crumble's stages, the clear.</summary>
+    internal static IEnumerable<RoomObjectDrawLists.DrawList> All =>
+        [Compile(TourianAccessDraw.EmptyRow), .. RoomObjectVisualIdDefinitions.TourianAccessCrumble.Keys.Select(CompileCrumble),
+            Compile(TourianAccessDraw.Clear)];
 
-    /// <summary>Gets the stable artwork identity of a Tourian access draw.</summary>
-    internal static string VisualId(RoomObjectDraw draw) => VisualId(RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
+    /// <summary>Gets the stable artwork identity of a Tourian access draw: a crumble stage's, or the empty row's or the clear's.</summary>
+    internal static string VisualId(RoomObjectDraw draw) =>
+        RoomObjectDrawIdentity.TryFrame(draw, out TourianAccessDraws.CrumbleDraw crumble)
+            ? CrumbleVisualId(crumble.Stage)
+            : VisualId(RoomObjectDrawIdentity.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
 
-    /// <summary>Names the empty, three crumble, or six-row clear frame for visual files.</summary>
+    /// <summary>Names the empty row or the six-row clear frame for visual files.</summary>
     internal static string VisualId(TourianAccessDraw draw) =>
         RoomObjectVisualIdDefinitions.TourianAccess.TryGetValue(draw, out string? id)
             ? id : throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
 
+    /// <summary>Names a drawn stage of a row's crumble for visual files (#2291).</summary>
+    private static string CrumbleVisualId(BlockBreakupStage stage) =>
+        RoomObjectVisualIdDefinitions.TourianAccessCrumble.TryGetValue(stage, out string? id)
+            ? id : throw new InvalidOperationException($"A Tourian access row's crumble draws no stage {stage}.");
+
     /// <summary>The draw list of a Tourian access draw: its block shape written one four-block row at a time, top row first (#1862).</summary>
-    internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw)
+    internal static RoomObjectDrawLists.DrawList Compile(TourianAccessDraw draw) =>
+        Compile(TourianAccessDraws.Family.Of(draw), TourianAccessDraws.Family, draw == TourianAccessDraw.Clear ? 6 : 1);
+
+    /// <summary>The draw list of a drawn stage of a row's crumble: one four-block row (#2291).</summary>
+    internal static RoomObjectDrawLists.DrawList CompileCrumble(BlockBreakupStage stage) =>
+        Compile(TourianAccessDraws.Crumble(stage), TourianAccessDraws.CrumbleFamily, 1);
+
+    /// <summary>The draw list of a frame of <paramref name="family"/>: its block shape written one four-block row at a time, top row first.</summary>
+    private static RoomObjectDrawLists.DrawList Compile<TFrame>(RoomObjectDraw request, RoomObjectDrawFamily<TFrame> family, int rows) where TFrame : struct
     {
-        RoomObjectDraw request = TourianAccessDraws.Family.Of(draw);
-        if (!RoomObjectDrawIdentity.TryShape(TourianAccessDraws.Family, request, out RoomBlockShape? shape))
-            throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}.");
-        int rows = draw == TourianAccessDraw.Clear ? 6 : 1;
+        if (!RoomObjectDrawIdentity.TryShape(family, request, out RoomBlockShape? shape))
+            throw new InvalidOperationException($"Tourian access frame {request} has no shape.");
         return RoomObjectShapeRun.DrawList(request, shape,
             [.. Enumerable.Range(0, rows).Select(row => RoomObjectShapeRun.Row(new(0, row), 4))]);
     }

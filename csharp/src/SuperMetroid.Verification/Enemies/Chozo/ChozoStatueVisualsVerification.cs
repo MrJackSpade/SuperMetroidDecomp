@@ -44,7 +44,7 @@ internal static class ChozoStatueVisualsVerification
             })
             {
                 var level = CreateEmptyRoom(new(width, 16));
-                var roomObjects = RoomObjectFixtures.Unbound(new RoomObjectVisuals { RoomObjectChozoStatueVisuals = installed });
+                var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectChozoStatueVisuals = installed });
                 AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
                     new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), header)),
                     $"Chozo actor {header} spawns in a bounded test room");

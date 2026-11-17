@@ -16,6 +16,8 @@ using SuperMetroid.Core.World.RoomStates;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
+using SuperMetroid.AssetExtraction.World.RoomStates;
+
 namespace SuperMetroid.Verification.Rooms.Artwork;
 
 /// <summary>
@@ -38,22 +40,22 @@ internal static class RoomFloorSheetsVerification
     private const int FloorMemoryBytes = Side * Side * sizeof(ushort);
 
     /// <summary>
-    /// Synthetic room states: a state that runs the elevator shaft's room main shows the shaft's floor, a state whose enemies
-    /// include Ceres Ridley shows his getaway's floor, and a state that runs neither, or runs the getaway's room main
-    /// without him (his arena after his escape), shows none. The retail states that show one load only the shaft's two
-    /// tilesets and Ridley's arena's first, so only those install a floor (the disassembly's tileset table and room states,
-    /// $8F:DF45 and $8F:E0B5).
+    /// The turning floor each retail state authors (#2287): a state that runs the elevator shaft's room main shows the
+    /// shaft's floor, a state whose enemies include Ceres Ridley shows his getaway's floor, and a state that runs neither,
+    /// or runs the getaway's room main without him (his arena after his escape), shows none. The retail states that show
+    /// one load only the shaft's two tilesets and Ridley's arena's first, so only those install a floor (the disassembly's
+    /// tileset table and room states, $8F:DF45 and $8F:E0B5).
     /// </summary>
     internal static void VerifyFloorOnlyWhereShown()
     {
-        RoomStateSettings plain = CeresRoomStateDefinitions.FallingTileDefault;
-        AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain), "a state that runs neither the shaft nor Ridley shows no turning floor");
-        AssertEqual(RoomTurningFloor.ElevatorShaft, RoomTurningFloors.Of(plain with { MainBehavior = RoomMainBehavior.CeresElevatorShaft }),
-            "a state that runs the elevator shaft's room main shows the shaft's floor");
-        AssertEqual(RoomTurningFloor.RidleyGetaway, RoomTurningFloors.Of(plain with { EnemyPopulation = RoomEnemyPopulationDefinitions.CeresRidleyDefault }),
-            "a state whose enemies include Ceres Ridley shows his getaway's floor");
-        AssertEqual(RoomTurningFloor.None, RoomTurningFloors.Of(plain with { MainBehavior = RoomMainBehavior.CeresRidleyGetaway }),
-            "the getaway's room main without Ridley shows no turning floor");
+        foreach (RoomStateSettings state in RetailRooms.All.SelectMany(RoomStateLists.GetStates))
+        {
+            RoomTurningFloor shown = state.MainBehavior == RoomMainBehavior.CeresElevatorShaft ? RoomTurningFloor.ElevatorShaft
+                : ReferenceEquals(state.EnemyPopulation, RoomEnemyPopulationDefinitions.CeresRidleyDefault) ? RoomTurningFloor.RidleyGetaway
+                : RoomTurningFloor.None;
+            AssertEqual(shown, state.TurningFloor,
+                $"room state {state.Name} authors the turning floor its main and its enemies show");
+        }
 
         RoomGraphicsSet[] floored = [.. RoomBlockUploads.FloorTilesets().Select(tileset => tileset.GraphicsSet).Order()];
         AssertTrue(floored.SequenceEqual([RoomGraphicsSet.BlueCeresElevator, RoomGraphicsSet.WhiteCeresElevator, RoomGraphicsSet.BlueCeresRidley]),

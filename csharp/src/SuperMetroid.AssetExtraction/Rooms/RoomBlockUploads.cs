@@ -42,12 +42,12 @@ internal static class RoomBlockUploads
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>
-    /// The tilesets of the retail room states that show a turning floor (<see cref="RoomTurningFloors"/>), each once in room
+    /// The tilesets of the retail room states that show a turning floor (<see cref="RoomStateSettings.TurningFloor"/>), each once in room
     /// order: those a turning floor is composed for, and the only ones a room shows one in (#1536, #1649). A tileset no such
     /// state loads installs no floor.
     /// </summary>
     internal static IReadOnlyList<TilesetDefinition> FloorTilesets() =>
-        [.. RetailRooms.All.SelectMany(RoomStateLists.GetStates).Where(RoomTurningFloors.ShowsOne)
+        [.. RetailRooms.All.SelectMany(RoomStateLists.GetStates).Where(state => state.TurningFloor != RoomTurningFloor.None)
             .Select(state => RoomTilesets.Get(state.GraphicsSet)).Distinct()];
 
     /// <summary>The installed name of every background image some retail room state shows, each once (#1536), as <see cref="BackgroundNamesOf"/> names them.</summary>
@@ -72,8 +72,8 @@ internal static class RoomBlockUploads
                 DoorDefinition?[] doors = [.. DoorVariants(library)];
                 names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(library.Background, door, tileset)));
             }
-            if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
-                names.Add(RoomBackgroundImage.SkyNameOf(ScrollingSkyState.SkyOf(state.MainBehavior), tileset));
+            if (state.MainBehavior.Sky is { } sky)
+                names.Add(RoomBackgroundImage.SkyNameOf(sky, tileset));
         }
         return [.. names.Distinct(StringComparer.Ordinal)];
     }
@@ -152,10 +152,9 @@ internal static class RoomBlockUploads
                     // Words written over the room show over what its load binds.
                     uploads.AddWriters(writers, Loaded(inputs, tileset), []);
                 }
-                if (ScrollingSkyState.IsScrollingSkyRoomMain(state.MainBehavior))
+                if (state.MainBehavior.Sky is { } variant)
                 {
                     // The sky's rows show over what the room's load binds.
-                    ScrollingSky variant = ScrollingSkyState.SkyOf(state.MainBehavior);
                     uploads.AddBackground(new RoomBackgroundMap(RoomBackgroundImage.SkyNameOf(variant, tileset),
                         BackgroundTileWords.ToWords(inputs.Skies.Tilemap(variant).Tiles), Loaded(inputs, tileset)));
                 }

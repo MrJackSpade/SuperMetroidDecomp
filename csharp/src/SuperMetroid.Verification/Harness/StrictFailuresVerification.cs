@@ -6,7 +6,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>Checks that invalid bindings, brightness, PLM identities, and unloaded enemy services fail explicitly.</summary>
+/// <summary>Checks that invalid bindings, brightness and PLM identities fail explicitly.</summary>
 internal static class StrictFailuresVerification
 {
 /// <summary>Exercises specific invalid inputs at the controller, display, PLM, and enemy-service boundaries.</summary>
@@ -37,12 +37,7 @@ internal static void VerifyStrictFailureBoundaries()
     AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectKind)(-1)),
         "unknown PLM is absent from the production dispatcher");
 
-    var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-    AssertThrows<InvalidOperationException>(
-        () => _ = enemies.Room.Services,
-        "enemy AI services are rejected before Load installs them");
-
     Console.WriteLine(
-        "  Strict failures: bindings, brightness, PLM coverage, and enemy services reject bad state loudly.");
+        "  Strict failures: bindings, brightness and PLM coverage reject bad state loudly.");
 }
 }

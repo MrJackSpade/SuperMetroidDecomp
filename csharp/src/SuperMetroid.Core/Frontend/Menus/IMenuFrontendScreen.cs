@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Menus;
 

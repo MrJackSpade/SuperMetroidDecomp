@@ -9,7 +9,6 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend;
 
 /// <summary>Checks that unpausing disarms elevator pseudo-door contact before gameplay resumes.</summary>

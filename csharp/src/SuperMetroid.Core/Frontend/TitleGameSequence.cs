@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Core.Frontend;
 

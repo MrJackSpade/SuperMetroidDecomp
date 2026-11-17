@@ -2,7 +2,6 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>The scroll data room states select: 159 explicit tables and two implicit layouts.</summary>
 [NumberedIdentities("Each numbered member is the scroll layout of a distinct numbered room (Metroids1-4, TourianEscape1-4), named for that room.")]
-[ArchitectureReview("large", "Data only: every explicit scroll layout's screens, room by room; splitting it by area would only scatter one table the room loader reads as a whole.")]
 public static class RoomScrollDefinitions
 {
     /// <summary>A screen closed to the camera.</summary>

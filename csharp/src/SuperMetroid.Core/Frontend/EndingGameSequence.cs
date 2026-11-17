@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;

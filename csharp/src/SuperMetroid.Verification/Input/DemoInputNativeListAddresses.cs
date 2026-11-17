@@ -44,7 +44,7 @@ internal static class DemoInputNativeListAddresses
 
     /// <summary>
     /// The list a title demonstration's leave check redirects to: the delete alone, which a typed playback's
-    /// <see cref="DemoInputState.End"/> stands for (#2007).
+    /// <c>DemoInputState.End</c> stands for (#2007).
     /// </summary>
     internal const ushort TitleLeavingDeleteList = 0x8776;
 

@@ -15,7 +15,6 @@ namespace SuperMetroid.Verification.Rooms.Doors;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend;
 
 /// <summary>Reproduces enemy sound ordering on the first door-entry update.</summary>

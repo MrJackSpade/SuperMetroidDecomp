@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Scrolling;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>

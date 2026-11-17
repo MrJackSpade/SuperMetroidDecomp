@@ -7,8 +7,8 @@ using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that Ceres gunship engine colors remain bound after a debugger state restore and artwork rebind.</summary>
 internal static class CeresEnginePaletteBindingVerification

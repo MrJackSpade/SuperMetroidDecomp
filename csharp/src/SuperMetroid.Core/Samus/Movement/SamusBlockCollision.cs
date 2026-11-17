@@ -80,7 +80,6 @@ public static class SamusBlockCollision
         SignedSixteenSixteen acceptedDisplacement = move.Displacement;
         bool collided = false;
         SolidEnemyCollisionResult? enemyCollision = null;
-        RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
 
         if ((!acceptedDisplacement.IsZero || move.CollisionMovementDirection.HasValue) && state.InteractiveEnemies.Count != 0)
@@ -157,7 +156,6 @@ public static class SamusBlockCollision
                             {
                                 acceptedDisplacement = clippedDisplacement;
                                 collided = true;
-                                collisionBlock = block;
                             }
                             break;
                         }
@@ -176,7 +174,6 @@ public static class SamusBlockCollision
                             acceptedDisplacement,
                             leadingBoundary);
                         collided = true;
-                        collisionBlock = block;
                         break;
 
                     case RoomCollisionType.DoorBlock:
@@ -195,7 +192,6 @@ public static class SamusBlockCollision
                                 acceptedDisplacement,
                                 leadingBoundary);
                             collided = true;
-                            collisionBlock = block;
                         }
                         break;
 
@@ -213,7 +209,7 @@ public static class SamusBlockCollision
                         // when reached through the horizontal step.
                         collided = SamusInsideBlockReactions.ReactCollision(new(state, state.CollisionBodyAttack(owner)), terrain, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection) == SpecialAirCollisionOutcome.Blocks;
-                        if (collided) collisionBlock = block;
+                        if (collided) _ = block;
                         if (block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
                             !terrain.RoomObjects.Scrolls.TryNotifyScrollTouch(block.At))
                         {
@@ -235,7 +231,6 @@ public static class SamusBlockCollision
                             acceptedDisplacement,
                             leadingBoundary);
                         collided = true;
-                        collisionBlock = block;
                         break;
 
                     case RoomCollisionType.SpecialBlock when
@@ -292,7 +287,6 @@ public static class SamusBlockCollision
                             acceptedDisplacement,
                             leadingBoundary);
                         collided = true;
-                        collisionBlock = block;
                         break;
 
                     case RoomCollisionType.BombableBlock:
@@ -310,7 +304,6 @@ public static class SamusBlockCollision
                                 acceptedDisplacement,
                                 leadingBoundary);
                             collided = true;
-                            collisionBlock = block;
                             break;
                         }
                         if (!BombableReactions.IsBreak(block.Behavior.Bombable))

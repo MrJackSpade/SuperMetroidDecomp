@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.Audio;

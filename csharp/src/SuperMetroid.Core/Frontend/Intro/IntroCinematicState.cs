@@ -722,7 +722,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Starts the third narration page while SR388 actors continue updating beneath its text fade.</summary>
     private void SetupPageThreeCrossfade()
     {
-        // The egg's page-three step selects page three. On the next cinematic-phase call page three
+        // The egg's page-three step selects page three. On the next cinematic-phase update page three
         // spawns its narration and enters the same gameplay-to-text colour
         // step used after Mother Brain. The SR388 actors continue running beneath it.
         Narration.StartEnglishPageThree();

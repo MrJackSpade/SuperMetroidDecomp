@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusComboMechanics
 {
     /// <summary>
-    /// The special beam attack a retail combination fires, or null when it fires none: only
+    /// The special beam attack a combination fires, or null when it fires none: only
     /// Wave, Ice, Spazer or Plasma equipped alone has one.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination is outside the twelve retail rows.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The combination is outside the twelve rows.</exception>
     internal static SamusComboKind? ComboKind(SamusBeamCombination beam) => beam switch
     {
         SamusBeamCombination.Wave => SamusComboKind.Wave,
@@ -21,7 +21,7 @@ internal static class SamusComboMechanics
             SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => null,
         SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
             SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-            throw new ArgumentOutOfRangeException(nameof(beam), beam, "The combo tables hold twelve retail rows."),
+            throw new ArgumentOutOfRangeException(nameof(beam), beam, "The combo tables hold twelve rows."),
         _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
     };
 

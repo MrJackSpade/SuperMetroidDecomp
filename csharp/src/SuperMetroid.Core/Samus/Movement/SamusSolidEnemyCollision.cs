@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// This is a probe, not an enemy simulation. It reads the current interactive enemies in the room's order, and
 /// that order matters: the first enemy that stops the move is returned, not the geometrically nearest one. Room
 /// coordinates wrap past either end of the room's space (<see cref="CoordinateAxis"/>), so an enemy that lies just past
-/// the room's edge from Samus is still close to her, and the gaps are read as signed distances across that space.
+/// the room's edge from Samus is still close to her, and the gaps are distances either way across that space.
 /// </remarks>
 public static class SamusSolidEnemyCollision
 {

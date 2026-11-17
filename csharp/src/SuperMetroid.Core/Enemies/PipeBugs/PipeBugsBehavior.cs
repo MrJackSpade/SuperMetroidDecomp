@@ -104,9 +104,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case BrinstarPipeBugAction.WaitUntilOnScreen:
-                // The game's on-screen check returns zero when the
-                // origin is visible. The wait branches on that zero result, so this initial
-                // state arms the proximity check on-screen, not after a despawn boundary.
+                // The wait arms the proximity check while the
+                // origin is visible: this initial
+                // state arms it on screen, not after a despawn boundary.
                 if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
                     state.Action = BrinstarPipeBugAction.WaitForSamus;
                 return;
@@ -273,7 +273,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemyPlace place, NorfairPipeBugState state)
     {
-        // Only the first Pipe Bug listed has a trigger width. It is the formation controller and may
+        // Only the first Pipe Bug listed has a trigger width. It leads the formation and may
         // arm itself only while all four Pipe Bugs listed after it are still at the
         // dormant action. It reads each member's place whatever it holds: a member killed and not yet respawned has a
         // cleared place, which never reads as waiting, so it holds the formation back until its respawn sets it up again.
@@ -302,7 +302,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         leaderState.CountFormationTick();
         // The formation tick resets only the current (leader) place. The following
-        // formation stores change every animation, but leave follower
+        // formation changes every animation, but leaves follower
         // timers intact, including zero timers in cleared respawn placeholders.
         leader.AnimationClock.Restart();
         bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;

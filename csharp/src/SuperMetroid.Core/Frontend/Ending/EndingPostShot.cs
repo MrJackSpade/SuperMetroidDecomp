@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingPostShot
 {
     /// <summary>Post-shot update count driving the shooting and Samus fade schedules.</summary>
-    private int calls;
+    private int updates;
     /// <summary>Frames remaining after rotation reaches its minimum zoom.</summary>
     private int hold;
     /// <summary>Current zoom of the rotating shot graphic, narrowed each step and stopped at its minimum.</summary>
@@ -22,9 +22,9 @@ internal sealed class EndingPostShot
     {
         Ensure.NotNull(screen);
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
-        calls++;
-        ApplyFade(screen.Colours, EndingFade.Shot, Math.Min(calls, EndingPostShotDefinitions.FadeFrames));
-        int samusFade = Math.Clamp(calls - EndingPostShotDefinitions.SamusFadeDelay, 0,
+        updates++;
+        ApplyFade(screen.Colours, EndingFade.Shot, Math.Min(updates, EndingPostShotDefinitions.FadeFrames));
+        int samusFade = Math.Clamp(updates - EndingPostShotDefinitions.SamusFadeDelay, 0,
             EndingPostShotDefinitions.FadeFrames);
         ApplyFade(screen.Colours, EndingFade.ShootingSamus, samusFade);
         if (!RotationFinished)

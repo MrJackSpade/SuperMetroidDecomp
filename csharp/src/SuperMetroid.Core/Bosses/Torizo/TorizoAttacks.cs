@@ -314,7 +314,7 @@ internal sealed class TorizoAttacks
             // (18 pixels) inside either side: the lifted drool lies inside the room and its side offset never leaves it.
             int jitteredY = TorizoRandomDefinitions.InitialDroolYJitter.Of(random) + torizo.Position.Y.Whole;
             projectile.Position = projectile.Position.WithWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
-            // The jitter is five bits, so the fall speed lies between 49 and 80 256ths of a pixel.
+            // The jitter is one of thirty-two, so the fall speed lies between 49 and 80 256ths of a pixel.
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
                 TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
             // Every branch stores a zero X velocity.

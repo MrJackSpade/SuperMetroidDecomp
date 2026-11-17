@@ -33,8 +33,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // Retail redundantly performs the same magnitude calculation here and again at the
-        // beginning of every main-AI call, so the speeds are already set when the room
+        // The game performs the same magnitude calculation here and again at the
+        // beginning of every main-AI update, so the speeds are already set when the room
         // finishes loading, before the first frame.
         CalculateMultiviolaVelocityMagnitudes(state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
@@ -63,7 +63,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 horizontalDisplacement))
         {
-            // Bounce off the wall. As in retail, vertical movement is skipped
+            // Bounce off the wall. As in the game, vertical movement is skipped
             // on a horizontal collision, so a corner can consume two frames to reflect both
             // components instead of bouncing diagonally in a single update.
             state.Heading = MultiviolaQuarterBounce.OffWall(state.Heading);

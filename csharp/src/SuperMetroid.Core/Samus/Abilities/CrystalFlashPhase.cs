@@ -5,7 +5,7 @@ public enum CrystalFlashPhase
 {
     /// <summary>Crystal Flash does not move Samus; its suit colouring may still be waiting to restore her normal colours.</summary>
     Inactive,
-    /// <summary>Samus rises: her whole Y position goes up two pixels for ten calls, then the raised center is captured and the bubble effect is requested.</summary>
+    /// <summary>Samus rises: her whole Y position goes up two pixels for ten updates, then the raised center is captured and the bubble effect is requested.</summary>
     Raising,
     /// <summary>The ammunition drains: missiles, supers, then power bombs are consumed, restoring 50 energy per decrement on every eighth frame.</summary>
     DrainingAmmo,

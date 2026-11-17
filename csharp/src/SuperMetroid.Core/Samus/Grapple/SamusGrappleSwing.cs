@@ -310,7 +310,7 @@ public static class SamusGrappleSwing
         TrigonometryAngle lastSafeStep = grapple.Angle.ToTrigonometryAngle();
         int stepDirection = combined.IsNegative ? -1 : 1;
 
-        // At the maximum retail velocity this loop executes at most five times. Keep an
+        // At the maximum velocity this loop executes at most five times. Keep an
         // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a
         // future corrupt state into a diagnostic rather than an infinite loop.
         for (int angleSteps = 0;
@@ -335,7 +335,7 @@ public static class SamusGrappleSwing
                     collision.StruckPointFromHand < GrappleBeamDefinitions.Swing.StoppingPointsNearHand;
                 if (closeCollision)
                 {
-                    // This bit asks the swing to compare against the eight exact locked and
+                    // This flag asks the swing to compare against the eight exact locked and
                     // wallgrab angles. Velocity is stopped instead of reflected.
                     grapple.CloseCollision = true;
                     grapple.AngularVelocity = AngularSpeed.Zero;

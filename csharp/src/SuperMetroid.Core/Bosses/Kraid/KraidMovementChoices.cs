@@ -15,14 +15,14 @@ public static class KraidMovementChoices
         internal static readonly Destination Left = new(240);
         /// <summary>The middle destination.</summary>
         internal static readonly Destination Middle = new(320);
-        /// <summary>The initial position and default movement-policy row.</summary>
+        /// <summary>The initial position, and the destination unlisted positions choose.</summary>
         internal static readonly Destination Starting = new(352);
         /// <summary>The usual half-probability destination.</summary>
         internal static readonly Destination Right = new(368);
         /// <summary>The rightmost destination.</summary>
         internal static readonly Destination Rightmost = new(384);
 
-        /// <summary>The position records the movement-policy search runs over, in search order.</summary>
+        /// <summary>The destinations Kraid's movement choice looks through, in the order it looks.</summary>
         internal static readonly ImmutableArray<Destination> SearchOrder = [Leftmost, Left, Middle, Starting, Right, Rightmost];
     }
 
@@ -31,7 +31,7 @@ public static class KraidMovementChoices
 
     /// <summary>
     /// Kraid's movement positions and choices and their target/timer pairs.
-    /// Unlisted positions select the 352 row. Random choices four through seven
+    /// Unlisted positions choose as the starting destination does. Random choices four through seven
     /// all select its final destination, preserving the half-probability choice.
     /// </summary>
     /// <remarks>

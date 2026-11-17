@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>
 /// What a door does to the room it leads into while Samus passes through it (#1721): the screens of that room it closes to
 /// the camera, opens and opens with the camera aligned to the screen's top, in the order it changes them, and the room
-/// event it starts. Every retail setup is one of <see cref="DoorSetupDefinitions"/>; a setup is what it does, so one names
+/// event it starts. Every setup is one of <see cref="DoorSetupDefinitions"/>; a setup is what it does, so one names
 /// each change in each room, whichever door runs it.
 /// </summary>
 public sealed class DoorSetup

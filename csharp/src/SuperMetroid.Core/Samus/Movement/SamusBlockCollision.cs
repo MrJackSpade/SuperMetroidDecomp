@@ -100,7 +100,7 @@ public static class SamusBlockCollision
 
             if (probe.Collided)
             {
-                // On enemy collision the wrapper skips block detection and
+                // On enemy collision the movement skips block detection and
                 // invokes the corresponding no-collision position adder with the clipped whole distance. An accepted
                 // gap is 0 through 32767 pixels: the probe skips any gap that reads as negative.
                 SignedSixteenSixteen clippedMagnitude = SignedSixteenSixteen.FromWholePixels(probe.Distance);
@@ -336,7 +336,7 @@ public static class SamusBlockCollision
 
         state.Position = state.Position.AdvanceX(acceptedDisplacement);
 
-        // Only the live movement wrapper publishes inheritance. Copies used
+        // Only the live movement publishes inheritance. Copies used
         // for prospective poses and wall probes must not replace the preceding move.
         if (owner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
@@ -347,7 +347,7 @@ public static class SamusBlockCollision
 
         // Align Y to whole pixels after both collision and non-collision paths.
         // Direct uses (notably the prospective-running-pose probe)
-        // omit that wrapper step and must retain the unaligned whole-pixel Y. The game never turns the alignment off
+        // omit that movement step and must retain the unaligned whole-pixel Y. The game never turns the alignment off
         // for a move that asks for it (#1682): only a movement type no pose has would have cleared its enable.
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
             terrain.Level,
@@ -1104,7 +1104,7 @@ public static class SamusBlockCollision
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;
         state.Position -= new Offset16<RoomPixels>(0, up);
-        // Tall bodies may overlap two rows. Retail repeats once, not until clear.
+        // Tall bodies may overlap two rows. The check repeats once, not until clear.
         if (state.Radius.Y >= 16)
             state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
     }

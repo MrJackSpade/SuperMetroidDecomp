@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// pendulum terrain interaction, collision kicks, and release.
 /// </summary>
 /// <remarks>
-/// The retail game does not run grapple physics through the grappling movement type's own movement.
+/// The game does not run grapple physics through the grappling movement type's own movement.
 /// The grapple beam's step updates the pendulum before the normal movement phase
 /// movement, and the block collision advances its angle while probing room collision. This class keeps
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent and breakable
@@ -222,10 +222,10 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>
-    /// Executes the post-phase liquid-bit update.
+    /// Executes the post-phase update of whether the grapple is submerged.
     /// </summary>
     /// <remarks>
-    /// Grapple physics reads this bit during a phase and the grapple beam's step rewrites it only
+    /// Grapple physics reads this flag during a phase and the grapple beam's step rewrites it only
     /// afterward, so it runs exactly once at the end of the pass. The
     /// explicit phase set mirrors the phase-range test: release, cancel, dropped,
     /// wall-jump, and inactive phases all clear liquid physics immediately.
@@ -464,7 +464,7 @@ public static class SamusGrappleMovement
     {
         SamusGrappleState grapple = samus.Grapple;
 
-        // The countdown gives values 29..0 thirty eligible checks. The next call
+        // The countdown gives values 29..0 thirty eligible checks. The next update
         // runs past zero, queues dropped, and deliberately performs no wall probe.
         grapple.WallJumpTimer--;
         if (grapple.WallJumpTimer < 0)
@@ -510,7 +510,7 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple)
     {
         // The wall-jump phase runs one frame after the grace check selected it, matching every other grapple
-        // phase handoff. The Samus helper keeps the peculiar reversal of the left
+        // phase handoff. The wall-jump phase keeps the peculiar reversal of the left
         // wall-contact pose into the left wall jump, and the right into the right, separate from
         // ordinary spin-contact wall jumps.
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
@@ -644,7 +644,7 @@ public static class SamusGrappleMovement
     {
         // Whole endpoint offsets are the signed whole parts of the two summed offsets. The signed halving is
         // intentional: a left/up beam must retain sign after fractional accumulation, as the endpoint offsets
-        // read as signed displacements.
+        // are displacements either way.
         grapple.RopeStart = samus.Position.Whole + grapple.OriginOffset;
         // The endpoint adds the offset to Samus's subpixel-inclusive position, so the
         // fraction's overflow reaches the endpoint before the whole origin offset is added.

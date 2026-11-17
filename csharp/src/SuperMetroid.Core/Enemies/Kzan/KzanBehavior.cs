@@ -58,7 +58,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Playback = EnemyAnimationPlayback.Start(place, KzanAnimations.StartingWith(KzanSegment.Idle));
 
-        // The spawn settings name the speed the fall starts at. Retail placements include four pixels per update,
+        // The spawn settings name the speed the fall starts at. Placements include four pixels per update,
         // the fastest the fall reaches.
         state.FallingSpeed = place.SpawnSettings<KzanSpawnSettings>().FallSpeed;
 

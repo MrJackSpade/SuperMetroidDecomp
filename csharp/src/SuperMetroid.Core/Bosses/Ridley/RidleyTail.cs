@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ridley's tail: the segment chain, its flight and pogo controllers, whip aiming,
+/// Ridley's tail: the segment chain, its flight and pogo swings, whip aiming,
 /// terrain probing, Samus contact, and the projectile-blocking joints shared by the Ceres and
 /// Lower Norfair encounters.
 /// </summary>
@@ -60,7 +60,7 @@ internal sealed class RidleyTail
                 TickRidleyPogoTail(place, state, samus);
         }
 
-        // The tail composition always composes positions, but only the selected tail controller
+        // The tail composition always composes positions, but only the selected tail action
         // updates offsets. With no tail action, and on the stagger and stop returns, the offsets stay.
         RidleyTailLink tailBase = state.Tail.Base;
         Position16<RoomPixels> tailRoot = place.Position.Whole + RidleyTailDefinitions.HipBelowBody;
@@ -367,7 +367,7 @@ internal sealed class RidleyTail
 
     /// <summary>
     /// Mirrors the tail. A facing step restores every link's rest length before reflecting its angle about straight down
-    /// and setting it swinging clockwise. The offsets remain untouched until the following tail controller update.
+    /// and setting it swinging clockwise. The offsets remain untouched until the tail's following update.
     /// </summary>
     internal static void MirrorRidleyTail(RidleyTailState tail)
     {
@@ -447,7 +447,7 @@ internal sealed class RidleyTail
         return false;
     }
 
-    /// <summary>Live pogo tail controllers.</summary>
+    /// <summary>Runs the live pogo tail.</summary>
     internal void TickRidleyPogoTail(RoomEnemyPlace place, RidleyEncounterState state, SamusState samus)
     {
         RidleyTailAction action = state.Tail.Action;
@@ -468,7 +468,7 @@ internal sealed class RidleyTail
             TickRidleyTailLink(state.Tail, link);
         if (pointed && !state.Tail.Links.Any(link => link.Active))
             state.Tail.Action = RidleyTailAction.Pogo;
-        // The setup/stab wrappers overwrite the result of the shared pointed-tail step.
+        // The tail's setup and stab overwrite the result of the shared pointed-tail step.
         if (action == RidleyTailAction.PogoSetup)
             state.Tail.Action = RidleyTailAction.PointDown;
         else if (action == RidleyTailAction.Stab)

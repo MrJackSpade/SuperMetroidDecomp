@@ -144,7 +144,7 @@ internal sealed class MotherBrainHead
             new MotherBrainWorldFrame(
                 brainFrame,
                 head.Position.Whole + brainShake,
-                // Her brain's own draw bypasses ordinary enemy colour selection. Retail
+                // Her brain's own draw bypasses ordinary enemy colour selection. The game
                 // still selects the shared white hurt colours on odd flash-timer frames.
                 MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.FlashTimer) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera,

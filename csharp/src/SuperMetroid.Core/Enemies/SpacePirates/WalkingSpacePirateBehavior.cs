@@ -125,7 +125,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                     $"Walking Space Pirate has no behaviour for action {state.Action}.");
         }
 
-        // The slow-laser option enables the retail flinch detector after normal AI.
+        // The slow-laser option enables the flinch detector after normal AI.
         // The detector is intentionally allowed to replace an animation selected just above.
         if (((place.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
                 WalkingSpacePirateOptions.SlowLaserAndProjectileFlinch) != WalkingSpacePirateOptions.None))
@@ -303,7 +303,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>
     /// Runs the common laser initializer. Wall and walking Pirates
     /// use different actor animation steps and muzzle offsets, but the allocated projectile is the
-    /// same retail definition and therefore belongs in one shared implementation.
+    /// same definition and therefore belongs in one shared implementation.
     /// </summary>
     internal bool SpawnSpacePirateLaser(
         RoomEnemyPlace source,
@@ -587,7 +587,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal void ReactToSpacePirateTouch(EnemyTouchContext context)
     {
         // Every Space Pirate frame's hitboxes use the shared Pirate touch
-        // reaction in every retail hitbox. Keep the reaction check explicit: silently
+        // reaction in every hitbox. Keep the reaction check explicit: silently
         // treating a later family-specific attack box as ordinary body contact would
         // recreate the exact radius-flattening bug this path is intended to remove.
         if (context.UsesFrameHitboxes && context.HitboxTouch != SpacePirateReactions.Touch)

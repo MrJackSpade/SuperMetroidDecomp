@@ -9,7 +9,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     /// </summary>
     /// <remarks>
     /// The eleven equal-width floor columns are visited in this destruction choreography:
-    /// 8,3,9,4,11,6,10,7,1,5,2. The falling sequence advances the cursor and passes
+    /// 8,3,9,4,11,6,10,7,1,5,2. The collapse takes them in turn and passes
     /// each selected X to the same producer. Each fragment starts at Y 187 with no horizontal speed and its own picture,
     /// and falls at a random speed of 64 through 127 256ths of a pixel per update.
     /// No random number, actor direction or data-dependent choice selects the

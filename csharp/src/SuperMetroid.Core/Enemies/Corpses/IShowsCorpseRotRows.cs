@@ -6,6 +6,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 internal interface IShowsCorpseRotRows : IEnemyEntity
 {
-    /// <summary>The rows the enemy's corpse frames show now, every row itself before the corpse's first rot call.</summary>
+    /// <summary>The rows the enemy's corpse frames show now, every row itself before the corpse's first rot update.</summary>
     CorpseRotRows ShownRotRows { get; }
 }

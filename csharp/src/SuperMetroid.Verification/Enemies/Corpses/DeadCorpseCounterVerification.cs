@@ -43,7 +43,7 @@ internal static class DeadCorpseCounterVerification
             new CorpseRotSchedule(DeadTourianCorpses.For(DeadTourianCorpseSpecies.Zoomer, 0).RowCount), DeadTourianCorpsePhase.PreRotDelay);
 
         state.PreRotDelayCounter = 15;
-        state.CountPreRotDelayCall();
+        state.CountPreRotDelayUpdate();
         AssertEqual(16, state.PreRotDelayCounter, "an ordinary pre-rot call counts one more");
         Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation counts one call.");
     }

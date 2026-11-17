@@ -64,7 +64,7 @@ internal static class EnemyMath
         velocity.ToSixteenSixteenDelta().AddTo(position.Whole, position.Fraction);
 
     /// <summary>
-    /// Implements the shared proximity helpers' strict <c>magnitude &lt; limit</c>
+    /// Implements the shared proximity checks' strict <c>magnitude &lt; limit</c>
     /// test. Equality is outside, and subtraction wraps past 65535 in world space.
     /// </summary>
     internal static bool IsWithinStrictModularDistance(

@@ -341,7 +341,7 @@ internal static class SamusBodyArtworkVerification
                 AssertTrue(nativeSamus.DeathSequence.Whiteout == installedSamus.DeathSequence.Whiteout &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.FlashShadeTimer == installedSamus.DeathSequence.FlashShadeTimer &&
-                    nativeSamus.DeathSequence.FlashCalls == installedSamus.DeathSequence.FlashCalls &&
+                    nativeSamus.DeathSequence.FlashUpdates == installedSamus.DeathSequence.FlashUpdates &&
                     nativeSamus.DeathSequence.ExplosionTimer == installedSamus.DeathSequence.ExplosionTimer &&
                     nativeSamus.DeathSequence.WhiteoutShade == installedSamus.DeathSequence.WhiteoutShade,
                     $"death suit {suit} frame {frame} native/installed colors and timing");

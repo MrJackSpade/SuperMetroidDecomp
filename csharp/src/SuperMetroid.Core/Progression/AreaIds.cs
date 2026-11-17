@@ -18,7 +18,7 @@ public static class AreaIds
     /// <summary><paramref name="area"/>, checked to be one of the seven areas.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not an area.</exception>
     public static AreaId Require(AreaId area) =>
-        All.Contains(area) ? area : throw new ArgumentOutOfRangeException(nameof(area), area, "Unknown retail area ID.");
+        All.Contains(area) ? area : throw new ArgumentOutOfRangeException(nameof(area), area, "Unknown area ID.");
 
     /// <summary>Whether <paramref name="area"/> is one of the six Zebes areas.</summary>
     public static bool IsZebes(AreaId area) => area != AreaId.Ceres && All.Contains(area);

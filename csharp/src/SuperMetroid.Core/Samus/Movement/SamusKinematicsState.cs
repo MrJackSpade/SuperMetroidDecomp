@@ -78,7 +78,7 @@ public sealed class SamusKinematicsState
     /// values of the enemies it lists.
     /// </summary>
     /// <remarks>
-    /// Movement owns this snapshot because every ordinary movement wrapper probes
+    /// Movement owns this snapshot because every ordinary movement probes
     /// solid/frozen enemies before reacting to room blocks. Empty remains the
     /// correct default for rooms whose enemy actor loader has not run. Keeping the
     /// list explicit prevents decorative render sprites from accidentally becoming physics.
@@ -136,7 +136,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
-    /// the bottom-boundary helper, this does not subtract one. The addition wraps at 16 bits.
+    /// the bottom-boundary check, this does not subtract one. The addition wraps at 65536.
     /// </summary>
     public int BottomBoundary => CoordinateAxis.Wrap(Position.Y.Whole + Radius.Y);
 

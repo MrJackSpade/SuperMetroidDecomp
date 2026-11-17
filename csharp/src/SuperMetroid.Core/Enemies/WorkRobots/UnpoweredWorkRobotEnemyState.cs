@@ -15,8 +15,8 @@ public sealed class UnpoweredWorkRobotEnemyState
 
     /// <summary>
     /// The robot's signed 1/65536-pixel falling speed in pixels per update, starting at the unpowered fall's speed: a
-    /// powered robot's definition placed while the ship has no power falls by it, and gravity accumulates it with the
-    /// fraction's overflow into the whole part and wraparound. The unpowered robot's definition takes no action and never
+    /// powered robot's definition placed while the ship has no power falls by it, and gravity adds to it, its
+    /// fraction carried into the whole pixels. The unpowered robot's definition takes no action and never
     /// reads it.
     /// </summary>
     public SignedSixteenSixteen FallVelocity { get; internal set; }

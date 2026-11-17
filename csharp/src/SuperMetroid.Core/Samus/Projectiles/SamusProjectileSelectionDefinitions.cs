@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 internal static class SamusProjectileSelectionDefinitions
 {
-    /// <summary>The kind of each retail beam combination's uncharged shot.</summary>
+    /// <summary>The kind of each beam combination's uncharged shot.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> UnchargedBeamShots =
         new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
@@ -26,7 +26,7 @@ internal static class SamusProjectileSelectionDefinitions
             [SamusBeamCombination.PlasmaIceWave] = SamusProjectileKind.UnchargedPlasmaIceWave,
         };
 
-    /// <summary>The kind of each retail beam combination's charged shot.</summary>
+    /// <summary>The kind of each beam combination's charged shot.</summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> ChargedBeamShots =
         new Dictionary<SamusBeamCombination, SamusProjectileKind>
         {
@@ -97,7 +97,7 @@ internal static class SamusProjectileSelectionDefinitions
         };
 
     /// <summary>
-    /// The kind of each special attack's particles, by the retail beam combination that fires it; the Ice attack's
+    /// The kind of each special attack's particles, by the beam combination that fires it; the Ice attack's
     /// particles are charged Ice shots instead, and the other combinations' attacks have no particles of their own.
     /// </summary>
     internal static readonly IReadOnlyDictionary<SamusBeamCombination, SamusProjectileKind> SpecialAttacks =

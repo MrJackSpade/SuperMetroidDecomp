@@ -101,7 +101,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) < 0)
         {
             // The Japanese and North American release subtracts exactly 0.5 px/frame; the European release's step is 0.625.
-            // This project targets the Japanese and North American retail release and reads its data.
+            // This project targets the Japanese and North American release and reads its data.
             place.Position = place.Position.AdvanceY(-ZoaSpeedDefinitions.RisingSpeed);
             return;
         }

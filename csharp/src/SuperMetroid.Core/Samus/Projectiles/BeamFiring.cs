@@ -413,7 +413,7 @@ internal sealed class BeamFiring
         // drawing input. Live gameplay retains that edge through the next input phase, allowing
         // a press one frame before cooldown expires to fire on the following frame.
         // Demo playback supplies the analogous scripted edge. Cooldown still
-        // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
+        // owns admission, so the delayed press cannot manufacture held-button auto-fire.
         if (((controllerNewInput | controllerPreviousNewInput) & shoot) == GameplayAction.None)
             return new BeamShot(null, null);
 
@@ -509,7 +509,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>
-    /// Selects beam speed from its combination and diagonal direction before applying inherited velocity. Every retail
+    /// Selects beam speed from its combination and diagonal direction before applying inherited velocity. Every
     /// combination launches at the same authored pair; a Spazer and Plasma combination launches at the pair
     /// <paramref name="unauthoredFiring"/> decoded for it.
     /// </summary>

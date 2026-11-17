@@ -287,7 +287,7 @@ internal sealed class FrontendSession
     /// The gunship writes the liftoff game state only after the top hull has crossed
     /// Y=256, zeroing the screen fade's delay and counter. It does not freeze time: the liftoff state keeps
     /// running full gameplay, so Samus and the RNG advance behind the fade. The main-gameplay
-    /// update has already completed on this publication frame; the following call owns the fade.
+    /// update has already completed on this publication frame; the following update owns the fade.
     /// </summary>
     internal void BeginZebesEscapeFade()
     {

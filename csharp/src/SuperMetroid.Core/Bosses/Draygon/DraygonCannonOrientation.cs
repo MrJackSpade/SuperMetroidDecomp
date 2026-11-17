@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Horizontal orientation selected by one of the three retail cannon definitions.</summary>
+/// <summary>Horizontal orientation selected by one of the three cannon definitions.</summary>
 public enum DraygonCannonOrientation
 {
     /// <summary>Left-facing cannon definition, whose damage step uses the left draw family and control setting.</summary>

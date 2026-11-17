@@ -100,8 +100,8 @@ public sealed class TourianStatueSequence
     private readonly List<StatueBlockAnimation> _statues = [];
     /// <summary>Whether the statues await their releases, hold before lowering, or lower.</summary>
     private TourianStatueDescentPhase _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
-    /// <summary>Calls left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
-    private int _holdCalls;
+    /// <summary>Updates left in the pre-descent hold while <see cref="_descentPhase"/> is <see cref="TourianStatueDescentPhase.Holding"/>.</summary>
+    private int _holdUpdates;
     /// <summary>
     /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
     /// exposed as a negative background vertical offset.
@@ -127,7 +127,7 @@ public sealed class TourianStatueSequence
     {
         _statues.Clear();
         _descentPhase = TourianStatueDescentPhase.AwaitingReleases;
-        _holdCalls = 0;
+        _holdUpdates = 0;
         Descent = SignedSixteenSixteen.Zero;
         DisplayedVerticalOffset = 0;
         Begin(roomObjects);
@@ -302,7 +302,7 @@ public sealed class TourianStatueSequence
             _enemies.TourianStatue.Animation.AllReleased = true;
             if (_enemies.TourianStatue.Animation.ReleaseInProgress) return;
             _descentPhase = TourianStatueDescentPhase.Holding;
-            _holdCalls = TourianStatueSequenceDefinitions.DescentDelay;
+            _holdUpdates = TourianStatueSequenceDefinitions.DescentDelay;
             return;
         }
         _enemies.Earthquake.Sustain(TourianStatueSequenceDefinitions.DescentEarthquake);
@@ -311,7 +311,7 @@ public sealed class TourianStatueSequence
         if (_descentPhase == TourianStatueDescentPhase.Holding)
         {
             // The call that takes the hold to zero raises the dust.
-            if (--_holdCalls <= 0)
+            if (--_holdUpdates <= 0)
             {
                 _enemies.TourianStatue.SpawnDescentDust();
                 _descentPhase = TourianStatueDescentPhase.Lowering;

@@ -18,7 +18,7 @@ public static class QuadraticSpeedCurveDefinitions
     /// The highest climb, in whole pixels, a hop's starting place is found for (<see cref="QuadraticCurveClimb"/>): up to
     /// it the game's height test agrees with a plain sum and comparison, because the sum passes the height by less than
     /// the curve's fastest coarse speed, under eighteen pixels, and so never reaches the 128 pixels from which the game's
-    /// test would read it as short of the height again. The retail hops climb 16 to 64 pixels.
+    /// test would read it as short of the height again. The hops climb 16 to 64 pixels.
     /// </summary>
     internal const int LargestClimbHeight = 96;
 }

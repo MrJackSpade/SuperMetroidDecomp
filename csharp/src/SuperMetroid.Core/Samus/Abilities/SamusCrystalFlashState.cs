@@ -26,7 +26,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>The phase in which Crystal Flash moves Samus, or none once another owner has taken her movement.</summary>
     public CrystalFlashPhase Phase { get; private set; }
 
-    /// <summary>Initialized to nine for the ten two-pixel raise frames.</summary>
+    /// <summary>The rise's countdown: nine when it starts, for its ten two-pixel steps.</summary>
     public int RaiseTimer { get; private set; }
 
     /// <summary>
@@ -72,7 +72,7 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public int RaisedHeight { get; private set; }
 
-    /// <summary>Seeded to one for Samus's colour animation.</summary>
+    /// <summary>The countdown to the next step of Samus's colours: one when the flash starts.</summary>
     public int CrystalPulseTimer { get; private set; }
 
     /// <summary>
@@ -188,7 +188,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Runs one update of Crystal Flash's current phase in Samus's movement phase.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and phase-completion writes.</param>
     /// <param name="frameCounter">The frame counter; ammunition drains only on every eighth frame.</param>
-    /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this call changes phase.</returns>
+    /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this update changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Crystal Flash does not hold Samus's movement, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
@@ -210,7 +210,7 @@ public sealed class SamusCrystalFlashState
             case CrystalFlashPhase.DrainingAmmo:
                 StepAmmoDrain(samus, frameCounter);
                 // The main phase clears both values after each ammunition drain,
-                // including its seven no-drain frames and the final phase-changing call.
+                // including its seven no-drain frames and the final phase-changing update.
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
                 samus.KnockbackTimer = 0;
                 break;
@@ -229,7 +229,7 @@ public sealed class SamusCrystalFlashState
             BubbleEffectRequested);
     }
 
-    /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests the bubble effect.</summary>
+    /// <summary>Raises Samus two whole pixels for ten updates, then starts the drain phase and requests the bubble effect.</summary>
     private void StepRaising(SamusState samus)
     {
         // The raise changes only the whole pixels. The subposition survives.
@@ -304,7 +304,7 @@ public sealed class SamusCrystalFlashState
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests suit shade restoration.</summary>
     private void StepFinish(SamusState samus)
     {
-        // Retail usually enters with equality because the raised height was captured at the
+        // The step is usually entered with equality because the raised height was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
         // displaced Samus upward/downward makes the whole Y walk downward one pixel an update.
         if (samus.Position.Y.Whole != RaisedHeight)
@@ -330,7 +330,7 @@ public sealed class SamusCrystalFlashState
     /// Runs Crystal Flash's suit colouring for one update.
     /// </summary>
     /// <remarks>
-    /// The beams' colours are split deliberately: the body's shade pulses through ten steps of ten calls each, while the
+    /// The beams' colours are split deliberately: the body's shade pulses through ten steps of ten updates each, while the
     /// bubble's shade, laid over the beams' upper colours, rotates through six steps every five updates. The import
     /// pre-colours Samus in every step of both (#1512); completion shows the beam shade of the currently equipped beam
     /// combination again.
@@ -380,7 +380,7 @@ public sealed class SamusCrystalFlashState
             BodyStep = nextStep < SamusShadeDefinitions.CrystalFlash.BodyStepCount ? nextStep : 0;
         }
 
-        // Every active call reports the shade handled, including frames on which neither timer
+        // Every active update reports the shade handled, including frames on which neither timer
         // expires. The outer colouring step must therefore suppress its normal copy.
         return true;
     }

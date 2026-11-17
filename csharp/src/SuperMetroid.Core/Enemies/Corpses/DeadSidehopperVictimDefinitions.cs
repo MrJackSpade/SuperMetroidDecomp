@@ -28,5 +28,5 @@ internal static class DeadSidehopperVictimDefinitions
     internal const int PostLandingPause = 65;
 
     /// <summary>The draining calls each stage of the Shitroid's drain lasts on its victim.</summary>
-    internal const int DrainCallsPerStage = 8;
+    internal const int DrainUpdatesPerStage = 8;
 }

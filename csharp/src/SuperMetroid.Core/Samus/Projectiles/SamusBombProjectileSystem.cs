@@ -190,7 +190,7 @@ public sealed class SamusBombProjectileSystem
 
         // The cooldown runs before the movement type's own HUD step. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
-        // The forward-facing branch skips this call as well
+        // The forward-facing branch skips this update as well
         // as the HUD producer, but must still run the bombs already out below.
         // The stationary lock's input mode runs the projectile update directly, skipping the HUD
         // step that owns cooldown and new bomb placement.
@@ -412,7 +412,7 @@ public sealed class SamusBombProjectileSystem
             return null;
         }
 
-        // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
+        // HUD selection cannot normally point at an empty ammo class. Preserve the
         // game's ordering nonetheless: the reservation has already counted the bomb when
         // Power Bombs are selected with none left.
         if (placingPowerBomb && samus.PowerBombs == 0)
@@ -471,7 +471,7 @@ public sealed class SamusBombProjectileSystem
                 : BombSpreadAdmission.NotApplicable;
         }
 
-        // Held Shoot with Power Bomb selected bypasses the ordinary spread helper.
+        // Held Shoot with Power Bomb selected bypasses the ordinary bomb spread.
         if (samus.SelectedHudItem == HudItem.PowerBomb)
             return BombSpreadAdmission.NotApplicable;
 
@@ -605,7 +605,7 @@ public sealed class SamusBombProjectileSystem
         SamusProjectileFamily typeFamily = bomb.Type.Family;
         if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
-            // Bombs are only normal bombs and Power Bombs. No retail producer places another family;
+            // Bombs are only normal bombs and Power Bombs. No producer places another family;
             // seeing one means a bomb was mutated inconsistently.
             throw new InvalidDataException(
                 $"The bomb in place {bomb.Place} has invalid projectile family {typeFamily}.");
@@ -929,7 +929,7 @@ public sealed class SamusBombProjectileSystem
             if (block.Behavior.Bombable is null)
             {
                 // A bombable block with no bomb reaction would make the game read unrelated data as a
-                // room-object definition; retail room data holds none, and the import refuses one.
+                // room-object definition; room data holds none, and the import refuses one.
                 throw new InvalidDataException(
                     $"Bombable block {block.Position} has behaviour ({block.Behavior}) with no " +
                     "bomb-block reaction.");

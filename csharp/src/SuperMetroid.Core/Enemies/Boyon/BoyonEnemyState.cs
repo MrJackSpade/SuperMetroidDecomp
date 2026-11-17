@@ -30,7 +30,7 @@ public sealed class BoyonEnemyState
     }
 
     /// <summary>
-    /// The height of the arc, from its spawn settings: 48 to 96 pixels for retail Boyons, never more than
+    /// The height of the arc, from its spawn settings: 48 to 96 pixels for Boyons, never more than
     /// <see cref="BoyonSpeedDefinitions.LargestJumpHeight"/>, the height up to which the game's height test is a plain
     /// comparison (<see cref="HasReachedJumpHeight"/>); a higher arc is refused.
     /// </summary>

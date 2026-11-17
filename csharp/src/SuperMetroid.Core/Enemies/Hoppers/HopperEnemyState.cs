@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>
 /// The state of a hopper. Its hops follow places along the quadratic speed curve: replacing them with gravity fields would
-/// hide the quadratic speed curve that defines the retail jump arc.
+/// hide the quadratic speed curve that defines the jump arc.
 /// </summary>
 public sealed class HopperEnemyState
 {

@@ -93,13 +93,13 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Saved whole-pixel origin used by the fatal-blow shake.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
-    /// <summary>Reload-eight timer producing the nine-call cadence of the Baby's fade to black.</summary>
+    /// <summary>Reload-eight timer producing the nine-update cadence of the Baby's fade to black.</summary>
     public BossCountdown FadeToBlackTimer { get; } = new();
 
     /// <summary>The images of its fade to black the Baby has shown, zero through all six (#2270).</summary>
     public int FadeToBlackImagesShown { get; private set; }
 
-    /// <summary>Five-call cadence timer for the dust explosions surrounding the dying Baby.</summary>
+    /// <summary>Five-update cadence timer for the dust explosions surrounding the dying Baby.</summary>
     public BossCountdown DeathExplosionTimer { get; } = new();
 
     /// <summary>
@@ -118,7 +118,7 @@ public sealed class BabyMetroidCutsceneState
     public int RoomLightsTransitionCounter { get; private set; }
 
     /// <summary>
-    /// The part of a rainbow colour frame accumulated toward slowing Samus's rainbow: each call adds to it, and every
+    /// The part of a rainbow colour frame accumulated toward slowing Samus's rainbow: each update adds to it, and every
     /// completed whole frame holds her rainbow's glow longer.
     /// </summary>
     public RainbowFramePart SamusRainbowFraction { get; private set; }
@@ -207,7 +207,7 @@ public sealed class BabyMetroidCutsceneState
 
         // Enemy collision handling runs touch AI before main AI, against the Baby's
         // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
-        // Samus/enemy hitboxes gate it, then its own divisor-16 acceleration helper decides when
+        // Samus/enemy hitboxes gate it, then its own divisor-16 acceleration decides when
         // both axes have reached the latch point. Main AI and its mover follow this frame.
         if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
         {
@@ -251,7 +251,7 @@ public sealed class BabyMetroidCutsceneState
                     head,
                     TargetRadius);
 
-                // Collision skips the countdown's step. Otherwise its count of nine lasts ten approach calls.
+                // Collision skips the countdown's step. Otherwise its count of nine lasts ten approach updates.
                 if (!brainCollision)
                 {
                     brainCollision = PhaseTimer.StepRunsOut();
@@ -331,11 +331,11 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds:
                 // The release branches *into* its acceleration while the timer is nonnegative. Thus the
                 // Baby accelerates ceilingward for all 32 visible release calls; the dust
-                // burst happens on call 33 and that call also performs another acceleration.
+                // burst happens on call 33 and that update also performs another acceleration.
                 if (PhaseTimer.StepRunsOut())
                 {
                     // The three dust clouds on Mother Brain's head are spawned in this
-                    // exact order. Each helper adds its signed offsets to the brain
+                    // exact order. Each cloud adds its signed offsets to the brain
                     // enemy's current room coordinate and spawns a small dust cloud
                     // in the highest free place for an enemy projectile.
                     foreach (Offset16<RoomPixels> dust in BabyMetroidCutsceneDefinitions.ReleaseDustOffsets)
@@ -364,7 +364,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.MoveToSamus:
             {
-                // The route step enables health-based colour selection on every route call. The ambient cry takes its
+                // The route step enables health-based colour selection on every route update. The ambient cry takes its
                 // own chance.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
@@ -449,7 +449,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
 
             case BabyMetroidCutscenePhase.ReleaseSamus:
-                // The next step acts on both actors in one call. The speed it gives
+                // The next step acts on both actors in one update. The speed it gives
                 // Mother Brain's brain is presentation state; the meaningful body change
                 // starts Mother Brain's fast retreat, and the Baby's flight takes its first update in this same
                 // update.
@@ -629,7 +629,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.FinalCutscene:
             {
-                // Each call shows the next of the room lights' seven recovery steps; the call after the last ends
+                // Each update shows the next of the room lights' seven recovery steps; the call after the last ends
                 // the cutscene.
                 int lightsStep = RoomLightsTransitionCounter;
                 RoomLightsTransitionCounter++;
@@ -714,7 +714,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
             {
-                (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneCall();
+                (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneUpdate();
                 SamusRainbowFraction = fraction;
                 if (frameCompleted)
                     samus.Drained.HoldRainbowGlowLonger(longestHold: 10);
@@ -736,7 +736,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
-    /// Shows the next image of the Baby's fade to black every nine calls after its center reaches Y=128; true on the call
+    /// Shows the next image of the Baby's fade to black every nine updates after its center reaches Y=128; true on the call
     /// after its last image, which completes the fade.
     /// </summary>
     private bool StepFadeToBlack(ref MotherBrainFadeImage? fadeImage)
@@ -757,7 +757,7 @@ public sealed class BabyMetroidCutsceneState
         return false;
     }
 
-    /// <summary>Emits a dust explosion every five calls using the shared Ridley scatter pattern.</summary>
+    /// <summary>Emits a dust explosion every five updates using the shared Ridley scatter pattern.</summary>
     private DustExplosionRequest? StepDeathExplosion()
     {
         if (DeathExplosionTimer.StepKeepsRunning())
@@ -869,7 +869,7 @@ public sealed class BabyMetroidCutsceneState
         return yDistance <= rectangleRadius.Y + YHitboxRadius;
     }
 
-    /// <summary>Accelerates toward a target using axis helpers and the offscreen wrong-way X correction.</summary>
+    /// <summary>Accelerates toward a target axis by axis, with the offscreen wrong-way X correction.</summary>
     private void GraduallyAccelerateTowardsPoint(
         Position16<RoomPixels> target,
         int accelerationDivisor,

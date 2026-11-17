@@ -4,20 +4,20 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// A retail room and the state its selection chose: the room's fixed definition and the settings of that state.
+/// A room and the state its selection chose: the room's fixed definition and the settings of that state.
 /// </summary>
 /// <remarks>
 /// The game selects the room's state immediately after reading
 /// the fixed definition. State selection is data-driven and can depend on events, bosses, or
 /// inventory. A new game's Ceres start has none of them, so it takes each room's default state.
-/// <see cref="UpScroller"/> and <see cref="DownScroller"/> are the camera's vertical scroller distances in pixels, 0 through 255.
+/// <see cref="UpScroller"/> and <see cref="DownScroller"/> are the camera's vertical scroller distances in pixels.
 /// <see cref="UsesIsolatedDoorTransition"/> is the definition's flag that door transitions read: when the
 /// source or destination room sets it, the transition hides the foreground below the HUD and does not keep the colours
 /// of the door, item and block pictures every room shares while the source room fades.
 /// </remarks>
 public sealed record SelectedRoom(RoomDefinition Definition, RoomStateSettings State)
 {
-    /// <summary>The room's validated retail world area.</summary>
+    /// <summary>The room's validated world area.</summary>
     public AreaId Area => Definition.Area;
 
     /// <summary>The room's top-left position on its area map.</summary>

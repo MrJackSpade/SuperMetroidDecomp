@@ -14,7 +14,7 @@ public static class SamusGrappleBeamDrawing
 
     /// <summary>How Samus draws during <paramref name="phase"/>.</summary>
     /// <remarks>
-    /// Cancellation, release, drop and the grapple wall jump each last one call. On the frame one of them begins, the
+    /// Cancellation, release, drop and the grapple wall jump each last one update. On the frame one of them begins, the
     /// grapple still owns Samus's drawing, so the ordinary charge flare stays hidden, but neither the grapple's flare nor
     /// its beam draws: Samus and her echoes draw alone.
     /// </remarks>
@@ -53,7 +53,7 @@ public static class SamusGrappleBeamDrawing
         if (grapple.Phase == GrapplePhase.Firing)
             RefreshFiringDrawOrigins(samus, grapple);
 
-        // A just-fired flare restarts at the main flare's loop on every such call, then counts its wait as usual, so
+        // A just-fired flare restarts at the main flare's loop on every such update, then counts its wait as usual, so
         // the first visible picture's wait is already one update spent.
         if (grapple.FlareStage == GrappleFlareStage.JustFired)
             ShowFlare(grapple, ChargeFlareAnimations.MainFlareLoop());
@@ -139,7 +139,7 @@ public static class SamusGrappleBeamDrawing
             return;
 
         // The pair is a begin/end range, not two animation frames. Each
-        // six-call interval advances the endpoint to the next of its four pictures.
+        // six-update interval advances the endpoint to the next of its four pictures.
         GrapplePointAnimation.Advance(grapple);
         SpriteSheet installed = Ensure.NotNull(sheet);
         SuperMetroid.Core.Samus.Artwork.GrappleRopeOrientation orientation =

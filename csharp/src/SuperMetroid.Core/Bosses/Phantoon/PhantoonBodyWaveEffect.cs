@@ -22,7 +22,7 @@ public sealed class PhantoonBodyWaveEffect
     public bool Active { get; private set; }
     /// <summary>
     /// The wave's phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
-    /// start), then each active call adds twice the wave's phase step and keeps the remainder within one cycle, so the
+    /// start), then each active update adds twice the wave's phase step and keeps the remainder within one cycle, so the
     /// phase is that seed or 0..511. Seeding two before a whole number of cycles gives the same first remainder.
     /// </summary>
     public int Phase { get; private set; }

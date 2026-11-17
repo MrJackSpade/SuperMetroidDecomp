@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Fatal-damage pose entry and state boundaries.</summary>
 public static class SamusDeathSequenceDefinitions
 {
-    /// <summary>Sixteen calls display the ordinary death pose before flashing.</summary>
+    /// <summary>Sixteen updates display the ordinary death pose before flashing.</summary>
     public const int PreFlashFrameCount = 16;
-    /// <summary>Sixty calls alternate shades before the suit explodes.</summary>
+    /// <summary>Sixty updates alternate shades before the suit explodes.</summary>
     public const int FlashFrameCount = 60;
     /// <summary>Calls the flash holds its first death shade, and waits before its first change of shade.</summary>
-    public const int FirstFlashShadeCalls = 3;
+    public const int FirstFlashShadeUpdates = 3;
     /// <summary>Calls the flash holds its second death shade.</summary>
-    public const int SecondFlashShadeCalls = 1;
-    /// <summary>The brightest whiteout shade the explosion's frames reach; the whiteout stays there until the last call.</summary>
+    public const int SecondFlashShadeUpdates = 1;
+    /// <summary>The brightest whiteout shade the explosion's frames reach; the whiteout stays there until the last update.</summary>
     public const int BrightestExplosionWhiteoutShade = 20;
-    /// <summary>The whiteout shade the sequence's last call shows, after the explosion's last frame: full white.</summary>
+    /// <summary>The whiteout shade the sequence's last update shows, after the explosion's last frame: full white.</summary>
     public const int FinalWhiteoutShade = 21;
     /// <summary>The updates the death pose's starting picture shows for: the delay every death pose's frames share.</summary>
     public const int InitialFrameHold = 2;

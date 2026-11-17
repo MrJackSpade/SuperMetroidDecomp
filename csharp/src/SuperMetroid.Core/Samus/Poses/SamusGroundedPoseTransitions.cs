@@ -217,7 +217,7 @@ internal static class SamusGroundedPoseTransitions
             // Only block-backed ran-into-wall poses call this exact initializer. Treat a
             // different source/target pair as misuse of the specialized operation.
             throw new InvalidOperationException(
-                $"Ran-into-wall pose change {samus.Pose} -> {targetPose} is not a block-backed retail route.");
+                $"Ran-into-wall pose change {samus.Pose} -> {targetPose} is not a block-backed route.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Ran into wall");
@@ -234,7 +234,7 @@ internal static class SamusGroundedPoseTransitions
         {
             // Running exits are a strict same-facing subset of the ran-into-wall table.
             throw new InvalidOperationException(
-                $"Ran-into-wall running exit {samus.Pose} -> {targetPose} is not a retail route.");
+                $"Ran-into-wall running exit {samus.Pose} -> {targetPose} is not one of the game's routes.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Ran into wall to running");
@@ -297,7 +297,7 @@ internal static class SamusGroundedPoseTransitions
             // The complete stable moonwalk table is represented by the predicates above;
             // reaching this branch means the request chose the wrong pose change.
             throw new InvalidOperationException(
-                $"Moonwalk pose change {samus.Pose} -> {targetPose} is not a stable retail route.");
+                $"Moonwalk pose change {samus.Pose} -> {targetPose} is not a stable route.");
         }
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, targetPose, "Moonwalk");
@@ -333,7 +333,7 @@ internal static class SamusGroundedPoseTransitions
             // Input requests the un-aimed turn; the pose initializer then substitutes
             // the old muzzle's aimed turn, which is as valid a request.
             throw new InvalidOperationException(
-                $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not a retail route.");
+                $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not one of the game's routes.");
         }
 
         // Preserve the old muzzle direction before installing turn art. The next input phase

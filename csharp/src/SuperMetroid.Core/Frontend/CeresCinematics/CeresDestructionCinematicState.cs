@@ -120,7 +120,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal FloorZoom Zoom { get; private set; } = FloorZoom.OwnSize;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle;
-    /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second call.</summary>
+    /// <summary>The screen's brightness, black at first, and its slow fades, one level on every second update.</summary>
     private readonly ScreenFade fade = new(0, stepDelay: 1, firstWait: 1);
     /// <summary>Phase-specific hold countdown.</summary>
     private int phaseTimer;

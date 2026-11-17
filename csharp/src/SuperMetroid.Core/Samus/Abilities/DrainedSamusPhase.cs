@@ -11,7 +11,7 @@ public enum DrainedSamusPhase
     WaitingForFallingCue,
     /// <summary>The drained-fall animation cue has started her fall, which advances shared gravity/Y movement and block collision until a solid collision ends it.</summary>
     Falling,
-    /// <summary>The fall encountered a solid collision, cleared Y speed, and selected animation frame seven with an eight-update timer without changing pose or Y direction.</summary>
+    /// <summary>The fall encountered a solid collision, cleared Y speed, and shown <see cref="SamusDrainedAnimationDefinitions.LandingFrame"/> for <see cref="SamusDrainedAnimationDefinitions.LandingTimer"/> ticks without changing pose or Y direction.</summary>
     OnFloor,
     /// <summary><see cref="SamusDrainedState.PutStanding"/> has selected facing-dependent standing drained <see cref="Poses.SamusPoseId.DrainedStandingRightPose"/> and <see cref="Poses.SamusPoseId.DrainedStandingLeftPose"/> at animation frame zero with a sixteen-update timer.</summary>
     Standing,

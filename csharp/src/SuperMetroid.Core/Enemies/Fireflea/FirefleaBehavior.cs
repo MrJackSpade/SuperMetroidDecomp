@@ -16,7 +16,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Starts explosion and drop processing, including the retail second-death path.</summary>
+    /// <summary>Starts explosion and drop processing, including the second-death path.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Holds the shared darkness level that advances when Firefleas die.</summary>
     private readonly EnemyRoomStatus _roomStatus;
@@ -132,7 +132,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances the room's Fireflea darkness by one step after one Fireflea death. Retail rooms contain at most
+    /// Advances the room's Fireflea darkness by one step after one Fireflea death. Rooms contain at most
     /// five, so the darkness usually stops at its fifth step; a sixth step is nevertheless permitted, and the darkness
     /// stops there.
     /// </summary>
@@ -177,7 +177,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         BeforeGenericDeath = _ => AdvanceFirefleaDarkness(),
     };
 
-    /// <summary>Runs Fireflea's touch reaction, the retail unconditional-death sequence.</summary>
+    /// <summary>Runs Fireflea's touch reaction, the unconditional-death sequence.</summary>
     internal void ReactToFirefleaTouch(EnemyTouchContext context) =>
         ResolveFirefleaTouch(context.Place, context.Samus, context.PseudoScrew);
 }

@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal static class CorpseRotScheduleDefinitions
 {
     /// <summary>
-    /// The AI calls a dead Torizo, dead sidehopper or other Tourian corpse waits, once Samus has stood on it, before it starts
+    /// The AI updates a dead Torizo, dead sidehopper or other Tourian corpse waits, once Samus has stood on it, before it starts
     /// to rot.
     /// </summary>
-    internal const int PreRotDelayCalls = 16;
+    internal const int PreRotDelayUpdates = 16;
 
-    /// <summary>The rot calls each row waits longer than the row below it before it starts falling.</summary>
-    internal const int DelayCallsPerRow = 2;
+    /// <summary>The rot updates each row waits longer than the row below it before it starts falling.</summary>
+    internal const int DelayUpdatesPerRow = 2;
 
-    /// <summary>The pixel rows a falling row drops each rot call.</summary>
-    internal const int FallPixelsPerCall = 2;
+    /// <summary>The pixel rows a falling row drops each rot update.</summary>
+    internal const int FallPixelsPerUpdate = 2;
 
-    /// <summary>The last delay calls of a row, during which it already copies (or, near the corpse's foot, moves) itself down.</summary>
-    internal const int LeadInCalls = 4;
+    /// <summary>The last delay updates of a row, during which it already copies (or, near the corpse's foot, moves) itself down.</summary>
+    internal const int LeadInUpdates = 4;
 
     /// <summary>The fewest pixel rows a corpse can have: the row before the last is the first that moves during its lead-in.</summary>
     internal const int FewestRows = 2;

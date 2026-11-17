@@ -150,7 +150,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Steps the timer-mode wait one call and reports whether it ran out on this call (#2281).</summary>
+    /// <summary>Steps the timer-mode wait one update and reports whether it ran out on this update (#2281).</summary>
     internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state) => --state.ActivationTimer == 0;
 
     /// <summary>Switches a timed or proximity shutter into growth and queues audible activation on screen.</summary>

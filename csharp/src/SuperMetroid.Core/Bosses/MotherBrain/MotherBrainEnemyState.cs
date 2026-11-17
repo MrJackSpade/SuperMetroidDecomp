@@ -406,13 +406,13 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public MotherBrainHandBeamPhase HandBeamPhase { get; internal set; }
 
     /// <summary>
-    /// Shared cursor used by the hand-beam projectile chain. Every fired child
-    /// starts from this exact 1/65536-pixel position, advances the cursor by the aimed velocity,
+    /// Where the hand beam's next projectile starts. Every fired child
+    /// starts from this exact 1/65536-pixel position, moves this position on by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
     /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus 48).</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
-    /// <summary>Signed 1/256-pixel aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
+    /// <summary>Signed 1/256-pixel aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
     /// <summary>Aim angle, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public TrigonometryAngle HandBeamNextAngle { get; internal set; }

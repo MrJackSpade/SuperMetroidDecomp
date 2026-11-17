@@ -100,7 +100,7 @@ public static class SamusTerrainHazardCollision
         samus.KnockbackTimer = SpikeHazardDefinitions.KnockbackFrames;
 
         // The game's facing test maps right-facing records to leftward knockback and both
-        // left/front-special records to the other direction. A switch over the proven pose discriminator states that intent.
+        // left/front-special records to the other direction. Front-facing records take the left-facing ones' direction.
         samus.KnockbackXDirection = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right
             ? KnockbackHorizontalDirection.Left
             : KnockbackHorizontalDirection.Right;

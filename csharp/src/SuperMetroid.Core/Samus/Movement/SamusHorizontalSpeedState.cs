@@ -107,7 +107,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// The departing first echo's horizontal speed in whole pixels an update, negative leftward. Cancellation
-    /// sets -8 while facing left or +8 otherwise.
+    /// sets eight leftward while facing left or eight rightward otherwise.
     /// </summary>
     public int FirstSpeedEchoHorizontalSpeed { get; private set; }
 
@@ -257,14 +257,14 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Takes the cue that closes the run for an equipped Speed Booster when the running
-    /// animation reaches it. True means this call took the cue: the run restarts on its first frame, which the
+    /// animation reaches it. True means this update took the cue: the run restarts on its first frame, which the
     /// new boost stage's cadence times.
     /// </summary>
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running takes this cue.</param>
     /// <param name="controllerInput">Current held actions; Dash must be held.</param>
     /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
-    /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped to sixteen bits.</param>
+    /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped at 65536.</param>
     /// <param name="requestEchoSound">
     /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
     /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown.
@@ -325,7 +325,7 @@ public sealed class SamusHorizontalSpeedState
     /// Runs the dry-room Speed Booster branch of the Screw Attack and
     /// Speed Booster glow.
     /// </summary>
-    /// <returns>True when this call copied an authored shade into Samus's colours.</returns>
+    /// <returns>True when this update copied an authored shade into Samus's colours.</returns>
     /// <param name="colours">Samus's colours, which the copied shade replaces.</param>
     /// <param name="frame">What this update's suit colouring reads of Samus.</param>
     internal bool UpdateSpeedBoosterGlow(SamusColours colours, SpeedBoosterGlowFrame frame)
@@ -336,7 +336,7 @@ public sealed class SamusHorizontalSpeedState
         SamusSuit suit = frame.EquippedItems.ShownSuit();
 
         // The stored shine's and the shinespark's suit colourings take priority. Cancellation's
-        // immediate normal-colour copy above still occurs, but the ordinary colouring must not advance
+        // immediate normal colours above still show, but the ordinary colouring must not advance
         // its hidden four-frame Speed Booster cycle beneath the stored shine's or the shinespark's.
         if (frame.SuppressActiveSpeedBoosterGlow)
             return shadeCopied;
@@ -420,7 +420,7 @@ public sealed class SamusHorizontalSpeedState
     public void RequestSuitShadeRestore() => SuitShadeRestoreRequested = true;
 
     /// <summary>
-    /// Publishes the immediate suit copies requested by momentum cancellation and
+    /// Shows at once the suit colours requested by momentum cancellation and
     /// pose initialization. These precede charge and special colouring handling, which may
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
@@ -508,7 +508,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     /// <param name="facing">
     /// Current pose facing. The game treats exactly <see cref="SamusFacingDirection.Left"/> as facing left;
-    /// every other facing uses the right-facing +8 echo velocity branch.
+    /// every other facing uses the right-facing echo velocity.
     /// </param>
     public void CancelRunningMomentum(SamusFacingDirection facing)
     {

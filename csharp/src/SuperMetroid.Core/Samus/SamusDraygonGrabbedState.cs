@@ -194,7 +194,7 @@ public sealed class SamusDraygonGrabbedState
         ReleasePublishedToOwner = true;
     }
 
-    /// <summary>Consumes the Draygon-facing release bit exactly once.</summary>
+    /// <summary>Consumes the Draygon-facing release flag exactly once.</summary>
     public bool ConsumeOwnerReleaseSignal()
     {
         bool published = ReleasePublishedToOwner;

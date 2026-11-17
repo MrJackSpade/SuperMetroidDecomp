@@ -54,7 +54,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <param name="audio">The audio queues the cursor and confirmation sounds join.</param>
     /// <param name="screenContent">The installed screen content, whose options part the screen draws.</param>
     /// <param name="spriteSheets">The installed sprite sheets, which the headings and cursor draw from.</param>
-    /// <param name="controllerBindings">Initial retail controller-button permutation; a new game's are the defaults.</param>
+    /// <param name="controllerBindings">Initial controller-button permutation; a new game's are the defaults.</param>
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
     /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>

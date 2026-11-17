@@ -95,7 +95,7 @@ using SuperMetroid.Core.Enemies.Grapple;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room-enemy loader, scheduler, shared animation, and draw queues. Retail
+/// Room-enemy loader, scheduler, shared animation, and draw queues. The game's
 /// gameplay definitions are compiled; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
@@ -951,7 +951,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                         continue;
 
                     // Test the clock before decrementing: reaching zero retains frozen
-                    // AI for this call. Ice removal instead takes the thaw branch
+                    // AI for this update. Ice removal instead takes the thaw branch
                     // immediately. That branch leaves the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when hurt
                     // and frozen AI coexist.

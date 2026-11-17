@@ -52,7 +52,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         // The Rio's main behaviour advances the global enemy RNG even though this particular family never
-        // consumes the returned number. Omitting that apparently-useless call changes every
+        // consumes the returned number. That draw changes every
         // later random enemy in the room, so it is part of Rio's observable behavior.
         _room.Random.Generate();
 
@@ -78,8 +78,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     RioSegment.SwoopOpening);
                 state.Action = RioAction.Diving;
 
-                // The game's on-screen check returns zero for an on-screen origin. The
-                // branch consequently queues the cry only for the visible attack start.
+                // The cry plays only when the attack starts on screen:
+                // it is queued only for the visible attack start.
                 if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
                     _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;

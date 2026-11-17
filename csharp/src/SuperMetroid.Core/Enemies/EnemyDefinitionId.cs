@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Enemy species: the enemy definition a room population entry or spawn names. Every enemy definition of
-/// the retail game is a member, named for what the enemy is. The values are arbitrary and nothing reads them; the
+/// the game is a member, named for what the enemy is. The values are arbitrary and nothing reads them; the
 /// import pipeline maps the game's enemy definitions to these members (#1412).
 /// </summary>
 public enum EnemyDefinitionId
@@ -275,7 +275,7 @@ public enum EnemyDefinitionId
     /// <remarks>The dead Skree, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseSkree,
     /// <summary>The Baby Metroid in Tourian, which drains Samus and then leaves her.</summary>
-    /// <remarks>The retail Shitroid actor.</remarks>
+    /// <remarks>The Shitroid actor.</remarks>
     BabyMetroid,
     /// <summary>Bomb Torizo, the Chozo statue that wakes in Crateria.</summary>
     BombTorizo,

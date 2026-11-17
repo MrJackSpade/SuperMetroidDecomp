@@ -16,7 +16,7 @@ public enum DeadSidehopperAction
     BeginPostLandingDelay,
     /// <summary>Waits out the pause, then resumes hopping or begins the drain.</summary>
     PostLandingDelay,
-    /// <summary>Steps Shitroid's drain every eight AI calls; once the victim is fully drained, shows the solid corpse with a 12-pixel Y radius.</summary>
+    /// <summary>Steps Shitroid's drain every eight AI updates; once the victim is fully drained, shows the solid corpse with a 12-pixel Y radius.</summary>
     Draining,
     /// <summary>Waits for Samus's solid-enemy collision to select the pre-rot delay; also the return state after rotting completes.</summary>
     WaitForSamusCollision,

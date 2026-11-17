@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Each music data set's area theme (#1748): the song a room that keeps the loaded data set plays
-/// (<see cref="RoomMusicTrack.PlaysAreaTheme"/>), such as the rooms an item room's elevator tune hands back to. The retail
+/// (<see cref="RoomMusicTrack.PlaysAreaTheme"/>), such as the rooms an item room's elevator tune hands back to. The
 /// rooms that do so are entered with an area's set loaded; a scene's or a boss's set names the song such a room would
 /// play from it, so the choice is defined whichever set is loaded.
 /// </summary>

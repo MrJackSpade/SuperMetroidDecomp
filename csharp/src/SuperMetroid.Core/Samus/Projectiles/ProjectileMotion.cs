@@ -520,7 +520,7 @@ internal sealed class ProjectileMotion
             // Bombable reactions always index the bomb-block room-object table for nonnegative behaviour.
             // A missile or Super Missile still spawns the room object, but the bomb-block setup
             // immediately clears the new room object because its family is neither a bomb
-            // nor a power bomb; no terrain write, timer, sound, or persistent room object survives that call.
+            // nor a power bomb; no terrain write, timer, sound, or persistent room object survives that update.
             // Whether the block stops the missile is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
             return block.CollisionType == RoomCollisionType.BombableBlock;

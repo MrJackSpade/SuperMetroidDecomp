@@ -43,7 +43,7 @@ internal sealed class DraygonGrab
         int frameCounter)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
-        // Attached goop actors own this divisor. Once the final actor disappears, retail
+        // Attached goop actors own this divisor. Once the final actor disappears, Draygon
         // abandons the chase immediately and exits through the same upward flight used
         // after a completed grab.
         if (samus.SlowdownLevel == 0)

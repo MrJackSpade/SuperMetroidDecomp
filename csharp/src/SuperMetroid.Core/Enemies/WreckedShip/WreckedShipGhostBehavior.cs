@@ -90,7 +90,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Tracks Samus for the spawn. The one-pixel upper bound is exclusive in retail; this asymmetric
+    /// Tracks Samus for the spawn. The one-pixel upper bound is exclusive in the game; this asymmetric
     /// comparison is deliberately not replaced by an absolute-distance convenience test.
     /// </summary>
     private static void RunWreckedShipGhostTracking(
@@ -150,7 +150,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             }
         }
 
-        // The tracker publishes a fresh asymmetric [position-1, position+1) box at
+        // The tracker publishes a fresh box from one pixel before the position up to, not including, one pixel after it at
         // the end of every non-spawning frame.
         state.PreviousSamusPosition = samusPosition;
         state.SamusLowerBound = samusPosition - WreckedShipGhostAppearanceDefinitions.StillMargin;
@@ -260,7 +260,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>
     /// Advances the flicker: when the current step's updates run out, the next step starts and may show the ghost; past the
-    /// last step the flicker ends and every later call keeps the ghost visible for this cycle.
+    /// last step the flicker ends and every later update keeps the ghost visible for this cycle.
     /// </summary>
     internal static void AdvanceWreckedShipGhostFlicker(
         RoomEnemyPlace place,

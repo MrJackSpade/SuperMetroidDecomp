@@ -127,7 +127,7 @@ public sealed class SamusShinesparkState
     public RotationAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>
-    /// The steps of a 256-step turn both orbiting copies turn by on each orbiting call: four while Samus faces left and
+    /// The steps of a 256-step turn both orbiting copies turn by on each orbiting update: four while Samus faces left and
     /// minus four otherwise, set at crash entry.
     /// </summary>
     private int _crashOrbitTurn;
@@ -361,7 +361,7 @@ public sealed class SamusShinesparkState
 
         // The game's X and Y movement share one collision flag. Diagonal movement runs Y
         // last, so a clear vertical probe replaces an earlier wall hit and allows the
-        // spark to slide upward. Combining both results would terminate a retail spark
+        // spark to slide upward. Combining both results would terminate a spark
         // early; use the last executed axis, including when its result is clear.
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The cannot-die assist bypasses only the energy exit. Terrain/enemy collision still

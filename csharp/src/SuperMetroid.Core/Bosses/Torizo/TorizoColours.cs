@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// A fade starts from what is shown when it takes its first step. A hurt colouring written in the middle of a fade
 /// restarts it from that colouring at the counter value it stands at. An animation names a new target only while the
 /// colours rest on a whole colouring (his awakening and his death each name theirs before their steps, and the awakening's
-/// last call takes only the counter's zero step, which moves nothing), so a target named while a fade has moved the colours
+/// last update takes only the counter's zero step, which moves nothing), so a target named while a fade has moved the colours
 /// is not a state the game reaches and is refused. Once his fight starts, his belly glows: its glowing colours show the
 /// glow's current step over every colouring but his white flash, and a fade moves them from the step shown, so the glow
 /// keeps its own part of the fade from the step at which it last changed. The colours never reach gameplay; only when a

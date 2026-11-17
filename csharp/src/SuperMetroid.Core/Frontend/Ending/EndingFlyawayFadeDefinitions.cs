@@ -9,6 +9,6 @@ internal static class EndingFlyawayFadeDefinitions
     public const int WhiteHoldFrames = 192;
     /// <summary>The flyaway's setup starts the first white-fade countdown at one.</summary>
     public const int InitialCountdown = 1;
-    /// <summary>The white fade takes one step of white off once every eight calls thereafter.</summary>
+    /// <summary>The white fade takes one step of white off once every eight updates thereafter.</summary>
     public const int Interval = 8;
 }

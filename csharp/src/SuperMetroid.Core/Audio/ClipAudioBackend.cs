@@ -270,6 +270,6 @@ public sealed class ClipAudioBackend
             throw new InvalidDataException($"{audioEvent} follows a clock step; it must precede the update's steps.");
     }
 
-    /// <summary>Saturates a mixed sample to signed 16 bits.</summary>
+    /// <summary>Clamps a mixed sample to the sample range.</summary>
     private static short Clamp16(int value) => (short)Math.Clamp(value, short.MinValue, short.MaxValue); // cartridge-encoding: allow(HostPcmSample) - the host's signed PCM mix sample, -32768 through 32767
 }

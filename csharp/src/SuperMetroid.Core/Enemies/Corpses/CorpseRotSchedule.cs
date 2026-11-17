@@ -11,14 +11,14 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </remarks>
 public sealed class CorpseRotSchedule
 {
-    /// <summary>Starts the schedule of a corpse <paramref name="rowCount"/> pixel rows tall, before its first rot call.</summary>
+    /// <summary>Starts the schedule of a corpse <paramref name="rowCount"/> pixel rows tall, before its first rot update.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The corpse is shorter than <see cref="CorpseRotScheduleDefinitions.FewestRows"/>.</exception>
     public CorpseRotSchedule(int rowCount)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(rowCount, CorpseRotScheduleDefinitions.FewestRows);
         var rows = new CorpseRowFall[rowCount];
         for (int row = 0; row < rowCount; row++)
-            rows[row] = new CorpseRowFall(rowCount - 1 - row, row * CorpseRotScheduleDefinitions.DelayCallsPerRow);
+            rows[row] = new CorpseRowFall(rowCount - 1 - row, row * CorpseRotScheduleDefinitions.DelayUpdatesPerRow);
         Rows = rows;
     }
 
@@ -35,14 +35,14 @@ public sealed class CorpseRotSchedule
     private int FirstMovingLeadInRow => LastRow - 1;
 
     /// <summary>
-    /// Runs one rot call, handing each pixel row it moves to <paramref name="moveRow"/>, which moves the corpse's own rows its
+    /// Runs one rot update, handing each pixel row it moves to <paramref name="moveRow"/>, which moves the corpse's own rows its
     /// frames are drawn through (#1539).
     /// </summary>
     /// <param name="moveRow">
     /// Receives the corpse pixel row moved and whether it is moved down, clearing its source, or copied down.
     /// </param>
     /// <param name="rowFallen">Receives each row as it falls out of the corpse, the last row too, before the call returns.</param>
-    /// <returns>True while another rot call is needed; false once the last row has fallen.</returns>
+    /// <returns>True while another rot update is needed; false once the last row has fallen.</returns>
     /// <remarks>
     /// The last row's fall ends the rot without marking the row fallen, so a further call on a finished schedule lets it
     /// fall once more, as the game's does.
@@ -58,17 +58,17 @@ public sealed class CorpseRotSchedule
             if (row.HasFallen)
                 continue;
 
-            if (row.DelayCalls != 0)
+            if (row.DelayUpdates != 0)
             {
-                row.DelayCalls--;
-                if (row.DelayCalls < CorpseRotScheduleDefinitions.LeadInCalls)
+                row.DelayUpdates--;
+                if (row.DelayUpdates < CorpseRotScheduleDefinitions.LeadInUpdates)
                     moveRow(row.PixelRow, index >= FirstMovingLeadInRow ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
                 continue;
             }
 
             // A row whose delay is over always moves, then drops two pixel rows: the corpse's interleaved fall.
             moveRow(row.PixelRow, CorpseRowOperation.Move);
-            int next = row.PixelRow + CorpseRotScheduleDefinitions.FallPixelsPerCall;
+            int next = row.PixelRow + CorpseRotScheduleDefinitions.FallPixelsPerUpdate;
             if (next < LastRow)
             {
                 row.PixelRow = next;

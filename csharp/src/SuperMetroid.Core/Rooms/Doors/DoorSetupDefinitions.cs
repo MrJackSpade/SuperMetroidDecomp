@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// Every retail door setup (#1721), plus none. Each is named for the room its doors lead into and what it does there: the
+/// Every door setup (#1721), plus none. Each is named for the room its doors lead into and what it does there: the
 /// screens of that room it closes to the camera, opens, and opens with the camera aligned to the screen's top, each as
 /// its column and row in the room (in the summaries below, as (column, row)), and the room event it starts. A setup is
 /// what it does, so one member names each change in each room, whichever door runs it. A screen change names its screen

@@ -7,7 +7,7 @@ internal static class EscapeTimerCadenceDefinitions
 {
     /// <summary>
     /// The frame counter's place in the countdown's period, which picks the centiseconds the update removes (#1619): the
-    /// counter's lowest seven bits, so the cadence repeats every 128 updates.
+    /// counter's place in each run of 128 updates, so the cadence repeats every 128 updates.
     /// </summary>
     internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
 

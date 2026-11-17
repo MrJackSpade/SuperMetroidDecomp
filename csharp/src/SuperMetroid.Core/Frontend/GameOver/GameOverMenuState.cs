@@ -9,7 +9,7 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 namespace SuperMetroid.Core.Frontend.GameOver;
 
-/// <summary>The retail game-over prompt.</summary>
+/// <summary>The game-over prompt.</summary>
 public sealed class GameOverMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>

@@ -90,6 +90,11 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2271 adds, outside hardware owners, the machine's storage told for a value: a value shifted by a number of places,
 /// state cleared as the room loads, a table's physical order, both halves of one random number, a value kept in another
 /// quantity, and a vector or fixed-point helper.
+/// #2292 adds, outside hardware owners, the original's routines told as wrappers, modified helpers and controllers, a
+/// merge path, equipment and state bits, a stage by number outside the Speed Booster's, updates counted as calls in prose
+/// and in declared names, a value compared or read as signed, a deferred write or a suit's colour copy, odd frames that
+/// return, hardcoded data, an offset written with a plus sign, the retail game, a cursor through the original's lists, a
+/// count of bits, position and policy rows and records, and arithmetic written as a summary.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1257,6 +1262,117 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's routines told as wrappers, helpers and controllers (#2292), outside hardware owners and markup: a
+    /// wrapper in any number (the turning wrapper, the movement wrapper skips block detection); a helper after any word but
+    /// an article (the rising helper, the bottom-boundary helper, this helper, each helper); a scripted, drained, grabbed,
+    /// tail, pogo, flight, fake-wall, formation or movement controller, its or their controllers, an owner's controllers
+    /// (Mother Brain's controllers install it) and a controller paired with a pose. Core names the step and says what it
+    /// does. English stays legal: a helper alone, the helper text of a screen, the player's controller and its input, a
+    /// scripted controller's input, and Shaktool's room controller, the room object the game places.
+    /// </summary>
+    private static readonly Regex RoutineWrapperProse = new(
+        @"\bwrappers?\b" +
+        @"|\b(?!(?:a|an)\b)[\w'-]+\s+helpers?\b(?![-\s]+(?:texts?|messages?|labels?|lines?)\b)" +
+        @"|\b(?:scripted|drained(?:-\w+)?|crouching-or-falling|grabbed|tail|pogo|flight|fake-wall|formation|movement)\s+controllers?\b(?![-\s]+(?:inputs?|buttons?|ports?)\b)" +
+        @"|\b(?:its|their)\s+controllers?\b|\b\w+'s\s+controllers\b(?<!\bplayer's\s+controllers)|\bcontroller/pose\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original's storage of Samus's and the game's state in prose (#2292), outside hardware owners and markup: a merge
+    /// path; an equipment, state, suit, item, beam, facing, release, turning or liquid bit and an item's own bit (the Screw
+    /// Attack bit, both suit bits are equipped); both bits; and this, that, the, its or which bit (Grapple physics reads this
+    /// bit). Core names the item equipped, the flag or the state. English stays legal: a bit more, a bit of the way, and a
+    /// hardware owner.
+    /// </summary>
+    private static readonly Regex StateBitProse = new(
+        @"\bmerge[-\s]+paths?\b" +
+        @"|\b(?:equipment|state|suit|item|beam|boss|event|status|collected|enabled|upgrade|pickup|facing|release|turning" +
+        @"|liquid|Varia|Gravity|Spazer|Plasma|Morph|Attack|Jump|Draygon-facing)[-\s]+bits?\b" +
+        @"|\bboth\s+bits\b|\b(?:this|that|the|its|which)\s+bit\b(?!\s+(?:of|more|less|further|longer)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A step of a sequence told by the original's stage number (#2292), outside hardware owners and markup: a stage by
+    /// number in digits or words (stage three equips the suit, stages three and four, stage-two edge pair) and a numbered
+    /// stage before a noun (the third-stage handoff), unless its clause names the Speed Booster's run (a boost, booster,
+    /// run, running or speed), whose stages the game itself counts. Core names what the step does: the beam narrows, the
+    /// suit is equipped. English stays legal: a stage that counts the noun after it (a stage two frames long) and the
+    /// Speed Booster's stages (boost stage four, a stage-four run).
+    /// </summary>
+    private static readonly Regex NumberedStageProse = new(
+        @"(?<!\b(?:boost\w*|booster|runs?|running|speed)\b[^.;:!?]*)" +
+        @"(?:\bstages?[-\s]+" + NumberWord + @"\b(?![-\s]+(?:frames?|updates?|pixels?|times?)\b)" +
+        @"|\b(?:first|second|third|fourth|fifth|sixth|seventh)-stage\b)" +
+        @"(?![^.;:!?]*\b(?:boost\w*|booster|runs?|running|speed)\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// Updates counted as the original's calls in prose (#2292), outside hardware owners and markup: a number of calls
+    /// (sixteen calls precede the flash, ten approach calls, how many calls it lasts), a numbered call joined to its noun
+    /// (the nine-call cadence), a call picked out by each, every, this, that, the next, previous, first or last and the
+    /// like (runs one call of the destruction, on the destruction's first call), calls left, remaining or apart, a call
+    /// count, order or cadence, and counted, flashing or approach calls. Core counts updates, frames or steps. English
+    /// stays legal: a call into another owner (a call to the queue), one call per room, one host call, an input built for
+    /// one call, and calling.
+    /// </summary>
+    private static readonly Regex UpdateCallProse = new(
+        @"\b(?:" + NumberWord + @"|how\s+many|many|several|few|more|fewer)\s+(?:[\w-]+\s+)?calls\b" +
+        @"|\b" + NumberWord + @"-calls?\b" +
+        @"|(?<!\b(?:for|in)\s)\b(?:each|every|per|this|that|next|previous|following|same|first|last|second|third|final|one|another)\s+" +
+        @"(?:(?!the\b|host\b)[\w-]+\s+)?call\b(?!\s+to\b)(?!\s+per\s+(?!(?:update|frame)s?\b))" +
+        @"|\bcalls?\s+(?:left|remaining|apart|later|earlier|longer|precedes?)\b|\bcall\s+(?:counts?|counters?|order|cadences?)\b" +
+        @"|\b(?:counted|flashing|approach)\s+calls\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The machine's arithmetic and the original's data told for a value (#2292), outside hardware owners and markup: a
+    /// value compared, read, treated or taken as signed; a deferred, pending or delayed copy or write and a suit's,
+    /// shade's or normal colour's copy (perform the suit colours copy, flush that deferred write); odd or even frames that
+    /// return; hardcoded data; an offset written with a plus sign, glued to a name or before a noun (destination+31, the
+    /// +31 allowance, align at +0); a count of bits (wrapping at sixteen bits, a three-bit jitter); a position, policy,
+    /// launch, nail or search row, record or table, a search order and a row by its number (the 352 row); and arithmetic
+    /// written as a summary (the left edge (-24) minus two, 256 + 108 * 96 = 10624). Core states what the value means:
+    /// which way a distance lies, where the camera stops, the room's wrap, the destination. English stays legal: a signed
+    /// value, a sum written with spaces (n + 1 updates), a signed list of deltas (+1 for frames 0..5) and a hardware owner.
+    /// </summary>
+    private static readonly Regex MachineReadingProse = new(
+        @"\b(?:compared|compares|read|reads|treated|taken|interpreted|tested)\s+(?:as\s+)?signed\b" +
+        @"|\b(?:deferred|pending|delayed)\s+(?:copy|copies|writes?)\b|\b(?:suit|shade|normal-colou?r)\s+(?:colou?rs?\s+)?(?:copy|copies)\b" +
+        @"|\b(?:odd|even)\s+(?:frames?|updates?)\s+return\b|\breturns?\s+(?:early\s+)?on\s+(?:odd|even)\s+(?:frames?|updates?)\b" +
+        @"|\bhard-?coded\b" +
+        @"|\b[A-Za-z]{2,}\w*\+[0-9]+\b|(?<![\w)\]])\+[0-9]+\s+(?!(?:or|and|for|to|through)\b)[a-z]+|\b(?:at|use|uses|using)\s+\+[0-9]+\b" +
+        @"|\b" + NumberWord + @"[-\s]+bits?\b" +
+        @"|\b(?:movement-policy|policy|position|launch|nail|search)[-\s]+(?:rows?|records?|tables?)\b|\bsearch\s+order\b" +
+        @"|\bthe\s+[0-9]+\s+rows?\b" +
+        @"|\(\s*[-+]?[0-9]+\s*\)\s+(?:plus|minus|times)\b|\b[0-9]+(?:\s*[-+*×/]\s*[0-9]+)+\s*=\s*[0-9]+\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The retail game and the original's cursors in prose (#2292), outside hardware owners and markup: retail in any use
+    /// (retail emits a rock, exactly as retail, the retail game, every retail door), and a cursor through the original's
+    /// lists: a history, movement, animation, line, character, shared, aimed, path, table, list or sequence cursor, a
+    /// cursor advanced or stepped (the falling sequence advances the cursor), a cursor that crosses, passes or resumes, one
+    /// that stays at its end, and a selection by a cursor. Core is the game: it names what the game shows or does next.
+    /// English stays legal: a menu's cursor (the cursor stays on the transfer), the cursor's picture and a hardware owner.
+    /// </summary>
+    private static readonly Regex RetailCursorProse = new(
+        @"\bretail\b" +
+        @"|\b(?:history|movement|animation|line|character|next-character|shared|aimed|delayed|path|table|list|read|write|frame" +
+        @"|segment|sequence|ring|rock|fragment)\s+cursors?\b" +
+        @"|(?<!\b(?:the|a|an|each|every)\s)\b(?:advances?|advanced|advancing|steps?|stepped|stepping)\s+(?:the|its|a|their)\s+" +
+        @"(?:[\w-]+\s+)?cursors?\b" +
+        @"|\bcursor\s+(?:crosses|passes|resumes)\b|\bcursor\s+stays\s+at\s+(?:the|its)\s+end\b|\bby\s+a\s+cursor\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A camel-case word of a declared name that counts the original's calls (#2292): Call or Calls at the start of a name,
+    /// after an underscore or at a word boundary, and not the start of a longer word (<c>FlashCalls</c>,
+    /// <c>ImpactSoundCall</c>, <c>DelayCallsPerRow</c>, <c>_holdCalls</c>; not <c>Callback</c>, <c>Called</c> or
+    /// <c>Caller</c>). Core counts updates, frames or steps and names them so.
+    /// </summary>
+    private static readonly Regex CallNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Cc]alls?(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// Fix history told by an adverb of error (#2192), part of the review trail and read in every Core type: incorrectly,
     /// wrongly, erroneously or mistakenly (Testing it here incorrectly advanced the animation, Requiring a collision
     /// wrongly skipped the check). Core states what the game does; what an earlier version of the port got wrong is the
@@ -1520,7 +1636,36 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
                 token.IsKind(SyntaxKind.SingleLineRawStringLiteralToken))
                 Report(context, token.ValueText, token.GetLocation(), token.Parent, codeNames: null, generated, comment: null);
         }
+        if (generated)
+            return;
+        foreach (SyntaxNode node in root.DescendantNodes())
+        {
+            if (DeclaredName(node) is { } name && CallNameWord.IsMatch(name.ValueText) && !IsInHardwareOwner(node))
+                context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
+        }
     }
+
+    /// <summary>
+    /// The name <paramref name="node"/> declares (#2292): a type's, delegate's, method's, property's, event's, variable's,
+    /// parameter's, enum member's, local function's, designation's, loop variable's or type parameter's; null for any
+    /// other node.
+    /// </summary>
+    private static SyntaxToken? DeclaredName(SyntaxNode node) => node switch
+    {
+        BaseTypeDeclarationSyntax type => type.Identifier,
+        DelegateDeclarationSyntax delegateDeclaration => delegateDeclaration.Identifier,
+        MethodDeclarationSyntax method => method.Identifier,
+        PropertyDeclarationSyntax property => property.Identifier,
+        EventDeclarationSyntax eventDeclaration => eventDeclaration.Identifier,
+        VariableDeclaratorSyntax variable => variable.Identifier,
+        ParameterSyntax parameter => parameter.Identifier,
+        EnumMemberDeclarationSyntax member => member.Identifier,
+        LocalFunctionStatementSyntax localFunction => localFunction.Identifier,
+        SingleVariableDesignationSyntax designation => designation.Identifier,
+        ForEachStatementSyntax loop => loop.Identifier,
+        TypeParameterSyntax typeParameter => typeParameter.Identifier,
+        _ => null,
+    };
 
     /// <summary>
     /// The paragraph a comment belongs to: a line comment with the line comments directly above and below it, up to a
@@ -1692,6 +1837,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ProgramFlowProse.Match(Markup.Replace(text, " ")) is { Success: true } programFlow ? programFlow.Value
             : PortDataProse.Match(text) is { Success: true } portData ? portData.Value
             : MachineStorageNarrationProse.Match(text) is { Success: true } machineStorage ? machineStorage.Value
+            : RoutineWrapperProse.Match(Markup.Replace(text, " ")) is { Success: true } routineWrapper ? routineWrapper.Value
+            : StateBitProse.Match(Markup.Replace(text, " ")) is { Success: true } stateBit ? stateBit.Value
+            : NumberedStageProse.Match(Markup.Replace(text, " ")) is { Success: true } numberedStage ? numberedStage.Value
+            : UpdateCallProse.Match(Markup.Replace(text, " ")) is { Success: true } updateCall ? updateCall.Value
+            : MachineReadingProse.Match(Markup.Replace(text, " ")) is { Success: true } machineReading ? machineReading.Value
+            : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

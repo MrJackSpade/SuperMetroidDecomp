@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
-/// Application-owned discovery cells from the retail station lists, each named for the room its station stands in (#1975):
+/// Application-owned discovery cells from the station lists, each named for the room its station stands in (#1975):
 /// the name its editable marker position is installed under.
 /// </summary>
 public static class MapStationDiscoveryRules
@@ -37,7 +37,7 @@ public static class MapStationDiscoveryRules
     ];
 
     /// <summary>Selects an area's marker family without testing exploration or consulting editable drawing positions.</summary>
-    /// <param name="area">Validated retail area identity whose saved map owns the discovery cells.</param>
+    /// <param name="area">Validated area identity whose saved map owns the discovery cells.</param>
     /// <param name="kind">The mutually exclusive missile, energy, or map station family.</param>
     /// <returns>Matching rules in list order, or an empty sequence if that area has no markers of the selected family.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The area or station kind is not a supported identity.</exception>

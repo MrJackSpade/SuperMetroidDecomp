@@ -18,7 +18,7 @@ public sealed class AudioQueues
 {
     /// <summary>
     /// The music requests waiting on the music queue, oldest first, each with its delay. The request the queue fetched
-    /// stays first until it has played. No retail path holds more requests than the game's queue keeps without filling it,
+    /// stays first until it has played. No path holds more requests than the game's queue keeps without filling it,
     /// so the queue never refuses or overwrites one (#1692, <c>docs/compatibility-layer.md</c>).
     /// </summary>
     internal readonly Queue<QueuedMusic> Music = new();

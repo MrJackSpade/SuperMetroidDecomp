@@ -106,7 +106,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
-        // Stand-up falls through here, so the freshly loaded countdown takes its first step on the same AI call.
+        // Stand-up falls through here, so the freshly loaded countdown takes its first step on the same AI update.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
@@ -137,7 +137,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffReadyBaby(MotherBrainRainbowBeamStepRequests requests)
     {
-        // Each call readies one update of the Baby's arrival; the last spawns it on that same call.
+        // Each update readies one update of the Baby's arrival; the last spawns it on that same update.
         ReadyBabyMetroidArrival();
         if (_state.BabyArrivalReadyingElapsed == MotherBrainReadyingDefinitions.BabyArrivalDuration)
         {

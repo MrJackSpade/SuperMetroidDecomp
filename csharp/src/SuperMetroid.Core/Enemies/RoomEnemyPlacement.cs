@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// starts from.
 /// </summary>
 /// <param name="DefinitionId">The enemy that spawns.</param>
-/// <param name="Position">The initial room position in whole pixels, each coordinate wrapping at sixteen bits.</param>
+/// <param name="Position">The initial room position in whole pixels, each coordinate wrapping around the room.</param>
 /// <param name="Contact">How the enemy starts out meeting Samus and her shots.</param>
 /// <param name="Processing">What the room's enemy passes start out running for the enemy.</param>
 /// <param name="Presence">Whether the enemy starts hidden or deleted, and whether it returns after a kill.</param>

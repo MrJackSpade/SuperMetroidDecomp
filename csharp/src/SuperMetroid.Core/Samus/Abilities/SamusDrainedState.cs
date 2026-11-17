@@ -157,7 +157,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Holds each step of the rainbow glow one call longer, as the Baby slows it each time its 768ths of a step add up
+    /// Holds each step of the rainbow glow one update longer, as the Baby slows it each time its 768ths of a step add up
     /// to a whole one; the hold stops at <paramref name="longestHold"/> rather than wrapping.
     /// </summary>
     /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
@@ -231,7 +231,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
 
-        // The game computes 21-oldRadius and subtracts it from center Y before changing the
+        // The game raises her center by the drained pose's radius less her previous one before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius of 21 pixels.
         int sourceRadius = samus.Kinematics.Radius.Y;
@@ -281,7 +281,7 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>
-    /// Runs one call of drained Samus's fall, using
+    /// Runs one update of drained Samus's fall, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
     internal DrainedSamusMovementResult StepFalling(
@@ -322,7 +322,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus,
+        SamusPresentation.SetPoseAndAnimationForScriptedSequence(samus,
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: SamusAnimationFrame.Start,
             timer: SamusDrainedAnimationDefinitions.PutStandingTimer);
@@ -335,7 +335,7 @@ public sealed class SamusDrainedState
     {
         Ensure.NotNull(samus);
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus,
+        SamusPresentation.SetPoseAndAnimationForScriptedSequence(samus,
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: SamusDrainedAnimationDefinitions.PutCrouchingFrame,
             timer: SamusDrainedAnimationDefinitions.PutCrouchingTimer);
@@ -356,7 +356,7 @@ public sealed class SamusDrainedState
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
-        // The merge path executes even for an unexpected pose. Preserve that surprisingly
+        // The shared step runs even for an unexpected pose. Preserve that surprisingly
         // broad behavior instead of rejecting a pose that the game accepts.
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);

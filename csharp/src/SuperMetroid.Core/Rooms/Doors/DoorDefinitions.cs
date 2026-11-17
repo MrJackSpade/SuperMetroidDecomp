@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The retail game's 597 physical doors.</summary>
+/// <summary>The game's 597 physical doors.</summary>
 /// <remarks>Each door names its destination room, direction and closing behavior, closing-cap block, destination
 /// screen, Samus push speed and setup.
 /// An elevator's door blocks lead to the elevator pseudo-door (<see cref="DoorBlockExit.ElevatorPseudoDoor"/>), not a door.</remarks>
 public static class DoorDefinitions
 {
-    /// <summary>Retail doors in their authored order.</summary>
+    /// <summary>Doors in their authored order.</summary>
     internal static readonly DoorDefinition[] Definitions =
     [
         Door(nameof(CrateriaDoorDefinitions.LandingSiteLandingCutscene), RoomDefinitions.LandingSite, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(4, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None),

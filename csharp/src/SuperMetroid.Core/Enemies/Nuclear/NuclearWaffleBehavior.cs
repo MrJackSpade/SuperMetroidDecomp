@@ -146,10 +146,10 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
-            // Spawning installs the link's definition before
-            // its initializer runs. That definition owns the twelve-frame animation, the link's
+            // The link starts as its definition has it:
+            // the twelve-frame animation, the link's
             // frame behaviour, 8x8 radii, interaction flags, and 64 damage. The
-            // initializer below only copies the live owner coordinates, associates this
+            // setup below only copies the live owner coordinates, associates this
             // projectile with one articulated link, and makes it an indestructible dud.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
@@ -204,7 +204,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             (NuclearWaffleSweepAngle clampedAngle, bool linkFinished) = ClampNuclearWaffleAngle(state, angle);
             segment.Position = segment.Position.WithWhole(NuclearWaffleOrbitPoint(state, clampedAngle));
-            // The sweep tests the flag left by the final link's second clamp call. It is
+            // The sweep tests the flag left by the final link's second clamp. It is
             // deliberately not an OR across the chain: the head and leading links can sit
             // at the endpoint while the final projectile link is still unfurling.
             finished = linkFinished;
@@ -315,7 +315,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The whole-pixel point on the orbit at <paramref name="angle"/>, wrapping at sixteen bits. The orbit reads only the
+    /// The whole-pixel point on the orbit at <paramref name="angle"/>, wrapping around the room. The orbit reads only the
     /// angle's direction within one turn.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, NuclearWaffleSweepAngle angle) =>
@@ -323,7 +323,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// The whole-pixel point at <paramref name="angle"/> on the orbit of <paramref name="radius"/> around
-    /// <paramref name="origin"/>, wrapping at sixteen bits.
+    /// <paramref name="origin"/>, wrapping around the room.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(Position16<RoomPixels> origin, int radius, NuclearWaffleSweepAngle angle) =>
         origin + EnemyMath.CircleOffset(angle.ToRotationAngle().ToTrigonometryAngle(), radius);

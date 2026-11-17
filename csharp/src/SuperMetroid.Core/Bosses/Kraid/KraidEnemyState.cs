@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Shared Kraid encounter state, plus the room-level effects whose
 /// owners sit outside any one enemy. No combat simplification
-/// is represented here: thresholds and formulas are copied from retail arithmetic.
+/// is represented here: thresholds and formulas are the game's own.
 /// </summary>
 public sealed class KraidEnemyState
 {

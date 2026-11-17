@@ -3,15 +3,15 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>Direct ordered state-selection branches for every retail room.</summary>
+/// <summary>Direct ordered state-selection branches for every room.</summary>
 /// <remarks>The room definitions' state choices test named events, boss flags and
 /// equipment predicates in order; the first successful condition wins
 /// (<see cref="RoomStateSelection"/>). Each of the 54 conditional choices lists
 /// its branches in authored order after its default state. Unconditional rooms
-/// name their single state. Only the 262 retail rooms are listed.</remarks>
+/// name their single state. Only the 262 rooms are listed.</remarks>
 public static class RoomStateSelectionDefinitions
 {
-    /// <summary>Each retail room's state choice, in authored room order.</summary>
+    /// <summary>Each room's state choice, in authored room order.</summary>
     internal static readonly Dictionary<RoomDefinition, RoomStateChoice> Choices = new()
     {
         [RoomDefinitions.LandingSite] = new(CrateriaRoomStateDefinitions.LandingSiteDefault,

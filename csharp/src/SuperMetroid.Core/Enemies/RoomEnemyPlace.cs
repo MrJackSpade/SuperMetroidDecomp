@@ -167,7 +167,7 @@ public sealed class RoomEnemyPlace : ISolidEnemy
     /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
     /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
     internal T SpawnSettings<T>() where T : EnemySpawnSettings => Spawn.Population.SpawnSettingsOf<T>();
-    /// <summary>The enemy's 1/65536-pixel room position, each whole coordinate wrapping at sixteen bits.</summary>
+    /// <summary>The enemy's 1/65536-pixel room position, each whole coordinate wrapping around the room.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }

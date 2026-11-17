@@ -23,7 +23,7 @@ public readonly record struct MotherBrainRandomSample
     /// <summary>Samples the generator's current value exactly.</summary>
     public static MotherBrainRandomSample FromGenerator(int value) => new(Ensure.BetweenInclusive(0, ValueCount - 1, value));
 
-    /// <summary>Whether the number's top bit is set, so it reads as negative when treated as signed.</summary>
+    /// <summary>Whether the number's top bit is set, the upper half of the samples.</summary>
     public bool IsNegative => Value >= NegativeThreshold;
 
     /// <summary>Whether the number takes <paramref name="chance"/> (#1619).</summary>

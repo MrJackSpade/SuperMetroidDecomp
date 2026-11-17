@@ -63,7 +63,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>
     /// Runs the Lower Norfair Rio's main AI and each action it runs.
-    /// The shared RNG advances before every parent and follower acts, exactly as retail.
+    /// The shared RNG advances before every parent and follower acts, exactly as the game does.
     /// </summary>
     private void RunLowerNorfairRioMain(
         RoomEnemyPlace place,
@@ -211,7 +211,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             return;
         }
 
-        // The follower again reads the preceding parent's visibility switch, a Boolean here
+        // The follower again reads the preceding parent's visibility switch, which shows or hides it,
         // rather than a signed offset. The follower takes the parent's live position and
         // this variant adds the flames' drop.
         follower.Presence = follower.Presence.Without(EnemyPresence.Hidden);

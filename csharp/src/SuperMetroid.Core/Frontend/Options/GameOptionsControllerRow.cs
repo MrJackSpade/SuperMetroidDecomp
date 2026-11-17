@@ -24,7 +24,7 @@ public abstract record GameOptionsControllerRow
         public static Exit Instance { get; } = new();
     }
 
-    /// <summary>Restores the retail default button permutation.</summary>
+    /// <summary>Restores the default button permutation.</summary>
     public sealed record Reset : GameOptionsControllerRow
     {
         /// <summary>The one Reset row.</summary>

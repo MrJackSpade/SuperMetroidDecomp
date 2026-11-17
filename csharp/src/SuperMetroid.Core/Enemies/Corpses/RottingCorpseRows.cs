@@ -10,7 +10,7 @@ internal sealed class RottingCorpseRows
     /// <summary>The corpse row each corpse row shows, or none where a move has cleared it.</summary>
     private readonly int?[] rows;
 
-    /// <summary>A corpse <paramref name="rowCount"/> pixel rows tall, before its first rot call: every row shows itself.</summary>
+    /// <summary>A corpse <paramref name="rowCount"/> pixel rows tall, before its first rot update: every row shows itself.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The corpse has no rows.</exception>
     internal RottingCorpseRows(int rowCount)
     {
@@ -22,7 +22,7 @@ internal sealed class RottingCorpseRows
     }
 
     /// <summary>
-    /// Moves pixel row <paramref name="row"/> as one rot call does: it copies itself onto the row below it, unless it is the
+    /// Moves pixel row <paramref name="row"/> as one rot update does: it copies itself onto the row below it, unless it is the
     /// corpse's last row, which lands nowhere, and a move, rather than a copy, then clears it.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The corpse has no such row.</exception>

@@ -89,7 +89,7 @@ internal sealed class EndingFlyaway
                     EndingAnimalEscapeDefinitions.Colouring, EndingAnimalEscapeDefinitions.Animation,
                     EndingSpriteRole.AnimalEscape);
                 // The cinematic phase runs before the actors, so a newly spawned pod
-                // moves and selects its first animation frame on this same call.
+                // moves and selects its first animation frame on this same update.
                 _stage.StepEndingSpriteMotion(podActor);
                 podActor.Sprite.Step();
             }

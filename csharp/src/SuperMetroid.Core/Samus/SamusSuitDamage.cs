@@ -49,7 +49,7 @@ public static class SamusSuitDamage
     /// damage passes unchanged.
     /// </summary>
     /// <remarks>
-    /// The game divides only the whole damage's lowest eight bits, but no periodic damage reaches 256 whole points in one
+    /// The game divides only the whole damage's remainder below 256, but no periodic damage reaches 256 whole points in one
     /// update, so the whole damage is divided as it is (#1795). The most an update's producers accumulate is a heavy
     /// spike's 60 or the swinging grapple's spike damage, never both, since each starts the invincibility the other waits
     /// out, with lava's half or acid's one and a half, heat's quarter, a chewing plant's two and the Draygon turret

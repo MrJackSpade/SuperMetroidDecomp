@@ -798,7 +798,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
     /// <summary>
     /// Adds the tide's displacement to the base liquid surface, giving the surface's room line, negative once the tide
-    /// carries it above the room's top; a liquid with no surface has none, and no retail room effect gives one a tide.
+    /// carries it above the room's top; a liquid with no surface has none, and no room effect gives one a tide.
     /// </summary>
     /// <exception cref="InvalidOperationException">A liquid with no surface has a tide.</exception>
     private int? ComputeTidalYPosition()

@@ -28,7 +28,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPartLinks<RoomEnemyPlace> _followUpRecipients = new();
     /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Receives each fireball's sound in call order, as the game queues it.</summary>
+    /// <summary>Receives each fireball's sound in the order the game queues them.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Dragon body AI, paired-wing state, fireball spawning and its sound to room systems.</summary>

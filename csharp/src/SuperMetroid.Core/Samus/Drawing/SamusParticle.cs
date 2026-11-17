@@ -41,7 +41,7 @@ public sealed class SamusParticle
     public int HiddenUpdatesLeft { get; private set; }
 
     /// <summary>
-    /// Where it is, in whole room pixels: the camera is subtracted only when drawing, motion wraps at sixteen bits, a
+    /// Where it is, in whole room pixels: the camera is subtracted only when drawing, motion wraps around the room, a
     /// diving splash follows the live water surface and lava spray and dust drift on each update they are shown.
     /// </summary>
     public Position16<RoomPixels> Position { get; private set; }

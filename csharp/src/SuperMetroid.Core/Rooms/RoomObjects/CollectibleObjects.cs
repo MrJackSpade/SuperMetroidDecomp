@@ -314,7 +314,7 @@ internal sealed class CollectibleObjects
         }
     }
 
-    /// <summary>Maps an equipment pickup to the bit written in equipped and collected items.</summary>
+    /// <summary>Maps an equipment pickup to the item it adds to the equipped and collected items.</summary>
     private static SamusEquipmentFlags GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => SamusEquipmentFlags.Bombs,
@@ -341,7 +341,7 @@ internal sealed class CollectibleObjects
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
-    /// <summary>Maps a beam pickup to its bit for collected and equipped beams.</summary>
+    /// <summary>Maps a beam pickup to the beam it adds to the collected and equipped beams.</summary>
     private static SamusBeamFlags GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.ChargeBeam => SamusBeamFlags.Charge,

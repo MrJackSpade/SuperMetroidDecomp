@@ -74,7 +74,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new WorkRobotEnemyState();
         place.SetSpeciesState(state);
 
-        // A powered robot is solid to Samus and animates; its placements already process it off screen in every retail
+        // A powered robot is solid to Samus and animates; its placements already process it off screen in every
         // room.
         place.Contact = place.Contact.With(EnemyContact.SolidToSamus);
         place.Processing = place.Processing.With(EnemyProcessing.Animates);

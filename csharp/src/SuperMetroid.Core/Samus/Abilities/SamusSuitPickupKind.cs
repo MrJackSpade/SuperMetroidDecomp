@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The two stage-three/stage-six variants of the shared transformation.</summary>
+/// <summary>The two suits the shared transformation equips.</summary>
 public enum SamusSuitPickupKind
 {
-    /// <summary>The Varia pickup: stage three equips and collects the Varia suit, and the shrinking beam's colour returns toward orange.</summary>
+    /// <summary>The Varia pickup: the reveal equips and collects the Varia suit, and the shrinking beam's colour returns toward orange.</summary>
     Varia,
-    /// <summary>The Gravity pickup: stage three equips and collects the Gravity suit, and the shrinking beam's colour returns toward blue.</summary>
+    /// <summary>The Gravity pickup: the reveal equips and collects the Gravity suit, and the shrinking beam's colour returns toward blue.</summary>
     Gravity,
 }

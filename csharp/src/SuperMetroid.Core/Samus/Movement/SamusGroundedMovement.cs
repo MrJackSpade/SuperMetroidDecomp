@@ -333,7 +333,7 @@ public static class SamusGroundedMovement
 
         // Calls the same no-base-speed X movement as standing. Direction still
         // comes from the pose's own facing. Extra speed is included in the requested move
-        // before the movement's unconditional cleanup, matching the call order.
+        // before the movement's unconditional cleanup, in the game's order.
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: default);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)

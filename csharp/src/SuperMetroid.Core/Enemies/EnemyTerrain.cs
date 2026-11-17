@@ -151,7 +151,7 @@ internal sealed class EnemyTerrain
         }
 
         // A non-square slope reactor may already have placed the center more precisely.
-        // The outer helper performs this conditional coarse alignment afterward.
+        // The outer step performs this conditional coarse alignment afterward.
         if (movingUp)
         {
             int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.Y + 1);

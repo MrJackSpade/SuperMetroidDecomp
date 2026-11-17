@@ -77,7 +77,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case NorfairRioAction.WaitForAttackOpportunity:
-                // The retail gate tests two parts of the newly generated random
+                // The gate tests two parts of the newly generated random
                 // number, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle animation without starting an attack.
                 if ((!RioLaunchDefinitions.AttackChanceLowBit.IsSetIn(random) && !RioLaunchDefinitions.AttackChanceHighBit.IsSetIn(random)) ||

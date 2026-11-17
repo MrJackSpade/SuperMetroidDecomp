@@ -74,8 +74,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Phase = DeadTourianCorpsePhase.PreRotDelay;
                 return;
             case DeadTourianCorpsePhase.PreRotDelay:
-                state.CountPreRotDelayCall();
-                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayCalls)
+                state.CountPreRotDelayUpdate();
+                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayUpdates)
                 {
                     state.Phase = DeadTourianCorpsePhase.Rotting;
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -109,7 +109,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs one rot call, moving the corpse's own rows as the call moves them (#1539), entering inert AI when it completes.
+    /// Runs one rot update, moving the corpse's own rows as the call moves them (#1539), entering inert AI when it completes.
     /// </summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemyPlace place,

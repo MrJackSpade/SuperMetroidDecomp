@@ -298,7 +298,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         }
 
         // All three choices on each side are the same animation. The random retry is kept
-        // because advancing the RNG until its low two bits are nonzero is observable
+        // because advancing the RNG until it draws a number not divisible by four is observable
         // even though all three accepted values select the same animation.
         int choice;
         do

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// The five retail Speed Booster collision blocks and their authored crumble (#1554). A block plays its break sound and
+/// The five Speed Booster collision blocks and their authored crumble (#1554). A block plays its break sound and
 /// crumbles through four images; a respawning block stays gone, grows back through them and restores its saved block.
 /// </summary>
 internal static class SpeedBoosterBlockObjectDefinitions

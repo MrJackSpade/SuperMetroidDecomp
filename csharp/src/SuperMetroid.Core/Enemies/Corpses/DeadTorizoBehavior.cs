@@ -81,7 +81,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case DeadTorizoPhase.PreRot:
                 state.PreRotDelayCounter++;
-                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayCalls)
+                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayUpdates)
                 {
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                     state.Phase = DeadTorizoPhase.Rotting;
@@ -103,18 +103,18 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Advances the corpse's fall and runs one rot call of its schedule.</summary>
+    /// <summary>Advances the corpse's fall and runs one rot update of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemyPlace place, DeadTorizoEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + DeadTorizoCorpseDefinitions.RotGravity);
         place.Position = place.Position.MovedBy(state.Velocity);
-        state.ProcessCallCount++;
+        state.RotUpdateCount++;
         bool stillRotting = state.Rot.Step(state.Rows.MoveRow, _ => FinishDeadTorizoCorpseRow());
         if (!stillRotting)
             state.Phase = DeadTorizoPhase.Finished;
     }
 
-    /// <summary>Shot/touch tail.</summary>
+    /// <summary>The rest of the corpse's shot and touch reactions.</summary>
     internal static void TriggerDeadTorizoRotting(RoomEnemyPlace place)
     {
         DeadTorizoEnemyState state = place.RequireSpeciesState<DeadTorizoEnemyState>();
@@ -122,7 +122,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Phase = DeadTorizoPhase.Rotting;
     }
 
-    /// <summary>Power-bomb entry.</summary>
+    /// <summary>The corpse's power bomb reaction.</summary>
     internal static void TriggerDeadTorizoPowerBomb(RoomEnemyPlace place)
     {
         if (!place.Contact.HasAny(EnemyContact.IgnoresSamus))
@@ -178,7 +178,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static CorpseRotRows ShownSand(DeadTorizoEnemyState state)
     {
         int lines = Math.Min(DeadTorizoCorpseDefinitions.SandLines,
-            state.ProcessCallCount / DeadTorizoCorpseDefinitions.RotCallsPerSandLine);
+            state.RotUpdateCount / DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine);
         return CorpseRotRows.Showing(DeadTorizoCorpseDefinitions.SandRowCount, row => row >= DeadTorizoCorpseDefinitions.SandRowCount - lines);
     }
 

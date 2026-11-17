@@ -43,7 +43,7 @@ public readonly record struct ControllerBindings(
 
     /// <summary>
     /// The physical buttons the options menu admits when it sets a binding, in the order of the options menu's button
-    /// list. Only these seven can be assigned in an ordinary retail options menu.
+    /// list. Only these seven can be assigned in an ordinary options menu.
     /// </summary>
     /// <remarks>
     /// The options menu's button list holds nine buttons: X, A, B, Select, Y, L, R, Left, Right. These seven are its
@@ -96,7 +96,7 @@ public readonly record struct ControllerBindings(
         if (!IsAssignable(physicalButton))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(physicalButton), physicalButton, "Button is not retail-assignable.");
+                nameof(physicalButton), physicalButton, "Button is not assignable.");
         }
 
         ControllerBindings result = WithAction(action, physicalButton);
@@ -132,7 +132,7 @@ public readonly record struct ControllerBindings(
         return actions;
     }
 
-    /// <summary>True when all seven bindings are single, distinct retail-assignable buttons.</summary>
+    /// <summary>True when all seven bindings are single, distinct assignable buttons.</summary>
     public bool IsRetailPermutation
     {
         get
@@ -150,7 +150,7 @@ public readonly record struct ControllerBindings(
     }
 
     /// <summary>
-    /// Returns this binding set only when it is a complete retail permutation.
+    /// Returns this binding set only when it is a complete permutation.
     /// </summary>
     /// <remarks>
     /// A valid save checksum proves only that the slot was written consistently; it does not make malformed button
@@ -162,7 +162,7 @@ public readonly record struct ControllerBindings(
         if (!IsRetailPermutation)
         {
             throw new InvalidDataException(
-                "Controller bindings are not a unique permutation of the seven retail " +
+                "Controller bindings are not a unique permutation of the seven assignable " +
                 $"buttons: shoot={Shoot}, jump={Jump}, dash={Dash}, " +
                 $"select={ItemSelect}, cancel={ItemCancel}, " +
                 $"aim-up={AimUp}, aim-down={AimDown}.");

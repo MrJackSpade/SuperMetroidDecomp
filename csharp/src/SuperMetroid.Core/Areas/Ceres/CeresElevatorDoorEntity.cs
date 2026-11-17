@@ -14,10 +14,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>How many calls the door's destruction lasts, the last the one it ends on (#2281).</summary>
+    /// <summary>How many updates the door's destruction lasts, the last the one it ends on (#2281).</summary>
     private const int RumbleDuration = 49;
 
-    /// <summary>How many calls apart the destruction's explosions burst (#2281).</summary>
+    /// <summary>How many updates apart the destruction's explosions burst (#2281).</summary>
     private const int RumbleInterval = 5;
 
     /// <inheritdoc/>
@@ -42,8 +42,8 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
                     // Entering the destruction starts its three counters, but deliberately does not run its first step
                     // until the following enemy frame.
                     state.Phase = CeresElevatorDoorPhase.Exploding;
-                    state.RumbleCallsLeft = RumbleDuration;
-                    // The first explosion bursts on the destruction's first call.
+                    state.RumbleUpdatesLeft = RumbleDuration;
+                    // The first explosion bursts on the destruction's first update.
                     state.ExplosionIntervalLeft = 1;
                     state.LastExplosionPlace = 0;
                 }
@@ -65,13 +65,13 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
     /// <inheritdoc/>
     public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
 
-    /// <summary>Runs one call of the destruction.</summary>
+    /// <summary>Runs one update of the destruction.</summary>
     internal void Explode()
     {
         CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
-        if (--state.RumbleCallsLeft == 0)
+        if (--state.RumbleUpdatesLeft == 0)
         {
-            // The last call ends the destruction: the door hides, keeps cycling the glow and platform from the next call
+            // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update
             // on, and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
             Place.Presence = Place.Presence.With(EnemyPresence.Hidden);
             state.Phase = CeresElevatorDoorPhase.Destroyed;

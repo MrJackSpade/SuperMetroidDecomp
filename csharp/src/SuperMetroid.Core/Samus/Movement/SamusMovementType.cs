@@ -34,7 +34,7 @@ public enum SamusMovementType
     GlitchBallKnockback,
     /// <summary>Damage knockback movement until the hurt trajectory returns control to a normal pose.</summary>
     Knockback,
-    /// <summary>The movement of the compact airborne poses, which no retail transition enters.</summary>
+    /// <summary>The movement of the compact airborne poses, which no transition enters.</summary>
     CompactAirborne,
     /// <summary>Grounded turn animation that defers the facing reversal until its pose sequence advances.</summary>
     TurningOnGround,

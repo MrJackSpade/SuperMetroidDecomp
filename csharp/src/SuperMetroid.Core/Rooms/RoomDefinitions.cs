@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms;
 [NumberedIdentities("Rooms such as Metroids1-4 and TourianEscape1-4 are distinct rooms with their own definitions; the number is part of each room's name, not a position anything indexes.")]
 public static class RoomDefinitions
 {
-    /// <summary>Retail rooms in their authored order.</summary>
+    /// <summary>Rooms in their authored order.</summary>
     internal static readonly RoomDefinition[] Retail =
     [
         new(nameof(LandingSite), AreaId.Crateria, new(23, 1), new(9, 5), 112, 160, RoomDoorTransitionStyle.Standard),

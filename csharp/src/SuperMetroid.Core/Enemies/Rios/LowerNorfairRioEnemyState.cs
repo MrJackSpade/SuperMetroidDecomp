@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
 /// The state of a Lower Norfair Rio parent; its flame follower keeps a <see cref="LowerNorfairRioFollowerState"/>. This
-/// variant shares the physical parent/follower layout with the Norfair Rio but uses a visibility switch of its own.
+/// variant has a parent and a follower as the Norfair Rio does, but a visibility switch of its own.
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {

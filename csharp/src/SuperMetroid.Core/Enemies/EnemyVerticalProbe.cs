@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 internal readonly record struct EnemyVerticalProbe
 {
     /// <summary>
-    /// The enemy's center after the move: its current column and the moved row, wrapping at sixteen bits as the
+    /// The enemy's center after the move: its current column and the moved row, wrapping around the room as the
     /// game's position arithmetic does.
     /// </summary>
     public required Position16<RoomPixels> TargetCenter { get; init; }

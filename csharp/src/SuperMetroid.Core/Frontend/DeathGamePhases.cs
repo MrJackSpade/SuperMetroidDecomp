@@ -111,7 +111,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// Takes one step of the death fade. Each step moves the display one step of six further toward black, including its
     /// initial step that changes nothing and the separate call that completes the fade once its last step reaches black.
     /// </summary>
-    /// <returns>Whether the fade completed on this call.</returns>
+    /// <returns>Whether the fade completed on this update.</returns>
     private bool StepDeathFade()
     {
         return (session.Runtime ?? throw new InvalidOperationException("The death fade requires a runtime.")).FadeOut.Step();

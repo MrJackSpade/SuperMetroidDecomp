@@ -123,7 +123,7 @@ internal static class IntroSamusDemoMovement
             samus.CommitPoseHistory();
     }
 
-    /// <summary>Runs only the retail left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>
+    /// <summary>Runs only the left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>
     private static void ApplyPoseTransition(
         SamusState samus,
         SamusPoseId sourcePose,
@@ -163,6 +163,6 @@ internal static class IntroSamusDemoMovement
         }
 
         throw new InvalidDataException(
-            $"SR388 intro demo pose transition {sourcePose} -> {targetPose} is not present in its retail transition family.");
+            $"SR388 intro demo pose transition {sourcePose} -> {targetPose} is not present in its transition family.");
     }
 }

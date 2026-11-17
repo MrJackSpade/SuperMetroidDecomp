@@ -185,7 +185,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowDachoraColours(place, DachoraColourPhase.Default, frame: 0);
     }
 
-    /// <summary>Runs right, including the hard-coded tutorial launch coordinate.</summary>
+    /// <summary>Runs right, including the fixed tutorial launch coordinate.</summary>
     private void RunDachoraRight(
         RoomEnemyPlace place,
         DachoraEnemyState state,
@@ -298,7 +298,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticalAcceleration += SamusGravity(samus);
         state.Speed += state.VerticalAcceleration;
 
-        // The cap replaces only the whole pixels, compared by their wrapped difference read as signed; the fraction is kept.
+        // The cap replaces only the whole pixels, compared by which way their wrapped difference lies; the fraction is kept.
         SignedSixteenSixteen speed = state.Speed;
         SignedSixteenSixteen capped = speed.WholePixels >= DachoraMotionDefinitions.ShinesparkMaximumWholeSpeed
             ? speed.WithWholePixels(DachoraMotionDefinitions.ShinesparkMaximumWholeSpeed)
@@ -307,7 +307,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, place, upwardDisplacement))
             return;
 
-        // Ceiling impact reverses Dachora's facing before the fall, a visible retail quirk.
+        // Ceiling impact reverses Dachora's facing before the fall, a visible quirk.
         state.Facing = state.Facing.Reversed();
         StartDachoraAnimation(place, state, state.Facing == HorizontalDirection.Right
             ? DachoraSegment.FallingRight

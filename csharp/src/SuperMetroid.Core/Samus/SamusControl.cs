@@ -16,7 +16,7 @@ internal sealed class SamusControl : IRoomSamusControl
 
     /// <summary>
     /// The stationary lock: installs the locked input mode and the stationary movement mode, retaining the existing pose
-    /// and animation cursor. Do not reset the pose to standing: a script can legitimately freeze a running or airborne
+    /// and animation frame. Do not reset the pose to standing: a script can legitimately freeze a running or airborne
     /// frame. The stationary movement mode updates contact and minimap state but does not animate Samus.
     /// </summary>
     public void LockStationary() => Install(SamusInputMode.Locked, SamusMovementMode.ScriptLocked);

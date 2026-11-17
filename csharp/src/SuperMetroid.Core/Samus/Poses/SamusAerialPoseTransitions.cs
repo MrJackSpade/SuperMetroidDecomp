@@ -61,7 +61,7 @@ internal static class SamusAerialPoseTransitions
             // family is owned by the spin-direction or landing initializers instead.
             throw new InvalidOperationException(
                 $"Compact-jump-to-normal-jump transition {sourcePose} -> " +
-                $"{targetPose} is not a same-facing retail route.");
+                $"{targetPose} is not a same-facing route.");
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
@@ -240,7 +240,7 @@ internal static class SamusAerialPoseTransitions
         // the dedicated Screw Attack and Space Jump input transitions can publish their already-
         // specialized opposite-facing pose directly. Reduce either form back to the
         // generic direction before applying the spin-jump initializer's live equipment priority. This is
-        // observable when both bits are equipped: an authored right-to-left Screw Attack pose must remain
+        // observable when both items are equipped: an authored right-to-left Screw Attack pose must remain
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
         SamusPoseId genericTarget = newDirection == SamusFacingDirection.Left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
@@ -389,7 +389,7 @@ internal static class SamusAerialPoseTransitions
             // outputs are exactly the standing/aim/crouch set above. Other releases use
             // separate grapple wall-jump or swing-release movements, not this API.
             throw new InvalidOperationException(
-                $"Grapple drop transition {samus.Pose} -> {targetPose} is not a retail dropped-table route.");
+                $"Grapple drop transition {samus.Pose} -> {targetPose} is not a dropped-table route.");
         }
 
         // The enemy death animation requests this cleanup for a grapple-killed enemy even
@@ -459,7 +459,7 @@ internal static class SamusAerialPoseTransitions
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) && samus.LiquidPhysics.IsTopBoundarySubmerged(samus))
             return genericPose;
 
-        // The game tests Screw Attack first. A save with both bits equipped therefore uses
+        // The game tests Screw Attack first. A save with both items equipped therefore uses
         // Screw Attack art, not Space Jump art, while retaining Space Jump's repeat-jump physics.
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
@@ -597,11 +597,11 @@ internal static class SamusAerialPoseTransitions
             SamusPoseMetadata.IsLandingToNormalJumpTransition(samus.Pose, targetPose);
         if (!verified)
         {
-            // The pairs above exhaust the active retail input transitions that invoke
+            // The pairs above exhaust the active input transitions that invoke
             // the ordinary jump initializer. Movement-specific launches (damage boost,
             // grapple, bomb jump, wall jump, and Shinespark) own separate entry points.
             throw new InvalidOperationException(
-                $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active retail route for this initializer.");
+                $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active route for this initializer.");
         }
 
         samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
@@ -676,7 +676,7 @@ internal static class SamusAerialPoseTransitions
         }
         if (!SamusPoseMetadata.IsSameFacingAerialAimFireOrForwardTransition(samus.Pose, targetPose))
         {
-            // This helper models one same-facing pose family, not the general pose step.
+            // This step models one same-facing pose family, not the general pose step.
             // A cross-family request therefore violates the method contract rather than
             // identifying an unsupported member of the admitted family.
             throw new InvalidOperationException(
@@ -692,7 +692,7 @@ internal static class SamusAerialPoseTransitions
         {
             // The admitted family deliberately excludes the compact straight-down jumping
             // and falling poses; reaching a different radius means a request crossed that seam.
-            // Every retail member admitted above has the same collision radius. A mismatch
+            // Every member admitted above has the same collision radius. A mismatch
             // can only come from inconsistent/corrupt pose metadata, not an omitted route.
             throw new InvalidDataException(
                 $"Aerial pose {targetPose} unexpectedly changes radius {oldRadius} -> {samus.Kinematics.Radius.Y} inside an equal-radius transition family.");
@@ -740,7 +740,7 @@ internal static class SamusAerialPoseTransitions
         if ((!rightJump && !leftJump && !rightFall && !leftFall) ||
             (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose) && !SamusPoseMetadata.IsCompactAerialPose(targetPose)))
         {
-            // This is the exact precondition of the collision-aware compact-pose helper.
+            // This is the exact precondition of the collision-aware compact-pose change.
             // Other aerial changes use ApplySameFacingAerialTransition or a movement-specific API.
             throw new InvalidOperationException(
                 $"Compact aerial transition {samus.Pose} -> {targetPose} is not a same-family route.");

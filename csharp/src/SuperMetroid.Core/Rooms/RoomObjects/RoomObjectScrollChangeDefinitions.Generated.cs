@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>Explicit ordered room-scroll state writes; regenerate with tools/generate-room-object-population-definitions.ps1.</summary>
 internal static partial class RoomObjectScrollChangeDefinitions
 {
-    /// <summary>Each retail scroll change's ordered writes, each screen by its column and row in the change's room.</summary>
+    /// <summary>Each scroll change's ordered writes, each screen by its column and row in the change's room.</summary>
     internal static readonly FrozenDictionary<RoomScrollChange, ScreenScrollChange[]> Changes =
         new Dictionary<RoomScrollChange, ScreenScrollChange[]>
         {

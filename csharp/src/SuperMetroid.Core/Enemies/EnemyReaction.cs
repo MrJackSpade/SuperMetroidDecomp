@@ -33,7 +33,7 @@ public sealed class EnemyReaction
 
     /// <summary>
     /// A reaction of one species' own that its frames' hitboxes name, which only that species' handlers tell apart from
-    /// its other reactions. Each call is a new identity; a species declares each of its reactions once.
+    /// its other reactions. Each reaction made is a new identity; a species declares each of its reactions once.
     /// </summary>
     /// <param name="name">The reaction's name, for diagnostics.</param>
     internal static EnemyReaction OfSpecies(string name) => new(Ensure.NotNull(name));

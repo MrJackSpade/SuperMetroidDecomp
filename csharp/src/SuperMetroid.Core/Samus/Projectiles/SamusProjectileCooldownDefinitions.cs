@@ -7,7 +7,7 @@ internal static class SamusProjectileCooldownDefinitions
     internal const int FrozenTime = 32;
 
     /// <summary>
-    /// The updates every retail beam combination but Plasma and Ice waits after an uncharged shot fired with Charge
+    /// The updates every beam combination but Plasma and Ice waits after an uncharged shot fired with Charge
     /// equipped or on a fresh press.
     /// </summary>
     internal const int UnchargedShot = 15;
@@ -16,12 +16,12 @@ internal static class SamusProjectileCooldownDefinitions
     internal const int PlasmaIceUnchargedShot = 12;
 
     /// <summary>
-    /// The updates every retail beam combination waits after a charged shot or a special attack, double the ordinary
+    /// The updates every beam combination waits after a charged shot or a special attack, double the ordinary
     /// uncharged delay.
     /// </summary>
     internal const int ChargedShot = 30;
 
-    /// <summary>The updates every retail beam combination waits after an uncharged shot repeated by holding the button without Charge.</summary>
+    /// <summary>The updates every beam combination waits after an uncharged shot repeated by holding the button without Charge.</summary>
     internal const int HeldFireShot = 25;
 
     /// <summary>

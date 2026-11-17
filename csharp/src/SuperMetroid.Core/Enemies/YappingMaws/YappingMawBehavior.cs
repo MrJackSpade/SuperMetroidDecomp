@@ -145,7 +145,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionYappingMawBodyProjectile(state.Links[3], YappingMawLinkPosition(state, 2));
     }
 
-    /// <summary>Waits for Samus, including the deliberately approximate distance helper.</summary>
+    /// <summary>Waits for Samus, including the deliberately approximate distance check.</summary>
     private static void WaitForSamusWithYappingMaw(
         YappingMawEnemyState state,
         SamusState samus)
@@ -351,7 +351,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Samus's release from the Yapping Maw selects her standing pose from the current direction,
                 // then runs the ordinary pose metadata and animation initialization path.
-                // Reusing those shared data-backed helpers prevents a Yapping-Maw-only pose
+                // Reusing those shared data-backed steps prevents a Yapping-Maw-only pose
                 // approximation from drifting away from every other Samus transition.
                 samus.Pose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
                     ? SamusPoseId.FacingLeftNormalPose
@@ -478,7 +478,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private const int ShortProductReach = 255;
 
-    /// <summary>Calculates the Maw's target, a shared enemy helper only this family consumes.</summary>
+    /// <summary>Calculates the Maw's target, a shared enemy calculation only this family uses.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
@@ -509,7 +509,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static YappingMawAim AimOf(Bearing aim) => YappingMawAnimationDefinitions.Aims.At(
         aim.TurnedBySteps(RotationAngle.StepsPerTurn / 16).Sector(8));
 
-    /// <summary>X is the Y helper a quarter turn behind.</summary>
+    /// <summary>X is the Y offset a quarter turn behind.</summary>
     internal static int CalculateYappingMawX(TrigonometryAngle angle, int length) =>
         CalculateYappingMawY(angle - TrigonometryAngle.QuarterTurn, length);
 
@@ -517,8 +517,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The offset of a link <paramref name="length"/> along the turn <paramref name="angle"/>, -254 through 254 pixels:
     /// twice the length the short product uses (<see cref="ShortCircleProduct.RadiusInUse"/>) times the sine's whole
     /// part, counted in 256ths of a pixel and rounded down to whole pixels, so a point on the negative side with a fraction
-    /// lies a whole pixel further out (#1620: the plain floor of the signed product, which the game's negation and
-    /// sign fill compute for every sine and length); its consumers wrap it onto the room's axis.
+    /// lies a whole pixel further out (#1620);
+    /// its consumers wrap it onto the room's axis.
     /// </summary>
     internal static int CalculateYappingMawY(TrigonometryAngle angle, int length)
     {

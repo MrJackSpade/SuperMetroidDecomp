@@ -551,7 +551,7 @@ internal sealed class SuperMetroidRuntime
 
         // The suit transformation's light beam advances once near the start of each
         // ordinary gameplay update. A transformation spawned when the preceding message
-        // returned therefore receives its first stage call on this following update, while
+        // returned therefore receives its first stage update on this following update, while
         // every normal owner below continues to run around the input-locked, centered Samus.
         if (SuitPickup.IsActive)
         {
@@ -779,8 +779,8 @@ internal sealed class SuperMetroidRuntime
     {
         // Main gameplay runs enemy projectiles immediately after Samus's
         // movement phase and before the main scrolling. The two fresh-Ceres actors
-        // use that step to lower Samus one pixel at a time; moving this call below the
-        // camera would make the viewport trail one frame behind the game.
+        // use that step to lower Samus one pixel at a time; the camera follows each
+        // pixel in the same update.
         if (!deathOwnsSamus && Room.CeresElevatorArrival is { IsComplete: false } arrival)
         {
             if (arrival.Step(samus))

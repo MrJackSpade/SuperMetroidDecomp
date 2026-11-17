@@ -29,7 +29,7 @@ internal static class CorpseRotScheduleVerification
         AssertTrue(fallen.SequenceEqual(new[] { 0 }), "only the bottom row, whose delay was over, falls");
         AssertTrue(schedule.Rows[0].HasFallen, "the fallen row is skipped from now on");
         AssertEqual(1, schedule.Rows[1].PixelRow, "the second row has not started falling");
-        AssertEqual(1, schedule.Rows[1].DelayCalls, "the second row counts its delay down");
+        AssertEqual(1, schedule.Rows[1].DelayUpdates, "the second row counts its delay down");
         Console.WriteLine("  Corpse rot schedule: first call's move order, lead-in moves and fallen rows pass.");
     }
 

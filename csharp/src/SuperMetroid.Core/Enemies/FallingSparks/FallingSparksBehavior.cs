@@ -35,10 +35,10 @@ internal sealed class FallingSparksBehavior
         if (projectile is null)
             return;
 
-        // The common spawn first copies the spark's definition, including its blank
+        // The spark starts as its definition has it: its blank
         // starting frame, frame behaviour, animation, radii, property flags, damage,
-        // and interaction behavior. The spark's initializer then owns only the source position,
-        // shared motion values, and RNG-selected horizontal delta below.
+        // and interaction behavior. Its setup below then sets only the source position,
+        // shared motion values, and random horizontal delta.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.FallingSpark,

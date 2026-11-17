@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of one walking Space Pirate. The patrol posts are room positions that wrap at sixteen bits, because
+/// The state of one walking Space Pirate. The patrol posts are room positions that wrap around the room, because
 /// its patrol reach is added and subtracted without clamping by the initializer; the walk compares the Pirate
 /// with them by the wrapped spatial difference.
 /// </summary>

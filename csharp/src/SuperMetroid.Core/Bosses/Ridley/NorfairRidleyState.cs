@@ -57,7 +57,7 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public int HurtMovementClamp { get; internal set; }
     /// <summary>Gets the number of zero-health lunges completed before the authored death transition.</summary>
     public int ZeroHealthLungeCount { get; internal set; }
-    /// <summary>Gets the small-explosion countdown, reloaded to four for one explosion every five calls.</summary>
+    /// <summary>Gets the small-explosion countdown, reloaded to four for one explosion every five updates.</summary>
     public int DeathExplosionTimer { get; internal set; }
     /// <summary>Gets the index, zero through nine, cycling through ten authored death-explosion placements.</summary>
     public int DeathExplosionCount { get; internal set; }

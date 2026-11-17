@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// Per-pass enemy frame context: the random number and the frame counter, and the frozen-time, process-all and
 /// deferred-camera flags for the current enemy pass. Samus, her projectiles, her colours and her bombs reach enemies
-/// through each call's own context (#2159).
+/// through each update's own context (#2159).
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyFrameContext

@@ -10,7 +10,7 @@ internal static class DoorOpeningScrollDefinitions
     /// <summary>Pixels the camera and the background move per scroll update along the travel axis.</summary>
     internal const int LayerStepPixels = 4;
 
-    /// <summary>Where the camera stands after the directional setup's first call, from the destination screen's origin.</summary>
+    /// <summary>Where the camera stands after the directional setup's first update, from the destination screen's origin.</summary>
     internal static readonly IReadOnlyDictionary<DoorDirection, Offset16<RoomPixels>> SetupCameraOffsets =
         new Dictionary<DoorDirection, Offset16<RoomPixels>>
         {

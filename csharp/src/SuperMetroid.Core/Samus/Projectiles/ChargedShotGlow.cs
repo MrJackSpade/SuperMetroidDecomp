@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The glow Samus's suit shows after a charged shot (#1682), each kind with its own step count: an ordinary charged
 /// shot's flash, which the charge glow counts down from four, showing white on steps three through one and restoring
 /// the suit as it reaches zero; or the Hyper Beam's glow, counted down from twenty, which shows its frame on each even step
-/// and holds it on the odd step after, and restores the suit on step zero, its twenty-first call.
+/// and holds it on the odd step after, and restores the suit on step zero, its twenty-first update.
 /// </summary>
 /// <remarks>
 /// The glow's kind decides how it steps. The game decided by whether the Hyper Beam is equipped, and only a Hyper

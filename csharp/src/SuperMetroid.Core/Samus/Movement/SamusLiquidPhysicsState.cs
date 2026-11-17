@@ -311,7 +311,7 @@ public sealed class SamusLiquidPhysicsState
         {
             // Publishes water's delay before testing the remembered medium. A
             // transition into water queues the splash sound and creates either a diving splash or
-            // two grounded splashes; every submerged call then gets the bubble opportunity.
+            // two grounded splashes; every submerged update then gets the bubble opportunity.
             bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
             LiquidPhysicsType = SamusLiquidMedium.Water;
             samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.WaterAnimationDelay;
@@ -474,7 +474,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {samus.Room.Area} is outside the seven retail areas.");
+                throw new InvalidDataException($"Landing graphics area {samus.Room.Area} is outside the seven areas.");
         }
     }
 

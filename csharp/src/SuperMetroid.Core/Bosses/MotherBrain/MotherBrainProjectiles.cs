@@ -437,7 +437,7 @@ internal sealed class MotherBrainProjectiles
 
         /// <summary>
         /// Runs the fired child's initializer. Each child first advances the
-        /// shared aimed cursor, then receives a randomized secondary displacement used only for
+        /// shared aimed start position, then receives a randomized secondary displacement used only for
         /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
         /// children turn into the game's large impact dust and earthquake.
         /// </summary>

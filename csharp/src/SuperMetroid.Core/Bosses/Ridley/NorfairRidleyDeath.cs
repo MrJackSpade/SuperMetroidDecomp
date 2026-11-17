@@ -78,7 +78,7 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>
-    /// Runs the death explosions. An authored-position small explosion appears every five calls while the
+    /// Runs the death explosions. An authored-position small explosion appears every five updates while the
     /// acid lowers. When its countdown runs out, Samus is released and Ridley's twelve
     /// independently moving body and tail pieces take places in the room's enemy list.
     /// </summary>

@@ -93,14 +93,14 @@ internal static class CorpseRotDrawingVerification
         bool rotting = true;
         while (true)
         {
-            int calls = state.ProcessCallCount;
+            int calls = state.RotUpdateCount;
             compared += AssertDrawsWhole(bodySheet.Frame(body), sheets.Under(set).Enemy(EnemyDefinitionId.CorpseTorizo).CorpsePlacement(body), state.Rows.Shown,
                 authored, $"dead Torizo after rot call {calls}");
             compared += AssertDrawsWhole(hookSheet.Frame(hook), sheets.Under(set).Spawned(SpawnedObjectOwner.Shared).CorpsePlacement(hook),
                 DeadTorizoBehavior.ShownSand(state), AuthoredRot.Sand(calls), $"dead Torizo's hook after rot call {calls}");
             if (!rotting)
                 break;
-            state.ProcessCallCount++;
+            state.RotUpdateCount++;
             rotting = state.Rot.Step((row, operation) => { state.Rows.MoveRow(row, operation); authored.Move(row, operation); }, _ => { });
         }
         return compared;

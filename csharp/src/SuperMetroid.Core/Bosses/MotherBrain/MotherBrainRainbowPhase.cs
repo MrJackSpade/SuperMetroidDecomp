@@ -15,19 +15,19 @@ public enum MotherBrainRainbowPhase
     /// <summary>Waits for the timer to pass zero, queues the charge sound, and falls into downward neck extension.</summary>
     WaitForCharge,
 
-    /// <summary>Sets downward neck targets and projectile cooldown, seeds the 16-count firing delay, and immediately runs its first call.</summary>
+    /// <summary>Sets downward neck targets and projectile cooldown, seeds the 16-count firing delay, and immediately runs its first update.</summary>
     ExtendNeckDown,
 
     /// <summary>Widens/aims the beam while an active Power Bomb freezes its countdown, then locks Samus and starts the active beam.</summary>
     StartFiring,
 
-    /// <summary>Maintains beam effects and forced wallward movement until Samus reaches the wall, which selects the one-call delay.</summary>
+    /// <summary>Maintains beam effects and forced wallward movement until Samus reaches the wall, which selects the one-update delay.</summary>
     MoveSamusTowardWall,
 
     /// <summary>Runs another beam/movement call, runs its zero timer out, and starts an eight-count earthquake before draining setup.</summary>
     OneFrameDelay,
 
-    /// <summary>Seeds both drain and earthquake timers with 299 and immediately executes the first draining call.</summary>
+    /// <summary>Seeds both drain and earthquake timers with 299 and immediately executes the first draining update.</summary>
     StartDrainingSamus,
 
     /// <summary>Applies beam damage, ammunition drain, forced wall-centering movement, and effects until the timer runs out.</summary>
@@ -36,7 +36,7 @@ public enum MotherBrainRainbowPhase
     /// <summary>Narrows the beam to an angular width of an eighth of a turn, stops the beam effect, sound and earthquake, releases input, and starts the falling handoff.</summary>
     FinishFiring,
 
-    /// <summary>Changes the drained Samus controller/pose and falls directly into the first custom falling movement call.</summary>
+    /// <summary>Puts Samus in her drained pose and movement and takes the first custom falling movement step at once.</summary>
     LetSamusFall,
 
     /// <summary>Advances forced falling until Samus lands.</summary>

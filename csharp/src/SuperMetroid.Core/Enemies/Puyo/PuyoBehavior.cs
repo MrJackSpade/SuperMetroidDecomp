@@ -258,7 +258,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = PuyoAction.Grounded;
     }
 
-    /// <summary>Runs the post-drop bounce wrapper.</summary>
+    /// <summary>Runs the bounce after the drop.</summary>
     private void RunDroppedPuyo(RoomEnemyPlace place, PuyoEnemyState state, RoomLevelData level)
     {
         MovePuyo(place, state, level);

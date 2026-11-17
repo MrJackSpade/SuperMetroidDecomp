@@ -44,7 +44,7 @@ public sealed class ScrollBoundaryCamera
 
     /// <summary>
     /// Samus's previous position written at the end of scrolling.
-    /// Room-main movement occurs later and must remain visible to the next scroll call.
+    /// Room-main movement occurs later and must remain visible to the next scroll update.
     /// Null represents a newly constructed camera without an accepted scrolling pass.
     /// </summary>
     public FixedPosition<RoomPixels>? PreviousSamusPoint { get; private set; }
@@ -89,7 +89,7 @@ public sealed class ScrollBoundaryCamera
         int maxX = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
 
         // The vertical maximum depends on whether the screen aligns the camera to its top. Starting with the
-        // room-wide conservative +31 allowance matches the boundary check's largest legal result;
+        // room-wide conservative 31-pixel allowance matches the boundary check's largest legal result;
         // the first vertical movement applies the screen-specific exact maximum.
         int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + SamusCameraDefinitions.LowerAlignment;
         var clamped = new Position16<RoomPixels>(
@@ -492,7 +492,7 @@ public sealed class ScrollBoundaryCamera
         int proposed = Position.Y.Whole;
         Position16<RoomScreens> current = VerticalCheckScreen();
 
-        // Top-aligned screens align the 224-line playfield at +0; closed and open ones use +31.
+        // Top-aligned screens align the 224-line playfield with no allowance; closed and open ones allow 31 pixels lower.
         int verticalAlignment = Scrolls.ReadCameraState(current) == RoomScrollState.OpenAlignedToTop
             ? 0
             : SamusCameraDefinitions.LowerAlignment;
@@ -582,7 +582,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the 256-pixel alignment).</summary>
     private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
-    /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
+    /// <summary>The first pixel of the following scroll screen, wrapping at 65536.</summary>
     private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
 
     /// <summary>

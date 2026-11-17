@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The clouds' motion, including the one-call activation handoff.</summary>
+/// <summary>The clouds' motion, including the one-update activation handoff.</summary>
 internal static class EndingCloudMotion
 {
     /// <summary>
     /// Activates side clouds above the zoom threshold and top/bottom clouds below the top-and-bottom-cloud escape's
-    /// limit. Movement begins on the next call; active side clouds move diagonally while
+    /// limit. Movement begins on the next update; active side clouds move diagonally while
     /// top and bottom clouds move vertically without retesting zoom.
     /// </summary>
     public static void Step(EndingSprite wrapper, FloorZoom zoom)

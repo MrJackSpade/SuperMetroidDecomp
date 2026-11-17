@@ -188,7 +188,7 @@ internal static class SamusPosturePoseTransitions
         if (startsCrouching)
         {
             // The crouching transition samples the boost stage before later
-            // posture movement can cancel running momentum. A stage-four crouch therefore
+            // posture movement can cancel running momentum. A crouch at boost stage four therefore
             // stores a 180-update shinespark charge even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
             if (samus.Shinespark.TryStoreFromSpeedBooster(samus.HorizontalSpeed.SpeedBoostCounter))
@@ -410,10 +410,10 @@ internal static class SamusPosturePoseTransitions
         if (!rightFacingRoute && !leftFacingRoute)
         {
             // Expose only the falling family matching the active
-            // unmorph body's direction. Rejecting every other pairing keeps this helper
+            // unmorph body's direction. Rejecting every other pairing keeps this step
             // from silently becoming a catch-all for unrelated movement initializers.
             throw new InvalidOperationException(
-                $"Unmorph-to-falling transition {sourcePose} -> {targetPose} is not a same-facing retail route.");
+                $"Unmorph-to-falling transition {sourcePose} -> {targetPose} is not a same-facing route.");
         }
 
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(

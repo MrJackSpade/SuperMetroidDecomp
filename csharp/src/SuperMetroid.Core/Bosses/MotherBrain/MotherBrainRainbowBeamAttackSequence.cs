@@ -172,7 +172,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         State.RequestWalkBackward(targetX, MotherBrainWalkSpeed.ReallyFast);
     }
 
-    /// <summary>Executes one call through the current Mother Brain body phase.</summary>
+    /// <summary>Executes one update through the current Mother Brain body phase.</summary>
     public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
         Ensure.NotNull(samus);

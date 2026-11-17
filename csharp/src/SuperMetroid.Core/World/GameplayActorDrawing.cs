@@ -88,14 +88,14 @@ internal sealed class GameplayActorDrawing
         if (colourEffects == SamusColourEffects.Advance)
         {
             // Samus's colour update runs during gameplay. The renderer
-            // reads the colours directly, so perform the suit colours copy immediately
+            // reads the colours directly, so show the suit colours immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
             // and the normal-suit restoration requested by cancellation.
             // The drained or rainbow colouring is the first branch of the colour update and returns
             // immediately after it. Its one-shot suit restore also stands for the suit shade
             // shown at once when the drained Samus falls and when her rainbow stops.
             // Cancellation/pose initialization copies the normal suit during
-            // movement, before this colour step. Flush that deferred write first so charge
+            // movement, before this colour step. Show that pending shade first so charge
             // and drained colourings retain their same-frame priority.
             if (!deathOwnsSamus)
                 _player.Samus.HorizontalSpeed.ApplyPendingSuitShadeRestore(
@@ -107,8 +107,8 @@ internal sealed class GameplayActorDrawing
             {
                 // The colour update always runs charge/post-shot handling before running the
                 // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
-                // white for three calls and restore the suit on call four; Hyper shots
-                // step ten complete shades on alternating calls before restore.
+                // white for three updates and restore the suit on the fourth; Hyper shots
+                // step ten complete shades on alternating updates before restore.
                 SamusBeamChargeGlowStep chargeGlow = room.Projectiles.UpdateBeamChargeGlow(
                     _player.Colours,
                     _player.Samus,
@@ -185,8 +185,8 @@ internal sealed class GameplayActorDrawing
 
             // The elevator's drawing replaces Samus's ordinary drawing while an
             // elevator owns a front-facing body. It still arrives after the cover update, so
-            // the arm-cannon cover state above advances every frame. Odd frames return
-            // immediately. Even frames call the fatal/no-animation body renderer, which
+            // the arm-cannon cover state above advances every frame. Odd frames draw nothing
+            // more. Even frames draw her with the fatal/no-animation body renderer, which
             // deliberately bypasses ordinary invincibility flicker and every auxiliary
             // Samus layer: atmosphere, charge flare, cannon sprite, speed/shinespark
             // echoes, and grapple graphics. Projectile drawing remains in the shared
@@ -346,7 +346,7 @@ internal sealed class GameplayActorDrawing
             // The demo's input is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) _player.Samus.InputSnapshot.AutoJumpInputPending = false;
 
-            // The charge-sound latch follows the drawing of Samus and her projectiles. A counter-forty hurt update
+            // The charge-sound latch follows the drawing of Samus and her projectiles. A hurt flash's sound-recovery update
             // may have armed this latch above; consuming it here preserves both the
             // same-frame charging sound and ordering after projectile drawing.
             SamusPostDrawAudio.Step(

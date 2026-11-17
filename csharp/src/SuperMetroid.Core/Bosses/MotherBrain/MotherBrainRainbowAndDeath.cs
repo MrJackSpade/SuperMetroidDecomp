@@ -160,7 +160,7 @@ internal sealed class MotherBrainRainbowAndDeath
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
         _motherBrainEncounter.ShowZebesWarning(new WrittenPicture(glyph.Picture, glyph.Corner));
 
-    /// <summary>Runs one body-phase call through the shared sequence.</summary>
+    /// <summary>Runs one body-phase update through the shared sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(
         MotherBrainEnemyState state,
         SamusState samus,
@@ -209,7 +209,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Colours.ShowHealth(MotherBrainHealthBand.Of(state.Head.Health));
         ApplyLiveMotherBrainDeath(state, current);
         if (current.SoundQueued)
-            // A request is not invariably a start: the painful-walk stage-six handoff
+            // A request is not invariably a start: the painful-walk handoff
             // stops the same looping sound. Preserve the start or stop the sequence selected.
             _motherBrainEncounter.RequestRainbowBeamSound(sequence.State.RainbowBeamSoundPlaying
                 ? MotherBrainSoundDefinitions.StartRainbowDrain

@@ -33,9 +33,9 @@ public static class SuitPickupBeamDefinitions
     public static readonly SignedEightEight ShrinkingDeceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
     /// <summary>Minimum shrinking speed: one pixel per update.</summary>
     public static readonly SignedEightEight MinimumShrinkingSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
-    /// <summary>Stage-two initial asymmetric edge pair.</summary>
+    /// <summary>The curved widening's initial asymmetric edge pair.</summary>
     public static readonly SuitPickupBeamEdges CurvedWideningStart = new(108, 132);
-    /// <summary>Stage-five starting edge pair, whose left edge comes round to the screen's left on the first narrowing (<see cref="SuitPickupClosingLineWrap"/>).</summary>
+    /// <summary>The final narrowing's starting edge pair, whose left edge comes round to the screen's left on the first narrowing (<see cref="SuitPickupClosingLineWrap"/>).</summary>
     public static readonly SuitPickupBeamEdges DissipationStart = new(RightmostColumn, 248);
     /// <summary>The lines the beam spans from the top of the screen; its middle line is half way down them.</summary>
     public const int BeamLines = 256;

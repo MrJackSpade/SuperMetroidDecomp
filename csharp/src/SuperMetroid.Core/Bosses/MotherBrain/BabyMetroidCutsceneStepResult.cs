@@ -12,7 +12,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     MotherBrainFadeImage? BabyFadeImage,
     int? RecoveryLightsFrame)
 {
-    /// <summary>The one-call fatal-impact edge, before the ongoing shake phase.</summary>
+    /// <summary>The one-update fatal-impact edge, before the ongoing shake phase.</summary>
     public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
         PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
 

@@ -72,7 +72,7 @@ internal sealed class BeamChargeState
             ? flare
             : throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}.");
 
-    /// <summary>The ordinary charge flare's first call: every component starts its animation at its first picture.</summary>
+    /// <summary>The ordinary charge flare's first update: every component starts its animation at its first picture.</summary>
     internal void StartChargeFlare()
     {
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())

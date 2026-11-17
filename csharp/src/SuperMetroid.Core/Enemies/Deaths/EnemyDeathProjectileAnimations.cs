@@ -26,7 +26,7 @@ internal static class EnemyDeathProjectileAnimations
         [
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.NarrowSpriteSpread)),
-            Show(EnemyProjectileFrameId.EnemyDeathBlankTwin, 8),
+            Show(EnemyProjectileFrameId.EnemyDeathBlank, 8),
             Cue(new EnemyDeathProjectileCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.BigExplosionEnd] =
@@ -38,7 +38,7 @@ internal static class EnemyDeathProjectileAnimations
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.SmallExplosion, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.Smoke, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
             Cue(new EnemyDeathProjectileCue.SpawnEffectActor(RoomEffectActorKind.BigDustCloud, EnemyDeathExplosionDefinitions.WideSpriteSpread)),
-            Show(EnemyProjectileFrameId.EnemyDeathBlankTwinB, 8),
+            Show(EnemyProjectileFrameId.EnemyDeathBlank, 8),
             Cue(new EnemyDeathProjectileCue.Signal(K.PlaySmallExplosionSound)),
         ],
         [P.FakeKraidExplosionEnd] =
@@ -59,10 +59,10 @@ internal static class EnemyDeathProjectileAnimations
         [P.SmallExplosion] =
         [
             Show(EnemyProjectileFrameId.EnemyDeathSpark, 4),
-            Show(EnemyProjectileFrameId.EnemyDeathFireballSmallTwin, 6),
-            Show(EnemyProjectileFrameId.EnemyDeathFireballLargeTwin, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathFireballSmall, 6),
+            Show(EnemyProjectileFrameId.EnemyDeathFireballLarge, 5),
             Cue(new EnemyDeathProjectileCue.Signal(K.PlayEnemyKilledSound)),
-            Show(EnemyProjectileFrameId.EnemyDeathFlamingRingTwin, 5),
+            Show(EnemyProjectileFrameId.EnemyDeathFlamingRing, 5),
             Show(EnemyProjectileFrameId.EnemyDeathStarburst, 5),
             Show(EnemyProjectileFrameId.EnemyDeathEmbers, 6),
             Cue(new EnemyDeathProjectileCue.Signal(K.BecomePickup)),
@@ -79,7 +79,7 @@ internal static class EnemyDeathProjectileAnimations
             Show(EnemyProjectileFrameId.EnemyPickupEnergyBigBright, 8),
             Show(EnemyProjectileFrameId.EnemyPickupEnergyBigRinged, 8),
             Show(EnemyProjectileFrameId.EnemyPickupEnergyBigDark, 8),
-            Show(EnemyProjectileFrameId.EnemyPickupEnergyScatteredTwin, 8),
+            Show(EnemyProjectileFrameId.EnemyPickupEnergyScattered, 8),
         ],
         [P.Missiles] =
         [
@@ -100,7 +100,7 @@ internal static class EnemyDeathProjectileAnimations
         ],
         [P.KilledBySamusContact] =
         [
-            Show(EnemyProjectileFrameId.EnemyDeathFireballLargeTwinB, 2),
+            Show(EnemyProjectileFrameId.EnemyDeathFireballLarge, 2),
             Show(EnemyProjectileFrameId.EnemyDeathFireballCluster, 2),
             Show(EnemyProjectileFrameId.EnemyDeathStarburstCluster, 2),
             Show(EnemyProjectileFrameId.EnemyDeathEmbersCluster, 2),

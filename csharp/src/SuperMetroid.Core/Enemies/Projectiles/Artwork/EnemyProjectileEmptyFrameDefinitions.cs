@@ -13,13 +13,7 @@ internal static class EnemyProjectileEmptyFrameDefinitions
     internal static readonly HashSet<EnemyProjectileFrameId> EmptyFrames =
     [
         EnemyProjectileFrameId.EnemyDeathBlank,
-        EnemyProjectileFrameId.EnemyDeathBlankTwin,
-        EnemyProjectileFrameId.EnemyDeathBlankTwinB,
         EnemyProjectileFrameId.FallingSparkBlank,
-        EnemyProjectileFrameId.FallingSparkBlankTwin,
-        EnemyProjectileFrameId.FallingSparkBlankTwinB,
-        EnemyProjectileFrameId.FallingSparkBlankTwinC,
-        EnemyProjectileFrameId.FallingSparkBlankTwinD,
         EnemyProjectileFrameId.PhantoonFlameBlank,
         EnemyProjectileFrameId.TorizoDroolBlank,
         EnemyProjectileFrameId.GoldenTorizoEyeBeamBlank,

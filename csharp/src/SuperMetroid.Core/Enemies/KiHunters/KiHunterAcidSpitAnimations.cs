@@ -22,7 +22,7 @@ internal static class KiHunterAcidSpitAnimations
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobTrailing, 3),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobSpattering, 1),
             Cue(new KiHunterAcidSpitCue.Launch(HorizontalDirection.Left)),
-            Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobSpatteringTwin, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftBlobSpattering, 1),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitLeftBall, 1),
         ],
         [P.HitFloor] =
@@ -43,7 +43,7 @@ internal static class KiHunterAcidSpitAnimations
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightBlobTrailing, 3),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightBlobSpattering, 1),
             Cue(new KiHunterAcidSpitCue.Launch(HorizontalDirection.Right)),
-            Show(EnemyProjectileFrameId.KiHunterAcidSpitRightBlobSpatteringTwin, 1),
+            Show(EnemyProjectileFrameId.KiHunterAcidSpitRightBlobSpattering, 1),
             Show(EnemyProjectileFrameId.KiHunterAcidSpitRightBall, 1),
         ],
     });

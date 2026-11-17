@@ -30,6 +30,13 @@ internal static class EnemyProjectileProgramFrameOperands
             ? EnemyProjectileProgramFrameDefinitions.Operands[frame]
             : operand;
 
+    /// <summary>
+    /// The bank-$86 operands that store the picture of the installed frame stored at <paramref name="operand"/> again
+    /// (#2273), in operand order.
+    /// </summary>
+    internal static IEnumerable<ushort> ShowingAgain(ushort operand) =>
+        EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Keys.Where(again => OwnOperand(again) == operand).Order();
+
     /// <summary>Whether bank-$86 operand <paramref name="operand"/> stores an installed program frame.</summary>
     internal static bool Contains(ushort operand) => Frames.Contains(operand);
 

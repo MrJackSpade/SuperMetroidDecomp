@@ -5,10 +5,13 @@ internal static class PirateArtworkNameDefinitionsConstants
 {
     /// <summary>Two flinch keys, left walk/fire/look, the shared look pose,
     /// then right walk/fire/look. Each facing has eight walk, six fire and
-    /// three look ordinals. The shared pose has no facing or ordinal suffix.</summary>
+    /// three look ordinals, of which the second look, the standing pose's picture stored again, is no frame of its own
+    /// (#2272). The shared pose has no facing or ordinal suffix.</summary>
     internal static string Walking(int index)
     {
         if ((uint)index >= EnemyExtendedFrameDefinitions.WalkingFrameCount) throw new ArgumentOutOfRangeException(nameof(index));
+        // Ordinal 17 was the left look_1 key and 35 the right one.
+        index = index < 17 ? index : index < 34 ? index + 1 : index + 2;
         if (index < 2) return index == 0 ? "walking_pirate_flinch_left" : "walking_pirate_flinch_right";
         if (index == 19) return "walking_pirate_look_shared";
         bool right = index >= 20;

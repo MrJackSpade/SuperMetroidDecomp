@@ -38,7 +38,7 @@ internal static class MiscDustProjectileAnimations
         ],
         [P.SmallExplosion] =
         [
-            Show(EnemyProjectileFrameId.MiscDustSparkTwin, 4),
+            Show(EnemyProjectileFrameId.MiscDustSpark, 4),
             Show(EnemyProjectileFrameId.MiscDustFireballSmall, 6),
             Show(EnemyProjectileFrameId.MiscDustFireballLarge, 5),
             Show(EnemyProjectileFrameId.MiscDustFlamingRing, 5),
@@ -76,7 +76,7 @@ internal static class MiscDustProjectileAnimations
         ],
         [P.CorpseDustCloud] =
         [
-            Show(EnemyProjectileFrameId.MiscDustPuffTwin, 3),
+            Show(EnemyProjectileFrameId.MiscDustPuff, 3),
             Show(EnemyProjectileFrameId.MiscDustPuffSmall, 3),
             Show(EnemyProjectileFrameId.MiscDustPuffThin, 3),
             Show(EnemyProjectileFrameId.MiscDustPuffFaint, 3),
@@ -100,9 +100,9 @@ internal static class MiscDustProjectileAnimations
         ],
         [P.BigExplosion] =
         [
-            Show(EnemyProjectileFrameId.MiscDustFireballSmallTwin, 5),
-            Show(EnemyProjectileFrameId.MiscDustFireballLargeTwin, 5),
-            Show(EnemyProjectileFrameId.MiscDustFlamingRingTwin, 5),
+            Show(EnemyProjectileFrameId.MiscDustFireballSmall, 5),
+            Show(EnemyProjectileFrameId.MiscDustFireballLarge, 5),
+            Show(EnemyProjectileFrameId.MiscDustFlamingRing, 5),
             Show(EnemyProjectileFrameId.MiscDustFireballHuge, 5),
             Show(EnemyProjectileFrameId.MiscDustWideRing, 5),
             Show(EnemyProjectileFrameId.MiscDustWideRingFading, 5),
@@ -138,10 +138,10 @@ internal static class MiscDustProjectileAnimations
         ],
         [P.BigDustCloud] =
         [
-            Show(EnemyProjectileFrameId.MiscDustPuffUpLeftTwin, 5),
-            Show(EnemyProjectileFrameId.MiscDustPuffPairTwin, 5),
-            Show(EnemyProjectileFrameId.MiscDustPuffTrioTwin, 5),
-            Show(EnemyProjectileFrameId.MiscDustCloudsDenseTwin, 5),
+            Show(EnemyProjectileFrameId.MiscDustPuffUpLeft, 5),
+            Show(EnemyProjectileFrameId.MiscDustPuffPair, 5),
+            Show(EnemyProjectileFrameId.MiscDustPuffTrio, 5),
+            Show(EnemyProjectileFrameId.MiscDustCloudsDense, 5),
             Show(EnemyProjectileFrameId.MiscDustCloudsThinning, 5),
             Show(EnemyProjectileFrameId.MiscDustCloudsThin, 5),
             Show(EnemyProjectileFrameId.MiscDustCloudsFaint, 5),

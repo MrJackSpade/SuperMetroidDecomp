@@ -22,7 +22,8 @@ internal static class NoobTubeProjectileBehaviorVerification
     /// <summary>
     /// The real burst producers start each crack, shard and bubble on its typed program; each lives as long as its native
     /// list, every shown frame draws as its native spritemap does, each shard flicker picks the pose and column its frame
-    /// parity selects, and all ninety poses are shown with the lists' bytes forbidden.
+    /// parity selects, and all sixty-nine pictures are shown from all ninety of the lists' operands, some of which store a
+    /// picture again (#2273), with the lists' bytes forbidden.
     /// </summary>
     internal static void VerifyNoobTubeProjectileBehavior(CartridgeImportAddressSpace rom)
     {
@@ -64,16 +65,21 @@ internal static class NoobTubeProjectileBehaviorVerification
         }
 
         EnemyProjectileFrameId[] frames = [.. NoobTubeProjectileAnimations.ShownFrames];
-        AssertEqual(90, frames.Length, "the pieces show ninety frames");
-        AssertEqual(frames.Length, executedOperands.Count, "every native visual operand is shown");
+        AssertEqual(69, frames.Length, "the pieces show sixty-nine frames");
+        ushort[] operands = [.. frames.Select(EnemyProjectileProgramFrameSources.Operand)
+            .SelectMany(own => EnemyProjectileProgramFrameOperands.ShowingAgain(own).Prepend(own))];
+        AssertEqual(90, operands.Length, "the pieces' frames are stored at ninety native operands");
+        // A flicker names the native operand it shows; a frame shown from an operand that stores its picture again names
+        // its own (#2273).
+        AssertTrue(executedOperands.IsSubsetOf(operands), "every shown operand is one of the pieces' native operands");
+        HashSet<ushort> shown = [.. executedOperands.Select(EnemyProjectileProgramFrameOperands.OwnOperand)];
+        AssertEqual(frames.Length, shown.Count, "every frame is shown");
         foreach (EnemyProjectileFrameId frame in frames)
-        {
-            ushort key = EnemyProjectileProgramFrameSources.Operand(frame);
-            AssertTrue(executedOperands.Contains(key), $"production shows n00b-tube presentation $86:{key:X4}");
-        }
+            AssertTrue(shown.Contains(EnemyProjectileProgramFrameSources.Operand(frame)),
+                $"production shows n00b-tube presentation $86:{EnemyProjectileProgramFrameSources.Operand(frame):X4}");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the n00b tube's native list bytes");
         Console.WriteLine("  N00b-tube behavior: the crack, all ten shards and six bubbles live their native lifetimes, " +
-            "every shard flicker picks its parity's frame, column and visibility, and all ninety poses draw as their native spritemaps.");
+            "every shard flicker picks its parity's frame, column and visibility, and all ninety native poses draw as their native spritemaps.");
 
         RoomEnemySystem NewSystem()
         {

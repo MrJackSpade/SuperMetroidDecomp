@@ -28,28 +28,28 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.LaserLeftFlicker] =
         [
-            Show(EnemyProjectileFrameId.SpacePirateLaserBright32Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserDim32Twin, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserBright32, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserDim32, 1),
         ],
         [P.LaserRight] =
         [
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlintTwin, 2),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlowTwin, 2),
-            Show(EnemyProjectileFrameId.SpacePirateLaserFlareBallTwin, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlint, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserFlareGlow, 2),
+            Show(EnemyProjectileFrameId.SpacePirateLaserFlareBall, 2),
             Cue(SpacePirateProjectileCueKind.FireLaser, HorizontalDirection.Right),
-            Show(EnemyProjectileFrameId.SpacePirateLaserBright8Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserDim8Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserBright16Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserDim16Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserBright24Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserDim24Twin, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserBright32TwinB, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserDim32TwinB, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserBright8, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserDim8, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserBright16, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserDim16, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserBright24, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserDim24, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserBright32, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserDim32, 1),
         ],
         [P.LaserRightFlicker] =
         [
-            Show(EnemyProjectileFrameId.SpacePirateLaserBright32TwinC, 1),
-            Show(EnemyProjectileFrameId.SpacePirateLaserDim32TwinC, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserBright32, 1),
+            Show(EnemyProjectileFrameId.SpacePirateLaserDim32, 1),
         ],
         [P.ClawLeft] =
         [

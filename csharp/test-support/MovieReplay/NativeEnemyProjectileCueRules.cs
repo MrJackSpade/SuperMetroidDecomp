@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Enemies;
+
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 /// <summary>How the <see cref="NativeEnemyProjectileProgramOracle"/> reads and compares one family's bank-$86 commands.</summary>
@@ -27,8 +29,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </param>
 /// <param name="PicturedAt">
 /// The operand an installed frame is read from, for an operand the cartridge stores a frame's picture at again (#2234): a
-/// list showing a pose again from an operand of its own shows that pose's one frame; null when every operand is its frame's
-/// own.
+/// list showing a pose again from an operand of its own shows that pose's one frame; null when the import's repeated
+/// operands (<c>EnemyProjectileProgramFrameDefinitions.AlsoStoredAt</c>) name every such operand (#2273).
 /// </param>
 internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<ushort, int?> OperandBytes,
@@ -41,6 +43,9 @@ internal sealed record NativeEnemyProjectileCueRules<TCue>(
     Func<ushort, ushort>? PicturedAt = null)
     where TCue : notnull
 {
-    /// <summary>The operand the installed frame shown from <paramref name="operand"/> is read from.</summary>
-    internal ushort FrameOperand(ushort operand) => PicturedAt?.Invoke(operand) ?? operand;
+    /// <summary>
+    /// The operand the installed frame shown from <paramref name="operand"/> is read from: the family's own rule where it has
+    /// one, otherwise the frame's own operand for one the import's repeated operands name (#2273).
+    /// </summary>
+    internal ushort FrameOperand(ushort operand) => PicturedAt?.Invoke(operand) ?? EnemyProjectileProgramFrameOperands.OwnOperand(operand);
 }

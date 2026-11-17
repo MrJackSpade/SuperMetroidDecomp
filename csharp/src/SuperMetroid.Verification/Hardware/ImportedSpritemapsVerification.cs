@@ -42,14 +42,16 @@ internal static class ImportedSpritemapsVerification
     {
         // A projectile resting with no hold left shows no new frame, unless it rests on a frame shown for good, which still
         // presents the native frame its list shows again and again (#2068).
-        if (!projectile.IsActive || (projectile.FrameHold.IsZero && (expectedOperand is null || projectile.PresentationOperandAddress != expectedOperand))) return;
+        if (!projectile.IsActive || (projectile.FrameHold.IsZero && (expectedOperand is not { } shown
+                || projectile.PresentationOperandAddress != EnemyProjectileProgramFrameOperands.OwnOperand(shown)))) return;
         ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
         ushort nativePointer = LittleEndianBytes.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
         executedOperands.Add(operand);
         ReadOnlyMemory<SpritePart> parts;
         if (projectile.PresentationOperandAddress != 0)
         {
-            AssertEqual(operand, projectile.PresentationOperandAddress,
+            // An operand that stores a pose's picture again shows that pose (#2273).
+            AssertEqual(EnemyProjectileProgramFrameOperands.OwnOperand(operand), projectile.PresentationOperandAddress,
                 "executed projectile frame retains its native presentation operand");
             parts = artwork.GetProgramFrame(projectile.Frame ?? throw new InvalidOperationException("A projectile with a presentation operand shows a frame."));
         }

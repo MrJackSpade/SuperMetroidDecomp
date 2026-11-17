@@ -36,7 +36,9 @@ internal static class NativeEnemyProjectileParity
                 return new CompareResult(true, update + 1);
             if (!RestsOnHeldFrame(native.Timer, projectile.FrameHold) && !RestsForGood(projectile.FrameHold))
                 AssertEqual(native.Timer, projectile.FrameHold.RawValue, $"{at}: timer");
-            AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
+            // An operand that stores a pose's picture again shows that pose (#2273).
+            AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand),
+                projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
                 AssertEqual<Enum?>(null, projectile.Motion, $"{at}: cleared pre-instruction");
             else if (native.FrameBehavior is { } installed)

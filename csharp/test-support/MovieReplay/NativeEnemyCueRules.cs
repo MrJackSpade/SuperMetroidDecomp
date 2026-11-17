@@ -22,7 +22,8 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// </param>
 /// <param name="PicturedAt">
 /// The native frame word an installed frame is read from, for a frame word the cartridge stores a picture at again (#2249):
-/// a frame repeating another record's picture shows that record's frame; null when every frame word is its frame's own.
+/// a frame repeating another record's picture shows that record's frame; null when the import's repeated records
+/// (<c>EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt</c>) name every such word (#2272).
 /// </param>
 internal sealed record NativeEnemyCueRules<TCue>(
     Func<ushort, int?> OperandWords,

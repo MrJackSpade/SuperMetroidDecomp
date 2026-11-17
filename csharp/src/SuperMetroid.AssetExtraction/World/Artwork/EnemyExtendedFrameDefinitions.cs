@@ -24,11 +24,11 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>OAM component bound for ordinary extended frames outside Crocomire's skeleton.</summary>
     internal const int MaximumComponents = 8;
     /// <summary>Walking Pirate frames published first in the schema order.</summary>
-    internal const int WalkingFrameCount = 37;
+    internal const int WalkingFrameCount = 35;
     /// <summary>Wall Pirate frames following the walking family.</summary>
     internal const int WallFrameCount = 18;
     /// <summary>Ninja Pirate frames following the wall family.</summary>
-    internal const int NinjaFrameCount = 76;
+    internal const int NinjaFrameCount = 75;
     /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int DraygonBg2FrameCount = 32;
     /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>

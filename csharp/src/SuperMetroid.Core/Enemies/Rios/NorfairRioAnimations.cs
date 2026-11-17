@@ -43,9 +43,9 @@ internal static class NorfairRioAnimations
         [
             Cue(NorfairRioCue.PlaceFlames(-12)),
             Show(EnemyFrameId.NorfairRioDiving, 6),
-            Show(EnemyFrameId.NorfairRioDivingTwin, 5),
-            Show(EnemyFrameId.NorfairRioDivingTwinB, 8),
-            Show(EnemyFrameId.NorfairRioDivingTwin, 6),
+            Show(EnemyFrameId.NorfairRioDiving, 5),
+            Show(EnemyFrameId.NorfairRioDiving, 8),
+            Show(EnemyFrameId.NorfairRioDiving, 6),
         ],
         [P.StartAscending] =
         [
@@ -71,9 +71,9 @@ internal static class NorfairRioAnimations
         [
             Cue(NorfairRioCue.PlaceFlames(12)),
             Show(EnemyFrameId.NorfairRioClimbing, 6),
-            Show(EnemyFrameId.NorfairRioClimbingTwin, 5),
-            Show(EnemyFrameId.NorfairRioClimbingTwinB, 8),
-            Show(EnemyFrameId.NorfairRioClimbingTwin, 6),
+            Show(EnemyFrameId.NorfairRioClimbing, 5),
+            Show(EnemyFrameId.NorfairRioClimbing, 8),
+            Show(EnemyFrameId.NorfairRioClimbing, 6),
         ],
         [P.FlamesAscending] =
         [

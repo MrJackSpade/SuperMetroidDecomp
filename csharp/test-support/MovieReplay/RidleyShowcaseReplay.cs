@@ -850,9 +850,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), expectedOam, nativeMap, new(128, 96), 0, true);
                     actualOam.AddEnemySpritemap(parts.Span, new Position16<ScreenPixels>(128, 96), 0, 0,
                         clipVerticalWrap: true, originYIsOnScreen: true);
-                    if (actualOam.NextByteOffset != expectedOam.NextByteOffset ||
-                        !actualOam.LowTable.SequenceEqual(expectedOam.LowTable) ||
-                        !actualOam.HighTable.SequenceEqual(expectedOam.HighTable))
+                    // A picture stored again in a record that lists its objects in another order draws the same pixels
+                    // (#2273): the death fireball the showcase shows is one of them.
+                    if (!SuperMetroid.Core.Rendering.PpuImageAccess.DrawsSamePicture(actualOam, expectedOam))
                         mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
                 }
                 Check(owner + " FrameHold", projectile.FrameHold.RawValue, NativeSnapshotMemory.EnemyProjectileFrameHold + index);

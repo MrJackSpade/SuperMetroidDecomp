@@ -62,9 +62,9 @@ internal static class WalkingSpacePirateAnimations
         [
             Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingLeft, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingLeftTwin, 10),
+            Show(EnemyFrameId.WalkingPirateStandingFacingLeft, 10),
             Show(EnemyFrameId.WalkingPirateLookingAwayFacingLeft, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingLeftTwin, 10),
+            Show(EnemyFrameId.WalkingPirateStandingFacingLeft, 10),
             Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingLeft, 32),
             Show(EnemyFrameId.WalkingPirateFacingViewer, 8),
         ],
@@ -105,9 +105,9 @@ internal static class WalkingSpacePirateAnimations
         [
             Cue(new WalkingSpacePirateCue.Begin(WalkingSpacePirateAction.StandingStill)),
             Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingRight, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingRightTwin, 10),
+            Show(EnemyFrameId.WalkingPirateStandingFacingRight, 10),
             Show(EnemyFrameId.WalkingPirateLookingAwayFacingRight, 32),
-            Show(EnemyFrameId.WalkingPirateStandingFacingRightTwin, 10),
+            Show(EnemyFrameId.WalkingPirateStandingFacingRight, 10),
             Show(EnemyFrameId.WalkingPirateLookingAtViewerFacingRight, 32),
             Show(EnemyFrameId.WalkingPirateFacingViewer, 8),
         ],

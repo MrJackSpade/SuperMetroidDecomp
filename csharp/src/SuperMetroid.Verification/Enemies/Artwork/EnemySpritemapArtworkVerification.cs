@@ -133,12 +133,12 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreRioFrameCount + 8,
             EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount,
             "Rio adds its eight distinct OAM compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount + 18,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreLowerNorfairRioFrameCount + 15,
             EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount,
-            "Lower Norfair Rio adds its eighteen parent and flame compositions");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount + 20,
+            "Lower Norfair Rio adds its fifteen parent and flame compositions");
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreNorfairRioFrameCount + 16,
             EnemySpritemapDefinitionsConstants.PrePuyoFrameCount,
-            "Norfair Rio adds its twenty parent and flame compositions");
+            "Norfair Rio adds its sixteen parent and flame compositions");
         AssertEqual(EnemySpritemapDefinitionsConstants.PrePuyoFrameCount + 8,
             EnemySpritemapDefinitionsConstants.PreBullFrameCount,
             "Puyo adds its eight distinct ground and airborne compositions");
@@ -184,9 +184,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreYappingMawFrameCount + 24,
             EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount,
             "Yapping Maw adds 24 distinct OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount + 41,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreKiHunterFrameCount + 35,
             EnemySpritemapDefinitionsConstants.PreMotherBrainFrameCount,
-            "KiHunter adds 41 distinct body and wing OAM frames");
+            "KiHunter adds 35 distinct body and wing OAM frames");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreMotherBrainFrameCount + 18,
             EnemySpritemapDefinitionsConstants.PreDeadTorizoFrameCount,
             "Mother Brain adds eighteen head, neck, and falling-tube OAM frames");
@@ -220,9 +220,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount + 15,
             EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount,
             "Shaktool's saw, arm, and head programs select fifteen OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount + 18,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount + 16,
             EnemySpritemapDefinitionsConstants.PreDragonFrameCount,
-            "Tripper/Kamer add sixteen animated and two frozen OAM frames");
+            "Tripper/Kamer add fourteen animated and two frozen OAM frames");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDragonFrameCount + 12,
             EnemySpritemapDefinitionsConstants.PreMultiviolaFrameCount,
             "Dragon adds twelve distinct body and wing OAM frames");
@@ -268,7 +268,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreYardFrameCount +
                 YardVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreBotwoonFrameCount,
-            "Yard adds 104 crawling, turn, hiding, and airborne compositions");
+            "Yard adds 96 crawling, turn, hiding, and airborne compositions");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreBotwoonFrameCount +
                 BotwoonVisualDefinitionsConstants.Frames().Length,
             EnemySpritemapDefinitionsConstants.PreGunshipFrameCount,
@@ -300,7 +300,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterSegment>()).ToHashSet().SetEquals(
                 installedHunterPointers),
             "the Ki-Hunter's programs show exactly its installed frames");
-        AssertEqual(41, installedHunterPointers.Count, "KiHunter's programs show 41 distinct OAM frames");
+        AssertEqual(35, installedHunterPointers.Count, "KiHunter's programs show 35 distinct OAM frames");
         HashSet<ushort> installedMawPointers = EnemySpritemapDefinitions.Frames
             
             .Where(frame => frame.LegacyName.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
@@ -367,10 +367,10 @@ internal static class EnemySpritemapArtworkVerification
             "the Shaktool's programs and its head's aimed pictures (#2284) show exactly its installed frames");
         HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
-        AssertEqual(18, platformFramePointers.Count,
+        AssertEqual(16, platformFramePointers.Count,
             "Tripper/Kamer visual frame identities are distinct");
         HashSet<ushort> shownPlatformFrames = PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet();
-        AssertEqual(16, shownPlatformFrames.Count, "platform programs show sixteen distinct animated compositions");
+        AssertEqual(14, shownPlatformFrames.Count, "platform programs show fourteen distinct animated compositions");
         AssertTrue(platformFramePointers.Except(shownPlatformFrames).ToHashSet()
                 .SetEquals(new[]
                 {

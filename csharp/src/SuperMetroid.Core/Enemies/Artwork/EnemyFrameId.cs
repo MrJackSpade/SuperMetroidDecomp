@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>
 /// The frames an enemy shows: every installed enemy frame, and the empty frame every enemy family shares. Each is named for
 /// what its picture shows: its owner, then its pose and facing, or the turn, size or placement that tells it from the
-/// owner's other pictures, which its summary spells out; no animation that shows it and no place in one names it. A frame
-/// of its own that shows another frame's picture where that frame shows it is that frame's twin. Its installed name is
-/// its name in snake case (<see cref="EnemyFrameNameDefinitions"/>), which gives its installed sheet key
-/// (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
+/// owner's other pictures, which its summary spells out; no animation that shows it and no place in one names it. One
+/// picture is one frame however many records store it; frames that share a picture are named for what tells them apart,
+/// such as their hitboxes. Its installed name is its name in snake case (<see cref="EnemyFrameNameDefinitions"/>), which
+/// gives its installed sheet key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
 /// </summary>
 public enum EnemyFrameId
 {
@@ -554,12 +554,6 @@ public enum EnemyFrameId
     LowerNorfairRioWingsFolded,
     /// <summary>The Lower Norfair Rio: wings swept back.</summary>
     LowerNorfairRioWingsSwept,
-    /// <summary>The Lower Norfair Rio: wings swept back: the picture of LowerNorfairRioWingsSwept, as a frame of its own.</summary>
-    LowerNorfairRioWingsSweptTwinB,
-    /// <summary>The Lower Norfair Rio: wings swept back: the picture of LowerNorfairRioWingsSwept, as a frame of its own.</summary>
-    LowerNorfairRioWingsSweptTwinC,
-    /// <summary>The Lower Norfair Rio: wings swept back: the picture of LowerNorfairRioWingsSwept, as a frame of its own.</summary>
-    LowerNorfairRioWingsSweptTwin,
     /// <summary>The Lower Norfair Rio: the flame trailing it, large.</summary>
     LowerNorfairRioFlameLarge,
     /// <summary>The Lower Norfair Rio: the flame trailing it, medium.</summary>
@@ -580,10 +574,6 @@ public enum EnemyFrameId
     NorfairRioRisingFlameSmall,
     /// <summary>The Norfair Rio: diving, wings swept up.</summary>
     NorfairRioDiving,
-    /// <summary>The Norfair Rio: diving, wings swept up: the picture of NorfairRioDiving, as a frame of its own.</summary>
-    NorfairRioDivingTwin,
-    /// <summary>The Norfair Rio: diving, wings swept up: the picture of NorfairRioDiving, as a frame of its own.</summary>
-    NorfairRioDivingTwinB,
     /// <summary>The Norfair Rio: wings flattening.</summary>
     NorfairRioWingsFlattening,
     /// <summary>The Norfair Rio: wings tilting up.</summary>
@@ -596,10 +586,6 @@ public enum EnemyFrameId
     NorfairRioWingsSweptUp,
     /// <summary>The Norfair Rio: climbing, wings spread low.</summary>
     NorfairRioClimbing,
-    /// <summary>The Norfair Rio: climbing, wings spread low: the picture of NorfairRioClimbing, as a frame of its own.</summary>
-    NorfairRioClimbingTwin,
-    /// <summary>The Norfair Rio: climbing, wings spread low: the picture of NorfairRioClimbing, as a frame of its own.</summary>
-    NorfairRioClimbingTwinB,
     /// <summary>The Norfair Rio: the flame trailing it as it falls, large.</summary>
     NorfairRioFallingFlameLarge,
     /// <summary>The Norfair Rio: the flame trailing it as it falls, medium.</summary>
@@ -1206,8 +1192,6 @@ public enum EnemyFrameId
     KiHunterHoveringFacingLeft,
     /// <summary>Ki-Hunter: hovering facing left, a pixel lower.</summary>
     KiHunterHoveringFacingLeftDropped,
-    /// <summary>Ki-Hunter: hovering facing left: the picture of KiHunterHoveringFacingLeft, as a frame of its own.</summary>
-    KiHunterHoveringFacingLeftTwin,
     /// <summary>Ki-Hunter: its wings facing left, raised.</summary>
     KiHunterWingsFacingLeftRaised,
     /// <summary>Ki-Hunter: its wings facing left, half lowered.</summary>
@@ -1218,8 +1202,6 @@ public enum EnemyFrameId
     KiHunterHoveringFacingRight,
     /// <summary>Ki-Hunter: hovering facing right, a pixel lower.</summary>
     KiHunterHoveringFacingRightDropped,
-    /// <summary>Ki-Hunter: hovering facing right: the picture of KiHunterHoveringFacingRight, as a frame of its own.</summary>
-    KiHunterHoveringFacingRightTwin,
     /// <summary>Ki-Hunter: its wings facing right, raised.</summary>
     KiHunterWingsFacingRightRaised,
     /// <summary>Ki-Hunter: its wings facing right, half lowered.</summary>
@@ -1228,8 +1210,6 @@ public enum EnemyFrameId
     KiHunterWingsFacingRightLevel,
     /// <summary>Ki-Hunter: detached wings.</summary>
     KiHunterDetachedWings,
-    /// <summary>Ki-Hunter: hovering facing left: the picture of KiHunterHoveringFacingLeft, as a frame of its own.</summary>
-    KiHunterHoveringFacingLeftTwinB,
     /// <summary>Ki-Hunter: swooping facing left, arms swept back.</summary>
     KiHunterSwoopingFacingLeftArmsBack,
     /// <summary>Ki-Hunter: swooping facing left, arms drawn in.</summary>
@@ -1238,8 +1218,6 @@ public enum EnemyFrameId
     KiHunterSwoopingFacingLeftLegsReaching,
     /// <summary>Ki-Hunter: swooping facing left, legs stretched in a lunge.</summary>
     KiHunterSwoopingFacingLeftLegsStretched,
-    /// <summary>Ki-Hunter: hovering facing right: the picture of KiHunterHoveringFacingRight, as a frame of its own.</summary>
-    KiHunterHoveringFacingRightTwinB,
     /// <summary>Ki-Hunter: swooping facing right, arms swept back.</summary>
     KiHunterSwoopingFacingRightArmsBack,
     /// <summary>Ki-Hunter: swooping facing right, arms drawn in.</summary>
@@ -1264,8 +1242,6 @@ public enum EnemyFrameId
     KiHunterSpringingFacingRight,
     /// <summary>Ki-Hunter: leaping, legs hanging, facing right.</summary>
     KiHunterLeapingFacingRight,
-    /// <summary>Ki-Hunter: crouched facing left: the picture of KiHunterCrouchedFacingLeft, as a frame of its own.</summary>
-    KiHunterCrouchedFacingLeftTwin,
     /// <summary>Ki-Hunter: spitting facing left, a ball of acid gathering in its mouth.</summary>
     KiHunterSpittingFacingLeftAcidGathering,
     /// <summary>Ki-Hunter: spitting facing left, a swollen ball of acid in its mouth.</summary>
@@ -1274,8 +1250,6 @@ public enum EnemyFrameId
     KiHunterSpittingFacingLeftAcidSpat,
     /// <summary>Ki-Hunter: spitting facing left, a last fleck of acid in its mouth.</summary>
     KiHunterSpittingFacingLeftAcidSpent,
-    /// <summary>Ki-Hunter: crouched facing right: the picture of KiHunterCrouchedFacingRight, as a frame of its own.</summary>
-    KiHunterCrouchedFacingRightTwin,
     /// <summary>Ki-Hunter: spitting facing right, a ball of acid gathering in its mouth.</summary>
     KiHunterSpittingFacingRightAcidGathering,
     /// <summary>Ki-Hunter: spitting facing right, a swollen ball of acid in its mouth.</summary>
@@ -1526,14 +1500,10 @@ public enum EnemyFrameId
     TripperHoveringFacingLeftJetShort,
     /// <summary>Tripper: hovering facing left, its downward jet long.</summary>
     TripperHoveringFacingLeftJetLong,
-    /// <summary>Tripper: hovering facing left, its downward jet long: the picture of TripperHoveringFacingLeftJetLong, as a frame of its own.</summary>
-    TripperHoveringFacingLeftJetLongTwin,
     /// <summary>Tripper: hovering facing right, its downward jet short.</summary>
     TripperHoveringFacingRightJetShort,
     /// <summary>Tripper: hovering facing right, its downward jet long.</summary>
     TripperHoveringFacingRightJetLong,
-    /// <summary>Tripper: hovering facing right, its downward jet long: the picture of TripperHoveringFacingRightJetLong, as a frame of its own.</summary>
-    TripperHoveringFacingRightJetLongTwin,
     /// <summary>Tripper: thrusting left, its jet out its right side medium.</summary>
     TripperThrustingLeftJetMedium,
     /// <summary>Tripper: thrusting left, its jet out its right side short.</summary>
@@ -1628,8 +1598,8 @@ public enum EnemyFrameId
     ChozoStatueLowerNorfairHandOpening,
     /// <summary>The Chozo statue: its outstretched hand open.</summary>
     ChozoStatueLowerNorfairHandOpen,
-    /// <summary>The Chozo statue: its outstretched hand open: the picture of ChozoStatueLowerNorfairHandOpen, as a frame of its own.</summary>
-    ChozoStatueLowerNorfairHandOpenTwin,
+    /// <summary>The Chozo statue: its outstretched hand open, its eye starting to glow.</summary>
+    ChozoStatueLowerNorfairHandOpenEyeGlowing,
     /// <summary>The Chozo statue: the fingers of its outstretched hand curling.</summary>
     ChozoStatueLowerNorfairFingersCurling,
     /// <summary>The Chozo statue: the fingers of its outstretched hand curled.</summary>
@@ -1646,8 +1616,8 @@ public enum EnemyFrameId
     ChozoStatueWreckedShipHandOpening,
     /// <summary>The Chozo statue: its outstretched hand open.</summary>
     ChozoStatueWreckedShipHandOpen,
-    /// <summary>The Chozo statue: its outstretched hand open: the picture of ChozoStatueWreckedShipHandOpen, as a frame of its own.</summary>
-    ChozoStatueWreckedShipHandOpenTwin,
+    /// <summary>The Chozo statue: its outstretched hand open, its eye starting to glow.</summary>
+    ChozoStatueWreckedShipHandOpenEyeGlowing,
     /// <summary>The Chozo statue: the fingers of its outstretched hand curling.</summary>
     ChozoStatueWreckedShipFingersCurling,
     /// <summary>The Chozo statue: the fingers of its outstretched hand curled.</summary>
@@ -1980,64 +1950,48 @@ public enum EnemyFrameId
     YardUpsideUpFacingLeftLegsTucking,
     /// <summary>Yard: upright, facing left, withdrawn into its closed shell.</summary>
     YardUpsideUpFacingLeftShellClosed,
-    /// <summary>Yard: upright, facing left, withdrawn into its closed shell: the picture of YardUpsideUpFacingLeftShellClosed, as a frame of its own.</summary>
-    YardUpsideUpFacingLeftShellClosedTwin,
     /// <summary>Yard: upright, facing left, tucking its legs into its shell: the picture of YardUpsideUpFacingLeftLegsTucking, drawn 3 pixels left of it.</summary>
     YardUpsideUpFacingLeftLegsTuckingShiftedLeft3,
     /// <summary>Yard: upside down, facing left, tucking its legs into its shell.</summary>
     YardUpsideDownFacingLeftLegsTucking,
     /// <summary>Yard: upside down, facing left, withdrawn into its closed shell.</summary>
     YardUpsideDownFacingLeftShellClosed,
-    /// <summary>Yard: upside down, facing left, withdrawn into its closed shell: the picture of YardUpsideDownFacingLeftShellClosed, as a frame of its own.</summary>
-    YardUpsideDownFacingLeftShellClosedTwin,
     /// <summary>Yard: upside down, facing left, tucking its legs into its shell: the picture of YardUpsideDownFacingLeftLegsTucking, drawn 2 pixels left of it.</summary>
     YardUpsideDownFacingLeftLegsTuckingShiftedLeft2,
     /// <summary>Yard: upside down, facing right, tucking its legs into its shell.</summary>
     YardUpsideDownFacingRightLegsTucking,
     /// <summary>Yard: upside down, facing right, withdrawn into its closed shell.</summary>
     YardUpsideDownFacingRightShellClosed,
-    /// <summary>Yard: upside down, facing right, withdrawn into its closed shell: the picture of YardUpsideDownFacingRightShellClosed, as a frame of its own.</summary>
-    YardUpsideDownFacingRightShellClosedTwin,
     /// <summary>Yard: upside down, facing right, tucking its legs into its shell: the picture of YardUpsideDownFacingRightLegsTucking, drawn 2 pixels right of it.</summary>
     YardUpsideDownFacingRightLegsTuckingShiftedRight2,
     /// <summary>Yard: upright, facing right, tucking its legs into its shell.</summary>
     YardUpsideUpFacingRightLegsTucking,
     /// <summary>Yard: upright, facing right, withdrawn into its closed shell.</summary>
     YardUpsideUpFacingRightShellClosed,
-    /// <summary>Yard: upright, facing right, withdrawn into its closed shell: the picture of YardUpsideUpFacingRightShellClosed, as a frame of its own.</summary>
-    YardUpsideUpFacingRightShellClosedTwin,
     /// <summary>Yard: upright, facing right, tucking its legs into its shell: the picture of YardUpsideUpFacingRightLegsTucking, drawn 3 pixels right of it.</summary>
     YardUpsideUpFacingRightLegsTuckingShiftedRight3,
     /// <summary>Yard: with its top to the right, facing up, tucking its legs into its shell.</summary>
     YardUpsideRightFacingUpLegsTucking,
     /// <summary>Yard: with its top to the right, facing up, withdrawn into its closed shell.</summary>
     YardUpsideRightFacingUpShellClosed,
-    /// <summary>Yard: with its top to the right, facing up, withdrawn into its closed shell: the picture of YardUpsideRightFacingUpShellClosed, as a frame of its own.</summary>
-    YardUpsideRightFacingUpShellClosedTwin,
     /// <summary>Yard: with its top to the right, facing up, tucking its legs further into its shell.</summary>
     YardUpsideRightFacingUpLegsTuckingFurther,
     /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell.</summary>
     YardUpsideLeftFacingUpLegsTucking,
     /// <summary>Yard: with its top to the left, facing up, withdrawn into its closed shell.</summary>
     YardUpsideLeftFacingUpShellClosed,
-    /// <summary>Yard: with its top to the left, facing up, withdrawn into its closed shell: the picture of YardUpsideLeftFacingUpShellClosed, as a frame of its own.</summary>
-    YardUpsideLeftFacingUpShellClosedTwin,
     /// <summary>Yard: with its top to the left, facing up, tucking its legs into its shell: the picture of YardUpsideLeftFacingUpLegsTucking, drawn 2 pixels up of it.</summary>
     YardUpsideLeftFacingUpLegsTuckingShiftedUp2,
     /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell.</summary>
     YardUpsideLeftFacingDownLegsTucking,
     /// <summary>Yard: with its top to the left, facing down, withdrawn into its closed shell.</summary>
     YardUpsideLeftFacingDownShellClosed,
-    /// <summary>Yard: with its top to the left, facing down, withdrawn into its closed shell: the picture of YardUpsideLeftFacingDownShellClosed, as a frame of its own.</summary>
-    YardUpsideLeftFacingDownShellClosedTwin,
     /// <summary>Yard: with its top to the left, facing down, tucking its legs into its shell: the picture of YardUpsideLeftFacingDownLegsTucking, drawn 2 pixels down of it.</summary>
     YardUpsideLeftFacingDownLegsTuckingShiftedDown2,
     /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell.</summary>
     YardUpsideRightFacingDownLegsTucking,
     /// <summary>Yard: with its top to the right, facing down, withdrawn into its closed shell.</summary>
     YardUpsideRightFacingDownShellClosed,
-    /// <summary>Yard: with its top to the right, facing down, withdrawn into its closed shell: the picture of YardUpsideRightFacingDownShellClosed, as a frame of its own.</summary>
-    YardUpsideRightFacingDownShellClosedTwin,
     /// <summary>Yard: with its top to the right, facing down, tucking its legs into its shell: the picture of YardUpsideRightFacingDownLegsTucking, drawn 2 pixels down of it.</summary>
     YardUpsideRightFacingDownLegsTuckingShiftedDown2,
     /// <summary>Botwoon: head closed up left.</summary>
@@ -2152,10 +2106,6 @@ public enum EnemyFrameId
     TurtleMamaWithdrawingFacingRight,
     /// <summary>The mama turtle: head and legs withdrawn, its shell facing right.</summary>
     TurtleMamaWithdrawnFacingRight,
-    /// <summary>The mama turtle: withdrawn into its shell, turned right: the picture of TurtleMamaInShellFacingRight, as a frame of its own.</summary>
-    TurtleMamaInShellFacingRightTwin,
-    /// <summary>The baby turtle: withdrawn into its shell, turned to its other side: the picture of TurtleBabyShellTurned180, as a frame of its own.</summary>
-    TurtleBabyShellTurned180Twin,
     /// <summary>Zero: crawling with its top right, contracted.</summary>
     ZeroUpsideRightContracted,
     /// <summary>Zero: crawling with its top right, stretching, the gaps between its segments showing.</summary>
@@ -2532,8 +2482,6 @@ public enum EnemyFrameId
     WalkingPirateFiringFacingLeft,
     /// <summary>The walking space pirate: standing facing left, its head turned to the viewer.</summary>
     WalkingPirateLookingAtViewerFacingLeft,
-    /// <summary>The walking space pirate: standing at ease facing left, claws down: the picture and hitboxes of WalkingPirateStandingFacingLeft, as a frame of its own.</summary>
-    WalkingPirateStandingFacingLeftTwin,
     /// <summary>The walking space pirate: standing facing left, its head turned away from the viewer.</summary>
     WalkingPirateLookingAwayFacingLeft,
     /// <summary>The walking space pirate: standing facing the viewer, arms at its sides.</summary>
@@ -2568,8 +2516,6 @@ public enum EnemyFrameId
     WalkingPirateFiringFacingRight,
     /// <summary>The walking space pirate: standing facing right, its head turned to the viewer.</summary>
     WalkingPirateLookingAtViewerFacingRight,
-    /// <summary>The walking space pirate: standing at ease facing right, claws down: the picture and hitboxes of WalkingPirateStandingFacingRight, as a frame of its own.</summary>
-    WalkingPirateStandingFacingRightTwin,
     /// <summary>The walking space pirate: standing facing right, its head turned away from the viewer.</summary>
     WalkingPirateLookingAwayFacingRight,
     /// <summary>The wall space pirate: clinging to a wall on its right, turned out to face left, claws together.</summary>
@@ -2620,8 +2566,6 @@ public enum EnemyFrameId
     NinjaPirateClawRaisedOverheadFacingLeft,
     /// <summary>The ninja space pirate: facing left, its upper claw swung forward to throw.</summary>
     NinjaPirateClawSwungForwardFacingLeft,
-    /// <summary>The ninja space pirate: facing left, claws level and ready: the picture and hitboxes of NinjaPirateClawsReadyFacingLeft, as a frame of its own.</summary>
-    NinjaPirateClawsReadyFacingLeftTwin,
     /// <summary>The ninja space pirate: facing left, claws swept down.</summary>
     NinjaPirateClawsSweptDownFacingLeft,
     /// <summary>The ninja space pirate: standing upright facing left, claws hanging down.</summary>

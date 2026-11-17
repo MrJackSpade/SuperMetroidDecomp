@@ -9,7 +9,7 @@ internal static class KiHunterVisualDefinitions
     internal const byte Bank = 0xa8;
 
     /// <summary>
-    /// The 41 distinct body/wing spritemaps selected by 59 presentation operands
+    /// The 35 distinct body/wing spritemaps selected by 59 presentation operands
     /// in KiHunter's thirteen native programs. Addresses are stable frame identities;
     /// timing, callbacks and collision continue to use compiled mechanics.
     /// </summary>

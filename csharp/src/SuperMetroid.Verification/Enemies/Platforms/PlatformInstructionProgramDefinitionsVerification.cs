@@ -115,11 +115,14 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Checks that the programs show exactly the sixteen animated maps and their native sprite counts.</summary>
+    /// <summary>
+    /// Checks that the programs show exactly the fourteen animated pictures and their native sprite counts; the long jet's
+    /// second records store its picture again (#2272).
+    /// </summary>
     private static void VerifyPlatformVisualPointers(CartridgeImportAddressSpace rom)
     {
         ushort[] kamer = [0xa021, 0xa02d, 0xa039, 0xa045];
-        ushort[] threeEntryTripper = [0x9f29, 0x9f3a, 0x9f4b, 0x9f5c, 0x9f6d, 0x9f7e, 0x9fa5, 0x9fe2];
+        ushort[] threeEntryTripper = [0x9f29, 0x9f3a, 0x9f5c, 0x9f6d, 0x9fa5, 0x9fe2];
         ushort[] fourEntryTripper = [0x9f8f, 0x9fb6, 0x9fcc, 0x9ff3];
         foreach (ushort pointer in kamer)
             AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Kamer native two-entry map");
@@ -129,7 +132,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
         AssertTrue(PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet()
                 .SetEquals(kamer.Concat(threeEntryTripper).Concat(fourEntryTripper)),
-            "platform programs show exactly the sixteen animated maps");
+            "platform programs show exactly the fourteen animated pictures");
     }
     /// <summary>Checks published frame order, asset names, and consecutive native record sizes.</summary>
     private static void VerifyPlatformExportIdentities(CartridgeImportAddressSpace rom)
@@ -138,8 +141,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         PlatformInstructionProgramDefinitionsExpected[] expected =
         [
             new PlatformInstructionProgramDefinitionsExpected(0x9f29, "tripper_moving_left_0"), new PlatformInstructionProgramDefinitionsExpected(0x9f3a, "tripper_moving_left_1"),
-            new PlatformInstructionProgramDefinitionsExpected(0x9f4b, "tripper_moving_left_2"), new PlatformInstructionProgramDefinitionsExpected(0x9f5c, "tripper_moving_right_0"),
-            new PlatformInstructionProgramDefinitionsExpected(0x9f6d, "tripper_moving_right_1"), new PlatformInstructionProgramDefinitionsExpected(0x9f7e, "tripper_moving_right_2"),
+            new PlatformInstructionProgramDefinitionsExpected(0x9f5c, "tripper_moving_right_0"), new PlatformInstructionProgramDefinitionsExpected(0x9f6d, "tripper_moving_right_1"),
             new PlatformInstructionProgramDefinitionsExpected(0x9f8f, "tripper_still_moving_left_0"), new PlatformInstructionProgramDefinitionsExpected(0x9fa5, "tripper_still_moving_left_1"),
             new PlatformInstructionProgramDefinitionsExpected(0x9fb6, "tripper_still_moving_left_2"), new PlatformInstructionProgramDefinitionsExpected(0x9fcc, "tripper_still_moving_right_0"),
             new PlatformInstructionProgramDefinitionsExpected(0x9fe2, "tripper_still_moving_right_1"), new PlatformInstructionProgramDefinitionsExpected(0x9ff3, "tripper_still_moving_right_2"),
@@ -154,11 +156,22 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual((byte)0xa3, actual[i].Bank, "platform export bank");
             AssertEqual(expected[i].Pointer, actual[i].Pointer, "platform export native map pointer and order");
             AssertEqual(expected[i].Name, actual[i].Name, "platform export stable asset identity");
-            int nativeSize = 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | expected[i].Pointer);
             ushort next = i + 1 < expected.Length ? expected[i + 1].Pointer : (ushort)0xa051;
-            AssertEqual(next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
+            AssertEqual(next, RecordAfter(rom, actual[i].Pointer), "platform export consecutive native record boundary");
         }
     }
+    /// <summary>
+    /// Where the installed record after the one at <paramref name="pointer"/> starts: past any record that stores an
+    /// installed picture again, such as the long jet's second records (#2272).
+    /// </summary>
+    private static int RecordAfter(CartridgeImportAddressSpace rom, ushort pointer)
+    {
+        int next = pointer + 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer);
+        while (SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt.ContainsKey(new(0xa3, (ushort)next)))
+            next += 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | next);
+        return next;
+    }
+
     /// <summary>Checks the native initial list for both horizontal directions.</summary>
     private static void VerifyPlatformInitialProgramSelection(CartridgeImportAddressSpace rom)
     {

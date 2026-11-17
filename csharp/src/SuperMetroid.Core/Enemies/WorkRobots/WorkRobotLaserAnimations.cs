@@ -25,7 +25,7 @@ internal static class WorkRobotLaserAnimations
             Show(EnemyProjectileFrameId.WorkRobotLaserFlareRingCored, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserFlareRing, 4),
             Show(EnemyProjectileFrameId.WorkRobotLaserFlareRingFading, 4),
-            Show(EnemyProjectileFrameId.WorkRobotLaserFlareRingTwin, 4),
+            Show(EnemyProjectileFrameId.WorkRobotLaserFlareRing, 4),
         ],
     });
 

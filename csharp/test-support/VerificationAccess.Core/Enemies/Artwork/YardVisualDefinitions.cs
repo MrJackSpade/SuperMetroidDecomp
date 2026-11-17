@@ -11,7 +11,7 @@ internal static class YardVisualDefinitions
     /// <summary>Yard's instruction and spritemap bank, $A3.</summary>
     internal const byte Bank = 0xa3;
     /// <summary>Number of distinct Yard OAM compositions its programs show.</summary>
-    internal const int FrameCount = 104;
+    internal const int FrameCount = 96;
 
     /// <summary>The name group of each crawling, turn, hiding and airborne program's poses.</summary>
     private static string GroupName(YardSegment program) => program switch

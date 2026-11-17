@@ -30,12 +30,12 @@ internal static class KagoBugProjectileAnimations
         ],
         [P.Falling] =
         [
-            Hold(EnemyProjectileFrameId.KagoBugStandingTwin),
+            Hold(EnemyProjectileFrameId.KagoBugStanding),
         ],
         [P.JumpStart] =
         [
-            Show(EnemyProjectileFrameId.KagoBugCrouchedTwin, 16),
-            Show(EnemyProjectileFrameId.KagoBugStandingTwinB, 5),
+            Show(EnemyProjectileFrameId.KagoBugCrouched, 16),
+            Show(EnemyProjectileFrameId.KagoBugStanding, 5),
             Cue(new(K.StartJump)),
             Hold(EnemyProjectileFrameId.KagoBugLeaping),
         ],

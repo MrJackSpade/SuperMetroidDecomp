@@ -102,7 +102,8 @@ internal static class MiscDustProjectileBehaviorVerification
 
     /// <summary>
     /// Runs one projectile pass; a frame shown on it must be an installed key, leave its spritemap to installed content,
-    /// and last as long as the native frame whose operand that key is.
+    /// and last as long as a native frame showing it: the one at its own operand, or one at an operand that stores its
+    /// picture again (#2273).
     /// </summary>
     internal static void Process(ISnesAddressSpace rom, RoomEnemySystem enemies, EnemyProjectile projectile, SamusState samus)
     {
@@ -114,8 +115,10 @@ internal static class MiscDustProjectileBehaviorVerification
         AssertTrue(EnemyProjectileProgramFrameOperands.Contains(operand), "the shown frame is an installed-art identity");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, projectile.SpritemapPointer,
             "the shown frame leaves spritemap resolution to installed content");
-        AssertEqual(ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(operand - 2))), projectile.FrameHold.RawValue,
-            "the shown frame lasts its native duration");
+        ushort hold = projectile.FrameHold.RawValue;
+        AssertTrue(EnemyProjectileProgramFrameOperands.ShowingAgain(operand).Prepend(operand)
+                .Any(shownAt => ReadNativeEnemyProjectileProgramWord(rom, unchecked((ushort)(shownAt - 2))) == hold),
+            $"the frame at $86:{operand:X4} lasts the native duration of a frame showing it ({hold})");
     }
 
     /// <summary>Runs the misc dust's program oracle and behavior suite.</summary>

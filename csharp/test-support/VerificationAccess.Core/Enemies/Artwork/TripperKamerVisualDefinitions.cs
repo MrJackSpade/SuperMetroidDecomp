@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Eighteen bank-$A3 OAM compositions used by the shared Tripper/Kamer platform
+/// Sixteen bank-$A3 OAM compositions used by the shared Tripper/Kamer platform
 /// dispatcher. The typed programs and movement state own direction and timing;
 /// the two frozen Tripper compositions are selected directly by its shot AI.
 /// </summary>
@@ -20,10 +20,8 @@ internal static class TripperKamerVisualDefinitions
     [
         new(Bank, MovingTripperFrame(0, 0), "tripper_moving_left_0"),
         new(Bank, MovingTripperFrame(0, 1), "tripper_moving_left_1"),
-        new(Bank, MovingTripperFrame(0, 2), "tripper_moving_left_2"),
         new(Bank, MovingTripperFrame(1, 0), "tripper_moving_right_0"),
         new(Bank, MovingTripperFrame(1, 1), "tripper_moving_right_1"),
-        new(Bank, MovingTripperFrame(1, 2), "tripper_moving_right_2"),
         new(Bank, StillTripperFrame(0, 0), "tripper_still_moving_left_0"),
         new(Bank, StillTripperFrame(0, 1), "tripper_still_moving_left_1"),
         new(Bank, StillTripperFrame(0, 2), "tripper_still_moving_left_2"),

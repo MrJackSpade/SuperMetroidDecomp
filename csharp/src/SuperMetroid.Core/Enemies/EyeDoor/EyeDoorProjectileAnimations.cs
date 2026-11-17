@@ -28,9 +28,9 @@ internal static class EyeDoorProjectileAnimations
         [P.Impact] =
         [
             Cue(new(K.StopMoving)),
-            Show(EnemyProjectileFrameId.EyeDoorBallRingCoredTwin, 2),
-            Show(EnemyProjectileFrameId.EyeDoorBallRingTwin, 3),
-            Show(EnemyProjectileFrameId.EyeDoorBallRingFaintTwin, 4),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingCored, 2),
+            Show(EnemyProjectileFrameId.EyeDoorBallRing, 3),
+            Show(EnemyProjectileFrameId.EyeDoorBallRingFaint, 4),
             Cue(new(K.Delete)),
         ],
         [P.Shot] =

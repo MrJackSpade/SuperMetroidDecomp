@@ -33,7 +33,7 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Right, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpening, 64),
             Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpen, 6),
-            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpenTwin, 8),
+            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpenEyeGlowing, 8),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurling, 10),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurled, 12),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersClenched, 96),
@@ -41,7 +41,7 @@ internal static class ChozoStatueAnimations
         ],
         [P.LowerNorfairFlexing] =
         [
-            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpenTwin, 11),
+            Show(EnemyFrameId.ChozoStatueLowerNorfairHandOpenEyeGlowing, 11),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurling, 8),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersCurled, 6),
             Show(EnemyFrameId.ChozoStatueLowerNorfairFingersClenched, 8),
@@ -80,14 +80,14 @@ internal static class ChozoStatueAnimations
             Cue(new ChozoStatueCue.Move(new(HorizontalDirection.Left, ChozoCarryPose.Holding))),
             Show(EnemyFrameId.ChozoStatueWreckedShipHandOpening, 128),
             Show(EnemyFrameId.ChozoStatueWreckedShipHandOpen, 6),
-            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpenTwin, 8),
+            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpenEyeGlowing, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 10),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurled, 12),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersClenched, 128),
         ],
         [P.WreckedShipFlexing] =
         [
-            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpenTwin, 11),
+            Show(EnemyFrameId.ChozoStatueWreckedShipHandOpenEyeGlowing, 11),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurling, 8),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersCurled, 6),
             Show(EnemyFrameId.ChozoStatueWreckedShipFingersClenched, 8),

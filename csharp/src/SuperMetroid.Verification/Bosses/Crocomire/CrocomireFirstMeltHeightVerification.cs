@@ -30,14 +30,14 @@ internal static class CrocomireFirstMeltHeightVerification
     /// </summary>
     private static readonly (int Y, CrocomireBodySegment Animation, EnemyFrameId Frame)[] HeightBands =
     [
-        (220, CrocomireBodySegment.MeltingOneTopFourRows, EnemyFrameId.CrocomireBodyMeltingOneTopFourRows),
-        (247, CrocomireBodySegment.MeltingOneTopFourRows, EnemyFrameId.CrocomireBodyMeltingOneTopFourRows),
-        (248, CrocomireBodySegment.MeltingOneTopThreeRows, EnemyFrameId.CrocomireBodyMeltingOneTopThreeRows),
-        (263, CrocomireBodySegment.MeltingOneTopThreeRows, EnemyFrameId.CrocomireBodyMeltingOneTopThreeRows),
-        (264, CrocomireBodySegment.MeltingOneTopTwoRows, EnemyFrameId.CrocomireBodyMeltingOneTopTwoRows),
-        (279, CrocomireBodySegment.MeltingOneTopTwoRows, EnemyFrameId.CrocomireBodyMeltingOneTopTwoRows),
-        (280, CrocomireBodySegment.MeltingOneTopRow, EnemyFrameId.CrocomireBodyMeltingOneTopRow),
-        (290, CrocomireBodySegment.MeltingOneTopRow, EnemyFrameId.CrocomireBodyMeltingOneTopRow),
+        (220, CrocomireBodySegment.MeltingFleshTopFourRows, EnemyFrameId.CrocomireBodyMeltingFleshTopFourRows),
+        (247, CrocomireBodySegment.MeltingFleshTopFourRows, EnemyFrameId.CrocomireBodyMeltingFleshTopFourRows),
+        (248, CrocomireBodySegment.MeltingFleshTopThreeRows, EnemyFrameId.CrocomireBodyMeltingFleshTopThreeRows),
+        (263, CrocomireBodySegment.MeltingFleshTopThreeRows, EnemyFrameId.CrocomireBodyMeltingFleshTopThreeRows),
+        (264, CrocomireBodySegment.MeltingFleshTopTwoRows, EnemyFrameId.CrocomireBodyMeltingFleshTopTwoRows),
+        (279, CrocomireBodySegment.MeltingFleshTopTwoRows, EnemyFrameId.CrocomireBodyMeltingFleshTopTwoRows),
+        (280, CrocomireBodySegment.MeltingFleshTopRow, EnemyFrameId.CrocomireBodyMeltingFleshTopRow),
+        (290, CrocomireBodySegment.MeltingFleshTopRow, EnemyFrameId.CrocomireBodyMeltingFleshTopRow),
     ];
 
     /// <summary>
@@ -50,7 +50,7 @@ internal static class CrocomireFirstMeltHeightVerification
     internal static void VerifyCrocomireFirstMeltPicturesByHeight()
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
-        fixture.InitializeMap(CrocomireMeltingIllustration.First);
+        fixture.InitializeMap(CrocomireMeltingIllustration.Flesh);
         CrocomireEnemyState state = fixture.Actor;
         RoomEnemyPlace body = state.Body;
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork())
@@ -59,7 +59,7 @@ internal static class CrocomireFirstMeltHeightVerification
         };
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[1024], new RoomBlockBehavior[1024], new RoomBlockAppearance[1024]), RoomLevelData.NothingBeyondGrid(), []);
         var camera = new Position16<RoomPixels>(256, 0);
-        IReadOnlyList<EnemyCollisionHitbox> jawStrip = CrocomireBodyCollision.ComponentsAt(EnemyFrameId.CrocomireBodyMeltingOneTopRow)[0].Hitboxes;
+        IReadOnlyList<EnemyCollisionHitbox> jawStrip = CrocomireBodyCollision.ComponentsAt(EnemyFrameId.CrocomireBodyMeltingFleshTopRow)[0].Hitboxes;
 
         int updates = 0;
         foreach (CrocomireDeathPhase phase in FirstMeltHops)

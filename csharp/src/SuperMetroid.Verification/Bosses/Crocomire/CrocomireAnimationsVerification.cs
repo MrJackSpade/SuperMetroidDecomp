@@ -47,9 +47,14 @@ internal static class CrocomireAnimationsVerification
                 word => BodyCallbacks.ContainsKey(word) ? 0 : null,
                 (word, _, cue, at) => AssertEqual(BodyCallbacks[word], cue, $"{at}: cue")));
         // The closed-mouth loop is no animation of its own (#2166): the roar's mouth closing runs on into it, and the
-        // damage wait roars again from it (#2180).
+        // damage wait roars again from it (#2180). Nor are the runs the projectile attack, the closed-mouth Power Bomb
+        // reaction and the spike-wall charge loop on (#2296), which their animations play on into.
         NativeEnemyAnimationOracle.CompareAnimations(lists, WithNativeRoarRunOn(lists),
-            onlyRunOnInto: new HashSet<CrocomireBodySegment> { CrocomireBodySegment.RoarCloseMouthLoop });
+            onlyRunOnInto: new HashSet<CrocomireBodySegment>
+            {
+                CrocomireBodySegment.RoarCloseMouthLoop, CrocomireBodySegment.ProjectileAttackSpitting,
+                CrocomireBodySegment.PowerBombReactionCharge, CrocomireBodySegment.NearSpikeWallChargeSteps,
+            });
         AssertTrue(lists.Values.All(list => list.Controls.All(control =>
                 control.Kind is NativeEnemyControlKind.Goto or NativeEnemyControlKind.Sleep or NativeEnemyControlKind.RunOnIntoNext
                     or NativeEnemyControlKind.LoopStart)),
@@ -263,7 +268,7 @@ internal static class CrocomireAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
 
         (RoomEnemySystem mouthSystem, CrocomireEnemyState mouthState) = NewCrocomire();
-        mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, shot: 1);
+        mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile mouth = mouthSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         CompareProjectile(cartridge, mouthSystem, mouth, RoomEnemyProjectileKind.CrocomireProjectile, shot: false, "mouth");
@@ -283,7 +288,7 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, shot: 1);
+        shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));

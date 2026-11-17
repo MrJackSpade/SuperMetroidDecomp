@@ -4,9 +4,8 @@ using static SuperMetroid.Verification.Compatibility.ReplacedExpressionAssertion
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
 /// <summary>
-/// Confirms that the named phases Kraid's height paces as he rises and sinks (#1619) read every height exactly as the
-/// masks they replace did: the sway's direction in both rises, the heights at which a ceiling rock drops and the rows of
-/// his sinking schedule.
+/// Confirms that the named phases Kraid's height paces as he rises (#1619) read every height exactly as the
+/// masks they replace did: the sway's direction in both rises and the heights at which a ceiling rock drops.
 /// </summary>
 internal static class KraidHeightPhasesVerification
 {
@@ -18,9 +17,8 @@ internal static class KraidHeightPhasesVerification
             AssertSameAt((y & 2) == 0 ? 1 : -1, KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(y) ? -1 : 1, "ceiling-break sway", y);
             AssertSameAt((y & 2) == 0 ? -1 : 1, KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(y) ? 1 : -1, "raised-body sway", y);
             AssertSameAt((y & 3) == 0, KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(y), "ceiling rock height", y);
-            AssertSameAt((y & 7) == 0, KraidCadenceDefinitions.SinkRowEveryEighthPixel.IsDue(y), "sinking schedule row", y);
         }
 
-        Console.WriteLine("Kraid height phases: every height sways, drops ceiling rocks and reaches sinking rows as the masks they replace.");
+        Console.WriteLine("Kraid height phases: every height sways and drops ceiling rocks as the masks they replace.");
     }
 }

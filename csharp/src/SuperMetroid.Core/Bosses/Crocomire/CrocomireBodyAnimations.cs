@@ -6,7 +6,13 @@ using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodySegment;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and the animation starting at each.</summary>
+/// <summary>
+/// Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and the animation
+/// starting at each, which plays each of its segments whole (#2296). Where he shows one picture twice in a row (his damage
+/// wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the frame shown for a fixed count,
+/// after which the second showing still plays its own duration, and each showing raises the new-frame flag from which his
+/// body shows the picture.
+/// </summary>
 internal static class CrocomireBodyAnimations
 {
     /// <summary>Every body, melting and skeleton segment's beats.</summary>
@@ -49,6 +55,9 @@ internal static class CrocomireBodyAnimations
             Cue(K.Cry),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 5),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthGaping, 5),
+        ],
+        [P.ProjectileAttackSpitting] =
+        [
             Cue(K.FightAi),
             Show(F.CrocomireBodyLungingArmBent, 8),
             Show(F.CrocomireBodyLungingArmRaised, 7),
@@ -269,6 +278,9 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodySwingingArmReturning, 5),
             Cue(K.BigExplosionSound),
             Dust(-16),
+        ],
+        [P.PowerBombReactionCharge] =
+        [
             Show(F.CrocomireBodyNearFootForwardArmBent, 4),
             Cue(K.ShakeScreen),
             Step(CrocomireStepDefinitions.AdvanceRaisingDust),
@@ -335,6 +347,9 @@ internal static class CrocomireBodyAnimations
             Cue(K.FightAi),
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 2),
             Cue(K.FightAi),
+        ],
+        [P.NearSpikeWallChargeSteps] =
+        [
             Show(F.CrocomireBodyNearFootForwardArmBent, 3),
             Cue(K.ShakeScreen),
             Step(CrocomireStepDefinitions.AdvanceRaisingDust),
@@ -377,37 +392,37 @@ internal static class CrocomireBodyAnimations
             Step(CrocomireStepDefinitions.BackOff),
             Cue(K.FightAi),
         ],
-        [P.MeltingOneTopRow] =
+        [P.MeltingFleshTopRow] =
         [
-            Show(F.CrocomireBodyMeltingOneTopRow, LoopingMeltFrameDuration),
+            Show(F.CrocomireBodyMeltingFleshTopRow, LoopingMeltFrameDuration),
         ],
-        [P.MeltingOneTopTwoRows] =
+        [P.MeltingFleshTopTwoRows] =
         [
-            Hold(F.CrocomireBodyMeltingOneTopTwoRows),
+            Hold(F.CrocomireBodyMeltingFleshTopTwoRows),
         ],
-        [P.MeltingOneTopThreeRows] =
+        [P.MeltingFleshTopThreeRows] =
         [
-            Hold(F.CrocomireBodyMeltingOneTopThreeRows),
+            Hold(F.CrocomireBodyMeltingFleshTopThreeRows),
         ],
-        [P.MeltingOneTopFourRows] =
+        [P.MeltingFleshTopFourRows] =
         [
-            Hold(F.CrocomireBodyMeltingOneTopFourRows),
+            Hold(F.CrocomireBodyMeltingFleshTopFourRows),
         ],
-        [P.MeltingTwoTopRow] =
+        [P.MeltingBareSkullTopRow] =
         [
-            Show(F.CrocomireBodyMeltingTwoTopRow, LoopingMeltFrameDuration),
+            Show(F.CrocomireBodyMeltingBareSkullTopRow, LoopingMeltFrameDuration),
         ],
-        [P.MeltingTwoTopTwoRows] =
+        [P.MeltingBareSkullTopTwoRows] =
         [
-            Hold(F.CrocomireBodyMeltingTwoTopTwoRows),
+            Hold(F.CrocomireBodyMeltingBareSkullTopTwoRows),
         ],
-        [P.MeltingTwoTopThreeRows] =
+        [P.MeltingBareSkullTopThreeRows] =
         [
-            Hold(F.CrocomireBodyMeltingTwoTopThreeRows),
+            Hold(F.CrocomireBodyMeltingBareSkullTopThreeRows),
         ],
-        [P.MeltingTwoTopFourRows] =
+        [P.MeltingBareSkullTopFourRows] =
         [
-            Hold(F.CrocomireBodyMeltingTwoTopFourRows),
+            Hold(F.CrocomireBodyMeltingBareSkullTopFourRows),
         ],
         [P.BridgeCollapsed] =
         [
@@ -425,41 +440,41 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonFallsApart] =
         [
-            Show(F.CrocomireBodySkeletonCollapsing158By134, 10),
+            Show(F.CrocomireBodySkeletonCollapseStage1, 10),
             Dust(-32),
-            Show(F.CrocomireBodySkeletonCollapsing141By132, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage2, 5),
             Dust(0),
-            Show(F.CrocomireBodySkeletonCollapsing141By132, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage2, 5),
             Dust(-16),
-            Show(F.CrocomireBodySkeletonCollapsing142By127, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage3, 5),
             Dust(16),
-            Show(F.CrocomireBodySkeletonCollapsing142By127, 5),
-            Show(F.CrocomireBodySkeletonCollapsing143By130, 10),
-            Show(F.CrocomireBodySkeletonCollapsing143By131, 32),
-            Show(F.CrocomireBodySkeletonCollapsing160By130, 16),
+            Show(F.CrocomireBodySkeletonCollapseStage3, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage4, 10),
+            Show(F.CrocomireBodySkeletonCollapseStage5, 32),
+            Show(F.CrocomireBodySkeletonCollapseStage6, 16),
             Cue(K.SkeletonCollapseSound),
-            Show(F.CrocomireBodySkeletonCollapsing159By122, 10),
-            Show(F.CrocomireBodySkeletonCollapsing158By118, 9),
-            Show(F.CrocomireBodySkeletonCollapsing158By108, 9),
+            Show(F.CrocomireBodySkeletonCollapseStage7, 10),
+            Show(F.CrocomireBodySkeletonCollapseStage8, 9),
+            Show(F.CrocomireBodySkeletonCollapseStage9, 9),
             Dust(0),
-            Show(F.CrocomireBodySkeletonCollapsing158By109, 8),
+            Show(F.CrocomireBodySkeletonCollapseStage10, 8),
             Dust(8),
-            Show(F.CrocomireBodySkeletonCollapsing177By87, 8),
+            Show(F.CrocomireBodySkeletonCollapseStage11, 8),
             Dust(16),
-            Show(F.CrocomireBodySkeletonCollapsing174By82, 7),
+            Show(F.CrocomireBodySkeletonCollapseStage12, 7),
             Dust(24),
-            Show(F.CrocomireBodySkeletonCollapsing185By79, 7),
+            Show(F.CrocomireBodySkeletonCollapseStage13, 7),
             Dust(32),
-            Show(F.CrocomireBodySkeletonCollapsing189By77, 6),
+            Show(F.CrocomireBodySkeletonCollapseStage14, 6),
             Dust(40),
-            Show(F.CrocomireBodySkeletonCollapsing173By77, 6),
+            Show(F.CrocomireBodySkeletonCollapseStage15, 6),
             Dust(48),
-            Show(F.CrocomireBodySkeletonCollapsing153By84, 6),
+            Show(F.CrocomireBodySkeletonCollapseStage16, 6),
             Dust(56),
-            Show(F.CrocomireBodySkeletonCollapsing120By71, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage17, 5),
             Dust(64),
             Cue(K.BigExplosionSound),
-            Show(F.CrocomireBodySkeletonCollapsing120By68, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage18, 5),
         ],
         [P.SkeletonStable] =
         [
@@ -471,16 +486,16 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonFlowingDownRiver] =
         [
-            Show(F.CrocomireBubbles6By7Risen0, 4),
-            Show(F.CrocomireBubbles12By12Risen6, 4),
-            Show(F.CrocomireBubbles14By13Risen8, 4),
-            Show(F.CrocomireBubbles12By14Risen11, 4),
-            Show(F.CrocomireBubbles12By14Risen14, 4),
-            Show(F.CrocomireBubbles10By13Risen15, 4),
-            Show(F.CrocomireBubbles10By12Risen16, 4),
-            Show(F.CrocomireBubbles8By10Risen16, 4),
-            Show(F.CrocomireBubbles4By6Risen14, 4),
-            Show(F.CrocomireBubbles4By6Adrift, 20),
+            Show(F.CrocomireBubblesRisingStage1, 4),
+            Show(F.CrocomireBubblesRisingStage2, 4),
+            Show(F.CrocomireBubblesRisingStage3, 4),
+            Show(F.CrocomireBubblesRisingStage4, 4),
+            Show(F.CrocomireBubblesRisingStage5, 4),
+            Show(F.CrocomireBubblesRisingStage6, 4),
+            Show(F.CrocomireBubblesRisingStage7, 4),
+            Show(F.CrocomireBubblesRisingStage8, 4),
+            Show(F.CrocomireBubblesRisingStage9, 4),
+            Show(F.CrocomireBubblesAdrift, 20),
         ],
     });
 
@@ -492,39 +507,54 @@ internal static class CrocomireBodyAnimations
     /// </summary>
     internal static IReadOnlyDictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodySegment, Animation<CrocomireBodySegment>>
     {
-        [P.Initial] = new([new(P.Initial, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ProjectileAttack] = new([new(P.ProjectileAttack, 0, 29, 1), new(P.ProjectileAttack, 29, 6, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.StepForwardAfterDelay] = new([new(P.StepForwardAfterDelay, 0, 1, 1), new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.StepForward] = new([new(P.StepForward, 0, 35, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.StepBack] = new([new(P.StepBack, 0, 1, 1), new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(4)),
-        [P.SteppingBack] = new([new(P.SteppingBack, 0, 12, 1), new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.WaitForFirstSecondDamage] = new([new(P.WaitForFirstSecondDamage, 0, 33, 1), new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.MovingClaws] = new([new(P.MovingClaws, 0, 26, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Roar] = new([new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RoarCloseMouth] = new([new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1), new(P.Roar, 0, 33, 1), new(P.RoarCloseMouth, 0, 6, 1), new(P.RoarCloseMouthLoop, 0, 2, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthFullyOpen] = new([new(P.PowerBombReactionMouthFullyOpen, 0, 1, 1), new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpen, 25, 26, 1)], AnimationEnd.LoopsFrom(3)),
-        [P.PowerBombReactionMouthPartiallyOpen] = new([new(P.PowerBombReactionMouthPartiallyOpen, 0, 1, 1), new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpen, 25, 26, 1)], AnimationEnd.LoopsFrom(2)),
-        [P.PowerBombReactionMouthNotOpen] = new([new(P.PowerBombReactionMouthNotOpen, 0, 25, 1), new(P.PowerBombReactionMouthNotOpen, 25, 26, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.NearSpikeWallCharge] = new([new(P.NearSpikeWallCharge, 0, 37, 1), new(P.NearSpikeWallCharge, 37, 26, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.BackOffFromSpikeWall] = new([new(P.BackOffFromSpikeWall, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingOneTopRow] = new([new(P.MeltingOneTopRow, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingOneTopTwoRows] = new([new(P.MeltingOneTopTwoRows, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MeltingOneTopThreeRows] = new([new(P.MeltingOneTopThreeRows, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MeltingOneTopFourRows] = new([new(P.MeltingOneTopFourRows, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MeltingTwoTopRow] = new([new(P.MeltingTwoTopRow, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingTwoTopTwoRows] = new([new(P.MeltingTwoTopTwoRows, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MeltingTwoTopThreeRows] = new([new(P.MeltingTwoTopThreeRows, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MeltingTwoTopFourRows] = new([new(P.MeltingTwoTopFourRows, 0, 1, 1)], AnimationEnd.Holds),
-        [P.BridgeCollapsed] = new([new(P.BridgeCollapsed, 0, 5, 1)], AnimationEnd.Holds),
-        [P.SkeletonFalling] = new([new(P.SkeletonFalling, 0, 3, 1)], AnimationEnd.Holds),
-        [P.SkeletonFallsApart] = new([new(P.SkeletonFallsApart, 0, 35, 1), new(P.SkeletonStable, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SkeletonStable] = new([new(P.SkeletonStable, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Dead] = new([new(P.Dead, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SkeletonFlowingDownRiver] = new([new(P.SkeletonFlowingDownRiver, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
+        [P.ProjectileAttack] = new([Whole(P.ProjectileAttack), Whole(P.ProjectileAttackSpitting)], AnimationEnd.LoopsFrom(1)),
+        [P.StepForwardAfterDelay] = new([Whole(P.StepForwardAfterDelay), Whole(P.StepForward)], AnimationEnd.LoopsFrom(1)),
+        [P.StepForward] = new([Whole(P.StepForward)], AnimationEnd.LoopsFrom(0)),
+        [P.StepBack] = new([Whole(P.StepBack), Whole(P.SteppingBack), Whole(P.WaitForFirstSecondDamage), Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(4)),
+        [P.SteppingBack] = new([Whole(P.SteppingBack), Whole(P.WaitForFirstSecondDamage), Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(3)),
+        [P.WaitForFirstSecondDamage] = new([Whole(P.WaitForFirstSecondDamage), Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
+        [P.MovingClaws] = new([Whole(P.MovingClaws), Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(1)),
+        [P.Roar] = new([Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(0)),
+        [P.RoarCloseMouth] = new([Whole(P.RoarCloseMouth), ClosedMouthToFightCue, Whole(P.Roar), Whole(P.RoarCloseMouth), ClosedMouthToFightCue], AnimationEnd.LoopsFrom(2)),
+        [P.PowerBombReactionMouthFullyOpen] = new([Whole(P.PowerBombReactionMouthFullyOpen), Whole(P.PowerBombReactionMouthPartiallyOpen), Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(3)),
+        [P.PowerBombReactionMouthPartiallyOpen] = new([Whole(P.PowerBombReactionMouthPartiallyOpen), Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(2)),
+        [P.PowerBombReactionMouthNotOpen] = new([Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(1)),
+        [P.NearSpikeWallCharge] = new([Whole(P.NearSpikeWallCharge), Whole(P.NearSpikeWallChargeSteps)], AnimationEnd.LoopsFrom(1)),
+        [P.BackOffFromSpikeWall] = new([Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingFleshTopRow] = new([Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingFleshTopTwoRows] = new([Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopThreeRows] = new([Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopFourRows] = new([Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopRow] = new([Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingBareSkullTopTwoRows] = new([Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopThreeRows] = new([Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopFourRows] = new([Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
+        [P.BridgeCollapsed] = new([Whole(P.BridgeCollapsed)], AnimationEnd.Holds),
+        [P.SkeletonFalling] = new([Whole(P.SkeletonFalling)], AnimationEnd.Holds),
+        [P.SkeletonFallsApart] = new([Whole(P.SkeletonFallsApart), Whole(P.SkeletonStable)], AnimationEnd.Holds),
+        [P.SkeletonStable] = new([Whole(P.SkeletonStable)], AnimationEnd.Holds),
+        [P.Dead] = new([Whole(P.Dead)], AnimationEnd.Holds),
+        [P.SkeletonFlowingDownRiver] = new([Whole(P.SkeletonFlowingDownRiver)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrocomireBodySegment> StartingWith(CrocomireBodySegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/> (#2296).</summary>
+    private static AnimationPhase<CrocomireBodySegment> Whole(CrocomireBodySegment segment) =>
+        new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>
+    /// The roar's closed mouth played up to and with its first fight cue, after which the animations that play it roar again
+    /// (#2180). The segment shows the closed mouth and runs the fight cue once more after that cue, which no play reaches.
+    /// </summary>
+    private static AnimationPhase<CrocomireBodySegment> ClosedMouthToFightCue =>
+        new(P.RoarCloseMouthLoop, 0, Segments.Beats(P.RoarCloseMouthLoop).ToList().FindIndex(IsFightCue) + 1, 1);
+
+    /// <summary>Whether <paramref name="beat"/> runs his fight AI.</summary>
+    private static bool IsFightCue(AnimationBeat<EnemyFrameId, CrocomireBodyCue> beat) =>
+        beat is AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Event { Raised: CrocomireBodyCue.Signal { Kind: K.FightAi } };
 
     /// <summary>
     /// Shows <paramref name="frame"/> for good (#1627): the body rests on it until its owner starts another animation. A shot

@@ -115,7 +115,7 @@ internal static class KraidHeadAnimations
             "Kraid's head animation has not started, so its mouth and growth reads have no pose to look at.");
         KraidHeadSegmentPlace place = PlaceOf(started);
         IReadOnlyList<AnimationBeat<KraidHeadFrame, KraidHeadCue>> beats = Segments.Beats(place.Segment);
-        if ((uint)place.Step > (uint)beats.Count)
+        if (place.Step < 0 || place.Step > beats.Count)
             throw new InvalidOperationException($"Kraid head place {place} is outside its segment.");
         KraidHeadFrame?[] steps = [.. beats.Select(beat => beat.ShownFrame)];
         KraidMouthTrailsHead.MouthShapes<KraidHeadFrame> shapes =

@@ -170,6 +170,35 @@ internal static class KraidArenaDefinitions
     /// <summary>The height Kraid's sinking body reaches when he has sunk below the floor.</summary>
     internal const int SunkY = 608;
 
+    /// <summary>
+    /// The heights at which Kraid's sinking body crumbles a platform block (#1889, #2300), and the block each crumbles; he
+    /// crumbles nothing at any other height.
+    /// </summary>
+    internal static readonly FrozenDictionary<int, KraidSinkStep> SinkCrumbles = new Dictionary<int, KraidSinkStep>
+    {
+        [304] = KraidSinkStep.CrumbleLeftPlatformLeft,
+        [328] = KraidSinkStep.CrumbleRightPlatformMiddle,
+        [352] = KraidSinkStep.CrumbleRightPlatformLeft,
+        [384] = KraidSinkStep.CrumbleLeftPlatformRight,
+        [408] = KraidSinkStep.CrumbleLeftPlatformMiddle,
+        [432] = KraidSinkStep.CrumbleRightPlatformRight,
+    }.ToFrozenDictionary();
+
+    /// <summary>The height his ceiling rocks start falling from.</summary>
+    internal const int CeilingRockY = 312;
+
+    /// <summary>Where his spit rock leaves his body: sixteen pixels right of it and ninety-six up.</summary>
+    internal static readonly Offset16<RoomPixels> SpitRockOffset = new(16, -96);
+
+    /// <summary>The speed his spit rock rises at as it leaves his mouth: four pixels an update.</summary>
+    internal static readonly SignedEightEight SpitRockRise = SignedEightEight.FromPixels(-4);
+
+    /// <summary>The updates of one step of his thinking delay.</summary>
+    internal const int ThinkingDelayStepUpdates = 64;
+
+    /// <summary>The steps his thinking delay takes when its random roll is none.</summary>
+    internal const int ThinkingDelayStepsOnNoRoll = 2;
+
     /// <summary>The drops Kraid's death scatters over his floor.</summary>
     internal const int DeathDropCount = 16;
 

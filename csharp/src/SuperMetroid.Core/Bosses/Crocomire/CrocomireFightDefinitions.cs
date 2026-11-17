@@ -6,6 +6,18 @@ internal static class CrocomireFightDefinitions
     /// <summary>How close Samus comes horizontally, exclusive, before his idle body wakes, in pixels.</summary>
     internal const int WakeDistance = 224;
 
+    /// <summary>
+    /// The body X left of which his step forward turns into his charge near the spike wall, and at or right of which his
+    /// backing off from the wall ends.
+    /// </summary>
+    internal const int SpikeWallChargeX = 768;
+
+    /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>
+    internal const int TongueBodyXOffset = 23;
+
+    /// <summary>How far above the bottom of his body the dust he raises rises, in pixels.</summary>
+    internal const int DustAboveBodyBottom = 16;
+
     /// <summary>How far his invisible wall pushes Samus each update she presses it: four pixels back and one up.</summary>
     internal static readonly Offset16<RoomPixels> WallPush = new(-4, -1);
 

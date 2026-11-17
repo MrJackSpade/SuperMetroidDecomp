@@ -118,19 +118,15 @@ internal sealed class CrocomireCombat
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>
-        private void StartCrocomireProjectileFlight(
+        private static void StartCrocomireProjectileFlight(
             EnemyProjectile projectile,
             RoomLevelData level)
         {
             // The setup performs one horizontal collision move and deliberately ignores whether it hit terrain.
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
-            // The last shot reads the gradient after the authored ones, which the installed service holds; do not clamp
-            // it to the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
-            int shot = projectile.StateOf<CrocomireProjectileState>().Shot;
-            int gradient = CrocomireVolley.IsLastShot(shot)
-                ? access.TenthShotGradient.Gradient
-                : CrocomireVolley.AuthoredGradient(shot);
+            // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
+            int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
             projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }
@@ -149,11 +145,10 @@ internal sealed class CrocomireCombat
             }
             piece.Acceleration = acceleration;
 
-            // The velocity gains the acceleration's whole 256ths of a pixel: a fraction that passes a whole pixel raises
-            // the whole velocity by one, and the whole pixels are then capped by this piece's maximum. The piece starts at
-            // rest and its whole velocity stays at or below its cap of at most six pixels.
-            SignedEightEight xVelocity = (projectile.Velocity.X + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.InTwoFiftySixths))
-                .WithWholePixelsAtMost(CrocomireSpikeMotion.MaximumVelocity(piece.Piece));
+            // The velocity gains the acceleration as Crocomire's falling pieces gain speed (CrocomireSpeedGain), up to this
+            // piece's fastest: the piece starts at rest and its whole velocity stays at or below its cap of at most six pixels.
+            SignedEightEight xVelocity = CrocomireSpeedGain.Gained(projectile.Velocity.X, acceleration,
+                SignedEightEight.FromPixels(CrocomireSpikeMotion.MaximumVelocity(piece.Piece)));
             projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
             // Move X in 256ths of a pixel, as the game's projectile mover does: the position's precision finer than a
@@ -279,9 +274,8 @@ internal sealed class CrocomireCombat
 
         // A hit while Crocomire's body is off screen skips choosing the projectile's family and still records the
         // pending hit. The body is on screen while its left edge lies left of the camera's right edge, 256 pixels past
-        // the camera, compared around the room's wrap.
-        bool bodyLeftEdgeIsOnScreen = CoordinateAxis.Difference(
-            body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach, camera.X) < 0;
+        // the camera.
+        bool bodyLeftEdgeIsOnScreen = body.Position.X.Whole - body.Radius.X - CrocomireFightDefinitions.MouthShotScreenReach < camera.X;
         int stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
@@ -417,10 +411,10 @@ internal sealed class CrocomireCombat
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
+                        componentOrigin.X + hitbox.Left,
+                        componentOrigin.Y + hitbox.Top,
+                        componentOrigin.X + hitbox.Right,
+                        componentOrigin.Y + hitbox.Bottom))
                     continue;
                 reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;

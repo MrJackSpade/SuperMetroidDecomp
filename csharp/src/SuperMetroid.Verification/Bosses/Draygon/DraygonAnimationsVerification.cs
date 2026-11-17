@@ -44,9 +44,16 @@ internal static class DraygonAnimationsVerification
         // comparison takes for a body no animation starts in; it is compared below from the preamble's count.
         HashSet<DraygonSegment> preambled = [.. CounterPreambles.Select(preamble => preamble.Program)];
         // The body's dying cry is no animation of its own (#2175): the arms' dying runs on into it, and no owner starts it.
+        // Nor are the runs that follow a counted run (#2296): the dying's paralysis and its looping burst, the eye's dying
+        // stare and the tail's release of Samus, which the animations play on into.
         NativeEnemyAnimationOracle.CompareAnimations(lists,
             DraygonAnimations.StartingAt.Where(pair => !preambled.Contains(pair.Key)).ToDictionary(pair => pair.Key, pair => pair.Value),
-            onlyRunOnInto: new HashSet<DraygonSegment> { DraygonSegment.BodyDying });
+            onlyRunOnInto: new HashSet<DraygonSegment>
+            {
+                DraygonSegment.BodyDying, DraygonSegment.BodyDyingParalysis, DraygonSegment.BodyDyingExplosionLoop,
+                DraygonSegment.EyeFacingLeftDyingStare, DraygonSegment.EyeFacingRightDyingStare,
+                DraygonSegment.TailFacingLeftReleaseSamus, DraygonSegment.TailFacingRightReleaseSamus,
+            });
         foreach (DraygonNativeListAddressesEntry preamble in CounterPreambles)
         {
             int address = (BodyBankNumber << 16) | preamble.Entry;
@@ -286,7 +293,7 @@ internal static class DraygonAnimationsVerification
                 AssertEqual(Started(DraygonSegment.Rest), state.TailPart.Playback, $"{at}: the tail sleeps");
                 AnimationPlayback<DraygonSegment> armsPlayback = state.ArmsPart.Playback;
                 AnimationPhase<DraygonSegment> running = armsPlayback.Animation.Phases[armsPlayback.Place.Phase];
-                AssertEqual((DraygonSegment.BodyDyingExplosions, 8), (running.Segment, running.FirstBeat),
+                AssertEqual((DraygonSegment.BodyDyingExplosionLoop, 0), (running.Segment, running.FirstBeat),
                     $"{at}: the running arms keep their own program, its explosions' loop, as the native final store replaces the paralysis");
             }
         }

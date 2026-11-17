@@ -14,9 +14,9 @@ internal static class CrocomireMeltingSources
     /// <exception cref="InvalidOperationException"><paramref name="illustration"/> is not a melt image.</exception>
     internal static MeltingGraphicsSource Graphics(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First =>
+        CrocomireMeltingIllustration.Flesh =>
             new MeltingGraphicsSource(CrocomireMeltingSourceDefinitions.GraphicsBank, CrocomireMeltingSourceDefinitions.FirstPassFirstChunk),
-        CrocomireMeltingIllustration.Second =>
+        CrocomireMeltingIllustration.BareSkull =>
             new MeltingGraphicsSource(CrocomireMeltingSourceDefinitions.GraphicsBank, CrocomireMeltingSourceDefinitions.SecondPassFirstChunk),
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMeltingIllustration)} {illustration}."),
     };
@@ -25,8 +25,8 @@ internal static class CrocomireMeltingSources
     /// <exception cref="InvalidOperationException"><paramref name="illustration"/> is not a melt image.</exception>
     internal static int Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First => CrocomireMeltingSourceDefinitions.FirstTilemap,
-        CrocomireMeltingIllustration.Second => CrocomireMeltingSourceDefinitions.SecondTilemap,
+        CrocomireMeltingIllustration.Flesh => CrocomireMeltingSourceDefinitions.FirstTilemap,
+        CrocomireMeltingIllustration.BareSkull => CrocomireMeltingSourceDefinitions.SecondTilemap,
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMeltingIllustration)} {illustration}."),
     };
 

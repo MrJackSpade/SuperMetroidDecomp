@@ -95,11 +95,11 @@ internal static class LookupStream5Verification
         var native = new ushort[2][];
         for (int phase = 0; phase < 2; phase++)
         {
-            CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.First : CrocomireMeltingIllustration.Second;
+            CrocomireMeltingIllustration source = phase == 0 ? CrocomireMeltingIllustration.Flesh : CrocomireMeltingIllustration.BareSkull;
             native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, SuperMetroid.AssetExtraction.Enemies.CrocomireMeltingSources.Tilemap(source) + i * 2)).ToArray();
             AssertTrue(BackgroundTileWordBytes.Words((art ?? throw new InvalidOperationException("Verification requires art.")).Tilemap(source)).SequenceEqual(native[phase]), "Installed melt words");
             VerifyInstalledCrocomireMeltingTilemap(oracle, catalog, source, phase == 0
-                ? CrocomireBodySegment.MeltingOneTopRow : CrocomireBodySegment.MeltingTwoTopRow);
+                ? CrocomireBodySegment.MeltingFleshTopRow : CrocomireBodySegment.MeltingBareSkullTopRow);
         }
         var first = art.first;
         var second = art.second;
@@ -109,7 +109,7 @@ internal static class LookupStream5Verification
             content.AppendTiles("first-map", BackgroundTileWordBytes.Tiles(native[0])); content.AppendTiles("second-map", BackgroundTileWordBytes.Tiles(native[1]));
         });
         AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
-        AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(CrocomireMeltingIllustration.Second + 1); }, "Unknown map identity rejects");
+        AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(CrocomireMeltingIllustration.BareSkull + 1); }, "Unknown map identity rejects");
         Console.WriteLine("Crocomire melt layouts: 512 native words, both actual guarded BG2 uploads and canonical identity pass.");
     }
     /// <summary>Checks Crocomire skeleton VRAM transfer staging and destinations.</summary>

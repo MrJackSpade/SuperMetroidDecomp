@@ -14,9 +14,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// first step, the skeleton its speed) except where one phase hands the same meaning to the next (a hop's sink
 /// continues the rise's speed and acceleration). The one value a phase reads under another meaning is a rise's
 /// acceleration, which starts as the death-phase delay the sink left: zero after a submerged pause, which counts its
-/// delay out, but forty-eight 256ths after a melt, which skips the pause. A rise reads only the acceleration's whole
-/// pixels, which the leftover fraction never reaches before the acceleration's ceiling discards it, and every melt's
-/// rise is followed by a new sink from rest, so a rise here starts from no acceleration.
+/// delay out, but forty-eight 65536ths of a pixel an update an update after a melt, which skips the pause. A rise reads
+/// only the acceleration's whole 256ths, which that leftover never reaches before the acceleration's ceiling discards it,
+/// and every melt's rise is followed by a new sink from rest, so a rise here starts from no acceleration.
 /// </remarks>
 public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
@@ -52,7 +52,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// rests on after. The death waits on this before it lays his dead skeleton down.
     /// </summary>
     internal bool SkeletonHasCollapsed =>
-        BodyFrame is EnemyFrameId.CrocomireBodySkeletonCollapsing120By68 or EnemyFrameId.CrocomireBodySkeletonStable;
+        BodyFrame is EnemyFrameId.CrocomireBodySkeletonCollapseStage18 or EnemyFrameId.CrocomireBodySkeletonStable;
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
@@ -104,10 +104,10 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public bool RumbleTowardExtreme { get; internal set; }
 
     /// <summary>
-    /// While the body sinks or rises: the vertical acceleration per frame. The sink clamps its whole part at forty-eight
-    /// pixels and the rise at thirty-one, and both start from none, so it never reaches the type's wrap.
+    /// While the body sinks or rises: the vertical acceleration, in pixels an update an update (#2299). The sink stops its
+    /// 256ths at forty-eight and the rise at thirty-one, and both start from none.
     /// </summary>
-    public SignedEightEight VerticalAcceleration { get; internal set; }
+    public SignedSixteenSixteen VerticalAcceleration { get; internal set; }
 
     /// <summary>
     /// While the body sinks or rises: the vertical speed per frame, down while sinking and up while rising. The sink clamps
@@ -143,9 +143,9 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// Starts a sink from rest: clears the vertical speed and carried fraction, then sets the starting acceleration of
-    /// <paramref name="acceleration"/> per frame per frame.
+    /// <paramref name="acceleration"/>.
     /// </summary>
-    internal void StartVerticalMotion(SignedEightEight acceleration)
+    internal void StartVerticalMotion(SignedSixteenSixteen acceleration)
     {
         VerticalSpeed = SignedEightEight.Zero;
         VerticalFraction = SignedEightEight.Zero;

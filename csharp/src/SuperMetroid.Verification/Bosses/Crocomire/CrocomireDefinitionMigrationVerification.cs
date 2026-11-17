@@ -20,22 +20,13 @@ internal static class CrocomireDefinitionMigrationVerification
         AssertEqual(17, CrocomireColorDefinitions.InitialWallCount, "initial wall colours");
         AssertEqual(0xa4b89d, CrocomireSourceDefinitions.FightBodyColors, "fight body source");
         AssertEqual(0xa4b91d, CrocomireSourceDefinitions.WallSpikesColors, "wall spikes source");
-        AssertEqual(0xa49c79, CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.First), "first melting tilemap source");
-        AssertEqual(0xa49e7b, CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second), "second melting tilemap source");
+        AssertEqual(0xa49c79, CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Flesh), "first melting tilemap source");
+        AssertEqual(0xa49e7b, CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.BareSkull), "second melting tilemap source");
         AssertEqual(0xada600, CrocomireSourceDefinitions.SkeletonChunk(0), "first skeleton chunk source");
         AssertEqual(0xada600 + 5 * 0x200, CrocomireSourceDefinitions.SkeletonChunk(5), "last skeleton chunk source");
 
-        // The volley's authored gradients, for every shot before the last.
-        for (int shot = 1; shot < CrocomireProjectileDefinitions.VolleyShotCount; shot++)
-        {
-            int expected = shot switch
-            {
-                3 or 6 => -16,
-                1 or 4 or 7 => 0,
-                _ => 32,
-            };
-            AssertEqual(expected, CrocomireVolley.AuthoredGradient(shot), $"volley gradient for shot {shot}");
-        }
+        // The volley's authored gradients, for every shot before the last, in firing order.
+        AssertTrue(CrocomireProjectileDefinitions.AuthoredGradients.SequenceEqual([0, 32, -16, 0, 32, -16, 0, 32]), "volley gradients in firing order");
         AssertEqual(4, CrocomireProjectileDefinitions.VelocityMultiplier, "volley velocity factor");
 
         // The damage-reaction latch is a bit of the cartridge's body variable B, whose mouth-hit count nothing in the fight

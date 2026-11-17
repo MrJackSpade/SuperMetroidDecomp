@@ -189,8 +189,8 @@ internal sealed class KraidDeath
             state.DeathSoundTimer = KraidArenaDefinitions.SinkSoundIntervalUpdates;
         }
         TakeKraidSinkStep(body);
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, KraidArenaDefinitions.SunkY) < 0)
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
+        if (body.Position.Y.Whole < KraidArenaDefinitions.SunkY)
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);

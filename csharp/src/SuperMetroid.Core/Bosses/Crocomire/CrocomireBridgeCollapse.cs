@@ -45,13 +45,13 @@ internal sealed class CrocomireBridgeCollapse
     {
         RoomEnemyPlace body = state.Body;
         HandleCrocomireBridgeApproach(body, state.Death);
-        if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBehavior.CrocomireBridgeThreshold) < 0)
+        if (body.Position.X.Whole < CrocomireBridgeCollapseDefinitions.CollapseStartX)
             return;
 
         state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.BridgeCollapsed);
         body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-        state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
+        state.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         body.Radius = body.Radius.WithY(16);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = state.Death;
@@ -76,7 +76,7 @@ internal sealed class CrocomireBridgeCollapse
     private void HandleCrocomireBridgeApproach(RoomEnemyPlace body, CrocomireDeathState death)
     {
         int x = body.Position.X.Whole;
-        if (CoordinateAxis.Difference(x, ApproachStage(0)) < 0)
+        if (x < ApproachStage(0))
         {
             death.ApproachDustRaised = false;
             death.FirstBridgeBlockCrumbling = false;
@@ -84,7 +84,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        if (CoordinateAxis.Difference(x, ApproachStage(1)) < 0)
+        if (x < ApproachStage(1))
         {
             if (!death.ApproachDustRaised)
             {
@@ -95,7 +95,7 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         // One block deep crumbles the first bridge block.
-        if (CoordinateAxis.Difference(x, ApproachStage(2)) < 0)
+        if (x < ApproachStage(2))
         {
             if (!death.FirstBridgeBlockCrumbling)
             {
@@ -107,7 +107,7 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         // Two blocks deep crumbles the next pair.
-        if (CoordinateAxis.Difference(x, ApproachStage(3)) < 0 &&
+        if (x < ApproachStage(3) &&
             !death.NextBridgeBlocksCrumbling)
         {
             death.NextBridgeBlocksCrumbling = true;
@@ -135,7 +135,7 @@ internal sealed class CrocomireBridgeCollapse
             _access.PublishCrocomireObject(
                 CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(block, 0), CrocomireArenaMutation.ClearBridgeBlock);
 
-        for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
+        for (int puff = 0; puff < CrocomireBridgeCollapseDefinitions.CollapseDustCount; puff++)
             _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
 
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
@@ -146,7 +146,7 @@ internal sealed class CrocomireBridgeCollapse
     /// approach's dust row, the others lie on the lower row.
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
-        (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
+        puff is >= 0 and < CrocomireBridgeCollapseDefinitions.CollapseDustCount
             ? new Position16<RoomPixels>(ApproachStage(puff),
                 puff is 0 or 2 ? CrocomireBridgeCollapseDefinitions.DustY : CrocomireBridgeCollapseDefinitions.LowDustY)
             : throw new ArgumentOutOfRangeException(nameof(puff));
@@ -181,7 +181,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireFirstMeltSinkingComposite(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.First);
+        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Flesh);
         RunCrocomireSink(state, camera);
     }
 
@@ -192,7 +192,7 @@ internal sealed class CrocomireBridgeCollapse
     internal void RunCrocomireFirstMeltRisingComposite(CrocomireEnemyState state)
     {
         _bodyLayer.SpawnCrocomireAcidSmoke(state);
-        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.First);
+        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Flesh);
         RunCrocomireRise(state);
     }
 
@@ -216,7 +216,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
         state.DeathPhase = state.DeathPhase.Next();
-        state.VerticalSpeed = SignedEightEight.FromPixels(CrocomireBehavior.MaximumSinkSpeedWhole);
+        state.VerticalSpeed = CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed;
     }
 
     /// <summary>Crocomire's exact fixed-point sinking fall, with the camera his main update runs with.</summary>
@@ -227,30 +227,28 @@ internal sealed class CrocomireBridgeCollapse
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
         RoomEnemyPlace body = state.Body;
 
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, CrocomireBridgeCollapseDefinitions.SunkenY) >= 0)
+        if (body.Position.Y.Whole >= CrocomireBridgeCollapseDefinitions.SunkenY)
         {
             state.DeathPhase = state.DeathPhase.Next();
             state.DeathPhaseDelay = CrocomireBridgeCollapseDefinitions.SubmergedPause;
             // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
-            state.VerticalAcceleration = SignedEightEight.Zero;
+            state.VerticalAcceleration = SignedSixteenSixteen.Zero;
             return;
         }
 
         body.AnimationClock.ShowsNewFrame = false;
 
-        // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
-        // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
-        SignedEightEight acceleration = (state.VerticalAcceleration + CrocomireBehavior.SinkAccelerationIncrement)
-            .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkAccelerationWhole);
+        // The acceleration grows, its 256ths stopping at the sink's most with its finer part kept; the speed then gains it
+        // as the sinking speed gains (CrocomireSpeedGain).
+        SignedSixteenSixteen acceleration = (state.VerticalAcceleration + CrocomireBridgeCollapseDefinitions.SinkAccelerationIncrement)
+            .WithTwoFiftySixthsAtMost(CrocomireBridgeCollapseDefinitions.MaximumSinkAcceleration);
         state.VerticalAcceleration = acceleration;
-        // The speed grows by the acceleration's whole pixels read as 256ths of a pixel.
-        SignedEightEight speed = (state.VerticalSpeed + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.WholePixels))
-            .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkSpeedWhole);
+        SignedEightEight speed = CrocomireSpeedGain.Gained(state.VerticalSpeed, acceleration, CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed);
         state.VerticalSpeed = speed;
 
         SignedEightEight travelled = state.VerticalFraction + speed;
         state.VerticalFraction = travelled.WithoutWholePixels();
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + travelled.WholePixels);
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + travelled.WholePixels);
         // The acid hides his body below its row wherever this update leaves him, which is where his body is shown.
         HideCrocomireSunkenBody(state, camera);
     }
@@ -260,28 +258,28 @@ internal sealed class CrocomireBridgeCollapse
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         RoomEnemyPlace body = state.Body;
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, CrocomireBridgeCollapseDefinitions.RisenY) < 0)
+        if (body.Position.Y.Whole < CrocomireBridgeCollapseDefinitions.RisenY)
         {
             state.DeathPhase = state.DeathPhase.Next();
             return;
         }
 
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
-        SignedEightEight acceleration = SignedEightEight.Min(
-            state.VerticalAcceleration + SignedEightEight.FromPixels(1), CrocomireBehavior.MaximumRiseAcceleration);
+        SignedSixteenSixteen acceleration = SignedSixteenSixteen.Min(
+            state.VerticalAcceleration + CrocomireBridgeCollapseDefinitions.RiseAccelerationIncrement, CrocomireBridgeCollapseDefinitions.MaximumRiseAcceleration);
         state.VerticalAcceleration = acceleration;
 
-        // The speed loses the acceleration's whole pixels read as 256ths of a pixel; a speed that would fall below zero
-        // stalls just under one pixel per frame instead of reversing.
-        SignedEightEight speed = state.VerticalSpeed - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.WholePixels);
+        // The speed loses the acceleration, which every rise starts from none and grows by whole 256ths of a pixel; a speed
+        // that would fall below zero stalls just under one pixel per update instead of reversing.
+        SignedEightEight speed = state.VerticalSpeed - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.InTwoFiftySixths);
         if (speed.IsNegative)
-            speed = CrocomireBehavior.RiseSpeedAfterStalling;
+            speed = CrocomireBridgeCollapseDefinitions.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;
 
         // The rise moves up: the carried fraction less the speed, its whole pixels zero or below.
         SignedEightEight remaining = state.VerticalFraction - speed;
         state.VerticalFraction = remaining.WithoutWholePixels();
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + remaining.WholePixels);
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + remaining.WholePixels);
     }
 
     /// <summary>
@@ -294,11 +292,11 @@ internal sealed class CrocomireBridgeCollapse
     {
         // Each melt row lies a row's height above the next; the top row alone shows once he has sunk.
         int y = state.Body.Position.Y.Whole;
-        int rowsAboveAcid = CoordinateAxis.Difference(y, CrocomireMeltingDefinitions.TopRowAboveAcidY) >= 0
+        int rowsAboveAcid = y >= CrocomireMeltingDefinitions.TopRowAboveAcidY
             ? 1
-            : CoordinateAxis.Difference(y, CrocomireMeltingDefinitions.TopTwoRowsAboveAcidY) >= 0
+            : y >= CrocomireMeltingDefinitions.TopTwoRowsAboveAcidY
                 ? 2
-                : CoordinateAxis.Difference(y, CrocomireMeltingDefinitions.TopThreeRowsAboveAcidY) >= 0
+                : y >= CrocomireMeltingDefinitions.TopThreeRowsAboveAcidY
                     ? 3
                     : 4;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, MeltAnimation(illustration, rowsAboveAcid));
@@ -308,21 +306,21 @@ internal sealed class CrocomireBridgeCollapse
     private static CrocomireBodySegment MeltAnimation(CrocomireMeltingIllustration illustration, int rowsAboveAcid) =>
         illustration switch
         {
-            CrocomireMeltingIllustration.First => rowsAboveAcid switch
+            CrocomireMeltingIllustration.Flesh => rowsAboveAcid switch
             {
-                1 => CrocomireBodySegment.MeltingOneTopRow,
-                2 => CrocomireBodySegment.MeltingOneTopTwoRows,
-                3 => CrocomireBodySegment.MeltingOneTopThreeRows,
-                4 => CrocomireBodySegment.MeltingOneTopFourRows,
+                1 => CrocomireBodySegment.MeltingFleshTopRow,
+                2 => CrocomireBodySegment.MeltingFleshTopTwoRows,
+                3 => CrocomireBodySegment.MeltingFleshTopThreeRows,
+                4 => CrocomireBodySegment.MeltingFleshTopFourRows,
                 _ => throw new ArgumentOutOfRangeException(nameof(rowsAboveAcid), rowsAboveAcid,
                     "Crocomire's first melting animations show one to four rows above the acid."),
             },
-            CrocomireMeltingIllustration.Second => rowsAboveAcid switch
+            CrocomireMeltingIllustration.BareSkull => rowsAboveAcid switch
             {
-                1 => CrocomireBodySegment.MeltingTwoTopRow,
-                2 => CrocomireBodySegment.MeltingTwoTopTwoRows,
-                3 => CrocomireBodySegment.MeltingTwoTopThreeRows,
-                4 => CrocomireBodySegment.MeltingTwoTopFourRows,
+                1 => CrocomireBodySegment.MeltingBareSkullTopRow,
+                2 => CrocomireBodySegment.MeltingBareSkullTopTwoRows,
+                3 => CrocomireBodySegment.MeltingBareSkullTopThreeRows,
+                4 => CrocomireBodySegment.MeltingBareSkullTopFourRows,
                 _ => throw new ArgumentOutOfRangeException(nameof(rowsAboveAcid), rowsAboveAcid,
                     "Crocomire's second melting animations show one to four rows above the acid."),
             },
@@ -333,7 +331,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <summary>Completes the acid sink and hands control to the skeleton river sequence.</summary>
     internal void RunCrocomireFinalSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
-        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Second);
+        SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.BareSkull);
         _bodyLayer.SpawnCrocomireAcidSmoke(state);
         RunCrocomireSink(state, camera);
         if (state.DeathPhase != CrocomireDeathPhase.WaitForSamusAtWall)
@@ -374,7 +372,8 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
         // The fragment's fall speed reads the room's random number without drawing a new one.
-        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()) + CrocomireBridgeFragmentDefinitions.SlowestFallTwoFiftySixths));
+        projectile.Velocity = projectile.Velocity.WithY(CrocomireBridgeFragmentDefinitions.SlowestFall +
+            SignedEightEight.FromTwoHundredFiftySixthsOfPixel(CrocomireRandomDefinitions.BridgeFragmentFallSpeedSpread.Of(_room.Random.Read())));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);
     }

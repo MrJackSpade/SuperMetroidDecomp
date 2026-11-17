@@ -9,7 +9,7 @@ using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
-/// <summary>Checks native Kraid body contour selection and nail reflection across wrapped positions.</summary>
+/// <summary>Checks native Kraid body contour selection and nail reflection at every height a nail in his room can lie from him.</summary>
 internal static class KraidNailContourVerification
 {
     /// <summary>Runs signed edge and velocity probes, including reads into adjacent contour words.</summary>
@@ -28,10 +28,11 @@ internal static class KraidNailContourVerification
         nail.Radius = nail.Radius.WithX(4);
         int overreadCases = 0;
         var histogram = new int[6];
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // Every height a nail in Kraid's two-screen room can lie from his body, with his body where his walks take it (#2299).
+        for (int raw = -1024; raw < 1024; raw++)
         {
-            body.Position = body.Position.WithWhole(new((ushort)raw, 0x1234));
-            nail.Position = nail.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + raw)));
+            body.Position = body.Position.WithWhole(new(KraidArenaDefinitions.LungeReachX + (raw & 255), 0x1234));
+            nail.Position = nail.Position.WithWholeY(body.Position.Y.Whole + raw);
             int record = 0;
             // Follow the native ROM walk independently, not the compiled span bound.
             while (unchecked((short)(Word(0xa7bf1f + record * 4) - raw)) >= 0)
@@ -50,18 +51,18 @@ internal static class KraidNailContourVerification
             }
             ushort nativeLeft = Word(0xa7bf1d + record * 4);
 
-            ushort edge = unchecked((ushort)(body.Position.X.Whole + nativeLeft));
+            int edge = body.Position.X.Whole + unchecked((short)nativeLeft);
             foreach (ushort velocity in new ushort[] { 0, 1, 0x7fff, 0x8000, 0xffff })
             for (int delta = -1; delta <= 1; delta++)
             {
-                nail.Position = nail.Position.WithWholeX(unchecked((ushort)(edge - nail.Radius.X + delta)));
+                nail.Position = nail.Position.WithWholeX(edge - nail.Radius.X + delta);
                 ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.WithX(SignedSixteenSixteen.FromParts(unchecked((short)velocity), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X.Fraction));
-                bool expected = unchecked((short)(nail.Position.X.Whole + nail.Radius.X - edge)) >= 0 && (short)velocity >= 0;
+                bool expected = nail.Position.X.Whole + nail.Radius.X >= edge && (short)velocity >= 0;
                 AssertEqual(expected, reflect(nail), "Actual contour reflection retains signed edge and velocity gates");
             }
         }
         AssertTrue(overreadCases > 0, "Fixture exercises adjacent instruction words, not just authored geometry");
-        int[] expectedHistogram = [32768, 56, 56, 32, 20928, 11696];
+        int[] expectedHistogram = [1007, 56, 56, 32, 897, 0];
         for (int i = 0; i < histogram.Length; i++) AssertEqual(expectedHistogram[i], histogram[i], "Native contour selection distribution");
         Console.WriteLine($"Kraid nail contour: actual edge/direction probes pass bus-free; {overreadCases} relative-Y words select records past the ledges.");
     }

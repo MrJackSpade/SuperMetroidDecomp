@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.EffectActors;
@@ -50,9 +50,9 @@ internal sealed class DraygonIntro
         state.Phase = DraygonPhase.IntroDance;
         state.IntroFrames = 0;
         state.LeftSideReset = state.Body.Position.Whole;
-        state.RightSideResetX = CoordinateAxis.Wrap(state.LeftSideReset.X + DraygonBehavior.DraygonRightSideResetDistance);
+        state.RightSideResetX = CoordinateAxis.Wrap(state.LeftSideReset.X + DraygonArenaDefinitions.RightSideResetDistance);
         state.Body.Position = state.Body.Position.WithWhole(state.LeftSideReset);
-        state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
+        state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
     }
 
     /// <summary>Runs the 1,232-frame Evir dance.</summary>

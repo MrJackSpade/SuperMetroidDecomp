@@ -38,8 +38,8 @@ internal sealed class DraygonDeath
     /// <summary>The bearing a dying Draygon at <paramref name="body"/> drifts along, aimed across the burial drift's coarse grid.</summary>
     internal static TrigonometryAngle BurialDriftAngle(Position16<RoomPixels> body) =>
         EnemyMath.CalculateBearing(new(
-            CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetX / BurialAimCellPixels, body.X / BurialAimCellPixels),
-            CoordinateAxis.Difference(DraygonBehavior.DraygonDeathTargetY / BurialAimCellPixels, body.Y / BurialAimCellPixels))).ToTrigonometryAngle();
+            CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetX / BurialAimCellPixels, body.X / BurialAimCellPixels),
+            CoordinateAxis.Difference(DraygonArenaDefinitions.DeathTargetY / BurialAimCellPixels, body.Y / BurialAimCellPixels))).ToTrigonometryAngle();
 
     /// <summary>Moves the dying body toward the burial point and changes its linked eye pose.</summary>
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
@@ -55,8 +55,8 @@ internal sealed class DraygonDeath
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), speed: 1);
 
-        if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, DraygonArenaDefinitions.BurialPointTolerance) ||
-            !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonDeathTargetY, DraygonArenaDefinitions.BurialPointTolerance))
+        if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonArenaDefinitions.DeathTargetX, DraygonArenaDefinitions.BurialPointTolerance) ||
+            !EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonArenaDefinitions.DeathTargetY, DraygonArenaDefinitions.BurialPointTolerance))
         {
             return;
         }
@@ -64,7 +64,7 @@ internal sealed class DraygonDeath
         SpawnDraygonDeathEvirs(state);
         state.Phase = DraygonPhase.DyingWaitForEvirs;
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
-        state.BurialWait = DraygonBehavior.DraygonBurialWaitUpdates;
+        state.BurialWait = DraygonArenaDefinitions.BurialWaitUpdates;
         state.BodyPart.StartAnimation(DraygonSegment.Rest);
 
         // The tail and arms are deleted (#2298).
@@ -107,7 +107,7 @@ internal sealed class DraygonDeath
         MoveDraygonDeathEvirs(state);
         RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-        if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonBehavior.DraygonBurialFinishedY) < 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonArenaDefinitions.BurialFinishedY) < 0)
             return;
 
         state.BodyPart.StartAnimation(DraygonSegment.Delete);

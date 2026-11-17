@@ -92,7 +92,7 @@ internal static class CrocomireStateQuantitiesVerification
         (_, CrocomireEnemyState started) = NewCrocomire();
         started.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(300);
         started.VerticalFraction = SignedEightEight.FromParts(0, 77);
-        started.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
+        started.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         AssertMotionWords(started, LittleEndianBytes.Word(0, 8), 0, 0, started.Body.Position.Y.Whole, "a started sink");
         CompareSink(LittleEndianBytes.Word(0, 8), 0, 0, 144, "resting sink");
         CompareSink(LittleEndianBytes.Word(200, 47), LittleEndianBytes.Word(250, 3), LittleEndianBytes.Word(77, 250), 150,
@@ -120,7 +120,7 @@ internal static class CrocomireStateQuantitiesVerification
         (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopSink;
-        state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
         state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
@@ -147,7 +147,7 @@ internal static class CrocomireStateQuantitiesVerification
         (_, CrocomireEnemyState state) = NewCrocomire();
         RoomEnemyPlace body = state.Body;
         state.DeathPhase = CrocomireDeathPhase.FirstHopRise;
-        state.VerticalAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration);
+        state.VerticalAcceleration = SignedSixteenSixteen.FromParts(0, acceleration);
         state.VerticalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed);
         // The subposition word's high byte is the carried vertical fraction; the low byte is the cartridge's alone.
         state.VerticalFraction = SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition));
@@ -170,7 +170,7 @@ internal static class CrocomireStateQuantitiesVerification
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
-        AssertEqual(acceleration, state.VerticalAcceleration.InTwoHundredFiftySixthsOfPixel, $"{at}: acceleration in 256ths");
+        AssertEqual((int)acceleration, state.VerticalAcceleration.RawValue, $"{at}: acceleration in 65536ths of a pixel an update an update");
         AssertEqual(speed, state.VerticalSpeed.InTwoHundredFiftySixthsOfPixel, $"{at}: speed in 256ths");
         AssertEqual(SignedEightEight.FromParts(0, LittleEndianBytes.HighByte(subposition)), state.VerticalFraction, $"{at}: carried fraction");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
@@ -319,8 +319,8 @@ internal static class CrocomireStateQuantitiesVerification
     private static void VerifyMeltShakeCounterWraps()
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
-        fixture.InitializeMap(CrocomireMeltingIllustration.First);
-        fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First));
+        fixture.InitializeMap(CrocomireMeltingIllustration.Flesh);
+        fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh));
         for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandCount; band++)
             fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
         fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);

@@ -73,9 +73,9 @@ internal static class EnemyEffectsFixtureVerification
         /// </summary>
         internal void InitializeMap(CrocomireMeltingIllustration illustration)
         {
-            if (illustration == CrocomireMeltingIllustration.First)
+            if (illustration == CrocomireMeltingIllustration.Flesh)
                 Enemies.CrocomireBehavior.Melting.ShowFirstCrocomireMeltImage(Actor);
-            else if (illustration == CrocomireMeltingIllustration.Second)
+            else if (illustration == CrocomireMeltingIllustration.BareSkull)
                 Enemies.CrocomireBehavior.Melting.ShowSecondCrocomireMeltImage(Actor);
             else
                 _ = Enemies.CrocomireBehavior.Melting.RequireCrocomireMeltingImage(illustration);
@@ -146,9 +146,9 @@ internal static class EnemyEffectsFixtureVerification
         int seed = 0, string? firstJson = null)
     {
         using var first = EffectPng(CrocomireMeltingArtworkFormat.FirstByteCount,
-            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.First), pattern);
+            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.Flesh), pattern);
         using var second = EffectPng(CrocomireMeltingArtworkFormat.SecondByteCount,
-            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.Second), pattern);
+            CrocomireMeltingArtwork.UsedByteCount(CrocomireMeltingIllustration.BareSkull), pattern);
         using var firstMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(firstJson ?? MeltEffectJson(seed)));
         using var secondMap = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(MeltEffectJson(seed)));
         return CrocomireMeltingArtwork.Load(RoomCharacterAtlasPng.Read(first, CrocomireMeltingArtworkFormat.FirstByteCount),

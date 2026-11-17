@@ -71,7 +71,7 @@ internal sealed class CrocomireBodyLayer
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()
                 ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
-            tongue.Position = tongue.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + offset), body.Position.Y.Whole));
+            tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + offset, body.Position.Y.Whole));
             tongue.DrawOffset = Offset16<RoomPixels>.Zero;
         }
     }
@@ -96,7 +96,7 @@ internal sealed class CrocomireBodyLayer
             ? surface
             : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
         _effectActors.SpawnRoomEffectActor(
-            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
+            new(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random)),
             RoomEffectActorKind.BigDustCloud,
             graphics: default);
     }

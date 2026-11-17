@@ -28,8 +28,8 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
     {
-        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.First);
-        StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingOneTopRow);
+        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
+        StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingFleshTopRow);
 
         if (state.Tongue is { } tongue)
         {
@@ -37,10 +37,10 @@ internal sealed class CrocomireMelting
             tongue.Processing = tongue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
             tongue.Contact = tongue.Contact.With(EnemyContact.IgnoresSamus);
             tongue.Presence = tongue.Presence.Without(EnemyPresence.Hidden);
-            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody)));
+            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, state.Body.Position.Y.Whole + CrocomireMeltingDefinitions.TongueBelowBody));
         }
 
-        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.First);
+        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Flesh);
     }
 
     /// <summary>
@@ -49,10 +49,10 @@ internal sealed class CrocomireMelting
     /// </summary>
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {
-        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
+        _ = RequireCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
-        StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingTwoTopRow);
-        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.Second);
+        StartCrocomireMeltingBodyAnimation(state, CrocomireBodySegment.MeltingBareSkullTopRow);
+        ShowCrocomireMeltingImage(CrocomireMeltingIllustration.BareSkull);
     }
 
     /// <summary>
@@ -116,8 +116,8 @@ internal sealed class CrocomireMelting
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="pass"/> is not a melt image.</exception>
     internal static int BandCount(CrocomireMeltingIllustration pass) => pass switch
     {
-        CrocomireMeltingIllustration.First => CrocomireMeltingDefinitions.FirstPassBandCount,
-        CrocomireMeltingIllustration.Second => CrocomireMeltingDefinitions.SecondPassBandCount,
+        CrocomireMeltingIllustration.Flesh => CrocomireMeltingDefinitions.FirstPassBandCount,
+        CrocomireMeltingIllustration.BareSkull => CrocomireMeltingDefinitions.SecondPassBandCount,
         _ => throw new ArgumentOutOfRangeException(nameof(pass), pass, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
     };
 
@@ -231,7 +231,7 @@ internal sealed class CrocomireMelting
     /// <summary>Clears his body layer and moves the actor on after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
-        state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
+        state.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         _bodyLayer.ClearCrocomireBody();
         state.DeathPhase = state.DeathPhase.Next();
     }

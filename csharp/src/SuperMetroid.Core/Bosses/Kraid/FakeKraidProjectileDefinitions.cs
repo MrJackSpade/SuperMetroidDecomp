@@ -22,6 +22,12 @@ internal static class FakeKraidProjectileDefinitions
     /// </summary>
     internal const int StepPixels = 4;
 
+    /// <summary>How far above his body, in pixels, Fake Kraid's spit leaves it.</summary>
+    internal const int SpitYOffset = -16;
+
+    /// <summary>The pickups Fake Kraid's death scatters about where he stood.</summary>
+    internal const int DeathDropCount = 4;
+
     /// <summary>Both spit shots start upward at five pixels per frame.</summary>
     internal static readonly SignedEightEight SpitRise = SignedEightEight.FromPixels(-5);
 

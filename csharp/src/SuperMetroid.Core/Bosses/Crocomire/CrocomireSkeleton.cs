@@ -45,8 +45,8 @@ internal sealed class CrocomireSkeleton
     internal static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - CrocomireSkeletonDefinitions.RiverDrift);
-        if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireSkeletonDefinitions.BehindWallPosition.X) < 0)
+        body.Position = body.Position.WithWholeX(body.Position.X.Whole - CrocomireSkeletonDefinitions.RiverDrift);
+        if (body.Position.X.Whole < CrocomireSkeletonDefinitions.BehindWallPosition.X)
         {
             body.Position = body.Position.WithWhole(CrocomireSkeletonDefinitions.BehindWallPosition);
             state.DeathPhase = CrocomireDeathPhase.WaitForSamusAtWall;
@@ -60,7 +60,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Waits with the skeleton behind the wall before its rumble and picture-load sequence.</summary>
     internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState samus)
     {
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireSkeletonDefinitions.WallApproachX) >= 0)
+        if (samus.Position.X.Whole >= CrocomireSkeletonDefinitions.WallApproachX)
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(MusicTrack.KraidAndPhantoonBattle), MusicQueueDelay.Shortest);
@@ -166,7 +166,7 @@ internal sealed class CrocomireSkeleton
     internal static void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = state.Death;
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, CrocomireSkeletonDefinitions.BreakOutEndX) < 0)
+        if (state.Body.Position.X.Whole < CrocomireSkeletonDefinitions.BreakOutEndX)
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.BreakOut);
             state.Body.Position = state.Body.Position.WithX(
@@ -187,10 +187,10 @@ internal sealed class CrocomireSkeleton
     {
         state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.Arc);
         state.Body.Position = state.Body.Position.WithY(
-            CrocomireBehavior.SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
+            CrocomireSkeletonDefinitions.ArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
         state.Body.Position = state.Body.Position.WithX(
             state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
-        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, CrocomireSkeletonDefinitions.ArcEndX) < 0)
+        if (state.Body.Position.X.Whole < CrocomireSkeletonDefinitions.ArcEndX)
             return;
 
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);

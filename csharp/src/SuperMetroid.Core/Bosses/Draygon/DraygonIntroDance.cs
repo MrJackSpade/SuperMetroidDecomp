@@ -20,7 +20,7 @@ internal static class DraygonIntroDance
     /// </summary>
     /// <exception cref="InvalidDataException">The step is outside the traced path.</exception>
     public static DraygonIntroMovement Movement(int step) =>
-        (uint)step < (uint)TracedPath.Length
+        step >= 0 && step < TracedPath.Length
             ? TracedPath[step]
             : throw new InvalidDataException($"Draygon intro movement step {step} is outside the traced path.");
 }

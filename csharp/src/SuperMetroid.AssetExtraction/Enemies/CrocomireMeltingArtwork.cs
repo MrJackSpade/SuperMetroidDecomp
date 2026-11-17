@@ -47,10 +47,10 @@ public sealed class CrocomireMeltingArtwork
         Ensure.NotNull(second);
         Ensure.NotNull(firstTilemapJson);
         Ensure.NotNull(secondTilemapJson);
-        RequireLength(first, CrocomireMeltingArtworkFormat.FirstByteCount, CrocomireMeltingIllustration.First);
-        RequireLength(second, CrocomireMeltingArtworkFormat.SecondByteCount, CrocomireMeltingIllustration.Second);
-        ValidatePadding(first, CrocomireMeltingIllustration.First);
-        ValidatePadding(second, CrocomireMeltingIllustration.Second);
+        RequireLength(first, CrocomireMeltingArtworkFormat.FirstByteCount, CrocomireMeltingIllustration.Flesh);
+        RequireLength(second, CrocomireMeltingArtworkFormat.SecondByteCount, CrocomireMeltingIllustration.BareSkull);
+        ValidatePadding(first, CrocomireMeltingIllustration.Flesh);
+        ValidatePadding(second, CrocomireMeltingIllustration.BareSkull);
         return new(first, second, ReadTilemap(firstTilemapJson),
             ReadTilemap(secondTilemapJson));
     }
@@ -59,16 +59,16 @@ public sealed class CrocomireMeltingArtwork
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is not a melt image.</exception>
     internal ReadOnlyMemory<byte> Characters(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First => first.Characters,
-        CrocomireMeltingIllustration.Second => second.Characters,
+        CrocomireMeltingIllustration.Flesh => first.Characters,
+        CrocomireMeltingIllustration.BareSkull => second.Characters,
         _ => throw new ArgumentOutOfRangeException(nameof(illustration), illustration, $"Undefined {nameof(CrocomireMeltingIllustration)}."),
     };
 
     /// <summary>Returns only the visual tile references, never melt control or hitboxes.</summary>
     internal ReadOnlySpan<BackgroundTile> Tilemap(CrocomireMeltingIllustration illustration) => illustration switch
     {
-        CrocomireMeltingIllustration.First => firstTilemap,
-        CrocomireMeltingIllustration.Second => secondTilemap,
+        CrocomireMeltingIllustration.Flesh => firstTilemap,
+        CrocomireMeltingIllustration.BareSkull => secondTilemap,
         _ => throw new InvalidDataException(
             $"Crocomire melt tilemap {illustration} is not installed."),
     };

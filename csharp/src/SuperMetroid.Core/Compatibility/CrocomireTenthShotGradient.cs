@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// data; it aims the volley's last shot steeply, unlike any authored gradient.
 /// </summary>
 /// <remarks>
-/// Consulted by the last shot of each volley on the update after it spawns, when the shot turns its aim into a velocity.
+/// Consulted as the last shot of each volley spawns, which keeps the gradient its aim turns into a velocity on the update after.
 /// Evidence: the spit attack advances its shot counter by two from zero while it is below eighteen, spawning each shot
 /// with the new count, and the shot's aiming routine indexes the nine-word gradient table with the count; the volley
 /// check decodes the word after the table from the cartridge and compares it with this service.

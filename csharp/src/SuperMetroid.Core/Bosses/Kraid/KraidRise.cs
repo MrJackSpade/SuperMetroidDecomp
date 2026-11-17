@@ -155,9 +155,9 @@ internal sealed class KraidRise
             case KraidGrowthPhase.BreakCeilingPlatforms:
                 if (KraidCadenceDefinitions.CeilingBreakRockEveryEighthUpdate.IsDue(body.FrameCounter))
                     RequestKraidRisingRock(body);
-                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
+                body.Position = body.Position.WithWholeX(body.Position.X.Whole +
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? -1 : 1));
-                body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
+                body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
                 if (KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(body.Position.Y.Whole) &&
                     state.BodyState.CeilingRock < KraidCeilingRocks.Count)
                 {
@@ -166,7 +166,7 @@ internal sealed class KraidRise
                     _frameResults.KraidObjects.Add(KraidObjectDefinitions.GrowthCeiling[rock]);
                     state.BodyState.CeilingRock = rock + 1;
                 }
-                if (CoordinateAxis.Difference(body.Position.Y.Whole, KraidArenaDefinitions.GrownY) < 0)
+                if (body.Position.Y.Whole < KraidArenaDefinitions.GrownY)
                     state.BodyState.GrowthPhase = KraidGrowthPhase.BringBodyInFront;
                 return;
 
@@ -254,7 +254,7 @@ internal sealed class KraidRise
         int randomOffset = KraidRandomDefinitions.RisingRockOffset.Of(random);
         if (!KraidRandomDefinitions.RisingRockOffsetRight.IsSetIn(random))
             randomOffset = -(randomOffset + KraidRandomDefinitions.RisingRockLeftExtraPixels);
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), KraidArenaDefinitions.RisingRockY));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(body.Position.X.Whole + randomOffset, KraidArenaDefinitions.RisingRockY));
         rock.Velocity = new(SignedEightEight.FromSixteenthsOfPixel(KraidRandomDefinitions.RisingRockXSpeedSixteenths.Of(random)), KraidRockLaunchDefinitions.RisingRockRise);
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -320,10 +320,10 @@ internal sealed class KraidRise
                 if (KraidCadenceDefinitions.RaisedBodyFirstRockOfEight.IsDue(_earthquake.RemainingFrames) ||
                     KraidCadenceDefinitions.RaisedBodySecondRockOfEight.IsDue(_earthquake.RemainingFrames))
                     RequestKraidRisingRock(body);
-                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
+                body.Position = body.Position.WithWholeX(body.Position.X.Whole +
                     (KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(body.Position.Y.Whole) ? 1 : -1));
                 AddSignedKraidVerticalDisplacement(body, RisingBodyLift);
-                if (CoordinateAxis.Difference(body.Position.Y.Whole, KraidArenaDefinitions.RisenY) < 0)
+                if (body.Position.Y.Whole < KraidArenaDefinitions.RisenY)
                 {
                     body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
                     // The rise's last step does not leave execution at the fight setup.
@@ -352,7 +352,7 @@ internal sealed class KraidRise
     /// </summary>
     private static void RestrictSamusToKraidFirstScreen(SamusState samus)
     {
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, KraidArenaDefinitions.SecondScreenX) >= 0)
+        if (samus.Position.X.Whole >= KraidArenaDefinitions.SecondScreenX)
         {
             samus.Position = samus.Position.WithWholeX(KraidArenaDefinitions.SecondScreenX);
             samus.WritePreviousXPosition(KraidArenaDefinitions.SecondScreenX);

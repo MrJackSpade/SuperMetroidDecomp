@@ -101,20 +101,20 @@ internal sealed class KraidLimbs
         switch (cue)
         {
             case KraidPartCue.RaiseBody:
-                body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
+                body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
                 return null;
             case KraidPartCue.LowerBodyAndShake:
-                body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
+                body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
                 _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.StepShakeUpdates);
                 return null;
             case KraidPartCue.StepSound:
                 _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
                 return null;
             case KraidPartCue.StepLeft:
-                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - KraidArenaDefinitions.StepPixels);
+                body.Position = body.Position.WithWholeX(body.Position.X.Whole - KraidArenaDefinitions.StepPixels);
                 return null;
             case KraidPartCue.StepRight:
-                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole + KraidArenaDefinitions.StepPixels);
+                body.Position = body.Position.WithWholeX(body.Position.X.Whole + KraidArenaDefinitions.StepPixels);
                 return null;
             case KraidPartCue.SlowArmBelowHalfHealth:
                 return SelectKraidArmSpeedAnimation(state);
@@ -176,8 +176,8 @@ internal sealed class KraidLimbs
 
         // The arm hides only when its anchor leaves the screen's gameplay
         // viewport. This is actor visibility, not background priority, so preserve the hide-drawing property.
-        bool onScreen = CoordinateAxis.Difference(arm.Position.Y.Whole, cameraY) >= 0 &&
-            CoordinateAxis.Difference(arm.Position.Y.Whole - cameraY, ScreenGeometry.ScreenHeightPixels) < 0;
+        bool onScreen = arm.Position.Y.Whole >= cameraY &&
+            arm.Position.Y.Whole - cameraY < ScreenGeometry.ScreenHeightPixels;
         arm.Presence = onScreen
             ? arm.Presence.Without(EnemyPresence.Hidden)
             : arm.Presence.With(EnemyPresence.Hidden);
@@ -194,8 +194,8 @@ internal sealed class KraidLimbs
         KraidEnemyState state = part.Kraid;
         RoomEnemyPlace body = _parts.Body;
         foot.Position = foot.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.FootOffset);
-        bool onScreen = CoordinateAxis.Difference(foot.Position.Y.Whole, cameraY) >= 0 &&
-            CoordinateAxis.Difference(foot.Position.Y.Whole - ScreenGeometry.ScreenHeightPixels, cameraY) < 0;
+        bool onScreen = foot.Position.Y.Whole >= cameraY &&
+            foot.Position.Y.Whole - ScreenGeometry.ScreenHeightPixels < cameraY;
         foot.Presence = onScreen
             ? foot.Presence.Without(EnemyPresence.Hidden)
             : foot.Presence.With(EnemyPresence.Hidden);
@@ -273,7 +273,7 @@ internal sealed class KraidLimbs
     {
         if (TryBeginKraidGrowth(body, part.Kraid))
             return;
-        if (CoordinateAxis.Difference(body.Position.X.Whole, KraidArenaDefinitions.LungeReachX) < 0)
+        if (body.Position.X.Whole < KraidArenaDefinitions.LungeReachX)
             body.Position = body.Position.WithWholeX(KraidArenaDefinitions.LungeReachX);
         if (!FootShowsLastFrameOf(part, KraidPartSegment.FootLungeForward))
             return;
@@ -298,7 +298,7 @@ internal sealed class KraidLimbs
         KraidEnemyState state = part.Kraid;
         if (TryBeginKraidGrowth(body, state))
             return;
-        if (CoordinateAxis.Difference(body.Position.X.Whole, KraidArenaDefinitions.FirstPhaseX) >= 0)
+        if (body.Position.X.Whole >= KraidArenaDefinitions.FirstPhaseX)
             body.Position = body.Position.WithWholeX(KraidArenaDefinitions.FirstPhaseX);
         if (!FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingBackward))
             return;
@@ -324,7 +324,7 @@ internal sealed class KraidLimbs
         int targetX = part.Kraid.WalkTargetX;
         if (targetX != body.Position.X.Whole)
         {
-            if (!CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
+            if (targetX >= body.Position.X.Whole)
                 return;
             body.Position = body.Position.WithWholeX(targetX);
         }
@@ -345,7 +345,7 @@ internal sealed class KraidLimbs
 
         (int targetX, int thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
         SetKraidWalking(part, targetX, thinkTimer,
-            CoordinateAxis.Difference(targetX, body.Position.X.Whole) >= 0 ? HorizontalDirection.Right : HorizontalDirection.Left);
+            targetX >= body.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left);
     }
 
     /// <summary>
@@ -371,7 +371,7 @@ internal sealed class KraidLimbs
         int targetX = part.Kraid.WalkTargetX;
         if (targetX != body.Position.X.Whole)
         {
-            if (!CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
+            if (targetX >= body.Position.X.Whole)
                 return;
             body.Position = body.Position.WithWholeX(targetX);
         }
@@ -386,7 +386,7 @@ internal sealed class KraidLimbs
     private static void RunKraidSecondPhaseWalkingLeft(RoomEnemyPlace body, KraidFootState part)
     {
         int targetX = part.Kraid.WalkTargetX;
-        if (CoordinateAxis.Precedes(targetX, body.Position.X.Whole))
+        if (targetX < body.Position.X.Whole)
         {
             if (FootShowsLastFrameOf(part, KraidPartSegment.FootWalkingForward))
             {

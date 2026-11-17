@@ -38,7 +38,8 @@ internal static class KraidCeilingRockPositionsVerification
         var requests = enemies.BossFrameResults.KraidObjects;
         var body = enemies.Places.InUpdateOrder[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
+        // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).
+        for (int raw = 1; raw <= 1024; raw++)
         for (int index = 0; index < KraidCeilingRocks.Count; index++)
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Delete();
@@ -47,7 +48,7 @@ internal static class KraidCeilingRockPositionsVerification
             state.BodyState.CeilingRock = index;
             state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
             step(body, state);
-            ushort y = unchecked((ushort)(raw - 1));
+            int y = raw - 1;
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
             AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
@@ -59,7 +60,7 @@ internal static class KraidCeilingRockPositionsVerification
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");
             AssertEqual(KraidObjectDefinitions.GrowthCeiling[index], requests[0], "Rock and ceiling mutation stay paired");
         }
-        Console.WriteLine("Kraid ceiling rocks: all 9 rock positions and 589824 actual growth updates match with placement reads forbidden.");
+        Console.WriteLine("Kraid ceiling rocks: all 9 rock positions and 9216 actual growth updates, at every height his rise passes, match with placement reads forbidden.");
     }
 
     /// <summary>Reads a retail placement byte for the production-spawn comparison.</summary>

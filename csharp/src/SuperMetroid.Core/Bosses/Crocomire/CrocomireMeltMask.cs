@@ -28,7 +28,7 @@ internal static class CrocomireMeltMask
             if (cell.Band >= CrocomireMeltDissolveDefinitions.ErasedBands)
                 continue;
             int steps = bandSteps[cell.Band];
-            if ((uint)steps > (uint)order.Length)
+            if (steps < 0 || steps > order.Length)
                 throw new InvalidOperationException($"Crocomire's melt band {cell.Band} shows step {steps}, which the dissolve does not take.");
             CellColumns hidden = CellColumns.None;
             for (int step = 0; step < steps; step++)

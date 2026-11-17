@@ -74,7 +74,7 @@ internal sealed class KraidParts
     internal void PlaceLintsAtBodyHeights(RoomEnemyPlace body)
     {
         foreach ((KraidLintPart part, int height) in KraidArenaDefinitions.LintHeights)
-            Lint(part).Position = Lint(part).Position.WithWrappedWholeY(body.Position.Y.Whole + height);
+            Lint(part).Position = Lint(part).Position.WithWholeY(body.Position.Y.Whole + height);
     }
 
     /// <summary>His three lints, top first.</summary>

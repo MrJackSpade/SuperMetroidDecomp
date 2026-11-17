@@ -68,30 +68,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.DeathsAndDrops, dependencies.CameraDistance, Access, Combat);
     }
 
-    /// <summary>Body X threshold at which Crocomire begins breaking the arena bridge.</summary>
-    internal const int CrocomireBridgeThreshold = 1600;
-    /// <summary>Body X threshold at the spiked wall that starts the death sequence.</summary>
-    internal const int CrocomireSpikeWallThreshold = 768;
-
-    /// <summary>The tongue's horizontal offset from the body, in pixels, set when the tongue initializes.</summary>
-    internal const int CrocomireTongueBodyXOffset = 23;
-
-    /// <summary>Acceleration the sink adds each frame: three and a half pixels per frame per frame.</summary>
-    internal static readonly SignedEightEight SinkAccelerationIncrement = SignedEightEight.FromParts(3, 128);
-    /// <summary>The sink's acceleration stops growing at forty-eight whole pixels, keeping its fraction.</summary>
-    internal const int MaximumSinkAccelerationWhole = 48;
-    /// <summary>The sink's speed stops growing at three whole pixels per frame, keeping its fraction.</summary>
-    internal const int MaximumSinkSpeedWhole = 3;
-    /// <summary>The rise's acceleration stops growing at thirty-one pixels per frame per frame.</summary>
-    internal static readonly SignedEightEight MaximumRiseAcceleration = SignedEightEight.FromPixels(31);
-    /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
-    internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);
-    /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
-    internal static readonly SignedEightEight SinkStartingAcceleration = SignedEightEight.FromPixels(8);
-    /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>
-    internal static readonly SignedSixteenSixteen SkeletonArcFallSpeed =
-        SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(224);
-
     /// <summary>Runs the live-fight phase of Crocomire's main AI for one update.</summary>
     internal void RunCrocomireMain(
         RoomEnemyPlace place,
@@ -107,7 +83,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             // The scroll write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
-                CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
+                samus.Position.X.Whole >= CrocomireCameraDefinitions.BridgeVisibleSamusX
                     ? RoomScrollState.Closed : RoomScrollState.OpenAlignedToTop);
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.OpenAlignedToTop);
             // The fight's update always finishes by placing his tongue at his body, including the update in which the bridge
@@ -123,8 +99,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat.ApplyCrocomireHurtFlash(place, state);
     }
 
-    /// <summary>Number of dust puffs emitted across the bridge-collapse path.</summary>
-    internal const int CrocomireBridgeDustCount = 7;
     /// <summary>
     /// Runs Crocomire's sinking, skeleton, wall-break, and arena-completion phases; the acid hides his sinking body below
     /// a row of <paramref name="camera"/>, the camera his main update runs with.
@@ -168,7 +142,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.ShowFirstCrocomireMeltImage(state);
                 return;
             case CrocomireDeathPhase.BeginFirstMeltPass:
-                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First);
+                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh);
                 return;
             case CrocomireDeathPhase.ShowFirstMeltBands:
                 CrocomireMelting.ShowNextCrocomireMeltBand(state);
@@ -211,7 +185,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.ShowSecondCrocomireMeltImage(state);
                 return;
             case CrocomireDeathPhase.BeginSecondMeltPass:
-                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Second);
+                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.BareSkull);
                 return;
             case CrocomireDeathPhase.ShowSecondMeltBands:
                 CrocomireMelting.ShowNextCrocomireMeltBand(state);
@@ -220,7 +194,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.SixthHopRise:
-                CrocomireBridgeCollapse.SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Second);
+                CrocomireBridgeCollapse.SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.BareSkull);
                 BodyLayer.SpawnCrocomireAcidSmoke(state);
                 CrocomireBridgeCollapse.RunCrocomireRise(state);
                 return;

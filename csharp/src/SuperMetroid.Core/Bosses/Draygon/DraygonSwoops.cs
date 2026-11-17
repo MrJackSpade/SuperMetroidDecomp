@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -83,7 +83,7 @@ internal sealed class DraygonSwoops
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemyPlace body = state.Body;
         int entry = state.SwoopEntry;
-        if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
+        if (entry == DraygonSwoopDefinitions.ArmsReachUpdatesFromBottom)
             state.ArmsPart.StartAnimation(side.ArmsNearApex);
 
         body.Position = body.Position.WithWholeY(PathOf(state).HeightAt(entry));
@@ -105,7 +105,7 @@ internal sealed class DraygonSwoops
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         RoomEnemyPlace body = state.Body;
         int frameCount = PathOf(state).EntryCount;
-        int distance = CoordinateAxis.Wrap(DraygonBehavior.DraygonRightSideResetDistance - body.Position.X.Whole);
+        int distance = CoordinateAxis.Wrap(DraygonArenaDefinitions.RightSideResetDistance - body.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Phase = DraygonPhase.SwoopAscending;
     }
@@ -126,7 +126,7 @@ internal sealed class DraygonSwoops
             _movement.SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemyPlace body = state.Body;
         int entry = state.SwoopEntry;
-        if (entry == DraygonBehavior.DraygonArmsReachUpdatesFromSwoopBottom)
+        if (entry == DraygonSwoopDefinitions.ArmsReachUpdatesFromBottom)
             state.ArmsPart.StartAnimation(side.ArmsIdle);
 
         DraygonSwoopPath path = PathOf(state);

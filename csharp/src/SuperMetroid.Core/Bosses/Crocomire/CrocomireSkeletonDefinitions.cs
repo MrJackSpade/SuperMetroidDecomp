@@ -32,6 +32,9 @@ internal static class CrocomireSkeletonDefinitions
     /// <summary>How far right his arcing skeleton flies, exclusive, before it lands and falls apart.</summary>
     internal const int ArcEndX = 576;
 
+    /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>
+    internal static readonly SignedSixteenSixteen ArcFallSpeed = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(224);
+
     /// <summary>The sideways speed his skeleton gathers as it breaks out: half a pixel an update, up to two pixels.</summary>
     internal static readonly CrocomireSkeletonAcceleration BreakOut = new(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(128), 2);
 

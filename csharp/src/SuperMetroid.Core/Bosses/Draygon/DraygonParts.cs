@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -292,7 +292,7 @@ internal sealed class DraygonParts
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
-        state.SwoopAcceleration = DraygonBehavior.DraygonInitialSwoopAcceleration;
+        state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
         SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
 
         // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the

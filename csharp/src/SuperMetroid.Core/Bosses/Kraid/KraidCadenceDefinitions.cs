@@ -20,12 +20,6 @@ internal static class KraidCadenceDefinitions
     internal static readonly UpdateCadence CeilingRockEveryFourthRow = new(4, 0);
 
     /// <summary>
-    /// The heights at which Kraid's sinking body reaches a row of his sinking schedule (#1619): every eighth pixel of the
-    /// height he sinks through, on the period's first place.
-    /// </summary>
-    internal static readonly UpdateCadence SinkRowEveryEighthPixel = new(8, 0);
-
-    /// <summary>
     /// The phase of Kraid's hurt count on which he shows his hurt colours: set on its odd counts, so the hurt colours
     /// and his health band's colours alternate every update while it counts down.
     /// </summary>

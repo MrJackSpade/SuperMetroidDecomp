@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>
 /// Draygon's body, eye, tail and arms animation segments, in authored order. The four parts
 /// run animations of one set: a body cue starts all four, and the arms' dying animation runs on into the body's.
-/// Each segment holds beats; the eye's dying and the tail's final whips count their one segment four times (#1938).
+/// Each segment holds beats and is played whole; the eye's dying and the tail's final whips play their first segment four times (#1938, #2296).
 /// </summary>
 public enum DraygonSegment
 {
@@ -25,8 +25,12 @@ public enum DraygonSegment
     BodyFacingLeftIdle,
     /// <summary>Draygon body animation: dying, its cry as the body turns intangible.</summary>
     BodyDying,
-    /// <summary>Draygon body animation: dying, the counted explosions that end by paralysing the tail and arms.</summary>
+    /// <summary>Draygon body animation: dying, one of the eight counted explosion bursts.</summary>
     BodyDyingExplosions,
+    /// <summary>Draygon body animation: dying, the pause after the counted bursts and the paralysis of the tail and arms.</summary>
+    BodyDyingParalysis,
+    /// <summary>Draygon body animation: dying, the explosion burst that repeats for good once the tail and arms are paralysed.</summary>
+    BodyDyingExplosionLoop,
     /// <summary>Draygon animation: delete.</summary>
     Delete,
     /// <summary>Draygon body animation: facing left, fire goop.</summary>
@@ -35,8 +39,10 @@ public enum DraygonSegment
     BodyFacingLeftRoar,
     /// <summary>Draygon eye animation: facing left, idle.</summary>
     EyeFacingLeftIdle,
-    /// <summary>Draygon eye animation: facing left, dying, its rolling counted four times before it settles.</summary>
+    /// <summary>Draygon eye animation: facing left, dying, its rolling, which the dying animation plays four times.</summary>
     EyeFacingLeftDying,
+    /// <summary>Draygon eye animation: facing left, dying, the wide stare it settles into after its rolling.</summary>
+    EyeFacingLeftDyingStare,
     /// <summary>Draygon eye animation: facing left, dead.</summary>
     EyeFacingLeftDead,
     /// <summary>Draygon eye animation: facing left, looking left.</summary>
@@ -51,8 +57,10 @@ public enum DraygonSegment
     TailFacingLeftIdle,
     /// <summary>Draygon tail animation: facing left, fake tail whip.</summary>
     TailFacingLeftInitialFakeWhip,
-    /// <summary>Draygon tail animation: facing left, final tail whips, the whip counted four times before Samus is released.</summary>
+    /// <summary>Draygon tail animation: facing left, a final tail whip, which the final whips play four times.</summary>
     TailFacingLeftFinalWhips,
+    /// <summary>Draygon tail animation: facing left, the release of Samus after the final whips.</summary>
+    TailFacingLeftReleaseSamus,
     /// <summary>Draygon tail animation: facing left, tail whip.</summary>
     TailFacingLeftWhip,
     /// <summary>Draygon tail animation: facing left, tail flail.</summary>
@@ -73,8 +81,10 @@ public enum DraygonSegment
     BodyFacingRightRoar,
     /// <summary>Draygon eye animation: facing right, idle.</summary>
     EyeFacingRightIdle,
-    /// <summary>Draygon eye animation: facing right, dying, its rolling counted four times before it settles.</summary>
+    /// <summary>Draygon eye animation: facing right, dying, its rolling, which the dying animation plays four times.</summary>
     EyeFacingRightDying,
+    /// <summary>Draygon eye animation: facing right, dying, the wide stare it settles into after its rolling.</summary>
+    EyeFacingRightDyingStare,
     /// <summary>Draygon eye animation: facing right, dead.</summary>
     EyeFacingRightDead,
     /// <summary>Draygon eye animation: facing right, looking right.</summary>
@@ -87,8 +97,10 @@ public enum DraygonSegment
     EyeFacingRightLookingDown,
     /// <summary>Draygon tail animation: facing right, idle.</summary>
     TailFacingRightIdle,
-    /// <summary>Draygon tail animation: facing right, final tail whips, the whip counted four times before Samus is released.</summary>
+    /// <summary>Draygon tail animation: facing right, a final tail whip, which the final whips play four times.</summary>
     TailFacingRightFinalWhips,
+    /// <summary>Draygon tail animation: facing right, the release of Samus after the final whips.</summary>
+    TailFacingRightReleaseSamus,
     /// <summary>Draygon tail animation: facing right, tail whip.</summary>
     TailFacingRightWhip,
     /// <summary>Draygon tail animation: facing right, tail flail.</summary>

@@ -146,13 +146,13 @@ internal sealed class KraidProjectiles
     {
         if (lint.Contact.HasAny(EnemyContact.IgnoresSamus) || !samus.InvincibilityTimer.IsZero)
             return;
-        int edge = CoordinateAxis.Wrap(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge);
-        if (CoordinateAxis.AsSigned(samus.Position.X.Whole + samus.Kinematics.Radius.X - edge) < 0 ||
-            CoordinateAxis.Difference(samus.Position.X.Whole - samus.Kinematics.Radius.X, edge) >= 0 ||
-            CoordinateAxis.AsSigned(samus.Position.Y.Whole + samus.Kinematics.Radius.Y -
-                lint.Position.Y.Whole - KraidContactDefinitions.LintTop) < 0 ||
-            CoordinateAxis.Difference(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
-                lint.Position.Y.Whole, KraidContactDefinitions.LintBottom) >= 0)
+        int edge = lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge;
+        if (samus.Position.X.Whole + samus.Kinematics.Radius.X < edge ||
+            samus.Position.X.Whole - samus.Kinematics.Radius.X >= edge ||
+            samus.Position.Y.Whole + samus.Kinematics.Radius.Y -
+                lint.Position.Y.Whole < KraidContactDefinitions.LintTop ||
+            samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
+                lint.Position.Y.Whole >= KraidContactDefinitions.LintBottom)
             return;
         // The lint pushes Samus left until her body clears its edge by its push distance and one pixel more.
         int push = -(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush + KraidContactDefinitions.LintPushClearancePixels) +
@@ -184,7 +184,7 @@ internal sealed class KraidProjectiles
                 return;
 
             case KraidNailPhase.WaitForLint:
-                if (CoordinateAxis.Difference(_parts.TopLint.Position.X.Whole, KraidArenaDefinitions.SecondScreenX) >= 0)
+                if (_parts.TopLint.Position.X.Whole >= KraidArenaDefinitions.SecondScreenX)
                 {
                     part.Phase = KraidNailPhase.Fire;
                     nail.Contact = nail.Contact.Without(EnemyContact.IgnoresSamus);
@@ -221,8 +221,8 @@ internal sealed class KraidProjectiles
         {
             part.AlternateSpawn = false;
             RoomEnemyPlace body = _parts.Body;
-            nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(CoordinateAxis.Wrap(
-                body.Position.X.Whole - body.Radius.X - nail.Radius.X)), CoordinateAxis.Wrap(_parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm)));
+            nail.Position = nail.Position.WithWhole(new(RoomGridConversions.BlockStart(
+                body.Position.X.Whole - body.Radius.X - nail.Radius.X), _parts.Arm.Position.Y.Whole + KraidArenaDefinitions.NailLaunchBelowArm));
             return;
         }
 
@@ -250,12 +250,12 @@ internal sealed class KraidProjectiles
     internal bool KraidBodyContourReflectsNail(RoomEnemyPlace nail, KraidNailState part)
     {
         RoomEnemyPlace body = _parts.Body;
-        int relativeY = CoordinateAxis.Wrap(nail.Position.Y.Whole - body.Position.Y.Whole);
+        int relativeY = nail.Position.Y.Whole - body.Position.Y.Whole;
         // A nail above every ledge is pushed back at the contour entry the walk reads after them.
         int leftOffset = KraidNailContour.LedgeLeftOffset(relativeY) ??
             _room.Session.BossOverreads.KraidNailPastLedges.LeftOffset(relativeY);
-        int contourX = CoordinateAxis.Wrap(body.Position.X.Whole + leftOffset);
-        return CoordinateAxis.AsSigned(nail.Position.X.Whole + nail.Radius.X - contourX) >= 0 &&
+        int contourX = body.Position.X.Whole + leftOffset;
+        return nail.Position.X.Whole + nail.Radius.X >= contourX &&
             part.NailVelocity.X.WholePixels >= 0;
     }
 
@@ -294,7 +294,7 @@ internal sealed class KraidProjectiles
     /// <summary>Places a lint at its body-relative offset while its timer runs, then produces it.</summary>
     internal void AlignKraidLint(RoomEnemyPlace lint, KraidLintState part)
     {
-        lint.Position = lint.Position.WithWrappedWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
+        lint.Position = lint.Position.WithWholeX(_parts.Body.Position.X.Whole - lint.Radius.X);
         if (part.CountPhaseTimerDown())
             part.Phase = KraidLintPhase.Produce;
     }
@@ -304,7 +304,7 @@ internal sealed class KraidProjectiles
     {
         lint.Contact = lint.Contact.Without(EnemyContact.IgnoresSamus);
         lint.Presence = lint.Presence.Without(EnemyPresence.Hidden);
-        lint.Position = lint.Position.WithWrappedWholeX(
+        lint.Position = lint.Position.WithWholeX(
             part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
         part.LintTravel++;
         if (part.LintTravel >= KraidArenaDefinitions.LintEmergePixels)
@@ -320,7 +320,7 @@ internal sealed class KraidProjectiles
         lint.Shading = KraidCadenceDefinitions.LintChargeShowsOwnColours.IsSetIn(part.PhaseTimer)
             ? part.Kraid.Colours.Parts
             : EnemyShades.HurtFlashLook;
-        lint.Position = lint.Position.WithWrappedWholeX(
+        lint.Position = lint.Position.WithWholeX(
             part.LintXOffset + _parts.Body.Position.X.Whole - part.LintTravel);
         if (--part.PhaseTimer == 0)
         {
@@ -333,9 +333,9 @@ internal sealed class KraidProjectiles
     private static void FireKraidLint(RoomEnemyPlace lint, KraidLintState part, SamusState samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
-        if (CoordinateAxis.Difference(lint.Position.X.Whole, KraidArenaDefinitions.LintIntangibleX) < 0)
+        if (lint.Position.X.Whole < KraidArenaDefinitions.LintIntangibleX)
             lint.Contact = lint.Contact.With(EnemyContact.IgnoresSamus);
-        if (CoordinateAxis.Difference(lint.Position.X.Whole, KraidArenaDefinitions.LintReturnX) < 0)
+        if (lint.Position.X.Whole < KraidArenaDefinitions.LintReturnX)
         {
             lint.Presence = lint.Presence.With(EnemyPresence.Hidden);
             part.Phase = KraidLintPhase.AlignToKraidBeforeProducing;

@@ -3062,22 +3062,22 @@ public enum EnemyFrameId
     CrocomireBodyLungingArmLowering,
     /// <summary>Crocomire: its arm returning, bent upright as it lunges, feet apart.</summary>
     CrocomireBodyLungingArmReturning,
-    /// <summary>Crocomire: body melting one top row.</summary>
-    CrocomireBodyMeltingOneTopRow,
-    /// <summary>Crocomire: body melting one top two rows.</summary>
-    CrocomireBodyMeltingOneTopTwoRows,
-    /// <summary>Crocomire: body melting one top three rows.</summary>
-    CrocomireBodyMeltingOneTopThreeRows,
-    /// <summary>Crocomire: body melting one top four rows.</summary>
-    CrocomireBodyMeltingOneTopFourRows,
-    /// <summary>Crocomire: body melting two top row.</summary>
-    CrocomireBodyMeltingTwoTopRow,
-    /// <summary>Crocomire: body melting two top two rows.</summary>
-    CrocomireBodyMeltingTwoTopTwoRows,
-    /// <summary>Crocomire: body melting two top three rows.</summary>
-    CrocomireBodyMeltingTwoTopThreeRows,
-    /// <summary>Crocomire: body melting two top four rows.</summary>
-    CrocomireBodyMeltingTwoTopFourRows,
+    /// <summary>Crocomire: his flesh melting off his skull, his top row above the acid.</summary>
+    CrocomireBodyMeltingFleshTopRow,
+    /// <summary>Crocomire: his flesh melting off his skull, his top two rows above the acid.</summary>
+    CrocomireBodyMeltingFleshTopTwoRows,
+    /// <summary>Crocomire: his flesh melting off his skull, his top three rows above the acid.</summary>
+    CrocomireBodyMeltingFleshTopThreeRows,
+    /// <summary>Crocomire: his flesh melting off his skull, his top four rows above the acid.</summary>
+    CrocomireBodyMeltingFleshTopFourRows,
+    /// <summary>Crocomire: his bared skull over the rest of him melting, his top row above the acid.</summary>
+    CrocomireBodyMeltingBareSkullTopRow,
+    /// <summary>Crocomire: his bared skull over the rest of him melting, his top two rows above the acid.</summary>
+    CrocomireBodyMeltingBareSkullTopTwoRows,
+    /// <summary>Crocomire: his bared skull over the rest of him melting, his top three rows above the acid.</summary>
+    CrocomireBodyMeltingBareSkullTopThreeRows,
+    /// <summary>Crocomire: his bared skull over the rest of him melting, his top four rows above the acid.</summary>
+    CrocomireBodyMeltingBareSkullTopFourRows,
     /// <summary>Bomb Torizo: dormant.</summary>
     BombTorizoDormant,
     /// <summary>Torizo: facing left, half risen.</summary>
@@ -3461,66 +3461,66 @@ public enum EnemyFrameId
     CrocomireBodySkeletonLeaning,
     /// <summary>Crocomire: its skeleton tipping over.</summary>
     CrocomireBodySkeletonTipping,
-    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 134 high.</summary>
-    CrocomireBodySkeletonCollapsing158By134,
-    /// <summary>Crocomire: its skeleton collapsing, 141 pixels wide and 132 high.</summary>
-    CrocomireBodySkeletonCollapsing141By132,
-    /// <summary>Crocomire: its skeleton collapsing, 142 pixels wide and 127 high.</summary>
-    CrocomireBodySkeletonCollapsing142By127,
-    /// <summary>Crocomire: its skeleton collapsing, 143 pixels wide and 130 high.</summary>
-    CrocomireBodySkeletonCollapsing143By130,
-    /// <summary>Crocomire: its skeleton collapsing, 143 pixels wide and 131 high.</summary>
-    CrocomireBodySkeletonCollapsing143By131,
-    /// <summary>Crocomire: its skeleton collapsing, 160 pixels wide and 130 high.</summary>
-    CrocomireBodySkeletonCollapsing160By130,
-    /// <summary>Crocomire: its skeleton collapsing, 159 pixels wide and 122 high.</summary>
-    CrocomireBodySkeletonCollapsing159By122,
-    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 118 high.</summary>
-    CrocomireBodySkeletonCollapsing158By118,
-    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 108 high.</summary>
-    CrocomireBodySkeletonCollapsing158By108,
-    /// <summary>Crocomire: its skeleton collapsing, 158 pixels wide and 109 high.</summary>
-    CrocomireBodySkeletonCollapsing158By109,
-    /// <summary>Crocomire: its skeleton collapsing, 177 pixels wide and 87 high.</summary>
-    CrocomireBodySkeletonCollapsing177By87,
-    /// <summary>Crocomire: its skeleton collapsing, 174 pixels wide and 82 high.</summary>
-    CrocomireBodySkeletonCollapsing174By82,
-    /// <summary>Crocomire: its skeleton collapsing, 185 pixels wide and 79 high.</summary>
-    CrocomireBodySkeletonCollapsing185By79,
-    /// <summary>Crocomire: its skeleton collapsing, 189 pixels wide and 77 high.</summary>
-    CrocomireBodySkeletonCollapsing189By77,
-    /// <summary>Crocomire: its skeleton collapsing, 173 pixels wide and 77 high.</summary>
-    CrocomireBodySkeletonCollapsing173By77,
-    /// <summary>Crocomire: its skeleton collapsing, 153 pixels wide and 84 high.</summary>
-    CrocomireBodySkeletonCollapsing153By84,
-    /// <summary>Crocomire: its skeleton collapsing, 120 pixels wide and 71 high.</summary>
-    CrocomireBodySkeletonCollapsing120By71,
-    /// <summary>Crocomire: its skeleton collapsing, 120 pixels wide and 68 high.</summary>
-    CrocomireBodySkeletonCollapsing120By68,
+    /// <summary>Crocomire: its skeleton collapsing, stage 1 of the eighteen its collapse shows: its arm swinging down and out.</summary>
+    CrocomireBodySkeletonCollapseStage1,
+    /// <summary>Crocomire: its skeleton collapsing, stage 2 of the eighteen its collapse shows: its arm swinging down and out.</summary>
+    CrocomireBodySkeletonCollapseStage2,
+    /// <summary>Crocomire: its skeleton collapsing, stage 3 of the eighteen its collapse shows: its arm swinging down and out.</summary>
+    CrocomireBodySkeletonCollapseStage3,
+    /// <summary>Crocomire: its skeleton collapsing, stage 4 of the eighteen its collapse shows: its arm swinging down and out.</summary>
+    CrocomireBodySkeletonCollapseStage4,
+    /// <summary>Crocomire: its skeleton collapsing, stage 5 of the eighteen its collapse shows: its arm swinging down and out.</summary>
+    CrocomireBodySkeletonCollapseStage5,
+    /// <summary>Crocomire: its skeleton collapsing, stage 6 of the eighteen its collapse shows: its arm swinging down and out.</summary>
+    CrocomireBodySkeletonCollapseStage6,
+    /// <summary>Crocomire: its skeleton collapsing, stage 7 of the eighteen its collapse shows: its body sagging to the floor.</summary>
+    CrocomireBodySkeletonCollapseStage7,
+    /// <summary>Crocomire: its skeleton collapsing, stage 8 of the eighteen its collapse shows: its body sagging to the floor.</summary>
+    CrocomireBodySkeletonCollapseStage8,
+    /// <summary>Crocomire: its skeleton collapsing, stage 9 of the eighteen its collapse shows: its body sagging to the floor.</summary>
+    CrocomireBodySkeletonCollapseStage9,
+    /// <summary>Crocomire: its skeleton collapsing, stage 10 of the eighteen its collapse shows: its body sagging to the floor.</summary>
+    CrocomireBodySkeletonCollapseStage10,
+    /// <summary>Crocomire: its skeleton collapsing, stage 11 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage11,
+    /// <summary>Crocomire: its skeleton collapsing, stage 12 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage12,
+    /// <summary>Crocomire: its skeleton collapsing, stage 13 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage13,
+    /// <summary>Crocomire: its skeleton collapsing, stage 14 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage14,
+    /// <summary>Crocomire: its skeleton collapsing, stage 15 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage15,
+    /// <summary>Crocomire: its skeleton collapsing, stage 16 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage16,
+    /// <summary>Crocomire: its skeleton collapsing, stage 17 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage17,
+    /// <summary>Crocomire: its skeleton collapsing, stage 18 of the eighteen its collapse shows: its bones falling apart about its skull.</summary>
+    CrocomireBodySkeletonCollapseStage18,
     /// <summary>Crocomire: body skeleton stable.</summary>
     CrocomireBodySkeletonStable,
     /// <summary>Crocomire: body dead.</summary>
     CrocomireBodyDead,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 6 pixels wide and 7 high, risen 0 pixels.</summary>
-    CrocomireBubbles6By7Risen0,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 12 pixels wide and 12 high, risen 6 pixels.</summary>
-    CrocomireBubbles12By12Risen6,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 14 pixels wide and 13 high, risen 8 pixels.</summary>
-    CrocomireBubbles14By13Risen8,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 12 pixels wide and 14 high, risen 11 pixels.</summary>
-    CrocomireBubbles12By14Risen11,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 12 pixels wide and 14 high, risen 14 pixels.</summary>
-    CrocomireBubbles12By14Risen14,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 10 pixels wide and 13 high, risen 15 pixels.</summary>
-    CrocomireBubbles10By13Risen15,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 10 pixels wide and 12 high, risen 16 pixels.</summary>
-    CrocomireBubbles10By12Risen16,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 8 pixels wide and 10 high, risen 16 pixels.</summary>
-    CrocomireBubbles8By10Risen16,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 4 pixels wide and 6 high, risen 14 pixels.</summary>
-    CrocomireBubbles4By6Risen14,
-    /// <summary>Crocomire: bubbles rising from its skeleton, 4 pixels wide and 6 high, drifted off: the picture of CrocomireBubbles4By6Risen14, drawn 32 pixels right and 32 pixels lower.</summary>
-    CrocomireBubbles4By6Adrift,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 1 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage1,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 2 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage2,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 3 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage3,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 4 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage4,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 5 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage5,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 6 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage6,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 7 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage7,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 8 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage8,
+    /// <summary>Crocomire: bubbles rising from its skeleton, stage 9 of the nine their rise shows.</summary>
+    CrocomireBubblesRisingStage9,
+    /// <summary>Crocomire: bubbles rising from its skeleton, drifted off: the picture of <see cref="CrocomireBubblesRisingStage9"/>, drawn 32 pixels right and 32 pixels lower.</summary>
+    CrocomireBubblesAdrift,
     /// <summary>Kraid: its foot planted, its leg angled back.</summary>
     KraidFootPlanted,
     /// <summary>Kraid: its foot lifting, its leg upright.</summary>

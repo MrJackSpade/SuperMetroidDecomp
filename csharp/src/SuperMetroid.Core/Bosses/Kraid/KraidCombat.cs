@@ -263,8 +263,8 @@ internal sealed class KraidCombat
             return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);
 
         bounds.LeaveRightEdgeAsBottom(shot.Position.X + shot.Radius.X);
-        int relativeY = CoordinateAxis.Difference(shot.Position.Y, body.Position.Y.Whole);
-        return CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom) < 0;
+        int relativeY = shot.Position.Y - body.Position.Y.Whole;
+        return body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) < bounds.Bottom;
     }
 
     /// <summary>Switches the body from combat to its scripted death phases.</summary>
@@ -285,15 +285,15 @@ internal sealed class KraidCombat
     {
         if (!state.BodyState.Fights)
             return;
-        int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
-        if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
-            samus.Position.X.Whole - samus.Kinematics.Radius.X) >= 0)
+        int relativeY = samus.Position.Y.Whole - body.Position.Y.Whole;
+        if (body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) >=
+            samus.Position.X.Whole + samus.Kinematics.Radius.X)
             return;
-        if (CoordinateAxis.Difference(samus.Position.X.Whole, KraidContactDefinitions.MinimumBodyEjectionX) >= 0)
+        if (samus.Position.X.Whole >= KraidContactDefinitions.MinimumBodyEjectionX)
             samus.Position -= new Offset16<RoomPixels>(KraidContactDefinitions.BodyEjection, 0);
         Position16<RoomPixels> ejected = samus.Position.Whole -
             new Offset16<RoomPixels>(0, KraidContactDefinitions.BodyEjection);
-        samus.Position = samus.Position.WithWholeY(CoordinateAxis.Precedes(ejected.Y, state.EjectionLimitY)
+        samus.Position = samus.Position.WithWholeY(ejected.Y < state.EjectionLimitY
             ? state.EjectionLimitY : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(KraidContactDefinitions.PushBack);
         if (samus.InvincibilityTimer.IsZero)
@@ -318,10 +318,10 @@ internal sealed class KraidCombat
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
+                        componentOrigin.X + hitbox.Left,
+                        componentOrigin.Y + hitbox.Top,
+                        componentOrigin.X + hitbox.Right,
+                        componentOrigin.Y + hitbox.Bottom))
                     continue;
                 reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
@@ -349,10 +349,10 @@ internal sealed class KraidCombat
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
+                        componentOrigin.X + hitbox.Left,
+                        componentOrigin.Y + hitbox.Top,
+                        componentOrigin.X + hitbox.Right,
+                        componentOrigin.Y + hitbox.Bottom))
                     continue;
 
                 reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;

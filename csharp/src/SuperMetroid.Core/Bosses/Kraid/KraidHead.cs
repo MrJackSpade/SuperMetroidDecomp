@@ -250,9 +250,9 @@ internal sealed class KraidHead
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
         int random = _access.ReadKraidRandomNumber();
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + 16), CoordinateAxis.Wrap(body.Position.Y.Whole - 96)));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole + KraidArenaDefinitions.SpitRockOffset);
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
-        rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromPixels(-4));
+        rock.Velocity = rock.Velocity.WithY(KraidArenaDefinitions.SpitRockRise);
         rock.Graphics = SpriteGraphics.SharedIn(KraidColours.RocksShading);
     }
 
@@ -262,10 +262,7 @@ internal sealed class KraidHead
         int random = _room.Random.Read();
         int steps = KraidRandomDefinitions.ThinkingDelaySteps.Of(random);
         if (steps == 0)
-            steps = 2;
-        return steps * ThinkingDelayStepUpdates;
+            steps = KraidArenaDefinitions.ThinkingDelayStepsOnNoRoll;
+        return steps * KraidArenaDefinitions.ThinkingDelayStepUpdates;
     }
-
-    /// <summary>The updates of one step of Kraid's thinking delay.</summary>
-    private const int ThinkingDelayStepUpdates = 64;
 }

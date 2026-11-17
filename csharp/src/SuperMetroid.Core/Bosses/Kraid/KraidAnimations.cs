@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's typed part animations (#641, #1600, #1885): each foot, arm, lint and fingernail segment's beats, each beat naming
 /// the pose it shows (#2210): an installed picture, the foot's step from where its walk first shows that picture, and the
-/// depth of the parts Kraid shows while he rises; and the animation starting at each.
+/// depth of the parts Kraid shows while he rises; and the animation starting at each, which plays its segments whole. A
+/// pose the foot shows again straight after itself is one beat of both durations (#2296): nothing reads a part's frame timer
+/// or new-frame flag, so the second showing changed nothing.
 /// </summary>
 internal static class KraidAnimations
 {
@@ -51,16 +53,13 @@ internal static class KraidAnimations
             Show(F.KraidFootReaching, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Step(F.KraidFootReaching, new(2, 0), 1),
-            Step(F.KraidFootReaching, new(2, 0), 3),
+            Step(F.KraidFootReaching, new(2, 0), 4),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Step(F.KraidFootReaching, new(2, 0), 1),
-            Step(F.KraidFootReaching, new(2, 0), 3),
+            Step(F.KraidFootReaching, new(2, 0), 4),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Step(F.KraidFootRaised, new(-6, 11), 1),
-            Step(F.KraidFootRaised, new(-6, 11), 3),
+            Step(F.KraidFootRaised, new(-6, 11), 4),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
             Step(F.KraidFootRaised, new(-4, 11), 1),
@@ -113,16 +112,13 @@ internal static class KraidAnimations
             Show(F.KraidFootReaching, 1),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Step(F.KraidFootReaching, new(2, 0), 1),
-            Step(F.KraidFootReaching, new(2, 0), 1),
+            Step(F.KraidFootReaching, new(2, 0), 2),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Step(F.KraidFootReaching, new(2, 0), 1),
-            Step(F.KraidFootReaching, new(2, 0), 1),
+            Step(F.KraidFootReaching, new(2, 0), 2),
             Cue(K.RaiseBody),
             Cue(K.StepLeft),
-            Step(F.KraidFootRaised, new(-6, 11), 1),
-            Step(F.KraidFootRaised, new(-6, 11), 1),
+            Step(F.KraidFootRaised, new(-6, 11), 2),
             Cue(K.LowerBodyAndShake),
             Cue(K.StepLeft),
             Step(F.KraidFootRaised, new(-4, 11), 1),
@@ -306,23 +302,27 @@ internal static class KraidAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<KraidPartSegment, Animation<KraidPartSegment>> StartingAt { get; } = new Dictionary<KraidPartSegment, Animation<KraidPartSegment>>
     {
-        [P.FootInitial] = new([new(P.FootInitial, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FootNeutral] = new([new(P.FootNeutral, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FootWalkingForward] = new([new(P.FootWalkingForward, 0, 59, 1)], AnimationEnd.Holds),
-        [P.FootLungeForward] = new([new(P.FootLungeForward, 0, 59, 1)], AnimationEnd.Holds),
-        [P.FootWalkingBackward] = new([new(P.FootWalkingBackward, 0, 55, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmNormal] = new([new(P.ArmNormal, 0, 17, 1), new(P.ArmNormalPause, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmNormalPause] = new([new(P.ArmNormalPause, 0, 2, 1), new(P.ArmNormal, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmSlow] = new([new(P.ArmSlow, 0, 19, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmRisingOrSinking] = new([new(P.ArmRisingOrSinking, 0, 18, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmDyingOrPreparingToLunge] = new([new(P.ArmDyingOrPreparingToLunge, 0, 3, 1)], AnimationEnd.Holds),
-        [P.LintInitial] = new([new(P.LintInitial, 0, 1, 1)], AnimationEnd.Holds),
-        [P.LintPostGrowth] = new([new(P.LintPostGrowth, 0, 1, 1)], AnimationEnd.Holds),
-        [P.NailLoop] = new([new(P.NailLoop, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FootInitial] = new([Whole(P.FootInitial)], AnimationEnd.Holds),
+        [P.FootNeutral] = new([Whole(P.FootNeutral)], AnimationEnd.Holds),
+        [P.FootWalkingForward] = new([Whole(P.FootWalkingForward)], AnimationEnd.Holds),
+        [P.FootLungeForward] = new([Whole(P.FootLungeForward)], AnimationEnd.Holds),
+        [P.FootWalkingBackward] = new([Whole(P.FootWalkingBackward)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmNormal] = new([Whole(P.ArmNormal), Whole(P.ArmNormalPause)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmNormalPause] = new([Whole(P.ArmNormalPause), Whole(P.ArmNormal)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmSlow] = new([Whole(P.ArmSlow)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmRisingOrSinking] = new([Whole(P.ArmRisingOrSinking)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmDyingOrPreparingToLunge] = new([Whole(P.ArmDyingOrPreparingToLunge)], AnimationEnd.Holds),
+        [P.LintInitial] = new([Whole(P.LintInitial)], AnimationEnd.Holds),
+        [P.LintPostGrowth] = new([Whole(P.LintPostGrowth)], AnimationEnd.Holds),
+        [P.NailLoop] = new([Whole(P.NailLoop)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KraidPartSegment> StartingWith(KraidPartSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/> (#2296).</summary>
+    private static AnimationPhase<KraidPartSegment> Whole(KraidPartSegment segment) =>
+        new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="picture"/> where the part stands for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<KraidPartPose, KraidPartCue> Show(EnemyFrameId picture, int duration) =>

@@ -19,6 +19,9 @@ internal sealed class EnemyPartLinks<TLinks> where TLinks : class
     /// <summary>Records the partners <paramref name="part"/> found as it was placed, replacing any it found before.</summary>
     internal void Place(RoomEnemyPlace part, TLinks links) => _links[Ensure.NotNull(part)] = Ensure.NotNull(links);
 
+    /// <summary>The places of the parts placed this room, each once, however often a part was placed again in it.</summary>
+    internal IEnumerable<RoomEnemyPlace> Placed => _links.Keys;
+
     /// <summary>Whether <paramref name="part"/> has been placed as a part of this species this room.</summary>
     internal bool IsPlaced(RoomEnemyPlace part) => _links.ContainsKey(Ensure.NotNull(part));
 

@@ -650,7 +650,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision, Audio, compatibility.YardKickDistance);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, EffectActors, ScrollCap, Audio);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior();
-        WorkRobotBehavior = new WorkRobotBehavior(Room, Terrain, Projectiles, Places, Audio);
+        WorkRobotBehavior = new WorkRobotBehavior(Room, Terrain, Projectiles, Audio);
         WaverBehavior = new WaverBehavior(Terrain);
         WalkingSpacePirateBehavior = new WalkingSpacePirateBehavior(Terrain, Projectiles, Audio, Collision, DeathsAndDrops);
         WallSpacePirateBehavior = new WallSpacePirateBehavior(Room, Terrain, WalkingSpacePirateBehavior);

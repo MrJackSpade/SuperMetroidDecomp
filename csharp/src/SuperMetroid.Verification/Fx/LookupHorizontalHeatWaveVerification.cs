@@ -27,7 +27,7 @@ internal static class LookupHorizontalHeatWaveVerification
                 { LavaAcidBackgroundWavePhase = phase };
             // The described heat haze (#1468), evaluated on each gameplay line.
             ushort[] scrolls = ScrollShapeLines.GameplayScrolls(GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(fx,
-                new Position16<BackgroundPixels>(baseScroll, (ushort)cameraPhase)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
+                Offset16<BackgroundPixels>.Wrapped(baseScroll, cameraPhase)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
             for (int line = 0; line < scrolls.Length; line++)
                 AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),
                     scrolls[line], "Production horizontal wave phase, camera nibble, signed addition and wrap");

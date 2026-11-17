@@ -49,13 +49,23 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         PaletteRgb5 original = document.Frames[1][0];
         // Exercise the room's production glow step. Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        // The glow names the frame every Magdollite shows (#1512); the frame's colours are the import's shade. A restarted
-        // glow shows its first frame at once.
-        enemies.MagdolliteBehavior.RestartGlow();
+        // The glow names the frame every Magdollite shows (#1512); the frame's colours are the import's shade. Each part's
+        // placement restarts the glow, which shows its first frame at once on the parts the species placed and on no
+        // other place (#2306).
+        RoomEnemyPlace[] parts = [.. enemies.Places.InUpdateOrder.Take(3)];
+        for (int part = 0; part < parts.Length; part++)
+        {
+            RoomEnemyPlace member = parts[part];
+            member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+            member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, part);
+            member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
+            enemies.MagdolliteBehavior.InitializeMagdollite(member, RoomEnemyFrameFixtures.StandaloneSamus());
+        }
         AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(0)), enemies.MagdolliteBehavior.Glow,
             "a restarted Magdollite glow shows its first frame");
         Action step = enemies.MagdolliteBehavior.StepGlow;
-        RoomEnemyPlace untouched = enemies.Places.InUpdateOrder[0];
+        RoomEnemyPlace untouched = enemies.Places.InUpdateOrder[3];
+        AssertGlowShownOnPartsOnly("the restarted glow");
         int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
@@ -72,6 +82,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
                 int frame = (tick + 1) / 8 & (MagdolliteShades.GlowFrames - 1);
                 AssertEqual(PictureShading.Shaded(MagdolliteShades.Glow(frame)), enemies.MagdolliteBehavior.Glow,
                     $"Magdollite glow tick {tick + 1} glow frame");
+                AssertGlowShownOnPartsOnly($"glow tick {tick + 1}");
             }
         }
         AssertEqual(healthBefore, untouched.Health,
@@ -86,5 +97,12 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertThrows<InvalidDataException>(() => MagdollitePaletteCycleFile.Read(new MemoryStream(MagdollitePaletteCycleFile.Write(document))),
             "Magdollite RGB5 channel outside five-bit precision is rejected");
         Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 glow ticks, channel rejection and no runtime ROM reads pass.");
+
+        void AssertGlowShownOnPartsOnly(string moment)
+        {
+            foreach (RoomEnemyPlace part in parts)
+                AssertEqual(enemies.MagdolliteBehavior.Glow, part.Shading, $"{moment} shows on Magdollite part {part.Ordinal}");
+            AssertEqual(PictureShading.Standard, untouched.Shading, $"{moment} leaves a place no Magdollite was placed in standard");
+        }
     }
 }

@@ -63,15 +63,18 @@ internal static class TourianStatueWaterVerification
                 AssertEqual(dryPixels[y * 256 + x], wetPixels[y * 256 + x], "BG3 water does not tint pixels above its native surface tile");
         AssertTrue(Enumerable.Range(176 * 256, (224 - 176) * 256).Any(index => dryPixels[index] != wetPixels[index]),
             "Actual water artwork visibly changes submerged room pixels");
-        AssertTrue(GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, new Position16<BackgroundPixels>(0, 0)) is null,
+        AssertTrue(GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, Offset16<BackgroundPixels>.Zero) is null,
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         PrivateState.Set(runtime.TourianStatues, nameof(SuperMetroid.Core.World.TourianStatueSequence.Descent), SignedSixteenSixteen.FromWholePixels(64));
         runtime.TourianStatues.LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
-        // The view shows the background row below the descent's camera row at the screen's top (#1514).
-        AssertEqual(GameplaySceneView.LayerRowAtScreenTop(runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y + runtime.TourianStatues.DisplayedVerticalOffset),
-            descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
+        // The view shows the background row below the descent's camera row at the screen's top (#1514): with the camera at
+        // the room's top, the descent puts that row above the background's origin, a negative scroll, not a wrapped one
+        // (#2305).
+        AssertEqual(runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y + runtime.TourianStatues.DisplayedVerticalOffset
+            + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)descending.View.BackgroundScroll.Y, "Statue descent retains its independent BG2 vertical scroll");
+        AssertTrue(descending.View.BackgroundScroll.Y < 0, "the statues' descent scrolls the background above its origin");
         AssertEqual(0xb0, (runtime.Display.DisplayedRoomFxOverlay ?? throw new InvalidOperationException("Verification requires a published room FX snapshot.")).WaterSurfaceScreenY,
             "Statue motion does not move its water surface");
         runtime.RoomFxOverlay.MoveLiquidTo(0xb4, SignedEightEight.FromPixels(1), 1);

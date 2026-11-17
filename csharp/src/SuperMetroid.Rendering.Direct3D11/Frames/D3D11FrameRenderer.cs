@@ -560,11 +560,11 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// Packs the room's background scrolls into the pass's own line-scroll slots (#1468): each axis's described shape, or
-    /// the background pixel the view shows at the screen's top on every line (#1514).
+    /// the background pixel the view shows at the screen's top on every line (#1514), a signed scroll (#2305).
     /// </summary>
     private static void PackBackgroundScrolls(uint[] data, GameplaySceneLayer layer)
     {
-        Position16<BackgroundPixels> own = layer.View.BackgroundScroll;
+        Offset16<BackgroundPixels> own = layer.View.BackgroundScroll;
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Horizontal, layer.BackgroundLineScrolls.Horizontal, own.X);
         D3D11LineScrolls.Pack(data, D3D11LineScrolls.Vertical, layer.BackgroundLineScrolls.Vertical, own.Y);
     }

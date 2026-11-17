@@ -89,16 +89,17 @@ public static class GameplayDisplayCapture
         // A boss's body (Kraid's, Phantoon's, Draygon's, Crocomire's or Mother Brain's, #1352-#1356) shows where its boss places
         // it in the room against the frame's camera (#2031): the background shows the body from its placement, each frame
         // where it lies against it, moved by the room's shake as any background is. Only a room without a placed body shows
-        // the background where its own scroll puts it.
+        // the background where its own scroll puts it. The background's scroll is signed (#2305): the backend repeats each
+        // background picture by its own size, so a scroll left of or above the background's origin needs no wrap.
         Position16<RoomPixels> camera = scrolls.ForegroundPosition;
         Position16<RoomPixels>? bodyPlacement = bosses.Placement;
-        Position16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : scrolls.BackgroundScroll)
+        Offset16<BackgroundPixels> backgroundScroll = (bodyPlacement is { } placement ? BossBodyPlacement.Shown(placement, camera) : SignedScroll(scrolls.BackgroundScroll))
             + shake.Background;
         if (live.TourianStatuesEnabled)
             // The statues' descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. The descent also gives the statue sprites zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(CoordinateAxis.Wrap(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset));
+            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + latched.TourianStatueVerticalOffset);
         RoomFxOverlayRenderSnapshot? fx = latched.RoomFxOverlay;
         LatchedScrollingSky? sky = scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
@@ -119,7 +120,7 @@ public static class GameplayDisplayCapture
         // sky's rows down the screen.
         var view = new GameplaySceneView(GameplaySceneView.LayerPixelAtScreenTop(foregroundScroll),
             GameplaySceneView.LayerPixelAtScreenTop(bodyPlacement is null && sky is { } latchedSky
-                ? backgroundScroll.WithY(Add(latchedSky.CameraRow, shake.Background.Y)) : backgroundScroll),
+                ? backgroundScroll.WithY(latchedSky.CameraRow + shake.Background.Y) : backgroundScroll),
             live.DoorTransitionShownLayers ?? displayedLayers,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default);
         // Phantoon's wave owns the background's horizontal scroll while it shows; otherwise lava, water or the sky does.
@@ -191,8 +192,12 @@ public static class GameplayDisplayCapture
     private static RgbColor FirefleaTint(GameplayDisplayLatch latched) =>
         latched.Tints.Fireflea ?? throw new InvalidOperationException("A Fireflea room's frame latched no Fireflea shade.");
 
-    /// <summary>Adds signed quake displacement to a layer scroll, wrapping past 65535 to 0.</summary>
-    private static int Add(int scroll, int shake) => CoordinateAxis.Wrap(scroll + shake);
+    /// <summary>
+    /// The background scroll the frame latched, a wrapping room-space position, as the display's signed scroll (#2305): a
+    /// scroll stored left of or above the background's origin has wrapped past zero and reads negative.
+    /// </summary>
+    private static Offset16<BackgroundPixels> SignedScroll(Position16<BackgroundPixels> latched) =>
+        Offset16<BackgroundPixels>.Wrapped(latched.X, latched.Y);
 
     /// <summary>
     /// Fireflea's darkness, before and after X-ray owns the window (#1514): its shade darkens the background and the backdrop
@@ -315,7 +320,7 @@ public static class GameplayDisplayCapture
             // The reveal lies over the room's own blocks (#1514), so the background it is drawn on moves with the foreground.
             view = view with
             {
-                BackgroundScroll = new Position16<BackgroundPixels>(view.ForegroundScroll.X, view.ForegroundScroll.Y),
+                BackgroundScroll = Offset16<BackgroundPixels>.Wrapped(view.ForegroundScroll.X, view.ForegroundScroll.Y),
             };
         }
         view = view with

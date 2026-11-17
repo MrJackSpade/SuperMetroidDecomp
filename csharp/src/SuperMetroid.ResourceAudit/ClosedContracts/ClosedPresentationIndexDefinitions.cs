@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Frontend.Map;

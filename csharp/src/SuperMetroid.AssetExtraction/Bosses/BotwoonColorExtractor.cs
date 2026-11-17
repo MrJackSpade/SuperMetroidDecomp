@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;

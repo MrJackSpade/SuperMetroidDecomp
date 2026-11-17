@@ -124,10 +124,6 @@ internal static class DraygonFrameToolingDefinitions
         return RootAt(position);
     }
 
-    /// <summary>Every extended spritemap that shows <paramref name="frame"/>.</summary>
-    internal static IEnumerable<ushort> Spritemaps(EnemyFrameId frame) =>
-        Enumerable.Range(0, CartridgeOrder.Length).Where(position => CartridgeOrder[position] == frame).Select(RootAt);
-
     /// <summary>The extended spritemap at <paramref name="position"/> of the cartridge's root order.</summary>
     internal static ushort RootAt(int position)
     {

@@ -45,7 +45,7 @@ internal static class RoomObjectSystemAccess
             if (RoomObjectSystem.IsColoredDoorHeader(header) ||
                 GreyDoorObjectsConstants.TryIdentifyGreyDoor(header, out _))
                 return true;
-            return CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _);
+            return PermanentCollectibleObjectDefinitions.Items.ContainsKey(header);
         }
 
         /// <summary>Recognizes the ten directional yellow, green, and red door headers some room places.</summary>

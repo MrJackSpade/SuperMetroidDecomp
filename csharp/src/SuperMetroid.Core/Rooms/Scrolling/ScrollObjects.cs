@@ -16,10 +16,10 @@ internal sealed class ScrollObjects
         _places = places;
     }
 
-    /// <summary>Every live room-authored scroll trigger, in place order.</summary>
-    public IReadOnlyList<ScrollObjectSnapshot> Snapshots => _places.FromLastPlace
+    /// <summary>The block of every live scroll trigger, in place order, which a touch with no trigger names as it fails.</summary>
+    internal IReadOnlyList<Position16<RoomBlocks>> TriggerBlocks => _places.FromLastPlace
         .Where(place => place.Active && place.Behaviour is ScrollTriggerObject)
-        .Select(place => new ScrollObjectSnapshot(place.Block))
+        .Select(place => place.Block)
         .ToArray();
 
     /// <summary>
@@ -44,8 +44,12 @@ internal sealed class ScrollObjects
     }
 
     /// <summary>Runs one scroll trigger's or extension's setup at the place the room population took for it.</summary>
-    internal static void SetupScroll(RoomLevelData level, RoomObjectPlace place,
-        RoomObjectKind kind, IReadOnlyList<ScreenScrollChange>? animation, RoomScrollChange? compiledChange)
+    /// <param name="level">The room's level data.</param>
+    /// <param name="place">The place the population took.</param>
+    /// <param name="kind">A scroll trigger or one of the scroll extensions.</param>
+    /// <param name="change">The scroll change a trigger applies; null for an extension.</param>
+    /// <exception cref="InvalidOperationException">The kind is neither, or a trigger has no scroll change.</exception>
+    internal static void SetupScroll(RoomLevelData level, RoomObjectPlace place, RoomObjectKind kind, RoomScrollChange? change)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
@@ -65,7 +69,7 @@ internal sealed class ScrollObjects
             return;
         }
 
-        var trigger = new ScrollTriggerObject(animation, compiledChange);
+        var trigger = new ScrollTriggerObject(change ?? throw new InvalidOperationException("A scroll trigger was set up without its scroll change."));
         place.Become(trigger);
         trigger.Rest(level, place.Block);
     }

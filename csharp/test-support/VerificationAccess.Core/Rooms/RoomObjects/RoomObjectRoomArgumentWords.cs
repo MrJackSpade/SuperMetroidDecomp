@@ -108,7 +108,7 @@ internal static class RoomObjectRoomArgumentWords
         string name = header.ToString();
         if (header == RoomObjectKind.ScrollTrigger || FixedWords.ContainsKey(header) || FillerHeaders.Contains(header))
             return null;
-        if (CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _))
+        if (PermanentCollectibleObjectDefinitions.Items.ContainsKey(header))
             return new CollectedItemArgument(SuperMetroid.AssetExtraction.Progression.RoomPlacementDecoding.Item(word));
         if (name.StartsWith("GreyDoor", StringComparison.Ordinal) || header == RoomObjectKind.BombTorizoGreyDoor)
         {
@@ -275,6 +275,6 @@ internal static class RoomObjectRoomArgumentWords
     extension(RoomObjectPlacement placement)
     {
         /// <summary>The word the cartridge stores for the placement's argument.</summary>
-        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, placement.CompiledScrollChange);
+        internal ushort NativeRoomArgument => Encode(placement.Kind, placement.Argument, placement.ScrollChange);
     }
 }

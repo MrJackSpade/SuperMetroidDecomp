@@ -8,6 +8,6 @@ internal static class WrappingCountdownAccess2
     {
         /// <summary>Whether at least <paramref name="frames"/> frames are left; a countdown run past zero counts as a large count.</summary>
         /// <param name="frames">The frames compared, 0 through 65535.</param>
-        public bool IsAtLeast(int frames) => self.count >= frames;
+        public bool IsAtLeast(int frames) => self.RemainingFrames >= frames;
     }
 }

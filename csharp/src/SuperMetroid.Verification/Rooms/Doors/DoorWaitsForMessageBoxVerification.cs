@@ -44,7 +44,7 @@ internal static class DoorWaitsForMessageBoxVerification
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.
-        (runtime.Room.LoadedLevelData).PendingDoorTransition = door;
+        PrivateState.Set(runtime.Room.LoadedLevelData, nameof(SuperMetroid.Core.Rooms.LevelData.RoomLevelData.PendingDoorTransition), door);
         runtime.MessageBox.Begin(GameplayMessageId.MissileRechargeCompleted, 0, SuperMetroid.Core.Input.ControllerBindings.Default);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the open box holds the door's state");

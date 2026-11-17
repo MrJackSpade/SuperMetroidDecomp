@@ -32,11 +32,11 @@ internal static class RoomObjectDefinitionMigrationVerification
             && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
         AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
             && down == ColoredDoorOrientation.Down, "grey door facing down");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ChozoBombs, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
-            && kind == InWorldCollectibleKind.Bombs && presentation == CollectiblePresentation.ChozoOrb, "Chozo Bombs");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ShotBlockSuperMissileTank, out kind, out presentation)
-            && kind == InWorldCollectibleKind.SuperMissileTank && presentation == CollectiblePresentation.ShotBlock, "shot-block Super Missile Tank");
-        AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.RedDoorFacingLeft, out _, out _), "a door is no item");
+        AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.Bombs, CollectiblePresentation.ChozoOrb),
+            PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ChozoBombs], "Chozo Bombs");
+        AssertEqual(new PermanentCollectibleObject(InWorldCollectibleKind.SuperMissileTank, CollectiblePresentation.ShotBlock),
+            PermanentCollectibleObjectDefinitions.Items[RoomObjectKind.ShotBlockSuperMissileTank], "shot-block Super Missile Tank");
+        AssertTrue(!PermanentCollectibleObjectDefinitions.Items.ContainsKey(RoomObjectKind.RedDoorFacingLeft), "a door is no item");
         // Only the items some room places in each presentation (#2354): five exposed, nineteen in an orb, three in a shot block.
         AssertEqual(27, PermanentCollectibleObjectDefinitions.Items.Count, "the items the rooms place");
 
@@ -50,7 +50,6 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(5, DownwardGateDefinitions.GateHeightInBlocks, "gate height");
         AssertEqual(RoomBlockBehaviorCodec.Decode(0x10), DownwardGateDefinitions.ClosedGateBehavior, "closed gate behaviour");
         // The cartridge counts the gate's travel in 256ths of a pixel to $1000; the port counts the same block in pixels.
-        AssertEqual(16, DownwardGateDefinitions.PixelsPerRoomBlock, "gate projectile reaches a block every sixteen pixels");
         AssertEqual(RoomCollisionType.SolidBlock, NoobTubeObjectDefinitions.OriginCollision, "n00b tube origin collision");
         AssertEqual(11, NativeEarthquakeTypes.TypeOf(NoobTubeObjectDefinitions.Earthquake), "n00b tube earthquake type");
         AssertEqual(0x0040, NoobTubeObjectDefinitions.EarthquakeFrames, "n00b tube earthquake length");

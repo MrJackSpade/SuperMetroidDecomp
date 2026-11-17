@@ -65,7 +65,7 @@ public sealed class MaridiaElevatubeRoomMainState
     internal BlockMoveResult Step(
 
         RoomLevelData level,
-        SamusState? samus,
+        SamusState samus,
         int frameCounter,
         ISamusRoomObjects roomObjects,
         RoomMainCarryover carryover)
@@ -73,17 +73,16 @@ public sealed class MaridiaElevatubeRoomMainState
         Ensure.NotNull(carryover);
         Ensure.NotNull(level);
         Ensure.NotNull(roomObjects);
-        SamusState activeSamus = samus ?? throw new InvalidOperationException(
-            "Maridia elevatube room main requires an active Samus state.");
+        Ensure.NotNull(samus);
 
         // Stores the whole and fractional X separately every frame.
-        activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         SignedSixteenSixteen displacement = Velocity.ToSixteenSixteenDelta();
         TrackedY = TrackedY.MovedBy(displacement);
         carryover.LeaveFraction(TrackedY.Fraction);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, activeSamus.Kinematics, activeSamus, activeSamus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
+        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
         // The game's range test is exactly the inclusive range of the maximum speed either
         // way; a candidate outside it is rejected rather than clamped, leaving the preceding velocity intact. The velocity

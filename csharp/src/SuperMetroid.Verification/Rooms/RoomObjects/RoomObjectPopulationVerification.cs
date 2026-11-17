@@ -138,8 +138,7 @@ internal static class RoomObjectPopulationVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            bool spawned = roomObjects.DoorObjects.TrySpawnDoorClosingObject(
-                level, door, new SharedGameState(new SharedRandom()));
+            bool spawned = roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, door);
             AssertEqual(expectedHeader != 0, spawned,
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)
@@ -170,7 +169,7 @@ internal static class RoomObjectPopulationVerification
     internal static void VerifyResidentDoorClosingDefinitions(CartridgeImportAddressSpace rom)
     {
         ushort[] headers = [0xbaf4,0xc842,0xc848,0xc84e,0xc854,0xc85a,0xc860,0xc866,0xc86c,
-            0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc896,0xc89c,0xc8ca,0xdb4c,0xdb5a];
+            0xc872,0xc878,0xc87e,0xc884,0xc88a,0xc890,0xc8ca,0xdb4c,0xdb5a];
 
         int definitionIndex = 0;
         foreach (ushort raw in headers)
@@ -193,8 +192,6 @@ internal static class RoomObjectPopulationVerification
             byte blockY = (byte)(1 + definitionIndex / 4);
             var decoded = new RoomObjectPopulation($"$8F:{population:X4}",
             [
-                // Two directional caps are not placed in any retail room population,
-                // so they are absent from the 70-header population catalog.
                 new RoomObjectPlacement(header,
                     new(blockX, blockY), RoomObjectRoomArgumentWords.Decode(header, 0x8000)), // Negative argument always closes.
             ]);
@@ -214,7 +211,7 @@ internal static class RoomObjectPopulationVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
+            AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
             AssertTrue(TypedDoorObjectOracle.IsClosing(place.Behaviour), $"resident door $84:{raw:X4} starts its closing");
@@ -228,7 +225,8 @@ internal static class RoomObjectPopulationVerification
 
         // A shot blue cap at the door's block has no closing: the transition fails loudly rather than skipping it.
         RoomLevelData blueLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
-        var blueObjects = RoomObjectFixtures.Unbound();
+        var blueObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(blueLevel, new SharedGameState(new SharedRandom()), AreaId.Crateria),
+            RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
         AssertTrue(blueObjects.DoorObjects.TrySpawnBlueDoorOpening(blueLevel, new(1, 1),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
             "a shot blue cap stands at the door's block");
@@ -241,19 +239,20 @@ internal static class RoomObjectPopulationVerification
             SamusSpeed: DoorSamusSpeed.None,
             Setup: DoorSetupDefinitions.None);
         AssertThrows<InvalidDataException>(
-            () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor, new SharedGameState(new SharedRandom())),
+            () => blueObjects.DoorObjects.TrySpawnDoorClosingObject(blueLevel, blueDoor),
             "a shot blue cap at the door is outside the resident closing domain");
 
         // #1906: once the Landing Site's green door is open for good, a shot blue cap at the door stays open and the door's
         // own blue closer is placed instead.
         RoomLevelData openLevel = CreateRoom(new(8, 8), new RoomTerrainBlock[64], new RoomBlockBehavior[64]);
-        var openObjects = RoomObjectFixtures.Unbound();
+        var landingSiteOpened = new SharedGameState(new SharedRandom());
+        landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
+        var openObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(openLevel, landingSiteOpened, AreaId.Crateria),
+            RoomObjectServiceFixtures.Uninstalled, RoomObjectFixtures.Unbound());
         AssertTrue(openObjects.DoorObjects.TrySpawnBlueDoorOpening(openLevel, new(1, 1),
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)), SamusProjectileType.None),
             "a shot blue cap stands at the door's block once more");
-        var landingSiteOpened = new SharedGameState(new SharedRandom());
-        landingSiteOpened.OpenDoor(LockedDoorDefinitions.LandingSiteDefaultOrWhenZebesAwakeOrWithPowerBombsGreenDoorFacingLeft);
-        AssertTrue(openObjects.DoorObjects.TrySpawnDoorClosingObject(openLevel, blueDoor, landingSiteOpened),
+        AssertTrue(openObjects.DoorObjects.TrySpawnDoorClosingObject(openLevel, blueDoor),
             "the door places its own closer beside the shot cap");
         AssertEqual(2, openObjects.Places.ActiveCount, "the shot cap stays and the closer joins it");
         AssertTrue(openObjects.Places.InUpdateOrder[0].Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Opening },
@@ -291,7 +290,7 @@ internal static class RoomObjectPopulationVerification
         const ushort population = 0x9000;
         SeedRoomObjectPopulation(bus, population, [
             // First resident takes native slot 39.
-            0x03, 0xb7, 0x08, 0x04, 0x00, 0x91,
+            0x03, 0xb7, 0x08, 0x04, unchecked((byte)DormantScrollProgram), SuperMetroid.AssetExtraction.Cartridge.LittleEndianBytes.HighByte(DormantScrollProgram),
             // Setup deletes this temporary extension synchronously.
             0x3b, 0xb6, 0x09, 0x04, 0x00, 0x80,
             // It must reuse slot 38, not receive a slot based on family load order.
@@ -424,7 +423,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
+        AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, roomObjects.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
@@ -528,7 +527,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor, system),
+        AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
         for (int frame = 0; frame < 10; frame++)
@@ -804,7 +803,7 @@ internal static class RoomObjectPopulationVerification
         var malformed = new RoomObjectPopulation($"$8F:{malformedPopulation:X4}",
         [
             new RoomObjectPlacement(RoomObjectKinds.RequirePlaced(RoomObjectKind.ScrollTrigger),
-                new(offRoomX, offRoomY), null, Array.Empty<ScreenScrollChange>()) { Site = RoomObjectSite.BeyondTheRoom },
+                new(offRoomX, offRoomY), null) { ScrollChange = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned, Site = RoomObjectSite.BeyondTheRoom },
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
             () => RoomObjectFixtures.LoadPopulation(RoomObjectFixtures.Unbound(), new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), malformed, RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -904,7 +903,7 @@ internal static class RoomObjectPopulationVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.AxisDefault,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(escape.DoorObjects.TrySpawnDoorClosingObject(escapeLevel, motherBrainExit, system),
+        AssertTrue(escape.DoorObjects.TrySpawnDoorClosingObject(escapeLevel, motherBrainExit),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.Places.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
@@ -936,7 +935,7 @@ internal static class RoomObjectPopulationVerification
             new RoomBlockBehavior[width * height]);
         fallbackLevel.SetTerrain(gateBlock, originalGateWord);
         var fallback = RoomObjectFixtures.Unbound();
-        AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit, system),
+        AssertTrue(fallback.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, motherBrainExit),
             "special door without a resident cap spawns C8D0 fallback");
         AssertTrue(fallback.PopulationPlaces.Single().Behaviour is MotherBrainEscapeGateObject { Change: var closing }
                 && closing == MotherBrainEscapeGateDefinitions.Closing,
@@ -946,7 +945,7 @@ internal static class RoomObjectPopulationVerification
 
         var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
         var nonClosing = RoomObjectFixtures.Unbound();
-        AssertTrue(!nonClosing.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, nonClosingDoor, system),
+        AssertTrue(!nonClosing.DoorObjects.TrySpawnDoorClosingObject(fallbackLevel, nonClosingDoor),
             "directions zero through three retain the native no-closing-PLM branch");
         AssertEqual(0, nonClosing.Places.ActiveCount,
             "non-closing door does not consume a PLM slot");
@@ -1487,11 +1486,16 @@ internal static class RoomObjectPopulationVerification
             address => address is >= 0x84bb34 and <= 0x84bb51 or >= 0x849473 and <= 0x849496,
             address => $"Mother Brain escape gate reread compiled source ${address:X6}.");
 
-    /// <summary>The dormant scroll fixture owns an empty terminated bank-$8F scroll program at $9100.</summary>
-    private static void SeedDormantScrollObjectProgram(TestAddressSpace bus)
-    {
-        bus.WriteBytes(0x8f9100, [0x80]); // Dormant scroll fixture owns an empty terminated program.
-    }
+    /// <summary>
+    /// Where the cartridge stores the retail scroll program the dormant scroll trigger is set up with: a trigger runs only
+    /// a retail program (#2355), and the dormant one is never touched, so which one does not matter.
+    /// </summary>
+    private static ushort DormantScrollProgram =>
+        RoomScrollProgramNative.Addresses[RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned];
+
+    /// <summary>Seeds the retail scroll program the dormant scroll trigger is set up with where the cartridge stores it.</summary>
+    private static void SeedDormantScrollObjectProgram(TestAddressSpace bus) =>
+        bus.WriteBytes(0x8f0000 | DormantScrollProgram, RoomObjectScrollChangeDefinitions.Get(DormantScrollProgram).ToArray());
 
     /// <summary>Seeds the save-station electricity enemy-projectile definition, animation list and frame map.</summary>
     private static void SeedSaveStationElectricityProjectile(TestAddressSpace bus)

@@ -59,8 +59,8 @@ internal sealed class DownwardGateBehavior
         int blockX = request.RoomObjectBlock.X;
         int blockY = request.RoomObjectBlock.Y;
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
-            blockX * DownwardGateDefinitions.PixelsPerRoomBlock), CoordinateAxis.Wrap(
-            blockY * DownwardGateDefinitions.PixelsPerRoomBlock +
+            blockX * RoomGridConversions.BlockPixels), CoordinateAxis.Wrap(
+            blockY * RoomGridConversions.BlockPixels +
             (request.Kind == DownwardGateProjectileKind.Closed
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0))));
@@ -102,7 +102,7 @@ internal sealed class DownwardGateBehavior
     {
         DownwardGateState gate = projectile.StateOf<DownwardGateState>();
         int moved = gate.PixelsSinceBlock + projectile.Velocity.Y.MagnitudeWholePixels;
-        if (moved >= DownwardGateDefinitions.PixelsPerRoomBlock)
+        if (moved >= RoomGridConversions.BlockPixels)
         {
             // The next stage's animation shows its first frame on this same enemy-projectile pass.
             AdvanceDownwardGateStage(projectile);

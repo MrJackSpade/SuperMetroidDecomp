@@ -85,7 +85,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
         elevator.DrawAsOam(elevatorActual, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault), Position16<RoomPixels>.Zero);
-        foreach (var actor in new[] { elevator.pad, elevator.platform })
+        foreach (var actor in new[] { elevator.Pad, elevator.Platform })
         {
             var position = actor.Position;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, actor.SpritemapPointer,

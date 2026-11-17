@@ -198,14 +198,20 @@ internal static class CoreAccess
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>
     extension(CeresElevatorArrivalState arrival)
     {
+        /// <summary>The moving pad, which lowers Samus.</summary>
+        internal CeresElevatorArrivalState.CeresElevatorProjectile Pad =>
+            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorProjectile>(arrival, "pad");
+        /// <summary>The stationary platform behind the pad.</summary>
+        internal CeresElevatorArrivalState.CeresElevatorProjectile Platform =>
+            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorProjectile>(arrival, "platform");
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
-        internal Position16<RoomPixels> PadPosition => arrival.pad.Position;
+        internal Position16<RoomPixels> PadPosition => arrival.Pad.Position;
         /// <summary>Whole room position of the Ceres elevator's level-data platform.</summary>
-        internal Position16<RoomPixels> PlatformPosition => arrival.platform.Position;
+        internal Position16<RoomPixels> PlatformPosition => arrival.Platform.Position;
         /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
-        internal bool PadActive => arrival.pad.Active;
+        internal bool PadActive => arrival.Pad.Active;
         /// <summary>True while the level-data concealer occupies native enemy-projectile slot $20.</summary>
-        internal bool PlatformActive => arrival.platform.Active;
+        internal bool PlatformActive => arrival.Platform.Active;
     }
 
     /// <summary>Observes Samus's room-load appearance timer before ordinary movement resumes.</summary>

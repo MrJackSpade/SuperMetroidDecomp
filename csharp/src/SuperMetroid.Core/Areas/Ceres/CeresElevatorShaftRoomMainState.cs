@@ -66,7 +66,7 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>Runs the shaft's room main behaviour once.</summary>
-    /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
+    /// <param name="samus">Samus, whom the elevator trigger inspects.</param>
     /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
     /// True only in main gameplay. The elevator-arrival and blackout states still call the
@@ -76,11 +76,12 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <param name="carryover">The room-main value the following room inherits, which receives every turn.</param>
     [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
-        SamusState? samus,
+        SamusState samus,
         bool elevatorDoorDestroyed,
         bool allowDeparture,
         RoomMainCarryover carryover)
     {
+        Ensure.NotNull(samus);
         Ensure.NotNull(carryover);
         DepartureRequestedThisFrame = false;
 
@@ -92,7 +93,6 @@ public sealed class CeresElevatorShaftRoomMainState
 
         if (allowDeparture &&
             !DepartureRequested &&
-            samus is not null &&
             IsInsideDepartureTrigger(samus))
         {
             // Reaching the Ceres elevator chooses the facing-left or facing-right elevator pose from the current

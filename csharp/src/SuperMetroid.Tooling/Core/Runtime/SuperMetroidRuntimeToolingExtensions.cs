@@ -69,7 +69,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
         /// <param name="definition">The room.</param>
         /// <param name="camera">The camera the room loads under.</param>
         /// <param name="state">One of the room's states to load in place of the one the session's progress selects.</param>
-        internal InitialViewportResult LoadCartridgeRoomForDebug(
+        internal void LoadCartridgeRoomForDebug(
             RoomDefinition definition,
             Position16<RoomPixels> camera = default,
             RoomStateSettings? state = null)
@@ -92,7 +92,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
 
-            InitialViewportResult viewport = self.RoomLoader.LoadRoom(
+            self.RoomLoader.LoadRoom(
                 door,
                 room,
                 camera,
@@ -100,13 +100,12 @@ internal static class SuperMetroidRuntimeToolingExtensions
             self.Player.Samus.Room = room.Definition;
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
             self.Player.GroundedSamusMovementEnabled = true;
-            return viewport;
         }
         /// <summary>
         /// Loads a retail destination through its real bank-$83 header for exhaustive callback
         /// verification. Production reaches the same private loader through door collision.
         /// </summary>
-        internal InitialViewportResult LoadCartridgeRoomThroughDoorForVerification(
+        internal void LoadCartridgeRoomThroughDoorForVerification(
             DoorDefinition door,
             Position16<RoomPixels> camera = default)
         {
@@ -115,7 +114,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
             SelectedRoom room = self.RoomLoader.LoadSelectedRoom(door.DestinationRoom);
-            return self.RoomLoader.LoadRoom(
+            self.RoomLoader.LoadRoom(
                 door,
                 room,
                 camera,

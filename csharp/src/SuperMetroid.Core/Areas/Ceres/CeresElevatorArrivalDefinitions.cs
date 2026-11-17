@@ -19,19 +19,22 @@ internal static class CeresElevatorArrivalDefinitions
     internal static SpriteGraphics StartingGraphics { get; } =
         SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
 
-    /// <summary>The updates the moving pad waits before it moves, which its setup seeds.</summary>
+    /// <summary>The updates the moving pad waits before it moves.</summary>
     internal const int MovingPadWaitFrames = 60;
 
-    /// <summary>The setup places the moving pad twenty-eight pixels below Samus.</summary>
+    /// <summary>How far below Samus the moving pad rides, in pixels.</summary>
     internal const int MovingPadYOffset = 28;
 
-    /// <summary>The setup places the stationary platform at world Y=97.</summary>
+    /// <summary>The room Y the stationary platform stands at.</summary>
     internal const int StationaryPlatformY = 97;
 
-    /// <summary>The descent clamps Samus to world Y=72 when it ends.</summary>
+    /// <summary>The room Y Samus stands at once the descent ends.</summary>
     internal const int LandingSamusY = 72;
 
-    /// <summary>The descent compares the incremented Samus Y against 73 before clamping.</summary>
+    /// <summary>
+    /// The room Y that ends Samus's descent: the step that takes her down to it sets her back up to
+    /// <see cref="LandingSamusY"/>.
+    /// </summary>
     internal const int LandingThresholdY = 73;
 
     /// <summary>The composition each arrival pose shows.</summary>

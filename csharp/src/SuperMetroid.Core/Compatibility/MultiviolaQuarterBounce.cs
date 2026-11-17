@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// (up-right and up-left trade places, as do down-left and down-right); off a floor or ceiling it crosses the horizontal
 /// (up-right and down-right trade places, as do up-left and down-left). A heading halfway through its quarter, the
 /// diagonal, bounces exactly as a mirror would; any other heading trades a shallow course for a steep one, so a
-/// Multiviola started off the diagonal bounces around the room along the original's paths.
+/// Multiviola started off the diagonal bounces around the room along the paths the game gives it.
 /// </summary>
 /// <remarks>
 /// Consulted after each blocked horizontal or vertical move of a Multiviola's update, before its next update rebuilds its

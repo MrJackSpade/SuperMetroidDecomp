@@ -59,7 +59,7 @@ public sealed class LoadedRoomAssets
         // blocks initially show comes from the separately replaceable layout catalog.
         RoomLevelData levelData = LoadLevelData(room, catalogs.LevelStreams.Get(room.State.Level),
             catalogs.LevelStreams.DoorBlocks(room.Definition, room.State.Level), visualLayouts.Get(room.State.Level));
-        RoomScrollGrid scrolls = LoadScrolls(scrollCells, room);
+        RoomScrollGrid scrolls = LoadScrolls(scrollCells, room, catalogs.ScrollCellsPastRoomScreens);
         return new LoadedRoomAssets(
             room,
             levelData,
@@ -104,9 +104,11 @@ public sealed class LoadedRoomAssets
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
-    private static RoomScrollGrid LoadScrolls(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> scrollCells, SelectedRoom room)
+    private static RoomScrollGrid LoadScrolls(ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> scrollCells, SelectedRoom room,
+        ScrollCellsPastRoomScreens<RoomScrollState> pastScreens)
         => RoomScrollGrid.FromDefinition(
             scrollCells,
             room.State.Scroll,
-            room.Size);
+            room.Size,
+            pastScreens);
 }

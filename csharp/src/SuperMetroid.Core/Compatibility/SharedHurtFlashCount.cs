@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// The count Samus's hurt flash runs on, which three unrelated sequences write (#1552): a knockback starts it at one, a
 /// health loss found after drawing starts it at one only while it is idle, and an active shinespark holds it at eight on
-/// every update while its crash's setup and its windup clear it. The hurt flash advances it once per palette update while
+/// every update while its crash's setup and its windup clear it. The hurt flash advances it once per colour update while
 /// it runs: its first six counts alternate the hurt and suit colours, count two requests the damage sound, count forty
 /// restores the movement sound a hurt interrupted, and the flash clears it at its end. A spark therefore shows no hurt
 /// colours and starts no flash for a health loss while it moves, and a spark that stops without crashing lets the flash
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Consulted and advanced by the hurt flash in Samus's palette update, after the special palettes; written by the
+/// Consulted and advanced by the hurt flash in Samus's colour update, after the special colourings; written by the
 /// knockback's start, the post-draw health check, and the shinespark's windup, motion and crash. Lifetime: Samus's; a new
 /// Samus starts idle.
 /// </para>
@@ -40,6 +40,6 @@ public sealed class SharedHurtFlashCount
     /// <summary>Clears the count, ending any flash.</summary>
     public void Clear() => Count = 0;
 
-    /// <summary>Advances the count by one palette update and returns the count reached.</summary>
+    /// <summary>Advances the count by one colour update and returns the count reached.</summary>
     public int Advance() => ++Count;
 }

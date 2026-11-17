@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// A selection a random sample makes (#1461): the bits of the sample one choice reads, by their position and width.
-/// The game draws a choice by masking its random number; a catalog names the field the choice reads instead of the
-/// mask, and this type is the one place that reads a field from a sample.
+/// A selection a random sample makes (#1461): the part of the sample one choice reads, a run of its binary places by
+/// their position and width. A catalog names the field each choice reads, and this type is the one place that reads a
+/// field from a sample.
 /// </summary>
 /// <remarks>
 /// Read at every random choice's draw, through the named field for what it chooses. Evidence: each choice's original
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Shift">The position of the field's lowest bit in the sample.</param>
 /// <param name="Width">How many bits the field holds, 0 through 16; a field of no bits reads zero, a choice with one outcome.</param>
 [EncodingOwner("random sample bit fields")]
-[CompatibilityService("which bits of the shared random sample each choice reads, exactly as the original masked and shifted its random word")]
+[CompatibilityService("which part of the shared random number each random choice reads, exactly as the game's choices read it")]
 public readonly record struct RandomSampleField(int Shift, int Width)
 {
     /// <summary>The whole sample, all sixteen bits: the field a choice reads when it compares the random number itself (#1619).</summary>

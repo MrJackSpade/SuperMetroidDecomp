@@ -13,7 +13,7 @@ internal sealed class DoorObjects
 {
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState _system;
-    /// <summary>Allocates fallback closing and blue-door actors from the room-object pool.</summary>
+    /// <summary>The room's object places, where a door's closing cap and a blue door's cap each take one.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;

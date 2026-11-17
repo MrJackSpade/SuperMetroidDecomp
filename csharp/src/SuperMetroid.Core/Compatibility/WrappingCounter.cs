@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// from zero.
 /// <para>
 /// <b>Gameplay behaviour.</b> A counter its owner steps once more than intended keeps going rather than stopping: a
-/// projectile count stepped below zero by a cancelled shot reads as a full table, a palette cycle stepped past its top
+/// projectile count stepped below zero by a cancelled shot reads as a full table, a colour cycle stepped past its top
 /// restarts from the bottom, a step of a timer held as a plain count runs past zero into a large count
 /// (<see cref="Decrement"/> reports it as a <see cref="CountdownStep"/>, tested by the owner's expiry rule).
 /// </para>
@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </summary>
 [CompatibilityService("counters that wrap at their width instead of saturating, so an expired timer keeps counting from the top")]
-[EncodingOwner("wrapping and saturating word counters")]
+[EncodingOwner("wrapping and saturating counters of 0 through 65535")]
 public static class WrappingCounter
 {
     /// <summary>The largest count a wrapping counter holds: a count stepped past it continues from zero.</summary>
@@ -41,7 +41,7 @@ public static class WrappingCounter
     public static int IncrementCount(int value) => (Ensure.BetweenInclusive(0, ushort.MaxValue, value) + 1) & ushort.MaxValue;
 
     /// <summary>
-    /// Adds <paramref name="step"/> to a count of 0 through 65535: a count stepped past 65535 (for example a palette cycle
+    /// Adds <paramref name="step"/> to a count of 0 through 65535: a count stepped past 65535 (for example a colour cycle
     /// a wrapping decrement left at the top) continues from the bottom instead of growing past its range.
     /// </summary>
     /// <param name="value">The count, 0 through 65535.</param>

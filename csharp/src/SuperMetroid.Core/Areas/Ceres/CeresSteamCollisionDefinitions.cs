@@ -18,38 +18,38 @@ internal static class CeresSteamCollisionDefinitions
 
     /// <summary>
     /// The 28 steam frames, seven poses per direction: the first five poses' plume rectangles about the vent, and none for
-    /// the two hidden poses. Each direction's rectangles are fitted to its drawing and are not exact rotations of another
-    /// direction.
+    /// the scattering and fading plumes, which no longer scald. Each direction's rectangles are fitted to its drawing and
+    /// are not exact rotations of another direction.
     /// </summary>
     internal static IReadOnlyDictionary<EnemyFrameId, EnemyHitboxRectangle?> Plumes { get; } = new Dictionary<EnemyFrameId, EnemyHitboxRectangle?>
     {
         [EnemyFrameId.CeresSteamUp] = new(-8, -16, 7, -1),
-        [EnemyFrameId.CeresSteamUpJet22] = new(-8, -23, 7, -2),
-        [EnemyFrameId.CeresSteamUpJet31] = new(-8, -32, 7, -8),
-        [EnemyFrameId.CeresSteamUpJet40] = new(-8, -40, 7, -16),
-        [EnemyFrameId.CeresSteamUpDrifting33] = new(-8, -40, 6, -24),
-        [EnemyFrameId.CeresSteamUpDrifting27] = null,
-        [EnemyFrameId.CeresSteamUpDrifting16] = null,
+        [EnemyFrameId.CeresSteamUpJetBursting] = new(-8, -23, 7, -2),
+        [EnemyFrameId.CeresSteamUpJetLengthening] = new(-8, -32, 7, -8),
+        [EnemyFrameId.CeresSteamUpJetFull] = new(-8, -40, 7, -16),
+        [EnemyFrameId.CeresSteamUpPlumeDrifting] = new(-8, -40, 6, -24),
+        [EnemyFrameId.CeresSteamUpPlumeScattering] = null,
+        [EnemyFrameId.CeresSteamUpPlumeFading] = null,
         [EnemyFrameId.CeresSteamLeft] = new(-16, -8, -1, 7),
-        [EnemyFrameId.CeresSteamLeftJet24] = new(-24, -8, -2, 7),
-        [EnemyFrameId.CeresSteamLeftJet32] = new(-32, -7, -9, 7),
-        [EnemyFrameId.CeresSteamLeftJet40] = new(-40, -9, -17, 5),
-        [EnemyFrameId.CeresSteamLeftDrifting32] = new(-40, -11, -26, 2),
-        [EnemyFrameId.CeresSteamLeftDrifting26] = null,
-        [EnemyFrameId.CeresSteamLeftDrifting16] = null,
+        [EnemyFrameId.CeresSteamLeftJetBursting] = new(-24, -8, -2, 7),
+        [EnemyFrameId.CeresSteamLeftJetLengthening] = new(-32, -7, -9, 7),
+        [EnemyFrameId.CeresSteamLeftJetFull] = new(-40, -9, -17, 5),
+        [EnemyFrameId.CeresSteamLeftPlumeDrifting] = new(-40, -11, -26, 2),
+        [EnemyFrameId.CeresSteamLeftPlumeScattering] = null,
+        [EnemyFrameId.CeresSteamLeftPlumeFading] = null,
         [EnemyFrameId.CeresSteamDown] = new(-8, 0, 7, 14),
-        [EnemyFrameId.CeresSteamDownJet22] = new(-8, 0, 7, 23),
-        [EnemyFrameId.CeresSteamDownJet31] = new(-8, 8, 7, 31),
-        [EnemyFrameId.CeresSteamDownJet39] = new(-8, 15, 7, 39),
-        [EnemyFrameId.CeresSteamDownDrifting31] = new(-8, 23, 6, 38),
-        [EnemyFrameId.CeresSteamDownDrifting24] = null,
-        [EnemyFrameId.CeresSteamDownDrifting16] = null,
+        [EnemyFrameId.CeresSteamDownJetBursting] = new(-8, 0, 7, 23),
+        [EnemyFrameId.CeresSteamDownJetLengthening] = new(-8, 8, 7, 31),
+        [EnemyFrameId.CeresSteamDownJetFull] = new(-8, 15, 7, 39),
+        [EnemyFrameId.CeresSteamDownPlumeDrifting] = new(-8, 23, 6, 38),
+        [EnemyFrameId.CeresSteamDownPlumeScattering] = null,
+        [EnemyFrameId.CeresSteamDownPlumeFading] = null,
         [EnemyFrameId.CeresSteamRight] = new(0, -8, 15, 7),
-        [EnemyFrameId.CeresSteamRightJet24] = new(1, -8, 23, 7),
-        [EnemyFrameId.CeresSteamRightJet32] = new(9, -8, 31, 7),
-        [EnemyFrameId.CeresSteamRightJet40] = new(18, -9, 38, 5),
-        [EnemyFrameId.CeresSteamRightDrifting32] = new(25, -11, 40, 3),
-        [EnemyFrameId.CeresSteamRightDrifting26] = null,
-        [EnemyFrameId.CeresSteamRightDrifting16] = null,
+        [EnemyFrameId.CeresSteamRightJetBursting] = new(1, -8, 23, 7),
+        [EnemyFrameId.CeresSteamRightJetLengthening] = new(9, -8, 31, 7),
+        [EnemyFrameId.CeresSteamRightJetFull] = new(18, -9, 38, 5),
+        [EnemyFrameId.CeresSteamRightPlumeDrifting] = new(25, -11, 40, 3),
+        [EnemyFrameId.CeresSteamRightPlumeScattering] = null,
+        [EnemyFrameId.CeresSteamRightPlumeFading] = null,
     };
 }

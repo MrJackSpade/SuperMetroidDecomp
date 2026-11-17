@@ -32,6 +32,8 @@ public static class GameInstallationLayout
     public const string EnemyOverreadDirectoryName = "enemy-overreads";
     /// <summary>Content child directory for what Kraid's nails, Crocomire's volley and the intro egg shell read past their data.</summary>
     public const string BossAndIntroOverreadDirectoryName = "boss-intro-overreads";
+    /// <summary>Content child directory for what each explicit scroll layout's load writes past the room's screens, decoded from the cartridge (#2356).</summary>
+    public const string RoomScrollOverreadDirectoryName = "room-scroll-overreads";
     /// <summary>Content child directory for the terrain a Wave shot's scan finds straddling two blocks, decoded from the level-word layout (#1612).</summary>
     public const string StraddledTerrainDirectoryName = "straddled-terrain";
     /// <summary>Pre-coloured sprite sheets and their frame manifests.</summary>
@@ -143,7 +145,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 472;
+    public const int FormatVersion = 473;
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

@@ -11,5 +11,5 @@ namespace SuperMetroid.Core.Compatibility;
 /// <typeparam name="TOutcome">What the choice chooses.</typeparam>
 /// <param name="Values">How many of the field's values choose the outcome, at least one.</param>
 /// <param name="Outcome">The outcome those values choose.</param>
-[CompatibilityService("how many of a weighted random choice's field values choose each outcome, as the distance between the original's ascending thresholds")]
+[CompatibilityService("how many of a weighted random choice's field values choose each outcome, as the distance between the game's ascending thresholds")]
 public readonly record struct WeightedRandomOutcome<TOutcome>(int Values, TOutcome Outcome);

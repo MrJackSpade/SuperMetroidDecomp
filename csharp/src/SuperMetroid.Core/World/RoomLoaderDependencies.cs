@@ -5,6 +5,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;
@@ -85,6 +86,9 @@ internal sealed record RoomLoaderDependencies
 
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system a load builds.</summary>
     public required SamusOverreadServices SamusOverreads { get; init; }
+
+    /// <summary>The installed cells each explicit scroll layout's load writes past the room's screens, which every room load reads.</summary>
+    public required ScrollCellsPastRoomScreens<RoomScrollState> ScrollCellsPastRoomScreens { get; init; }
 
     /// <summary>
     /// The session's unauthored Speed Booster cadence, handed to every Samus a load builds and to every room's enemies.

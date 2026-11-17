@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
@@ -23,9 +24,10 @@ internal static class ImplicitScrollResidueVerification
         SelectedRoom room = SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.CathedralEntrance, default);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
-        RoomScrollGrid before = RoomScrollGrid.FromDefinition(storage, previous.State.Scroll, previous.Size);
+        ScrollCellsPastRoomScreens<RoomScrollState> pastScreens = InstalledFixtures.RoomAssets.ScrollCellsPastRoomScreens;
+        RoomScrollGrid before = RoomScrollGrid.FromDefinition(storage, previous.State.Scroll, previous.Size, pastScreens);
         RoomScrollState[] previousTail = before.KeptStates;
-        RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size);
+        RoomScrollGrid grid = RoomScrollGrid.FromDefinition(storage, room.State.Scroll, room.Size, pastScreens);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
         // #1336, #1500: past the 50 cells the scroll reads land in the stored explored maps, unexplored at power-on, and

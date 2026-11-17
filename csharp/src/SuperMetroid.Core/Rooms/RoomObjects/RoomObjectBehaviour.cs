@@ -2,9 +2,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// A room object that holds its own state as domain values and advances by its own named steps (#1554). The room
-/// advances it once per room-object update, at its place in the room's update order (<see cref="RoomObjectPlaceList"/>);
-/// it runs no sequence, frame hold, loop count or per-update step of the kind the room's remaining older objects
-/// still step through (<see cref="RoomObjectPlace"/>).
+/// advances it once per room-object update, at its place in the room's update order (<see cref="RoomObjectPlaceList"/>).
 /// </summary>
 internal abstract class RoomObjectBehaviour
 {

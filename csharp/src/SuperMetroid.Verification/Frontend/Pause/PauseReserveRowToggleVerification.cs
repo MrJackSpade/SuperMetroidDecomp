@@ -44,7 +44,7 @@ internal static class PauseReserveRowToggleVerification
             }
             short expected = unchecked((short)lowRam[lastBombVerticalSpeed]);
 
-            AssertEqual(expected, ReserveRowToggleSpreadBombSpeed.Repaint(speed),
+            AssertEqual(expected, ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(speed),
                 $"last spread bomb's whole speed {speed} after a {labelBytes}-byte toggle matches the cartridge");
         }
     }
@@ -74,7 +74,7 @@ internal static class PauseReserveRowToggleVerification
         menu.Step(0, ControllerButton.Up | ControllerButton.A, 0, 0, bombs);
 
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.ReserveMode, menu.SelectedControl, "Up from the top beam moves into the reserve column's first row");
-        AssertEqual(SignedSixteenSixteen.FromParts(ReserveRowToggleSpreadBombSpeed.Repaint(2), 0x4321), bombs.Bombs[^1].BombSpreadVerticalVelocity,
+        AssertEqual(SignedSixteenSixteen.FromParts(ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(2), 0x4321), bombs.Bombs[^1].BombSpreadVerticalVelocity,
             "the toggle repaints the last spread bomb's whole speed and keeps its fraction");
         for (int index = 0; index < bombs.Bombs.Count - 1; index++)
             AssertEqual(SignedSixteenSixteen.FromParts(2, 0x4321), bombs.Bombs[index].BombSpreadVerticalVelocity, $"bomb slot {index} is untouched");

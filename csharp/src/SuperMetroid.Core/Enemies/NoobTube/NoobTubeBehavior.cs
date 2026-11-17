@@ -80,6 +80,8 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
             case NoobTubeProjectileDefinition.ReleasedAirBubble:
                 projectile.State = new NoobTubeDebrisState(place.X);
                 projectile.Position = projectile.Position.WithWholeY(place.Y);
+                // The bubble sets only its rise: it sways by its own arc, and the sideways speed its place's previous
+                // projectile left passes on to the next projectile spawned there (EnemyProjectileHandOver).
                 projectile.Velocity = projectile.Velocity.WithY(piece.Velocity.Y);
                 return;
 

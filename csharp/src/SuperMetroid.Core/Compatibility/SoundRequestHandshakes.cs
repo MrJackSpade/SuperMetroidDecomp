@@ -3,13 +3,13 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The handshake each sound library's handler runs with its library before it requests the next queued sound. A handler
-/// that is ready requests the next sound; it repeats the request on every call until the library reports it accepted;
-/// it then holds the accepted request for <see cref="WithdrawalHoldCalls"/> calls and withdraws it on the last; and it
+/// The handshake each sound library's queue runs with its library before it requests the next queued sound. A queue
+/// that is ready requests the next sound; it repeats the request on every pass until the library reports it accepted;
+/// it then holds the accepted request for <see cref="WithdrawalHoldPasses"/> passes and withdraws it on the last; and it
 /// repeats the withdrawal until the library reports nothing, when it is ready again and requests the next sound on that
-/// same call. So the calls a library takes to accept each request and its withdrawal decide on which update every later
+/// same pass. So the passes a library takes to accept each request and its withdrawal decide on which update every later
 /// queued sound of that library starts. A music change's downtime withdraws every library's request without moving any
-/// handler on (<see cref="DropAwaitedRequests"/>).
+/// queue on (<see cref="DropAwaitedRequests"/>).
 /// </summary>
 /// <typeparam name="TLibrary">A sound library; the handshakes find a library by equality and never read its value.</typeparam>
 /// <typeparam name="TSound">The sound a library is asked for; the handshakes only compare requests.</typeparam>
@@ -28,7 +28,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     where TLibrary : struct, Enum
     where TSound : struct, IEquatable<TSound>
 {
-    /// <summary>Where one library's handler is in its handshake.</summary>
+    /// <summary>Where one library's queue is in its handshake.</summary>
     public enum Phase
     {
         /// <summary>Ready to request the library's next queued sound; the power-on and reset phase.</summary>
@@ -44,7 +44,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <summary>What one sound-queue pass asks of the library's queue.</summary>
     public enum HandshakeStep
     {
-        /// <summary>Nothing this call.</summary>
+        /// <summary>Nothing this pass.</summary>
         Wait,
         /// <summary>Request the library's next queued sound, if one waits (<see cref="Requested"/>).</summary>
         RequestNext,
@@ -55,13 +55,13 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     }
 
     /// <summary>One library's handshake.</summary>
-    /// <param name="Phase">Where the handler is.</param>
-    /// <param name="Awaited">The sound the handler last requested and has not withdrawn, or none.</param>
-    /// <param name="HoldCallsLeft">Sound-queue passes left before the accepted request is withdrawn; 1 or 2 while holding, otherwise 0.</param>
-    internal readonly record struct Handshake(Phase Phase, TSound? Awaited, int HoldCallsLeft);
+    /// <param name="Phase">Where the queue is.</param>
+    /// <param name="Awaited">The sound the queue last requested and has not withdrawn, or none.</param>
+    /// <param name="HoldPassesLeft">Sound-queue passes left before the accepted request is withdrawn; 1 or 2 while holding, otherwise 0.</param>
+    internal readonly record struct Handshake(Phase Phase, TSound? Awaited, int HoldPassesLeft);
 
     /// <summary>Sound-queue passes an accepted request is held before it is withdrawn, the withdrawal falling on the last.</summary>
-    public const int WithdrawalHoldCalls = 2;
+    public const int WithdrawalHoldPasses = 2;
 
     /// <summary>The libraries, distinct, in the order the handshakes were given them.</summary>
     private readonly ImmutableArray<TLibrary> libraries;
@@ -69,7 +69,7 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <summary>Each library's handshake, kept by its library (#1755).</summary>
     private readonly Dictionary<TLibrary, Handshake> handshakes;
 
-    /// <summary>Every library's handler ready, awaiting nothing.</summary>
+    /// <summary>Every library's queue ready, awaiting nothing.</summary>
     /// <param name="libraries">The libraries, distinct.</param>
     /// <exception cref="ArgumentException"><paramref name="libraries"/> is default or holds a library twice.</exception>
     public SoundRequestHandshakes(ImmutableArray<TLibrary> libraries)
@@ -82,18 +82,18 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
         handshakes = libraries.ToDictionary(library => library, _ => default(Handshake));
     }
 
-    /// <summary>The sound each library's handler last requested and has not withdrawn, as an acknowledgement of it, or none.</summary>
+    /// <summary>The sound each library's queue last requested and has not withdrawn, as an acknowledgement of it, or none.</summary>
     public SoundAcknowledgements<TLibrary, TSound> Requests =>
         new(libraries, library => SoundAcknowledgement<TSound>.Of(HandshakeOf(library).Awaited));
 
-    /// <summary>Returns every library's handler to ready, awaiting nothing, as at power-on.</summary>
+    /// <summary>Returns every library's queue to ready, awaiting nothing, as at power-on.</summary>
     public void Reset()
     {
         foreach (TLibrary library in libraries)
             handshakes[library] = default;
     }
 
-    /// <summary>The sound <paramref name="library"/>'s handler last requested and has not withdrawn, or none.</summary>
+    /// <summary>The sound <paramref name="library"/>'s queue last requested and has not withdrawn, or none.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
     public TSound? Awaited(TLibrary library) => HandshakeOf(library).Awaited;
 
@@ -101,9 +101,9 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// Runs one pass of <paramref name="library"/>'s handshake against what the library reports as accepted, and
     /// says what the pass asks of the library's queue.
     /// </summary>
-    /// <param name="library">The library whose handler runs.</param>
+    /// <param name="library">The library whose queue runs.</param>
     /// <param name="acceptance">What the library reports as accepted to this update.</param>
-    /// <returns>What the call asks of the library's queue.</returns>
+    /// <returns>What the pass asks of the library's queue.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
     /// <exception cref="InvalidDataException">The library's handshake holds a phase no pass can leave.</exception>
     public HandshakeStep Advance(TLibrary library, SoundAcknowledgement<TSound> acceptance)
@@ -117,18 +117,18 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
             case Phase.AwaitingAcceptance:
                 if (!acceptance.Acknowledges(handshake.Awaited))
                     return HandshakeStep.RepeatRequest;
-                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, HoldCallsLeft = WithdrawalHoldCalls };
+                handshakes[library] = handshake with { Phase = Phase.HoldingBeforeWithdrawal, HoldPassesLeft = WithdrawalHoldPasses };
                 return HandshakeStep.Wait;
 
             case Phase.HoldingBeforeWithdrawal:
                 // The hold starts at two and is withdrawn on reaching zero, so it never runs below zero.
-                int holdCallsLeft = Ensure.AtLeastZero(handshake.HoldCallsLeft - 1);
-                if (holdCallsLeft != 0)
+                int holdPassesLeft = Ensure.AtLeastZero(handshake.HoldPassesLeft - 1);
+                if (holdPassesLeft != 0)
                 {
-                    handshakes[library] = handshake with { HoldCallsLeft = holdCallsLeft };
+                    handshakes[library] = handshake with { HoldPassesLeft = holdPassesLeft };
                     return HandshakeStep.Wait;
                 }
-                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, HoldCallsLeft: 0);
+                handshakes[library] = new Handshake(Phase.AwaitingWithdrawalAcceptance, Awaited: null, HoldPassesLeft: 0);
                 return HandshakeStep.Withdraw;
 
             case Phase.AwaitingWithdrawalAcceptance:
@@ -146,18 +146,18 @@ public sealed class SoundRequestHandshakes<TLibrary, TSound>
     /// <param name="library">The library asked.</param>
     /// <param name="sound">The sound dequeued for it.</param>
     /// <exception cref="ArgumentOutOfRangeException">The handshakes were not given <paramref name="library"/>.</exception>
-    /// <exception cref="InvalidOperationException">The library's handler is not ready to request.</exception>
+    /// <exception cref="InvalidOperationException">The library's queue is not ready to request.</exception>
     public void Requested(TLibrary library, TSound? sound)
     {
         Phase phase = HandshakeOf(library).Phase;
         if (phase != Phase.ReadyToRequest)
             throw new InvalidOperationException($"Sound library {library} requested a sound while {phase}.");
-        handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, HoldCallsLeft: 0);
+        handshakes[library] = new Handshake(Phase.AwaitingAcceptance, sound, HoldPassesLeft: 0);
     }
 
     /// <summary>
-    /// A music change's downtime withdraws every library's request: each handler forgets the request it awaits but keeps
-    /// its phase and hold, so a handler awaiting acceptance then waits for the library to report nothing.
+    /// A music change's downtime withdraws every library's request: each queue forgets the request it awaits but keeps
+    /// its phase and hold, so a queue awaiting acceptance then waits for the library to report nothing.
     /// </summary>
     public void DropAwaitedRequests()
     {

@@ -47,7 +47,7 @@ public sealed class KraidNailPastLedges
 
         // Rejected, not read: past this bound the walk would read one more record. A nail never gets there. Terrain
         // reflects a nail inside Kraid's room, two screens tall, and Kraid's body stays in the same room, so a nail lies
-        // fewer than 512 pixels above the body, and the cartridge's bound lies more than 20000 pixels above it.
+        // fewer than 512 pixels above the body, and the decoded bound lies more than 20000 pixels above it.
         throw new ArgumentOutOfRangeException(nameof(relativeY), relativeY,
             "A Kraid fingernail lies beyond the contour record that follows the ledges, which no nail in Kraid's room can reach.");
     }

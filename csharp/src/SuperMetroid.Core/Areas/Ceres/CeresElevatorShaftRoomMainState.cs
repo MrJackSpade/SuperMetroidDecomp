@@ -69,9 +69,8 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <param name="samus">Samus, whom the elevator trigger inspects.</param>
     /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
-    /// True only in main gameplay. The elevator-arrival and blackout states still call the
-    /// ordinary gameplay body, but the room main explicitly rejects them; keeping that input
-    /// explicit preserves the same ownership boundary.
+    /// Whether Samus may leave by the elevator: only while the game is played, not during the elevator's arrival or the
+    /// blackout, when the shaft still turns but no departure starts.
     /// </param>
     /// <param name="carryover">The room-main value the following room inherits, which receives every turn.</param>
     [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
@@ -95,10 +94,9 @@ public sealed class CeresElevatorShaftRoomMainState
             !DepartureRequested &&
             IsInsideDepartureTrigger(samus))
         {
-            // Reaching the Ceres elevator chooses the facing-left or facing-right elevator pose from the current
-            // facing, refreshes pose radii/animation, seeds the
-            // 60-frame elevator hold, then locks Samus's input. The hold is
-            // owned by the frontend game-state loop; everything Samus-visible remains here.
+            // Reaching the Ceres elevator turns Samus to the standing pose for the way she faces, with its size and
+            // animation, and locks out the player; the wait before Samus leaves Ceres is the game state's, which reads
+            // the departure this requests.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
             samus.Pose = facingLeft
                 ? SamusPoseId.FacingLeftNormalPose

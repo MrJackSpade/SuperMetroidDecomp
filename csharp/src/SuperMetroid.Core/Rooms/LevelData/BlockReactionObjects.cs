@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 [RoomLifetime]
 internal sealed class BlockReactionObjects
 {
-    /// <summary>Handles the animal-escape reaction reserved among the shot-block behaviours.</summary>
+    /// <summary>Frees the animals a shot block holds in when a shot that breaks it hits.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
     /// <summary>The room's places, where a reaction's room object takes the first free one in update order.</summary>
     private readonly RoomObjectPlaceList _places;

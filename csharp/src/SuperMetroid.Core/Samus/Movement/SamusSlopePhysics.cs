@@ -31,11 +31,9 @@ public static class SamusSlopePhysics
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
-        int multiplier = behavior.Slope.Shape.GroundedSpeedShare;
-
-        // The lowest eight fractional bits are discarded before scaling, rounding toward negative
-        // infinity, so a leftward displacement scales by the same rule as a rightward one.
-        return displacement.ScaledByTwoFiftySixths(multiplier);
+        // The displacement is counted in whole 256ths of a pixel before scaling, rounding toward negative infinity, so a
+        // leftward displacement scales by the same rule as a rightward one.
+        return displacement.ScaledBy(behavior.Slope.Shape.GroundedSpeedShare);
     }
 
     /// <summary>

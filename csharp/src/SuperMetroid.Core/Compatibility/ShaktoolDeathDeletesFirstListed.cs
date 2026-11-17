@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// Which enemies a Shaktool chain's death deletes (#1592): the seven enemies the room lists first, not the chain's own
 /// segments by name. A kill empties the struck segment's record, which leaves its chain's owner as the first enemy, and
-/// the death deletes the seven enemies from there. Both retail Shaktool room states list the chain first, so the death
+/// the death deletes the seven enemies from there. Both of Shaktool's room states list the chain first, so the death
 /// deletes its own segments; a chain listed anywhere else would delete unrelated enemies, so such a population is
 /// refused when the chain is placed (<see cref="DeletesOwnChain{TEnemy}"/>).
 /// </summary>

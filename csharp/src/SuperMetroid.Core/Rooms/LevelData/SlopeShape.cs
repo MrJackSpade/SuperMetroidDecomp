@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <remarks>
 /// A square shape is made of solid quarters, which Samus, her shots and enemies read through the square slopes; every
-/// other shape is a height profile they read column by column. Both kinds keep a profile, which the original table holds
-/// for every shape.
+/// other shape is a height profile they read column by column. Both kinds keep a height under each column.
 /// </remarks>
 public sealed class SlopeShape
 {
@@ -20,9 +19,6 @@ public sealed class SlopeShape
     /// <summary>The largest height a column holds: a surface below the block, twenty pixels down from its top.</summary>
     public const int BelowBlockHeight = 20;
 
-    /// <summary>The whole of a move or a speed, in 256ths.</summary>
-    public const int WholeShare = 256;
-
     /// <summary>The surface's height under each column.</summary>
     private readonly ImmutableArray<int> heights;
 
@@ -30,11 +26,11 @@ public sealed class SlopeShape
     /// <param name="name">The shape's name.</param>
     /// <param name="kind">Whether the shape is made of solid quarters or read as a height profile.</param>
     /// <param name="heights">The surface's height under each of the <see cref="Columns"/> columns, 0 through <see cref="BelowBlockHeight"/>.</param>
-    /// <param name="groundedSpeedShare">The share of a grounded horizontal move that crosses the shape, in 256ths, 1 through <see cref="WholeShare"/>.</param>
-    /// <param name="crawlerTangentFactor">The share of a crawler's tangent speed that carries along the shape, in 256ths, 1 through <see cref="WholeShare"/>.</param>
+    /// <param name="groundedSpeedShare">The share of a grounded horizontal move that crosses the shape.</param>
+    /// <param name="crawlerTangentShare">The share of a crawler's tangent speed that carries along the shape.</param>
     /// <exception cref="ArgumentException">The name is blank or the profile does not hold one height per column.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">A height or share is out of its range.</exception>
-    internal SlopeShape(string name, SlopeShapeKind kind, ImmutableArray<int> heights, int groundedSpeedShare, int crawlerTangentFactor)
+    /// <exception cref="ArgumentOutOfRangeException">A height is out of its range.</exception>
+    internal SlopeShape(string name, SlopeShapeKind kind, ImmutableArray<int> heights, SpeedShare groundedSpeedShare, SpeedShare crawlerTangentShare)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (heights.IsDefault || heights.Length != Columns)
@@ -49,8 +45,8 @@ public sealed class SlopeShape
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined slope shape kind."),
         };
         this.heights = heights;
-        GroundedSpeedShare = Ensure.BetweenInclusive(1, WholeShare, groundedSpeedShare);
-        CrawlerTangentFactor = Ensure.BetweenInclusive(1, WholeShare, crawlerTangentFactor);
+        GroundedSpeedShare = groundedSpeedShare;
+        CrawlerTangentShare = crawlerTangentShare;
     }
 
     /// <summary>The shape's name, which the installation writes it as.</summary>
@@ -59,11 +55,11 @@ public sealed class SlopeShape
     /// <summary>Whether the shape is made of solid quarters rather than read as a height profile.</summary>
     public bool IsSquare { get; }
 
-    /// <summary>The share of a grounded horizontal move that crosses the shape, in 256ths of the move.</summary>
-    public int GroundedSpeedShare { get; }
+    /// <summary>The share of a grounded horizontal move that crosses the shape.</summary>
+    public SpeedShare GroundedSpeedShare { get; }
 
-    /// <summary>The share of a crawler's tangent speed that carries along the shape, in 256ths of the speed.</summary>
-    public int CrawlerTangentFactor { get; }
+    /// <summary>The share of a crawler's tangent speed that carries along the shape.</summary>
+    public SpeedShare CrawlerTangentShare { get; }
 
     /// <summary>
     /// The surface's height under <paramref name="column"/>: the pixels from the block's top down to the surface, sixteen for

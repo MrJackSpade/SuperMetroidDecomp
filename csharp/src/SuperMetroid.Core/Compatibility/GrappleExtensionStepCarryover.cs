@@ -32,8 +32,8 @@ public static class GrappleExtensionStepCarryover
     /// <summary>How far an odd fraction the update before sets the step back: half the room's coordinate range, in pixels.</summary>
     private const int OddFractionSetBack = CoordinateAxis.LastNonNegative + 1;
 
-    /// <summary>One substep's share of the speed, in 256ths: the factor that scales the speed to its quarter.</summary>
-    private static readonly int SubstepShareInTwoHundredFiftySixths = EightEight.FromWhole(1) / Substeps;
+    /// <summary>One substep's share of the speed: the share that scales the speed to its quarter.</summary>
+    private static readonly SpeedShare SubstepShare = SpeedShare.Of(1, Substeps);
 
     /// <summary>The parts of a pixel's fraction in each 256th of a pixel, the finest step an extension speed takes.</summary>
     private static readonly int FractionPartsPerSpeedStep = SixteenSixteen.FromEightEight(1);
@@ -46,7 +46,7 @@ public static class GrappleExtensionStepCarryover
     /// <param name="previous">The substep the rope moved by on the axis the update before.</param>
     public static SignedSixteenSixteen Step(SignedEightEight speed, SignedSixteenSixteen previous)
     {
-        SignedSixteenSixteen quarter = speed.ScaledBy(SubstepShareInTwoHundredFiftySixths);
+        SignedSixteenSixteen quarter = speed.ScaledBy(SubstepShare);
         int whole = quarter.WholePixels;
         if (!speed.IsNegative)
         {

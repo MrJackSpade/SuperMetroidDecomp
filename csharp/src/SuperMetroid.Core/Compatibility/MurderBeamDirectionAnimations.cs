@@ -35,5 +35,5 @@ public sealed class MurderBeamDirectionAnimations<TDirection, TAnimation>
     public TAnimation? Animation(TDirection direction) =>
         _animations.TryGetValue(direction, out TAnimation? animation)
             ? animation
-            : throw new InvalidDataException($"The Murder Beam fired {direction} reads a damage word as its animation.");
+            : throw new InvalidDataException($"The Murder Beam fired {direction} reads a damage value as its animation.");
 }

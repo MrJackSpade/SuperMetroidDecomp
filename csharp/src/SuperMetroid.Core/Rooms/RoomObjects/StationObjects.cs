@@ -339,12 +339,9 @@ internal sealed class StationObjects
                 station.AccessBlock = accessBlock;
                 station.AccessBehavior = access;
 
-                // The arm-cannon line-up check runs in setup,
-                // before the common room-object step advances the resident access sequence. This
-                // distinction is observable in G-Mode: the disabled step cannot start
-                // or finish the animation, but Samus is already movement-locked and the
-                // station therefore softlocks. The save trigger only advances its
-                // resident sequence and does not run the line-up check at this setup seam.
+                // The arm cannon's line-up is checked as the station is triggered, before the station's animation
+                // advances. In G-Mode the station's animation cannot start or finish, but Samus is already held still,
+                // so the station leaves her stuck. A save station only starts its animation here and checks no line-up.
                 if (station.Kind != StationKind.Save)
                 {
                     IRoomSamus samus = _samus.Current

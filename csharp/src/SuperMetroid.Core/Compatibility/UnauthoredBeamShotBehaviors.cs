@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The frame behaviour a Spazer and Plasma beam's shot runs (#1751). The fire routines author a frame behaviour for the
-/// uncharged and the charged shot of each of the twelve beam combinations retail equipment can hold; a combination that
+/// The frame behaviour a Spazer and Plasma beam's shot runs (#1751). The beams' firing authors a frame behaviour for the
+/// uncharged and the charged shot of each of the twelve beam combinations the game's equipment can hold; a combination that
 /// pairs Spazer with Plasma, which only the pause screen's same-frame toggle can equip, runs what follows them.
 /// Uncharged, the Wave pairing's shot (the Chainsaw) runs a Power Bomb's fuse over itself, the Ice pairing's shot
 /// (Spacetime) overwrites saved progression from an animation that reaches far enough, and the plain and all-beams
@@ -53,9 +53,9 @@ public sealed class UnauthoredBeamShotBehaviors<TBeams, TBehavior>
     }
 
     /// <summary>The frame behaviour a shot of <paramref name="beams"/> runs, charged when <paramref name="charged"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The fire routines author the combination's frame behaviours.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The beams' firing authors the combination's frame behaviours.</exception>
     public TBehavior ShotBehavior(TBeams beams, bool charged) =>
         (charged ? _charged : _uncharged).TryGetValue(beams, out TBehavior? behavior)
             ? behavior
-            : throw new ArgumentOutOfRangeException(nameof(beams), beams, "The fire routines author this combination's frame behaviours.");
+            : throw new ArgumentOutOfRangeException(nameof(beams), beams, "The beams' firing authors this combination's frame behaviours.");
 }

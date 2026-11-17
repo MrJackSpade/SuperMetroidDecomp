@@ -26,9 +26,9 @@ internal static class RoomFxBlockAnimationPictures
         TourianStatueTileWindow window = TourianStatueWindow(statue);
         return picture switch
         {
-            TourianStatueBlockPicture.OscillationFirst => window.First,
-            TourianStatueBlockPicture.OscillationSecond => window.First + window.Tiles,
-            TourianStatueBlockPicture.OscillationThird => window.First + 2 * window.Tiles,
+            TourianStatueBlockPicture.EyesBright => window.First,
+            TourianStatueBlockPicture.EyesDim => window.First + window.Tiles,
+            TourianStatueBlockPicture.EyesDark => window.First + 2 * window.Tiles,
             TourianStatueBlockPicture.Released => window.Released,
             _ => throw new InvalidDataException($"Undefined {nameof(TourianStatueBlockPicture)} {picture}."),
         };

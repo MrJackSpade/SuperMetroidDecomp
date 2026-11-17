@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// Where the gunship's entrance pad starts (#1592): one pixel above the enemy the room lists two places before the pad,
-/// whatever that enemy is. Every retail gunship population lists the top hull there, so the pad opens one pixel above
+/// whatever that enemy is. Every gunship population the game places lists the top hull there, so the pad opens one pixel above
 /// the hull's origin; a population listing another enemy there would move the pad to that enemy's height.
 /// </summary>
 /// <remarks>

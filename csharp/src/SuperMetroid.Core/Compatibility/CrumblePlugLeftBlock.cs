@@ -51,7 +51,7 @@ public static class CrumblePlugLeftBlock
     /// <param name="Mirrored">How the block is mirrored.</param>
     public readonly record struct Picture(int Number, Mirroring Mirrored);
 
-    /// <summary>The block the empty draw program reads as, which a spawn at a fixed block leaves.</summary>
+    /// <summary>The block an empty drawing reads as, which a spawn at a fixed block leaves.</summary>
     private const int FixedBlockSpawnLeftNumber = 416;
 
     /// <summary>The picture a plug spawned by <paramref name="spawn"/> leaves on its block.</summary>

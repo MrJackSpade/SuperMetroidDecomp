@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
 
@@ -30,6 +31,7 @@ internal static class RoomScrollDefinitionsVerification
             .ToArray();
 
         var storage = RoomScrollGrid.PowerOnCells();
+        ScrollCellsPastRoomScreens<RoomScrollState> pastScreens = InstalledFixtures.RoomAssets.ScrollCellsPastRoomScreens;
         var auditedStates = new HashSet<ushort>();
         var explicitPointers = new HashSet<ushort>();
         int explicitStateCount = 0;
@@ -52,10 +54,14 @@ internal static class RoomScrollDefinitionsVerification
                 var native = new byte[RoomScrollGrid.KeptCellCount];
                 for (int index = 0; index < native.Length; index++)
                     native[index] = bus.ReadCartridgeByte(source + index);
-                // The table's fifty bytes are compared as the cells the camera reads them as.
+                // The table's fifty bytes are compared as the cells the camera reads them as: the room's own screens
+                // the catalog authors, then the installed cells the load writes past them (#2356).
                 expected = RoomScrollStates.FromStorageBytes(native);
-                AssertTrue(expected.SequenceEqual(RoomScrollDefinitions.Get(scrollPointer).Cells),
-                    $"compiled explicit scroll table $8F:{scrollPointer:X4}");
+                RoomScrollDefinition layout = RoomScrollDefinitions.Get(scrollPointer);
+                AssertEqual(header.Size.X * header.Size.Y, layout.Cells.Count,
+                    $"compiled explicit scroll table $8F:{scrollPointer:X4} authors the room's own screens");
+                AssertTrue(expected.SequenceEqual([.. layout.Cells, .. pastScreens.After(layout.Name)]),
+                    $"compiled explicit scroll table $8F:{scrollPointer:X4} and its installed cells past the room's screens");
             }
             else
             {
@@ -79,7 +85,8 @@ internal static class RoomScrollDefinitionsVerification
             RoomScrollGrid compiled = RoomScrollGrid.FromDefinition(
                 storage,
                 header.State.Scroll,
-                header.Size);
+                header.Size,
+                pastScreens);
             AssertTrue(expected.SequenceEqual(compiled.KeptStates),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
         }

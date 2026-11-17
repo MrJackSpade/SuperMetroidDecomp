@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The sound a Spazer and Plasma beam fires with (#1751). The beam sound lists author an uncharged and a charged firing
-/// sound for each of the twelve beam combinations retail equipment can hold; a combination that pairs Spazer with Plasma,
+/// sound for each of the twelve beam combinations the game's equipment can hold; a combination that pairs Spazer with Plasma,
 /// which only the pause screen's same-frame toggle can equip, fires with what follows them. Uncharged, it plays the
 /// charged Power, Wave, Ice or Ice-Wave beam's sound, in the order the combinations count (plain, Wave, Ice, Ice-Wave);
 /// charged, it plays no sound, the missile's, the Super Missile's or no sound in that order. The sound enters Samus's

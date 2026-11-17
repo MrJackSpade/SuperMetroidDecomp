@@ -74,7 +74,8 @@ internal static class InstalledFixtures
     /// <summary>Lazy stock visual-layout, level-stream and block-sheet catalogs.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = Shared<RoomAssetCatalogs>("room asset catalogs", () => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomVisualLayouts(),
-        RepositoryInstallation.Installation.LoadRoomLevelStreams(), RepositoryInstallation.Installation.LoadRoomBlockSheets()));
+        RepositoryInstallation.Installation.LoadRoomLevelStreams(), RepositoryInstallation.Installation.LoadRoomBlockSheets(),
+        RepositoryInstallation.Installation.LoadScrollCellsPastRoomScreens()));
 
     /// <summary>
     /// Lazy stock room character catalog, which extraction composes the block sheets from and verification composes VRAM

@@ -2792,60 +2792,60 @@ public enum EnemyFrameId
     SporeSpawnOpenCoreBright,
     /// <summary>Ceres steam: up.</summary>
     CeresSteamUp,
-    /// <summary>Ceres steam: a jet of steam up, 22 pixels long.</summary>
-    CeresSteamUpJet22,
-    /// <summary>Ceres steam: a jet of steam up, 31 pixels long.</summary>
-    CeresSteamUpJet31,
-    /// <summary>Ceres steam: a jet of steam up, 40 pixels long.</summary>
-    CeresSteamUpJet40,
-    /// <summary>Ceres steam: a cloud of steam drifting off up, 33 pixels long.</summary>
-    CeresSteamUpDrifting33,
-    /// <summary>Ceres steam: a cloud of steam drifting off up, 27 pixels long.</summary>
-    CeresSteamUpDrifting27,
-    /// <summary>Ceres steam: a cloud of steam drifting off up, 16 pixels long.</summary>
-    CeresSteamUpDrifting16,
+    /// <summary>Ceres steam: a jet of steam bursting from the vent up.</summary>
+    CeresSteamUpJetBursting,
+    /// <summary>Ceres steam: the jet of steam lengthening up.</summary>
+    CeresSteamUpJetLengthening,
+    /// <summary>Ceres steam: the jet of steam at its full length up.</summary>
+    CeresSteamUpJetFull,
+    /// <summary>Ceres steam: the plume breaking from the vent and drifting off up, still scalding.</summary>
+    CeresSteamUpPlumeDrifting,
+    /// <summary>Ceres steam: the drifting plume scattering up, no longer scalding.</summary>
+    CeresSteamUpPlumeScattering,
+    /// <summary>Ceres steam: the last wisps of the plume fading up.</summary>
+    CeresSteamUpPlumeFading,
     /// <summary>Ceres steam: left.</summary>
     CeresSteamLeft,
-    /// <summary>Ceres steam: a jet of steam left, 24 pixels long.</summary>
-    CeresSteamLeftJet24,
-    /// <summary>Ceres steam: a jet of steam left, 32 pixels long.</summary>
-    CeresSteamLeftJet32,
-    /// <summary>Ceres steam: a jet of steam left, 40 pixels long.</summary>
-    CeresSteamLeftJet40,
-    /// <summary>Ceres steam: a cloud of steam drifting off left, 32 pixels long.</summary>
-    CeresSteamLeftDrifting32,
-    /// <summary>Ceres steam: a cloud of steam drifting off left, 26 pixels long.</summary>
-    CeresSteamLeftDrifting26,
-    /// <summary>Ceres steam: a cloud of steam drifting off left, 16 pixels long.</summary>
-    CeresSteamLeftDrifting16,
+    /// <summary>Ceres steam: a jet of steam bursting from the vent left.</summary>
+    CeresSteamLeftJetBursting,
+    /// <summary>Ceres steam: the jet of steam lengthening left.</summary>
+    CeresSteamLeftJetLengthening,
+    /// <summary>Ceres steam: the jet of steam at its full length left.</summary>
+    CeresSteamLeftJetFull,
+    /// <summary>Ceres steam: the plume breaking from the vent and drifting off left, still scalding.</summary>
+    CeresSteamLeftPlumeDrifting,
+    /// <summary>Ceres steam: the drifting plume scattering left, no longer scalding.</summary>
+    CeresSteamLeftPlumeScattering,
+    /// <summary>Ceres steam: the last wisps of the plume fading left.</summary>
+    CeresSteamLeftPlumeFading,
     /// <summary>Ceres steam: down.</summary>
     CeresSteamDown,
-    /// <summary>Ceres steam: a jet of steam down, 22 pixels long.</summary>
-    CeresSteamDownJet22,
-    /// <summary>Ceres steam: a jet of steam down, 31 pixels long.</summary>
-    CeresSteamDownJet31,
-    /// <summary>Ceres steam: a jet of steam down, 39 pixels long.</summary>
-    CeresSteamDownJet39,
-    /// <summary>Ceres steam: a cloud of steam drifting off down, 31 pixels long.</summary>
-    CeresSteamDownDrifting31,
-    /// <summary>Ceres steam: a cloud of steam drifting off down, 24 pixels long.</summary>
-    CeresSteamDownDrifting24,
-    /// <summary>Ceres steam: a cloud of steam drifting off down, 16 pixels long.</summary>
-    CeresSteamDownDrifting16,
+    /// <summary>Ceres steam: a jet of steam bursting from the vent down.</summary>
+    CeresSteamDownJetBursting,
+    /// <summary>Ceres steam: the jet of steam lengthening down.</summary>
+    CeresSteamDownJetLengthening,
+    /// <summary>Ceres steam: the jet of steam at its full length down.</summary>
+    CeresSteamDownJetFull,
+    /// <summary>Ceres steam: the plume breaking from the vent and drifting off down, still scalding.</summary>
+    CeresSteamDownPlumeDrifting,
+    /// <summary>Ceres steam: the drifting plume scattering down, no longer scalding.</summary>
+    CeresSteamDownPlumeScattering,
+    /// <summary>Ceres steam: the last wisps of the plume fading down.</summary>
+    CeresSteamDownPlumeFading,
     /// <summary>Ceres steam: right.</summary>
     CeresSteamRight,
-    /// <summary>Ceres steam: a jet of steam right, 24 pixels long.</summary>
-    CeresSteamRightJet24,
-    /// <summary>Ceres steam: a jet of steam right, 32 pixels long.</summary>
-    CeresSteamRightJet32,
-    /// <summary>Ceres steam: a jet of steam right, 40 pixels long.</summary>
-    CeresSteamRightJet40,
-    /// <summary>Ceres steam: a cloud of steam drifting off right, 32 pixels long.</summary>
-    CeresSteamRightDrifting32,
-    /// <summary>Ceres steam: a cloud of steam drifting off right, 26 pixels long.</summary>
-    CeresSteamRightDrifting26,
-    /// <summary>Ceres steam: a cloud of steam drifting off right, 16 pixels long.</summary>
-    CeresSteamRightDrifting16,
+    /// <summary>Ceres steam: a jet of steam bursting from the vent right.</summary>
+    CeresSteamRightJetBursting,
+    /// <summary>Ceres steam: the jet of steam lengthening right.</summary>
+    CeresSteamRightJetLengthening,
+    /// <summary>Ceres steam: the jet of steam at its full length right.</summary>
+    CeresSteamRightJetFull,
+    /// <summary>Ceres steam: the plume breaking from the vent and drifting off right, still scalding.</summary>
+    CeresSteamRightPlumeDrifting,
+    /// <summary>Ceres steam: the drifting plume scattering right, no longer scalding.</summary>
+    CeresSteamRightPlumeScattering,
+    /// <summary>Ceres steam: the last wisps of the plume fading right.</summary>
+    CeresSteamRightPlumeFading,
     /// <summary>Oum: its shell facing left, upright.</summary>
     OumFacingLeftTurned0,
     /// <summary>Oum: its shell facing left, a vent opening on its front.</summary>

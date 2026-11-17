@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// The game's shared random sequence: one per game session, shared by the frontend, every gameplay runtime and every
 /// random consumer, so each draw advances the sequence every later consumer observes, including the draws effect work
-/// makes. Its advance and sixteen-bit state are the game's exactly (<see cref="SharedRandomState"/>), because which
+/// makes. Its advance and its values, 0 through 65535, are the game's exactly (<see cref="SharedRandomState"/>), because which
 /// value each consumer draws, and in which order, is gameplay-observable.
 /// </summary>
 /// <remarks>
@@ -26,8 +26,8 @@ public sealed class SharedRandom
     public int Read() => State.Value;
 
     /// <summary>
-    /// Advances the generator exactly as the cartridge's <c>GenerateRandomNumber</c> does. Every consumer observes the
-    /// updated state.
+    /// Advances the generator to the sequence's next value (<see cref="SharedRandomState.Next"/>). Every consumer observes
+    /// the updated state.
     /// </summary>
     /// <returns>The new state as a sample, 0 through 65535.</returns>
     public int Generate()

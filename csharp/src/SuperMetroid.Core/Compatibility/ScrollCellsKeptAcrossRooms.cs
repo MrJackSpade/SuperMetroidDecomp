@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// The scroll cells the game keeps for the room being played, which outlive every room (#1551). The game keeps one set
 /// of fifty cells for every room. A room whose scroll data is an explicit table loads all fifty: its own cells, and past
-/// a table shorter than fifty cells the data the game stores after it, read as cells. A room whose scroll data is the
+/// them the cells its load writes after its screens (<see cref="ScrollCellsPastRoomScreens{TCell}"/>). A room whose scroll data is the
 /// implicit layout writes only its own width-by-height cells, so every cell past them keeps what an earlier room, its
 /// scroll triggers, doors or enemies left there. A scroll check past the fifty cells reads the stored explored maps
 /// (<see cref="StoredExploredMaps{TArea}"/>). The camera's scroll-boundary checks read a cell past the room's own at the
@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <c>$80:A6BB</c>, <c>$80:A893</c>, <c>$80:A936</c>), which index the cells at <c>$7E:CD20</c> by a row times the room
 /// width plus a column and tell a cleared cell, a blue cell and every other value apart; in the 13% movie Samus falls
 /// into a three-by-two implicit room whose cell below the bottom row still holds the room before's blue, so the camera
-/// keeps following her. The explicit tables' data after a short table is decoded once into cells.
+/// keeps following her.
 /// </remarks>
 /// <typeparam name="TCell">A scroll cell's state.</typeparam>
 /// <typeparam name="TArea">An area of the game, by which the stored explored maps are kept.</typeparam>

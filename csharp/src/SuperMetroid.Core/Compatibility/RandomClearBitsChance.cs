@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <param name="First">One bit the chance needs clear.</param>
 /// <param name="Second">The other bit the chance needs clear.</param>
-[CompatibilityService("which random samples take a chance the original took by testing separate bits of its random word for zero")]
+[CompatibilityService("which random numbers take a chance the game took only when two separate places of its random number were both clear")]
 public readonly record struct RandomClearBitsChance(RandomSampleField First, RandomSampleField Second)
 {
     /// <summary>Whether the chance is taken on <paramref name="sample"/>: neither of its bits is set.</summary>

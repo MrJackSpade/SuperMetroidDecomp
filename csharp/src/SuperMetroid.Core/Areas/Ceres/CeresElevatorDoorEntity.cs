@@ -115,7 +115,7 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         // projectiles' touchdown deletes them. The import pictures both strips (#1467).
         doors.Room.Services.ShowFloorFrame(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
 
-        // A new step of six colours every eight updates.
+        // The glow takes its next step every eight updates.
         doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
     }
 }

@@ -3,9 +3,9 @@
 /// <summary>
 /// The game's two frame counters, which advance once for every frame the game shows. They are separate counters, not
 /// one counter and its low part: a door's scroll restarts only the short one (<see cref="RestartShortCounter"/>). Enemy
-/// cadences, block animations, blinking and other periodic gameplay sample their low bits, so each counter's wrap at its
-/// width, the frames a door's music load counts without a gameplay update, and the door scroll's restart of the short
-/// counter are all gameplay-observable.
+/// cadences, block animations, blinking and other periodic gameplay read where the counters stand in their periods, so
+/// each counter's return to zero, the frames a door's music load counts without a gameplay update, and the door
+/// scroll's restart of the short counter are all gameplay-observable.
 /// </summary>
 /// <remarks>
 /// Created once per game session by its composition root (<c>FrontendSession</c>) and handed to every gameplay runtime
@@ -17,7 +17,7 @@
 /// replays' input-consumption traces establish those stalled frames, and the Ridley full-movie check reads the short
 /// counter on every update of a door transition.
 /// </remarks>
-[CompatibilityService("the two frame counters, which wrap at their widths, count the frames a door's music load takes and are restarted by a door's scroll")]
+[CompatibilityService("the two frame counters, which return to zero after 255 and 65535, count the frames a door's music load takes and are restarted by a door's scroll")]
 internal sealed class FrameClock
 {
     /// <summary>How many frames <see cref="ShortCounter"/> counts before it returns to zero.</summary>

@@ -287,9 +287,8 @@ internal sealed class CollectibleObjects
                 SamusEquipmentFlags equipmentMask = GetEquipmentMask(kind);
                 samus.EquippedItems |= equipmentMask;
                 samus.CollectedItems |= equipmentMask;
-                // Every Varia/Gravity presentation clears the suit-pickup state immediately before
-                // The equipment pickup and the synchronous message. It is not part of the later
-                // transformation and therefore must already be clear throughout the fanfare.
+                // A Varia or Gravity Suit pickup clears the beam's charge as the suit is equipped, before its
+                // message, so no charge is held through the fanfare or the suit's reveal that follows it.
                 if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
                     samus.ClearBeamCharge();
                 return;

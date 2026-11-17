@@ -47,8 +47,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
     /// <summary>
     /// The statue scene's look (#1512): its standard colours until the statue initializes, then its entrance colours,
-    /// the last eye glow a released boss lit, and each released statue's blacked-out eyes and grey. Every statue scene
-    /// sprite shows it; the game wrote these colours into colour sets the scene's sprites share.
+    /// the last eye glow a released boss lit, and each released statue's blacked-out eyes and grey. The scene's
+    /// placements and every projectile of the scene show it alike.
     /// </summary>
     internal PictureShading SceneShading { get; private set; } = PictureShading.Standard;
 
@@ -236,9 +236,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
             projectile.Position = projectile.Position.WithWholeX(anchor.X);
 
-            // The statue base adds the camera Y position and subtracts the reveal effect's camera Y plus displacement.
-            // The camera terms cancel here; ordinary sprite drawing subtracts the camera once.
-            // This keeps the statue's sprite pictures attached to the descending background statue artwork.
+            // A decoration stands at its place less how far the statue has sunk, which keeps its pictures on the sinking
+            // statue drawn in the room's background.
             projectile.Position = projectile.Position.WithWholeY(anchor.Y - room.Services.TourianStatueRoom.StatueOffset);
         }
     }

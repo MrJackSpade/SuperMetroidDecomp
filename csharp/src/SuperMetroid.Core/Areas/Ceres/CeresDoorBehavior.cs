@@ -93,7 +93,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
     internal CeresEscapeQuake EscapeQuake { get; }
 
     /// <summary>
-    /// The step of the elevator room's six-colour glow the elevator door cycles, which the room's pictures show as
+    /// The step of the elevator room's glow the elevator door cycles, which the room's pictures show as
     /// <see cref="CeresDoorShades.ElevatorRoomGlow"/> (#1512); null before the door first cycles it.
     /// </summary>
     internal int? ElevatorRoomGlowStep { get; set; }
@@ -119,9 +119,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory, IG
             Playback = new AnimationPlayback<CeresDoorSegment>(CeresDoorAnimations.StartingWith(animation), AnimationPlace.StartOfAnimation),
         });
 
-        // The game loads the door's colours into one of two colour sets, the inactive door's or the active door's, whose
-        // completed fade target this runtime shows directly: the escaping colours once Ridley has escaped, otherwise the
-        // normal ones. The door shows them as its shade (#1512); which set held them is not kept.
+        // A door shows the escaping colours once Ridley has escaped, otherwise the normal ones, each as its fade ends
+        // (#1512).
         place.Shading = Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped
             ? CeresDoorShades.InEscapingColours
             : CeresDoorShades.InNormalColours;

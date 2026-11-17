@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// each choice's original comparison of its random word or field with a threshold, which a chance reproduces for every one
 /// of the 65536 samples; the SMV replays compare the random value and every outcome it drives on every update.
 /// </remarks>
-[CompatibilityService("which random samples take each chance, exactly as the original compared its random word, or a field of it, with a threshold")]
+[CompatibilityService("which random numbers take each chance, exactly as the game took it")]
 public readonly record struct RandomChance
 {
     /// <summary>Retains a chance taken by <paramref name="takingValues"/> values of the field, the lowest from <paramref name="first"/>.</summary>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// half a value of the enemy its room lists at a place fixed by its bobbing speed, whatever that enemy is as the
 /// population loads. Every Evir in the game bobs at half or three quarters of a pixel an update: the slower reads the
 /// second listed enemy's direction-change period and halves it, rounding down; the faster reads the third listed enemy's
-/// colours, which for the second Evir of either retail room are the first Evir's spit's and give a half-cycle of one
+/// colours, which for the second Evir of either room that holds Evirs are the first Evir's spit's and give a half-cycle of one
 /// update. An enemy not yet loaded, still the empty place the room load left, gives zero.
 /// </summary>
 /// <remarks>
@@ -17,19 +17,19 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("an Evir body's first bobbing half-cycle is half a value of the enemy its room lists at a place fixed by its bobbing speed")]
 public static class EvirBorrowedFirstHalfCycle
 {
-    /// <summary>The slower bobbing speed retail Evirs bob at: half a pixel an update.</summary>
+    /// <summary>The slower bobbing speed the game's Evirs bob at: half a pixel an update.</summary>
     private static readonly SignedSixteenSixteen SlowerSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
     /// <summary>The zero-based place, in the room's list, of the enemy whose direction-change period a slower body halves.</summary>
     private const int SlowerLenderPlace = 1;
 
-    /// <summary>The faster bobbing speed retail Evirs bob at: three quarters of a pixel an update.</summary>
+    /// <summary>The faster bobbing speed the game's Evirs bob at: three quarters of a pixel an update.</summary>
     private static readonly SignedSixteenSixteen FasterSpeed = SignedSixteenSixteen.FromSixteenthsOfPixel(12);
 
     /// <summary>The zero-based place, in the room's list, of the enemy whose colours a faster body reads.</summary>
     private const int FasterLenderPlace = 2;
 
-    /// <summary>The half-cycle an Evir spit's colours give, in updates, in both retail rooms holding Evirs (#1512).</summary>
+    /// <summary>The half-cycle an Evir spit's colours give, in updates, in both rooms holding Evirs (#1512).</summary>
     private const int SpitColoursHalfCycle = 1;
 
     /// <summary>
@@ -41,8 +41,8 @@ public static class EvirBorrowedFirstHalfCycle
     /// <param name="listed">The room's enemy places, in the order its population lists them.</param>
     /// <param name="lender">What the half-cycle can read of an enemy place.</param>
     /// <exception cref="InvalidDataException">
-    /// No retail Evir bobs at <paramref name="bobbingSpeed"/>, or the faster body's lender is an enemy other than an Evir
-    /// spit, which no retail room places there.
+    /// No Evir the game places bobs at <paramref name="bobbingSpeed"/>, or the faster body's lender is an enemy other than an Evir
+    /// spit, which no room places there.
     /// </exception>
     public static int Of<TEnemy>(SignedSixteenSixteen bobbingSpeed, IReadOnlyList<TEnemy> listed, IEvirHalfCycleLender<TEnemy> lender)
     {
@@ -60,10 +60,10 @@ public static class EvirBorrowedFirstHalfCycle
                 return 0;
             return lender.IsEvirSpit(enemy)
                 ? SpitColoursHalfCycle
-                : throw new InvalidDataException("An Evir body reads the colours of an enemy other than an Evir spit, which no retail room places where it reads.");
+                : throw new InvalidDataException("An Evir body reads the colours of an enemy other than an Evir spit, which no room places where it reads.");
         }
         throw new InvalidDataException(
-            $"An Evir bobbing at {bobbingSpeed.WholePixels} pixels and {bobbingSpeed.Fraction} 65536ths per update takes its first half-cycle from a value no retail Evir reads.");
+            $"An Evir bobbing at {bobbingSpeed.WholePixels} pixels and {bobbingSpeed.Fraction} 65536ths per update takes its first half-cycle from a value no Evir the game places reads.");
     }
 
     /// <summary>The enemy the room lists at <paramref name="place"/>, as the population has loaded it so far.</summary>

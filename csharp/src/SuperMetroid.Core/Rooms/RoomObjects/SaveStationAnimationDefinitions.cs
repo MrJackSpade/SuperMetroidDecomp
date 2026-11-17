@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>Compiled fixed mechanics definitions for the save-station animation.</summary>
+/// <summary>The save station's animation: how many times its electricity plays before the game is saved.</summary>
 internal static class SaveStationAnimationDefinitions
 {
     /// <summary>

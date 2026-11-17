@@ -513,7 +513,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SamusBomb last = bombs.Bombs[^1];
             last.BombSpreadVerticalVelocity = last.BombSpreadVerticalVelocity.WithWholePixels(
-                ReserveRowToggleSpreadBombSpeed.Repaint(last.BombSpreadVerticalVelocity.WholePixels));
+                ReserveRowToggleSpreadBombSpeed.SpeedAfterToggle(last.BombSpreadVerticalVelocity.WholePixels));
             return;
         }
 

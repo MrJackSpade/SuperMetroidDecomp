@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 public sealed class FallingSparkUnauthoredLaunch
 {
     /// <summary>Keeps the decoded drift.</summary>
-    /// <param name="drift">The signed horizontal drift per update, in pixels and sixteen-bit fractions.</param>
+    /// <param name="drift">The signed horizontal drift per update, in pixels and 65536ths of a pixel.</param>
     public FallingSparkUnauthoredLaunch(SignedSixteenSixteen drift) => Drift = drift;
 
     /// <summary>The signed horizontal drift per update the spark launches with.</summary>

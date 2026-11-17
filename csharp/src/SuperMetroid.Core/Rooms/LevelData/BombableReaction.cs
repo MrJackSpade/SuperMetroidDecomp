@@ -31,7 +31,10 @@ public enum BombableReaction
     /// <summary>A two-by-two square of bomb blocks that breaks for good.</summary>
     PermanentBreak2x2,
 
-    /// <summary>The empty reaction past the breaks: a bomb sets off a one-update object; breaking contact rejects it.</summary>
+    /// <summary>
+    /// A reaction that breaks nothing: a bomb sets off a room object that ends on its first update, and Samus's breaking
+    /// contact sets off nothing.
+    /// </summary>
     Nothing,
 
     /// <summary>Bombs and Samus's breaking contact leave the block alone and set nothing off; a bombable block stays solid.</summary>

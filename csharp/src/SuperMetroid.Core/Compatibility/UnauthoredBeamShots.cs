@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// What a Spazer and Plasma beam fires (#1517). The beam projectile selectors author the twelve beam combinations retail
+/// What a Spazer and Plasma beam fires (#1517). The beam projectile selectors author the twelve beam combinations the game's
 /// equipment can hold, the uncharged shots and then the charged ones, with the missile and bomb selectors after them; a
 /// combination that pairs Spazer with Plasma, which only the pause screen's same-frame toggle can equip, selects past
 /// its block. Its uncharged shot is a charged Power, Wave, Ice or Ice-Wave shot, and its charged shot is a missile, a

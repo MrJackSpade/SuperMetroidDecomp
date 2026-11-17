@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// What a Spazer and Plasma beam reads past Samus's firing tables (#1500, #1506). The beam speed table and the three
-/// cooldown rows author the twelve beam combinations retail equipment can hold; a combination that pairs Spazer with
+/// cooldown rows author the twelve beam combinations the game's equipment can hold; a combination that pairs Spazer with
 /// Plasma, which only the pause screen's same-frame toggle can equip, reads past them: its launch speeds from the
 /// missile data after the speed table, its uncharged and charged cooldowns from the zeros after their rows, and
 /// its held-fire cooldown from the projectile sound table after the held-fire row. The import pipeline decodes each

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The two ways the original reverses some enemies' speeds one part at a time, the fraction's carry never reaching the
+/// The two ways the game reverses some enemies' speeds one part at a time, the fraction's carry never reaching the
 /// whole pixels: negating the whole pixels and the fraction each on their own, which reverses a speed with no fraction
 /// exactly and leaves one with a fraction a pixel an update short of its true reversal, back along its first direction;
 /// and complementing the whole pixels while negating the fraction, which reverses a speed with a fraction exactly and

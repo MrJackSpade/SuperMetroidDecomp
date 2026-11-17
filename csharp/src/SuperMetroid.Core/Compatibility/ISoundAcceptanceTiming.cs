@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted once at the start of each update, before the sound queues run. The game uses
 /// <see cref="ClockedSoundAcceptance{TLibrary, TSound}"/>, the session's <see cref="SoundAcceptanceClock{TLibrary, TSound}"/>, under which a
 /// library accepts a request only at its next request check, so a request can wait one or more updates. Verification
-/// hosts supply other timings: one accepts every request on the update after it is made, isolating the handlers from
+/// hosts supply other timings: one accepts every request on the update after it is made, isolating the queues from
 /// the clock, and a movie replay reports, for the updates its recording covers, whether each waiting library moved on.
 /// </para>
 /// <para>
@@ -28,7 +28,7 @@ public interface ISoundAcceptanceTiming<TLibrary, TSound>
 {
     /// <summary>What each library reports as accepted to the next update's sound queues.</summary>
     /// <param name="clocked">What each library reported as accepted by the session's clock after the previous update.</param>
-    /// <param name="requested">The sound each handler last requested from its library, or none.</param>
+    /// <param name="requested">The sound each queue last requested from its library, or none.</param>
     /// <returns>What each library reports as accepted to the update.</returns>
     SoundAcknowledgements<TLibrary, TSound> ForNextUpdate(SoundAcknowledgements<TLibrary, TSound> clocked, SoundAcknowledgements<TLibrary, TSound> requested);
 }

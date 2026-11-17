@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.World.Artwork;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresSaveStartupVerification;
 using static SuperMetroid.Verification.Harness.InstalledArtworkBindingVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies.Artwork;

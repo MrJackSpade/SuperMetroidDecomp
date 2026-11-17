@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Input;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Restores stable pause-map state from a native WRAM snapshot for frame comparison.</summary>

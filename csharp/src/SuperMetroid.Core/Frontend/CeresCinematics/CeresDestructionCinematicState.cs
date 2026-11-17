@@ -8,7 +8,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 

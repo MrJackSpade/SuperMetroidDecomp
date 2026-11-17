@@ -101,18 +101,6 @@ public sealed class DemoInputState
     }
 
     /// <summary>
-    /// Ends the demo's input in place of this step's input, as an owner's watch does when its demo is over: the input's
-    /// hold has run out, the recording is done, the demo releases every action and the step remembers what it pressed
-    /// as every step does. A <see cref="Step"/> after it plays nothing.
-    /// </summary>
-    public void End()
-    {
-        FrameHold = 0;
-        EndInput();
-        RememberPressed();
-    }
-
-    /// <summary>
     /// Hands the demo's previous actions to the drawing-input history and remembers the actions this step pressed, as
     /// every step that plays ends.
     /// </summary>

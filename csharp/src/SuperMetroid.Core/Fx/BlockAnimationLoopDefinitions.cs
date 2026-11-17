@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>

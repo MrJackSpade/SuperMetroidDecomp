@@ -23,7 +23,6 @@ using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;

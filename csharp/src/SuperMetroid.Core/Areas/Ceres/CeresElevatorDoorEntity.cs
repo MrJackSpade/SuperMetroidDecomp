@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

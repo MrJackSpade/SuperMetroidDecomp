@@ -51,10 +51,4 @@ internal static class ProjectileTrailSources
         }
         return [.. records.OrderBy(record => record.Key)];
     }
-
-    /// <summary>The bank-$90 address of the first timed record that shows <paramref name="frame"/>.</summary>
-    internal static ushort FrameAddress(ProjectileTrailFrame frame) =>
-        Records.FirstOrDefault(record => record.Value == frame) is { Key: not 0 } found
-            ? found.Key
-            : throw new ArgumentOutOfRangeException(nameof(frame), frame, "No trail record shows this frame.");
 }

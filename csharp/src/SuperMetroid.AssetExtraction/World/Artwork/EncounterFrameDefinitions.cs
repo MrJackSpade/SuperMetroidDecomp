@@ -17,8 +17,8 @@ internal static class EncounterFrameDefinitions
     [
         .. RidleySupplementalVisualDefinitions.TailTipFrames.InTurnOrder,
         .. RidleySupplementalVisualDefinitions.LinkFrames,
-        .. RidleySupplementalVisualDefinitions.WingBeatFacingLeft,
-        .. RidleySupplementalVisualDefinitions.WingBeatFacingRight,
+        .. RidleySupplementalVisualDefinitions.WingBeat.Select(pose => pose.FacingLeft),
+        .. RidleySupplementalVisualDefinitions.WingBeat.Select(pose => pose.FacingRight),
     ];
 
     /// <summary>

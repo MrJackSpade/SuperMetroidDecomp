@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseCadenceDefinitions
 {
     /// <summary>
-    /// The pause map and item screens' held-input delay: the updates, less one, a held button must stay unchanged before it
-    /// moves the cursor again.
+    /// The pause map and item screens' held-button delay: the unchanged updates a held button waits through before it moves
+    /// the cursor again, on the next update and every update after.
     /// </summary>
     internal const int HeldInputRepeatDelay = 3;
 

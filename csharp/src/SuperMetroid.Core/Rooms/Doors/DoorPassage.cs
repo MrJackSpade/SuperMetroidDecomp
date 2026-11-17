@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// input handling and collision radius, the room's colour effects and the camera's scrolling.
 /// </summary>
 /// <remarks>
-/// The passage outlives the rooms it joins. The original's enemy load cleared its door flags and the door code set them
-/// again once the destination's enemies were loaded; no enemy's initialization reads the passage, so it simply holds
-/// through the destination's load.
+/// The passage outlives the rooms it joins: it holds through the destination's load, and no enemy's setup reads it.
 /// </remarks>
 internal sealed class DoorPassage
 {

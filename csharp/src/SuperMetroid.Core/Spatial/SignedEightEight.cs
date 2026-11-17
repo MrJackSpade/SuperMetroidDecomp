@@ -106,15 +106,15 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>
         FromTwoHundredFiftySixthsOfPixel(-value.InTwoHundredFiftySixthsOfPixel);
 
     /// <summary>
-    /// The velocity times a factor in 256ths, <paramref name="factorInTwoHundredFiftySixths"/>, as a 16.16 displacement
-    /// that keeps the product's full precision: the product of the two 8.8 values, nothing truncated.
+    /// The velocity times <paramref name="share"/>, as a 16.16 displacement that keeps the product's full precision: the
+    /// velocity's 256ths of a pixel times the share's 256ths, nothing truncated.
     /// </summary>
     /// <exception cref="OverflowException">The product lies outside 32 bits.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The product's whole pixels lie outside the 16.16 range.</exception>
-    public SignedSixteenSixteen ScaledBy(int factorInTwoHundredFiftySixths)
+    public SignedSixteenSixteen ScaledBy(SpeedShare share)
     {
         // A product of two 256ths counts 65536ths of a pixel: its whole pixels above sixteen fraction bits.
-        int product = checked(InTwoHundredFiftySixthsOfPixel * factorInTwoHundredFiftySixths);
+        int product = checked(InTwoHundredFiftySixthsOfPixel * share.TwoHundredFiftySixths);
         return SignedSixteenSixteen.FromParts(product >> 16, product & ushort.MaxValue);
     }
 

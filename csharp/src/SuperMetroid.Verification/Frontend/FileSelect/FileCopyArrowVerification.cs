@@ -25,7 +25,7 @@ internal static class FileCopyArrowVerification
         // All save changes belong to this private store.
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         foreach (SaveSlot slot in SaveSlots.All)
-            saves.SaveSlot(slot, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
+            saves.SaveSlot(slot, SaveSnapshotFixtures.NewGame);
         foreach (var pair in new[] { new FileCopyArrowVerifyFileCopyArrowCase(0, 2), new FileCopyArrowVerifyFileCopyArrowCase(0, 1), new FileCopyArrowVerifyFileCopyArrowCase(1, 2), new FileCopyArrowVerifyFileCopyArrowCase(2, 0), new FileCopyArrowVerifyFileCopyArrowCase(1, 0), new FileCopyArrowVerifyFileCopyArrowCase(2, 1) }.Select((slots, row) => new VerifyFileCopyArrowCase(slots, row)))
         {
             saves.SelectSlot(SaveSlot.A);
@@ -75,14 +75,14 @@ internal static class FileCopyArrowVerification
             // cartridge's file-select colours, its sprite colours 145..151 moved the step's number of places along.
             ReadOnlySpan<RgbColor> cartridge = InstalledFixtures.ImportOf(art).Palettes.FileSelect;
             SpriteImage arrowSheet = MenuSheetFixtures.For(art).Get(SpriteSheetId.FileSelect).Frame(FileCopyArrowDefinitions.FrameName(FileCopyArrowShape.ShortDown)).Sheet;
-            int start = menu.CopyArrowRotation;
+            int start = menu.CopyArrowRotation.Step;
             for (int frame = 1; frame <= 12; frame++)
             {
                 menu.Step(0);
                 int rotations = frame < 8 ? 0 : 1 + (frame - 8) / 4;
                 int step = (start + rotations) % FileCopyArrowDefinitions.RotationSteps;
-                AssertEqual(step, menu.CopyArrowRotation, "arrow colours rotate after eight ticks then every four");
-                PictureShading shading = PictureShading.Shaded(FileCopyArrowShades.Rotation(step));
+                AssertEqual(FileCopyArrowRotationStep.All[step], menu.CopyArrowRotation, "arrow colours rotate after eight ticks then every four");
+                PictureShading shading = PictureShading.Shaded(FileCopyArrowShades.Rotation(FileCopyArrowRotationStep.All[step]));
                 Capture();
                 AssertTrue(menu.screen.Sprites.Draws.OfType<ImageSpriteDraw>().Any(draw => draw.Shading == shading),
                     "the copy arrow draws in its rotation step's shade");
@@ -98,7 +98,7 @@ internal static class FileCopyArrowVerification
                 }
             }
             // Rendering must not advance animation.
-            int beforeRender = menu.CopyArrowRotation;
+            FileCopyArrowRotationStep beforeRender = menu.CopyArrowRotation;
             menu.Render(); menu.CaptureRenderSnapshot();
             AssertEqual(beforeRender, menu.CopyArrowRotation, "render leaves the arrows' rotation alone");
             Press(ControllerButton.A);

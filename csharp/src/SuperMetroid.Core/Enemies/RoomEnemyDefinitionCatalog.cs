@@ -4,11 +4,10 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Typed, immutable enemy definitions referenced by all 323 room states.</summary>
+/// <summary>The enemy definitions every room state's enemies use.</summary>
 /// <remarks>
-/// Compiled once from the game's definitions, with no generator in the repository. The 147 definitions are
-/// enumerated from every room population and the enemies the game spawns (each Ceres door its own, #1989), not inferred from a contiguous range. These are
-/// engine definitions, never editable art data. Each RoomEnemyDefinition constructor follows its named field order.
+/// Every definition a room places or the game spawns (each Ceres door its own, #1989): how each enemy behaves, never its
+/// artwork.
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {

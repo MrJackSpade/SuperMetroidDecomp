@@ -26,8 +26,8 @@ internal static class CollectibleObjectDraws
 
     /// <summary>
     /// The terrain a block pair's frame writes, or null when <paramref name="draw"/> is not one: the frame lies under the
-    /// item's own picture (#1538), has no installed picture of its own, and writes the block its pair writes under that
-    /// look, which is gameplay terrain (<see cref="CollectibleBlockPairs.BlocksOf"/>, #2125).
+    /// item's own picture (#1538), has no installed picture of its own, and writes its pair's block for that look, which is
+    /// gameplay terrain (<see cref="CollectiblePairBlock"/>, #2354).
     /// </summary>
     internal static RoomTerrainBlock? BlockPairTerrain(CollectibleDraw draw)
     {
@@ -36,21 +36,12 @@ internal static class CollectibleObjectDraws
             foreach (CollectibleLook look in Looks)
             {
                 if (looks.Of(look) == draw)
-                    return RoomTerrainBlock.Of(BlockUnder(CollectibleBlockPairs.BlocksOf(pair), look), BlockMirroring.None,
+                    return new RoomTerrainBlock(RoomBlockAppearance.Of(new CollectiblePairBlock(pair, look)),
                         Collision(DrawGroup.OwnPicture));
             }
         }
         return null;
     }
-
-    /// <summary>The block of <paramref name="blocks"/> written while the item's picture shows <paramref name="look"/>.</summary>
-    /// <exception cref="InvalidOperationException">The look is undefined.</exception>
-    private static int BlockUnder(CollectibleBlockPairs.WrittenBlocks blocks, CollectibleLook look) => look switch
-    {
-        CollectibleLook.Primary => blocks.UnderPrimaryLook,
-        CollectibleLook.Alternate => blocks.UnderAlternateLook,
-        _ => throw new InvalidOperationException($"Undefined {nameof(CollectibleLook)} {look}."),
-    };
 
     /// <summary>The kind of draw <paramref name="draw"/> is.</summary>
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>

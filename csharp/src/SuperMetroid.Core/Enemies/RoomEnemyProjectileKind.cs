@@ -13,7 +13,7 @@ public enum RoomEnemyProjectileKind
     /// place when its hold ends.
     /// </summary>
     PrePhantoonRoomHeldPlace,
-    /// <summary>The Maw's projectile-backed body.</summary>
+    /// <summary>A Yapping Maw's body.</summary>
     YappingMawBody,
     /// <summary>
     /// One of the four particles a Skree or Metaree bursts into (#2278): its launch velocity is its way, and its animation
@@ -38,7 +38,7 @@ public enum RoomEnemyProjectileKind
     PhantoonStartingFlame,
     /// <summary>Draygon's goop attack.</summary>
     DraygonGoop,
-    /// <summary>The projectile-backed turret in Draygon's room.</summary>
+    /// <summary>A wall turret in Draygon's room.</summary>
     DraygonWallTurret,
     /// <summary>A Mother Brain room turret actor.</summary>
     MotherBrainRoomTurret,
@@ -114,7 +114,7 @@ public enum RoomEnemyProjectileKind
     WorkRobotLaserHorizontal,
     /// <summary>A falling spark actor.</summary>
     FallingSpark,
-    /// <summary>A persistent projectile-backed Nuclear Waffle body link.</summary>
+    /// <summary>A link of a Nuclear Waffle's body, lasting as long as the Waffle.</summary>
     NuclearWaffleBody,
     /// <summary>Fake Kraid's spit projectile.</summary>
     FakeKraidSpit,
@@ -130,9 +130,9 @@ public enum RoomEnemyProjectileKind
     PolypRock,
     /// <summary>A Cacatac's directional spike.</summary>
     CacatacSpike,
-    /// <summary>Namihe's fireball definition.</summary>
+    /// <summary>A fireball a Namihe spits.</summary>
     NamiheFireball,
-    /// <summary>Fune's fireball definition.</summary>
+    /// <summary>A fireball a Fune spits.</summary>
     FuneFireball,
     /// <summary>Lava thrown by Magdollite.</summary>
     LavaThrownByMagdollite,
@@ -144,8 +144,8 @@ public enum RoomEnemyProjectileKind
     EyeDoorSweat,
     /// <summary>The room-object-spawned smoke actor used by Eye Doors.</summary>
     EyeDoorSmoke,
-    /// <summary>A parameter-selected dust or explosion effect.</summary>
-    MiscDustExplosion,
+    /// <summary>A dust cloud or explosion, its animation chosen by its spawner.</summary>
+    DustOrExplosion,
     /// <summary>An enemy drop with its pickup animation and collection behavior.</summary>
     EnemyDeathPickup,
     /// <summary>An enemy-death explosion that can publish drops or rebuild the enemy in its place.</summary>
@@ -196,9 +196,9 @@ public enum RoomEnemyProjectileKind
     TourianStatueTail,
     /// <summary>A soul actor in the statue-unlocking sequence.</summary>
     TourianStatueSoul,
-    /// <summary>The projectile-backed Ridley statue actor.</summary>
+    /// <summary>Ridley's figure on the Tourian statue.</summary>
     TourianStatueRidley,
-    /// <summary>The projectile-backed Phantoon statue actor.</summary>
+    /// <summary>Phantoon's figure on the Tourian statue.</summary>
     TourianStatuePhantoon,
     /// <summary>Decoration at the statue base.</summary>
     TourianStatueBaseDecoration,
@@ -206,7 +206,7 @@ public enum RoomEnemyProjectileKind
     WreckedShipChozoSpikeFootstep,
     /// <summary>Dust emitted during the Tourian statue's descent.</summary>
     TourianStatueDescentDust,
-    /// <summary>A projectile-backed stalk segment.</summary>
+    /// <summary>A segment of Spore Spawn's stalk.</summary>
     SporeSpawnStalk,
     /// <summary>A falling Spore Spawn spore.</summary>
     SporeSpawnSpore,

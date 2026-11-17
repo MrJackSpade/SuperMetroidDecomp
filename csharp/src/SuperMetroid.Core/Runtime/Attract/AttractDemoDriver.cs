@@ -54,7 +54,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     {
         if (_attractSession.Input is null) return;
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
-        _attractSession.Input.StepStock(SuperMetroidGameState.PlayingDemo);
+        _attractSession.Input.StepStock();
         _attractSession.InputRestore = _playerActions.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }

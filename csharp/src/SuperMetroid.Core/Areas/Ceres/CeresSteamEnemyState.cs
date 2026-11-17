@@ -8,7 +8,7 @@ internal sealed class CeresSteamEnemyState
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal CeresSteamEnemyState(CeresSteamAction action) => Action = action;
 
-    /// <summary>The main-AI action the vent's variant selects, or null for a vent that has none.</summary>
+    /// <summary>The action the vent's variant selects: holding its place, or following the rotating elevator room.</summary>
     public CeresSteamAction Action { get; internal set; }
 
     /// <summary>The staggered updates before the vent first appears, counted down by its animation.</summary>

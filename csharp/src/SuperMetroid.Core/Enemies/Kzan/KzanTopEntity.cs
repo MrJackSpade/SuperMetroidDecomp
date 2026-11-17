@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// <param name="place">The place the top occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KzanTopEntity(KzanBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => KzanBehavior.InitializeKzanTop(Place);

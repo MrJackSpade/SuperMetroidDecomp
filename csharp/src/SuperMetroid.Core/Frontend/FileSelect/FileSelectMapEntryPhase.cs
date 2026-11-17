@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Entry coroutine stages before normal area-map input becomes active.</summary>
+/// <summary>The file-select map's entry stages before normal area-map input becomes active.</summary>
 public enum FileSelectMapEntryPhase
 {
     /// <summary>Fades the screen's colours in to their installed file-select colours.</summary>

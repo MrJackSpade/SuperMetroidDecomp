@@ -277,10 +277,10 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Updates remaining before the copy arrow rotates its colors.</summary>
     private int copyArrowGlowTimer;
     /// <summary>
-    /// How many places the copy arrows' colours have rotated, below <see cref="FileCopyArrowDefinitions.RotationSteps"/>
+    /// The step the copy arrows' colour rotation shows
     /// (#1512). The rotation runs on from where it stopped each time a copy is confirmed, as the game's colours keep it.
     /// </summary>
-    internal int CopyArrowRotation { get; private set; }
+    internal FileCopyArrowRotationStep CopyArrowRotation { get; private set; } = FileCopyArrowRotationStep.Unrotated;
 
     /// <summary>Controls whether the main page exposes Copy and Clear navigation.</summary>
     private bool HasAnySave => saveSlots.Values.Any(slot => slot is not null);
@@ -519,7 +519,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if (copyArrowGlowTimer == 0 || --copyArrowGlowTimer != 0)
             return;
         copyArrowGlowTimer = FileCopyArrowDefinitions.GlowDelay;
-        CopyArrowRotation = (CopyArrowRotation + 1) % FileCopyArrowDefinitions.RotationSteps;
+        CopyArrowRotation = CopyArrowRotation.Next;
     }
 
     /// <summary>Accepts Yes or No and changes the saves only after explicit Yes confirmation.</summary>

@@ -11,7 +11,7 @@ public sealed class CeresRidleyState : RidleyEncounterState
     internal CeresRidleyState(Position16<RoomPixels> body)
         : base(
             new RidleyFlightState(RidleyFacing.Left, CeresRidleyArenaDefinitions.MovementMinimum, CeresRidleyArenaDefinitions.MovementMaximum,
-                wingBeatStep: RidleyWingDefinitions.CeresFirstBeatStep),
+                firstWingPose: RidleyWingDefinitions.CeresFirstPose),
             new RidleyTailState(damage: RidleyTailDefinitions.CeresTipDamage))
     {
         Baby = new CeresBaby(body + CeresRidleyArenaDefinitions.BabyArmsAnchor);

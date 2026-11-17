@@ -15,8 +15,7 @@ internal sealed class IntroEggParticle
 
     /// <summary>
     /// The frames the fragment has fallen: its step along the fall's gravity curve, then past it. A plain count (#1781):
-    /// every fragment reaches the floor within its curve or the installed steps past it, and a later step throws, so the
-    /// count never approaches the 256 at which the game's byte would have wrapped.
+    /// every fragment reaches the floor within its curve or the installed steps past it, and a later step throws.
     /// </summary>
     private int framesFallen;
 

@@ -265,7 +265,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Counts one draining update and, once it has counted a stage's calls, steps the drain, which only the victim shows (#1512).</summary>
+    /// <summary>Counts one draining update and, once it has counted a stage's updates, steps the drain, which only the victim shows (#1512).</summary>
     private static void StepDeadSidehopperDrain(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state)

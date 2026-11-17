@@ -27,23 +27,23 @@ public sealed class AttractDemoInput
 
     /// <summary>
     /// Checks what the playback watches for while it plays, then plays one step. The check runs first, in the same step,
-    /// so leaving the title ends the input in place of this step's input and the shinespark's release continues it at once.
+    /// so the shinespark's release continues the input at once.
     /// </summary>
-    public void StepStock(SuperMetroidGameState gameState)
+    public void StepStock()
     {
         if (Script.IsPlaying)
-            CheckWatch(gameState);
+            CheckWatch();
         Script.Step(cue => throw new InvalidOperationException($"Title demonstrations handle no {cue} cue."));
     }
 
-    /// <summary>Ends the input when the title leaves, or continues the shinespark's input into its continuation.</summary>
-    private void CheckWatch(SuperMetroidGameState gameState)
+    /// <summary>Continues the shinespark's input into its continuation once it is released.</summary>
+    private void CheckWatch()
     {
         switch (Watch)
         {
             case AttractDemoInputWatch.TitleLeaving:
-                if (gameState == SuperMetroidGameState.RoutingAfterDemo)
-                    Script.End();
+                // The playback steps only while the demo plays, never once the demo set has begun returning to the
+                // title, so the title never leaves while this watch checks; the input ends with the demo's gameplay.
                 break;
             case AttractDemoInputWatch.ShinesparkRelease:
                 // Samus is never held by Draygon in the shinespark's demonstration, so its release is taken on the first

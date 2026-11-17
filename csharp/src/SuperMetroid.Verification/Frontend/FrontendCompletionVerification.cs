@@ -132,7 +132,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     AssertTrue(options.MoonwalkEnabled, "special page toggles Moonwalk with Right");
 
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-    saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot
+    saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
     {
         ControllerBindings = options.ControllerBindings,
         IconCancelEnabled = options.IconCancelEnabled,
@@ -211,7 +211,7 @@ internal static void VerifyDoorOpeningTrajectories()
             Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
             RoomObjectBlock: new(0, 0),
             DestinationScreen: new(3, 2),
-            SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
+            SamusSpeed: DoorSamusSpeed.PixelsPerStep(1),
             Setup: DoorSetupDefinitions.None);
         ushort finalCameraY = direction == 3
             ? (ushort)(destinationY + 0x20)

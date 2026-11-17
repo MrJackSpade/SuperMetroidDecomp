@@ -100,7 +100,7 @@ internal static class SpacetimeBeamVerification
             "SpaceTime corruption does not rewrite live equipment");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave }));
+        saveRam.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave)));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
@@ -205,7 +205,7 @@ internal static class SpacetimeBeamVerification
     {
         SuperMetroidSaveSnapshot CreateResetSnapshot()
         {
-            var snapshot = new SuperMetroidSaveSnapshot
+            var snapshot = SaveSnapshotFixtures.NewGame with
             {
                 Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
                 Health = 399,
@@ -251,13 +251,13 @@ internal static class SpacetimeBeamVerification
             Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen),
                 () => frame = game.Step(0), 150, "SpaceTime title setup");
             frame = game.Step(ControllerButton.Start);
-            Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus,
+            Until(() => game.IsAt(FileSelectStep.SaveSlots),
                 () => frame = game.Step(0), 150, "SpaceTime file menu");
             // Native entry dispatches and fade-in end on the 35th update.
             Until(() => frame.Phase == nameof(FileSelectPhase.Main),
                 () => frame = game.Step(0), 40, "SpaceTime file menu interactive");
             frame = game.Step(ControllerButton.A);
-            Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu,
+            Until(() => game.IsAt(FileSelectStep.Options),
                 () => frame = game.Step(0), 200, "SpaceTime options menu");
             // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
             for (int frameIndex = 0; frameIndex < 18; frameIndex++)

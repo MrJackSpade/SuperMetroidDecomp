@@ -54,8 +54,8 @@ public sealed class PauseReserveArrowColours
     internal IEnumerable<SheetShade> Shades()
     {
         yield return Shade(PauseReserveArrowShades.Solid, Solid);
-        for (int frame = 0; frame < PauseReserveArrowDefinitions.ArrowFrames; frame++)
-            yield return Shade(PauseReserveArrowShades.Pulse(frame), Pulse(frame));
+        foreach (PauseReserveArrowPulseFrame frame in PauseReserveArrowPulseFrame.All)
+            yield return Shade(PauseReserveArrowShades.Pulse(frame), Pulse(frame.Frame));
     }
 
     /// <summary>The shade that shows the arrow's bevels in <paramref name="colours"/>.</summary>

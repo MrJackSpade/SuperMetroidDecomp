@@ -55,14 +55,13 @@ internal static class GunshipAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at (#2337): the shut pad and both hulls are
-    /// still pictures, and the closing pad ends resting shut. The shut pad's animation ends in a loop back to its one picture,
-    /// which the held picture never reaches.
+    /// still pictures, and the closing pad ends resting shut, held there (#2353).
     /// </summary>
     internal static IReadOnlyDictionary<GunshipSegment, Animation<GunshipSegment>> StartingAt { get; } = new Dictionary<GunshipSegment, Animation<GunshipSegment>>
     {
         [P.EntrancePadOpening] = new([Whole(P.EntrancePadOpening)], AnimationEnd.Holds),
-        [P.EntrancePadClosing] = new([Whole(P.EntrancePadClosing), Whole(P.BottomEntrancePad)], AnimationEnd.LoopsFrom(1)),
-        [P.BottomEntrancePad] = new([Whole(P.BottomEntrancePad)], AnimationEnd.LoopsFrom(0)),
+        [P.EntrancePadClosing] = new([Whole(P.EntrancePadClosing), Whole(P.BottomEntrancePad)], AnimationEnd.Holds),
+        [P.BottomEntrancePad] = new([Whole(P.BottomEntrancePad)], AnimationEnd.Holds),
         [P.TopHull] = new([Whole(P.TopHull)], AnimationEnd.Holds),
         [P.BottomHull] = new([Whole(P.BottomHull)], AnimationEnd.Holds),
     };

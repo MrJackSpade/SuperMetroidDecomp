@@ -62,7 +62,7 @@ internal sealed class IntroJapaneseSubtitles
 
     /// <summary>
     /// The hold check at the start of every intro input wait, in each page's setup.
-    /// True while the wait is held: the call consumed one frame of the hold.
+    /// True while the wait is held: this update used one frame of the hold.
     /// </summary>
     public bool HoldInputWait()
     {

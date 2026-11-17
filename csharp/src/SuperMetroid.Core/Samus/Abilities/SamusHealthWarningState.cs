@@ -27,7 +27,7 @@ public sealed class SamusHealthWarningState
 
         // The latch changes regardless of queue admission. In particular an exploding
         // Power Bomb turns the sound away in the queue while this transition stays, and a
-        // later call at unchanged health must not invent a retry of the lost request.
+        // later update at unchanged health must not invent a retry of the lost request.
         if (!critical) IsActive = false;
         audio.QueueSound(critical ? Start : Stop, WarningSoundPriority);
         if (critical) IsActive = true;

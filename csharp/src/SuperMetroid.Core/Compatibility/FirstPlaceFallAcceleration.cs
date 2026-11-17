@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// What Bomb Torizo's falling statue pieces gain in speed each update (#1470): not their own acceleration but that of
 /// the piece in the first enemy-projectile place, and nothing while that place is free. The pieces are spawned into the
-/// last free places, so in the retail fight the first place is free and the pieces fall at their launch speed.
+/// last free places, so in the game's fight the first place is free and the pieces fall at their launch speed.
 /// </summary>
 /// <remarks>
 /// Consulted by the falling piece's update. Evidence: the piece's update at <c>$86:A8EF</c> adds the acceleration word

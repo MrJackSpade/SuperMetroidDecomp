@@ -1,26 +1,28 @@
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot's frame behaviour starts inside a
-/// long store and falls back into the beam palette's copy loop with the position its update loop left behind: the copy
-/// starts as many colours into the beam palette as the shot's place, plus one, and reads from the place its animation has reached. Its
-/// bound is a signed test of that read position, so a shot animating from an animation laid out late in its animation data copies on through the
-/// rest of that data, past the palette and on through saved progress, before the read position wraps and the loop ends.
-/// Which story events, area bosses, item locations, doors, used stations and area maps it turns on or off,
-/// and the loading state it leaves, therefore depend only on the shot's place and where its animation stands; the import
-/// pipeline decodes them once into an overwrite for each animation position a SpaceTime shot can hold and each shot place. Only
-/// the progress part is kept (owner decision on #1318).
+/// SpaceTime's progression overwrite (#1318, #1330, #1474, #1475). An uncharged SpaceTime shot, on each update once its
+/// animation shows a frame, turns story events, area bosses, item locations, doors, used stations and area maps on or
+/// off and changes the loading state. What it changes depends only on the shot's place and where its animation stands:
+/// a shot whose animation stands late enough reaches saved progress, and an earlier one, or one with no animation,
+/// changes none. The import decodes the overwrite once for each animation position a SpaceTime shot can hold and each
+/// shot place. Only the progress part is kept (owner decision on #1318).
 /// </summary>
 /// <remarks>
 /// Consulted by the SpaceTime shot's frame behaviour during the projectile update, after its animation has installed a
-/// frame. Before that, or with no animation, the copy starts low and ends long before progress. Evidence: the SpaceTime check
-/// replays the native Pit Room probe's two input phases, whose corrupted loading state it matches, and runs the original
-/// copy over the cartridge for every position and shot place, requiring this service's overwrite to leave every flag of
-/// progress as the copy does.
+/// frame. Evidence: the shot's frame behaviour starts inside a long store and falls back into the beam palette's copy
+/// loop with the position its update loop left behind; the copy starts as many colours into the beam palette as the
+/// shot's place, plus one, reads from the place its animation has reached, and is bounded by a signed test of that read
+/// position, so a shot animating from an animation laid out late in its animation data copies on through the rest of
+/// that data, past the palette and on through saved progress, before the read position wraps and the loop ends; before
+/// an animation installs a frame the copy starts low and ends long before progress. The SpaceTime check replays the
+/// native Pit Room probe's two input phases, whose corrupted loading state it matches, and runs the original copy over
+/// the cartridge for every position and shot place, requiring this service's overwrite to leave every flag of progress
+/// as the copy does.
 /// </remarks>
 /// <typeparam name="TCursor">Where a shot stands in its animation.</typeparam>
 /// <typeparam name="TOverwrite">What one copy does to progress, in the progress's own terms.</typeparam>
-[CompatibilityService("SpaceTime's palette copy runs past the palette and overwrites saved progression")]
+[CompatibilityService("an uncharged SpaceTime shot overwrites saved progression, by its place and where its animation stands")]
 public sealed class SpaceTimeProgressionOverwrite<TCursor, TOverwrite>
     where TCursor : notnull
     where TOverwrite : class

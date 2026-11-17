@@ -42,7 +42,7 @@ public readonly struct WreckedShipGhostFade
     private readonly ImmutableArray<FadeLevelColour> shown;
 
     /// <summary>The colours the current fade moves toward, colour zero first.</summary>
-    internal readonly ImmutableArray<FadeLevelColour> target;
+    private readonly ImmutableArray<FadeLevelColour> target;
 
     /// <summary>The fade the next step toward <see cref="target"/> belongs to.</summary>
     private readonly Effect fade;

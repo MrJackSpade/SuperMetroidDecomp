@@ -219,7 +219,7 @@ public static class SamusBlockCollision
                         {
                             throw new InvalidOperationException(
                                 $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                                $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.Snapshots.Select(scroll => scroll.Block))}].");
+                                $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.TriggerBlocks)}].");
                         }
                         break;
 
@@ -575,7 +575,7 @@ public static class SamusBlockCollision
                     {
                         throw new InvalidOperationException(
                             $"Scroll trigger block {block.Position} has no active scroll room-object owner; " +
-                            $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.Snapshots.Select(scroll => scroll.Block))}].");
+                            $"live=[{string.Join(',', terrain.RoomObjects.Scrolls.TriggerBlocks)}].");
                     }
                     // Scroll wake-up itself lets Samus pass; sand has a separate
                     // collision and contact contract handled above.
@@ -859,9 +859,9 @@ public static class SamusBlockCollision
         }
         else
         {
-            // The first scanned row is remainingRows==totalRows; intermediate rows always
-            // test the selected quadrant. The top-body bit supplies the exception on
-            // that first row before the opposite vertical quadrant is consulted.
+            // Every row after the first tests the selected quadrant. On the first row, Samus's
+            // top lying in a block's lower half is the exception, before the opposite vertical
+            // quadrant is tested.
             if (remainingRows != totalRows || !RoomGridConversions.InSecondHalfOfBlock(state.Position.Y.Whole - state.Radius.Y))
             {
                 if (selectedSolid)

@@ -24,27 +24,27 @@ internal static class RetailAttractTests
         {
             var legacy = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             var captured = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-            var states = new HashSet<SuperMetroidGameState>();
-            bool sawHold = false, returned = false;
+            bool sawHold = false, returned = false, sawStart = false, sawUnload = false, sawRouting = false;
             RgbaPixel[]? held = null;
             for (int tick = 0; tick < 8000; tick++)
             {
                 ControllerButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? ControllerButton.Start : ControllerButton.None;
                 var expected = legacy.Step(input);
                 var actual = captured.StepCaptured(input);
-                states.Add(expected.GameState);
                 if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
-                bool demo = expected.GameState is SuperMetroidGameState.LoadingDemo or SuperMetroidGameState.StartingDemo
-                    or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.UnloadingDemo or SuperMetroidGameState.RoutingAfterDemo;
+                sawStart |= legacy.IsAt(AttractDemoStep.Starting);
+                sawUnload |= legacy.IsAt(AttractDemoStep.Unloading);
+                sawRouting |= legacy.IsAt(AttractDemoStep.Routing);
+                bool demo = expected.GameState == SuperMetroidGameState.AttractDemo;
                 if (demo || tick % 31 == 0)
                 {
                     var packet = actual.Snapshot;
                     PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }
-                if (legacy.AttractDemoHoldFramesRemaining > 0 && expected.GameState == SuperMetroidGameState.PlayingDemo)
+                if (legacy.AttractDemoHoldFramesRemaining > 0 && legacy.IsAt(AttractDemoStep.Playing))
                 {
                     sawHold = true;
                     // Each scene's ninety-frame final-image hold freezes that scene's own image.
@@ -53,13 +53,13 @@ internal static class RetailAttractTests
                     held ??= legacy.PublishedPixels();
                     if (!held.SequenceEqual(legacy.PublishedPixels())) throw new InvalidOperationException("Demo held frame changed.");
                 }
-                if (states.Contains(SuperMetroidGameState.RoutingAfterDemo) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
+                if (sawRouting && legacy.IsAt(TitleStep.Showing))
                 {
                     PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot), "attract return to title");
                     returned = true; break;
                 }
             }
-            if (!sawHold || !returned || !states.Contains(SuperMetroidGameState.StartingDemo) || !states.Contains(SuperMetroidGameState.UnloadingDemo))
+            if (!sawHold || !returned || !sawStart || !sawUnload)
                 throw new InvalidOperationException("Attract fixture missed hold, transitions or return to title.");
         }
         Console.WriteLine($"{device.Kind}: {samples} exact attract samples; stock demo scenes, per-scene holds, completion/cancel and return to title passed.");

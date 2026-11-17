@@ -160,7 +160,7 @@ internal static class XrayGameplayTests
                 // Layer 2's line scrolls are random described shapes (#1468): a sampled wave across, bands down.
                 new BackgroundLineScrolls
                 {
-                    Horizontal = new SampledScrollWave(Word(), [.. Enumerable.Range(0, 16).Select(_ => random.Next(-128, 128))], random.Next(65536), random.Next(16), 32, 224),
+                    Horizontal = new SampledScrollWave(Word(), [.. Enumerable.Range(0, 16).Select(_ => random.Next(-128, 128))], random.Next(16), 32, 224),
                     Vertical = new ScrollBands(Word(), [new ScrollBand(32 + random.Next(64), Word()), new ScrollBand(128 + random.Next(64), Word())]),
                 });
             var lines = RandomWindow(random);

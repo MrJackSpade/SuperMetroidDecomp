@@ -59,19 +59,16 @@ public sealed record SuperMetroidSaveSlot(
     LoadStation Checkpoint)
 {
     /// <summary>The buttons of the seven configurable actions.</summary>
-    public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
+    public required ControllerBindings ControllerBindings { get; init; }
 
     /// <summary>Whether the saved moonwalk setting is enabled.</summary>
-    public bool MoonwalkEnabled { get; init; }
+    public required bool MoonwalkEnabled { get; init; }
 
     /// <summary>Whether the saved icon-cancel setting is enabled.</summary>
-    public bool IconCancelEnabled { get; init; }
-
-    /// <summary>The persistent excess-missile count.</summary>
-    public int ReserveMissiles { get; init; }
+    public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
-    public bool JapaneseText { get; init; }
+    public required bool JapaneseText { get; init; }
 
     /// <summary>Restores the subset the Samus state represents.</summary>
     public void ApplyTo(SamusState samus)
@@ -94,7 +91,6 @@ public sealed record SuperMetroidSaveSlot(
         samus.SelectedHudItem = HudItem;
         samus.MaxReserveEnergy = MaxReserveEnergy;
         samus.ReserveEnergy = ReserveEnergy;
-        samus.ReserveMissiles = ReserveMissiles;
     }
 
     /// <summary>Restores player inventory, the saved progress and the loading state.</summary>

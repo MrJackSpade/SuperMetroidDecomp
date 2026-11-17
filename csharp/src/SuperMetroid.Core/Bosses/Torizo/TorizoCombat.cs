@@ -218,10 +218,9 @@ internal sealed class TorizoCombat
                 c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 c.Projectile.IsSpent = false;
                 torizoState.Phase = TorizoPhase.Idle;
-                enemy.AnimationClock.StepOnNextUpdate();
-                enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.FacesRight(enemy)
+                TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.FacesRight(enemy)
                     ? TorizoAnimation.GoldenDodgeTurningRight
-                    : TorizoAnimation.GoldenDodgeTurningLeft);
+                    : TorizoAnimation.GoldenDodgeTurningLeft));
                 return true;
             }
 
@@ -233,14 +232,13 @@ internal sealed class TorizoCombat
                     torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
-                    enemy.AnimationClock.StepOnNextUpdate();
-                    enemy.RequireSpeciesState<TorizoEnemyState>().BodyPlayback = TorizoAnimations.Start(TorizoFacing.Posture(enemy).LeadsWithFarFoot
+                    TorizoBody.StartTorizoBodyAnimation(enemy, torizoState, TorizoAnimations.Start(TorizoFacing.Posture(enemy).LeadsWithFarFoot
                         ? TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileLeftLegForward
                             : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileRightLegForward
                         : TorizoFacing.FacesRight(enemy)
                             ? TorizoAnimation.GoldenFacingRightCatchingSuperMissileRightLegForward
-                            : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward);
+                            : TorizoAnimation.GoldenFacingLeftCatchingSuperMissileLeftLegForward));
                     return true;
                 }
             }

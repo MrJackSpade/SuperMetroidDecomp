@@ -12,8 +12,8 @@ public sealed class RoomCameraFloor
     public int? LowestY { get; private set; }
 
     /// <summary>Keeps the camera's top edge at or below <paramref name="lowestY"/> from its next tracking on.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="lowestY"/> is not a room Y, 0 through 65535.</exception>
-    internal void Hold(int lowestY) => LowestY = Ensure.BetweenInclusive(0, ushort.MaxValue, lowestY);
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="lowestY"/> lies above the room's top.</exception>
+    internal void Hold(int lowestY) => LowestY = Ensure.AtLeastZero(lowestY);
 
     /// <summary>Frees the camera to look anywhere its scrolling allows.</summary>
     internal void Release() => LowestY = null;

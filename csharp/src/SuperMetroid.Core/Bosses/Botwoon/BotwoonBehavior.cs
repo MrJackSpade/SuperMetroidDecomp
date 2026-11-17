@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.EffectActors;
@@ -924,7 +923,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         projectile.Position = projectile.Position.WithWholeY(BotwoonFightDefinitions.FloorY);
         segment.Phase = BotwoonBodyPhase.Landed;
         // The landed segment plays the shared big-explosion animation.
-        projectile.StartAnimation(new MiscDustProjectileAnimation(DustExplosionAnimation.BigExplosion));
+        projectile.StartAnimation(new DustExplosionProjectileAnimation(DustExplosionAnimation.BigExplosion));
         projectile.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         projectile.CanDamageSamus = false;
         projectile.CollisionOption = EnemyProjectileCollisionOption.NoCollision;

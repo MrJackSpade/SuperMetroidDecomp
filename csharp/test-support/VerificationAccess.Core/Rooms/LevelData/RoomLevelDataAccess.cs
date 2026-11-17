@@ -56,8 +56,8 @@ internal static class RoomLevelDataAccess
                 self.BeyondRoom.SetTerrain(beyond, source.BeyondRoom.TerrainAt(beyond));
                 self.BeyondRoom.SetBehavior(beyond, source.BeyondRoom.BehaviorAt(beyond));
             }
-            self.PendingDoorTransition = source.PendingDoorTransition;
-            self.ElevatorDoorContactPending = source.ElevatorDoorContactPending;
+            PrivateState.Set(self, nameof(RoomLevelData.PendingDoorTransition), source.PendingDoorTransition);
+            PrivateState.Set(self, nameof(RoomLevelData.ElevatorDoorContactPending), source.ElevatorDoorContactPending);
         }
     }
 

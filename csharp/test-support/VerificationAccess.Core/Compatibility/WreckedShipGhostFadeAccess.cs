@@ -10,6 +10,7 @@ internal static class WreckedShipGhostFadeAccess
     extension(WreckedShipGhostFade self)
     {
         /// <summary>The colours the current fade moves toward, colour zero first.</summary>
-        internal ImmutableArray<RgbColor> Target => [.. self.target.Select(levels => levels.ToColour())];
+        internal ImmutableArray<RgbColor> Target =>
+            [.. PrivateState.ValueField<WreckedShipGhostFade, ImmutableArray<FadeLevelColour>>(self, "target").Select(levels => levels.ToColour())];
     }
 }

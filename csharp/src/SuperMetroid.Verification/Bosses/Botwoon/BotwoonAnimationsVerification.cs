@@ -10,9 +10,9 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Animation;
 
 /// <summary>
@@ -219,7 +219,7 @@ internal static class BotwoonAnimationsVerification
         // The landed phase is the segment's own state (#1413); this no longer asserts the cartridge's RTS word in the
         // X-velocity slot.
         AssertEqual(BotwoonBodyPhase.Landed, spawned.Phase, "a landed body enters its inert landed phase");
-        AssertTrue(body.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.BigExplosion },
+        AssertTrue(body.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.BigExplosion },
             "a landed body runs the shared misc-dust big explosion");
         Pass(body);
 

@@ -44,7 +44,4 @@ internal static class EnemyPickupDefinitions
 
     /// <summary>The Super Missiles a Super Missile pickup restores.</summary>
     internal const int SuperMissileAmount = 1;
-
-    /// <summary>The most missiles a missile pickup sets aside in reserve past Samus's capacity, however large her capacity.</summary>
-    internal const int LargestMissileReserve = 99;
 }

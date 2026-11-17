@@ -157,8 +157,6 @@ internal static class EnemyTileSetDefinitions
         [EnemyDefinitionId.PirateSilverWalking] = 3072,
         [EnemyDefinitionId.BabyMetroidCutscene] = 0,
         [EnemyDefinitionId.MotherBrainTubes] = 0,
-        [EnemyDefinitionId.BombTorizoOrb] = 8192,
-        [EnemyDefinitionId.GoldenTorizoOrb] = 8192,
     };
 
     /// <summary>

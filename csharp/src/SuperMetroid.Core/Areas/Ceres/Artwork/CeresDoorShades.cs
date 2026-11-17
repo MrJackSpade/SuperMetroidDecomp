@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
 /// The shades Ceres's doors and the elevator room are pre-coloured in (#1512): the doors' normal and escaping colours,
-/// which the falling tiles of the escape also show, and each step of the elevator room's six-colour glow. The import
+/// which the falling tiles of the escape also show, and each of the eight steps of the elevator room's glow. The import
 /// colours them from the installed Ceres door colours.
 /// </summary>
 internal static class CeresDoorShades

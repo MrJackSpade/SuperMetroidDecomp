@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Progression;
 /// <summary>
 /// Samus's independent items, one flag each. The values are arbitrary and nothing reads them: the saved equipment
 /// encoding belongs to the import's equipment codec, and the item value an animation cue carries to
-/// the Samus animation's cue-value decoding. Members keep the saved order, so enumerating them lists
-/// the items in that order.
+/// the Samus animation's cue-value decoding. Members are in the order a save lists the items, so enumerating
+/// them lists the items in that order.
 /// </summary>
 [Flags]
 public enum SamusEquipmentFlags

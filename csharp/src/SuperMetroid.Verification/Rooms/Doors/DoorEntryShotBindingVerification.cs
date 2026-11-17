@@ -57,7 +57,7 @@ internal static class DoorEntryShotBindingVerification
             AssertTrue(selected, "the Ceres start room has an exit");
             var audio = game.AudioForVerification;
             SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
-            game.GameState = SuperMetroidGameState.HitDoorBlock;
+            game.Session.Enter(DoorTransitionStep.EnteringDoor);
             game.Step(held);
 
             AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,

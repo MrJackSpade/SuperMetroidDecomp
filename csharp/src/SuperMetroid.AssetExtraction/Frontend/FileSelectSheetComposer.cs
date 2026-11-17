@@ -79,11 +79,11 @@ internal static class FileSelectSheetComposer
         int first = CopyArrowGroup * GroupColours + CopyArrowFirstColour;
         ReadOnlySpan<RgbColor> rotated = sprites.AsSpan(first, FileCopyArrowDefinitions.RotationSteps);
         var shades = new List<SheetShade>(FileCopyArrowDefinitions.RotationSteps);
-        for (int step = 0; step < FileCopyArrowDefinitions.RotationSteps; step++)
+        foreach (FileCopyArrowRotationStep step in FileCopyArrowRotationStep.All)
         {
             var colours = new RgbColor[rotated.Length];
             for (int colour = 0; colour < colours.Length; colour++)
-                colours[colour] = rotated[(colour + step) % rotated.Length];
+                colours[colour] = rotated[(colour + step.Step) % rotated.Length];
             shades.Add(SheetShade.Run(FileCopyArrowShades.Rotation(step), first, colours));
         }
         return shades;

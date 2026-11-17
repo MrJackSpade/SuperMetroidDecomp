@@ -12,9 +12,6 @@ public static class EndingShades
     /// <summary>The levels every faded group moves through: a group at level L shows its colours scaled by L over this.</summary>
     public const int FadeLevels = EndingExplosionFadeDefinitions.Steps;
 
-    /// <summary>The logo crossfade's steps.</summary>
-    public const int LogoCrossfadeSteps = EndingLogoDefinitions.CrossfadeSteps;
-
     /// <summary>The colours <paramref name="load"/> shows over those it replaces.</summary>
     public static PictureShade Loaded(EndingColourLoad load) => new($"Ending{load}", 0);
 
@@ -25,7 +22,7 @@ public static class EndingShades
     public static PictureShade Flashed(EndingFlash flash) => new($"EndingFlash{flash}", 0);
 
     /// <summary>The logo's background and sprite colours at crossfade <paramref name="step"/>.</summary>
-    public static PictureShade LogoCrossfade(int step) => new("EndingLogoCrossfade", step);
+    public static PictureShade LogoCrossfade(EndingLogoCrossfadeStep step) => new("EndingLogoCrossfade", step.Step);
 
     /// <summary>An actor's recolourable parts drawn in <paramref name="colouring"/>, in the sheet's own colours.</summary>
     public static PictureShade Drawn(EndingSpriteColouring colouring) => new($"EndingDrawn{colouring}", 0);

@@ -108,7 +108,7 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyMapCancelPresentation()
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
+        var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave };
         snapshot.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
         snapshot.Progress.UsedStations.Add(SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave);
         saves.SaveSlot(SaveSlot.A, snapshot);
@@ -185,21 +185,21 @@ internal static class FileSelectRoomMapVerification
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         // The highlighted sprites name the shade of the cycle's current frame, which the import pre-colours from the cycle's
         // colours (#1512, #1597).
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(new(0))),
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)),
             animations.HighlightShading, "before the first cycle step the map highlight shows frame zero's shade");
         AssertTrue(!animations.StepHighlight(), "initial map highlight tick advances to frame one without loop sound");
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(new(1))), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.At(1))), animations.HighlightShading,
             "map highlight shows frame one's shade");
         AssertTrue(!animations.StepHighlight(), "highlight delay does not queue a sound");
         AssertTrue(animations.StepHighlight(), "highlight sentinel queues exactly one loop sound");
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(new(0))), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)), animations.HighlightShading,
             "highlight sentinel returns the highlight to frame zero's shade");
         for (int tick = 0; tick < 3; tick++)
             AssertTrue(!animations.StepHighlight(), "frame zero's hold queues no sound");
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(new(1))), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.At(1))), animations.HighlightShading,
             "frame zero's three-tick hold ends on frame one before the reset");
         animations.ResetHighlight();
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(new(0))), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)), animations.HighlightShading,
             "resetting the cycle shows frame zero's shade at once");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()
@@ -296,7 +296,7 @@ internal static class FileSelectRoomMapVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(savedArea, 0, "room map fixture"), Health = 99, MaxHealth = 99,
+        var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(savedArea, 0, "room map fixture"), Health = 99, MaxHealth = 99,
             StartupRoute = savedArea == AreaId.Ceres ? SaveLoadingGameState.CeresElevatorArrival : SaveLoadingGameState.MainGame };
         snapshot.Progress.UsedStations.Add(snapshot.Checkpoint);
         if (savedArea != AreaId.Ceres)
@@ -317,11 +317,11 @@ internal static class FileSelectRoomMapVerification
         frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
         frame = game.Step(ControllerButton.Start);
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus, 150);
+        Until(() => game.IsAt(FileSelectStep.SaveSlots), 150);
         // Native entry dispatches and fade-in end on the 35th update.
         Until(() => frame.Phase == nameof(FileSelectPhase.Main), 40);
         frame = game.Step(ControllerButton.A);
-        Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
+        Until(() => game.IsAt(FileSelectStep.Options), 200);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.A);
@@ -334,7 +334,7 @@ internal static class FileSelectRoomMapVerification
                 "Ceres checkpoint still owns its arrival sequence");
             return;
         }
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap, 200);
+        Until(() => game.IsAt(FileSelectStep.AreaMap), 200);
         for (int i = 0; i < 70; i++)
         {
             frame = game.Step(ControllerButton.Start);
@@ -342,11 +342,11 @@ internal static class FileSelectRoomMapVerification
         AssertEqual("Area", frame.Phase, "holding confirm during initial reveal cannot skip area selection");
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
         frame = game.Step(ControllerButton.B);
-        Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
+        Until(() => game.IsAt(FileSelectStep.Options), 30);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.A);
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
+        Until(() => game.IsAt(FileSelectStep.AreaMap) && frame.Phase == "Area", 200);
         for (int i = 0; i < 10; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == "Room", 80);

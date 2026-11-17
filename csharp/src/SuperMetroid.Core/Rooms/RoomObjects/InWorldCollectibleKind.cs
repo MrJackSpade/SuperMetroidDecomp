@@ -27,9 +27,9 @@ public enum InWorldCollectibleKind
     SpazerBeam,
     /// <summary>The Spring Ball: collects and equips the Spring Ball equipment flag.</summary>
     SpringBall,
-    /// <summary>The Varia Suit: collects and equips Varia Suit and clears the projectile flare counter before its message.</summary>
+    /// <summary>The Varia Suit: collects and equips Varia Suit and clears the beam's charge before its message.</summary>
     VariaSuit,
-    /// <summary>The Gravity Suit: collects and equips Gravity Suit and clears the projectile flare counter before its message.</summary>
+    /// <summary>The Gravity Suit: collects and equips Gravity Suit and clears the beam's charge before its message.</summary>
     GravitySuit,
     /// <summary>The X-Ray Scope: collects and equips the X-Ray Scope equipment flag.</summary>
     XrayScope,

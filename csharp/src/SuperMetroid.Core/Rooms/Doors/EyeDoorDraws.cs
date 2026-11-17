@@ -48,27 +48,17 @@ internal static class EyeDoorDraws
         };
     }
 
-    /// <summary>Physical segment affected by one eye-door draw.</summary>
-    internal enum Component
-    {
-        /// <summary>Animated two-block eye with its vulnerable collision phase.</summary>
-        Eye,
-        /// <summary>Middle solid door component.</summary>
-        Middle,
-        /// <summary>Bottom solid door component.</summary>
-        Bottom,
-        /// <summary>Four-block clearing frame after the eye opens.</summary>
-        Clear,
-    }
-
-    /// <summary>The segment <paramref name="look"/> draws.</summary>
+    /// <summary>
+    /// The component <paramref name="look"/> draws, or null for the clear, which clears the whole door's four blocks once
+    /// the eye opens.
+    /// </summary>
     /// <exception cref="InvalidOperationException">The look is undefined.</exception>
-    internal static Component PartOf(EyeDoorLook look) => look switch
+    internal static EyeDoorComponent? PartOf(EyeDoorLook look) => look switch
     {
-        EyeDoorLook.Clear => Component.Clear,
-        EyeDoorLook.EyeClosed or EyeDoorLook.EyeHalfOpen or EyeDoorLook.EyeOpen or EyeDoorLook.EyeFlinching or EyeDoorLook.EyeOpenSolid => Component.Eye,
-        EyeDoorLook.MiddleResting or EyeDoorLook.MiddleSwelling or EyeDoorLook.MiddleSwollen => Component.Middle,
-        EyeDoorLook.BottomResting or EyeDoorLook.BottomSwelling or EyeDoorLook.BottomSwollen => Component.Bottom,
+        EyeDoorLook.Clear => null,
+        EyeDoorLook.EyeClosed or EyeDoorLook.EyeHalfOpen or EyeDoorLook.EyeOpen or EyeDoorLook.EyeFlinching or EyeDoorLook.EyeOpenSolid => EyeDoorComponent.Eye,
+        EyeDoorLook.MiddleResting or EyeDoorLook.MiddleSwelling or EyeDoorLook.MiddleSwollen => EyeDoorComponent.Door,
+        EyeDoorLook.BottomResting or EyeDoorLook.BottomSwelling or EyeDoorLook.BottomSwollen => EyeDoorComponent.Bottom,
         _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorLook)} {look}."),
     };
 
@@ -78,11 +68,11 @@ internal static class EyeDoorDraws
     [IndependentFlag("which of the two mirrored eye doors a draw belongs to, a fact of the draw")]
     internal readonly record struct Draw(EyeDoorLook Look, bool Left)
     {
-        /// <summary>The component the draw writes.</summary>
-        internal Component Part => PartOf(Look);
+        /// <summary>The component the draw writes, or null for the clear.</summary>
+        internal EyeDoorComponent? Part => PartOf(Look);
 
         /// <summary>Whether the draw's blocks stand in a column: the eye's and the clear's.</summary>
-        internal bool Vertical => Part is Component.Eye or Component.Clear;
+        internal bool Vertical => Part is null or EyeDoorComponent.Eye;
 
         /// <summary>The draw's blocks from its first and how each collides.</summary>
         internal RoomBlockShape Blocks => Shapes[this];

@@ -51,7 +51,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
         }
         AssertEqual(30, total, "Complete original simple artwork source domain");
         // The import's frame-to-picture fold rejects an object the atlas holds no pictures of.
-        var unknown = new BlockAnimationLoop(0, 1, 10, BlockAnimationStart.Immediately);
+        var unknown = new BlockAnimationLoop(0, BlockAnimationStart.Immediately, [new(BlockAnimationFrames.Frame(0, "frame 0"), 10)]);
         AssertThrows<InvalidDataException>(() => AnimatedTileImageSources.Of(unknown.Image(0)),
             "Unknown object cannot acquire an artwork mapping");
     }

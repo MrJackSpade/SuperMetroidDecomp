@@ -59,18 +59,18 @@ internal static class AttractDemoSceneVerification
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
         var input = new ReferenceAttractInput(bus, expected);
-        input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+        input.Step(titleLeaving: false, SamusMovementType.Standing);
         if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Left) || input.Script.FrameHold.RawValue != 5)
             throw new InvalidDataException("Title demo did not publish its first timed input record.");
-        input.Step(SuperMetroidGameState.RoutingAfterDemo, SamusMovementType.Standing);
+        input.Step(titleLeaving: true, SamusMovementType.Standing);
         if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
             throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
         input = new ReferenceAttractInput(bus, expected);
         input.Script.Redirect((ushort)NativeDemoFrameBehavior.AttractShinespark, 0xc000);
-        input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
+        input.Step(titleLeaving: false, SamusMovementType.DraygonHeld);
         if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Left))
             throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
-        input.Step(SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+        input.Step(titleLeaving: false, SamusMovementType.Standing);
         if (input.Script.Held != ControllerWordCodec.ToJoypadWord(ControllerButton.Right) || input.Script.FrameHold.RawValue != 7 ||
             input.Script.FrameBehaviorPointer != (ushort)NativeDemoFrameBehavior.AttractCheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
@@ -82,7 +82,7 @@ internal static class AttractDemoSceneVerification
         saveRam.CompleteGame();
         if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked the completion set.");
-        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot());
+        saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saveRam.CompleteGame();
         if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
             throw new InvalidDataException("Valid completed-game save did not unlock the completion demo set.");
@@ -131,32 +131,27 @@ internal static class AttractDemoSceneVerification
                 // presentation initialization are separate from this dispatch contract.
                 var input = new AttractDemoInput(scene);
                 for (int frame = 0; frame < scene.Duration; frame++)
-                    input.StepStock(SuperMetroidGameState.PlayingDemo);
+                    input.StepStock();
             }
         }
     }
 
-    /// <summary>Compares each scene's compiled script with the native interpreter through long tails and leave-frame schedules.</summary>
+    /// <summary>Compares each scene's compiled script with the native interpreter through a long tail.</summary>
     private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
     {
         // Run well beyond each displayed scene: this also checks script tails that ordinary
-        // frontend timing does not reach. Separate schedules exercise both native $1A
-        // pre-instruction branches and cancellation before/during/after timed records.
-        foreach (int leaveFrame in new[] { -1, 0, 19, scene.Duration })
+        // frontend timing does not reach. The playback steps only while the demo plays, so the
+        // title never leaves while it steps (#2360).
+        var reference = new ReferenceAttractInput(bus, scene);
+        var compiled = new AttractDemoInput(scene);
+        for (int frame = 0; frame < 6000; frame++)
         {
-            var reference = new ReferenceAttractInput(bus, scene);
-            var compiled = new AttractDemoInput(scene);
-            for (int frame = 0; frame < 6000; frame++)
-            {
-                var gameState = frame == leaveFrame
-                    ? SuperMetroidGameState.RoutingAfterDemo : SuperMetroidGameState.PlayingDemo;
-                // The demonstrations never show Samus held by Draygon, the one movement the native shinespark release
-                // waits out (#2190).
-                reference.Step(gameState, SamusMovementType.Standing);
-                compiled.StepStock(gameState);
-                AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(compiled.Watch)),
-                    $"compiled attract {scene.Input.Animation}, leave {leaveFrame}, frame {frame}");
-            }
+            // The demonstrations never show Samus held by Draygon, the one movement the native shinespark release
+            // waits out (#2190).
+            reference.Step(titleLeaving: false, SamusMovementType.Standing);
+            compiled.StepStock();
+            AssertEqual(reference.Script.Snapshot(), NativeDemoInputReference.Of(compiled.Script, DemoInputNativeListAddresses.WatchAddress(compiled.Watch)),
+                $"compiled attract {scene.Input.Animation}, frame {frame}");
         }
     }
 

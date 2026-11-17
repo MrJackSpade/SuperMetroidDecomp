@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Input;
-
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The game state every part of a session shares: the persistent progress a save slot carries
 /// (<see cref="PersistentProgress"/>), the saved startup route, the session's shared random-number
-/// generator, the earthquake rumble's power-on delay, and the held-input repeat that menus use for cursor movement.
+/// generator and the earthquake rumble's power-on delay.
 /// Lifetime: the session.
 /// </summary>
 public sealed class SharedGameState
@@ -89,85 +87,12 @@ public sealed class SharedGameState
     internal void SwapRandomHalves() => Random.SwapHalves();
 
     /// <summary>
-    /// Most recently calculated held input: the previous value of "held but not newly pressed."
-    /// </summary>
-    public ControllerButton HeldInputPrevious { get; private set; }
-
-    /// <summary>
-    /// Held-input countdown. A step past zero to 65,535
-    /// causes the held input to become active.
-    /// </summary>
-    public WrappingCountdown TimedHeldInputTimer { get; private set; }
-
-    /// <summary>
-    /// Held-input countdown reload value, 0 through <see cref="WrappingCountdown.LongestStart"/>: any value the held-input
-    /// countdown can start at (#1627). A value of N requires N + 1 stable update calls after the held-input value changes.
-    /// The value is only ever reloaded into <see cref="TimedHeldInputTimer"/>, never counted itself; that countdown keeps
-    /// the wrap.
-    /// </summary>
-    public int TimedHeldInputTimerReset { get; private set => field = Ensure.BetweenInclusive(0, WrappingCountdown.LongestStart, value); }
-
-    /// <summary>
-    /// Filtered input. Bits appear after their buttons have remained
-    /// stable long enough for the timer to pass zero.
-    /// </summary>
-    public ControllerButton TimedHeldInput { get; private set; }
-
-    /// <summary>
     /// Advances the shared RNG seed exactly as the game's generator
     /// does, preserving the two half-by-half products, the overflow into the upper half,
     /// and the final addition wrapping past 65535. Every later draw observes the updated seed.
     /// </summary>
     /// <returns>The new RNG state as a sample, 0 through 65535, also stored in <see cref="Random"/>.</returns>
     public int NextRandom() => Random.Generate();
-
-    /// <summary>
-    /// Turns stable held buttons into delayed input suitable
-    /// for repeated cursor movement on the pause map and item screens.
-    /// </summary>
-    /// <param name="timerReset">Number of stable frames minus one before activation.</param>
-    /// <param name="controllerInput">All buttons currently down.</param>
-    /// <param name="controllerNewInput">Buttons newly pressed this frame.</param>
-    public void UpdateHeldInput(int timerReset, ControllerButton controllerInput, ControllerButton controllerNewInput)
-    {
-        TimedHeldInputTimerReset = timerReset;
-
-        // Every newly pressed button is cleared from the current input: a fresh press is deliberately not considered
-        // "held" until the following frame.
-        ControllerButton heldInput = controllerInput & ~controllerNewInput;
-
-        // The comparison happens before the previous sample is replaced, so remember its result first. This ordering is
-        // significant when a button changes state.
-        bool heldInputIsUnchanged = heldInput == HeldInputPrevious;
-        HeldInputPrevious = heldInput;
-
-        if (!heldInputIsUnchanged)
-        {
-            // Any change, including releasing one member of a multi-button chord, restarts
-            // the delay and suppresses filtered input for this update.
-            TimedHeldInputTimer = WrappingCountdown.Start(TimedHeldInputTimerReset);
-            TimedHeldInput = ControllerButton.None;
-        }
-        else
-        {
-            // The decrement wraps below zero to 65,535, and the test reads 32,768 and above as negative.
-            // Therefore zero decrements to 65,535 and takes the activation path.
-            CountdownStep timer = TimedHeldInputTimer.Decrement();
-            TimedHeldInputTimer = timer.Remaining;
-
-            if (timer.IsNonNegative)
-            {
-                TimedHeldInput = ControllerButton.None;
-            }
-            else
-            {
-                // The game pins the expired timer to zero. Continued stable input therefore
-                // passes zero again on every update, keeping TimedHeldInput active.
-                TimedHeldInputTimer = WrappingCountdown.Start(0);
-                TimedHeldInput = heldInput;
-            }
-        }
-    }
 
     /// <summary>Records <paramref name="bosses"/> as defeated in <paramref name="area"/>.</summary>
     public void RecordBossesDefeated(AreaId area, DefeatedBosses bosses) =>

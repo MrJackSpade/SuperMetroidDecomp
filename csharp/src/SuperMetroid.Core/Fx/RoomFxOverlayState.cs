@@ -724,7 +724,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         EarthquakeSoundRhythmPosition = (EarthquakeSoundRhythmPosition + 1) % baseDelays.Count;
     }
 
-    /// <summary>The statue descent's steps call the same earthquake sound owner.</summary>
+    /// <summary>Plays the statue descent's earthquake sound, as a room's earthquake plays it.</summary>
     internal void PublishStatueEarthquakeSound(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay) =>
         HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 

@@ -197,21 +197,6 @@ internal sealed class CollectibleObjects
         or InWorldCollectibleKind.MissileTank or InWorldCollectibleKind.SuperMissileTank or InWorldCollectibleKind.PowerBombTank);
 
     /// <summary>
-    /// Names the item and presentation of a permanent-item room object; false for every other room object. This public read-only seam
-    /// lets audits inventory room populations without duplicating the permanent-item catalog.
-    /// </summary>
-    public static bool TryIdentifyPermanentCollectible(
-        RoomObjectKind objectKind,
-        out InWorldCollectibleKind kind,
-        out CollectiblePresentation presentation)
-    {
-        bool found = PermanentCollectibleObjectDefinitions.Items.TryGetValue(objectKind, out PermanentCollectibleObject item);
-        kind = item.Kind;
-        presentation = item.Presentation;
-        return found;
-    }
-
-    /// <summary>
     /// Collects <paramref name="item"/>, placed at <paramref name="place"/>: sets persistence and inventory before publishing
     /// the synchronous message and fanfare request.
     /// </summary>
@@ -287,9 +272,8 @@ internal sealed class CollectibleObjects
                 SamusEquipmentFlags equipmentMask = GetEquipmentMask(kind);
                 samus.EquippedItems |= equipmentMask;
                 samus.CollectedItems |= equipmentMask;
-                // Every Varia/Gravity presentation clears the suit-pickup state immediately before
-                // The equipment pickup and the synchronous message. It is not part of the later
-                // transformation and therefore must already be clear throughout the fanfare.
+                // A Varia or Gravity Suit pickup clears the beam's charge as the suit is equipped, before its
+                // message, so no charge is held through the fanfare or the suit's reveal that follows it.
                 if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
                     samus.ClearBeamCharge();
                 return;

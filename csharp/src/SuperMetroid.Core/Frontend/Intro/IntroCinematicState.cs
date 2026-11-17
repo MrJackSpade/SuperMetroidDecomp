@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 public sealed class IntroCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);
@@ -570,9 +570,9 @@ public sealed class IntroCinematicState : IFrontendScreen
         CurrentFlashbackMotherBrain?.Step();
         if (explosionsExistedBeforeThisFrame)
         {
-            // The eight actors are allocated while the first actor is already being processed,
-            // so their first cinematic sprite update occurs on the following frame. Hit count
-            // four is reached on the spawn frame, after the update passed their places.
+            // The eight explosions spawn after this update has passed their places in the list,
+            // so they first animate on the next update; the fourth hit comes on the update
+            // they spawn.
             FlashbackMotherBrainExplosions?.Step(CrossfadeFinishing);
         }
 
@@ -877,9 +877,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         FlashbackDemoInput.Step(HandleMotherBrainDemoCue);
 
-        // The HUD and projectile step calls the shared cooldown owner before
-        // its ordinary-projectile half. Standing facing left cannot place bombs, but running
-        // the real owner is still required for missile admission timing.
+        // The HUD and projectile step counts down the shared firing cooldown before
+        // Samus's shots update. Standing facing left she cannot place bombs, but the cooldown
+        // still decides when a missile may fire.
         flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
         // A missile's firing sound joins the frontend's queues as the shot fires.
         flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel, RoomObjects = IntroCollisionRoomObjects.Instance }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, cameraPosition: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles, progression: FlashbackProgression);

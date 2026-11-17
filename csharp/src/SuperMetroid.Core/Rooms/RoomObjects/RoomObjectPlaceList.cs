@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 internal sealed class RoomObjectPlaceList
 {
     /// <summary>The room's places, which say which hold an object and which a spawn takes.</summary>
-    internal readonly RoomObjectPlaces occupancy;
+    private readonly RoomObjectPlaces occupancy;
 
     /// <summary>What each place holds, in update order; each keeps its identity for the room's lifetime.</summary>
     private readonly RoomObjectPlace[] _places;

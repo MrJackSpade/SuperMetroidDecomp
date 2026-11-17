@@ -79,7 +79,11 @@ internal static class TorizoAnimationsVerification
     /// list, which the typed steps write as one wait (#2235).
     /// </param>
     /// <param name="Transfers">For a run of tile transfers, how many it holds.</param>
-    private sealed record BodyBeat(ushort Address, BodyBeatKind Kind, int SleepUpdates = 0, int Transfers = 1);
+    /// <param name="FrameUpdates">
+    /// For a frame, its duration, with the duration of the same pose shown again straight after it, which the typed steps
+    /// write as one beat (#2331).
+    /// </param>
+    private sealed record BodyBeat(ushort Address, BodyBeatKind Kind, int SleepUpdates = 0, int Transfers = 1, int FrameUpdates = 0);
 
     /// <summary>One control instruction of a native body list.</summary>
     /// <param name="Kind">What it does.</param>
@@ -197,7 +201,7 @@ internal static class TorizoAnimationsVerification
             case BodyBeatKind.Frame:
             {
                 var show = AssertIs<AnimationBeat<EnemyFrameId, TorizoCue>.Frame>(step, $"{at}: frame");
-                AssertEqual(word, show.Duration, $"{at}: duration");
+                AssertEqual(beat.FrameUpdates, show.Duration, $"{at}: duration");
                 AssertEqual(operand, TorizoFrameDefinitionsConstants.Spritemap(show.Shown), $"{at}: spritemap");
                 return;
             }
@@ -345,7 +349,14 @@ internal static class TorizoAnimationsVerification
             switch (NativeEnemyListDefinitions.Classify(word))
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
-                    beats.Add(new(cursor, BodyBeatKind.Frame));
+                    // A pose shown again straight after itself, with nothing between, is one beat of both durations (#2331):
+                    // nothing reads the new-frame flag its second showing raises.
+                    if (beats.Count > 0 && beats[^1] is { Kind: BodyBeatKind.Frame } shown &&
+                        cartridge.ReadCartridgeWord((BodyBankNumber << 16) | (shown.Address + 2)) == operand &&
+                        (controls.Count == 0 || controls[^1].AfterBeat < beats.Count))
+                        beats[^1] = shown with { FrameUpdates = shown.FrameUpdates + word };
+                    else
+                        beats.Add(new(cursor, BodyBeatKind.Frame, FrameUpdates: word));
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:

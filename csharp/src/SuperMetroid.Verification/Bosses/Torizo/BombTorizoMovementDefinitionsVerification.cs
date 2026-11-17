@@ -54,8 +54,8 @@ internal static class BombTorizoMovementDefinitionsVerification
             };
             var state = new TorizoEnemyState(isGolden: false);
             place.SetSpeciesState(state);
-            var next = enemies.TorizoBehavior.Choices.ProcessBombTorizoWalkAnimation(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
-                new TorizoWalkStep { Velocity = velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
+            var next = enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
+                TorizoWalkerDefinitions.BombTorizo, velocity);
             AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");
             AssertTrue(next is null, $"Bomb Torizo walk consumer runs on without a wall at velocity {velocity}");
         }

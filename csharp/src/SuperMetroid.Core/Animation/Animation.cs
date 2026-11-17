@@ -20,6 +20,18 @@ internal sealed record Animation<TSegment>
             throw new ArgumentException($"An animation of {phases.Count} phases cannot loop from phase {loop.Phase}.", nameof(end));
     }
 
+    /// <summary>
+    /// An animation that plays <paramref name="lead"/> once and then loops <paramref name="cycle"/> for good (#2331): the loop
+    /// starts where the lead ends, so no phase is named by its place.
+    /// </summary>
+    /// <exception cref="ArgumentException">The cycle has no phase, or a phase never plays.</exception>
+    internal static Animation<TSegment> LeadingInto(IReadOnlyList<AnimationPhase<TSegment>> lead, IReadOnlyList<AnimationPhase<TSegment>> cycle) =>
+        new([.. Ensure.NotNull(lead), .. Ensure.NotNull(cycle)], AnimationEnd.LoopsFrom(lead.Count));
+
+    /// <summary>An animation that loops <paramref name="cycle"/> for good from its first phase (#2331).</summary>
+    /// <exception cref="ArgumentException">The cycle has no phase, or a phase never plays.</exception>
+    internal static Animation<TSegment> Looping(IReadOnlyList<AnimationPhase<TSegment>> cycle) => LeadingInto([], cycle);
+
     /// <summary>The phases, in the order they play.</summary>
     internal IReadOnlyList<AnimationPhase<TSegment>> Phases { get; }
 

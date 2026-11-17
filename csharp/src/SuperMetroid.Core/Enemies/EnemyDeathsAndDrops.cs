@@ -522,23 +522,9 @@ internal sealed class EnemyDeathsAndDrops
         samus.Health = samus.MaxHealth;
     }
 
-    /// <summary>
-    /// Fills missiles first, spilling excess into reserves capped by inventory and
-    /// <see cref="EnemyPickupDefinitions.LargestMissileReserve"/>.
-    /// </summary>
-    private static void RestoreEnemyDropMissiles(SamusState samus, int amount)
-    {
-        int restored = samus.Missiles + amount;
-        samus.Missiles = restored;
-        if (restored < samus.MaxMissiles)
-            return;
-
-        samus.ReserveMissiles += restored - samus.MaxMissiles;
-        int reserveCap = Math.Min(samus.MaxMissiles, EnemyPickupDefinitions.LargestMissileReserve);
-        if (samus.ReserveMissiles >= reserveCap)
-            samus.ReserveMissiles = reserveCap;
-        samus.Missiles = samus.MaxMissiles;
-    }
+    /// <summary>Adds missiles and caps them at Samus's capacity.</summary>
+    private static void RestoreEnemyDropMissiles(SamusState samus, int amount) =>
+        samus.Missiles = Math.Min(samus.Missiles + amount, samus.MaxMissiles);
 
     /// <summary>Adds a Super Missile and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropSuperMissiles(SamusState samus, int amount)

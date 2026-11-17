@@ -50,6 +50,12 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
     internal static ushort ReadCollectibleGraphicsWord(
         ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
 
+    /// <summary>
+    /// The cartridge's header of a Chozo-orb Energy Tank, the first of the Chozo-orb item headers, which no room places and
+    /// so names no room-object kind (#2354).
+    /// </summary>
+    private const ushort ChozoOrbFirstItemHeader = 0xef2b;
+
     /// <summary>Rejects live reads of compiled collectible tiles and item-list upload records.</summary>
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
@@ -61,7 +67,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
                     int kind = (int)graphic.Kind;
                     return new ushort[]
                         { RoomObjectNativeWords.Word(RoomObjectKind.ExposedEnergyTank),
-                          RoomObjectNativeWords.Word(RoomObjectKind.ChozoEnergyTank),
+                          ChozoOrbFirstItemHeader,
                           RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockEnergyTank) }.Any(baseHeader =>
                     {
                         ushort header = checked((ushort)(baseHeader + kind * 4));

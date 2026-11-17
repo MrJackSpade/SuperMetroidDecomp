@@ -6,7 +6,6 @@ using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCue;
 using K = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadCueKind;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.TestSupport.MovieReplay;
@@ -60,14 +59,14 @@ internal static class MotherBrainNativeListAddresses
     internal static readonly NativeProgramEntry<MotherBrainHeadSegment>[] HeadEntries =
     [
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase2, 0x9b7f),
-        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase2Loop, 0x9bab),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase2Held, 0x9bab),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase3, 0x9bb3),
-        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase3Loop, 0x9bdf),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.StretchingPhase3Held, 0x9bdf),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.HyperBeamRecoil, 0x9be7),
-        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.HyperBeamRecoilLoop, 0x9c0b),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.HyperBeamRecoilHeld, 0x9c0b),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Initial, 0x9c21),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Decapitated, 0x9c29),
-        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DecapitatedLoop, 0x9c31),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DecapitatedHeld, 0x9c31),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DyingDrool, 0x9c39),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DyingDroolBurst, 0x9c47),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.DyingDroolLoop, 0x9c5f),
@@ -77,7 +76,7 @@ internal static class MotherBrainNativeListAddresses
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.NeutralPhase3, 0x9cb9),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.NeutralPhase3Hold, 0x9cd1),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.Corpse, 0x9d25),
-        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.CorpseLoop, 0x9d35),
+        new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.CorpseHeld, 0x9d35),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.FourOnionRingsPhase2, 0x9d3d),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.TwoOnionRingsPhase2, 0x9d7f),
         new NativeProgramEntry<MotherBrainHeadSegment>(MotherBrainHeadSegment.AttackingBabyMetroid, 0x9db1),
@@ -278,7 +277,8 @@ internal static class MotherBrainNativeListAddresses
                     {
                         // A held frame stands for a frame its list's sleep follows: its duration only times a sleep that
                         // shows nothing else (#2250). It stands too for a list's only frame followed by a goto back to the
-                        // list, which shows it again and again, for good, whatever duration it names (#2318).
+                        // list, which shows it again and again, for good, whatever duration it names (#2318): the list rests
+                        // on it at the goto, as at a sleep (#2353).
                         VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(held.Shown), $"{at}: held frame's spritemap");
                         ushort following = cartridge.ReadCartridgeWord(bank | (cursor + 4));
                         bool sleeps = NativeEnemyListDefinitions.Classify(following) == NativeEnemyListDefinitions.WordKind.Sleep;
@@ -289,6 +289,8 @@ internal static class MotherBrainNativeListAddresses
                         VerificationAssertions.AssertTrue(sleeps || loopsOnItself, $"{at}: the held frame's sleep, or the goto back to its own list");
                         addresses.Add(cursor);
                         cursor = unchecked((ushort)(cursor + 4));
+                        if (loopsOnItself)
+                            controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                         continue;
                     }
                     case NativeEnemyListDefinitions.WordKind.Frame:
@@ -425,12 +427,12 @@ internal static class MotherBrainNativeListAddresses
     /// <summary>The brain segments only the animations before them run on into, which start no animation (#1948).</summary>
     private static readonly HashSet<MotherBrainHeadSegment> HeadSegmentsOnlyRunOnInto =
     [
-        MotherBrainHeadSegment.StretchingPhase2Loop,
-        MotherBrainHeadSegment.StretchingPhase3Loop,
-        MotherBrainHeadSegment.HyperBeamRecoilLoop,
-        MotherBrainHeadSegment.DecapitatedLoop,
+        MotherBrainHeadSegment.StretchingPhase2Held,
+        MotherBrainHeadSegment.StretchingPhase3Held,
+        MotherBrainHeadSegment.HyperBeamRecoilHeld,
+        MotherBrainHeadSegment.DecapitatedHeld,
         MotherBrainHeadSegment.DyingDroolLoop,
-        MotherBrainHeadSegment.CorpseLoop,
+        MotherBrainHeadSegment.CorpseHeld,
         MotherBrainHeadSegment.FourOnionRingsPhase3,
         MotherBrainHeadSegment.ChargingRainbowBeamLoop,
     ];

@@ -97,8 +97,8 @@ internal static class TourianStatueProjectileAnimations
         [P.Tail] = new([new(P.Tail, 0, 8, 1)], AnimationEnd.Holds),
         [P.Soul] = new([new(P.Soul, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
         [P.BaseDecoration] = new([new(P.BaseDecoration, 0, 3, 1)], AnimationEnd.Holds),
-        [P.Ridley] = new([new(P.Ridley, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.Phantoon] = new([new(P.Phantoon, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Ridley] = new([new(P.Ridley, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Phantoon] = new([new(P.Phantoon, 0, 1, 1)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

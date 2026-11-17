@@ -172,7 +172,7 @@ internal sealed class DoorTransitionRunner
         // held. Retaining the bool-returning allocator preserves that edge.
         _ = roomObjects.MaridiaElevatube.TrySpawnMaridiaElevatube(_room.LevelData);
     }
-    /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
+    /// <summary>Runs one update of the door's wait for its sounds to finish: enemies and drawing, without Samus's movement.</summary>
     public void RunDoorSoundWaitFrame(ControllerButton controllerInput, RoomScope room)
     {
         RunDoorSoundWaitPrologue(controllerInput, room.RoomObjects, room);
@@ -200,7 +200,7 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room)
     {
         _sprites.BeginFrame();
-        _enemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
+        _enemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
         if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectiles(room.BombProjectiles, room);

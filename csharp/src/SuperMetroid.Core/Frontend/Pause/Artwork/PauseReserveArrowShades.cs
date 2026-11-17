@@ -11,6 +11,6 @@ public static class PauseReserveArrowShades
     /// <summary>The arrow's bevels in their solid colours, shown while the transfer control is selected or the arrow is dimmed.</summary>
     public static PictureShade Solid { get; } = new("PauseReserveArrowSolid", 0);
 
-    /// <summary>The arrow's bevels at phase <paramref name="frame"/> of the pulse shown while AUTO is selected.</summary>
-    public static PictureShade Pulse(int frame) => new("PauseReserveArrowPulse", frame);
+    /// <summary>The arrow's bevels at frame <paramref name="frame"/> of the pulse shown while AUTO is selected.</summary>
+    public static PictureShade Pulse(PauseReserveArrowPulseFrame frame) => new("PauseReserveArrowPulse", frame.Frame);
 }

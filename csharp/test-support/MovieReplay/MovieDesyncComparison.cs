@@ -46,7 +46,7 @@ internal static class MovieDesyncComparison
     {
         var samus = game.RuntimeForVerification?.Player.Samus;
         string Native(int address) => Word(memory, address).ToString("X4");
-        Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={GameStateNumberCodec.Encode(game.GameState):X2}/{Native(MovieDesyncMemory.GameState)} " +
+        Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={GameStateNumberCodec.Encode(game):X2}/{Native(MovieDesyncMemory.GameState)} " +
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
         if (game.Session.ScreenAs<IntroCinematicState>() is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
@@ -62,7 +62,7 @@ internal static class MovieDesyncComparison
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
         if (game.Session.ScreenAs<PauseMenuState>() is { } pause)
             Console.WriteLine($"  pause port mode={pause.ScreenMode} control={pause.SelectedControl} transition={pause.IsPageTransitionActive} " +
-                $"held cur={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.Current):X4} new={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.System.HeldInputPrevious):X4} tt={game.Session.GameplayRuntime.System.TimedHeldInputTimer.RawValue:X4} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.System.TimedHeldInput):X4}");
+                $"held cur={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.Current):X4} new={GameplayActionWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PlayerActions.NewlyPressed):X4} hp={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PauseHeldButtonRepeat.PreviousHeld):X4} unchanged={game.Session.GameplayRuntime.PauseHeldButtonRepeat.UnchangedUpdates} th={ControllerWordCodec.ToJoypadWord(game.Session.GameplayRuntime.PauseHeldButtonRepeat.Repeating):X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.Phase}/{escape.IsActive} {escape.Readout.Minutes:D2}:{escape.Readout.Seconds:D2}.{escape.Readout.Centiseconds:D2} " +
@@ -147,15 +147,14 @@ internal static class MovieDesyncComparison
             if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
         }
 
-        Check("Game state", GameStateNumberCodec.Encode(game.GameState), MovieDesyncMemory.GameState);
-        bool doorTransition = game.GameState is SuperMetroidGameState.HitDoorBlock or
-            SuperMetroidGameState.BeginningDoorTransition or SuperMetroidGameState.DoorTransition;
+        Check("Game state", GameStateNumberCodec.Encode(game), MovieDesyncMemory.GameState);
+        bool doorTransition = game.GameState == SuperMetroidGameState.DoorTransition;
         if (!doorTransition)
             Check("RNG", game.DispatcherRandomNumber, MovieDesyncMemory.Random);
 
         // Native loading leaves Samus half-initialized across its NMI waits; the port
         // loads atomically. The following state compares the completed result.
-        if (game.GameState is SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData)
+        if (game.GameState == SuperMetroidGameState.LoadingGame)
             return mismatches;
         var runtime = game.RuntimeForVerification;
         if (runtime?.Player.Samus is not { } samus) return mismatches;

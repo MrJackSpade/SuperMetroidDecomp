@@ -69,7 +69,7 @@ the word, and words that only share its letters stay the game's own (`Functional
 Two synonyms of `AiFunction` are reported too, with no delegate allowance (#1738, `CoreVocabularyAnalyzer.AiRoutinePhrases`):
 `AiRoutine` and `AiHandler`, the enemy record's initialization, main, grapple and hurt AI routine fields. A definition
 names the response it selects (`GrappleEnemyReaction`, `EnemyHurtResponse` with its `Inert` member), and a species
-exposes its lifecycle on its entity (`IEnemyInitialization.Initialize`, `IEnemyMainAi.RunMainAi`) instead of handing
+exposes its lifecycle on its entity (`IEnemyInitialization.Initialize`, `IEnemyAi.RunMainAi`) instead of handing
 out a handler delegate the record's pointer stood behind. Each word alone stays the game's own (`AiState`, `Routine`,
 `EnemyHurtHandler`).
 
@@ -519,6 +519,20 @@ returns, writes, restores or moves something, a branch order and branching strai
 game does in that case: a hit with no damage is a dud, the camera scrolls slowly, a block stops the shot, the effect
 starts at its first shade. A room's state choice's branches, a projectile's or an afterburn's branches, an animation that
 branches to another, a sum that overflows and a range in pixels stay English.
+
+#2362 widens SME6454, outside hardware owners, to the original's calls, storage and program as frontend, effect, HUD,
+escape, progression, input, save and animation prose tells them: updates counted as calls (`Calls elapsed`, `calls made
+so far`, `later calls`, `the fourth, eighth, ... calls`, `the final character's call`, `the separate call that
+completes the fade`, `calls the same update`, `an animation's call saves where it resumes`); a screen value's `0 through
+255` told with its wrap, `the game's byte` or `wrapping counter` and a count that `would have wrapped`; the original's
+`object handling` and `free object places`, `init parameters`, a `descending actor order`, an actor `being processed`, a
+named storage bit (`the process-off-screen bit`), the `saved order` and a `projectile-backed` or `parameter-selected`
+thing; and a `coroutine`, a handler `chosen` or `of the` category, a scan `backward`, a
+`checksum`, an `emulator`, what `the original reads`, a match with `the game's table` and `engine definitions`. Core
+counts updates and says what the game does: the subtitle runs on the same update, the latest button in the list wins, a
+save reads back whole, the room's area decides. A call to something, a call that returns to its caller, the verb after a
+subject (`the producer first calls the setup`), a range alone, a room object's place, a bit more and a handler alone stay
+English.
 
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does

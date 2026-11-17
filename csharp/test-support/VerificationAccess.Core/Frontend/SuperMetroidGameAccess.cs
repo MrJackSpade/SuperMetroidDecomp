@@ -26,7 +26,7 @@ internal static class SuperMetroidGameAccess
         /// </summary>
         internal void InitializeDirectRoomVerification()
         {
-            if (self.Session.Runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.Session.Runtime is not null || !self.IsAt(TitleStep.Starting))
                 throw new InvalidOperationException(
                     "Direct-room verification requires a fresh frontend.");
             if (!self.Session.SetupSelectedGame())
@@ -63,7 +63,7 @@ internal static class SuperMetroidGameAccess
         internal void EnterMainGameplay(SuperMetroidRuntime runtime)
         {
             Ensure.NotNull(runtime);
-            if (self.Session.Runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.Session.Runtime is not null || !self.IsAt(TitleStep.Starting))
                 throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
             RoomStateSettings roomState = runtime.Room.LoadedRoom.State;
             self.AdoptRuntime(runtime);

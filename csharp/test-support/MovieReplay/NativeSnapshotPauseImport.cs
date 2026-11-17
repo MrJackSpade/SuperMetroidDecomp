@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 using SuperMetroid.Core.Progression;
@@ -26,7 +27,7 @@ internal static class NativeSnapshotPauseImport
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {
-        VerificationAssertions.AssertEqual(SuperMetroidGameState.Paused, GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState)),
+        VerificationAssertions.AssertTrue(game.IsAt(PauseStep.Menu) && GameStateNumberCodec.IsAt(game, W(NativeSnapshotMemory.GameState)),
             "pause import covers the stable pause menu");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
@@ -35,7 +36,7 @@ internal static class NativeSnapshotPauseImport
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, ScreenContent = game.Artwork.ScreenContent, SpriteSheets = game.Artwork.SpriteSheets });
         menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         // The highlight's native timer counts the updates its frame has left, as the player's does.
-        PrivateState.Field<MapHighlightAnimation, AnimationPlayer<MapHighlightSegment, MapHighlightStep, MapHighlightCue>>(menu.mapHighlight, "player")
+        PrivateState.Field<MapHighlightAnimation, AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>>(menu.mapHighlight, "player")
             .ResumeOn(memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]);
         // $0776 is a byte offset into $82:BA25's word tables; the native marker counts its timer down after its frame's
         // update and moves on at zero, one update short of the player's count.
@@ -44,9 +45,14 @@ internal static class NativeSnapshotPauseImport
         game.Session.Show(menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
-        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInputTimer), WrappingCountdown.Start(W(PauseMemory.TimedHeldTimer)));
-        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInputTimerReset), (int)W(PauseMemory.TimedHeldReset));
-        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInput),
-            ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input"));
+        // The native countdown starts at the reset on a change and is pinned to zero once the repeat fires; the port counts
+        // the unchanged updates instead, one past the delay once repeating.
+        int delay = W(PauseMemory.TimedHeldReset);
+        VerificationAssertions.AssertEqual(PauseCadenceDefinitions.HeldInputRepeatDelay, delay, "native pause held-input reset");
+        ControllerButton repeating = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
+        int countdown = Ensure.BetweenInclusive(0, delay, W(PauseMemory.TimedHeldTimer));
+        PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.UnchangedUpdates),
+            repeating == ControllerButton.None ? delay - countdown : delay + 1);
+        PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.Repeating), repeating);
     }
 }

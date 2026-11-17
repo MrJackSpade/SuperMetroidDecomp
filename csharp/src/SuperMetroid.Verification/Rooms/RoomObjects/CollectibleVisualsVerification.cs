@@ -61,24 +61,29 @@ internal static class CollectibleVisualsVerification
         AssertEqual(RoomBlockAppearance.Of(0x04a), original.Immediate,
             "stock collectible block reaches the immediate redraw");
 
-        for (int kind = 0; kind < 21; kind++)
+        // Every item kind some room places lying in the open (#2354).
+        foreach ((RoomObjectKind header, PermanentCollectibleObject item) in PermanentCollectibleObjectDefinitions.Items
+            .Where(entry => entry.Value.Presentation == CollectiblePresentation.Exposed))
         {
+            InWorldCollectibleKind kind = item.Kind;
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             // Each kind stands at its own retail item location, numbered from the first of the contiguous run 128 through 152.
-            CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)(128 + kind)), precollected: false);
+            CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(header), checked((ushort)(128 + (int)kind)), precollected: false);
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
                 $"item kind {kind} still owns its live pickup after ROM-free drawing");
         }
-        foreach (ushort header in new ushort[] { 0xef2b, 0xef7f })
+        // A Chozo-orb and a shot-block item some room places (#2354).
+        ushort shotBlockHeader = RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockEnergyTank);
+        foreach (ushort header in new[] { RoomObjectNativeWords.Word(RoomObjectKind.ChozoMissileTank), shotBlockHeader })
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
             CollectibleFixture fixture = LoadCollectible(bus, header, 0, false);
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
-            if (header == 0xef7f)
+            if (header == shotBlockHeader)
                 AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
                         fixture.Block),
                     "shot-block collectible accepts its native trigger");
@@ -90,7 +95,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleVisualInstallation), () => VerifyCollectibleVisualInstallation(rom));
         Console.WriteLine(
             "Collectible visuals: 24 native draw lists, eight block-pair selectors, " +
-            "all 21 item kinds, orb/reveal paths, " +
+            "every exposed item kind the rooms place, orb/reveal paths, " +
             "source-read guards, and installation validation pass.");
     }
 

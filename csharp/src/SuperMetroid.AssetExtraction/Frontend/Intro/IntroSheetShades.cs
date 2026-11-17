@@ -72,10 +72,10 @@ internal static class IntroSheetShades
     {
         Ensure.NotNull(backgrounds);
         var shades = new List<SheetShade>();
-        for (int variant = 0; variant <= CinematicTextGlowDefinitions.FinalVariant; variant++)
+        foreach (IntroTextGlowStep step in IntroTextGlowStep.All)
         {
-            shades.Add(SheetShade.Run(IntroShades.Glow(variant), 0,
-                [.. backgrounds.Skip(variant * IntroSheetInks.VariantColours).Take(IntroSheetInks.VariantColours)]));
+            shades.Add(SheetShade.Run(IntroShades.Glow(step), 0,
+                [.. backgrounds.Skip(step.Step * IntroSheetInks.VariantColours).Take(IntroSheetInks.VariantColours)]));
         }
         return shades;
     }

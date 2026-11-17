@@ -123,7 +123,7 @@ internal static class EnemyAnimationPlayback
 
     /// <summary>
     /// Plays <paramref name="playback"/> as the other overload does, also telling <paramref name="react"/> where the play
-    /// stands just past each event: the place an owner's call saves, to return to later.
+    /// stands just past each event: the place an owner keeps to come back to later.
     /// </summary>
     /// <exception cref="InvalidOperationException">The animation passes every beat without showing a frame.</exception>
     internal static void Play<TSegment, TFrame, TEvent>(

@@ -85,7 +85,7 @@ internal static class RidleyFullMovieVerification
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = WrappingCountdown.Start(0); SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
-        runtime.EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
+        runtime.EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
         AssertEqual(399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
@@ -287,16 +287,16 @@ internal static class RidleyFullMovieVerification
         game.AdoptRuntime(runtime);
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomFxOverlay.AdvanceLiquidMotion(runtime.System, false);
-        foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PauseScreenFadeIn,
-            SuperMetroidGameState.Paused, SuperMetroidGameState.PauseScreenFadeOut, SuperMetroidGameState.RestoringGameplayFromPause,
-            SuperMetroidGameState.PausingDarkening, SuperMetroidGameState.Unpausing })
+        foreach (var step in new[] { PauseStep.PreparingPauseScreen, PauseStep.FadingIn,
+            PauseStep.Menu, PauseStep.FadingOut, PauseStep.RestoringGameplay,
+            PauseStep.DarkeningGameplay, PauseStep.BrighteningGameplay })
         {
             runtime.System.SetRandomNumber(0x117d);
-            game.GameState = state;
+            game.Session.Enter(step);
             game.AdvanceMenuRandom();
-            bool gameplayOwnsRandom = state is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Unpausing;
+            bool gameplayOwnsRandom = step is PauseStep.DarkeningGameplay or PauseStep.BrighteningGameplay;
             ushort expected = gameplayOwnsRandom ? (ushort)0x117d :
-                state == SuperMetroidGameState.Pausing ? (ushort)0x7266 : (ushort)0x5882;
+                step == PauseStep.PreparingPauseScreen ? (ushort)0x7266 : (ushort)0x5882;
             AssertEqual(expected, runtime.System.RandomNumber,
                 "pause entry runs lava HDMA before RNG; paused dispatches advance once; gameplay fades retain runtime ownership");
         }
@@ -464,10 +464,10 @@ internal static class RidleyFullMovieVerification
         runtime.AudioRequests.BeginRecordedUpdate();
         runtime.Enemies.NorfairRidleyBehavior.Combat.TickNorfairRidleyPogoFall(body, state, runtime.Player.IntroducedSamus, runtime.Room.LevelData ?? throw new InvalidOperationException("The runtime has no loaded room."));
         var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
-        AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
+        AssertEqual(RoomEnemyProjectileKind.DustOrExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
-        AssertTrue(dust.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
+        AssertTrue(dust.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallDustCloud }, "native impact selects variant nine");
         AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.Quake && request.Priority.Requests == 6), "native impact queues the quake sound");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
@@ -685,7 +685,7 @@ internal static class RidleyFullMovieVerification
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
         game.AdoptRuntime(runtime);
-        game.GameState = SuperMetroidGameState.Pausing;
+        game.Session.Enter(PauseStep.PreparingPauseScreen);
         game.Step(0);
         var menu = game.Session.ScreenAs<PauseMenuState>();
         // The pause screen's colours are the shadings its pictures name (#1512): the highlight frame and the reserve arrow's.
@@ -694,27 +694,27 @@ internal static class RidleyFullMovieVerification
         var maps = game.Session.Artwork.ScreenContent;
         RgbColor[] initial = PauseShownColours.Of(pause, maps);
         int fadeFrames = 0;
-        while (game.GameState == SuperMetroidGameState.PauseScreenFadeIn && fadeFrames++ < 32)
+        while (game.IsAt(PauseStep.FadingIn) && fadeFrames++ < 32)
         {
             game.Step(0);
             AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(initial), "pause fade-in retains all palette colors");
         }
-        AssertEqual(SuperMetroidGameState.Paused, game.GameState, "pause fade-in completes");
-        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(new(0))),
+        AssertTrue(game.IsAt(PauseStep.Menu), "pause fade-in completes");
+        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame.First)),
             pause.mapHighlight.Shading, "before the highlight cycle's first step the pause arrows show the cycle's frame zero");
         game.Step(0);
-        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(new(1))),
+        AssertEqual(SuperMetroid.Core.Assets.PictureShading.Shaded(SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteShades.Highlight(SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame.At(1))),
             pause.mapHighlight.Shading, "the first stable pause step shows the highlight cycle's frame one");
         RgbColor[] animated = PauseShownColours.Of(pause, maps);
-        game.GameState = SuperMetroidGameState.PauseScreenFadeOut;
+        game.Session.Enter(PauseStep.FadingOut);
         game.Session.BeginPauseFade(15);
         fadeFrames = 0;
-        while (game.GameState == SuperMetroidGameState.PauseScreenFadeOut && fadeFrames++ < 32)
+        while (game.IsAt(PauseStep.FadingOut) && fadeFrames++ < 32)
         {
             game.Step(0);
             AssertTrue(PauseShownColours.Of(pause, maps).SequenceEqual(animated), "unpause fade-out retains the last palette phase");
         }
-        AssertEqual(SuperMetroidGameState.RestoringGameplayFromPause, game.GameState, "unpause fade-out completes");
+        AssertTrue(game.IsAt(PauseStep.RestoringGameplay), "unpause fade-out completes");
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");
     }
 
@@ -752,7 +752,7 @@ internal static class RidleyFullMovieVerification
         FixedCoordinate xFixed = samus.Kinematics.Position.X, yFixed = samus.Kinematics.Position.Y;
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         game.Step(0);
         AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
         AssertEqual(0xa4e0, runtime.Clock.Counter, "entry accepts exactly one NMI");
@@ -870,7 +870,7 @@ internal static class RidleyFullMovieVerification
         game.Step(0);
         AssertEqual((ushort)11, ridley.AnimationClock.Hold.RawValue, "later fade updates continue enemy animation");
         int remainingFade = 0;
-        while (game.GameState == SuperMetroidGameState.DoorTransition && remainingFade++ < 32)
+        while (game.IsAt(DoorTransitionStep.Transitioning) && remainingFade++ < 32)
         {
             game.Step(0);
             AssertEqual(RidleyRevealPhase.WaitForDoorTransition, (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires the loaded Ridley.")).RevealPhase, "reveal timer remains gated through the final fade dispatch");

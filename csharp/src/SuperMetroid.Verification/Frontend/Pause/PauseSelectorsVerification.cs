@@ -65,9 +65,8 @@ internal static class PauseSelectorsVerification
             if (control is not PauseUpgradeControl upgrade) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
             else
             {
-                PauseEquipmentBit bit = upgrade.Upgrade;
-                samus.CollectedBeams = samus.EquippedBeams = bit.Beam;
-                samus.CollectedItems = samus.EquippedItems = bit.Item;
+                samus.CollectedBeams = samus.EquippedBeams = upgrade.Upgrade.AddedTo(SamusBeamFlags.None);
+                samus.CollectedItems = samus.EquippedItems = upgrade.Upgrade.AddedTo(SamusEquipmentFlags.None);
             }
             var pause = new PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = content, SpriteSheets = MenuSheetFixtures.For(content) });
             EnterPauseEquipment(pause);

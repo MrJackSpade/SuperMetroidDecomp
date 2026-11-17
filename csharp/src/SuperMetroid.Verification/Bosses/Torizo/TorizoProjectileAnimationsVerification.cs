@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Bosses.Torizo.TorizoNativeListAddresses;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -228,14 +227,14 @@ internal static class TorizoProjectileAnimationsVerification
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
                 // The native branch names the smoke the owner turns the explosion into (#2167).
-                AssertEqual(Word(0), ProjectileEntry(TorizoAttacks.DeathSmoke), $"{at}: branch target");
+                AssertEqual(Word(0), ProjectileEntry(TorizoProjectileSegment.DeathSmoke), $"{at}: branch target");
                 return;
             case TorizoProjectileCue.SetRadius setRadius:
                 AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), setRadius.Radius, $"{at}: radius");
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizoOrb), Word(0), $"{at}: Bomb Torizo orb header");
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.GoldenTorizoOrb), Word(2), $"{at}: Golden Torizo orb header");
+                AssertEqual(TorizoDeathDropsVerification.BombTorizoOrbHeader, (int)Word(0), $"{at}: Bomb Torizo orb header");
+                AssertEqual(TorizoDeathDropsVerification.GoldenTorizoOrbHeader, (int)Word(2), $"{at}: Golden Torizo orb header");
                 return;
             case TorizoProjectileCue.Scatter scatter:
                 // Each range field reads exactly the bits of its native mask operand.

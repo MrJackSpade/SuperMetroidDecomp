@@ -13,8 +13,8 @@ internal sealed class CinematicTextGlowSystem
     public void Spawn(int column, int row) => glows.Add(new Glow { Column = column, Row = row, Timer = 1 });
 
     /// <summary>
-    /// Advances the glows whose timers expire, giving the letter each covers the glow's current colour variant while
-    /// keeping the letter, and ends each glow after its final variant.
+    /// Advances the glows whose timers expire, giving the letter each covers the glow's current step while
+    /// keeping the letter, and ends each glow after its last step.
     /// </summary>
     public void Step(IntroNarrationText text)
     {
@@ -22,14 +22,14 @@ internal sealed class CinematicTextGlowSystem
         foreach (Glow glow in glows)
         {
             if (--glow.Timer != 0) continue;
-            text.Recolour(glow.Column, glow.Row, glow.ColourVariant);
-            if (glow.ColourVariant == CinematicTextGlowDefinitions.FinalVariant)
-                glow.Ended = true;
-            else
+            text.Recolour(glow.Column, glow.Row, glow.Shown);
+            if (glow.Shown.Following is { } following)
             {
-                glow.ColourVariant++;
+                glow.Shown = following;
                 glow.Timer = CinematicTextGlowDefinitions.VariantDuration;
             }
+            else
+                glow.Ended = true;
         }
         _ = glows.RemoveAll(glow => glow.Ended);
     }
@@ -43,11 +43,8 @@ internal sealed class CinematicTextGlowSystem
         public int Row;
         /// <summary>Frames until this glow's next colour phase.</summary>
         public int Timer;
-        /// <summary>
-        /// Current colour variant given to the glow's letter: zero when the glow starts, raised by one each phase up to
-        /// <see cref="CinematicTextGlowDefinitions.FinalVariant"/>, where the glow ends.
-        /// </summary>
-        public int ColourVariant;
+        /// <summary>The glow step its letter is given next: the first when the glow starts, then each in turn up to the last, after which the glow ends.</summary>
+        public IntroTextGlowStep Shown = IntroTextGlowStep.Typed;
         /// <summary>Whether the glow has shown its final variant, so the system drops it.</summary>
         public bool Ended;
     }

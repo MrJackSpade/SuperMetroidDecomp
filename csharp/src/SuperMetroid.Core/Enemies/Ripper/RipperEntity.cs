@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="place">The place the Ripper occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class RipperEntity(RipperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Ripper species owner.</summary>
     protected RipperBehavior Species => species;

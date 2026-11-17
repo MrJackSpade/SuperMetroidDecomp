@@ -61,11 +61,10 @@ internal static class GameSaveJsonVerification
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: ControllerAction.Shoot,
             physicalButton: ControllerButton.Y);
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.RedBrinstarSave) with { GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(SaveSlot.B, snapshot);
 
-        // The former preservation-only word is the native reserve-missile accumulator.
-        snapshot = snapshot with { ReserveMissiles = 165, JapaneseText = true };
+        snapshot = snapshot with { JapaneseText = true };
         saveRam.SaveSlot(SaveSlot.B, snapshot);
         saveRam.CompleteGame();
         saveRam.SelectSlot(SaveSlot.B);
@@ -234,10 +233,10 @@ internal static class GameSaveJsonVerification
     {
         InstalledScreenContent maps = RetailPresentationFixture();
         var store = new SaveSlotStore(maps);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         var system = new SharedGameState(new SharedRandom());
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave }) with
+            SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.DraygonSave)) with
         {
             StartupRoute = SaveLoadingGameState.CeresDestruction,
             HudItem = HudItem.XRay,
@@ -252,7 +251,6 @@ internal static class GameSaveJsonVerification
         AssertEqual(ReserveTankMode.Manual, slot.ReserveMode, "JSON carries the manual reserve-tank mode");
         AssertEqual(SaveLoadingGameState.CeresDestruction, slot.StartupRoute, "JSON names the save's startup route");
         AssertEqual(nameof(LoadStationDefinitions.DraygonSave), slot.Checkpoint, "JSON names the checkpoint's load station");
-        AssertEqual(7, slot.Resources.ReserveMissiles, "JSON carries the reserve-missile count");
 
         string json = GameSaveJsonCodec.Serialize(document);
         GameSaveJsonDocument reparsed = GameSaveJsonCodec.Deserialize(json);
@@ -269,8 +267,8 @@ internal static class GameSaveJsonVerification
         AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": \"xRay\",\n      \"newFileMarker\": 1"), "newFileMarker");
         AssertInvalidJsonSave(Replaced("\"hudItem\": \"xRay\"", "\"hudItem\": \"xRay\",\n      \"loadedItemCount\": 0"), "loadedItemCount");
         // Counts are signed words, which the cartridge drains below zero; only values outside the word are invalid.
-        AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": -32769"), "reserveMissiles");
-        AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": 32768"), "reserveMissiles");
+        AssertInvalidJsonSave(Replaced("\"health\": 99", "\"health\": -32769"), "health");
+        AssertInvalidJsonSave(Replaced("\"maxHealth\": 99", "\"maxHealth\": 32768"), "maxHealth");
         Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers and a checkpoint naming no load station are rejected at parse.");
     }
 
@@ -291,7 +289,7 @@ internal static class GameSaveJsonVerification
             var system = new SharedGameState(new SharedRandom());
             system.MarkSaveStationUsed(used);
             store.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system,
-                new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.DraygonSave }));
+                SaveSnapshotFixtures.At(LoadStationDefinitions.DraygonSave)));
             return GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));
         }
         PersistentProgress Loaded(string json) =>
@@ -360,7 +358,7 @@ internal static class GameSaveJsonVerification
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "a boot with no valid save keeps it in the history");
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
         store.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, new SharedGameState(new SharedRandom()),
-            new SaveSnapshotContext { Checkpoint = LoadStationDefinitions.DraygonSave }));
+            SaveSnapshotFixtures.At(LoadStationDefinitions.DraygonSave)));
         AssertEqual(SaveFileHistory.PowerOnFoundNoValidSave, store.History, "saving a slot leaves the history");
 
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(store));

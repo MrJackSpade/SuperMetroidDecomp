@@ -16,7 +16,6 @@ using static SuperMetroid.Verification.Enemies.Crawlers.OrangeZoomerArtworkVerif
 using static SuperMetroid.Verification.Enemies.Hoppers.HopperAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Enemies.Metroids.MochtroidVisualsVerification;
-using static SuperMetroid.Verification.Bosses.Ridley.RidleySupplementalArtworkVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.SharedCrawlerArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotVisualsVerification;
@@ -490,7 +489,6 @@ internal static class EnemySpritemapArtworkVerification
             $"production room draws every installed frame without visual ROM reads; {differing.Count} differ (x, y, tile, attributes):\n{string.Join("\n", differing)}");
 
         Suite(nameof(VerifyInstalledMotherBrainDrawHook), () => VerifyInstalledMotherBrainDrawHook(rom, stock));
-        Suite(nameof(VerifyInstalledRidleySupplementalArtwork), () => VerifyInstalledRidleySupplementalArtwork(rom, stock));
 
         // The used records of an OAM low table, for a failure message.
         static string OamRecords(OamBuffer oam) => string.Join(" ",

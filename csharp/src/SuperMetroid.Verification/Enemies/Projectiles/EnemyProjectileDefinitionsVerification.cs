@@ -252,7 +252,7 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.EyeDoorProjectile or
                         RoomEnemyProjectileKind.EyeDoorSweat or
                         RoomEnemyProjectileKind.EyeDoorSmoke or
-                        RoomEnemyProjectileKind.MiscDustExplosion or
+                        RoomEnemyProjectileKind.DustOrExplosion or
                         RoomEnemyProjectileKind.EnemyDeathPickup or
                         RoomEnemyProjectileKind.EnemyDeathExplosion or
                         RoomEnemyProjectileKind.KagoBug or
@@ -370,7 +370,7 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.EyeDoorProjectile or
                         RoomEnemyProjectileKind.EyeDoorSweat or
                         RoomEnemyProjectileKind.EyeDoorSmoke or
-                        RoomEnemyProjectileKind.MiscDustExplosion or
+                        RoomEnemyProjectileKind.DustOrExplosion or
                         RoomEnemyProjectileKind.EnemyDeathPickup or
                         RoomEnemyProjectileKind.EnemyDeathExplosion or
                         RoomEnemyProjectileKind.KagoBug or
@@ -432,7 +432,7 @@ internal static class EnemyProjectileDefinitionsVerification
             else if (kind == RoomEnemyProjectileKind.DraygonWallTurret)
             {
                 // A shot wall turret runs the shared misc-dust small explosion (#1292).
-                AssertTrue(projectile.Animation is MiscDustProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallExplosion },
+                AssertTrue(projectile.Animation is DustExplosionProjectileAnimation { PlayingSegment: DustExplosionAnimation.SmallExplosion },
                     $"{kind} production shot starts the typed small explosion");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }

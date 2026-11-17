@@ -24,7 +24,6 @@ internal static class SaveSlotRetention
         int powerBombs = Kept(snapshot.PowerBombs), maxPowerBombs = Kept(snapshot.MaxPowerBombs);
         HudItem hudItem = Defined(snapshot.HudItem, nameof(snapshot.HudItem));
         int maxReserveEnergy = Kept(snapshot.MaxReserveEnergy), reserveEnergy = Kept(snapshot.ReserveEnergy);
-        int reserveMissiles = Kept(snapshot.ReserveMissiles);
         if (!GameTimeState.IsInDomain(snapshot.GameTimeFrames, snapshot.GameTimeSeconds, snapshot.GameTimeMinutes, snapshot.GameTimeHours))
         {
             throw new InvalidOperationException(
@@ -63,7 +62,6 @@ internal static class SaveSlotRetention
             ControllerBindings = bindings,
             MoonwalkEnabled = snapshot.MoonwalkEnabled,
             IconCancelEnabled = snapshot.IconCancelEnabled,
-            ReserveMissiles = reserveMissiles,
             JapaneseText = snapshot.JapaneseText,
         };
     }

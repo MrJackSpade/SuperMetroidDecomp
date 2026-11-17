@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// The collectible draws' groups and frames (#1762). Each frame writes one block; what a frame shows is its installed picture
-/// (#1557), except a block pair's frame, which writes the block its pair writes under the item's picture
-/// (<see cref="CollectibleBlockPairs.BlocksOf"/>, #2125).
+/// (#1557), except a block pair's frame, which writes its pair's block under the item's picture
+/// (<see cref="Rooms.LevelData.CollectiblePairBlock"/>, #2354).
 /// </summary>
 internal static class RoomObjectCollectibleDrawDefinitions
 {

@@ -25,7 +25,7 @@ internal static class MapAnimationLimitsVerification
             if (wrapped)
                 wraps++;
             int expectedFrame = (update - 1) / hold + 1;
-            AssertEqual(expectedFrame == frames ? 0 : expectedFrame, animation.Shown.Place, $"update {update}: the frame the holds have reached");
+            AssertEqual(expectedFrame == frames ? 0 : expectedFrame, animation.Frame.Frame, $"update {update}: the frame the holds have reached");
             AssertEqual(update == 1 + (frames - 1) * hold, wrapped, $"update {update}: the cycle wraps only past its last frame");
         }
         AssertEqual(1, wraps, "one pass through the cycle wraps once");

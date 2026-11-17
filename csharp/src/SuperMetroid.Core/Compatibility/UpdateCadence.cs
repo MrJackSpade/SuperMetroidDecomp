@@ -4,19 +4,18 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The updates on which a counter-paced action happens (#1606): every <see cref="Period"/>th update of a counter, on
-/// the updates where the counter's value, taken modulo the period, equals <see cref="Phase"/>. The game paced these
-/// actions by testing its counters' low bits; a catalog names the cadence the action keeps instead of the bits, and this
-/// type is the one place that reads a cadence from a counter.
+/// the updates where the counter's value, taken modulo the period, equals <see cref="Phase"/>. A catalog names the
+/// cadence each action keeps, and this type is the one place that reads a cadence from a counter.
 /// </summary>
 /// <remarks>
-/// A counter read here may count up or down, and may be signed: the remainder is the counter's position in its period
-/// in two's complement, so a counter at -1 sits at the period's last place, exactly as the game's low bits read it.
-/// Tested at every paced action, through the named cadence its family's catalog gives for what happens on those updates.
-/// Evidence: each action's original test of its counter's low bits, which a cadence reproduces update for update; the
+/// A counter read here may count up or down, and may run below zero: the remainder is the counter's position in its
+/// period counted from below, so a counter at -1 sits at the period's last place. Tested at every paced action, through
+/// the named cadence its family's catalog gives for what happens on those updates. Evidence: the game paced these
+/// actions by testing its counters' low bits, reading a negative counter in two's complement; each action's original test of its counter's low bits, which a cadence reproduces update for update; the
 /// SMV replays compare the counters and the outcomes they pace on every update.
 /// </remarks>
 [EncodingOwner("update counter cadences")]
-[CompatibilityService("on which updates a counter-paced action happens, exactly as the original tested its counters' low bits")]
+[CompatibilityService("on which updates a counter-paced action happens, exactly as the game paced it")]
 public readonly record struct UpdateCadence
 {
     /// <summary>A cadence that falls due once every <paramref name="period"/> updates, on the given phase.</summary>

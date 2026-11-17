@@ -107,7 +107,7 @@ public static class SaveRamLayout
 
     /// <summary>Slot-relative offset of the currently stored reserve energy at WRAM <c>$7E:D7F4</c>.</summary>
     public const int ReserveEnergyOffset = 0x0034;
-    /// <summary>$09D8, persistent excess missile accumulator.</summary>
+    /// <summary>$09D8, persistent excess missile accumulator; see <see cref="ReserveMissilesSavedWord"/>.</summary>
     public const int ReserveMissilesOffset = 0x0036;
     /// <summary>$09E2, saved alternate/Japanese text setting.</summary>
     public const int JapaneseTextOffset = 0x0040;
@@ -174,6 +174,14 @@ public static class SaveRamLayout
     /// saved from power-on before any item room has loaded holds. An imported save's count is not decoded.
     /// </summary>
     public const ushort LoadedItemCountSavedWord = 0x0000;
+
+    /// <summary>
+    /// The word an exported save stores at <see cref="ReserveMissilesOffset"/>. The cartridge's missile drop spills the
+    /// missiles past Samus's capacity there and no routine reads the count, so the port keeps none (#2364).
+    /// <c>NewSaveFile</c> stores zero there, the count a save holds before a missile drop has spilled any. An imported
+    /// save's count is not decoded.
+    /// </summary>
+    public const ushort ReserveMissilesSavedWord = 0x0000;
 
     /// <summary>Slot-relative offset of the Boolean HUD item-cancel option at WRAM <c>$7E:D808</c>.</summary>
     public const int IconCancelOffset = 0x0048;

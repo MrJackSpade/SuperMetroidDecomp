@@ -7,7 +7,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Frontend.Intro;
 
 /// <summary>Checks the Mother Brain flashback's projectiles and trails draw from the intro's projectile sheet.</summary>

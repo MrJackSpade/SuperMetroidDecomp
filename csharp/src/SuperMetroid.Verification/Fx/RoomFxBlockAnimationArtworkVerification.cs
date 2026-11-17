@@ -79,7 +79,7 @@ internal static class RoomFxBlockAnimationArtworkVerification
                 var treadmillFrames = new ArtworkFrameSelections();
                 treadmill.Step(areaBossDefeated: true, treadmillFrames);
                 AssertTrue(treadmillFrames.TryShown(BlockAnimationFrames.Of(treadmillObject), out ArtworkFrame shown) &&
-                        shown == BlockAnimationFrames.Frame(treadmillObject, frame),
+                        shown == BlockAnimationLoops.Of(treadmillObject).Frames[frame].Frame,
                     $"{direction} frame {frame} is the frame the treadmill shows from this update");
                 AssertEqual(source, AnimatedTileImageSources.OfShown(treadmillFrames, treadmillObject),
                     $"{direction} frame {frame} selects the compiled artwork identity");

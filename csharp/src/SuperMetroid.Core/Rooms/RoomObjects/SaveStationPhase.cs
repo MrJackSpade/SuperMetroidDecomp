@@ -1,6 +1,9 @@
 ﻿namespace SuperMetroid.Core.Rooms.RoomObjects;
 
-/// <summary>The save-pod coroutine's handshake between resident room-object animation and frontend messages.</summary>
+/// <summary>
+/// Where a save station stands in a save: waiting for Samus, awaiting the player's answer, playing its animation, and
+/// showing the saved message.
+/// </summary>
 public enum SaveStationPhase
 {
     /// <summary>The initial pod draw rests until an eligible floor collision; a room-entry lockout can still prevent another request.</summary>

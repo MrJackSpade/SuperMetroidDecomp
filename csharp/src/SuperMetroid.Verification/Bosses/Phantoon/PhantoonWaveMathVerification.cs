@@ -46,7 +46,7 @@ internal static class PhantoonWaveMathVerification
         for (int phase = 0; phase < 512; phase += 2)
         foreach (int amplitude in WordBoundarySamples())
         {
-            ScrollWave wave = BossLineScrolls.Of(PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.FromHalfSteps(phase), amplitude)), default, default);
+            ScrollWave wave = BossLineScrolls.Of(PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.FromHalfSteps(phase), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(amplitude))), default, default);
             if (ScrollShapeLines.WaveDisplacement(wave, 0) != NativeDisplacement(samples[phase], (ushort)amplitude))
                 throw new InvalidDataException($"Phantoon byte product differs: phase={phase}, amplitude={amplitude}.");
         }
@@ -66,7 +66,7 @@ internal static class PhantoonWaveMathVerification
                 int half = length == PhantoonWaveLength.Long ? 64 : 32;
                 int step = 512 / (half * 2);
                 // His body is placed at the room's left edge, so the camera's column is the wave's base scroll.
-                ScrollWave wave = BossLineScrolls.Of(PhantoonBodyWaveEffect.Describe(length, new PhantoonWaveShape(RotationAngle.FromHalfSteps(phase), amplitude)),
+                ScrollWave wave = BossLineScrolls.Of(PhantoonBodyWaveEffect.Describe(length, new PhantoonWaveShape(RotationAngle.FromHalfSteps(phase), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(amplitude))),
                     new Position16<RoomPixels>(scroll, 0), default);
                 for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
                 {
@@ -79,10 +79,10 @@ internal static class PhantoonWaveMathVerification
                 Interlocked.Increment(ref cycles);
             }
         });
-        AssertEqual(64, PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.Zero, 0)).Period, "the short wave's period");
-        AssertEqual(128, PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Long, new PhantoonWaveShape(RotationAngle.Zero, 0)).Period, "the long wave's period");
-        AssertEqual(PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.FromHalfSteps(510), 0)).Phase,
-            PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.FromHalfSteps(511), 0)).Phase, "an odd phase shows the even phase's angle below it");
+        AssertEqual(64, PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.Zero, default)).Period, "the short wave's period");
+        AssertEqual(128, PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Long, new PhantoonWaveShape(RotationAngle.Zero, default)).Period, "the long wave's period");
+        AssertEqual(PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.FromHalfSteps(510), default)).Phase,
+            PhantoonBodyWaveEffect.Describe(PhantoonWaveLength.Short, new PhantoonWaveShape(RotationAngle.FromHalfSteps(511), default)).Phase, "an odd phase shows the even phase's angle below it");
         Console.WriteLine($"Phantoon wave math: every even phase's byte products, {cycles} described waves giving every screen line the cartridge's mirrored, repeated cycle, and each wave length's period match.");
     }
 }

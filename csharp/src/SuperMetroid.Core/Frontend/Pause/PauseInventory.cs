@@ -12,7 +12,7 @@ internal readonly record struct PauseInventory(SamusBeamFlags CollectedBeams, Sa
     SamusEquipmentFlags CollectedItems, SamusEquipmentFlags EquippedItems, bool HyperBeam)
 {
     /// <summary>How the label of <paramref name="upgrade"/> shows: blank uncollected, else enabled while equipped and disabled otherwise.</summary>
-    internal PauseEquipmentLabelState StateOf(PauseEquipmentBit upgrade) =>
-        !upgrade.IsSetIn(CollectedBeams, CollectedItems) ? PauseEquipmentLabelState.Blank
-            : upgrade.IsSetIn(EquippedBeams, EquippedItems) ? PauseEquipmentLabelState.Enabled : PauseEquipmentLabelState.Disabled;
+    internal PauseEquipmentLabelState StateOf(PauseUpgrade upgrade) =>
+        !upgrade.IsIn(CollectedBeams, CollectedItems) ? PauseEquipmentLabelState.Blank
+            : upgrade.IsIn(EquippedBeams, EquippedItems) ? PauseEquipmentLabelState.Enabled : PauseEquipmentLabelState.Disabled;
 }

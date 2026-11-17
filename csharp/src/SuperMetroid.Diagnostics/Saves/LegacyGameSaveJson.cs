@@ -19,7 +19,8 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// checkpoint and used stations by their numbers in each area's station list, which become the stations' names; schema
 /// nine (#1778) could list the item no item occupies, which is not carried; schema ten (#2103) named item locations and
 /// doors after the disassembly's abbreviated room labels, which become the rooms' spelled-out names; schema eleven
-/// (#2140) kept no history of a power-on that found no valid save, which becomes none.
+/// (#2140) kept no history of a power-on that found no valid save, which becomes none; schema twelve (#2364) kept a
+/// reserve-missile count nothing in the game reads, which is not carried.
 /// </summary>
 public static class LegacyGameSaveJson
 {
@@ -57,7 +58,7 @@ public static class LegacyGameSaveJson
         return GameSaveJsonCodec.Deserialize(current, sourceName);
     }
 
-    /// <summary>One-way upgrade of schemas one through eleven to the current schema; the current schema is returned unchanged.</summary>
+    /// <summary>One-way upgrade of schemas one through twelve to the current schema; the current schema is returned unchanged.</summary>
     private static string Upgrade(string json, out int sourceSchemaVersion)
     {
         JsonObject root = JsonNode.Parse(json) as JsonObject ??
@@ -89,12 +90,34 @@ public static class LegacyGameSaveJson
         // Schema one's upgrade reads the save file's history from its preserved image.
         if (sourceSchemaVersion is >= SchemaTwo and <= SchemaEleven)
             UpgradeSchemaEleven(root);
+        // Schema one's upgrade does not read the count from its preserved image.
+        if (sourceSchemaVersion is >= SchemaTwo and <= SchemaTwelve)
+            UpgradeSchemaTwelve(root);
         root["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
         return root.ToJsonString();
     }
 
     /// <summary>The last schema that kept no history of a power-on that found no valid save.</summary>
     private const int SchemaEleven = 11;
+
+    /// <summary>The last schema that kept a reserve-missile count.</summary>
+    private const int SchemaTwelve = 12;
+
+    /// <summary>
+    /// Schema twelve to thirteen (#2364): schemas two through twelve kept each slot's reserve-missile count, which nothing in
+    /// the game reads; the upgraded slot drops it.
+    /// </summary>
+    private static void UpgradeSchemaTwelve(JsonObject root)
+    {
+        JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
+        for (int index = 0; index < slots.Count; index++)
+        {
+            if (slots[index] is null) continue;
+            JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
+            JsonObject resources = slot["resources"] as JsonObject ?? throw new InvalidDataException($"slots[{index}].resources is required");
+            resources.Remove("reserveMissiles");
+        }
+    }
 
     /// <summary>
     /// Schema eleven to twelve (#2140): schemas two through eleven kept completion alone and lost a power-on that found no
@@ -576,8 +599,6 @@ public static class LegacyGameSaveJson
         {
             if (slots[index] is null) continue;
             JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
-            JsonObject resources = slot["resources"] as JsonObject ?? throw new InvalidDataException($"slots[{index}].resources is required");
-            resources["reserveMissiles"] = Word(SaveRamLayout.ReserveMissilesOffset);
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
             ushort Word(int offset) => SaveRamCodec.ReadSlotWord(sram, index, offset);
         }

@@ -17,8 +17,8 @@ internal sealed class RidleyNativeInstructionPointers
 {
     /// <summary>Each body segment's beat and control addresses.</summary>
     private readonly Dictionary<RidleyBodySegment, NativeEnemyList<RidleyBodySegment>> body;
-    /// <summary>Each fireball segment's beat and control addresses.</summary>
-    private readonly Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> fireball;
+    /// <summary>Each fireball segment's beat and control addresses, each afterburn run's puff at its own list's tail.</summary>
+    private readonly RidleyFireballNativeLists fireball;
     /// <summary>Each typed enemy-projectile family's pointer translation.</summary>
     private readonly Func<EnemyProjectileAnimation, ushort?>[] projectileFamilies;
     /// <summary>The source room's Pipe Bugs' pointer translation.</summary>
@@ -61,7 +61,7 @@ internal sealed class RidleyNativeInstructionPointers
     /// </summary>
     internal ushort? TranslatedEnemy(RoomEnemySystem enemies, RoomEnemyPlace actor)
     {
-        if (RidleyInteractions.IsRidleyDefinition(actor.DefinitionId))
+        if (RidleyInteractionsConstants.IsRidleyDefinition(actor.DefinitionId))
             return Body(RequireRidley(enemies).Flight);
         if (actor.DefinitionId == EnemyDefinitionId.RidleyBreakupPiece)
         {
@@ -80,7 +80,7 @@ internal sealed class RidleyNativeInstructionPointers
     internal ushort Projectile(EnemyProjectile projectile) => projectile.Animation switch
     {
         null => throw new InvalidOperationException($"Projectile {projectile.Kind} plays no program."),
-        RidleyFireballAnimation animation => NativeEnemyAnimationOracle.PointerOf(fireball, RidleyNativeProgramOracle.FireballListEntries,
+        RidleyFireballAnimation animation => NativeEnemyAnimationOracle.PointerOf(fireball.For(animation.Playback.Animation), RidleyNativeProgramOracle.FireballListEntries,
             RidleyFireballAnimations.StartingAt, animation.Playback),
         { } animation => projectileFamilies.Select(family => family(animation)).SingleOrDefault(pointer => pointer is not null)
             ?? throw new InvalidOperationException(

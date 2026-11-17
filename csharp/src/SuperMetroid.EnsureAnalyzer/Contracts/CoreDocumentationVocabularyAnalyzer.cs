@@ -101,6 +101,13 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// #2352 adds, outside hardware owners, a position's overflow, a range named by its 1/N-pixel storage, scan, target,
 /// collision and solid counters, state lying below a clear, allocations that clear and routes that allocate, a check that
 /// runs to confirm a value, and the original's code branches told in prose.
+/// #2362 adds, outside hardware owners, the frontend's, effects', HUD's, escape's, progression's, input's, saves' and
+/// animation's forms of the original's calls, storage and program: updates counted as calls (calls elapsed or made,
+/// later or remaining calls, a thing's call, a call that completes something, calls of the same update or owner, a call
+/// that saves where it resumes), screen values and counters told by their storage width and wrap, the original's object
+/// handling, places and actor order, initialization parameters, a named storage bit, the save memory's order, a
+/// projectile-backed thing, a coroutine, a chosen handler, a backward scan, a checksum, an
+/// emulator, what the original reads and engine definitions.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1503,6 +1510,86 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// Updates counted as the original's calls in frontend, effect, HUD, escape, progression, input, save and animation prose
+    /// (#2362), outside hardware owners and markup: calls elapsed, made, still to skip or so far (Calls elapsed for the
+    /// spawner, cinematic calls made so far); later, subsequent, remaining, earlier, repeated, consecutive, separate,
+    /// eligible, typing, spawn, gameplay or audio calls (on its fourth, eighth and later calls, during the gameplay call);
+    /// a list of calls run on (the fourth, eighth, ... calls); a thing's calls (the final character's call, a stage's
+    /// calls); calls a thing lasts or is reloaded in (each frame lasting a period's calls, a reload in calls); a call that
+    /// does something (the separate call that completes the fade, a call that decrements it); the calls a thing moves for;
+    /// a call of the same, complete or shared update, owner, routine or step (calls the same update, call the same
+    /// earthquake sound owner); the call that consumed, decremented, performed or completed something; and a call that saves
+    /// where it resumes. Core counts updates and says what each does. English stays legal: a call to or into something, a
+    /// call that returns to its caller, calls of a thing, and a later call's subject doing something (the producer first
+    /// calls the setup, only the spawn calls it).
+    /// </summary>
+    private static readonly Regex CountedCallProse = new(
+        @"\bcalls?\s+(?:elapsed|made|still|so\s+far)\b" +
+        @"|\b(?:later|subsequent|remaining|earlier|repeated|consecutive|separate|eligible|typing|spawn|gameplay|audio)\s+calls?\b" +
+        CallObjectFollows +
+        @"|(?:\.\.\.|…)\s+calls\b" +
+        @"|\b[\w-]+(?:'|’)s\s+calls?\b" + CallObjectFollows +
+        @"|\blasting\s+(?:\S+\s+)?calls\b|\bin\s+calls\b" +
+        @"|\b(?:a|the|each|every)\s+(?:[\w-]+\s+)?call\s+(?:that|which)\s+(?!returns?\b)\w+" +
+        @"|\bthe\s+calls\s+(?!(?:to|into|of)\b)\w+" +
+        @"|\bcalls?\s+the\s+(?:same|complete|shared)\s+(?:[\w-]+\s+){0,3}?(?:update|owner|routine|step|handler|coroutine)s?\b" +
+        @"|\bcalls?\s+the\s+(?:[\w-]+\s+){0,3}?owner\b" +
+        @"|\bthe\s+call\s+(?:consumed|consumes|decrements|decremented|performs|performed|makes|made|completes|completed|ends|ended)\b" +
+        @"|\bcalls?\s+saves?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// What follows a word that may be the verb calls (#2362): an object, a preposition or a quantifier, in which case the
+    /// word is the verb and not a counted call.
+    /// </summary>
+    private const string CallObjectFollows =
+        @"(?!\s+(?:to|into|it|them|its|the|a|an|this|that|his|her|their|each|every|any|one|on)\b)";
+
+    /// <summary>
+    /// The machine's storage told for a value in frontend, enemy and progression prose (#2362), outside hardware owners and
+    /// markup: a screen value's 0 through 255 range told with its wrap (its screen Y, 0 through 255, can wrap); the game's or
+    /// the original's byte, word or wrapping counter, and a count that would have wrapped; the original's object handling
+    /// and free object places; initialization parameters; an actor, object, enemy, projectile or place order told as
+    /// ascending or descending; an actor being processed when another is allocated; a named storage bit (the
+    /// process-off-screen bit, the reversed-once bit); the save memory's order and saved order; and a thing told as
+    /// projectile-backed or parameter-selected. Core says what the game does: an object leaves before it slides off the
+    /// screen, a list's later place updates after an earlier one, a flag is set. English stays legal: a range alone, a room
+    /// object's place, a bit more and a hardware owner.
+    /// </summary>
+    private static readonly Regex StoredLayoutProse = new(
+        @"\b0\s+through\s+255\b[^.;:!?]*\bwrap|\bwrap\w*\b[^.;:!?]*\b0\s+through\s+255\b" +
+        @"|\bthe\s+(?:game|original)(?:'|’)s\s+(?:wrapping\s+)?(?:bytes?|words?|wrapping\s+counters?)\b" +
+        @"|\bwould\s+have\s+wrapped\b" +
+        @"|\bobject\s+handling\b|\bfree\s+object\s+places?\b" +
+        @"|\binit(?:ialization)?\s+parameters?\b" +
+        @"|\b(?:ascending|descending)\s+(?:actor|object|enemy|projectile|place)\s+order\b" +
+        @"|\bbeing\s+processed\b" +
+        @"|\b(?:\w+-)+\w+\s+bits?\b(?!\s+(?:of|more|less)\b)" +
+        @"|\bsave(?:d)?\s+(?:memory(?:(?:'|’)s)?\s+)?order\b|\bsave\s+memory\b" +
+        @"|\bprojectile-backed\b|\bparameter-selected\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program and its host in frontend, input and save prose (#2362), outside hardware owners and markup: a
+    /// coroutine (the main-gameplay coroutine, the save-pod coroutine); a handler chosen or selected and the handler of
+    /// something (the handler of the category selected); a scan backward (the menu scans this list backward); a
+    /// checksum; an emulator; the original reading, writing,
+    /// storing, keeping, testing or checking something (as the original reads the current area); a match with the game's
+    /// table; and engine definitions. Core says what the game does: a whole gameplay update runs, the category selected
+    /// toggles the item, the latest button in a list wins, a save reads back whole, the room's area decides. English stays
+    /// legal: a handler alone, scanning a room, an original picture and a hardware owner.
+    /// </summary>
+    private static readonly Regex OriginalProgramHostProse = new(
+        @"\bcoroutines?\b" +
+        @"|\bhandlers?\s+(?:is|are|was)\s+(?:chosen|selected|picked)\b|\bhandlers?\s+of\s+the\b" +
+        @"|\bscans?\s+(?:[\w-]+\s+){0,3}?backward\b|\bbackward\s+scans?\b" +
+        @"|\bchecksums?\b|\bemulators?\b" +
+        @"|\bthe\s+original\s+(?:reads|read|writes|stores|keeps|tests|checks)\b" +
+        @"|\bmatch(?:es)?\s+the\s+game(?:'|’)s\s+table\b" +
+        @"|\bengine\s+definitions?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
     /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
     /// count it means.
@@ -1986,6 +2073,9 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : ArithmeticAndStorageSummaryProse.Match(Markup.Replace(text, " ")) is { Success: true } summary ? summary.Value
             : StorageAndCheckNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } storageAndCheck ? storageAndCheck.Value
             : BranchNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } branchNarration ? branchNarration.Value
+            : CountedCallProse.Match(Markup.Replace(text, " ")) is { Success: true } countedCall ? countedCall.Value
+            : StoredLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } storedLayout ? storedLayout.Value
+            : OriginalProgramHostProse.Match(Markup.Replace(text, " ")) is { Success: true } originalProgram ? originalProgram.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

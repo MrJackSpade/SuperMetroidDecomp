@@ -24,9 +24,14 @@ public sealed class NoobTubePiece
     public Offset16<RoomPixels> Offset { get; }
 
     /// <summary>
-    /// The speed the piece starts with. A shard flies off at both of its axes; a bubble rises at its Y and keeps the
-    /// sideways speed its projectile's place was left with; the crack keeps both.
+    /// The speed the piece starts with. A shard flies off at both of its axes and a bubble rises at its Y; the crack falls
+    /// at its own speed and sets neither.
     /// </summary>
+    /// <remarks>
+    /// A bubble sways sideways along its own arc and never moves by a sideways speed, and the crack moves by neither, so
+    /// each keeps the speed its enemy-projectile place's previous projectile left on the axes it does not set
+    /// (<see cref="EnemyProjectileHandOver"/>) and hands it on to the next projectile spawned in that place.
+    /// </remarks>
     public EightEightVector<RoomPixels> Velocity { get; }
 
     /// <summary>How the piece starts moving, which the tube's behaviour turns into the animation it plays.</summary>

@@ -13,8 +13,9 @@ internal static class RidleyFireballAnimations
 {
     /// <summary>
     /// Every fireball and afterburn segment's beats: the fireball stops, shows its two four-update launch poses and starts
-    /// flying between them, then runs on into its flight, four two-update poses (#2235). Each afterburn run stops moving, shows five five-update
-    /// poses, raising the spawn of its next afterburns after the first, and deletes itself.
+    /// flying between them, then runs on into its flight, four two-update poses (#2235). Each afterburn run stops moving and shows
+    /// its five-update spark, raising the spawn of its next afterburns after it, then plays the puff every run shares (#2331):
+    /// four five-update poses of its fire cloud, and deletes itself.
     /// </summary>
     internal static AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments { get; } = new(
         new Dictionary<RidleyFireballSegment, AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>[]>
@@ -37,39 +38,27 @@ internal static class RidleyFireballAnimations
         [
             Cue(C.StopMoving),
             Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloud, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudSpreading, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudBreaking, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudEmbers, 5),
-            Cue(C.Delete),
         ],
         [P.HorizontalCenter] =
         [
             Cue(C.StopMoving),
             Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
             Cue(C.SpawnHorizontalAfterburns),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloud, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudSpreading, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudBreaking, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudEmbers, 5),
-            Cue(C.Delete),
         ],
         [P.VerticalCenter] =
         [
             Cue(C.StopMoving),
             Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
             Cue(C.SpawnVerticalAfterburns),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloud, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudSpreading, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudBreaking, 5),
-            Show(EnemyProjectileFrameId.RidleyFireballFireCloudEmbers, 5),
-            Cue(C.Delete),
         ],
         [P.DirectionalAfterburn] =
         [
             Cue(C.StopMoving),
             Show(EnemyProjectileFrameId.RidleyFireballSpark, 5),
             Cue(C.SpawnNextAfterburn),
+        ],
+        [P.AfterburnPuff] =
+        [
             Show(EnemyProjectileFrameId.RidleyFireballFireCloud, 5),
             Show(EnemyProjectileFrameId.RidleyFireballFireCloudSpreading, 5),
             Show(EnemyProjectileFrameId.RidleyFireballFireCloudBreaking, 5),
@@ -79,17 +68,17 @@ internal static class RidleyFireballAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment: the launch runs on into the flight, which loops, and each afterburn run holds
-    /// after its deletion.
+    /// The animation that starts at each segment: the launch runs on into the flight, which loops, and each afterburn run's
+    /// spark runs on into the shared puff, which holds after its deletion.
     /// </summary>
     internal static IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt { get; } =
         new Dictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>>
         {
             [P.Fireball] = new([Whole(P.Fireball), Whole(P.FireballFlight)], AnimationEnd.LoopsFrom(1)),
-            [P.AfterburnFinal] = new([Whole(P.AfterburnFinal)], AnimationEnd.Holds),
-            [P.HorizontalCenter] = new([Whole(P.HorizontalCenter)], AnimationEnd.Holds),
-            [P.VerticalCenter] = new([Whole(P.VerticalCenter)], AnimationEnd.Holds),
-            [P.DirectionalAfterburn] = new([Whole(P.DirectionalAfterburn)], AnimationEnd.Holds),
+            [P.AfterburnFinal] = new([Whole(P.AfterburnFinal), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.HorizontalCenter] = new([Whole(P.HorizontalCenter), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.VerticalCenter] = new([Whole(P.VerticalCenter), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
+            [P.DirectionalAfterburn] = new([Whole(P.DirectionalAfterburn), Whole(P.AfterburnPuff)], AnimationEnd.Holds),
         };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

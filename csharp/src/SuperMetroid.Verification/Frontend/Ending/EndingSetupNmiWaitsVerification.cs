@@ -24,9 +24,9 @@ internal static class EndingSetupNmiWaitsVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         game.Session.BeginZebesEscapeFade();
-        while (game.GameState == SuperMetroidGameState.SamusEscapesFromZebes)
+        while (game.IsAt(EndingStep.LeavingZebes))
             game.Step(0);
-        AssertEqual(SuperMetroidGameState.EndingAndCredits, game.GameState, "the fade hands off to state $27");
+        AssertTrue(game.IsAt(EndingStep.Credits), "the fade hands off to state $27");
 
         var ending = game.Session.ScreenAs<EndingCreditsState>();
         var expected = new SharedGameState(new SharedRandom());

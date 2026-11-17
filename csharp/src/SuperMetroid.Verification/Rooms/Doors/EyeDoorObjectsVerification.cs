@@ -14,7 +14,6 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.Doors;
@@ -101,7 +100,7 @@ internal static class EyeDoorObjectsVerification
             system);
         EnemyProjectile smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
-        AssertTrue(smoke.Animation is MiscDustProjectileAnimation { PlayingSegment: var smokeProgram } &&
+        AssertTrue(smoke.Animation is DustExplosionProjectileAnimation { PlayingSegment: var smokeProgram } &&
                 smokeProgram == DustExplosionAnimation.CorpseDustCloud,
             "scattered smoke shows the corpse dust cloud, the cartridge's misc-dust selector ten");
         AssertEqual((ushort)114, smoke.Position.X.Whole,

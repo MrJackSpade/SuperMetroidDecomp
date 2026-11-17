@@ -80,6 +80,8 @@ internal sealed class RoomLoader
     private readonly GameplayAudioRequests _audioRequests;
     /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system built here.</summary>
     private readonly SamusOverreadServices _samusOverreads;
+    /// <summary>The installed cells each explicit scroll layout's load writes past the room's screens.</summary>
+    private readonly ScrollCellsPastRoomScreens<RoomScrollState> _scrollCellsPastRoomScreens;
     /// <summary>
     /// The session's unauthored Speed Booster cadence, handed to every Samus built here and to every room's enemies, whose
     /// Ceres Ridley getaway leaves its delays behind.
@@ -131,6 +133,7 @@ internal sealed class RoomLoader
         _beamCharge = dependencies.BeamCharge;
         _audioRequests = Ensure.NotNull(dependencies.AudioRequests);
         _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
+        _scrollCellsPastRoomScreens = Ensure.NotNull(dependencies.ScrollCellsPastRoomScreens);
         _unauthoredBoostCadence = Ensure.NotNull(dependencies.UnauthoredBoostCadence);
         _cameraFractions = Ensure.NotNull(dependencies.CameraFractions);
         _fadeStepCount = Ensure.NotNull(dependencies.FadeStepCount);
@@ -157,7 +160,7 @@ internal sealed class RoomLoader
     /// Executes the data-loading portion of a new game's setup: Ceres, its elevator
     /// checkpoint, the checkpoint-selected room, and its fresh-save state-selection branch.
     /// </summary>
-    public InitialViewportResult InitializeStartingCeresRoom()
+    public void InitializeStartingCeresRoom()
     {
         // A new game loads at the Ceres start; the station names the room, door and placement.
         LoadStation station = LoadStationDefinitions.CeresElevator;
@@ -181,7 +184,7 @@ internal sealed class RoomLoader
         // state through every load. Choosing the room has already read her as absent.
         _player.Samus ??= InitializeSamus();
 
-        return LoadRoom(
+        LoadRoom(
             door,
             room,
             station.Placement.CameraPosition,
@@ -197,7 +200,7 @@ internal sealed class RoomLoader
     /// The room loads with the save's progress, inventory and position, and Samus starts her front-facing appearance
     /// with her suit's glow and her control locked; the appearance gives her control back when it ends.
     /// </remarks>
-    public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot)
+    public void InitializeSavedGame(SuperMetroidSaveSlot slot)
     {
         Ensure.NotNull(slot);
         LoadStation station = slot.Checkpoint;
@@ -225,7 +228,7 @@ internal sealed class RoomLoader
                 $"Load station {station} targets room area " +
                 $"{room.Area}.");
         }
-        InitialViewportResult viewport = LoadRoom(
+        LoadRoom(
             door,
             room,
             station.Placement.CameraPosition,
@@ -258,7 +261,6 @@ internal sealed class RoomLoader
         _player.IntroducedSamus.Control.LockOutPlayer();
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus);
         _player.GroundedSamusMovementEnabled = false;
-        return viewport;
     }
 
     /// <summary>
@@ -307,7 +309,7 @@ internal sealed class RoomLoader
     /// Loads the game's arrival on Zebes after Ceres:
     /// Crateria, the Zebes arrival, with the airborne Landing Site gunship.
     /// </summary>
-    public InitialViewportResult InitializePostCeresZebesRoom()
+    public void InitializePostCeresZebesRoom()
     {
         SamusState carried = _player.Samus
             ?? throw new InvalidOperationException(
@@ -355,7 +357,7 @@ internal sealed class RoomLoader
 
         // Arriving on Zebes ends the Ceres room's objects and projectiles before Landing Site loads, the two of the Ceres
         // elevator's arrival among them, so the gunship alone carries Samus.
-        InitialViewportResult viewport = LoadRoom(
+        LoadRoom(
             door,
             room,
             station.Placement.CameraPosition,
@@ -367,7 +369,6 @@ internal sealed class RoomLoader
         samus.Room = room.Definition;
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(samus);
         _player.GroundedSamusMovementEnabled = false;
-        return viewport;
     }
 
     /// <summary>
@@ -674,16 +675,14 @@ internal sealed class RoomLoader
     /// Loads the door's destination while the source room stays on screen; the following
     /// scroll updates slide the destination in.
     /// </summary>
-    internal InitialViewportResult LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus)
-    {
-        return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
-    }
+    internal void LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus) =>
+        LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
 
     /// <summary>
     /// Builds the selected door's destination while preserving the source position needed
     /// to replay door-opening scroll when the viewport is streamed rather than replaced.
     /// </summary>
-    private InitialViewportResult LoadPendingDoorDestination(
+    private void LoadPendingDoorDestination(
         RoomViewportLoadMode viewportLoadMode, FixedPosition<RoomPixels>? sourcePosition = null)
     {
         if (_room.LevelData is null || _player.Samus is null)
@@ -744,7 +743,7 @@ internal sealed class RoomLoader
         // at its apex and lets horizontal momentum carry Samus too far after exit.
         _player.Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
-        InitialViewportResult viewport = LoadRoom(
+        LoadRoom(
             door,
             room,
             placement.CameraPosition,
@@ -761,11 +760,10 @@ internal sealed class RoomLoader
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         _player.Samus.Room = room.Definition;
         _player.GroundedSamusMovementEnabled = true;
-        return viewport;
     }
 
     /// <summary>Loads the selected room, its state and its graphics; shared by stations, doors and the attract demo.</summary>
-    internal InitialViewportResult LoadRoom(
+    internal void LoadRoom(
         DoorDefinition door,
         SelectedRoom room,
         Position16<RoomPixels> camera,
@@ -949,7 +947,7 @@ internal sealed class RoomLoader
             // The door's closing object spawns after the destination's room objects, the door's and the room's setup
             // and the room's effects, and before the enemies initialize: every room object the room lists exists before
             // the closer takes the next free place, and no enemy's room object has run yet.
-            roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door, _system);
+            roomObjects.DoorObjects.TrySpawnDoorClosingObject(assets.LevelData, door);
         }
 
         // Loading shows the entering beams' colours before it initializes enemies. Golden Torizo's code changes the
@@ -1042,14 +1040,13 @@ internal sealed class RoomLoader
             // visible while the opening scroll moves the destination in around it.
             _pendingDoorOpeningSourceView = doorOpeningSourceView;
             _room.Adopt(scope.Complete());
-            return new InitialViewportResult();
+            return;
         }
 
         _room.Adopt(scope.Complete());
         _pendingDoorOpeningSourceView = null;
         _backgroundScroll.ForegroundPosition = destinationCamera.PixelPosition;
         _backgroundScroll.CalculateScrolls();
-        return new InitialViewportResult();
     }
 
     /// <summary>
@@ -1174,7 +1171,7 @@ internal sealed class RoomLoader
 
     /// <summary>The host-bound room catalogs; room loading never substitutes artwork.</summary>
     private RoomAssetCatalogs RequireRoomAssetCatalogs() =>
-        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets);
+        new(_artwork.RoomVisualLayouts, _artwork.RoomLevelStreams, _artwork.RoomBlockSheets, _scrollCellsPastRoomScreens);
 
 
     /// <summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// <param name="place">The place the collision part occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class HibashiCollisionPartEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public void Initialize() => HibashiBehavior.InitializeHibashiCollisionPart(Place);

@@ -21,11 +21,11 @@ internal static class ZebesEscapeFadeVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
 
         game.Session.BeginZebesEscapeFade();
-        AssertEqual(SuperMetroidGameState.SamusEscapesFromZebes, game.GameState, "the takeoff publishes state $26");
+        AssertTrue(game.IsAt(EndingStep.LeavingZebes), "the takeoff publishes state $26");
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "state $26 keeps gameplay time running");
 
         int calls = 0;
-        while (game.GameState == SuperMetroidGameState.SamusEscapesFromZebes)
+        while (game.IsAt(EndingStep.LeavingZebes))
         {
             game.Step(0);
             calls++;

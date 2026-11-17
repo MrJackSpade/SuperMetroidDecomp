@@ -28,12 +28,12 @@ internal static class AttractInputFixtureVerification
         }
 
         /// <summary>Advances one reference input frame using native words and pre-instructions.</summary>
-        public void Step(SuperMetroidGameState gameState, SamusMovementType movementType) =>
-            Script.Step((state, pointer) => RunFrameBehavior(state, pointer, gameState, movementType), NativeDemoInputReference.NoRoutines);
+        public void Step(bool titleLeaving, SamusMovementType movementType) =>
+            Script.Step((state, pointer) => RunFrameBehavior(state, pointer, titleLeaving, movementType), NativeDemoInputReference.NoRoutines);
     }
 
     /// <summary>Applies demo leave and movement branches using the native pre-instruction identities.</summary>
-    private static void RunFrameBehavior(NativeDemoInputReference state, ushort pointer, SuperMetroidGameState gameState,
+    private static void RunFrameBehavior(NativeDemoInputReference state, ushort pointer, bool titleLeaving,
         SamusMovementType movementType)
     {
         switch (ClosedEnumWordDecoding.Decode<NativeDemoFrameBehavior>(pointer, "reference demo pre-instruction"))
@@ -42,7 +42,7 @@ internal static class AttractInputFixtureVerification
             case NativeDemoFrameBehavior.Cleared:
                 break;
             case NativeDemoFrameBehavior.AttractCheckLeave:
-                if (gameState == SuperMetroidGameState.RoutingAfterDemo)
+                if (titleLeaving)
                     state.Redirect(pointer, DemoInputNativeListAddresses.TitleLeavingDeleteList);
                 break;
             case NativeDemoFrameBehavior.AttractShinespark:

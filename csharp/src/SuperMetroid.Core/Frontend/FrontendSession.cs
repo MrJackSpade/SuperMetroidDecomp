@@ -7,6 +7,8 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -236,8 +238,119 @@ internal sealed class FrontendSession
     internal event Action? SavesChanged;
     /// <summary>Raises <see cref="SavesChanged"/> after the game changed its saves.</summary>
     internal void RaiseSavesChanged() => SavesChanged?.Invoke();
-    /// <summary>The phase the game is in.</summary>
-    public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
+    /// <summary>The sequence the game is running.</summary>
+    public SuperMetroidGameState GameState { get; private set; } = SuperMetroidGameState.Title;
+    /// <summary>The title sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Title"/>.</summary>
+    internal TitleStep TitleStep { get; private set; }
+    /// <summary>The screen of choosing a game; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.FileSelect"/>.</summary>
+    internal FileSelectStep FileSelectStep { get; private set; }
+    /// <summary>What the game load loads; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.LoadingGame"/>.</summary>
+    internal GameDataLoadRoute LoadingRoute { get; private set; }
+    /// <summary>The door transition's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DoorTransition"/>.</summary>
+    internal DoorTransitionStep DoorTransitionStep { get; private set; }
+    /// <summary>The pause's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Pause"/>.</summary>
+    internal PauseStep PauseStep { get; private set; }
+    /// <summary>The death sequence's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.DeathSequence"/>.</summary>
+    internal DeathSequenceStep DeathStep { get; private set; }
+    /// <summary>How Ceres's destruction ends; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.CeresDestruction"/>.</summary>
+    internal CeresDestructionOutcome CeresDestructionOutcome { get; private set; }
+    /// <summary>The time-up's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.TimeUp"/>.</summary>
+    internal TimeUpStep TimeUpStep { get; private set; }
+    /// <summary>The ending's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.Ending"/>.</summary>
+    internal EndingStep EndingStep { get; private set; }
+    /// <summary>The attract demo's step; meaningful while <see cref="GameState"/> is <see cref="SuperMetroidGameState.AttractDemo"/>.</summary>
+    internal AttractDemoStep AttractDemoStep { get; private set; }
+
+    /// <summary>
+    /// Enters <paramref name="sequence"/> at its first step: the title starts, choosing a game shows the save slots, the
+    /// game load loads the chosen game, a door is entered, the pause darkens gameplay, the death sequence makes its final
+    /// gameplay pass, Ceres is destroyed after Samus escaped, the time-up whitens, the ending leaves Zebes and an attract
+    /// demo loads.
+    /// </summary>
+    internal void Enter(SuperMetroidGameState sequence)
+    {
+        GameState = sequence;
+        TitleStep = TitleStep.Starting;
+        FileSelectStep = FileSelectStep.SaveSlots;
+        LoadingRoute = GameDataLoadRoute.SelectedGame;
+        DoorTransitionStep = DoorTransitionStep.EnteringDoor;
+        PauseStep = PauseStep.DarkeningGameplay;
+        DeathStep = DeathSequenceStep.FinalGameplayPass;
+        CeresDestructionOutcome = CeresDestructionOutcome.SamusEscaped;
+        TimeUpStep = TimeUpStep.WhiteningOut;
+        EndingStep = EndingStep.LeavingZebes;
+        AttractDemoStep = AttractDemoStep.Loading;
+    }
+
+    /// <summary>Enters the title sequence at <paramref name="step"/>.</summary>
+    internal void Enter(TitleStep step)
+    {
+        Enter(SuperMetroidGameState.Title);
+        TitleStep = step;
+    }
+
+    /// <summary>Enters choosing a game at <paramref name="step"/>.</summary>
+    internal void Enter(FileSelectStep step)
+    {
+        Enter(SuperMetroidGameState.FileSelect);
+        FileSelectStep = step;
+    }
+
+    /// <summary>Enters the game load of <paramref name="route"/>.</summary>
+    internal void Enter(GameDataLoadRoute route)
+    {
+        Enter(SuperMetroidGameState.LoadingGame);
+        LoadingRoute = route;
+    }
+
+    /// <summary>Enters the door transition at <paramref name="step"/>.</summary>
+    internal void Enter(DoorTransitionStep step)
+    {
+        Enter(SuperMetroidGameState.DoorTransition);
+        DoorTransitionStep = step;
+    }
+
+    /// <summary>Enters the pause at <paramref name="step"/>.</summary>
+    internal void Enter(PauseStep step)
+    {
+        Enter(SuperMetroidGameState.Pause);
+        PauseStep = step;
+    }
+
+    /// <summary>Enters the death sequence at <paramref name="step"/>.</summary>
+    internal void Enter(DeathSequenceStep step)
+    {
+        Enter(SuperMetroidGameState.DeathSequence);
+        DeathStep = step;
+    }
+
+    /// <summary>Enters Ceres's destruction with <paramref name="outcome"/>.</summary>
+    internal void Enter(CeresDestructionOutcome outcome)
+    {
+        Enter(SuperMetroidGameState.CeresDestruction);
+        CeresDestructionOutcome = outcome;
+    }
+
+    /// <summary>Enters the time-up at <paramref name="step"/>.</summary>
+    internal void Enter(TimeUpStep step)
+    {
+        Enter(SuperMetroidGameState.TimeUp);
+        TimeUpStep = step;
+    }
+
+    /// <summary>Enters the ending at <paramref name="step"/>.</summary>
+    internal void Enter(EndingStep step)
+    {
+        Enter(SuperMetroidGameState.Ending);
+        EndingStep = step;
+    }
+
+    /// <summary>Enters the attract demo at <paramref name="step"/>.</summary>
+    internal void Enter(AttractDemoStep step)
+    {
+        Enter(SuperMetroidGameState.AttractDemo);
+        AttractDemoStep = step;
+    }
     /// <summary>The compatibility services fixed at construction; production uses the game's own timing.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
     /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>
@@ -262,7 +375,7 @@ internal sealed class FrontendSession
         {
             // Door setup loads music data. The track is selected
             // only after the opening scroll and this data queue have completed.
-            if (GameState == SuperMetroidGameState.DoorTransition)
+            if (GameState == SuperMetroidGameState.DoorTransition && DoorTransitionStep == DoorTransitionStep.Transitioning)
                 audio.QueueRoomMusicData(roomState.Music.DataSet);
             else
                 audio.QueueRoomMusic(roomState.Music);
@@ -292,7 +405,27 @@ internal sealed class FrontendSession
     internal void BeginZebesEscapeFade()
     {
         EscapeFade.Restart(DisplayBrightness.Full, 0);
-        GameState = SuperMetroidGameState.SamusEscapesFromZebes;
+        Enter(EndingStep.LeavingZebes);
+    }
+    /// <summary>
+    /// The escape countdown expired. The whole gameplay display, Samus and the HUD among it, fades to white through the
+    /// shared fade step count in the time-up's gradual change (#1512).
+    /// </summary>
+    internal void BeginTimeUp()
+    {
+        SuperMetroidRuntime live = runtime ?? throw new InvalidOperationException("Time-up requires a gameplay runtime.");
+        live.FadeOut.Begin(TimeUpDefinitions.WhiteColor, TimeUpDefinitions.WhiteOutDenominator, GameplayFadeSpares.Nothing);
+        Enter(TimeUpStep.WhiteningOut);
+    }
+    /// <summary>
+    /// Enters the death sequence's final black-out already black, as both time-up endings do. Its fade-out finds no
+    /// brightness left, so that update opens the game-over menu.
+    /// </summary>
+    internal void BeginBlackDeathBlackOut()
+    {
+        DeathFade.Restart(0, 0);
+        Enter(DeathSequenceStep.FinalBlackOut);
+        display.PublishBlack();
     }
     /// <summary>Sets the screen's brightness on the published frame and retains it for pause fades.</summary>
     internal void SetDisplayBrightness(int brightness)
@@ -482,7 +615,7 @@ internal sealed class FrontendSession
     {
         GameplayFadeIn.Restart(0, 1);
         GameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
-        GameState = SuperMetroidGameState.MainGameplayFadeIn;
+        Enter(SuperMetroidGameState.GameplayFadeIn);
     }
     /// <summary>
     /// The end of the fade-in selects the next state, which then enters main gameplay; the Ceres arrival is
@@ -491,7 +624,7 @@ internal sealed class FrontendSession
     /// </summary>
     internal void FinishGameplayFadeIn()
     {
-        GameState = SuperMetroidGameState.MainGameplay;
+        Enter(SuperMetroidGameState.MainGameplay);
         GameplayFadeLeadsToCeresArrival = false;
         screenFade.StepEvery(1);
         RecordFullBrightness();
@@ -510,13 +643,6 @@ internal sealed class FrontendSession
     internal IReadOnlyList<AttractDemoSet> DemoPlaylist { get; }
     /// <summary>The waiting updates the current game load still owes.</summary>
     internal GameLoadingWait GameLoading { get; } = new();
-    /// <summary>
-    /// What the game-data load loads: a save continued from the file-select map, or the Ceres destruction's Zebes
-    /// landing. Nothing until a load is routed.
-    /// </summary>
-    internal GameDataLoadRoute? LoadingRoute { get; private set; }
-    /// <summary>Selects what the game-data load loads.</summary>
-    internal void RouteGameDataLoad(GameDataLoadRoute route) => LoadingRoute = route;
     /// <summary>
     /// True while the load waits out frames of the display: the next update continues that wait instead of starting a new
     /// update of the loading phase (<see cref="DisplayFrameWaitContinuation"/>).

@@ -3,20 +3,19 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>A game state's phase whose update and status are supplied by its owner.</summary>
-/// <param name="state">The state.</param>
-/// <param name="randomStep">The random generator's step before the phase runs.</param>
-/// <param name="step">One update of the state.</param>
+/// <summary>
+/// The phase of a sequence made of a single step, whose update and status its owner supplies. It has no special audio
+/// handling and never waits out a frame of the display.
+/// </summary>
+/// <param name="state">The sequence.</param>
+/// <param name="randomStep">The random generator's step before the sequence runs.</param>
+/// <param name="step">One update of the sequence.</param>
 /// <param name="name">The current status.</param>
-/// <param name="waitingOutDisplayFrame">Whether the state's current step is waiting out a frame of the display, so the next update finishes it; never when omitted.</param>
-/// <param name="audio">The audio handling before and after each of the state's updates.</param>
 internal sealed class GamePhase(
     SuperMetroidGameState state,
     PhaseRandomStep randomStep,
     Action<ControllerButton> step,
-    Func<string> name,
-    Func<bool>? waitingOutDisplayFrame = null,
-    GamePhaseAudio audio = GamePhaseAudio.Ordinary) : IGamePhase
+    Func<string> name) : IGamePhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State { get; } = state;
@@ -25,13 +24,13 @@ internal sealed class GamePhase(
     public PhaseRandomStep RandomStep { get; } = randomStep;
 
     /// <inheritdoc/>
-    public GamePhaseAudio Audio { get; } = audio;
+    public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
     public string Name => name();
 
     /// <inheritdoc/>
-    public bool IsWaitingOutDisplayFrame => waitingOutDisplayFrame?.Invoke() == true;
+    public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput) => step(controllerInput);

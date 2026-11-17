@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -12,13 +13,14 @@ public sealed class RidleyFlightState
     /// <param name="facing">The way he faces as he is placed.</param>
     /// <param name="minimum">The top-left corner of the box his movement keeps him in, where it lies from the room's origin.</param>
     /// <param name="maximum">The bottom-right corner of the box his movement keeps him in, where it lies from the room's origin.</param>
-    /// <param name="wingBeatStep">The step of his wing beat the wings show first.</param>
-    internal RidleyFlightState(RidleyFacing facing, Offset16<RoomPixels> minimum, Offset16<RoomPixels> maximum, int wingBeatStep)
+    /// <param name="firstWingPose">The pose of his wing beat the wings show first.</param>
+    internal RidleyFlightState(RidleyFacing facing, Offset16<RoomPixels> minimum, Offset16<RoomPixels> maximum, RidleyWingPose firstWingPose)
     {
         FacingDirection = facing;
         MovementMinimum = minimum;
         MovementMaximum = maximum;
-        WingBeatStep = wingBeatStep;
+        Wings = new RidleyWingBeat(firstWingPose);
+        BodyPlayback = new(RidleyAnimations.StartingWith(RidleyAnimations.Initial.For(facing)), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Gets which way Ridley faces: left, toward the screen in his intermediate turning pose, or right.</summary>
@@ -34,12 +36,8 @@ public sealed class RidleyFlightState
     public bool HitRoomBoundary { get; internal set; }
     /// <summary>Gets Ridley's signed 1/256-pixel velocity, each axis held unchanged.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Gets the step of his wing beat the wings show, advancing when the wing timer passes zero and wrapping at the beat's end.</summary>
-    public int WingBeatStep { get; internal set; }
-    /// <summary>Gets the wing animation's countdown, reloaded to 32 once it runs below zero.</summary>
-    public int WingAnimationTimer { get; internal set; }
-    /// <summary>Gets the decrement (zero through 48) selected from velocity magnitude for the wing countdown; nonnegative vertical motion halves it.</summary>
-    public int WingAnimationTimerDelta { get; internal set; }
+    /// <summary>His wing beat: the pose his wings show and the countdown to the next, paced by his flight speed (#2329).</summary>
+    public RidleyWingBeat Wings { get; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its whole step selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }
     /// <summary>
@@ -47,9 +45,11 @@ public sealed class RidleyFlightState
     /// toward each phase's target speed before it resolves into axis velocities.
     /// </summary>
     public SignedEightEight SwoopSpeed { get; internal set; }
-    /// <summary>Ridley's playing body animation and where it stands (#641, #1600); before the first start, the initial animation.</summary>
-    internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; } =
-        new(RidleyAnimations.StartingWith(RidleyBodySegment.InitialFacingLeft), AnimationPlace.StartOfAnimation);
+    /// <summary>
+    /// Ridley's playing body animation and where it stands (#641, #1600): from his setup, his standing pose for the way he
+    /// faces as he is placed (#2335).
+    /// </summary>
+    internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; }
     /// <summary>Gets the claw height Ridley's body animation last selected; he starts standing.</summary>
     public RidleyClawHeight ClawHeight { get; internal set; } = RidleyClawHeight.Standing;
     /// <summary>Gets whether Ridley's animation has enabled the roar presentation.</summary>

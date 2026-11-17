@@ -13,7 +13,7 @@ internal sealed class DoorObjects
 {
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState _system;
-    /// <summary>Allocates fallback closing and blue-door actors from the room-object pool.</summary>
+    /// <summary>The room's object places, where a door's closing cap and a blue door's cap each take one.</summary>
     private readonly RoomObjectPlaceList _places;
     /// <summary>Queues the enemy-library response to rejected colored-door hits.</summary>
     private readonly RoomObjectSoundQueue _sounds;
@@ -45,14 +45,10 @@ internal sealed class DoorObjects
     /// True when an object at the door closes or a closer was placed; false for a door that does not close or a full
     /// room.
     /// </returns>
-    public bool TrySpawnDoorClosingObject(
-        RoomLevelData level,
-        DoorDefinition door,
-        SharedGameState system)
+    public bool TrySpawnDoorClosingObject(RoomLevelData level, DoorDefinition door)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(door);
-        Ensure.NotNull(system);
 
         Position16<RoomBlocks> block = level.GridBlock(door.RoomObjectBlock);
         foreach (RoomObjectPlace resident in _places.InUpdateOrder)
@@ -62,7 +58,7 @@ internal sealed class DoorObjects
 
             // A cap whose opening never persists always closes. The escape entrance's cap never persists, so it
             // always selects its closing sequence. Ordinary coloured caps consult the doors opened for good.
-            if (resident.Behaviour is IDoorKeptOpen kept && kept.StaysOpenBehindSamus(system.HasOpenedDoor, _shotCapClosing))
+            if (resident.Behaviour is IDoorKeptOpen kept && kept.StaysOpenBehindSamus(_system.HasOpenedDoor, _shotCapClosing))
                 break;
 
             // The closing keeps everything else the object holds: a cap that waits for a shot still does.

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 
@@ -177,7 +176,7 @@ internal sealed class EyeDoorBehavior
     {
         int random = _room.Random.Read();
         // Stores only the animation, keeping the definition's one-update timer.
-        projectile.InstallAnimation(new MiscDustProjectileAnimation(animation));
+        projectile.InstallAnimation(new DustExplosionProjectileAnimation(animation));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + EyeDoorEffectDefinitions.SmokeCentre + new Offset16<RoomPixels>(
             placement.Base.X + placement.XScatter.Of(random),

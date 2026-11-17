@@ -72,52 +72,6 @@ internal static void VerifyKnownRandomSequence()
 }
 
 /// <summary>
-/// Recreates a press-and-hold timeline with the pause-screen reset value of three. The new
-/// press is excluded on frame zero, the changed held value reloads on frame one, and four
-/// further stable calls count 3,2,1,0,$FFFF before activation.
-/// </summary>
-internal static void VerifyTimedHeldInputTimeline()
-{
-    const ControllerButton button = ControllerButton.A;
-    var state = new SharedGameState(new SharedRandom());
-
-    // Frame 0: the button is new, so TRB removes it from the held-only sample.
-    state.UpdateHeldInput(timerReset: 3, controllerInput: button, controllerNewInput: button);
-    AssertEqual(ControllerButton.None, state.TimedHeldInput, "new press is not held input");
-
-    // Frame 1: held-only input changes from zero to the button and reloads the timer.
-    state.UpdateHeldInput(3, button, 0);
-    AssertEqual(3, state.TimedHeldInputTimer.RawValue, "changed input reloads timer");
-    AssertEqual(ControllerButton.None, state.TimedHeldInput, "changed input stays suppressed");
-
-    // Frames 2-4: DEC yields 2, 1, and 0. BPL keeps taking the suppression path.
-    for (ushort expectedTimer = 2; ; expectedTimer--)
-    {
-        state.UpdateHeldInput(3, button, 0);
-        AssertEqual(expectedTimer, state.TimedHeldInputTimer.RawValue, "stable-input countdown");
-        AssertEqual(ControllerButton.None, state.TimedHeldInput, "countdown suppression");
-        if (expectedTimer == 0)
-            break;
-    }
-
-    // Frame 5: zero wraps to $FFFF, which is negative to BPL, and activates the button.
-    state.UpdateHeldInput(3, button, 0);
-    AssertEqual(0, state.TimedHeldInputTimer.RawValue, "expired timer is pinned to zero");
-    AssertEqual(button, state.TimedHeldInput, "held input activates after underflow");
-
-    // Frame 6: the active input remains present, while its rising-edge output clears.
-    state.UpdateHeldInput(3, button, 0);
-    AssertEqual(button, state.TimedHeldInput, "stable expired input remains active");
-
-    // Releasing changes the held sample, reloads the timer, and suppresses the output.
-    state.UpdateHeldInput(3, 0, 0);
-    AssertEqual(3, state.TimedHeldInputTimer.RawValue, "release reloads timer");
-    AssertEqual(ControllerButton.None, state.TimedHeldInput, "release clears filtered input");
-
-    Console.WriteLine("  Input: delayed-held timeline and edge pulse agree.");
-}
-
-/// <summary>
 /// Exercises every story event: each is set and cleared on its own, without touching another (#1475, #1553).
 /// </summary>
 internal static void VerifyEventBitfield()

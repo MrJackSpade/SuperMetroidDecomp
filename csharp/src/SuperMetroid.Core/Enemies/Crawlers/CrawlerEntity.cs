@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// <param name="place">The place the crawler occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class CrawlerEntity(RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
     public abstract void Initialize();

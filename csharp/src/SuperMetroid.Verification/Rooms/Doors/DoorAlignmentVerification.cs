@@ -66,7 +66,7 @@ internal static class DoorAlignmentVerification
                 Orientation: DoorRecordCodec.DecodeOrientation(checked((byte)direction)),
                 RoomObjectBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
-                SamusSpeed: DoorSamusSpeed.SubpixelsPerStep(256),
+                SamusSpeed: DoorSamusSpeed.PixelsPerStep(1),
                 Setup: DoorSetupDefinitions.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
                 door,

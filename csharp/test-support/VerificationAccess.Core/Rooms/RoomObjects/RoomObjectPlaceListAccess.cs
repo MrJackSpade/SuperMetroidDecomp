@@ -7,6 +7,6 @@ internal static class RoomObjectPlaceListAccess
     extension(RoomObjectPlaceList self)
     {
         /// <summary>How many places hold an object.</summary>
-        public int ActiveCount => self.occupancy.HeldCount;
+        public int ActiveCount => PrivateState.Field<RoomObjectPlaceList, SuperMetroid.Core.Compatibility.RoomObjectPlaces>(self, "occupancy").HeldCount;
     }
 }

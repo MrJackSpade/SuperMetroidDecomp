@@ -11,21 +11,21 @@ public enum MotherBrainHeadSegment
     /// <summary>Her whole head stretches: it shakes, opens wide with a roar and a big purple breath, and drools.</summary>
     StretchingPhase2,
     /// <summary>Her whole head holds its stretched, open mouth.</summary>
-    StretchingPhase2Loop,
+    StretchingPhase2Held,
     /// <summary>Her damaged head stretches: it shakes, opens wide with a roar and a big purple breath, and drools.</summary>
     StretchingPhase3,
     /// <summary>Her damaged head holds its stretched, open mouth.</summary>
-    StretchingPhase3Loop,
+    StretchingPhase3Held,
     /// <summary>Her damaged head is thrown back by a Hyper Beam hit: it shakes and opens wide with a roar, without drool.</summary>
     HyperBeamRecoil,
     /// <summary>Her damaged head holds its open mouth after the recoil.</summary>
-    HyperBeamRecoilLoop,
+    HyperBeamRecoilHeld,
     /// <summary>Her whole head, mouth closed.</summary>
     Initial,
     /// <summary>Her damaged head closes its open mouth as her body falls away.</summary>
     Decapitated,
     /// <summary>Her decapitated head holds its closed mouth.</summary>
-    DecapitatedLoop,
+    DecapitatedHeld,
     /// <summary>Her dying head shakes and opens its mouth with a roar.</summary>
     DyingDrool,
     /// <summary>Her dying head drools four times from its widest mouth.</summary>
@@ -45,7 +45,7 @@ public enum MotherBrainHeadSegment
     /// <summary>Her damaged head goes still as her corpse.</summary>
     Corpse,
     /// <summary>Her corpse's head, held.</summary>
-    CorpseLoop,
+    CorpseHeld,
     /// <summary>Her whole head opens wide with an attack cry and fires four onion rings at Samus.</summary>
     FourOnionRingsPhase2,
     /// <summary>Her whole head opens wide with an attack cry and fires two onion rings at Samus.</summary>

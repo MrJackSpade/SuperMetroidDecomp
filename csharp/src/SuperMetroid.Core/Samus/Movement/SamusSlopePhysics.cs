@@ -31,11 +31,9 @@ public static class SamusSlopePhysics
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
-        int multiplier = behavior.Slope.Shape.GroundedSpeedShare;
-
-        // The lowest eight fractional bits are discarded before scaling, rounding toward negative
-        // infinity, so a leftward displacement scales by the same rule as a rightward one.
-        return displacement.ScaledByTwoFiftySixths(multiplier);
+        // The displacement is counted in whole 256ths of a pixel before scaling, rounding toward negative infinity, so a
+        // leftward displacement scales by the same rule as a rightward one.
+        return displacement.ScaledBy(behavior.Slope.Shape.GroundedSpeedShare);
     }
 
     /// <summary>
@@ -58,8 +56,8 @@ public static class SamusSlopePhysics
     /// </summary>
     /// <remarks>
     /// This alignment does not perform the preceding horizontal collision scan. It consumes
-    /// the position that scan accepted and adjusts only whole-pixel Y, exactly like the
-    /// game's call immediately after a move without solid-enemy collision.
+    /// the position that scan accepted and adjusts only whole-pixel Y, as the game does
+    /// straight after a move without solid-enemy collision.
     /// </remarks>
     public static SlopeAlignmentResult AlignYPosition(
         RoomLevelData level,

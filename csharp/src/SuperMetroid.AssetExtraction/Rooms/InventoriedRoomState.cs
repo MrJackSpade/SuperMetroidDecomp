@@ -168,8 +168,8 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         Ensure.NotNull(placed);
         foreach (RoomObjectKind header in Headers)
         {
-            if (CollectibleObjects.TryIdentifyPermanentCollectible(header, out InWorldCollectibleKind kind, out CollectiblePresentation presentation) &&
-                placed(kind, presentation))
+            if (PermanentCollectibleObjectDefinitions.Items.TryGetValue(header, out PermanentCollectibleObject item) &&
+                placed(item.Kind, item.Presentation))
                 return true;
         }
         return false;

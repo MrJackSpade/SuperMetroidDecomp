@@ -14,14 +14,14 @@ namespace SuperMetroid.Core.Frontend.Map;
 public sealed class MapHighlightAnimation
 {
     /// <summary>The cycle as it plays.</summary>
-    private readonly AnimationPlayer<MapHighlightSegment, MapHighlightStep, MapHighlightCue> player;
+    private readonly AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
 
     /// <summary>Starts the highlight cycle at its first step, one update from its next, over the installed cycle's timing.</summary>
     /// <param name="cycle">The installed cycle's timing.</param>
     public MapHighlightAnimation(MapHighlightCycle cycle)
     {
-        AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> segments = Segments(cycle);
-        player = AnimationPlayer<MapHighlightSegment, MapHighlightStep, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
+        AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments = Segments(cycle);
+        player = AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
     }
 
     /// <summary>
@@ -30,18 +30,18 @@ public sealed class MapHighlightAnimation
     /// </summary>
     public void Bind(MapHighlightCycle cycle)
     {
-        AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> segments = Segments(cycle);
+        AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments = Segments(cycle);
         player.Rebind(segments, Cycling(segments));
     }
 
     /// <summary>Restores the cycle's first step, one update from its next.</summary>
     public void Reset() => player.Show(player.Playback.Animation, 1);
 
-    /// <summary>The step the highlighted sprites show.</summary>
-    internal MapHighlightStep Shown => player.Showing;
+    /// <summary>The frame of the cycle the highlighted sprites show.</summary>
+    internal MapHighlightFrame Frame => player.Showing;
 
     /// <summary>The shading the map's highlighted sprites show (#1512, #1597): the highlight shade of the step shown.</summary>
-    public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Shown));
+    public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));
 
     /// <summary>Runs one update of the cycle; true requests the room library's map highlight-loop sound.</summary>
     public bool Step()
@@ -52,18 +52,18 @@ public sealed class MapHighlightAnimation
     }
 
     /// <summary>The cycle's segments: its steps, each for its hold, and the wrap that starts it again.</summary>
-    private static AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> Segments(MapHighlightCycle cycle)
+    private static AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> Segments(MapHighlightCycle cycle)
     {
         Ensure.NotNull(cycle);
-        return new(new Dictionary<MapHighlightSegment, AnimationBeat<MapHighlightStep, MapHighlightCue>[]>
+        return new(new Dictionary<MapHighlightSegment, AnimationBeat<MapHighlightFrame, MapHighlightCue>[]>
         {
             [MapHighlightSegment.Steps] =
-                [.. cycle.Steps.Select(step => new AnimationBeat<MapHighlightStep, MapHighlightCue>.Frame(step, cycle.Duration(step)))],
-            [MapHighlightSegment.Wrap] = [new AnimationBeat<MapHighlightStep, MapHighlightCue>.Event(MapHighlightCue.Wrapped)],
+                [.. cycle.Frames.Select(frame => new AnimationBeat<MapHighlightFrame, MapHighlightCue>.Frame(frame, cycle.Duration(frame)))],
+            [MapHighlightSegment.Wrap] = [new AnimationBeat<MapHighlightFrame, MapHighlightCue>.Event(MapHighlightCue.Wrapped)],
         });
     }
 
     /// <summary>The cycle played over and over, each pass ending in its wrap.</summary>
-    private static Animation<MapHighlightSegment> Cycling(AnimationSegments<MapHighlightSegment, MapHighlightStep, MapHighlightCue> segments) =>
+    private static Animation<MapHighlightSegment> Cycling(AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments) =>
         new([segments.Whole(MapHighlightSegment.Steps), segments.Whole(MapHighlightSegment.Wrap)], AnimationEnd.LoopsFrom(0));
 }

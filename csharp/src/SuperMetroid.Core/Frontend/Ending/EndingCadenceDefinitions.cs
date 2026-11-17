@@ -14,7 +14,7 @@ internal static class EndingCadenceDefinitions
 
     /// <summary>
     /// The phase-timer counts on which the post-credits reward's fade takes a colour step: every fourth count, at place
-    /// one of the period, so a 64-count fade half steps on its fourth, eighth and later calls.
+    /// one of the period, so a 64-update fade half steps on its fourth update and every fourth update after.
     /// </summary>
     internal static readonly UpdateCadence RewardColourStepEveryFourthUpdate = new(4, 1);
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.Assertions;
 using SuperMetroid.TestSupport.MovieReplay;
@@ -41,7 +42,7 @@ internal static class CeresElevatorArrivalVerification
         // enemy graphics would add a base tile and select other colours. A new game clears the concealer's colour before
         // the arrival spawns (#1512), so both actors publish the shade that shows it black until they delete themselves.
         var noGraphics = SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
-        VerificationAssertions.AssertTrue(arrival.pad.Graphics == noGraphics && arrival.platform.Graphics == noGraphics,
+        VerificationAssertions.AssertTrue(arrival.Pad.Graphics == noGraphics && arrival.Platform.Graphics == noGraphics,
             "Ceres arrival actors draw with tile base zero, the concealer's colour cleared");
         var oam = new OamBuffer();
         oam.BeginFrame();
@@ -49,7 +50,7 @@ internal static class CeresElevatorArrivalVerification
             camera: Position16<RoomPixels>.Zero);
         var expected = new OamBuffer();
         expected.BeginFrame();
-        foreach (CeresElevatorArrivalState.CeresElevatorProjectile actor in new[] { arrival.pad, arrival.platform })
+        foreach (CeresElevatorArrivalState.CeresElevatorProjectile actor in new[] { arrival.Pad, arrival.Platform })
             expected.AddEnemySpritemap(artwork.Get(CeresElevatorArrivalAnimations.Frame(actor.Pose
                     ?? throw new InvalidOperationException("Verification requires a shown arrival pose."))).Span,
                 new Position16<ScreenPixels>(actor.Position.X, actor.Position.Y), 0, 0);
@@ -187,10 +188,12 @@ internal static class CeresElevatorArrivalVerification
                 }
                 if (word == CeresElevatorArrivalDefinitions.GotoOpcode)
                 {
-                    // Each arrival list jumps back to its own start: the animation loops its one phase.
+                    // Each arrival list jumps back to its own start: the animation loops its one phase, or, where the list's
+                    // one record is a held frame, rests on it for good (#2353).
                     VerificationAssertions.AssertEqual(operand,
                         NativeEnemyAnimationOracle.EntryOf(CeresElevatorArrivalNativeListAddresses.Entries, program), $"{at}: goto target");
-                    VerificationAssertions.AssertEqual(AnimationEnd.LoopsFrom(0), animation.End, $"{at}: goto");
+                    VerificationAssertions.AssertEqual(beats is [AnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>.HeldFrame] ? AnimationEnd.Holds : AnimationEnd.LoopsFrom(0),
+                        animation.End, $"{at}: goto");
                     break;
                 }
                 VerificationAssertions.AssertTrue(index < beats.Count, $"{at}: {program} has a beat for the native frame");

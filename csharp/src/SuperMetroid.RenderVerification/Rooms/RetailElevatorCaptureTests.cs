@@ -39,7 +39,7 @@ internal static class RetailElevatorCaptureTests
             if (capturedArrival is null || arrival.PadPosition.Y != capturedArrival.PadPosition.Y ||
                 arrival.PlatformPosition.Y != capturedArrival.PlatformPosition.Y || arrival.IsComplete != capturedArrival.IsComplete)
                 throw new InvalidOperationException("Elevator publication changed arrival state.");
-            fade |= expected.GameState == SuperMetroidGameState.MainGameplayFadeIn;
+            fade |= expected.GameState == SuperMetroidGameState.GameplayFadeIn;
             arriving |= expected.GameState == SuperMetroidGameState.MainGameplay && !arrival.IsComplete;
             landed |= arrival.IsComplete;
             padPositions.Add(arrival.PadPosition.Y);

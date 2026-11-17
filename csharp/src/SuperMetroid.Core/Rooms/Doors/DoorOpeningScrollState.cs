@@ -39,7 +39,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>The second background layer's position as the scroll carries it.</summary>
     public Position16<BackgroundPixels> BackgroundPosition { get; private set; }
 
-    /// <summary>Samus's 1/65536-pixel position as the scroll carries her.</summary>
+    /// <summary>Samus's position, fractions of a pixel included, as the scroll carries her.</summary>
     public FixedPosition<RoomPixels> SamusPosition { get; private set; }
 
     /// <summary>Exact camera endpoint published after the scroll's final update.</summary>

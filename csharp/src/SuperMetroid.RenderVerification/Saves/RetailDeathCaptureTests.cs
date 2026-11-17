@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -63,12 +64,12 @@ internal static class RetailDeathCaptureTests
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.ReserveTankMode = ReserveCaptureFixtureDefinitions.AutomaticMode;
         }
-        var states = new HashSet<SuperMetroidGameState>();
+        var states = new HashSet<object>();
         int frames = 0;
         for (; frames < 2000; frames++)
         {
             Step(0, true);
-            states.Add(legacy.GameState);
+            states.Add(legacy.CurrentStep);
             // The dispatch that enters the game-over menu releases the runtime; both owners must release it together.
             var expectedRuntime = legacy.RuntimeForVerification;
             var actualRuntime = captured.RuntimeForVerification;
@@ -83,22 +84,22 @@ internal static class RetailDeathCaptureTests
                     expectedRuntime.Freeze.GameplayTimeFrozen != actualRuntime.Freeze.GameplayTimeFrozen)
                     throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
             }
-            if (reserveRecovery && states.Contains(SuperMetroidGameState.ReserveTanksAuto) &&
+            if (reserveRecovery && states.Contains(SuperMetroidGameState.ReserveTankRefill) &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay) break;
             if (legacy.GameState == SuperMetroidGameState.GameOverMenu) break;
         }
         if (reserveRecovery)
         {
             var samus = legacy.GameplayRuntimeForVerification.Player.IntroducedSamus;
-            if (frames == 2000 || !states.Contains(SuperMetroidGameState.ReserveTanksAuto) ||
+            if (frames == 2000 || !states.Contains(SuperMetroidGameState.ReserveTankRefill) ||
                 legacy.GameState != SuperMetroidGameState.MainGameplay || samus.Health == 0 ||
                 samus.ReserveEnergy != 0 || samus.Control.InputLocked || legacy.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen)
                 throw new InvalidOperationException("Reserve fixture missed recovery, depletion or release.");
             Console.WriteLine($"{device.Kind}: {frames + 1} exact automatic reserve recovery frames, matching PCM, energy/lock/freeze state and gameplay handoff.");
             return;
         }
-        if (frames == 2000 || !states.Contains(SuperMetroidGameState.DeathBlackOutSurroundings) ||
-            !states.Contains(SuperMetroidGameState.DeathExplosionWhiteOut) || !states.Contains(SuperMetroidGameState.DeathFinalBlackOut))
+        if (frames == 2000 || !states.Contains(DeathSequenceStep.BlackingOutSurroundings) ||
+            !states.Contains(SamusDeathSequencePhase.SuitExplosion) || !states.Contains(DeathSequenceStep.FinalBlackOut))
             throw new InvalidOperationException("Death fixture missed blackout, explosion or game-over handoff.");
         Console.WriteLine($"{device.Kind}: {frames + 1} exact death frames with matching PCM, blackout/explosion/fade and game-over handoff.");
     }

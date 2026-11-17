@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Scrolling;
@@ -30,9 +31,19 @@ internal static class RoomScrollGridAccess
         internal static RoomScrollGrid LoadNativeTable(ReadOnlySpan<byte> table, Extent16<RoomScreens> size) =>
             RoomScrollGrid.LoadNativeTable(RoomScrollGrid.PowerOnCells(), table, size);
 
-        /// <summary>Loads a native explicit table of scroll bytes into <paramref name="cells"/>, each byte read as the camera reads it.</summary>
+        /// <summary>
+        /// Loads a native explicit table of scroll bytes into <paramref name="cells"/>, each byte read as the camera reads
+        /// it: the room's own screens as the layout, and the bytes after them as the cells its load writes past them.
+        /// </summary>
         internal static RoomScrollGrid LoadNativeTable(
-            ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, ReadOnlySpan<byte> table, Extent16<RoomScreens> size) =>
-            RoomScrollGrid.FromDefinition(cells, new RoomScrollDefinition("native table", RoomScrollStates.FromStorageBytes(table)), size);
+            ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells, ReadOnlySpan<byte> table, Extent16<RoomScreens> size)
+        {
+            const string name = "native table";
+            RoomScrollState[] states = RoomScrollStates.FromStorageBytes(table);
+            int screens = Math.Min(states.Length, size.X * size.Y);
+            var pastScreens = new ScrollCellsPastRoomScreens<RoomScrollState>(
+                new Dictionary<string, IReadOnlyList<RoomScrollState>> { [name] = states[screens..] });
+            return RoomScrollGrid.FromDefinition(cells, new RoomScrollDefinition(name, states[..screens]), size, pastScreens);
+        }
     }
 }

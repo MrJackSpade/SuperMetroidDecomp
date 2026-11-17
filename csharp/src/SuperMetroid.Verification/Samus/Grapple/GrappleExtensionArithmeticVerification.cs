@@ -84,7 +84,7 @@ internal static class GrappleExtensionArithmeticVerification
     /// <summary>The quarter extension step as it was written before #1632, with its shift constants as literals.</summary>
     private static SignedSixteenSixteen ReplacedQuarterExtensionVelocity(SignedEightEight velocity, SignedSixteenSixteen previous)
     {
-        SignedSixteenSixteen quarter = velocity.ScaledBy(64);
+        SignedSixteenSixteen quarter = velocity.ScaledBy(SpeedShare.Of(1, 4));
         int whole = quarter.WholePixels;
         if (!velocity.IsNegative)
         {

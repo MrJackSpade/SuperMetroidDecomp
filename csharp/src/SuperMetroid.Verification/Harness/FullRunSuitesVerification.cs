@@ -180,7 +180,7 @@ using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverRomDataVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
 using static SuperMetroid.Verification.Progression.GameTimeVerification;
-using static SuperMetroid.Verification.Frontend.ControllerRepeatDelayVerification;
+using static SuperMetroid.Verification.Input.HeldButtonRepeatVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplaySnapshotTestsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.GateBeamCollisionVerification;
@@ -329,6 +329,7 @@ using static SuperMetroid.Verification.Enemies.RespawnedEnemyContactVerification
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyShotHealthStageVerification;
+using static SuperMetroid.Verification.Bosses.Ridley.RidleyWingBeatVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RightFacingGateGlitchVerification;
 using static SuperMetroid.Verification.Rooms.RoomAssetRomDataVerification;
 using static SuperMetroid.Verification.Rooms.RoomCallbackDefinitionsVerification;
@@ -429,6 +430,7 @@ using static SuperMetroid.Verification.Areas.Tourian.EscapeAcidRiseVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianFirstRoomMapVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueDescentRoundingVerification;
 using static SuperMetroid.Verification.Areas.Tourian.TourianStatueXrayFreezeVerification;
+using static SuperMetroid.Verification.Areas.Tourian.TourianStatueSceneLookVerification;
 using static SuperMetroid.Verification.Fx.TreadmillPhysicsVerification;
 using static SuperMetroid.Verification.Hardware.TypedWordsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.UnpauseElevatorFlagsVerification;
@@ -581,7 +583,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPhantoonPosition), () => VerifyPhantoonPosition()),
         new(nameof(VerifyPausePaletteSound), () => VerifyPausePaletteSound()),
         new(nameof(VerifyKnownRandomSequence), () => VerifyKnownRandomSequence()),
-        new(nameof(VerifyTimedHeldInputTimeline), () => VerifyTimedHeldInputTimeline()),
         new(nameof(VerifyEventBitfield), () => VerifyEventBitfield()),
         new(nameof(VerifyBossBitfield), () => VerifyBossBitfield()),
         new(nameof(VerifyMultiplicationExhaustively), () => VerifyMultiplicationExhaustively()),
@@ -680,7 +681,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEndingCreditsState), () => VerifyEndingCreditsState()),
         new(nameof(SuperMetroid.Verification.Frontend.Ending.EndingSceneColoursVerification.VerifyEndingSceneColours),
             SuperMetroid.Verification.Frontend.Ending.EndingSceneColoursVerification.VerifyEndingSceneColours),
-        new(nameof(VerifyRepeatAndHeldInputDelays), () => VerifyRepeatAndHeldInputDelays()),
+        new(nameof(VerifyHeldButtonRepeat), () => VerifyHeldButtonRepeat()),
         new(nameof(VerifyDemoInputObject), () => VerifyDemoInputObject()),
         new(nameof(VerifyAttractDemoScene), () => VerifyAttractDemoScene()),
         new(nameof(VerifyAttractDemoControllerOverride), () => VerifyAttractDemoControllerOverride()),
@@ -1124,6 +1125,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySaveConfirmationCadence), () => VerifySaveConfirmationCadence()),
         new(nameof(VerifyMessageBoxPauses), () => VerifyMessageBoxPauses()),
         new(nameof(VerifyTourianStatueXrayFreeze), () => VerifyTourianStatueXrayFreeze()),
+        new(nameof(VerifyTourianStatueSceneLook), () => VerifyTourianStatueSceneLook()),
         new(nameof(VerifyDoorAnimatedTiles), () => VerifyDoorAnimatedTiles()),
         new(nameof(VerifyTourianStatueDescentRounding), () => VerifyTourianStatueDescentRounding()),
         new(nameof(VerifyMetroidDeathDrops), () => VerifyMetroidDeathDrops()),
@@ -1194,6 +1196,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch()),
         new(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags()),
         new(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage()),
+        new(nameof(VerifyRidleyWingBeat), () => VerifyRidleyWingBeat()),
         new(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence()),
         new(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout()),
         new(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles()),

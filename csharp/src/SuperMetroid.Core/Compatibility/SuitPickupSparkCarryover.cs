@@ -41,7 +41,7 @@ public sealed class SuitPickupSparkCarryover<TStage>
 
     /// <summary>
     /// The spark's upward acceleration in 16.16 pixels per update per update, or what the suit pickup's light beam last
-    /// left in its place. The spark's additions wrap at 32 bits.
+    /// left in its place. The spark's additions wrap past the largest speed the acceleration holds to the smallest.
     /// </summary>
     public SignedSixteenSixteen SparkAcceleration { get; private set; }
 

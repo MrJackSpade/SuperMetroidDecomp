@@ -1,8 +1,11 @@
+using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rooms.Backgrounds;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The turning floor Ceres Ridley's getaway flies over (#2228): whether it shows, the update of the getaway the next update
-/// flies, how far it has turned and zoomed, the point it turns about and the capsule's and wings' steps on it.
+/// flies, how far it has turned and zoomed, the point it turns about and the capsule's and wings' pictures on it.
 /// </summary>
 public sealed class CeresTurningFloor
 {
@@ -23,8 +26,14 @@ public sealed class CeresTurningFloor
     public FloorZoom Zoom { get; internal set; }
     /// <summary>Gets the floor point the getaway turns and zooms its floor about, (64, 64) while it runs and cleared on completion.</summary>
     public Position16<FloorPixels> Center { get; internal set; }
-    /// <summary>Gets the step of the Baby capsule's cycle the floor shows.</summary>
-    public int CapsuleStep { get; internal set; }
-    /// <summary>Gets the step of the wings' two-beat cycle the floor shows.</summary>
-    public int WingBeat { get; internal set; }
+    /// <summary>Gets the picture of the Baby capsule's cycle the floor shows (#2329).</summary>
+    public ListStep<CeresFloorAnimationFrame> Capsule { get; internal set; } = FirstCapsulePicture;
+    /// <summary>Gets the picture of the wings' two-beat cycle the floor shows (#2329).</summary>
+    public ListStep<CeresFloorAnimationFrame> Wings { get; internal set; } = FirstWingPicture;
+
+    /// <summary>The capsule's picture as a getaway starts: the first of its cycle.</summary>
+    internal static ListStep<CeresFloorAnimationFrame> FirstCapsulePicture => ListStep<CeresFloorAnimationFrame>.FirstOf(CeresFloorAnimationDefinitions.CapsuleCycle);
+
+    /// <summary>The wings' picture as a getaway starts: the first of their cycle.</summary>
+    internal static ListStep<CeresFloorAnimationFrame> FirstWingPicture => ListStep<CeresFloorAnimationFrame>.FirstOf(CeresFloorAnimationDefinitions.WingCycle);
 }

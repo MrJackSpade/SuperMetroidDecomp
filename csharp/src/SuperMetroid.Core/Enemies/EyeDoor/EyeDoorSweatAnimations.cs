@@ -27,10 +27,10 @@ internal static class EyeDoorSweatAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment: the fall loops, and the splash holds once it has deleted the drop.</summary>
+    /// <summary>The animation that starts at each segment: the falling drop holds its picture, and the splash holds once it has deleted the drop.</summary>
     internal static IReadOnlyDictionary<EyeDoorSweatSegment, Animation<EyeDoorSweatSegment>> StartingAt { get; } = new Dictionary<EyeDoorSweatSegment, Animation<EyeDoorSweatSegment>>
     {
-        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.LoopsFrom(0)),
+        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.Holds),
         [P.HitFloor] = new([Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 

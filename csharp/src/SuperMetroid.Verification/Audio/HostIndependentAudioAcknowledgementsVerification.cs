@@ -118,7 +118,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
             level.ResolveDoorCollision(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
-            game.GameState = SuperMetroidGameState.HitDoorBlock;
+            game.Session.Enter(DoorTransitionStep.EnteringDoor);
             return;
         }
         throw new InvalidDataException("Landing Site has no door block.");

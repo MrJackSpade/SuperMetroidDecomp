@@ -16,9 +16,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Every writer of blocks into a running room the installation holds the pictures of (#1636), read from the installed room
 /// object catalogs and X-ray reveal, each with the room states whose installed data directly holds what starts it. Every
 /// block a room object writes comes from one of these catalogs: the game's room-object drawing draws only their installed
-/// frames and the block pairs a collectible that shows its own picture writes under it, a block reaction's setup writes
-/// only the installed setup blocks, and every other terrain write keeps the block already there or is drawn over in the
-/// same update before it shows. A writer counts for a room state only where that state's terrain holds the reaction that
+/// frames and the pair blocks a collectible that shows its own picture writes under it, which its picture covers and no
+/// sheet pictures (#2354), a block reaction's setup writes only the installed setup blocks, and every other terrain write
+/// keeps the block already there or is drawn over in the same update before it shows. A writer counts for a room state only where that state's terrain holds the reaction that
 /// starts it, its population places the room object or enemy that draws it, its setup or main routine spawns it, or a door
 /// into its room closes it behind Samus; nothing follows what a writer goes on to trigger. A block a room shows that no
 /// writer counted for its tileset fails as the room resolves its pictures, naming the sheet and the block.
@@ -50,7 +50,6 @@ internal static class RoomBlockWriters
             new(FrameBlocks(catalogs.DownwardGate.Images), state => state.HoldsDownwardGateTriggers ||
                 state.Headers.Contains(RoomObjectKind.DownwardGate) || state.Headers.Contains(RoomObjectKind.DownwardGateShotBlock)),
             .. PerFrame(catalogs.Collectible.Images, CollectibleFrameWrittenIn),
-            new(BlockPairBlocks(), state => state.PlacesCollectible(static (kind, _) => CollectibleObjects.ShowsOwnPicture(kind))),
             .. PerFrame(catalogs.Station.Images, StationFrameWrittenIn),
             new(FrameBlocks(catalogs.ElevatorPlatform.Images), Placing([RoomObjectKind.ElevatorPlatform])),
             new(FrameBlocks(catalogs.BombTorizoHand.Images), Placing([RoomObjectKind.BombTorizoHand])),
@@ -260,14 +259,6 @@ internal static class RoomBlockWriters
     private static IEnumerable<RoomBlockWriter> PerFrame<TFrame>(RoomObjectFrameImages<TFrame> images,
         Func<TFrame, Func<InventoriedRoomState, bool>> writtenIn) where TFrame : notnull =>
         images.All.Select(frame => new RoomBlockWriter(BlocksOf(frame.Value), writtenIn(frame.Key)));
-
-    /// <summary>
-    /// The blocks a collectible that shows its own picture writes under it, a block pair's frames in turn, which a room shows
-    /// where the picture does not cover them (#1538).
-    /// </summary>
-    private static HashSet<int> BlockPairBlocks() =>
-        [.. Enum.GetValues<CollectibleDraw>().Select(CollectibleObjectDraws.BlockPairTerrain).OfType<RoomTerrainBlock>()
-            .Select(terrain => terrain.Appearance.Block)];
 
     /// <summary>The blocks <paramref name="shown"/> show, each once; an appearance that shows nothing shows none (#2100).</summary>
     private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) =>

@@ -45,7 +45,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </summary>
 [CompatibilityService("a countdown that keeps the value it wrapped to, so a timer decremented past zero reads as a large or negative count")]
-[EncodingOwner("wrapping sixteen-bit countdown")]
+[EncodingOwner("wrapping countdown of 0 through 65535")]
 public readonly record struct WrappingCountdown
 {
     /// <summary>The frames at which a countdown reads as negative: it has run past zero.</summary>
@@ -59,7 +59,7 @@ public readonly record struct WrappingCountdown
 
     /// <summary>The countdown's count, 0 through 65535.</summary>
     [IntegerQuantity("the countdown's remaining count")]
-    internal readonly ushort count;
+    private readonly ushort count;
 
     /// <summary>Stores <paramref name="frames"/> exactly; callers use <see cref="Start"/>.</summary>
     private WrappingCountdown(ushort frames) => count = frames;
@@ -93,7 +93,7 @@ public readonly record struct WrappingCountdown
 
     /// <summary>
     /// The position in a cycle of <paramref name="phases"/> looks, each lasting <paramref name="phaseFrames"/> frames, that
-    /// the frames left select: a shake offset or palette that steps as the timer runs down.
+    /// the frames left select: a shake offset or a colour that steps as the timer runs down.
     /// </summary>
     /// <param name="phaseFrames">The frames each look lasts, positive.</param>
     /// <param name="phases">The looks in the cycle, positive.</param>

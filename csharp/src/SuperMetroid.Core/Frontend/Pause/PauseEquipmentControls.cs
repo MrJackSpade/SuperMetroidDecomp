@@ -17,48 +17,48 @@ internal static class PauseEquipmentControls
 
     /// <summary>CHARGE.</summary>
     internal static readonly PauseUpgradeControl Charge =
-        new(PauseEquipmentCategory.Beams, "Beam.Charge", PauseEquipmentBit.Of(SamusBeamFlags.Charge), PauseEquipmentLabelId.Charge);
+        new(PauseEquipmentCategory.Beams, "Beam.Charge", new BeamPauseUpgrade(SamusBeamFlags.Charge), PauseEquipmentLabelId.Charge);
     /// <summary>ICE.</summary>
     internal static readonly PauseUpgradeControl Ice =
-        new(PauseEquipmentCategory.Beams, "Beam.Ice", PauseEquipmentBit.Of(SamusBeamFlags.Ice), PauseEquipmentLabelId.Ice);
+        new(PauseEquipmentCategory.Beams, "Beam.Ice", new BeamPauseUpgrade(SamusBeamFlags.Ice), PauseEquipmentLabelId.Ice);
     /// <summary>WAVE.</summary>
     internal static readonly PauseUpgradeControl Wave =
-        new(PauseEquipmentCategory.Beams, "Beam.Wave", PauseEquipmentBit.Of(SamusBeamFlags.Wave), PauseEquipmentLabelId.Wave);
+        new(PauseEquipmentCategory.Beams, "Beam.Wave", new BeamPauseUpgrade(SamusBeamFlags.Wave), PauseEquipmentLabelId.Wave);
     /// <summary>SPAZER.</summary>
     internal static readonly PauseUpgradeControl Spazer =
-        new(PauseEquipmentCategory.Beams, "Beam.Spazer", PauseEquipmentBit.Of(SamusBeamFlags.Spazer), PauseEquipmentLabelId.Spazer);
+        new(PauseEquipmentCategory.Beams, "Beam.Spazer", new BeamPauseUpgrade(SamusBeamFlags.Spazer), PauseEquipmentLabelId.Spazer);
     /// <summary>PLASMA.</summary>
     internal static readonly PauseUpgradeControl Plasma =
-        new(PauseEquipmentCategory.Beams, "Beam.Plasma", PauseEquipmentBit.Of(SamusBeamFlags.Plasma), PauseEquipmentLabelId.Plasma);
+        new(PauseEquipmentCategory.Beams, "Beam.Plasma", new BeamPauseUpgrade(SamusBeamFlags.Plasma), PauseEquipmentLabelId.Plasma);
 
     /// <summary>VARIA SUIT.</summary>
     internal static readonly PauseUpgradeControl Varia =
-        new(PauseEquipmentCategory.Suits, "Equipment.Varia", PauseEquipmentBit.Of(SamusEquipmentFlags.VariaSuit), PauseEquipmentLabelId.Varia);
+        new(PauseEquipmentCategory.Suits, "Equipment.Varia", new ItemPauseUpgrade(SamusEquipmentFlags.VariaSuit), PauseEquipmentLabelId.Varia);
     /// <summary>GRAVITY SUIT.</summary>
     internal static readonly PauseUpgradeControl Gravity =
-        new(PauseEquipmentCategory.Suits, "Equipment.Gravity", PauseEquipmentBit.Of(SamusEquipmentFlags.GravitySuit), PauseEquipmentLabelId.Gravity);
+        new(PauseEquipmentCategory.Suits, "Equipment.Gravity", new ItemPauseUpgrade(SamusEquipmentFlags.GravitySuit), PauseEquipmentLabelId.Gravity);
     /// <summary>MORPHING BALL.</summary>
     internal static readonly PauseUpgradeControl MorphBall =
-        new(PauseEquipmentCategory.Suits, "Equipment.MorphBall", PauseEquipmentBit.Of(SamusEquipmentFlags.MorphBall), PauseEquipmentLabelId.MorphBall);
+        new(PauseEquipmentCategory.Suits, "Equipment.MorphBall", new ItemPauseUpgrade(SamusEquipmentFlags.MorphBall), PauseEquipmentLabelId.MorphBall);
     /// <summary>BOMBS.</summary>
     internal static readonly PauseUpgradeControl Bombs =
-        new(PauseEquipmentCategory.Suits, "Equipment.Bombs", PauseEquipmentBit.Of(SamusEquipmentFlags.Bombs), PauseEquipmentLabelId.Bombs);
+        new(PauseEquipmentCategory.Suits, "Equipment.Bombs", new ItemPauseUpgrade(SamusEquipmentFlags.Bombs), PauseEquipmentLabelId.Bombs);
     /// <summary>SPRING BALL.</summary>
     internal static readonly PauseUpgradeControl SpringBall =
-        new(PauseEquipmentCategory.Suits, "Equipment.SpringBall", PauseEquipmentBit.Of(SamusEquipmentFlags.SpringBall), PauseEquipmentLabelId.SpringBall);
+        new(PauseEquipmentCategory.Suits, "Equipment.SpringBall", new ItemPauseUpgrade(SamusEquipmentFlags.SpringBall), PauseEquipmentLabelId.SpringBall);
     /// <summary>SCREW ATTACK.</summary>
     internal static readonly PauseUpgradeControl ScrewAttack =
-        new(PauseEquipmentCategory.Suits, "Equipment.ScrewAttack", PauseEquipmentBit.Of(SamusEquipmentFlags.ScrewAttack), PauseEquipmentLabelId.ScrewAttack);
+        new(PauseEquipmentCategory.Suits, "Equipment.ScrewAttack", new ItemPauseUpgrade(SamusEquipmentFlags.ScrewAttack), PauseEquipmentLabelId.ScrewAttack);
 
     /// <summary>HI-JUMP BOOTS.</summary>
     internal static readonly PauseUpgradeControl HiJump =
-        new(PauseEquipmentCategory.Boots, "Boots.HiJump", PauseEquipmentBit.Of(SamusEquipmentFlags.HiJumpBoots), PauseEquipmentLabelId.HiJump);
+        new(PauseEquipmentCategory.Boots, "Boots.HiJump", new ItemPauseUpgrade(SamusEquipmentFlags.HiJumpBoots), PauseEquipmentLabelId.HiJump);
     /// <summary>SPACE JUMP.</summary>
     internal static readonly PauseUpgradeControl SpaceJump =
-        new(PauseEquipmentCategory.Boots, "Boots.SpaceJump", PauseEquipmentBit.Of(SamusEquipmentFlags.SpaceJump), PauseEquipmentLabelId.SpaceJump);
+        new(PauseEquipmentCategory.Boots, "Boots.SpaceJump", new ItemPauseUpgrade(SamusEquipmentFlags.SpaceJump), PauseEquipmentLabelId.SpaceJump);
     /// <summary>SPEED BOOSTER.</summary>
     internal static readonly PauseUpgradeControl SpeedBooster =
-        new(PauseEquipmentCategory.Boots, "Boots.SpeedBooster", PauseEquipmentBit.Of(SamusEquipmentFlags.SpeedBooster), PauseEquipmentLabelId.SpeedBooster);
+        new(PauseEquipmentCategory.Boots, "Boots.SpeedBooster", new ItemPauseUpgrade(SamusEquipmentFlags.SpeedBooster), PauseEquipmentLabelId.SpeedBooster);
 
     /// <summary>The reserve column, top to bottom.</summary>
     internal static readonly ImmutableArray<PauseReserveControl> Reserves = [ReserveMode, ReserveTransfer];

@@ -37,4 +37,12 @@ internal static class PrivateState
         (TValue)(typeof(TOwner).GetField(field, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingMemberException(typeof(TOwner).Name, field))
         .GetValue(Ensure.NotNull(owner))!;
+
+    /// <summary>The value of the instance field <paramref name="field"/> of the value <paramref name="owner"/>.</summary>
+    /// <exception cref="MissingMemberException">The owner's type has no instance field of that name.</exception>
+    /// <exception cref="InvalidCastException">The field does not hold a <typeparamref name="TValue"/>.</exception>
+    internal static TValue ValueField<TOwner, TValue>(TOwner owner, string field) where TOwner : struct =>
+        (TValue)(typeof(TOwner).GetField(field, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingMemberException(typeof(TOwner).Name, field))
+        .GetValue(owner)!;
 }

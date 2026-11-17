@@ -44,7 +44,7 @@ internal static class SignedLineScrollRowsVerification
         AssertEqual(290 - 310 + ScreenGeometry.LayerRowsHiddenAboveScreen, melt.BaseScroll, "the melt's row above the camera's is negative");
 
         // Phantoon's wave with his body right of the camera's corner: the wave's base scroll is negative.
-        ScrollWave wave = BossLineScrolls.Of(new PhantoonWave(256, default, 64), new Position16<RoomPixels>(100, 0), new Position16<RoomPixels>(130, 0));
+        ScrollWave wave = BossLineScrolls.Of(new PhantoonWave(new UnsignedSixteenSixteen(1, 0), default, 64), new Position16<RoomPixels>(100, 0), new Position16<RoomPixels>(130, 0));
         AssertEqual(-30, wave.BaseScroll, "Phantoon's wave about a body right of the camera's corner is negative");
         Console.WriteLine("Signed line-scroll rows: the haze, the melt and Phantoon's wave read negative above or left of the origin.");
     }

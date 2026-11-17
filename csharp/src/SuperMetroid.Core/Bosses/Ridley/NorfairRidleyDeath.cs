@@ -4,8 +4,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -39,17 +37,16 @@ internal sealed class NorfairRidleyDeath
     }
 
     /// <summary>Releases Samus's script lock and grants movement-dependent intangibility outside death.</summary>
-    internal static void ReleaseNorfairRidleyGrab(NorfairRidleyState state, SamusState? samus)
+    internal static void ReleaseNorfairRidleyGrab(NorfairRidleyState state, SamusState samus)
     {
         state.GrabState = RidleyGrabState.Released;
-        samus?.Control.Unlock();
+        Ensure.NotNull(samus).Control.Unlock();
         state.Tail.WhipRequested = true;
         state.Tail.Action = RidleyTailAction.Neutral;
         // The hurt timer is left untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
-            SamusMovementType movement = samus is null ? SamusMovementType.Standing : SamusPoseMetadata.ReadMovementType(samus);
-            state.IntangibilityTimer = RidleyGrabs.ReleaseIntangibilityFrames(movement);
+            state.IntangibilityTimer = RidleyGrabs.ReleaseIntangibilityFrames(SamusPoseMetadata.ReadMovementType(samus));
         }
     }
 
@@ -60,7 +57,8 @@ internal sealed class NorfairRidleyDeath
     /// </summary>
     internal void TickNorfairRidleyDeathRoar(
         RoomEnemyPlace body,
-        NorfairRidleyState state)
+        NorfairRidleyState state,
+        SamusState samus)
     {
         NorfairRidleyMovement.MoveNorfairRidleyToward(body, state.Flight, NorfairRidleyArenaDefinitions.DeathSpot,
             RidleyInertiaDefinitions.DeathDivisor, RidleyInertiaDefinitions.DeathReversalBoost);
@@ -74,7 +72,7 @@ internal sealed class NorfairRidleyDeath
         state.NextDeathExplosion = NorfairRidleyState.FirstDeathExplosion;
         state.Phase = NorfairRidleyPhase.DeathExplosions;
         state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.DeathExplosionUpdates);
-        TickNorfairRidleyDeathExplosions(body, state, samus: null);
+        TickNorfairRidleyDeathExplosions(body, state, samus);
     }
 
     /// <summary>
@@ -85,7 +83,7 @@ internal sealed class NorfairRidleyDeath
     internal void TickNorfairRidleyDeathExplosions(
         RoomEnemyPlace body,
         NorfairRidleyState state,
-        SamusState? samus)
+        SamusState samus)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
         if (!state.PhaseTimer.StepRunsOut())

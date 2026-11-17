@@ -39,8 +39,7 @@ internal abstract class RoomObjectSetup
     {
         /// <inheritdoc/>
         internal override void SetUp(RoomObjectSetupContext context) =>
-            ScrollObjects.SetupScroll(context.Room.Level, context.Place, kind, context.Placement.ScrollChange,
-                context.Placement.CompiledScrollChange);
+            ScrollObjects.SetupScroll(context.Room.Level, context.Place, kind, context.Placement.ScrollChange);
     }
 
     /// <summary>A permanent item's setup: its kind shown as it is placed, unless its placement's item is already collected.</summary>

@@ -119,12 +119,16 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, reacts to meeting a wall, and arms a turn toward Samus behind it.</summary>
-    internal AnimationContinuation<TorizoAnimation>? ProcessGoldenTorizoWalkAnimation(
+    /// <summary>
+    /// Moves the Torizo by the walking step's <paramref name="stepPixels"/>, turns it as <paramref name="walker"/> turns at a
+    /// wall in its way, and otherwise arms its turn toward a Samus behind it (#2335).
+    /// </summary>
+    internal AnimationContinuation<TorizoAnimation>? ProcessTorizoWalkStep(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,
         RoomLevelData level,
+        TorizoWalker walker,
         int stepPixels)
     {
         state.Velocity = state.Velocity.WithX(TorizoWalkLeftVelocity.Of(stepPixels));
@@ -132,21 +136,19 @@ internal sealed class TorizoChoices
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.TurnTimer = 0;
-            return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo)
-                ? TorizoAnimation.GoldenTurningLeft
-                : TorizoAnimation.GoldenTurningRight);
+            return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo) ? walker.WallTurnFacingRight : walker.WallTurnFacingLeft);
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
         if (FacesAwayFromSamus(torizo, samus) &&
             state.TurnTimer == 0)
         {
-            state.TurnTimer = TorizoDecisionDefinitions.GoldenTurnDelay;
+            state.TurnTimer = walker.TurnDelay;
         }
         return null;
     }
 
-    /// <summary>Sets the facing-dependent forward leap velocity and restarts its frame timer.</summary>
+    /// <summary>Sets the facing-dependent forward leap velocity; the leap's crouch, which the decision continues in, times its frame.</summary>
     private static void StartGoldenTorizoForwardJump(
         RoomEnemyPlace torizo,
         TorizoEnemyState state)
@@ -154,7 +156,6 @@ internal sealed class TorizoChoices
         SignedEightEight side = TorizoMotionDefinitions.ForwardLeapSideSpeed;
         state.Velocity = new(TorizoFacing.FacesRight(torizo) ? side : -side, TorizoMotionDefinitions.ForwardLeapRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
-        torizo.AnimationClock.StepOnNextUpdate();
     }
 
     /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
@@ -165,30 +166,6 @@ internal sealed class TorizoChoices
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
         state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
-        torizo.AnimationClock.StepOnNextUpdate();
-    }
-
-    /// <summary>Uses the walk step's velocity and wall branches, arming a turn toward Samus when she is behind it.</summary>
-    internal AnimationContinuation<TorizoAnimation>? ProcessBombTorizoWalkAnimation(RoomEnemyPlace torizo, TorizoEnemyState state, SamusState samus, RoomLevelData level, TorizoWalkStep step)
-    {
-        int stepPixels = step.Velocity;
-        state.Velocity = state.Velocity.WithX(TorizoWalkLeftVelocity.Of(stepPixels));
-        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromWholePixels(stepPixels);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
-        {
-            state.TurnTimer = 0;
-            return TorizoAnimations.ContinueWith(TorizoFacing.FacesRight(torizo)
-                ? step.CollisionFacingRight
-                : step.CollisionFacingLeft);
-        }
-
-        EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, torizo);
-        if (FacesAwayFromSamus(torizo, samus) &&
-            state.TurnTimer == 0)
-        {
-            state.TurnTimer = TorizoDecisionDefinitions.BombTurnDelay;
-        }
-        return null;
     }
 
     /// <summary>Interrupts the walk with the swipe, keeping the walk's place, when Samus is within 56 pixels behind the statue.</summary>
@@ -224,7 +201,6 @@ internal sealed class TorizoChoices
         SignedEightEight side = TorizoMotionDefinitions.BackwardJumpSideSpeed;
         state.Velocity = new(TorizoFacing.FacesRight(torizo) ? -side : side, TorizoMotionDefinitions.BackwardJumpRise);
         state.JumpAcceleration = TorizoMotionDefinitions.LeapGravity;
-        torizo.AnimationClock.StepOnNextUpdate();
         return TorizoAnimations.ContinueWith(target);
     }
 

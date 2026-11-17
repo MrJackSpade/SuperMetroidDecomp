@@ -22,7 +22,10 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
     private readonly RoomEarthquake _earthquake;
     /// <summary>Audio queue receiving the statue eye release sound.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>The entrance statue, whose scene look every unlock effect shows and whose eyes each release lights.</summary>
+    /// <summary>
+    /// The entrance statue, whose scene look every unlock effect spawns in and which shows each later look on it, and
+    /// whose eyes each release lights.
+    /// </summary>
     private readonly TourianEntranceStatueBehavior _statue;
 
 
@@ -60,6 +63,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
                 Effects,
                 _statue.SceneGraphics);
+            _statue.HoldSceneProjectile(projectile);
             projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust));
             projectile.State = new AnchoredProjectileState(TourianStatueSequenceDefinitions.DescentDustAnchor);
         }
@@ -89,6 +93,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return null;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        _statue.HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(eye.Position);
         return projectile;
@@ -106,6 +111,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, Effects, _statue.SceneGraphics);
+        _statue.HoldSceneProjectile(projectile);
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)

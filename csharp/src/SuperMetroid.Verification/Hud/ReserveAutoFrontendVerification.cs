@@ -62,7 +62,7 @@ internal static class ReserveAutoFrontendVerification
         // the first reserve point early or letting Start replace it with pause.
         game.GameState = SuperMetroidGameState.MainGameplay;
         var entry = game.StepCaptured(ControllerButton.Start);
-        AssertEqual(SuperMetroidGameState.ReserveTanksAuto, game.GameState,
+        AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState,
             "zero-health gameplay routes to automatic reserves before pause admission");
         AssertEqual(0, samus.Health, "entry frame does not transfer reserve energy early");
         AssertEqual(2, samus.ReserveEnergy, "entry frame retains the full reserve supply");
@@ -103,7 +103,7 @@ internal static class ReserveAutoFrontendVerification
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationNumber;
         lockedAnimationTimer = samus.AnimationFrameTimer.RawValue;
-        game.GameState = SuperMetroidGameState.ReserveTanksAuto;
+        game.GameState = SuperMetroidGameState.ReserveTankRefill;
         for (int frame = 0; frame < 33; frame++)
         {
             // Drain the unrelated host transport between observations. Production

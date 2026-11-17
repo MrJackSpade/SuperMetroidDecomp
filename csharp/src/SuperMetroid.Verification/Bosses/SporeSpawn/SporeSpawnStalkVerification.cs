@@ -39,7 +39,7 @@ internal static class SporeSpawnStalkVerification
         AssertEqual(new Position16<RoomPixels>(128, 560), state.StalkLinks[0].Position.Whole,
             "Spore Spawn's first stalk link hangs at the ceiling");
 
-        enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 600), HorizontalDirection.Right, state);
+        enemies.SporeSpawnBehavior.Spawner.SpawnSporeSpawnSpore(new(128, 600), HorizontalDirection.Right, state);
         AssertEqual(9, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
             "the stalk, four spawners and a spore are live before the clear");
         enemies.SporeSpawnBehavior.DeleteProjectilesButStalk(state);

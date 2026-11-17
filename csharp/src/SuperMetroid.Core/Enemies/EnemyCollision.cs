@@ -739,8 +739,8 @@ internal sealed class EnemyCollision
                 continue;
             var context = new EnemyPowerBombContext(enemy, samus, level, camera);
 
-            // Private reactions replace common power-bomb damage, but still receive the
-            // process-off-screen bit after a qualifying ellipse overlap.
+            // A reaction of the enemy's own replaces the common Power Bomb damage, and the
+            // enemy still goes on updating off screen once the blast's ellipse reaches it.
             if (reaction?.ReplacesCommon is { } privateReaction)
             {
                 privateReaction(context);
@@ -814,8 +814,8 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Freezes an enemy a shot froze: for <see cref="EnemyCollisionDefinitions.NorfairFreezeUpdates"/> in a Norfair room
-    /// and <see cref="EnemyCollisionDefinitions.FreezeUpdates"/> in a room of any other area, as the original reads the
-    /// current area. The protection after a freeze is shared by direct authored freezing and the lethal-Ice substitution.
+    /// and <see cref="EnemyCollisionDefinitions.FreezeUpdates"/> in a room of any other area. The protection after a freeze
+    /// is shared by direct authored freezing and the lethal-Ice substitution.
     /// </summary>
     /// <param name="enemy">The enemy frozen.</param>
     /// <param name="roomArea">The area of the room the enemy is in.</param>

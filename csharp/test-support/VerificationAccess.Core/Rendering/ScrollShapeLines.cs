@@ -58,11 +58,11 @@ internal static class ScrollShapeLines
 
     /// <summary>
     /// The scroll <paramref name="wave"/> gives screen line <paramref name="line"/>: inside its band, the base moved by the
-    /// sample the line reaches times the amplitude, rounded down; outside it, the base.
+    /// whole pixels of the sample the line reaches; outside it, the base.
     /// </summary>
     internal static ushort SampledScroll(SampledScrollWave wave, int line) =>
         line < wave.FirstLine || line >= wave.EndLine ? unchecked((ushort)wave.BaseScroll)
-        : unchecked((ushort)(wave.BaseScroll + EightEight.Multiply(wave.Samples[(wave.Phase + line) % wave.Period], wave.Amplitude)));
+        : unchecked((ushort)(wave.BaseScroll + wave.Samples[(wave.Phase + line) % wave.Period]));
 
     /// <summary>The scroll <paramref name="bands"/> give screen line <paramref name="line"/>: the last band beginning on or above it, or the base above the first.</summary>
     internal static ushort BandScroll(ScrollBands bands, int line)

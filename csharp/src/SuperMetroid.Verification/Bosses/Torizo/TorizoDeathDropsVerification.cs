@@ -14,6 +14,12 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// </summary>
 internal static class TorizoDeathDropsVerification
 {
+    /// <summary>The bank-relative place of the enemy header whose drop chances a broken Bomb Torizo orb rolls.</summary>
+    internal const int BombTorizoOrbHeader = 0xef3f;
+
+    /// <summary>The bank-relative place of the enemy header whose drop chances a broken Golden Torizo orb rolls.</summary>
+    internal const int GoldenTorizoOrbHeader = 0xefbf;
+
     /// <summary>Decodes the drop table Bomb Torizo's header names and compares it with the death drops' chances.</summary>
     internal static void VerifyTorizoDeathDropChances(CartridgeImportAddressSpace rom)
     {
@@ -23,13 +29,13 @@ internal static class TorizoDeathDropsVerification
         AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord(header + 58)),
             TorizoDeathDefinitions.DeathDropChances, "the Torizos' death drop chances are Bomb Torizo's header's");
         // Each orb's drop rolls the table its own header names (#2332).
-        foreach ((EnemyDefinitionId orb, EnemyDropChances chances) in new[]
+        foreach ((string orb, int orbHeaderPlace, EnemyDropChances chances) in new[]
                  {
-                     (EnemyDefinitionId.BombTorizoOrb, TorizoChozoOrbDefinitions.BombTorizoOrbDropChances),
-                     (EnemyDefinitionId.GoldenTorizoOrb, TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances),
+                     ("Bomb Torizo orb", BombTorizoOrbHeader, TorizoChozoOrbDefinitions.BombTorizoOrbDropChances),
+                     ("Golden Torizo orb", GoldenTorizoOrbHeader, TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances),
                  })
         {
-            int orbHeader = RoomEnemyRomLayout.DefinitionBank | EnemyDefinitionIds.HeaderPointer(orb);
+            int orbHeader = RoomEnemyRomLayout.DefinitionBank | orbHeaderPlace;
             AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord(orbHeader + 58)), chances,
                 $"{orb}'s drop chances are its header's");
         }

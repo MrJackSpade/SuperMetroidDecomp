@@ -142,13 +142,13 @@ public sealed class RoomLevelData
     public Extent16<RoomBlocks> Size { get; }
 
     /// <summary>The door definition selected by the most recent door-block collision, until the transition consumes it.</summary>
-    public DoorDefinition? PendingDoorTransition { get; internal set; }
+    public DoorDefinition? PendingDoorTransition { get; private set; }
 
     /// <summary>
     /// Set when a door block resolves to the elevator's pseudo door for a standing pose. Enemies update before Samus's
     /// collision, so the elevator consumes this publication at the beginning of the following gameplay frame.
     /// </summary>
-    public bool ElevatorDoorContactPending { get; internal set; }
+    public bool ElevatorDoorContactPending { get; private set; }
 
     /// <summary>
     /// The foreground as the room shows it (#1346). The same immutable plane is returned until a block write, so frames

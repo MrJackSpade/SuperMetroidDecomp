@@ -7,10 +7,10 @@ using P = SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorSegment;
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
 /// <summary>
-/// Every room effect-actor animation the named object kinds reach, as a typed animation: each timed beat shows a
-/// <see cref="RoomEffectActorPicture"/>, an enemy-sheet frame or, for the hit burst, one of Samus's burst sprites
-/// (#1817); a hold keeps the last frame showing, deletion stops the animation, and a jump continues at another
-/// animation.
+/// Every room effect actor's animation (#2275): each kind plays its segment once and stops, loops it, or, for a Metroid's
+/// electricity and shell, runs a first pass on into a looping cycle, and a Yapping Maw's base holds a still picture. Each
+/// beat shows a <see cref="RoomEffectActorPicture"/>: an enemy-sheet frame or, for the hit burst, one of Samus's burst
+/// pictures (#1817).
 /// </summary>
 internal static class RoomEffectActorAnimations
 {

@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// corpse. Mother Brain, the dead Torizo and every dead monster rot by the same schedule, each corpse with its own.
 /// </summary>
 /// <remarks>
-/// The game keeps every corpse's schedule in one place all corpses share, but no room places two corpses whose
-/// schedules overlap there, so no corpse's rot can reach another's (#1472).
+/// Each corpse keeps its own schedule. No room holds two corpses that rot at once, so no corpse's rot reaches
+/// another's (#1472).
 /// </remarks>
 public sealed class CorpseRotSchedule
 {
@@ -41,10 +41,10 @@ public sealed class CorpseRotSchedule
     /// <param name="moveRow">
     /// Receives the corpse pixel row moved and whether it is moved down, clearing its source, or copied down.
     /// </param>
-    /// <param name="rowFallen">Receives each row as it falls out of the corpse, the last row too, before the call returns.</param>
+    /// <param name="rowFallen">Receives each row as it falls out of the corpse, the last row too, before the step ends.</param>
     /// <returns>True while another rot update is needed; false once the last row has fallen.</returns>
     /// <remarks>
-    /// The last row's fall ends the rot without marking the row fallen, so a further call on a finished schedule lets it
+    /// The last row's fall ends the rot without marking the row fallen, so stepping a finished schedule again lets it
     /// fall once more, as the game's does.
     /// </remarks>
     public bool Step(Action<int, CorpseRowOperation> moveRow, Action<int> rowFallen)

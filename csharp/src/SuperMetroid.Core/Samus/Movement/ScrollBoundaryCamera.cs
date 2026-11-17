@@ -115,7 +115,7 @@ public sealed class ScrollBoundaryCamera
         Position = Position.WithFractionsOf(retained);
 
     /// <summary>
-    /// Publishes the modular camera position the door-transition scroll owns.
+    /// Publishes the camera position the door-transition scroll owns, which may lie outside the room.
     /// </summary>
     /// <remarks>
     /// The vertical transitions deliberately begin outside the destination room:

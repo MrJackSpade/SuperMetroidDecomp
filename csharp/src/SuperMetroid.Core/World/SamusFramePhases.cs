@@ -1172,7 +1172,7 @@ internal sealed class SamusFramePhases
         }
 
         // The item fanfare publishes its same-pose history shift only on the
-        // completion call, before her ordinary input and movement modes regain control.
+        // update it ends, before her ordinary input and movement modes regain control.
         samus.CommitPoseHistory();
         samus.Control.Unlock();
         _player.GroundedSamusMovementEnabled = true;

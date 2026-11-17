@@ -404,14 +404,14 @@ internal static class EnemyDropsVerification
         AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, explosion.Graphics,
             "enemy-death initializer replaces the dying actor's room graphics with the cleared word's common colours");
 
-        EnemyDeathProjectileSegment converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion, fixture.Samus);
+        EnemyDeathAndDropSegment converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion, fixture.Samus);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "EEAF converts death actor in place without rewriting its definition identity");
         AssertEqual(EnemyPickupKind.SmallEnergy, explosion.StateOf<EnemyPickupState>().Kind,
             "converted death actor becomes a small-energy pickup");
         AssertEqual<Enum?>(SingleMotion.Moving, explosion.Motion,
             "converted death actor enters shared pickup pre-instruction");
-        AssertEqual(EnemyDeathProjectileSegment.SmallEnergy, converted,
+        AssertEqual(EnemyDeathAndDropSegment.SmallEnergy, converted,
             "converted death actor continues at the small-energy drop program");
     }
 

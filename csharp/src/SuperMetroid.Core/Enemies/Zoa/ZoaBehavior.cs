@@ -83,7 +83,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole) >= ZoaSpeedDefinitions.ActivationDistance)
             return;
 
-        // The Zoa rises facing Samus, judged by the same wrapped distance from the Zoa to her.
+        // The Zoa rises facing Samus, judged across the room as the distance to her is.
         state.Facing = CoordinateAxis.Precedes(samus.Position.X.Whole, place.Position.X.Whole)
             ? HorizontalDirection.Left
             : HorizontalDirection.Right;

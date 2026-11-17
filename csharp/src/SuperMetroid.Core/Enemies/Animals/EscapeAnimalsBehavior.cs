@@ -46,8 +46,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new EscapeEtecoonEnemyState(initialization.Action);
         place.SetSpeciesState(state);
 
-        // The critters-escaped event means the animals already escaped on an earlier visit. Code
-        // deletes the actor before changing any animation, position, colours, or AI fields.
+        // The critters-escaped event means the animals already escaped on an earlier visit, so the animal leaves the
+        // room before it shows, moves or acts.
         if (HasCrittersEscaped())
         {
             place.Presence = place.Presence.With(EnemyPresence.Deleted);
@@ -236,7 +236,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsAcidLow(SamusState samus) =>
         samus.LiquidPhysics.LavaAcidSurfaceY is not int surface || surface >= EscapeAnimalMotionDefinitions.LowAcidSurfaceY;
 
-    /// <summary>Moves the actor horizontally by <paramref name="displacement"/>, wrapping within the coordinate range.</summary>
+    /// <summary>Moves the animal horizontally by <paramref name="displacement"/>.</summary>
     private static void AddEscapeAnimalX(RoomEnemyPlace place, SignedSixteenSixteen displacement) =>
         place.Position = place.Position.WithX(place.Position.X.MovedBy(displacement));
 

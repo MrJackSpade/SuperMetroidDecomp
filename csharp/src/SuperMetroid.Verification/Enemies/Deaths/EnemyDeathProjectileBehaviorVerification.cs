@@ -43,18 +43,18 @@ internal static class EnemyDeathProjectileBehaviorVerification
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, deathAnimation: EnemyDeathExplosion.Small, fixture.Samus);
         EnemyProjectile dying = fixture.System.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         int updates = 0;
-        while (ProgramOf(dying) == EnemyDeathProjectileSegment.SmallExplosion)
+        while (ProgramOf(dying) == EnemyDeathAndDropSegment.SmallExplosion)
         {
             fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
             AssertTrue(++updates < 64, "the small explosion converts within its six frames");
         }
-        AssertEqual(EnemyDeathProjectileSegment.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
+        AssertEqual(EnemyDeathAndDropSegment.SmallEnergy, ProgramOf(dying), "the conversion continues at the rolled small-energy drop");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.EnemyPickupEnergySmallDark),
             dying.PresentationOperandAddress, "the drop's first frame shows on the conversion's own pass");
 
         dying.StateOf<EnemyPickupState>().Lifetime = 1;
         fixture.System.DeathsAndDrops.TendEnemyPickup(dying, samus);
-        AssertEqual(EnemyDeathProjectileSegment.RespawnTail, ProgramOf(dying), "an expired drop starts the respawn tail");
+        AssertEqual(EnemyDeathAndDropSegment.RespawnTail, ProgramOf(dying), "an expired drop starts the respawn tail");
         for (int update = 0; update < 70 && dying.IsActive; update++)
             fixture.System.Projectiles.AdvanceEnemyProjectileAnimations(dying, samus, Position16<RoomPixels>.Zero, shortCounter: 0);
         AssertTrue(!dying.IsActive, "the respawn tail deletes the drop after its blank frame");

@@ -12,7 +12,7 @@ public enum EtecoonAction
     PreJumpCountdown,
     /// <summary>Hops vertically, clears upward velocity on ceiling contact, and chooses a Samus-facing pause or another hop on downward collision.</summary>
     InitialJump,
-    /// <summary>Waits through the 32-update look-at countdown, then installs leftward or rightward running at two pixels per update.</summary>
+    /// <summary>Looks at Samus for 32 updates, then runs left or right at two pixels an update.</summary>
     FaceSamusPause,
     /// <summary>Moves left using terrain collision and reverses into rightward running when it hits a wall.</summary>
     RunLeftToWall,

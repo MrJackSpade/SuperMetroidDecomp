@@ -33,9 +33,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The game performs the same magnitude calculation here and again at the
-        // beginning of every main-AI update, so the speeds are already set when the room
-        // finishes loading, before the first frame.
+        // The speeds along each axis are set as the room loads, before the first update, as each update
+        // sets them again.
         CalculateMultiviolaVelocityMagnitudes(state);
         state.Playback = new(MultiviolaAnimations.StartingWith(MultiviolaSegment.Flying), AnimationPlace.StartOfAnimation);
     }
@@ -46,9 +45,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         MultiviolaEnemyState state,
         RoomLevelData level)
     {
-        // The two magnitudes are always rebuilt from the current reflected angle. The game
-        // therefore stores the attempted velocity for this frame, not a persistent
-        // direction vector that can simply be negated after collision.
+        // Each update sets the speeds along each axis afresh from the heading the bounces turn; a bounce turns the
+        // heading, never the velocity.
         CalculateMultiviolaVelocityMagnitudes(state);
 
         // The products are magnitudes; the signs of the heading's cosine and sine give each axis its direction.
@@ -79,7 +77,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Recreates the shared unsigned |cos|/|sin| products of the heading and speed.
+    /// Sets the Multiviola's speed along each axis from its heading and speed, without direction: the heading's signs
+    /// turn each speed left or up before it moves.
     /// </summary>
     private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {

@@ -182,7 +182,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = frameCount;
     }
 
-    /// <summary>Aims the leftward climb at the left-side reset point, the wrapped distance back from Draygon's X.</summary>
+    /// <summary>Aims the leftward climb at the left-side reset point, measured back from Draygon's X (<see cref="CoordinateAxis.Difference"/>).</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState samus,

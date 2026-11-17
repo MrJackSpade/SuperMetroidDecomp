@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyDeathExplosionDefinitions
 {
     /// <summary>The blank-frame wait a drop runs after it is collected or expires.</summary>
-    internal const EnemyDeathProjectileSegment NoDropTail = EnemyDeathProjectileSegment.RespawnTail;
+    internal const EnemyDeathAndDropSegment NoDropTail = EnemyDeathAndDropSegment.RespawnTail;
 
     /// <summary>
     /// The wide spread a Fake Kraid death explosion's sprites land in, up to 32 pixels from it each way: 0-63 pixels right

@@ -32,7 +32,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
-        var program = (EnemyDeathProjectileAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
+        var program = (EnemyDeathAndDropAnimation)(explosion.Animation ?? throw new InvalidOperationException("The explosion plays a program."));
         var playback = program.Playback;
         ushort timer = explosion.FrameHold.RawValue;
 

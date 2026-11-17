@@ -778,7 +778,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // These are the literal 190/66/2 and 192/64/4 branches.\n }", "('literal 190')");
         // Assembling a value, Wrecked Ship's Assembly Line, a count of what is stored, a literal alone, checking, the
         // unverified and a hardware owner are English.
-        Expect("class P { /// <summary>Whole and fraction assembly; the Assembly Line room; the game stores these as four separate flags; a string literal; checked when it opens; unverified.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>Whole and fraction assembly; the Assembly Line room; it stores these as four separate flags; a string literal; checked when it opens; unverified.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the desktop-held button; the ascending assembly loop; stores the direction as zero for left; any value but literal four.</summary>\n[CompatibilityService(\"loop\")] class Loop { }");
         // Reviewed or approved wording and the port's history told against its present, in every type (#2139).
         Expect("class P { /// <summary>Reviewed three-line grouping of the Ceres warning.</summary>\nint F => 0; }", "('Reviewed')");
@@ -1488,5 +1488,37 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A handler alone, scanning a room, an original picture and a hardware owner are English.
         Expect("class P { /// <summary>A handler; Samus scans the room; the original picture is kept.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the original reads the coroutine's checksum.</summary>\n[CompatibilityService(\"original\")] class Original { }");
+        // The machine's sixteen-bit coordinate arithmetic told for a distance in enemy prose, outside hardware owners and
+        // markup (#2372): a wrapped, wraparound or modular distance, difference, subtraction, displacement, position or
+        // proximity, a coordinate's wraparound and a move wrapping within the coordinate range.
+        Expect("class P { /// <summary>Checks strict wrapped horizontal distance from an Etecoon to Samus.</summary>\nint F => 0; }",
+            "('wrapped horizontal distance')");
+        Expect("class P { /// <summary>Positions compare with it by the wrapped difference.</summary>\nint F => 0; }", "('wrapped difference')");
+        Expect("class P { void Run() { // The row test takes the modular absolute difference.\n } }", "('modular absolute difference')");
+        Expect("class P { /// <summary>Starts the spit after modular Y proximity.</summary>\nint F => 0; }", "('modular Y proximity')");
+        Expect("class P { void Run() { // The bounds compare by whether the wrapped subtraction is negative.\n } }", "('wrapped subtraction')");
+        Expect("class P { /// <summary>Gets the Baby's wrapped room position.</summary>\nint F => 0; }", "('wrapped room position')");
+        Expect("class P { /// <summary>The spawn Y minus the radius with room-coordinate wraparound.</summary>\nint F => 0; }",
+            "('room-coordinate wraparound')");
+        Expect("class P { /// <summary>Moves the actor by <paramref name=\"d\"/>, wrapping within the coordinate range.</summary>\nint F(int d) => 0; }",
+            "('wrapping within the coordinate range')");
+        // A thing wrapped around, a turn's wrap, a distance alone and a hardware owner are English.
+        Expect("class P { /// <summary>The scarf wrapped around the statue; the angle wraps around the turn; the distance to Samus.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the wrapped difference reads as signed.</summary>\n[CompatibilityService(\"wrap\")] class Wrap { }");
+        // The original program's storage and calls told in enemy prose, outside hardware owners and markup (#2372): installing
+        // or loading art, the game storing, checking or subtracting a value, a completion or draining call, table
+        // multipliers and a value of 0 through 255.
+        Expect("class P { /// <summary>Installs crawling art for its heading.</summary>\nint F => 0; }", "('Installs crawling art')");
+        Expect("class P { /// <summary>Loads the long-hop place and installs hop art.</summary>\nint F => 0; }", "('installs hop art')");
+        Expect("class P { void Run() { // The game subtracts one mark from the clock.\n } }", "('The game subtracts')");
+        Expect("class P { void Run() { // The game stores the increment first.\n } }", "('The game stores')");
+        Expect("class P { void Run() { // the game checks whether it is rising\n } }", "('the game checks')");
+        Expect("class P { /// <summary>Shows the rotted rows, including on the completion call.</summary>\nint F => 0; }", "('completion call')");
+        Expect("class P { /// <summary>The draining calls each stage lasts.</summary>\nint F => 0; }", "('draining calls')");
+        Expect("class P { void Run() { // the angle feeds the buggy table multipliers\n } }", "('table multipliers')");
+        Expect("class P { /// <summary>The shard launches at a random angle of 0 through 255.</summary>\nint F => 0; }", "('of 0 through 255')");
+        // Installed art and loading installed art, a table, a multiplier, a range alone and a hardware owner are English.
+        Expect("class P { /// <summary>Draws it with installed sprite art; loads installed flight art; a table; the speed multiplier; a column 0 through 255.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the game stores the count in a value of 0 through 255.</summary>\n[CompatibilityService(\"store\")] class Store { }");
     }
 }

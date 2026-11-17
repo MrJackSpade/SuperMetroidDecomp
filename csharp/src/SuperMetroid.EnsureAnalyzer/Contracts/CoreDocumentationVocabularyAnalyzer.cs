@@ -108,6 +108,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// handling, places and actor order, initialization parameters, a named storage bit, the save memory's order, a
 /// projectile-backed thing, a coroutine, a chosen handler, a backward scan, a checksum, an
 /// emulator, what the original reads and engine definitions.
+/// #2372 adds, outside hardware owners, enemy prose's wrapped, wraparound or modular distances and differences, a
+/// coordinate's wraparound and a move wrapping within the coordinate range, installing or loading art, the game storing,
+/// checking or subtracting a value, completion and draining calls, table multipliers and a value of 0 through 255.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1590,6 +1593,40 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The machine's sixteen-bit coordinate arithmetic told for a distance in enemy prose (#2372), outside hardware owners
+    /// and markup: a wrapped, wraparound or modular distance, difference, subtraction, displacement, position, proximity
+    /// or comparison, with up to three words between (strict wrapped horizontal distance, the wrapped signed difference,
+    /// the modular absolute difference, modular Y proximity, wrapped signed positions); a coordinate's wraparound
+    /// (the spawn Y minus the radius with room-coordinate wraparound); and a move wrapping within the coordinate range.
+    /// Core says how far apart two things lie and which way, and cites <c>CoordinateAxis</c>, the encoding owner that
+    /// states the wrap once. English stays legal: a thing wrapped up or around, a turn's wrap, a distance alone and the
+    /// encoding owner itself.
+    /// </summary>
+    private static readonly Regex WrappedDistanceProse = new(
+        @"\b(?:wrapped|wraparound|modular)\s+(?:[\w-]+\s+){0,3}?(?:distances?|differences?|subtractions?|displacements?|positions?|proximity|comparisons?)\b" +
+        @"|\b(?:room-)?coordinate\s+wraparound\b" +
+        @"|\bwrapping\s+within\s+the\s+(?:[\w-]+\s+)?range\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The original program's storage and calls told in enemy prose (#2372), outside hardware owners and markup: installing
+    /// or loading art, with up to three words between (installs crawling art, installs hop art for its heading), where
+    /// the program wrote an animation's pictures into a record; the game storing, checking or subtracting a value (the
+    /// game subtracts one mark and checks whether the result is negative); a completion or draining call (including on
+    /// the completion call, the draining calls each stage lasts); table multipliers; and a value of 0 through 255. Core
+    /// says which animation starts, what the game does with the value, which update it happens on, and the value's
+    /// meaning. English stays legal: installed art and loading installed art, which are the installation's content, a
+    /// table, a multiplier and a range alone.
+    /// </summary>
+    private static readonly Regex ArtAndStorageNarrationProse = new(
+        @"\b(?:installs?|installing|loads?|loading)\s+(?!installed\b)(?:[\w-]+\s+){0,3}?art\b" +
+        @"|\bthe\s+game\s+(?:stores|stored|checks|checked|subtracts|subtracted)\b" +
+        @"|\b(?:completion|draining)\s+calls?\b" +
+        @"|\btable\s+multipliers?\b" +
+        @"|\bof\s+0\s+through\s+255\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
     /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
     /// count it means.
@@ -2076,6 +2113,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : CountedCallProse.Match(Markup.Replace(text, " ")) is { Success: true } countedCall ? countedCall.Value
             : StoredLayoutProse.Match(Markup.Replace(text, " ")) is { Success: true } storedLayout ? storedLayout.Value
             : OriginalProgramHostProse.Match(Markup.Replace(text, " ")) is { Success: true } originalProgram ? originalProgram.Value
+            : WrappedDistanceProse.Match(Markup.Replace(text, " ")) is { Success: true } wrappedDistance ? wrappedDistance.Value
+            : ArtAndStorageNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } artAndStorage ? artAndStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

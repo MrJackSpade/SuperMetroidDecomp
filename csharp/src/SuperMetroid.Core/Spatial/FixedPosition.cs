@@ -65,11 +65,11 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     /// <summary>Replaces only the Y subpixels, as game code that sets only the subpixels does.</summary>
     public FixedPosition<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
-    /// <summary>Translates the whole pixels by a signed offset, wrapping within the coordinate range; subpixels are unchanged.</summary>
+    /// <summary>Translates the whole pixels by a signed offset (<see cref="CoordinateAxis.Wrap"/>); subpixels are unchanged.</summary>
     public static FixedPosition<TSpace> operator +(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>
         position.WithWhole(position.Whole + offset);
 
-    /// <summary>Translates the whole pixels by the negated offset, wrapping within the coordinate range; subpixels are unchanged.</summary>
+    /// <summary>Translates the whole pixels by the negated offset (<see cref="CoordinateAxis.Wrap"/>); subpixels are unchanged.</summary>
     public static FixedPosition<TSpace> operator -(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>
         position.WithWhole(position.Whole - offset);
 

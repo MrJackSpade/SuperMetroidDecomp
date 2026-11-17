@@ -173,7 +173,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Action = MorphBallEyeAction.WaitForSamus;
     }
 
-    /// <summary>Calculates the game angle from signed wrapped eye-to-Samus displacement.</summary>
+    /// <summary>The eye's bearing to Samus, from her distance on each axis (<see cref="CoordinateAxis.Difference"/>).</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemyPlace eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ToMirroredTrigonometryAngle().ToAngle();

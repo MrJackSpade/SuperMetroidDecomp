@@ -54,7 +54,7 @@ public sealed class VerticalShutterEnemyState
     /// <summary>One-shot reaction latch, initially clear and set by a one-shot shutter's first reaction so later reactions cannot start it again.</summary>
     public bool ShotActivated { get; internal set; }
     /// <summary>
-    /// The shutter's whole-pixel row saved before its current move to derive the rider's wrapped vertical displacement
+    /// The shutter's whole-pixel row saved before its current move, from which the rider moves by the shutter's own move
     /// (#2178): a vertical shutter only moves vertically.
     /// </summary>
     public int PreviousY { get; internal set; }

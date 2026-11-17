@@ -28,7 +28,7 @@ public sealed class WreckedShipGhostEnemyState
     }
 
     /// <summary>
-    /// The room Y about which the visible ghost oscillates. Positions compare with it by the wrapped difference.
+    /// The room Y about which the visible ghost oscillates. Positions compare with it as <see cref="CoordinateAxis.Precedes"/> compares rows.
     /// </summary>
     public int BobbingOriginY { get; internal set; }
 

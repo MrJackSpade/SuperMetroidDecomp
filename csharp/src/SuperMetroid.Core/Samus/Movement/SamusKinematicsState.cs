@@ -102,7 +102,7 @@ public sealed class SamusKinematicsState
 
     /// <summary>
     /// Vertical direction: <see cref="SamusVerticalDirection.None"/>, <see cref="SamusVerticalDirection.Up"/> or
-    /// <see cref="SamusVerticalDirection.Down"/>. The game stores speed as a magnitude and uses this separate direction;
+    /// <see cref="SamusVerticalDirection.Down"/>. Vertical speed is a magnitude with this separate direction;
     /// treating upward velocity as a negative number would lose the quirks of a speed passing zero
     /// in the vertical move and the jump-release test.
     /// </summary>

@@ -115,7 +115,7 @@ internal sealed class BeamFiring
         {
             // Charging forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
-            // transition installs new body art. Values below 60 release an ordinary beam;
+            // transition changes her pose. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
             bool forcedChargedRelease =
                 _charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);

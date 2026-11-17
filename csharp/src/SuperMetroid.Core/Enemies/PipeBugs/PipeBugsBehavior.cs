@@ -449,7 +449,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = YellowPipeBugAction.EmergenceDelay;
     }
 
-    /// <summary>Counts down the visible emergence delay before installing directional straight-flight art.</summary>
+    /// <summary>Counts down the visible emergence delay, then flies straight toward the bug's facing with its flying animation.</summary>
     private static void RunYellowPipeBugDelay(RoomEnemyPlace place, YellowPipeBugState state)
     {
         if (--state.EmergenceDelay != 0)

@@ -2,9 +2,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The state of one walking Space Pirate. The patrol posts are room positions that wrap around the room, because
-/// its patrol reach is added and subtracted without clamping by the setup; the walk compares the Pirate
-/// with them by the wrapped spatial difference.
+/// The state of one walking Space Pirate. The patrol posts are its spawn position plus and less its patrol reach,
+/// unclamped, so a post may lie past the room's edge; the walk compares the Pirate with them as
+/// <see cref="CoordinateAxis.Precedes"/> compares columns.
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {

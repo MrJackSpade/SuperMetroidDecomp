@@ -722,9 +722,8 @@ public sealed class SamusLiquidPhysicsState
         AudioRequests.QueueSound(soundEffect, priority);
 
     /// <summary>
-    /// Movement distinguishes water from lava by whether the room has a water surface, then
-    /// perform signed wrapped subtraction against the selected surface. Retain that exact
-    /// ordering so absence and wraparound behavior stay exact.
+    /// Movement tells water from lava by whether the room has a water surface, then tests whether the boundary lies
+    /// below that surface (<see cref="IsBelowSurface"/>).
     /// </summary>
     private SamusLiquidMedium DetermineRawMediumAtBoundary(int boundary)
     {
@@ -738,7 +737,7 @@ public sealed class SamusLiquidPhysicsState
         !IgnoresWaterSurface &&
         IsBelowSurface(WaterSurfaceY, boundary);
 
-    /// <summary>Whether <paramref name="boundary"/> lies below a present surface, by signed wrapped subtraction; no surface is never above it.</summary>
+    /// <summary>Whether <paramref name="boundary"/> lies below a present surface (<see cref="CoordinateAxis.Precedes"/>); no surface is never above it.</summary>
     internal static bool IsBelowSurface(int? surface, int boundary) =>
         surface is int y &&
         CoordinateAxis.Difference(y, boundary) < 0;

@@ -56,8 +56,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         place.SetSpeciesState(state);
         _blocks.Add(place);
 
-        // The neutral animation is a one-frame neutral picture followed by the common rest. All
-        // authored directional animations show the same neutral picture as their first frame.
+        // The neutral animation shows the neutral picture and holds it. Every directional animation shows the same
+        // neutral picture first.
         state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial));
 
         // The setup always restarts the glow's countdown, even before Samus has the Morph Ball, and starts the glow
@@ -90,7 +90,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
-        // The signed room-coordinate difference wraps across the room's wrapping axis.
+        // Samus's horizontal distance from the block, measured across the room as CoordinateAxis.Difference measures it.
         int horizontalDelta = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
         if (Math.Abs(horizontalDelta) >= place.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;

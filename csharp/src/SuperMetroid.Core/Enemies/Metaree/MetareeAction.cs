@@ -8,7 +8,7 @@ public enum MetareeAction
 {
     /// <summary>Dives once Samus is within 72 pixels either side, whether or not she is below, at a downward speed set as it starts.</summary>
     Idling,
-    /// <summary>Waits for the animation's attack-ready flag, then installs dive art and requests the enemy-library dive sound.</summary>
+    /// <summary>Waits for the animation to signal it is ready to attack, then starts the dive animation and plays the dive sound.</summary>
     PreparingAttack,
     /// <summary>Reloads the 21-update burrow timer, probes solid blocks below, and otherwise dives at fixed whole-pixel Y speed while steering two pixels toward Samus.</summary>
     LaunchedAttack,

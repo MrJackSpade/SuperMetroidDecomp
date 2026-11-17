@@ -2,8 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// The state of a Bull. Speed and acceleration are wrapping 1/256-pixel speeds, because a deceleration that overshoots leaves a
-/// value past zero that the next update reads as below zero; they change only through <see cref="Accelerate"/> and
+/// The state of a Bull. Its speed and acceleration change only through <see cref="Accelerate"/> and
 /// <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
 /// place (<see cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
@@ -45,13 +44,12 @@ public sealed class BullEnemyState
     public SignedEightEight AccelerationDelta { get; internal set; }
 
     /// <summary>
-    /// The flight speed, projected by the heading's sine and cosine into the X and Y displacements: zero or more, and at
-    /// most 2880 256ths of a pixel an update. A flight starts from rest and gains 24, 48, 72 ... 256ths an interval, so a
-    /// speed below the fastest cap of 2815 256ths takes at most one more step, from 2520 to 2880. Braking a flight takes
-    /// away 24 256ths less each interval than the flight gained, so the acceleration runs out with the speed still above
-    /// zero; an immune shot's kick, six pixels an update braked from a pixel an interval, runs out of acceleration at 304
-    /// 256ths, or, kicked while the Bull waits and so with no braking change, brakes a whole pixel an interval onto
-    /// exactly zero.
+    /// The flight speed along the heading, in 256ths of a pixel an update: never below zero and never above 2880. A
+    /// flight starts from rest and speeds up by 24, 48, 72 ... each interval until it reaches the spawn's top speed, at
+    /// most 2815, so it passes that by at most one step, from 2520 to 2880. A braking flight slows by 24 less each interval
+    /// than it last sped up by, so its braking runs out before it comes to rest; a kick, six pixels an update slowing by a
+    /// pixel an interval at first, stops with its braking spent at 304, or, when the kick finds the Bull waiting with no
+    /// braking change, slows a whole pixel each interval to exactly zero.
     /// </summary>
     public SignedEightEight Speed { get; internal set; }
 

@@ -14,11 +14,11 @@ internal static class EnemyPickupDefinitions
     /// </summary>
     internal static readonly Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new()
     {
-        [EnemyPickupKind.SmallEnergy] = new(EnemyDeathProjectileSegment.SmallEnergy),
-        [EnemyPickupKind.BigEnergy] = new(EnemyDeathProjectileSegment.BigEnergy),
-        [EnemyPickupKind.PowerBomb] = new(EnemyDeathProjectileSegment.PowerBombs),
-        [EnemyPickupKind.Missile] = new(EnemyDeathProjectileSegment.Missiles),
-        [EnemyPickupKind.SuperMissile] = new(EnemyDeathProjectileSegment.SuperMissiles),
+        [EnemyPickupKind.SmallEnergy] = new(EnemyDeathAndDropSegment.SmallEnergy),
+        [EnemyPickupKind.BigEnergy] = new(EnemyDeathAndDropSegment.BigEnergy),
+        [EnemyPickupKind.PowerBomb] = new(EnemyDeathAndDropSegment.PowerBombs),
+        [EnemyPickupKind.Missile] = new(EnemyDeathAndDropSegment.Missiles),
+        [EnemyPickupKind.SuperMissile] = new(EnemyDeathAndDropSegment.SuperMissiles),
     };
 
     /// <summary>How long a new pickup stays to be collected, in updates.</summary>

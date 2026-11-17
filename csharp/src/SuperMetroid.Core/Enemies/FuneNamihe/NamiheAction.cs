@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// </summary>
 public enum NamiheAction
 {
-    /// <summary>Selects the active mouth animation only when Samus's modular vertical distance is strictly below its whole-pixel vertical proximity, then starts <see cref="Spitting"/>.</summary>
+    /// <summary>Waits for Samus to come vertically closer than its proximity (<see cref="CoordinateAxis.Distance"/>), then starts the spitting animation and <see cref="Spitting"/>.</summary>
     WaitForSamus,
     /// <summary>Spits: the mouth animation's cues move the mouth, fire and sound, and its finishing cue restores the wait (#1814).</summary>
     Spitting,

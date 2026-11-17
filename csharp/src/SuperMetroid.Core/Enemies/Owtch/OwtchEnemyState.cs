@@ -43,14 +43,14 @@ public sealed class OwtchEnemyState
     public int UndergroundTimer { get; internal set; }
 
     /// <summary>
-    /// The left end of the patrol, the spawn X less the travel distance with room-coordinate wraparound. Positions
-    /// compare with it by the wrapped difference.
+    /// The left end of the patrol, the spawn X less the travel distance. Positions compare with it as
+    /// <see cref="CoordinateAxis.Precedes"/> compares columns.
     /// </summary>
     public int MinimumX { get; internal set; }
 
     /// <summary>
-    /// The right end of the patrol, the spawn X plus the travel distance with room-coordinate wraparound. Positions
-    /// compare with it by the wrapped difference.
+    /// The right end of the patrol, the spawn X plus the travel distance. Positions compare with it as
+    /// <see cref="CoordinateAxis.Precedes"/> compares columns.
     /// </summary>
     public int MaximumX { get; internal set; }
 }

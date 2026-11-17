@@ -228,7 +228,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             ShownFamily("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup, PickupFrames),
             ShownFamily("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
-                EnemyDeathProjectileAnimations.Segments.Frames.Except(PickupFrames)),
+                EnemyDeathAndDropAnimations.Segments.Frames.Except(PickupFrames)),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, IReadOnlyList<EnemyProjectileFrameId> frames) in genericDeathFamilies)
         {
@@ -702,9 +702,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     [
         .. new[]
         {
-            EnemyDeathProjectileSegment.SmallEnergy, EnemyDeathProjectileSegment.BigEnergy, EnemyDeathProjectileSegment.Missiles,
-            EnemyDeathProjectileSegment.SuperMissiles, EnemyDeathProjectileSegment.PowerBombs,
-        }.SelectMany(program => EnemyDeathProjectileAnimations.Segments.Beats(program))
+            EnemyDeathAndDropSegment.SmallEnergy, EnemyDeathAndDropSegment.BigEnergy, EnemyDeathAndDropSegment.Missiles,
+            EnemyDeathAndDropSegment.SuperMissiles, EnemyDeathAndDropSegment.PowerBombs,
+        }.SelectMany(program => EnemyDeathAndDropAnimations.Segments.Beats(program))
             .Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>().Distinct(),
     ];
 

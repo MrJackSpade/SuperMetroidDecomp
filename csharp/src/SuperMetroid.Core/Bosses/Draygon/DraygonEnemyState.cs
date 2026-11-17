@@ -77,7 +77,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// <summary>
     /// The off-screen point at the left where Draygon is placed between attack rounds: the body's position when the
     /// intro delay ends. Its Y is the common reset height, which also bounds how high a swoop path climbs (compared
-    /// by the wrapped signed difference) and where a round that chose another swoop restarts.
+    /// as <see cref="CoordinateAxis.Precedes"/> compares rows) and where a round that chose another swoop restarts.
     /// </summary>
     public Position16<RoomPixels> LeftSideReset { get; internal set; }
 

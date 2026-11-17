@@ -86,8 +86,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
     internal static void RunChootJump(RoomEnemyPlace place, ChootEnemyState state)
     {
-        // Choot applies the curve's separately stored negative pair, including its fractional
-        // negation bug, without consulting room collision during this authored leap.
+        // The Choot rises at its place's speed on the curve, passing through the room's blocks during this leap.
         SignedSixteenSixteen upwardDisplacement = state.YSpeedCurvePlace.Speed.Negative;
         place.Position = place.Position.WithY(place.Position.Y.MovedBy(upwardDisplacement));
 

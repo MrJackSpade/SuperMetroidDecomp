@@ -163,8 +163,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             sineTwoFiftySixths, speed.InTwoHundredFiftySixthsOfPixel).AsDisplacement();
         SignedSixteenSixteen displacement = sine < 0 ? BullBackwardStep.Of(forward) : forward;
 
-        // The displacement moves the position as one 1/65536-pixel value: a fraction that passes a whole pixel moves the whole
-        // position by one more, and the whole position wraps at its width.
+        // A fraction that passes a whole pixel moves the Bull one more whole pixel.
         return position.MovedBy(displacement);
     }
 

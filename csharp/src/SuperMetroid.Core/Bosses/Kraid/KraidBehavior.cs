@@ -82,7 +82,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _bossArtwork = dependencies.Presentation.Artwork;
         Parts = new KraidParts();
-        Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio, Parts);
+        Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
         BodyLayer = new KraidBodyLayer(_bossArtwork, Parts);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, Parts, Access, Background);

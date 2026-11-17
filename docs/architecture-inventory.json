@@ -35424,6 +35424,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Brinstar.DachoraShaftCameraDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Brinstar/DachoraShaftCameraDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.Artwork.CeresBabyFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -44181,17 +44194,21 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonPartState",
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonPart",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonPartState.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonPart.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "owner",
+      "flags": [
+        "back-reference:SuperMetroid.Core.Bosses.Draygon.DraygonEnemyState"
+      ],
+      "justified": true
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonParts",
@@ -45003,6 +45020,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidAnimatedPartState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidAnimatedPartState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidAnimations",
       "kind": "static class",
       "scope": "product",
@@ -45197,7 +45227,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidArmState.cs"
       ],
       "partial": "none",
-      "disposition": "stateless",
+      "disposition": "owner",
       "flags": [
         "back-reference:SuperMetroid.Core.Bosses.Kraid.KraidEnemyState"
       ],
@@ -45238,19 +45268,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackdropFade.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBackdropFadeProgress",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBackdropFadeProgress.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -45605,19 +45622,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidCollisionComponent.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidColourBand",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidColourBand.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -46061,6 +46065,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidHealthBand",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHealthBand.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidHealthBandDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHealthBandDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidHealthThresholdDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -46422,7 +46452,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidNailEntity.cs"
       ],
       "partial": "none",
-      "disposition": "stateless"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidNailLaunch",
@@ -46449,6 +46479,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidNailPart",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidNailPart.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidNailPhase",
@@ -56954,19 +56997,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoColourFadeProgress",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoColourFadeProgress.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.TorizoColours",
@@ -98415,6 +98445,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.StepCountedFadeProgress",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/StepCountedFadeProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.ColourEffects.TitleLogoFadePaletteFxColorDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -129073,6 +129116,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.World.DachoraShaftCameraMain",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/DachoraShaftCameraMain.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.World.DoorCameraAlignmentState",
       "kind": "record struct",
       "scope": "product",
@@ -130463,6 +130519,19 @@
     },
     {
       "type": "SuperMetroid.Core.World.RoomStates.RoomMainBehavior.CrocomireRoomShakingRoomMain",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/RoomStates/RoomMainBehavior.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.World.RoomStates.RoomMainBehavior.DachoraShaftCameraRoomMain",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -170179,6 +170248,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Rooms/CartridgeRoomHeaderVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Rooms.DachoraShaftCameraVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Rooms/DachoraShaftCameraVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -21,7 +21,7 @@ internal static class ChargeFlareAnimations
     internal static ChargeFlareStep MainFlareLoop() => After(ChargeFlareComponent.MainFlare, LastOf(ChargeFlareSegment.MainFlareOpening));
 
     /// <summary>The picture <paramref name="component"/> shows after the picture at <paramref name="shown"/>, with its wait.</summary>
-    /// <param name="component">The component.</param>
+    /// <param name="component">The flare component whose pictures are read.</param>
     /// <param name="shown">The picture shown, one of the component's: only the Hyper Beam's backward count leaves a
     /// component outside its pictures, and the ordinary flare never plays again once Samus has the Hyper Beam.</param>
     /// <exception cref="InvalidOperationException">The place is none of the component's pictures.</exception>

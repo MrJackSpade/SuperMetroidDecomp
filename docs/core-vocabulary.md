@@ -125,6 +125,13 @@ A name that says `Underflow` names the CPU's arithmetic and is reported too (#17
 `CoreVocabularyAnalyzer.MachineArithmeticWords`): a subtraction borrowing past zero. Core says what the value did in the
 game (`speedPassedZero`).
 
+A name that says `Retail` names the released cartridge and is reported too (#2322,
+`CoreVocabularyAnalyzer.ReleaseWords`), matched as a whole word without regard to case (`IsRetail`,
+`RequireRetailPermutation`, `RetailAreas`, a `retail` local): it named the game by the cartridge it was sold on, set
+against a build or a program that is not it. Core is that game and names what the thing is (`CanBeEquipped`,
+`RequireUniquePermutation`, `RoomDefinitions.All`). Words that only share its letters (`Retailer`, `Detail`) are the
+game's own.
+
 A name that says `Ntsc` or `Pal` names the video standard and is reported too (#1848,
 `CoreVocabularyAnalyzer.VideoStandardWords`), matched as a whole word case-sensitively in the casings `Ntsc`, `NTSC`,
 `ntsc`, `Pal` and `PAL` (`IsPal`, `MetareeNtscSpeed`, `PALTiming`, an `ntsc` local). Core names the release whose value

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class RoomDefinitions
 {
     /// <summary>Rooms in their authored order.</summary>
-    internal static readonly RoomDefinition[] Retail =
+    internal static readonly RoomDefinition[] All =
     [
         new(nameof(LandingSite), AreaId.Crateria, new(23, 1), new(9, 5), 112, 160, RoomDoorTransitionStyle.Standard),
         new(nameof(GauntletEntrance), AreaId.Crateria, new(18, 3), new(5, 1), 112, 160, RoomDoorTransitionStyle.Standard),
@@ -275,7 +275,7 @@ public static class RoomDefinitions
     ];
 
     /// <summary>Every compiled room by its name.</summary>
-    private static readonly Dictionary<string, RoomDefinition> ByName = Retail.ToDictionary(room => room.Name);
+    private static readonly Dictionary<string, RoomDefinition> ByName = All.ToDictionary(room => room.Name);
 
     /// <summary>The compiled room named <paramref name="name"/>.</summary>
     private static RoomDefinition Find(string name) => ByName[name];

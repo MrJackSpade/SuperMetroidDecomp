@@ -8,384 +8,797 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </summary>
 internal enum SamusAnimationName
 {
-    /// <summary>The running animation (<see cref="SamusAnimationDelayDefinitions.RunningAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MovingRightNormalPose"/>, <see cref="SamusPoseId.MovingLeftNormalPose"/> and
+    /// six more poses play: its run of ten frames, its slow stride of ten frames and its stride hold of one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.RunningAnimation"/>).
+    /// </summary>
     Running,
 
-    /// <summary>The aiming up animation (<see cref="SamusAnimationDelayDefinitions.AimingUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingAimUpRightPose"/>, <see cref="SamusPoseId.StandingAimUpLeftPose"/>,
+    /// <see cref="SamusPoseId.CrouchingAimUpRightPose"/> and <see cref="SamusPoseId.CrouchingAimUpLeftPose"/> play: its
+    /// two frames (<see cref="SamusAnimationDelayDefinitions.AimingUpAnimation"/>).
+    /// </summary>
     AimingUp,
 
-    /// <summary>The moonwalk animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkFacingLeftPose"/>, <see cref="SamusPoseId.MoonwalkFacingRightPose"/>
+    /// and four more poses play: its six frames (<see cref="SamusAnimationDelayDefinitions.MoonwalkAnimation"/>).
+    /// </summary>
     Moonwalk,
 
-    /// <summary>The normal landing right animation (<see cref="SamusAnimationDelayDefinitions.NormalLandingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FiringLandingRightPose"/> and <see
+    /// cref="SamusPoseId.NormalLandingRightPose"/> play: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalLandingRightAnimation"/>).
+    /// </summary>
     NormalLandingRight,
 
-    /// <summary>The normal landing left animation (<see cref="SamusAnimationDelayDefinitions.NormalLandingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FiringLandingLeftPose"/> and <see cref="SamusPoseId.NormalLandingLeftPose"/>
+    /// play: its two frames (<see cref="SamusAnimationDelayDefinitions.NormalLandingLeftAnimation"/>).
+    /// </summary>
     NormalLandingLeft,
 
-    /// <summary>The spin landing right animation (<see cref="SamusAnimationDelayDefinitions.SpinLandingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.SpinLandingRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.SpinLandingRightAnimation"/>).
+    /// </summary>
     SpinLandingRight,
 
-    /// <summary>The spin landing left animation (<see cref="SamusAnimationDelayDefinitions.SpinLandingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.SpinLandingLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.SpinLandingLeftAnimation"/>).
+    /// </summary>
     SpinLandingLeft,
 
-    /// <summary>The landing aim up right animation (<see cref="SamusAnimationDelayDefinitions.LandingAimUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.LandingAimUpRightPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.LandingAimUpRightAnimation"/>).
+    /// </summary>
     LandingAimUpRight,
 
-    /// <summary>The landing aim up left animation (<see cref="SamusAnimationDelayDefinitions.LandingAimUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.LandingAimUpLeftPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.LandingAimUpLeftAnimation"/>).
+    /// </summary>
     LandingAimUpLeft,
 
-    /// <summary>The landing aim diagonal up right animation (<see cref="SamusAnimationDelayDefinitions.LandingAimDiagonalUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.LandingAimDiagonalUpRightPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.LandingAimDiagonalUpRightAnimation"/>).
+    /// </summary>
     LandingAimDiagonalUpRight,
 
-    /// <summary>The landing aim diagonal up left animation (<see cref="SamusAnimationDelayDefinitions.LandingAimDiagonalUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.LandingAimDiagonalUpLeftPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.LandingAimDiagonalUpLeftAnimation"/>).
+    /// </summary>
     LandingAimDiagonalUpLeft,
 
-    /// <summary>The landing aim diagonal down right animation (<see cref="SamusAnimationDelayDefinitions.LandingAimDiagonalDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.LandingAimDiagonalDownRightPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.LandingAimDiagonalDownRightAnimation"/>).
+    /// </summary>
     LandingAimDiagonalDownRight,
 
-    /// <summary>The landing aim diagonal down left animation (<see cref="SamusAnimationDelayDefinitions.LandingAimDiagonalDownLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.LandingAimDiagonalDownLeftPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.LandingAimDiagonalDownLeftAnimation"/>).
+    /// </summary>
     LandingAimDiagonalDownLeft,
 
-    /// <summary>The drained crouching right animation (<see cref="SamusAnimationDelayDefinitions.DrainedCrouchingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DrainedCrouchingRightPose"/> plays: its collapse of four frames, its fall of
+    /// one frame, its held of four frames and its stand up of one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.DrainedCrouchingRightAnimation"/>).
+    /// </summary>
     DrainedCrouchingRight,
 
-    /// <summary>The drained crouching left animation (<see cref="SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DrainedCrouchingLeftPose"/> plays: its collapse of three frames, its fall of
+    /// one frame, its held of five frames, its stand up of three frames, its failed stand of five frames, its failed
+    /// stand end of one frame and its frozen of one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation"/>).
+    /// </summary>
     DrainedCrouchingLeft,
 
-    /// <summary>The drained standing right animation (<see cref="SamusAnimationDelayDefinitions.DrainedStandingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DrainedStandingRightPose"/> plays: its breathe of four frames and its stand
+    /// up of one frame (<see cref="SamusAnimationDelayDefinitions.DrainedStandingRightAnimation"/>).
+    /// </summary>
     DrainedStandingRight,
 
-    /// <summary>The drained standing left animation (<see cref="SamusAnimationDelayDefinitions.DrainedStandingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DrainedStandingLeftPose"/> plays: its breathe of four frames and its stand up
+    /// of one frame (<see cref="SamusAnimationDelayDefinitions.DrainedStandingLeftAnimation"/>).
+    /// </summary>
     DrainedStandingLeft,
 
-    /// <summary>The standing animation (<see cref="SamusAnimationDelayDefinitions.StandingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FacingRightNormalPose"/> and <see cref="SamusPoseId.FacingLeftNormalPose"/>
+    /// play: its breathe of four frames and its low energy breathe of four frames (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingAnimation"/>).
+    /// </summary>
     Standing,
 
-    /// <summary>The crouching animation (<see cref="SamusAnimationDelayDefinitions.CrouchingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingRightPose"/> and <see cref="SamusPoseId.CrouchingLeftPose"/> play:
+    /// its breathe of four frames and its low energy breathe of four frames (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingAnimation"/>).
+    /// </summary>
     Crouching,
 
-    /// <summary>The xraying animation (<see cref="SamusAnimationDelayDefinitions.XrayingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.XrayingStandingRightPose"/>, <see
+    /// cref="SamusPoseId.XrayingStandingLeftPose"/>, <see cref="SamusPoseId.XrayingCrouchingRightPose"/> and <see
+    /// cref="SamusPoseId.XrayingCrouchingLeftPose"/> play: its five frames (<see
+    /// cref="SamusAnimationDelayDefinitions.XrayingAnimation"/>).
+    /// </summary>
     Xraying,
 
-    /// <summary>The held still animation (<see cref="SamusAnimationDelayDefinitions.HeldStillAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.RanIntoWallRightPose"/>, <see cref="SamusPoseId.RanIntoWallLeftPose"/> and 26
+    /// more poses play: its one frame (<see cref="SamusAnimationDelayDefinitions.HeldStillAnimation"/>).
+    /// </summary>
     HeldStill,
 
-    /// <summary>The grapple standing animation (<see cref="SamusAnimationDelayDefinitions.GrappleStandingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.GrappleStandingRightPose"/>, <see
+    /// cref="SamusPoseId.GrappleStandingLeftPose"/>, <see cref="SamusPoseId.GrappleStandingDownRightPose"/> and <see
+    /// cref="SamusPoseId.GrappleStandingDownLeftPose"/> play: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.GrappleStandingAnimation"/>).
+    /// </summary>
     GrappleStanding,
 
-    /// <summary>The grapple airborne gun extended right animation (<see cref="SamusAnimationDelayDefinitions.GrappleAirborneGunExtendedRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.GrappleAirborneGunExtendedRightAnimation"/>).
+    /// </summary>
     GrappleAirborneGunExtendedRight,
 
-    /// <summary>The grapple airborne aim down right animation (<see cref="SamusAnimationDelayDefinitions.GrappleAirborneAimDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.GrappleAirborneAimDownRightAnimation"/>).
+    /// </summary>
     GrappleAirborneAimDownRight,
 
-    /// <summary>The grapple airborne aim diagonal down right animation (<see cref="SamusAnimationDelayDefinitions.GrappleAirborneAimDiagonalDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.GrappleAirborneAimDiagonalDownRightAnimation"/>).
+    /// </summary>
     GrappleAirborneAimDiagonalDownRight,
 
-    /// <summary>The grapple swing animation (<see cref="SamusAnimationDelayDefinitions.GrappleSwingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.GrappleSwingRightPose"/> and <see cref="SamusPoseId.GrappleSwingLeftPose"/>
+    /// play: its 66 frames (<see cref="SamusAnimationDelayDefinitions.GrappleSwingAnimation"/>).
+    /// </summary>
     GrappleSwing,
 
-    /// <summary>The neutral jump transition right animation (<see cref="SamusAnimationDelayDefinitions.NeutralJumpTransitionRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NeutralJumpTransitionRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NeutralJumpTransitionRightAnimation"/>).
+    /// </summary>
     NeutralJumpTransitionRight,
 
-    /// <summary>The neutral jump transition left animation (<see cref="SamusAnimationDelayDefinitions.NeutralJumpTransitionLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NeutralJumpTransitionLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NeutralJumpTransitionLeftAnimation"/>).
+    /// </summary>
     NeutralJumpTransitionLeft,
 
-    /// <summary>The normal jump transition aim up right animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpTransitionAimUpRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimUpRightAnimation"/>).
+    /// </summary>
     NormalJumpTransitionAimUpRight,
 
-    /// <summary>The normal jump transition aim up left animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpTransitionAimUpLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimUpLeftAnimation"/>).
+    /// </summary>
     NormalJumpTransitionAimUpLeft,
 
-    /// <summary>The normal jump transition aim diagonal up right animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalUpRightAnimation"/>).
+    /// </summary>
     NormalJumpTransitionAimDiagonalUpRight,
 
-    /// <summary>The normal jump transition aim diagonal up left animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalUpLeftAnimation"/>).
+    /// </summary>
     NormalJumpTransitionAimDiagonalUpLeft,
 
-    /// <summary>The normal jump transition aim diagonal down right animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalDownRightAnimation"/>).
+    /// </summary>
     NormalJumpTransitionAimDiagonalDownRight,
 
-    /// <summary>The normal jump transition aim diagonal down left animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalDownLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpTransitionAimDiagonalDownLeftAnimation"/>).
+    /// </summary>
     NormalJumpTransitionAimDiagonalDownLeft,
 
-    /// <summary>The neutral jump and windup animation (<see cref="SamusAnimationDelayDefinitions.NeutralJumpAndWindupAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.ShinesparkWindupRightPose"/>, <see
+    /// cref="SamusPoseId.ShinesparkWindupLeftPose"/>, <see cref="SamusPoseId.NeutralJumpRightPose"/> and <see
+    /// cref="SamusPoseId.NeutralJumpLeftPose"/> play: its six frames (<see
+    /// cref="SamusAnimationDelayDefinitions.NeutralJumpAndWindupAnimation"/>).
+    /// </summary>
     NeutralJumpAndWindup,
 
-    /// <summary>The damage boost animation (<see cref="SamusAnimationDelayDefinitions.DamageBoostAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DamageBoostLeftPose"/> and <see cref="SamusPoseId.DamageBoostRightPose"/>
+    /// play: its ten frames (<see cref="SamusAnimationDelayDefinitions.DamageBoostAnimation"/>).
+    /// </summary>
     DamageBoost,
 
-    /// <summary>The normal jump aim up animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpAimUpRightPose"/> and <see
+    /// cref="SamusPoseId.NormalJumpAimUpLeftPose"/> play: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpAimUpAnimation"/>).
+    /// </summary>
     NormalJumpAimUp,
 
-    /// <summary>The normal jump aim down animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpAimDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpAimDownRightPose"/> and <see
+    /// cref="SamusPoseId.NormalJumpAimDownLeftPose"/> play: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpAimDownAnimation"/>).
+    /// </summary>
     NormalJumpAimDown,
 
-    /// <summary>The normal jump forward animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpForwardAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpForwardRightPose"/> and <see
+    /// cref="SamusPoseId.NormalJumpForwardLeftPose"/> play: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpForwardAnimation"/>).
+    /// </summary>
     NormalJumpForward,
 
-    /// <summary>The normal jump aiming animation (<see cref="SamusAnimationDelayDefinitions.NormalJumpAimingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.NormalJumpGunExtendedRightPose"/>, <see
+    /// cref="SamusPoseId.NormalJumpGunExtendedLeftPose"/> and four more poses play: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.NormalJumpAimingAnimation"/>).
+    /// </summary>
     NormalJumpAiming,
 
-    /// <summary>The falling animation (<see cref="SamusAnimationDelayDefinitions.FallingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FallingRightPose"/> and <see cref="SamusPoseId.FallingLeftPose"/> play: its
+    /// fall start of three frames and its fast fall of two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.FallingAnimation"/>).
+    /// </summary>
     Falling,
 
-    /// <summary>The falling gun extended animation (<see cref="SamusAnimationDelayDefinitions.FallingGunExtendedAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FallingGunExtendedRightPose"/> and <see
+    /// cref="SamusPoseId.FallingGunExtendedLeftPose"/> play: its fall start of three frames and its fast fall of two
+    /// frames (<see cref="SamusAnimationDelayDefinitions.FallingGunExtendedAnimation"/>).
+    /// </summary>
     FallingGunExtended,
 
-    /// <summary>The falling aim up animation (<see cref="SamusAnimationDelayDefinitions.FallingAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FallingAimUpRightPose"/> and <see cref="SamusPoseId.FallingAimUpLeftPose"/>
+    /// play: its three frames (<see cref="SamusAnimationDelayDefinitions.FallingAimUpAnimation"/>).
+    /// </summary>
     FallingAimUp,
 
-    /// <summary>The falling aim diagonal animation (<see cref="SamusAnimationDelayDefinitions.FallingAimDiagonalAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FallingAimDiagonalUpRightPose"/>, <see
+    /// cref="SamusPoseId.FallingAimDiagonalUpLeftPose"/>, <see cref="SamusPoseId.FallingAimDiagonalDownRightPose"/> and
+    /// <see cref="SamusPoseId.FallingAimDiagonalDownLeftPose"/> play: its aim of one frame and its aim held of one frame
+    /// (<see cref="SamusAnimationDelayDefinitions.FallingAimDiagonalAnimation"/>).
+    /// </summary>
     FallingAimDiagonal,
 
-    /// <summary>The falling aim down animation (<see cref="SamusAnimationDelayDefinitions.FallingAimDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.FallingAimDownRightPose"/> and <see
+    /// cref="SamusPoseId.FallingAimDownLeftPose"/> play: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.FallingAimDownAnimation"/>).
+    /// </summary>
     FallingAimDown,
 
-    /// <summary>The knockback animation (<see cref="SamusAnimationDelayDefinitions.KnockbackAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.KnockbackRightPose"/> and <see cref="SamusPoseId.KnockbackLeftPose"/> play:
+    /// its knockback of two frames, its slow recoil of four frames, its slower recoil of two frames and its recoil hold
+    /// of one frame (<see cref="SamusAnimationDelayDefinitions.KnockbackAnimation"/>).
+    /// </summary>
     Knockback,
 
-    /// <summary>The morph ball animation (<see cref="SamusAnimationDelayDefinitions.MorphBallAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DraygonHeldBallLeftPose"/>, <see
+    /// cref="SamusPoseId.MorphBallGroundRightPose"/> and seventeen more poses play: its roll of eight frames and its roll
+    /// hold of one frame (<see cref="SamusAnimationDelayDefinitions.MorphBallAnimation"/>).
+    /// </summary>
     MorphBall,
 
-    /// <summary>The spin jump animation (<see cref="SamusAnimationDelayDefinitions.SpinJumpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.SpinJumpRightPose"/> and <see cref="SamusPoseId.SpinJumpLeftPose"/> play: its
+    /// spin of nine frames and its wall jump ready of one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.SpinJumpAnimation"/>).
+    /// </summary>
     SpinJump,
 
-    /// <summary>The space jump animation (<see cref="SamusAnimationDelayDefinitions.SpaceJumpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.SpaceJumpRightPose"/> and <see cref="SamusPoseId.SpaceJumpLeftPose"/> play:
+    /// its spin of nine frames and its wall jump ready of one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.SpaceJumpAnimation"/>).
+    /// </summary>
     SpaceJump,
 
-    /// <summary>The screw attack animation (<see cref="SamusAnimationDelayDefinitions.ScrewAttackAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.ScrewAttackRightPose"/> and <see cref="SamusPoseId.ScrewAttackLeftPose"/>
+    /// play: its spin of 25 frames and its wall jump ready of one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.ScrewAttackAnimation"/>).
+    /// </summary>
     ScrewAttack,
 
-    /// <summary>The turning right to left animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftAnimation"/>).
+    /// </summary>
     TurningRightToLeft,
 
-    /// <summary>The turning left to right animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightAnimation"/>).
+    /// </summary>
     TurningLeftToRight,
 
-    /// <summary>The turning right to left jump animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftJumpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAnimation"/>).
+    /// </summary>
     TurningRightToLeftJump,
 
-    /// <summary>The turning left to right jump animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightJumpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAnimation"/>).
+    /// </summary>
     TurningLeftToRightJump,
 
-    /// <summary>The turning right to left crouching animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAnimation"/>).
+    /// </summary>
     TurningRightToLeftCrouching,
 
-    /// <summary>The turning left to right crouching animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAnimation"/>).
+    /// </summary>
     TurningLeftToRightCrouching,
 
-    /// <summary>The turning right to left falling animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftFallingPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAnimation"/>).
+    /// </summary>
     TurningRightToLeftFalling,
 
-    /// <summary>The turning left to right falling animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightFallingPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAnimation"/>).
+    /// </summary>
     TurningLeftToRightFalling,
 
-    /// <summary>The turning right to left aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftAimUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftAimUp,
 
-    /// <summary>The turning left to right aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightAimUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightAimUp,
 
-    /// <summary>The turning right to left aim diagonal down animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftAimDiagonalDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftAimDiagonalDownPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftAimDiagonalDownAnimation"/>).
+    /// </summary>
     TurningRightToLeftAimDiagonalDown,
 
-    /// <summary>The turning left to right aim diagonal down animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightAimDiagonalDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightAimDiagonalDownPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightAimDiagonalDownAnimation"/>).
+    /// </summary>
     TurningLeftToRightAimDiagonalDown,
 
-    /// <summary>The turning right to left jump aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftJumpAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAimUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftJumpAimUp,
 
-    /// <summary>The turning left to right jump aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightJumpAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAimUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightJumpAimUp,
 
-    /// <summary>The turning right to left jump aim down animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAimDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftJumpAimDownPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAimDownAnimation"/>).
+    /// </summary>
     TurningRightToLeftJumpAimDown,
 
-    /// <summary>The turning left to right jump aim down animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAimDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightJumpAimDownPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAimDownAnimation"/>).
+    /// </summary>
     TurningLeftToRightJumpAimDown,
 
-    /// <summary>The turning right to left falling aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftFallingAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAimUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftFallingAimUp,
 
-    /// <summary>The turning left to right falling aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightFallingAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAimUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightFallingAimUp,
 
-    /// <summary>The turning right to left falling aim down animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAimDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftFallingAimDownPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAimDownAnimation"/>).
+    /// </summary>
     TurningRightToLeftFallingAimDown,
 
-    /// <summary>The turning left to right falling aim down animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAimDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightFallingAimDownPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAimDownAnimation"/>).
+    /// </summary>
     TurningLeftToRightFallingAimDown,
 
-    /// <summary>The turning right to left crouching aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAimUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftCrouchingAimUp,
 
-    /// <summary>The turning left to right crouching aim up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAimUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAimUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightCrouchingAimUp,
 
-    /// <summary>The turning right to left crouching aim diagonal down animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAimDiagonalDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose"/> plays: its three frames
+    /// (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAimDiagonalDownAnimation"/>).
+    /// </summary>
     TurningRightToLeftCrouchingAimDiagonalDown,
 
-    /// <summary>The turning left to right crouching aim diagonal down animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAimDiagonalDownAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose"/> plays: its three frames
+    /// (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAimDiagonalDownAnimation"/>).
+    /// </summary>
     TurningLeftToRightCrouchingAimDiagonalDown,
 
-    /// <summary>The turning right to left aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftAimDiagonalUp,
 
-    /// <summary>The turning left to right aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightAimDiagonalUp,
 
-    /// <summary>The turning right to left jump aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftJumpAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftJumpAimDiagonalUp,
 
-    /// <summary>The turning left to right jump aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightJumpAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightJumpAimDiagonalUp,
 
-    /// <summary>The turning right to left falling aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftFallingAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftFallingAimDiagonalUp,
 
-    /// <summary>The turning left to right falling aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightFallingAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightFallingAimDiagonalUp,
 
-    /// <summary>The turning right to left crouching aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningRightToLeftCrouchingAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningRightToLeftCrouchingAimDiagonalUp,
 
-    /// <summary>The turning left to right crouching aim diagonal up animation (<see cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAimDiagonalUpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.TurningLeftToRightCrouchingAimDiagonalUpAnimation"/>).
+    /// </summary>
     TurningLeftToRightCrouchingAimDiagonalUp,
 
-    /// <summary>The moonwalk turn jump left animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpLeftAnimation"/>).
+    /// </summary>
     MoonwalkTurnJumpLeft,
 
-    /// <summary>The moonwalk turn jump right animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpRightAnimation"/>).
+    /// </summary>
     MoonwalkTurnJumpRight,
 
-    /// <summary>The moonwalk turn jump aim up left animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimUpLeftAnimation"/>).
+    /// </summary>
     MoonwalkTurnJumpAimUpLeft,
 
-    /// <summary>The moonwalk turn jump aim up right animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimUpRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimUpRightAnimation"/>).
+    /// </summary>
     MoonwalkTurnJumpAimUpRight,
 
-    /// <summary>The moonwalk turn jump aim down left animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimDownLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimDownLeftAnimation"/>).
+    /// </summary>
     MoonwalkTurnJumpAimDownLeft,
 
-    /// <summary>The moonwalk turn jump aim down right animation (<see cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MoonwalkTurnJumpAimDownRightPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MoonwalkTurnJumpAimDownRightAnimation"/>).
+    /// </summary>
     MoonwalkTurnJumpAimDownRight,
 
-    /// <summary>The draygon grabbing left animation (<see cref="SamusAnimationDelayDefinitions.DraygonGrabbingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.DraygonGrabbingLeftAnimation"/>).
+    /// </summary>
     DraygonGrabbingLeft,
 
-    /// <summary>The compact airborne right animation (<see cref="SamusAnimationDelayDefinitions.CompactAirborneRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.CompactAirborneRightAnimation"/>).
+    /// </summary>
     CompactAirborneRight,
 
-    /// <summary>The compact airborne left animation (<see cref="SamusAnimationDelayDefinitions.CompactAirborneLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.CompactAirborneLeftAnimation"/>).
+    /// </summary>
     CompactAirborneLeft,
 
-    /// <summary>The compact airborne falling animation (<see cref="SamusAnimationDelayDefinitions.CompactAirborneFallingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its nine frames (<see
+    /// cref="SamusAnimationDelayDefinitions.CompactAirborneFallingAnimation"/>).
+    /// </summary>
     CompactAirborneFalling,
 
-    /// <summary>The wall jump animation (<see cref="SamusAnimationDelayDefinitions.WallJumpAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.WallJumpRightPose"/> and <see cref="SamusPoseId.WallJumpLeftPose"/> play: its
+    /// launch of two frames, its ordinary spin of eight frames, its space jump spin of eight frames and its screw attack
+    /// spin of 24 frames (<see cref="SamusAnimationDelayDefinitions.WallJumpAnimation"/>).
+    /// </summary>
     WallJump,
 
-    /// <summary>The crouching transition right animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionRightAnimation"/>).
+    /// </summary>
     CrouchingTransitionRight,
 
-    /// <summary>The crouching transition left animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionLeftAnimation"/>).
+    /// </summary>
     CrouchingTransitionLeft,
 
-    /// <summary>The morphing transition right animation (<see cref="SamusAnimationDelayDefinitions.MorphingTransitionRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MorphingTransitionRightPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MorphingTransitionRightAnimation"/>).
+    /// </summary>
     MorphingTransitionRight,
 
-    /// <summary>The morphing transition left animation (<see cref="SamusAnimationDelayDefinitions.MorphingTransitionLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.MorphingTransitionLeftPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.MorphingTransitionLeftAnimation"/>).
+    /// </summary>
     MorphingTransitionLeft,
 
-    /// <summary>The glitch ball morphing right animation (<see cref="SamusAnimationDelayDefinitions.GlitchBallMorphingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.GlitchBallMorphingRightAnimation"/>).
+    /// </summary>
     GlitchBallMorphingRight,
 
-    /// <summary>The glitch ball morphing left animation (<see cref="SamusAnimationDelayDefinitions.GlitchBallMorphingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.GlitchBallMorphingLeftAnimation"/>).
+    /// </summary>
     GlitchBallMorphingLeft,
 
-    /// <summary>The standing transition right animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionRightAnimation"/>).
+    /// </summary>
     StandingTransitionRight,
 
-    /// <summary>The standing transition left animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionLeftAnimation"/>).
+    /// </summary>
     StandingTransitionLeft,
 
-    /// <summary>The unmorphing transition right animation (<see cref="SamusAnimationDelayDefinitions.UnmorphingTransitionRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.UnmorphingTransitionRightPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.UnmorphingTransitionRightAnimation"/>).
+    /// </summary>
     UnmorphingTransitionRight,
 
-    /// <summary>The unmorphing transition left animation (<see cref="SamusAnimationDelayDefinitions.UnmorphingTransitionLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.UnmorphingTransitionLeftPose"/> plays: its two frames (<see
+    /// cref="SamusAnimationDelayDefinitions.UnmorphingTransitionLeftAnimation"/>).
+    /// </summary>
     UnmorphingTransitionLeft,
 
-    /// <summary>The instant morphing right animation (<see cref="SamusAnimationDelayDefinitions.InstantMorphingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.InstantMorphingRightAnimation"/>).
+    /// </summary>
     InstantMorphingRight,
 
-    /// <summary>The instant morphing left animation (<see cref="SamusAnimationDelayDefinitions.InstantMorphingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.InstantMorphingLeftAnimation"/>).
+    /// </summary>
     InstantMorphingLeft,
 
-    /// <summary>The compact morphing right animation (<see cref="SamusAnimationDelayDefinitions.CompactMorphingRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.CompactMorphingRightAnimation"/>).
+    /// </summary>
     CompactMorphingRight,
 
-    /// <summary>The draygon held morphing left animation (<see cref="SamusAnimationDelayDefinitions.DraygonHeldMorphingLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.DraygonHeldMorphingLeftAnimation"/>).
+    /// </summary>
     DraygonHeldMorphingLeft,
 
-    /// <summary>The compact standing up right animation (<see cref="SamusAnimationDelayDefinitions.CompactStandingUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation no pose plays, which only a frame read past an earlier animation reaches: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.CompactStandingUpRightAnimation"/>).
+    /// </summary>
     CompactStandingUpRight,
 
-    /// <summary>The draygon held standing up left animation (<see cref="SamusAnimationDelayDefinitions.DraygonHeldStandingUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DraygonHeldStandingUpLeftPose"/> plays: its three frames (<see
+    /// cref="SamusAnimationDelayDefinitions.DraygonHeldStandingUpLeftAnimation"/>).
+    /// </summary>
     DraygonHeldStandingUpLeft,
 
-    /// <summary>The crouching transition aim up right animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionAimUpRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimUpRightAnimation"/>).
+    /// </summary>
     CrouchingTransitionAimUpRight,
 
-    /// <summary>The crouching transition aim up left animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionAimUpLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimUpLeftAnimation"/>).
+    /// </summary>
     CrouchingTransitionAimUpLeft,
 
-    /// <summary>The crouching transition aim diagonal up right animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalUpRightAnimation"/>).
+    /// </summary>
     CrouchingTransitionAimDiagonalUpRight,
 
-    /// <summary>The crouching transition aim diagonal up left animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalUpLeftAnimation"/>).
+    /// </summary>
     CrouchingTransitionAimDiagonalUpLeft,
 
-    /// <summary>The crouching transition aim diagonal down right animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalDownRightAnimation"/>).
+    /// </summary>
     CrouchingTransitionAimDiagonalDownRight,
 
-    /// <summary>The crouching transition aim diagonal down left animation (<see cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalDownLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.CrouchingTransitionAimDiagonalDownLeftAnimation"/>).
+    /// </summary>
     CrouchingTransitionAimDiagonalDownLeft,
 
-    /// <summary>The standing transition aim up right animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionAimUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionAimUpRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionAimUpRightAnimation"/>).
+    /// </summary>
     StandingTransitionAimUpRight,
 
-    /// <summary>The standing transition aim up left animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionAimUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionAimUpLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionAimUpLeftAnimation"/>).
+    /// </summary>
     StandingTransitionAimUpLeft,
 
-    /// <summary>The standing transition aim diagonal up right animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalUpRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalUpRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalUpRightAnimation"/>).
+    /// </summary>
     StandingTransitionAimDiagonalUpRight,
 
-    /// <summary>The standing transition aim diagonal up left animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalUpLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalUpLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalUpLeftAnimation"/>).
+    /// </summary>
     StandingTransitionAimDiagonalUpLeft,
 
-    /// <summary>The standing transition aim diagonal down right animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalDownRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalDownRightPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalDownRightAnimation"/>).
+    /// </summary>
     StandingTransitionAimDiagonalDownRight,
 
-    /// <summary>The standing transition aim diagonal down left animation (<see cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalDownLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.StandingTransitionAimDiagonalDownLeftPose"/> plays: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.StandingTransitionAimDiagonalDownLeftAnimation"/>).
+    /// </summary>
     StandingTransitionAimDiagonalDownLeft,
 
-    /// <summary>The draygon grabbed moving animation (<see cref="SamusAnimationDelayDefinitions.DraygonGrabbedMovingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DraygonGrabbedMovingLeftPose"/> and <see
+    /// cref="SamusPoseId.DraygonGrabbedMovingRightPose"/> play: its six frames (<see
+    /// cref="SamusAnimationDelayDefinitions.DraygonGrabbedMovingAnimation"/>).
+    /// </summary>
     DraygonGrabbedMoving,
 
-    /// <summary>The shinespark animation (<see cref="SamusAnimationDelayDefinitions.ShinesparkAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.ShinesparkHorizontalRightPose"/>, <see
+    /// cref="SamusPoseId.ShinesparkHorizontalLeftPose"/> and four more poses play: its one frame (<see
+    /// cref="SamusAnimationDelayDefinitions.ShinesparkAnimation"/>).
+    /// </summary>
     Shinespark,
 
-    /// <summary>The crystal flash right animation (<see cref="SamusAnimationDelayDefinitions.CrystalFlashRightAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrystalFlashRightPose"/> plays: its rise of four frames, its glow of four
+    /// frames and its finish of three frames (<see cref="SamusAnimationDelayDefinitions.CrystalFlashRightAnimation"/>).
+    /// </summary>
     CrystalFlashRight,
 
-    /// <summary>The crystal flash left animation (<see cref="SamusAnimationDelayDefinitions.CrystalFlashLeftAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.CrystalFlashLeftPose"/> plays: its rise of four frames, its glow of four
+    /// frames and its finish of three frames (<see cref="SamusAnimationDelayDefinitions.CrystalFlashLeftAnimation"/>).
+    /// </summary>
     CrystalFlashLeft,
 
-    /// <summary>The death sequence animation (<see cref="SamusAnimationDelayDefinitions.DeathSequenceAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>
+    /// play: its six frames (<see cref="SamusAnimationDelayDefinitions.DeathSequenceAnimation"/>).
+    /// </summary>
     DeathSequence,
 
-    /// <summary>The forward facing animation (<see cref="SamusAnimationDelayDefinitions.ForwardFacingAnimation"/>).</summary>
+    /// <summary>
+    /// The animation <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see
+    /// cref="SamusPoseId.ForwardFacingSuitedPose"/> play: its still of one frame and its appearance of 94 frames (<see
+    /// cref="SamusAnimationDelayDefinitions.ForwardFacingAnimation"/>).
+    /// </summary>
     ForwardFacing,
 }

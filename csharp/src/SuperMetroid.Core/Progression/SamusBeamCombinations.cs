@@ -55,7 +55,7 @@ public static class SamusBeamCombinations
         public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != SamusBeamFlags.None;
 
         /// <summary>Whether equipment can produce this combination: every one but those pairing Spazer with Plasma.</summary>
-        public bool IsRetail => combination switch
+        public bool CanBeEquipped => combination switch
         {
             SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
                 SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or

@@ -115,11 +115,11 @@ internal sealed class SamusFrameState
     public CrystalFlashMovementResult? LastCrystalFlashMovement { get; internal set; }
 
 
-    /// <summary>Most recent call of X-ray's setup/beam/deactivation state.</summary>
+    /// <summary>The latest result of the X-ray scope's setup, beam or deactivation step.</summary>
     public XrayBeamStepResult? LastXrayBeamStep { get; internal set; }
 
 
-    /// <summary>Most recent game-state-owned fatal-damage animation/shade/artwork call.</summary>
+    /// <summary>The latest step of the death sequence's animation, shade and artwork.</summary>
     public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; internal set; }
 
 

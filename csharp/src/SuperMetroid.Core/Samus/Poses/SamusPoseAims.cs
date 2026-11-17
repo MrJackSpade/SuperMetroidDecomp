@@ -1,4 +1,3 @@
-using static SuperMetroid.Core.Samus.Poses.SamusPoseAimDefinitions;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -12,6 +11,5 @@ internal static class SamusPoseAims
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static SamusPoseAim Read(SamusPoseId pose) =>
         SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored) ? unauthored.Aim
-        : Aims.TryGetValue(pose, out SamusPoseAim aim) ? aim
-        : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+        : SamusPoseTraits.Authored(pose).Aim;
 }

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <remarks>
 /// This is deliberately not a generic platformer controller. The entry points below
 /// correspond only to the standing, running, turning-on-ground, moonwalking and ran-into-wall movement types, with
-/// their air/water/lava X tables, submerged Dash gating, and ordinary Dash and equipped-Speed-Booster accumulation and
+/// their speeds in air, water and lava (<see cref="SamusHorizontalSpeedDefinitions"/>), submerged Dash gating, and ordinary Dash and equipped-Speed-Booster accumulation and
 /// staging. Solid enemies stop Samus through the shared block collision, conveyors carry her as inside-block reactions,
 /// knockback is <see cref="SamusKnockbackMovement"/>'s, and the boost's colours and echoes are drawn outside movement.
 /// </remarks>
@@ -25,9 +25,8 @@ public static class SamusGroundedMovement
     /// <remarks>
     /// <see cref="SamusPoseId.ForwardFacingPowerSuitPose"/> and <see cref="SamusPoseId.ForwardFacingSuitedPose"/> share <see cref="SamusMovementType.Standing"/> movement with ordinary standing, but the game
     /// returns before horizontal movement, speed cleanup, and the one-pixel grounding probe.
-    /// It only clears <see cref="SamusState.SolidVerticalCollisionResult"/> while no elevator ride is active.
-    /// A nonzero status calls the downward block collision with exactly one pixel of downward displacement before
-    /// clearing that result. The elevator actor remains a separate producer of the status,
+    /// It clears <see cref="SamusState.SolidVerticalCollisionResult"/> every update; while an elevator moves, it first
+    /// moves her one pixel down through the downward block collision. The elevator actor remains a separate producer of the status,
     /// and of the platform art; this method holds the complete Samus-side consumer.
     /// </remarks>
     [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
@@ -140,8 +139,8 @@ public static class SamusGroundedMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
-        // Can replace the block reaction's ordinary speed table with the
-        // complete water/lava table after comparing Samus's bottom boundary.
+        // Can replace the block reaction's ordinary speeds with the water or lava
+        // speeds after comparing Samus's bottom boundary.
         SamusLiquidMedium liquidMedium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         speed.SelectSpeedsFor(liquidMedium);
 
@@ -231,14 +230,13 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // The pose's own turning-on-ground or turning-while-jumping speed-table record supplies the
+        // The turning-on-ground or turning-while-jumping speeds supply the
         // deceleration. If subtraction crosses below zero,
         // the calculation clears both speed halves AND mode before the direction selector chooses direction.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType);
 
-        // Reads the pose's facing rather than the English-facing name. Keeping
-        // the pose's facing also preserves the game's behavior for unexpected
-        // nonzero acceleration-mode values instead of manufacturing another unsupported arm.
+        // Reads the pose's facing rather than its name; the acceleration mode then chooses
+        // whether she moves the way she faces or against it.
         var requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
@@ -292,7 +290,7 @@ public static class SamusGroundedMovement
             speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
             liquidImpeded: liquidMedium != SamusLiquidMedium.Air);
 
-        // Moonwalking has its own speed record. Its pose X directions intentionally
+        // Moonwalking has its own speeds. Its poses' facings intentionally
         // produce travel opposite the visible facing; turning reverses that direction just as it
         // does for every other family. Do not derive either direction from the pose's name.
         UnsignedSixteenSixteen baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Moonwalking);

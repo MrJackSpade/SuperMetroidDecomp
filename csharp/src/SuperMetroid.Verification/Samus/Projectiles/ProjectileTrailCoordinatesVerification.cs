@@ -65,7 +65,7 @@ internal static class ProjectileTrailCoordinatesVerification
         {
             // A Spazer and Plasma combination's row reads past its table into the next one's; the game authors it no
             // trail, so it names none (#1926).
-            ProjectileTrailPlacementList? expected = beams.IsRetail ? NativeList(bus, lists, table, beams, direction.ToAimIndex()) : null;
+            ProjectileTrailPlacementList? expected = beams.CanBeEquipped ? NativeList(bus, lists, table, beams, direction.ToAimIndex()) : null;
             AssertEqual(expected, ProjectileTrailPlacements.List(group, beams, direction),
                 $"{group} {beams} direction {direction} selects the list the cartridge's pointers name");
             selections++;

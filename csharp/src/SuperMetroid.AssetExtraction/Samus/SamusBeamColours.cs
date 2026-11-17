@@ -22,7 +22,7 @@ internal static class SamusBeamColours
 
     /// <summary>The beam combinations with a beam shade of their own: the retail combinations and SpaceTime.</summary>
     internal static IEnumerable<SamusBeamCombination> Shown =>
-        Enum.GetValues<SamusBeamCombination>().Where(combination => combination.IsRetail ||
+        Enum.GetValues<SamusBeamCombination>().Where(combination => combination.CanBeEquipped ||
             combination is SpacetimeBeamGraphicsDefinitions.Selection);
 
     /// <summary>The sixteen colours <paramref name="combination"/>'s beams show.</summary>

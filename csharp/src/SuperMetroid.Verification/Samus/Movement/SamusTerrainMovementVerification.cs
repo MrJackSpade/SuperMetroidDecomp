@@ -77,7 +77,8 @@ internal static void VerifySamusSlopePhysics()
     SlopeAlignmentResult aligned = SamusSlopePhysics.AlignYPosition(
         level,
         position: new(8, 21),
-        yRadius: 5);
+        yRadius: 5,
+        horizontalSlopeCollisionEnabled: true);
     AssertEqual(19, aligned.Position.Y, "non-square floor slope whole-pixel Y correction");
     AssertTrue(aligned.Adjusted, "non-square floor slope sets adjusted flag");
 

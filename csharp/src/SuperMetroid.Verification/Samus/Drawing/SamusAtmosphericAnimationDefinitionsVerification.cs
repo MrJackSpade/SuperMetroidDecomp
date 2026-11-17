@@ -184,7 +184,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         samus.LiquidPhysics.ConfigureLavaAcid(
             surfaceY: 100,
             fxType == RoomFxType.Acid ? RoomFxType.Acid : RoomFxType.Lava);
-        samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
+        samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
         AssertEqual(expected.SubDamage, samus.PeriodicDamage.Pending.Fraction,
             $"production {fxType} fractional damage accumulation");
         AssertEqual(expected.WholeDamage, samus.PeriodicDamage.Pending.Whole,

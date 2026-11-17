@@ -221,7 +221,7 @@ internal static class SamusOverreadDecoding
     /// </summary>
     private static Dictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusBeamCombination>()
-            .Where(beams => !beams.IsRetail)
+            .Where(beams => !beams.CanBeEquipped)
             .ToDictionary(beams => beams.ToString(), beams =>
             {
                 int row = SamusOverreadSourceDefinitions.BeamSpeedTable + beams.TableIndex * 2 * sizeof(ushort);
@@ -237,7 +237,7 @@ internal static class SamusOverreadDecoding
     /// </summary>
     private static Dictionary<string, SamusOverreadDocument.Cooldowns> UnauthoredBeamCooldowns(IImportCartridgeSource cartridge) =>
         Enum.GetValues<SamusBeamCombination>()
-            .Where(beams => !beams.IsRetail)
+            .Where(beams => !beams.CanBeEquipped)
             .ToDictionary(beams => beams.ToString(), beams => new SamusOverreadDocument.Cooldowns(
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.UnchargedCooldowns + beams.TableIndex),
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.ChargedCooldowns + beams.TableIndex),

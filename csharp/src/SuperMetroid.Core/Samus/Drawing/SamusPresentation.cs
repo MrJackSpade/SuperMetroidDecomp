@@ -68,9 +68,9 @@ internal sealed class SamusPresentation
     internal static void InitializeAnimation(SamusState samus, SamusAnimationFrame initialFrame)
     {
         samus.AnimationFrame = initialFrame;
-        // Pose initialization does not simply reuse the previous animation pass's delay buffer. It
-        // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
-        // Gravity Suit takes the ordinary speed-divisor path.
+        // Pose initialization does not simply reuse the previous animation pass's extra animation delay. It
+        // recomputes the water or lava delay from the NEW pose radius at Y + radius - 1, while
+        // the Gravity Suit takes the slowdown level.
         samus.ExtraAnimationDelay = samus.LiquidPhysics.DeterminePoseChangeExtraAnimationDelay(samus);
         samus.AnimatedPose = samus.Pose;
         if (samus.AnimationStep is not SamusAnimationDelay initialDelay)
@@ -109,7 +109,7 @@ internal sealed class SamusPresentation
     /// The game's animation pass resolves the animation from Pose every update, whereas
     /// this model caches it as a consistency check. This narrow method updates only that
     /// cache plus the controller's explicit writes; it intentionally does not recompute the
-    /// liquid animation buffer or silently refresh collision radius.
+    /// liquid's extra animation delay or silently refresh collision radius.
     /// </remarks>
     internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
@@ -193,8 +193,8 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this update deliberately skips liquid-
-    /// FX delay buffering, neutral-jump hacks, and controller-dependent Dash interception.
+    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this update deliberately skips the liquid's
+    /// extra animation delay, the neutral jump's held rise, and controller-dependent Dash interception.
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
     {

@@ -29,7 +29,7 @@ internal static class SpeedBoosterWordRangeVerification
         {
             var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = before };
             bool advanced = speed.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
-                animationFrameBuffer: 0, out _, requestEchoSound: NoEcho);
+                extraAnimationDelay: 0, out _, requestEchoSound: NoEcho);
             AssertTrue(!advanced, $"counter {before}: a borrowing countdown leaves a nonzero cadence, so no stage advances");
             AssertEqual(expected, speed.SpeedBoostCounter, $"counter {before}: the countdown borrows a stage");
         }
@@ -37,12 +37,12 @@ internal static class SpeedBoosterWordRangeVerification
         // Stage zero with no cadence has no stage to borrow from.
         var empty = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0) };
         AssertThrows<InvalidOperationException>(() => empty.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running,
-            GameplayAction.Dash, animationFrameBuffer: 0, out _, requestEchoSound: NoEcho), "a stage-zero counter with no cadence cannot borrow");
+            GameplayAction.Dash, extraAnimationDelay: 0, out _, requestEchoSound: NoEcho), "a stage-zero counter with no cadence cannot borrow");
 
         // A cadence of one reaching zero advances the stage and reloads the cadence.
         var advancing = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
-            animationFrameBuffer: 0, out _, requestEchoSound: NoEcho), "cadence one expires and advances the stage");
+            extraAnimationDelay: 0, out _, requestEchoSound: NoEcho), "cadence one expires and advances the stage");
         AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage2)), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");
 
@@ -68,14 +68,14 @@ internal static class SpeedBoosterWordRangeVerification
         AssertTrue(!boosted.SpeedEchoesDeparting, "a Samus who has not boosted is not departing");
         AssertTrue(boosted.CaptureSpeedEchoPosition(0, new(40, 50)), "a full boost captures on a fourth frame");
         AssertEqual(new Position16<RoomPixels>(40, 50), boosted.FirstSpeedEchoPosition, "the first capture fills the first slot");
-        AssertEqual(SpeedEchoCursor.SecondEcho, boosted.SpeedEchoCursor, "the first capture moves the cursor to the second slot");
+        AssertEqual(SpeedEchoPhase.CapturingSecond, boosted.SpeedEchoPhase, "the first capture moves the cursor to the second slot");
         AssertTrue(boosted.CaptureSpeedEchoPosition(4, new(44, 50)), "the next fourth frame captures again");
         AssertEqual(new Position16<RoomPixels>(44, 50), boosted.SecondSpeedEchoPosition, "the second capture fills the second slot");
-        AssertEqual(SpeedEchoCursor.FirstEcho, boosted.SpeedEchoCursor, "stepping past the second slot returns the cursor to the first");
+        AssertEqual(SpeedEchoPhase.CapturingFirst, boosted.SpeedEchoPhase, "stepping past the second slot returns the cursor to the first");
 
         // Cancellation publishes the departure index, which stops capture.
         boosted.CancelRunningMomentum(SamusFacingDirection.Right);
-        AssertEqual(SpeedEchoCursor.Departing, boosted.SpeedEchoCursor, "cancellation sends the echoes departing");
+        AssertEqual(SpeedEchoPhase.Departing, boosted.SpeedEchoPhase, "cancellation sends the echoes departing");
         AssertTrue(boosted.SpeedEchoesDeparting, "the departing cursor is the departure state");
         AssertTrue(!boosted.CaptureSpeedEchoPosition(4, new(60, 70)), "departing echoes are not recaptured");
     }

@@ -78,7 +78,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, 10)),
             "running foot-contact frame past table");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Unreached, 2)),
+            () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.SlowStride, 2)),
             "running foot-contact frame off the stride");
         AssertEqual<CrateriaAtmosphericEffect?>(null,
             SamusAtmosphericEffects.ForCrateriaRoom(RoomDefinitions.GreenPiratesShaft),
@@ -132,7 +132,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             samus.Room = RoomDefinitions.FirstIn(AreaId.Maridia);
             SamusPresentation.InitializeAnimation(samus, samus.PoseFrameNumbered(frame));
             AdvanceToFootContactTick(samus);
-            samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1);
+            samus.LiquidPhysics.PrepareAnimationFrame(samus, new SharedRandom(), frameCounter: 1, bossPresent: false);
 
             AssertEqual(SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, frame)) ? "SurfaceSplash,SurfaceSplash" : "",
                 ParticleKinds(samus), $"production running contact frame {frame}");
@@ -161,7 +161,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             SamusPresentation.InitializeAnimation(runner, runner.PoseFrameNumbered(2));
             AdvanceToFootContactTick(runner);
-            runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1);
+            runner.LiquidPhysics.PrepareAnimationFrame(runner, new SharedRandom(), frameCounter: 1, bossPresent: false);
             AssertEqual(wet ? "SurfaceSplash,SurfaceSplash" : "", ParticleKinds(runner),
                 $"production Crateria running policy in {room.Name}");
 

@@ -35,7 +35,7 @@ internal static class SamusAerialPoseTransitions
     /// excluded by the crouch-adjustment initializer, so the live vertical velocity survives. Spin bodies are
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
-    /// The wall-jump tables use this very same route for their diagonal-aim
+    /// The wall jumps' input transitions use this very same route for their diagonal-aim
     /// poses and gun-extended Shot poses; they do not have a separate wall-fire transition.
     /// </remarks>
     public static bool TryApplySpinOrWallJumpToNormalJumpTransition(
@@ -56,7 +56,7 @@ internal static class SamusAerialPoseTransitions
         if (!compactJumpSource || !normalJumpTarget ||
             SamusPoseMetadata.ReadFacingDirection(sourcePose) != SamusPoseMetadata.ReadFacingDirection(targetPose))
         {
-            // The six spin/Space/Screw tables and two wall-jump tables emit only same-facing
+            // The spin, Space Jump, Screw Attack and wall-jump input transitions emit only same-facing
             // normal-jump poses when aim or Shoot cancels rotation. A different movement
             // family is owned by the spin-direction or landing initializers instead.
             throw new InvalidOperationException(
@@ -113,7 +113,7 @@ internal static class SamusAerialPoseTransitions
         return true;
     }
 
-    /// <summary>Applies a normal-jump or falling turn, selecting aim-preserving art through the aerial turn tables after the shared larger-pose collision pass.</summary>
+    /// <summary>Applies a normal-jump or falling turn, selecting the turn that keeps her aim (<see cref="SamusAimedPoseChoiceDefinitions.JumpingTurns"/>, <see cref="SamusAimedPoseChoiceDefinitions.FallingTurns"/>) after the shared larger-pose collision pass.</summary>
     /// <param name="samus">The Samus this reads.</param>
     /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
     /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
@@ -149,35 +149,15 @@ internal static class SamusAerialPoseTransitions
                 $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
         }
 
-        // These are literal copies of the two aerial turn tables. The straight-down aims are
-        // not typos: compact down-aim sources reuse the jumping or falling down-aim turns
-        // according to facing. Retaining all ten entries preserves aim through the turn.
+        // The turn keeps her aim. A straight-down aim takes the down-aimed turn away from the way she faces.
         SamusProjectileDirection? shotDirection = SamusPoseMetadata.ReadAimDirection(samus);
-        SamusPoseId selectedTurnPose = jumping
-            ? shotDirection switch
-            {
-                SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftJumpAimUpPose,
-                SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose,
-                SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftJumpPose,
-                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight => SamusPoseId.TurningRightToLeftJumpAimDownPose,
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightJumpAimDownPose,
-                SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightJumpPose,
-                SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose,
-                SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightJumpAimUpPose,
-                _ => throw new InvalidDataException($"Jump pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)})."),
-            }
-            : shotDirection switch
-            {
-                SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftFallingAimUpPose,
-                SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose,
-                SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftFallingPose,
-                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight => SamusPoseId.TurningRightToLeftFallingAimDownPose,
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightFallingAimDownPose,
-                SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightFallingPose,
-                SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose,
-                SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightFallingAimUpPose,
-                _ => throw new InvalidDataException($"Fall pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)})."),
-            };
+        IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> turns = jumping
+            ? SamusAimedPoseChoiceDefinitions.JumpingTurns
+            : SamusAimedPoseChoiceDefinitions.FallingTurns;
+        SamusPoseId selectedTurnPose = shotDirection is { } direction && turns.TryGetValue(direction, out SamusPoseId turn)
+            ? turn
+            : throw new InvalidDataException(
+                $"{(jumping ? "Jump" : "Fall")} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
 
         if ((turnsLeft && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
             (turnsRight && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))
@@ -254,7 +234,7 @@ internal static class SamusAerialPoseTransitions
 
     /// <summary>
     /// Applies the wall-jump check, the wall-jump trigger, and the jump launch after the block
-    /// wall test succeeds. The launch values are read from the game's dry-air tables.
+    /// wall test succeeds. The launch takes the dry-air speeds.
     /// </summary>
     /// <param name="samus">The Samus this reads.</param>
     /// <param name="level">The room's collision geometry the larger wall-jump pose is tested against.</param>
@@ -389,7 +369,7 @@ internal static class SamusAerialPoseTransitions
             // outputs are exactly the standing/aim/crouch set above. Other releases use
             // separate grapple wall-jump or swing-release movements, not this API.
             throw new InvalidOperationException(
-                $"Grapple drop transition {samus.Pose} -> {targetPose} is not a dropped-table route.");
+                $"Grapple drop transition {samus.Pose} -> {targetPose} is not a route a grapple drop takes.");
         }
 
         // The enemy death animation requests this cleanup for a grapple-killed enemy even
@@ -537,7 +517,7 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Applies the ordinary-input jump transitions the game's table selects, including the jump transition's jump start:
+    /// Applies the ordinary jump transitions her input selects, including the jump transition's jump start:
     /// the routes with no equipment or aim, among them interrupting any same-facing landing with a fresh Jump press.
     /// </summary>
     public static void ApplyOrdinaryJumpTransition(

@@ -16,7 +16,7 @@ internal static class SamusProjectileCooldowns
     /// <exception cref="ArgumentOutOfRangeException">The shot is undefined.</exception>
     internal static int Read(SamusBeamCombination beams, BeamShotCooldowns.Shot shot)
     {
-        if (!beams.IsRetail)
+        if (!beams.CanBeEquipped)
             throw new InvalidDataException($"{beams} pairs Spazer with Plasma, whose cooldowns are not authored.");
         return shot switch
         {

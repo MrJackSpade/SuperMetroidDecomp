@@ -12,9 +12,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 internal static class SamusExtraDisplacement
 {
     /// <summary>
-    /// Adds the external Y displacement to a signed movement displacement, wrapping at 65536 whole pixels.
-    /// The vertical move does this after choosing up/down from the separate Y-direction
-    /// direction, so a strong external value may reverse the actual collision scan direction.
+    /// Adds the external vertical displacement to a signed movement displacement, its whole pixels wrapping around the
+    /// room. The vertical move does this after choosing up or down from her vertical direction, so a strong external value may reverse the actual collision scan direction.
     /// </summary>
     public static SignedSixteenSixteen AddToVerticalSpeedDisplacement(
         SamusKinematicsState kinematics,

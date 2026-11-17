@@ -151,10 +151,8 @@ internal sealed class BeamFiring
                     return new(place, sound, sound is null ? null : SoundRequestPriority.Essential);
                 }
 
-                // The flare draw owns both flare graphics and their audio. Its draw-time call
-                // queues the charging sound exactly once at counter sixteen. The
-                // C# renderer is intentionally side-effect free, so queue the same sound
-                // here, on the input phase that advances the counter to sixteen.
+                // The charging sound starts once, on the input phase that advances the flare count to
+                // BeamChargeDefinitions.ChargeSoundStartCounter; drawing the flare queues nothing.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
                     return new(null, SamusSound.ChargingBeam, Priority: SoundRequestPriority.High);
@@ -235,8 +233,8 @@ internal sealed class BeamFiring
             return new BeamShot(null, null);
         }
 
-        // Allocation writes one before allocating storage. A corrupt counter/free-projectile
-        // disagreement is therefore intentionally observable rather than silently repaired.
+        // A fire attempt sets the shared cooldown before it takes a place, so a shot count that disagrees
+        // with the free places shows rather than being repaired.
         sharedProjectiles.SetSharedCooldown(SamusProjectileCooldownDefinitions.FireAttempt);
         _pool.ShotCount.CountShot();
 
@@ -293,7 +291,7 @@ internal sealed class BeamFiring
                 ? BeamShotCooldowns.Shot.Uncharged
                 : BeamShotCooldowns.Shot.HeldFire;
         // A Spazer and Plasma combination waits its own cooldowns (UnauthoredBeamFiring, #1506).
-        int cooldown = beamType.IsRetail
+        int cooldown = beamType.CanBeEquipped
             ? SamusProjectileCooldowns.Read(beamType, shot)
             : _unauthoredFiring.Cooldown(beamType, shot);
         sharedProjectiles.SetSharedCooldown(cooldown);
@@ -492,7 +490,7 @@ internal sealed class BeamFiring
             : SamusProjectileSoundRoutingDefinitions.MissileRequest);
     }
 
-    /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
+    /// <summary>Places the muzzle at the pose's projectile height and the running or ordinary origin of its direction (<see cref="SamusMuzzleOrigins"/>).</summary>
     internal static void InitializePosition(
         SamusState samus,
         SamusProjectile projectile)
@@ -500,8 +498,8 @@ internal sealed class BeamFiring
         int poseYOffset = SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
-        // The muzzle origin uses the running/moonwalk origin table for SamusMovementType.Running and for
-        // the two diagonally-up moonwalk MoonwalkAimUpLeftPose and MoonwalkAimUpRightPose. Every other pose uses the default.
+        // Running and the two moonwalks aiming diagonally up take the running origins; every other pose takes the
+        // ordinary ones.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
         var origin = SamusMuzzleOrigins.Read(runningOrigin, projectile.Direction);
@@ -524,7 +522,7 @@ internal sealed class BeamFiring
         SamusBeamCombination beams = projectile.Type.BeamCombination;
         SignedEightEight authoredSpeed = diagonal ? SamusProjectileMotionDefinitions.DiagonalSpeed : SamusProjectileMotionDefinitions.CardinalSpeed;
         // An unauthored combination's speed is its table's 1/256-pixel speed, which the launch adds as a wrapping velocity.
-        SignedEightEight speed = beams.IsRetail ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
+        SignedEightEight speed = beams.CanBeEquipped ? authoredSpeed : SignedEightEight.Wrapped(unauthoredFiring.Speed(beams, diagonal));
 
         InitializeDirectionalVelocity(inheritance, projectile, speed);
     }
@@ -581,7 +579,7 @@ internal sealed class BeamFiring
     /// </summary>
     public int ProjectileInvincibilityTimer { get; internal set; }
 
-    /// <summary>Decrements the projectile-owned timer of Samus's timer countdown.</summary>
+    /// <summary>Counts the projectile invincibility down by one update, stopping at zero.</summary>
     public void DecrementInteractionTimer()
     {
         ProjectileInvincibilityTimer = Math.Max(0, ProjectileInvincibilityTimer - 1);

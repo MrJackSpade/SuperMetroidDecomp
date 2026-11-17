@@ -294,10 +294,11 @@ public sealed class SamusProjectileSystem
     /// clock once, immediately before calling this method; this method may replace it after
     /// a successful shot just as the game does.
     /// </param>
-    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
+    /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
+    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, SharedGameState progression)
     {
         FireFromHud(terrain, samus, buttons, sharedProjectiles, projectileProducerEnabled: true);
-        HandleShots(terrain, samus, cameraPosition, sharedProjectiles);
+        HandleShots(terrain, samus, cameraPosition, sharedProjectiles, progression);
         return LastFrameResult;
     }
 
@@ -392,11 +393,13 @@ public sealed class SamusProjectileSystem
     /// <param name="samus">Mutable player owner supplying pose, equipment and the X-ray freeze.</param>
     /// <param name="cameraPosition">Horizontal and vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">Samus's bombs, carrying the shared cooldown and the power bomb the shots read.</param>
-    internal void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles)
+    /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
+    internal void HandleShots(SamusTerrain terrain, SamusState samus, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem sharedProjectiles, SharedGameState progression)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         Ensure.NotNull(sharedProjectiles);
+        Ensure.NotNull(progression);
 
         // Bombs were handled by the companion class first; the shots run in update order here because a delete cue
         // changes the counter. The HUD producer can activate X-ray during this pass, so the freeze is checked
@@ -409,7 +412,7 @@ public sealed class SamusProjectileSystem
             if (shot.Playback is null)
                 continue;
 
-            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, sharedProjectiles));
+            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, sharedProjectiles, progression));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
             // explosion's first frame is selected in this same projectile pass.

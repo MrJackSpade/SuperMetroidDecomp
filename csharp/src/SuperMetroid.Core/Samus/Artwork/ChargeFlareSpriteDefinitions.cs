@@ -8,14 +8,14 @@ public static class ChargeFlareSpriteDefinitions
     /// <summary>The main flare's pictures, in the order the flare shows them; both facings show the same.</summary>
     internal static readonly ChargeFlarePicture[] MainPictures =
     [
-        ChargeFlarePicture.MainFirst, ChargeFlarePicture.MainSecond, ChargeFlarePicture.MainThird, ChargeFlarePicture.MainFourth,
+        ChargeFlarePicture.Ember, ChargeFlarePicture.Glow, ChargeFlarePicture.WhiteBall, ChargeFlarePicture.Starburst,
     ];
 
     /// <summary>A spark ring's pictures, in the order the ring shows them; each facing's rings show their own.</summary>
     internal static readonly ChargeFlarePicture[] SparkPictures =
     [
-        ChargeFlarePicture.SparksFirst, ChargeFlarePicture.SparksSecond, ChargeFlarePicture.SparksThird,
-        ChargeFlarePicture.SparksFourth, ChargeFlarePicture.SparksFifth, ChargeFlarePicture.SparksSixth,
+        ChargeFlarePicture.SparksWidest, ChargeFlarePicture.SparksWider, ChargeFlarePicture.SparksWide,
+        ChargeFlarePicture.SparksNarrow, ChargeFlarePicture.SparksNarrower, ChargeFlarePicture.SparksNarrowest,
     ];
 
     /// <summary>The spark rings' families: the right slow, right fast, left slow and left fast sparks.</summary>

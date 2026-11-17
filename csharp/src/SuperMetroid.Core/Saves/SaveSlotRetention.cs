@@ -16,7 +16,7 @@ internal static class SaveSlotRetention
     internal static SuperMetroidSaveSlot Retain(SuperMetroidSaveSnapshot snapshot, SaveSlot slot, IAreaMapSource? maps)
     {
         Ensure.NotNull(snapshot);
-        ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
+        ControllerBindings bindings = snapshot.ControllerBindings.RequireUniquePermutation();
         ReserveTankMode reserveMode = Defined(snapshot.ReserveMode, nameof(snapshot.ReserveMode));
         int health = Kept(snapshot.Health), maxHealth = Kept(snapshot.MaxHealth);
         int missiles = Kept(snapshot.Missiles), maxMissiles = Kept(snapshot.MaxMissiles);

@@ -9,5 +9,5 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RetailRooms
 {
     /// <summary>Every retail room, in authored order.</summary>
-    internal static IReadOnlyList<RoomDefinition> All => RoomDefinitions.Retail;
+    internal static IReadOnlyList<RoomDefinition> All => RoomDefinitions.All;
 }

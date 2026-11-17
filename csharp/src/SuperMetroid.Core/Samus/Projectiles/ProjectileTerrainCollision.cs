@@ -436,10 +436,10 @@ internal sealed class ProjectileTerrainCollision
         // preserve its no-op room object; shootable-air's method exits without allocating. The RoomObject
         // owner performs the power-bomb/Super-Missile family checks synchronously, just as each
         // setup sees the current projectile type while the room object spawns.
-        bool translatedBehavior = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or
+        bool spawnsShotBlockReaction = block.Behavior.Shootable is ShootableReaction.NothingWhenSolid or
                 ShootableReaction.AnimalEscape or ShootableReaction.CollisionProbe ||
             ShotBlockReactions.IsWeaponReaction(block.Behavior.Shootable);
-        if (translatedBehavior)
+        if (spawnsShotBlockReaction)
         {
             roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                 level,

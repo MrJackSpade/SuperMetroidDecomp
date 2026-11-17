@@ -97,7 +97,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: false);
     }
 
-    /// <summary>The priority order of the forward facing power suit input list.</summary>
+    /// <summary>The priority order of both forward-facing poses' input list, in the power suit and suited.</summary>
     private static SamusPoseInputMatch MatchForwardFacing(GameplayAction held)
     {
         if (Has(held, Right))
@@ -107,7 +107,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the facing right normal input list; the mirrored list has the same order mirrored.</summary>
+    /// <summary>The priority order of the right-facing standing poses' and landings' input list, whatever their aim; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchStandingAndLandingRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Up))
@@ -157,7 +157,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the moving right normal input list; the mirrored list has the same order mirrored.</summary>
+    /// <summary>The priority order of the right-facing running poses' input list, whatever their aim; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchRunningRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -187,7 +187,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the neutral jump transition right input list.</summary>
+    /// <summary>The priority order of the right-facing jump transitions' input list, whatever their aim.</summary>
     private static SamusPoseInputMatch MatchJumpTransitionRight(GameplayAction held)
     {
         if (Has(held, Jump | Left))
@@ -209,7 +209,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the neutral jump transition left input list.</summary>
+    /// <summary>The priority order of the left-facing jump transitions' input list, whatever their aim.</summary>
     private static SamusPoseInputMatch MatchJumpTransitionLeft(GameplayAction held)
     {
         if (Has(held, Jump | Right))
@@ -233,7 +233,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the normal jump aim up right input list; the mirrored list has the same order mirrored.</summary>
+    /// <summary>The priority order of the right-facing neutral, forward, aimed-up and diagonal normal jumps' input list; the mirrored list has the same order mirrored.</summary>
     private static SamusPoseInputMatch MatchNormalJumpRight(GameplayAction held)
     {
         if (Has(held, Jump | Right | Up))
@@ -576,7 +576,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: false);
     }
 
-    /// <summary>The priority order of the moonwalk facing left input list.</summary>
+    /// <summary>The priority order of the left-facing moonwalk poses' input list, whatever their aim.</summary>
     private static SamusPoseInputMatch MatchMoonwalkLeft(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
@@ -600,7 +600,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the moonwalk facing right input list.</summary>
+    /// <summary>The priority order of the right-facing moonwalk poses' input list, whatever their aim.</summary>
     [MirroredAsymmetry("the right-facing moonwalk list exchanges the diagonal aim-up and aim-down chords and aimed poses as well as the directions")]
     private static SamusPoseInputMatch MatchMoonwalkRight(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -986,7 +986,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the draygon grabbed neutral right input list.</summary>
+    /// <summary>The priority order of the input list of every right-facing pose Draygon's grab holds Samus in.</summary>
     private static SamusPoseInputMatch MatchDraygonGrabbedRight(GameplayAction held)
     {
         if (Has(held, Shoot | Right | Up))
@@ -1012,7 +1012,7 @@ internal static class SamusPoseInputRules
         return new(null, HasConditions: true);
     }
 
-    /// <summary>The priority order of the draygon grabbed neutral left input list.</summary>
+    /// <summary>The priority order of the input list of every left-facing pose Draygon's grab holds Samus in.</summary>
     private static SamusPoseInputMatch MatchDraygonGrabbedLeft(GameplayAction held)
     {
         if (Has(held, Shoot | Left | Up))

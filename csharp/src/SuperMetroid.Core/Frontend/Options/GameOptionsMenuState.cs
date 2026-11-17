@@ -74,7 +74,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         BindSpriteSheets(spriteSheets);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
-            .RequireRetailPermutation();
+            .RequireUniquePermutation();
         IconCancelEnabled = iconCancelEnabled;
         MoonwalkEnabled = moonwalkEnabled;
         JapaneseText = japaneseText;

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// The fixed-point horizontal speeds used by Samus's movement code.
 /// </summary>
 /// <remarks>
-/// Every property corresponds to one value of Samus's state, and every operation below preserves
-/// the game's wrapping at 65536 and its comparisons. Room/enemy collision consumes
+/// Every property is one value of Samus's state, and every operation below keeps the game's wraps and
+/// comparisons. Room/enemy collision consumes
 /// the resulting displacement later; it is not guessed here.
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
@@ -91,13 +91,13 @@ public sealed class SamusHorizontalSpeedState
     public bool SuitShadeRestoreRequested { get; private set; }
 
     /// <summary>
-    /// The speed echo cursor. Ordinary active Speed Booster captures alternate between the first and second echoes;
-    /// cancellation sends them departing while the two stored bodies travel back toward Samus.
+    /// What the speed echoes are doing. Ordinary active Speed Booster captures alternate between the first and second
+    /// echoes; cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
-    public SpeedEchoCursor SpeedEchoCursor { get; private set; }
+    public SpeedEchoPhase SpeedEchoPhase { get; private set; }
 
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
-    public bool SpeedEchoesDeparting => SpeedEchoCursor.IsDeparting;
+    public bool SpeedEchoesDeparting => SpeedEchoPhase == SpeedEchoPhase.Departing;
 
     /// <summary>Where the first Speed Booster echo stands, or none while there is no first echo.</summary>
     public Position16<RoomPixels>? FirstSpeedEchoPosition { get; private set; }
@@ -263,8 +263,8 @@ public sealed class SamusHorizontalSpeedState
     /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which a full sound queue selects.</param>
     /// <param name="movementType">Current movement category; only running takes this cue.</param>
     /// <param name="controllerInput">Current held actions; Dash must be held.</param>
-    /// <param name="animationFrameBuffer">Frame-delay adjustment added to the selected stage's first animation delay.</param>
-    /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the buffer, wrapped at 65536.</param>
+    /// <param name="extraAnimationDelay">Samus's extra animation delay, added to the selected stage's first animation delay.</param>
+    /// <param name="animationFrameTimer">Zero when the cue is not taken; otherwise the new first-frame delay plus the extra animation delay.</param>
     /// <param name="requestEchoSound">
     /// Requests the echo's sound as the stage reaches four, returning what its queue did with it, from which
     /// <see cref="BoostRestartAfterEcho"/> picks the cadence the boost restarts on and so its countdown.
@@ -273,7 +273,7 @@ public sealed class SamusHorizontalSpeedState
         UnauthoredBoostCadence unauthoredBoostCadence,
         SamusMovementType movementType,
         GameplayAction controllerInput,
-        int animationFrameBuffer,
+        int extraAnimationDelay,
         out int animationFrameTimer,
         Func<SoundQueueAdmission> requestEchoSound)
     {
@@ -307,7 +307,7 @@ public sealed class SamusHorizontalSpeedState
         SamusRunningCadence cadence = cadenceAfterEcho ?? SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage);
         SpeedBoostCounter = SpeedBoostCounter.WithCountdown(SamusRunningCadences.CountdownAfterAdvance(cadence));
 
-        animationFrameTimer = WrappingCountdown.Start(animationFrameBuffer)
+        animationFrameTimer = WrappingCountdown.Start(extraAnimationDelay)
             .AddFrames(SamusRunningCadences.Delay(unauthoredBoostCadence, cadence, frame: 0)).RemainingFrames;
         // Animation runs after movement. Stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
@@ -457,7 +457,7 @@ public sealed class SamusHorizontalSpeedState
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
     /// <param name="gameTimeFrames">The gameplay clock's frames within its second, zero or more; only its four-frame phase is read and nothing stores it.</param>
-    /// <param name="position">Samus's whole-pixel room position sampled into the echo the cursor names.</param>
+    /// <param name="position">Samus's whole-pixel room position sampled into the echo the phase names.</param>
     public bool CaptureSpeedEchoPosition(
         int gameTimeFrames,
         Position16<RoomPixels> position)
@@ -470,12 +470,22 @@ public sealed class SamusHorizontalSpeedState
             return false;
         }
 
-        if (SpeedEchoCursor.CapturesFirstEcho)
-            FirstSpeedEchoPosition = position;
-        else
-            SecondSpeedEchoPosition = position;
+        switch (SpeedEchoPhase)
+        {
+            case SpeedEchoPhase.CapturingFirst:
+                FirstSpeedEchoPosition = position;
+                SpeedEchoPhase = SpeedEchoPhase.CapturingSecond;
+                break;
+            case SpeedEchoPhase.CapturingSecond:
+                SecondSpeedEchoPosition = position;
+                SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
+                break;
+            case SpeedEchoPhase.Departing:
+                throw new InvalidOperationException("Departing echoes are not captured.");
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SpeedEchoPhase)} {SpeedEchoPhase}.");
+        }
 
-        SpeedEchoCursor = SpeedEchoCursor.AfterCapture();
         return true;
     }
 
@@ -485,7 +495,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void ClearSpeedEchoes()
     {
-        SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
+        SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         FirstSpeedEchoHorizontalSpeed = 0;
         SecondSpeedEchoHorizontalSpeed = 0;
         FirstSpeedEchoPosition = null;
@@ -526,7 +536,7 @@ public sealed class SamusHorizontalSpeedState
         // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
-            SpeedEchoCursor = SpeedEchoCursor.Departing;
+            SpeedEchoPhase = SpeedEchoPhase.Departing;
             int speed = facing == SamusFacingDirection.Left ? -SamusMovementDefinitions.SpeedEchoDepartureSpeed : SamusMovementDefinitions.SpeedEchoDepartureSpeed;
             FirstSpeedEchoHorizontalSpeed = speed;
             SecondSpeedEchoHorizontalSpeed = speed;
@@ -556,7 +566,7 @@ public sealed class SamusHorizontalSpeedState
         CycleShadeTimer = 0;
         CycleShadeStep = 0;
         SpeedBoostCounter = default;
-        SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
+        SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         FirstSpeedEchoHorizontalSpeed = SecondSpeedEchoHorizontalSpeed = 0;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = null;
     }
@@ -565,7 +575,7 @@ public sealed class SamusHorizontalSpeedState
     /// Performs the complete horizontal-momentum teardown shared by collision, standing,
     /// posture, aerial, and Morph-Ball movements. The seam first cancels Speed Booster
     /// bookkeeping/echoes, then clears the extra run speed, the base speed and the
-    /// acceleration mode; keeping that ordering here prevents five copies from diverging.
+    /// acceleration mode, in that order.
     /// </summary>
     public void ClearHorizontalMomentum(SamusFacingDirection facingDirection)
     {
@@ -664,7 +674,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Clears the departure state after both departing echoes have been considered.
-    /// Once neither echo remains, the cursor returns to the first echo.
+    /// Once neither echo remains, the next capture fills the first echo again.
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
     {
@@ -672,7 +682,7 @@ public sealed class SamusHorizontalSpeedState
             FirstSpeedEchoPosition is null &&
             SecondSpeedEchoPosition is null)
         {
-            SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
+            SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         }
     }
 
@@ -775,8 +785,9 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Calculates the total horizontal speed: add extra run speed, shift by
-    /// min(divisor, 4), and publish the total-speed pair used by animation/collision.
+    /// Calculates the total horizontal speed: adds the extra run speed, halves the sum once for each slowdown level up to
+    /// <see cref="SamusHorizontalSpeedDefinitions.LargestSpeedHalvings"/>, and publishes the total speed animation and
+    /// collision use.
     /// </summary>
     public UnsignedSixteenSixteen CalculateTotalSpeed(UnsignedSixteenSixteen baseSpeed)
     {

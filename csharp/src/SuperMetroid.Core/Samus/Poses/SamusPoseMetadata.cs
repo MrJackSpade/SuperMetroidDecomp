@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Reads of the game pose tables for Samus: collision radii, facing and movement kind, and the per-pose metadata her movement consults, including the bomb-jump direction publication.</summary>
+/// <summary>Reads of Samus's pose definitions (<see cref="SamusPoseDefinitions"/>): collision radii, facing and movement, and the per-pose facts her movement consults, including the bomb-jump direction publication.</summary>
 internal static class SamusPoseMetadata
 {
     /// <summary>The shinespark flights, from <see cref="SamusPoseFamilyDefinitions.ShinesparkPoses"/>.</summary>
@@ -74,8 +74,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Reads a prospective pose's movement type without mutating Samus.
-    /// Values beyond the pose list are corrupt pose metadata and
-    /// fail here, before they can be mistaken for a valid gameplay state downstream.
+    /// An undefined pose fails here, before it can be mistaken for a valid gameplay state downstream.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
         SamusPoseTraits.ReadMovement(pose);
@@ -123,7 +122,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the two front-view poses selected when Samus faces forward.
-    /// Their pose-X direction is zero and must never be guessed as left/right.
+    /// They face neither way and must never be guessed as left or right.
     /// </summary>
     public static bool IsForwardFacingPose(SamusPoseId pose) => pose is
         SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose;
@@ -272,8 +271,8 @@ internal static class SamusPoseMetadata
             IsRightFacingDraygonGrabbedPose(targetPose);
         if (!leftFamily && !rightFamily)
         {
-            // The left-facing table contains only the left-facing grabbed poses; the right-facing one only the right-facing.
-            // Neither set of controller input transitions can cross facing families. Draygon's owner AI
+            // The left-facing grabbed poses' input transitions reach only left-facing grabbed poses, and the right-facing
+            // ones only right-facing: neither set crosses facing families. Draygon's owner AI
             // performs facing changes by re-entering its grabbed movement directly, so a
             // cross-family request to this input transition is a broken contract,
             // not an omitted input transition.
@@ -372,10 +371,10 @@ internal static class SamusPoseMetadata
     /// with any same-facing normal-jump transition, neutral or aimed.
     /// </summary>
     /// <remarks>
-    /// Every landing pose above points at the ordinary standing input transitions. That includes
-    /// the aimed and firing landing poses, not merely the older
-    /// normal/spin subset. That standing table can preserve Up, diagonal-up, or
-    /// diagonal-down shoulder input on the fresh Jump edge, so a right diagonal-up landing can take the right
+    /// Every landing pose above takes the standing input transitions
+    /// (<see cref="SamusPoseInputList.StandingAndLandingRight"/>), the aimed and firing landings as well as the normal
+    /// and spin ones. Those transitions keep Up, the diagonal-up aim or the diagonal-down aim held on the fresh
+    /// Jump press, so a right diagonal-up landing can take the right
     /// diagonal-up jump transition, not only the neutral one. Every landing of the family admits every one of
     /// these transitions.
     /// </remarks>
@@ -401,7 +400,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the complete left-facing <see cref="SamusMovementType.Crouching"/> family. All four
-    /// poses use radius 16 and the mirrored table.
+    /// poses use radius 16 and the mirrored input transitions.
     /// </summary>
     public static bool IsLeftFacingCrouchingPose(SamusPoseId pose) => IsRightFacingCrouchingPose(SamusPoseMirror.Of(pose));
 
@@ -588,27 +587,24 @@ internal static class SamusPoseMetadata
         samus.BombJumpRequest = SamusBombJumpRequest.Published(direction);
 
     /// <summary>
-    /// Executes the bomb-jump movement table's entry for Samus's movement before pose selection, dropping the request where
-    /// the entry turns it down.
+    /// Sets up a published bomb jump as Samus's movement does (<see cref="SamusMovementTypeDefinitions"/>) before pose
+    /// selection, dropping the request where her movement turns it down.
     /// </summary>
     /// <remarks>
     /// Standing and crouching reject the request only while time is frozen. Running,
     /// falling, moonwalking, wall-jump, wall-stop, and grapple families first select the
     /// ordinary forward-jump body. Ball, unused glitch-ball, and knockback-family
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
-    /// families clear the published direction exactly like the table's rejecting entries.
+    /// families turn it down and clear the published direction.
     /// </remarks>
     /// <returns>True when the pending request was rejected and dropped.</returns>
     public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
         if (!samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
-        SamusMovementType movement = ReadMovementType(samus);
-        bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
-            SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
-            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
-            SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special ||
-            timeIsFrozen && movement is (SamusMovementType.Standing or SamusMovementType.Crouching);
+        SamusBombJumpSetup setup = BombJumpSetupOf(samus);
+        bool reject = setup == SamusBombJumpSetup.TurnedDown ||
+            timeIsFrozen && setup == SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen;
         if (reject) samus.BombJumpRequest = SamusBombJumpRequest.None;
         return reject;
     }
@@ -627,26 +623,12 @@ internal static class SamusPoseMetadata
         if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) || !samus.BombJumpRequest.AwaitsPoseHandling)
             return false;
 
+        // The rejection above has dropped every turned-down request, and a frozen-time one where frozen time turns it down.
         SamusMovementType movementType = ReadMovementType(samus);
-        switch (movementType)
+        switch (BombJumpSetupOf(samus))
         {
-            case SamusMovementType.Standing:
-            case SamusMovementType.Crouching:
-                // Is the only setup branch gated by frozen time; it drops the request.
-                if (timeIsFrozen)
-                {
-                    samus.BombJumpRequest = SamusBombJumpRequest.None;
-                    return false;
-                }
-                goto case SamusMovementType.Running;
-
-            case SamusMovementType.Running:
-            case SamusMovementType.Falling:
-            case SamusMovementType.CompactAirborne:
-            case SamusMovementType.Moonwalking:
-            case SamusMovementType.WallJumping:
-            case SamusMovementType.RanIntoWall:
-            case SamusMovementType.Grappling:
+            case SamusBombJumpSetup.ForwardJump:
+            case SamusBombJumpSetup.ForwardJumpUnlessTimeFrozen:
                 // Tests the pose's facing, not its name: a pose that does not face left takes the right-facing path.
                 SamusPoseId sourcePose = samus.Pose;
                 SamusPoseId targetPose = ReadFacingDirection(samus) == SamusFacingDirection.Left
@@ -690,36 +672,30 @@ internal static class SamusPoseMetadata
                 ArmPublishedBombJump(samus);
                 return true;
 
-            case SamusMovementType.MorphBallGround:
-            case SamusMovementType.GlitchBall:
-            case SamusMovementType.MorphBallFalling:
-            case SamusMovementType.GlitchBallKnockback:
-            case SamusMovementType.Knockback:
-            case SamusMovementType.SpringBallGround:
-            case SamusMovementType.SpringBallInAir:
-            case SamusMovementType.SpringBallFalling:
+            case SamusBombJumpSetup.KeepPose:
                 // Copies the current pose into the special prospective pose. Because
                 // that pose already matches, Samus's pose handling immediately arms the bomb jump.
                 ArmPublishedBombJump(samus);
                 return true;
 
-            case SamusMovementType.NormalJumping:
-            case SamusMovementType.SpinJumping:
-            case SamusMovementType.TurningOnGround:
-            case SamusMovementType.PostureTransition:
-            case SamusMovementType.TurningWhileJumping:
-            case SamusMovementType.TurningWhileFalling:
-            case SamusMovementType.DamageBoost:
-            case SamusMovementType.DraygonHeld:
-            case SamusMovementType.Special:
-                samus.BombJumpRequest = SamusBombJumpRequest.None;
-                return false;
+            case SamusBombJumpSetup.TurnedDown:
+                throw new InvalidOperationException(
+                    $"Bomb-jump setup reached a turned-down request for pose {samus.Pose}, which its rejection drops.");
 
             default:
-                // No pose has a movement type past the special one; this is corrupt metadata.
-                throw new InvalidDataException(
-                    $"Bomb-jump setup cannot run invalid movement type {movementType} for pose {samus.Pose}.");
+                throw new InvalidDataException($"Undefined {nameof(SamusBombJumpSetup)} for pose {samus.Pose}.");
         }
+    }
+
+    /// <summary>How a published bomb jump is set up from the way Samus moves (<see cref="SamusMovementTypeDefinitions"/>).</summary>
+    /// <exception cref="InvalidDataException">Her movement type has no definition.</exception>
+    private static SamusBombJumpSetup BombJumpSetupOf(SamusState samus)
+    {
+        SamusMovementType movementType = ReadMovementType(samus);
+        return SamusMovementTypeDefinitions.Movements.TryGetValue(movementType, out SamusMovementTypeDefinition? definition)
+            ? definition.BombJump
+            : throw new InvalidDataException(
+                $"Bomb-jump setup cannot run invalid movement type {movementType} for pose {samus.Pose}.");
     }
 
     /// <summary>Arms the published bomb jump.</summary>

@@ -45,7 +45,7 @@ internal static class PauseMomentumVerification
             {
                 AssertEqual(0, speed.CycleShadeStep, "unpause clears boost palette frame");
                 AssertEqual(0, speed.CycleShadeTimer, "unpause clears boost palette timer");
-                AssertEqual(SpeedEchoCursor.FirstEcho, speed.SpeedEchoCursor, "unpause resets the echo cursor without departure");
+                AssertEqual(SpeedEchoPhase.CapturingFirst, speed.SpeedEchoPhase, "unpause resets the echo cursor without departure");
                 AssertTrue(speed.FirstSpeedEchoPosition is null && speed.SecondSpeedEchoPosition is null &&
                     speed.FirstSpeedEchoHorizontalSpeed == 0 && speed.SecondSpeedEchoHorizontalSpeed == 0, "unpause clears both echo positions and velocities");
             }

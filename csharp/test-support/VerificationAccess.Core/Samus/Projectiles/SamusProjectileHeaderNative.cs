@@ -78,7 +78,7 @@ internal static class SamusProjectileHeaderNative
             int row = sizeof(ushort) * beams.TableIndex;
             yield return new(UnchargedBeamSelectors + row, SamusProjectileSelection.BeamShot(beams, charged: false));
             yield return new(ChargedBeamSelectors + row, SamusProjectileSelection.BeamShot(beams, charged: true));
-            if (beams.IsRetail && SamusProjectileSelection.SpecialAttack(beams) is { } special)
+            if (beams.CanBeEquipped && SamusProjectileSelection.SpecialAttack(beams) is { } special)
                 yield return new(SpecialAttackSelectors + row, special);
         }
         foreach (SamusProjectileFamily family in (SamusProjectileFamily[])[

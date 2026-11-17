@@ -131,7 +131,7 @@ public static class SaveRamCodec
                 SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(ReadWord(payload, SaveRamLayout.AreaOffset), "The save's checkpoint"),
                 ReadWord(payload, SaveRamLayout.SaveStationOffset), "The save's checkpoint"))
         {
-            ControllerBindings = ReadControllerBindings(payload).RequireRetailPermutation(),
+            ControllerBindings = ReadControllerBindings(payload).RequireUniquePermutation(),
             // The debug build's placement-mode word, the never-read word after it and the item set-up count are not
             // decoded: no retail routine reads any of them (SaveRamLayout.DebugFlagSavedWord, NewFileMarkerSavedWord,
             // LoadedItemCountSavedWord).
@@ -159,7 +159,7 @@ public static class SaveRamCodec
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore
         // defaults every time the player reaches a save station.
-        ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
+        ControllerBindings bindings = snapshot.ControllerBindings.RequireUniquePermutation();
         ushort[] buttons = ButtonConfigurationWords(bindings);
         for (int index = 0; index < buttons.Length; index++)
             WriteWord(payload, SaveRamLayout.ButtonConfigOffset + index * 2, buttons[index]);
@@ -417,7 +417,7 @@ public static class SaveRamCodec
     /// A slot's seven configurable bindings. They follow the four immutable D-pad words and are laid out by WRAM
     /// address rather than by the options-screen row order: cancel precedes select and aim-down precedes aim-up.
     /// Each word becomes buttons through <see cref="ControllerWordCodec"/>, which rejects bits no button produces;
-    /// <see cref="ControllerBindings.RequireRetailPermutation"/> then rejects a corrupt permutation.
+    /// <see cref="ControllerBindings.RequireUniquePermutation"/> then rejects a corrupt permutation.
     /// </summary>
     private static ControllerBindings ReadControllerBindings(ReadOnlySpan<byte> payload) => new(
         Shoot: ControllerWordCodec.FromJoypadWord(ReadWord(payload, SaveRamLayout.ShootButtonOffset), "save RAM shoot binding"),

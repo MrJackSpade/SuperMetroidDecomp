@@ -9,5 +9,5 @@ internal sealed class SpacetimeShotOverwrite : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Combos.RunSpaceTimeProgressionOverwrite(update.Terrain.Progression, update.Shot);
+        update.Shots.Combos.RunSpaceTimeProgressionOverwrite(update.Progression, update.Shot);
 }

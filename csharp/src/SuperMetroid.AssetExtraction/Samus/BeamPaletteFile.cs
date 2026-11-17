@@ -32,7 +32,7 @@ public static class BeamPaletteFile
     /// <exception cref="ArgumentOutOfRangeException">The selection is not a retail combination.</exception>
     public static string Key(SamusBeamCombination selection)
     {
-        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
+        if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         return $"beam-{selection.TableIndex:X2}";
     }
 

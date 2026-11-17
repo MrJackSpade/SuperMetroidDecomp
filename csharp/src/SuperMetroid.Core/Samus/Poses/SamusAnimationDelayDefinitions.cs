@@ -32,8 +32,8 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation RunningAnimation { get; } = new(SamusAnimationName.Running,
     [
         new(SamusAnimationSegmentName.Run, [2, 3, 2, 3, 2, 3, 2, 3, 2, 3], new SamusAnimationRestart()),
-        new(SamusAnimationSegmentName.Unreached, [.. Repeat(4, 6), 3, 4, 4, 3], new SamusAnimationRestart()),
-        new(SamusAnimationSegmentName.SecondUnreached, [10], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.SlowStride, [.. Repeat(4, 6), 3, 4, 4, 3], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.StrideHold, [10], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.StandingAimUpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
@@ -224,16 +224,16 @@ internal static class SamusAnimationDelayDefinitions
     internal static SamusPoseAnimation KnockbackAnimation { get; } = new(SamusAnimationName.Knockback,
     [
         new(SamusAnimationSegmentName.Knockback, [2, 16], new SamusAnimationRepeat(SamusAnimationSegmentName.Knockback, 1)),
-        new(SamusAnimationSegmentName.Unreached, [6, 6, 6, 8], new SamusAnimationRestart()),
-        new(SamusAnimationSegmentName.SecondUnreached, [8, 8], new SamusAnimationRestart()),
-        new(SamusAnimationSegmentName.ThirdUnreached, [10], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.SlowRecoil, [6, 6, 6, 8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.SlowerRecoil, [8, 8], new SamusAnimationRestart()),
+        new(SamusAnimationSegmentName.RecoilHold, [10], new SamusAnimationRestart()),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.MorphBallGroundRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>
     internal static SamusPoseAnimation MorphBallAnimation { get; } = new(SamusAnimationName.MorphBall,
     [
         new(SamusAnimationSegmentName.Roll, [.. Repeat(3, 8)], new SamusAnimationRestart()),
-        new(SamusAnimationSegmentName.Unreached, [3], new SamusAnimationRepeat(SamusAnimationSegmentName.Roll, 0)),
+        new(SamusAnimationSegmentName.RollHold, [3], new SamusAnimationRepeat(SamusAnimationSegmentName.Roll, 0)),
     ]);
 
     /// <summary>The animation <see cref="SamusPoseId.SpinJumpRightPose"/> plays, shared by every pose <see cref="SamusAnimationDelays.AnimationForPose"/> maps to it.</summary>

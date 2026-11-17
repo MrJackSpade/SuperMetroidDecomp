@@ -11,7 +11,7 @@ public static class SamusProjectileSoundRouting
     /// combination fires with what follows the beam sound lists (<see cref="UnauthoredBeamSounds{TBeams, TSound}"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination is not one Samus's beams can make.</exception>
-    public static SoundEffectId? Resolve(bool charged, SamusBeamCombination combination) => combination.IsRetail
+    public static SoundEffectId? Resolve(bool charged, SamusBeamCombination combination) => combination.CanBeEquipped
         ? (charged ? Charged : Uncharged)[combination]
         : UnauthoredSounds.Sound(combination, charged);
 }

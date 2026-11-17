@@ -33,7 +33,8 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// hardware's tile (#1726, <see cref="TileWords"/>) unless it is one of the game's own tiles: the area map's, a room layer
 /// named as the destination engine names it, Ceres station's falling ceiling tiles (<see cref="GameTilePhrases"/>), or a
 /// value whose type is named for the map (<see cref="NamedForMap"/>); and a name that says <c>Underflow</c> names the CPU's
-/// arithmetic (#1726, <see cref="MachineArithmeticWords"/>). A name that says <c>Ntsc</c> or <c>Pal</c>, read
+/// arithmetic (#1726, <see cref="MachineArithmeticWords"/>), and one that says <c>Retail</c> the released cartridge (#2322,
+/// <see cref="ReleaseWords"/>). A name that says <c>Ntsc</c> or <c>Pal</c>, read
 /// case-sensitively, names the video standard (#1848, <see cref="VideoStandardWords"/>). A name that says <c>Sleep</c> names
 /// the animation interpreter's sleep instruction (#2021, <see cref="SleepWords"/>), and one that says <c>FrameBehavior</c> the
 /// per-frame routine pointer an animation installed (#2022, <see cref="FrameBehaviourPhrases"/>). A name that says
@@ -264,6 +265,14 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// the game: it passed zero, ran out, turned round.
     /// </summary>
     internal static readonly ImmutableArray<string> MachineArithmeticWords = ["Underflow"];
+
+    /// <summary>
+    /// The released cartridge (#2322), matched as whole camel-case words like <see cref="HardwareWords"/>: a name that says
+    /// <c>Retail</c> (<c>IsRetail</c>, <c>RequireRetailPermutation</c>, <c>RetailAreas</c>, a <c>retail</c> local) names the
+    /// game by the cartridge it was sold on, set against a build or a program that is not it. Core is that game and names
+    /// what the thing is: a beam combination equipment can produce, a permutation of unique buttons, every room or area.
+    /// </summary>
+    internal static readonly ImmutableArray<string> ReleaseWords = ["Retail"];
 
     /// <summary>
     /// The video standards (#1848), matched as whole camel-case words in exactly the casings listed, with no ending: a name
@@ -537,6 +546,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
             return $"names the hardware's tile ('{tile}')";
         if (ContainedWord(identifier, MachineArithmeticWords) is { } arithmetic)
             return $"names the CPU's arithmetic ('{arithmetic}')";
+        if (ContainedWord(identifier, ReleaseWords) is { } release)
+            return $"names the released cartridge ('{release}')";
         if (ContainedWord(identifier, DispatchWords) is { } dispatch && !holdsDelegate())
             return $"names the original's dispatch ('{dispatch}') where it declares no delegate";
         if (ContainedWord(identifier, RoutineDispatchWords) is { } routine && ContainedWord(identifier, SentThingWords) is null &&

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 internal static class SamusHorizontalSpeedDefinitions
 {
-    /// <summary>The most times a speed divisor halves the total speed, however large the divisor (#2280).</summary>
+    /// <summary>The most times the slowdown level halves the total speed, however high the level (#2280).</summary>
     internal const int LargestSpeedHalvings = 4;
 
     /// <summary>The most whole pixels Samus's speed moves her in one update, either way (#2280).</summary>

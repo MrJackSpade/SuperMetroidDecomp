@@ -13,16 +13,40 @@ internal enum SamusAnimationSegmentName
     Run,
 
     /// <summary>
-    /// A segment no path of the game starts or reaches by its own playback; only a frame read past an earlier animation, or a
-    /// named place landing in it, reaches it.
+    /// The running animation's slower stride after the run, ten frames of four and three ticks that the run's own playback
+    /// never reaches: only a frame read past an earlier animation lands in it, and every frame such a read reaches shows the
+    /// run's last stride.
     /// </summary>
-    Unreached,
+    SlowStride,
 
-    /// <summary>A second segment no path of the game starts or reaches by its own playback.</summary>
-    SecondUnreached,
+    /// <summary>
+    /// The running animation's one long frame after the slower stride, which only a read past an earlier animation reaches;
+    /// it shows the run's last stride.
+    /// </summary>
+    StrideHold,
 
-    /// <summary>A third segment no path of the game starts or reaches by its own playback.</summary>
-    ThirdUnreached,
+    /// <summary>
+    /// The knockback animation's slow recoil after its own frames, four frames that only a read past an earlier animation
+    /// would reach; no read reaches them, so they show nothing.
+    /// </summary>
+    SlowRecoil,
+
+    /// <summary>
+    /// The knockback animation's two slower recoil frames after the slow recoil, which no read reaches, so they show nothing.
+    /// </summary>
+    SlowerRecoil,
+
+    /// <summary>
+    /// The knockback animation's one long frame after the slower recoil, which only a read past an earlier animation
+    /// reaches; it shows the knockback's held recoil.
+    /// </summary>
+    RecoilHold,
+
+    /// <summary>
+    /// The morph ball animation's frame after the roll, which only a read past an earlier animation reaches; it shows the
+    /// roll's last picture and hands on to the roll.
+    /// </summary>
+    RollHold,
 
     /// <summary>The drained crouch's collapse, which hands her over to the drained fall at its end.</summary>
     Collapse,

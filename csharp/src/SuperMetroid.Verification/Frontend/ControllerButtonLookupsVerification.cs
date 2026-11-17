@@ -51,20 +51,20 @@ internal static class ControllerButtonLookupsVerification
             for (int other = 0; other < ConstructorOrder.Length; other++)
                 AssertEqual(original[other == action ? requested : other == requested ? action : other],
                     result[ConstructorOrder[other]], $"button swap {ConstructorOrder[action]}/{requested} {ConstructorOrder[other]}");
-            AssertTrue(result.IsRetailPermutation, "swapped buttons remain a permutation");
+            AssertTrue(result.IsUniquePermutation, "swapped buttons remain a permutation");
         }
         foreach (ControllerButton rejected in new ControllerButton[] { ControllerButton.None, original[7], original[8],
                      original[0] | original[1], ControllerButton.Start, ControllerButtons.All })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(ControllerAction.Shoot, rejected),
                 $"reject nonassignable {rejected}");
-            AssertTrue(!(bindings with { Shoot = rejected }).IsRetailPermutation,
+            AssertTrue(!(bindings with { Shoot = rejected }).IsUniquePermutation,
                 "nonassignable button invalidates permutation");
         }
         foreach (ControllerAction undefined in UndefinedActions)
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(undefined, original[0]),
                 $"reject undefined action {(int)undefined}");
-        AssertTrue(!(bindings with { Shoot = bindings.Jump }).IsRetailPermutation,
+        AssertTrue(!(bindings with { Shoot = bindings.Jump }).IsUniquePermutation,
             "duplicate button invalidates permutation");
     }
 
@@ -96,6 +96,6 @@ internal static class ControllerButtonLookupsVerification
         foreach (ControllerAction undefined in UndefinedActions)
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = ControllerBindings.Default[undefined]; },
                 $"invalid default action {(int)undefined}");
-        AssertTrue(ControllerBindings.Default.IsRetailPermutation, "native defaults form a permutation");
+        AssertTrue(ControllerBindings.Default.IsUniquePermutation, "native defaults form a permutation");
     }
 }

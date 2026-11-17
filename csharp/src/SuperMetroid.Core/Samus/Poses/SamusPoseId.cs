@@ -40,8 +40,8 @@ public enum SamusPoseId
     MovingLeftGunExtendedPose,
 
     /// <summary>
-    /// This pose visually faces left while moonwalking right. Its pose X direction is deliberately
-    /// eight: horizontal movement follows travel direction, not the artwork's facing.
+    /// This pose visually faces left while moonwalking right. Its definition faces it right: horizontal movement
+    /// follows the way she travels, not the artwork's facing.
     /// </summary>
     MoonwalkFacingLeftPose,
 
@@ -595,7 +595,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-facing horizontal-fire landing selected by the landing transition only
-    /// when the current shot direction is two and the Shot binding is still held at impact.
+    /// when she aims level to the right and Shoot is still held at impact.
     /// Its terminal pose-transition cue returns to ordinary standing after the landing frames.
     /// </summary>
     FiringLandingRightPose,

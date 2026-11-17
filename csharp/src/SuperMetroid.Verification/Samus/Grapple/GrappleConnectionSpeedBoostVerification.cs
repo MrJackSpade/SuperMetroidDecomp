@@ -52,7 +52,7 @@ internal static class GrappleConnectionSpeedBoostVerification
             AssertEqual(default(SamusSpeedBoostCounter), samus.HorizontalSpeed.SpeedBoostCounter,
                 $"{running}: the connection clears the boost counter");
             AssertTrue(!samus.HorizontalSpeed.IsActivelySpeedBoosting, $"{running}: Samus no longer boosts once connected");
-            AssertEqual(SpeedEchoCursor.Departing, samus.HorizontalSpeed.SpeedEchoCursor, $"{running}: the speed echoes depart");
+            AssertEqual(SpeedEchoPhase.Departing, samus.HorizontalSpeed.SpeedEchoPhase, $"{running}: the speed echoes depart");
             AssertEqual(echoVelocity, samus.HorizontalSpeed.FirstSpeedEchoHorizontalSpeed,
                 $"{running}: the first echo leaves the way the connected pose faces");
             AssertEqual(echoVelocity, samus.HorizontalSpeed.SecondSpeedEchoHorizontalSpeed,

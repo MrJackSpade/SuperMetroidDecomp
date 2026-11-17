@@ -12,10 +12,4 @@ internal readonly record struct SamusTerrain
 
     /// <summary>The room's room objects, which the touched blocks' reactions reach.</summary>
     internal required ISamusRoomObjects RoomObjects { get; init; }
-
-    /// <summary>
-    /// The session's progression, which Spacetime's malformed colour copy overwrites with raw data (#1318, #1330). Only
-    /// the gameplay projectile frame passes it; Spacetime fails loudly without it.
-    /// </summary>
-    internal SuperMetroid.Core.Progression.SharedGameState? Progression { get; init; }
 }

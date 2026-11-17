@@ -58,7 +58,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         foreach (ushort health in productionHealth)
         {
             state.Body.Health = health;
-            state.HealthBand = null;
             update(state);
             AssertEqual(
                 DraygonHealthBand.Of(health),
@@ -69,7 +68,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             "production Draygon palette selection performs no threshold-table reads");
 
         state.Body.Health = 6001;
-        state.HealthBand = null;
         AssertThrows<InvalidDataException>(
             () => update(state),
             "production Draygon rejects malformed restored health without a ROM fallback");

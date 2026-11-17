@@ -17,6 +17,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Verification.Bosses;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -92,6 +94,32 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             "installed Draygon colors leave intro mechanics unchanged");
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
+        AssertEqual(DraygonHealthBand.Of(body.Health), state.HealthBand, "Draygon's setup shows the band his health starts in (#2304)");
+        AssertStartingBandShown("his setup");
+
+        // A grapple's shock marks him hurt without a reaction (#2304): before any hit, his hurt updates show the band his
+        // health starts in on every update the white flash does not cover.
+        int flashBefore = body.FlashTimer;
+        EnemyAiStates aiBefore = body.AiStates;
+        SamusState grappling = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus();
+        grappling.Grapple.Phase = GrapplePhase.ConnectedLocked;
+        enemies.DraygonBehavior.Grab.CarrySamusToDraygonSpiral(state, grappling);
+        AssertTrue(body.AiStates.HasFlag(EnemyAiStates.Hurt), "the grapple's shock marks Draygon hurt");
+        // His own update count is off the shock's eighth update, so these updates take no shock damage of their own.
+        body.FrameCounter = 1;
+        int nonWhite = 0;
+        for (int flash = body.FlashTimer; flash > 0; flash--)
+        {
+            body.FlashTimer = flash;
+            enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, grappling);
+            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(flash))
+                continue;
+            nonWhite++;
+            AssertStartingBandShown($"the grapple shock's hurt update at flash {flash}");
+        }
+        AssertTrue(nonWhite > 0, "the grapple shock's hurt shows his band on the updates its white flash does not cover");
+        body.FlashTimer = flashBefore;
+        body.AiStates = aiBefore;
 
         state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[1];
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
@@ -145,6 +173,13 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Draygon {name} color {color} preserves native RGB5");
+        }
+
+        void AssertStartingBandShown(string when)
+        {
+            int shownBand = DraygonHealthBandDefinitions.HighestFirst.ToList().IndexOf(DraygonHealthBand.Of(body.Health));
+            AssertBand(DraygonColorDestinations.HealthDestination, DraygonColorDefinitions.HealthBandColorCount,
+                color => colors.ResolveHealthBand(shownBand, color), $"starting health band after {when}");
         }
 
         void AssertBand(int destination, int count, Func<int, RgbColor> resolve, string name)

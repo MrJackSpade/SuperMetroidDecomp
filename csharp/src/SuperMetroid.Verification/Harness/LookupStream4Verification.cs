@@ -1859,7 +1859,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemyPlace,DraygonEnemyState,SamusState> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
-                    body.Health = (ushort)((7 - band) * 750); state.HealthBand = null;
+                    body.Health = (ushort)((7 - band) * 750);
                     update(state); LayDraygonShading(cgram, selected, state.Colours);
                     AssertEqual(DraygonHealthBandDefinitions.HighestFirst[band], state.HealthBand, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer shows the band's colours");

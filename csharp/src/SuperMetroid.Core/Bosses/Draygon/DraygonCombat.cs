@@ -76,7 +76,7 @@ internal sealed class DraygonCombat
         // A hurt update shows his material colours with his band, or their white flash, as the import's shades (#1512).
         state.Colours.ShowHurt(whiteFrame);
         if (!whiteFrame)
-            state.Colours.ShowBand(RequireHealthBand(state));
+            state.Colours.ShowBand(state.HealthBand);
         state.ShadeSprites();
 
         // A grapple connected to the turrets is the game's electrocution channel. It is
@@ -157,15 +157,8 @@ internal sealed class DraygonCombat
         ShowDraygonHealthBand(state);
     }
 
-    /// <summary>The installed health band; code reads it only after initialization installs one.</summary>
-    private static DraygonHealthBand RequireHealthBand(DraygonEnemyState state) => state.HealthBand
-        ?? throw new InvalidOperationException("Draygon has no installed health shade band.");
-
     /// <summary>Shows his selected health band's colours.</summary>
-    internal static void ShowDraygonHealthBand(DraygonEnemyState state)
-    {
-        state.Colours.ShowBand(RequireHealthBand(state));
-    }
+    internal static void ShowDraygonHealthBand(DraygonEnemyState state) => state.Colours.ShowBand(state.HealthBand);
 
     /// <summary>A bomb striking one of Draygon's body dud-shot hitboxes: the dud flash where the bomb lies and the dud sound.</summary>
     internal void CreateBombDudShot(EnemyBombContext context) => _projectiles.CreateBombDudShot(context.Bomb);

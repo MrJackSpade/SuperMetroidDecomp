@@ -16,8 +16,12 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// <summary>His body shows nothing once his body is deleted, as his room keeps showing it (#2194).</summary>
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => Body.Presence.HasAny(EnemyPresence.Deleted);
 
-    /// <summary>Anchors the encounter-wide state to Draygon's body.</summary>
-    internal DraygonEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <summary>Anchors the encounter-wide state to Draygon's body, in the health band his health starts in (#2304).</summary>
+    internal DraygonEnemyState(RoomEnemyPlace body)
+    {
+        Body = body;
+        HealthBand = DraygonHealthBand.Of(body.Health);
+    }
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
     internal DraygonColours Colours { get; } = new();
@@ -152,9 +156,10 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
 
 
     /// <summary>
-    /// The health band his colours show (#2266); null until his initialization shows one.
+    /// The health band his colours show (#2266): the band his health starts in, which his setup shows (#2304), until a
+    /// reaction finds his health in another.
     /// </summary>
-    public DraygonHealthBand? HealthBand { get; internal set; }
+    public DraygonHealthBand HealthBand { get; internal set => field = Ensure.NotNull(value); }
 
     /// <summary>True after terminal burial records the area boss as defeated; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }

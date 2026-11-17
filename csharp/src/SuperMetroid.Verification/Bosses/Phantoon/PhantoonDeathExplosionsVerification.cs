@@ -20,7 +20,7 @@ internal static class PhantoonDeathExplosionsVerification
     {
         for (int i = 0; i < 13; i++)
         {
-            var entry = PhantoonDeathExplosions.Read(i);
+            var entry = PhantoonDeathExplosions.Schedule[i];
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1d + i * 4)), entry.Offset.X, "Native death explosion X offset");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1e + i * 4)), entry.Offset.Y, "Native death explosion Y offset");
             AssertEqual(MiscDustAnimationIndices.Decode(rom.ReadCartridgeByte(0xa7da1f + i * 4)), entry.Type, "Native death explosion type");
@@ -55,7 +55,7 @@ internal static class PhantoonDeathExplosionsVerification
                 }
                 step(body, state);
                 AssertEqual((ushort)timer, state.PhaseTimer, "Exact death explosion frame timer");
-                AssertEqual((ushort)index, state.Death.NextExplosion, "Exact death record cursor and repeat");
+                AssertEqual(index, state.Death.NextExplosion.Place, "Exact death record cursor and repeat");
                 AssertEqual((ushort)passes, state.Death.ExplosionPasses, "Exact death repeat counter");
                 // A due explosion takes the emptied pool's one place; a full pool leaves the schedule as it is.
                 if (!full)

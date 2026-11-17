@@ -21,11 +21,10 @@ public sealed class PhantoonBodyWaveEffect
     /// <summary>Whether a setup has run and the wave has not since observed its length cleared; requesting it with Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
-    /// The wave's phase: setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/> (two before the cycle's
-    /// start), then each active update adds twice the wave's phase step and keeps the remainder within one cycle, so the
-    /// phase is that seed or 0..511. Seeding two before a whole number of cycles gives the same first remainder.
+    /// The wave's phase (#2315): setup seeds <see cref="PhantoonWaveDefinitions.InitialPhase"/>, then each active update
+    /// turns it by the wave's phase step. Its whole steps are the angle the wave ripples from.
     /// </summary>
-    public int Phase { get; private set; }
+    public RotationAngle Phase { get; private set; }
     /// <summary>The wave the last display latch observed (#1353, #1468); null when it observed no active wave.</summary>
     public PhantoonWave? DisplayedWave { get; private set; }
 
@@ -41,9 +40,9 @@ public sealed class PhantoonBodyWaveEffect
     /// sine wave, repeating down the screen from its first line.
     /// </summary>
     /// <param name="length">The wave's length.</param>
-    /// <param name="shape">The phase, 0 through 511, and amplitude the wave was built from.</param>
+    /// <param name="shape">The phase and amplitude the wave was built from.</param>
     internal static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.Amplitude,
-        new TrigonometryAngle(PhaseInCycle(shape.Phase) / PhantoonWaveDefinitions.PhasesPerAngleStep),
+        shape.Phase.ToTrigonometryAngle(),
         Period(length));
 
     /// <summary>The screen lines of one whole cycle of a wave of <paramref name="length"/>.</summary>
@@ -89,7 +88,7 @@ public sealed class PhantoonBodyWaveEffect
             Active = false; // The wave ends, keeping its last shape.
             return;
         }
-        Phase = PhaseInCycle(Phase + 2 * boss.Wave.PhaseStep);
+        Phase += boss.Wave.PhaseStep;
         if (boss.Wave.Length != _setupLength)
             throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {_setupLength}.");
         _built = new(Phase, boss.Wave.Amplitude.InTwoFiftySixths);
@@ -97,16 +96,4 @@ public sealed class PhantoonBodyWaveEffect
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>
     public void LatchDisplay() => DisplayedWave = Active ? CurrentWave : null;
-
-    /// <summary>
-    /// The position of <paramref name="phase"/> within one whole cycle, 0 through
-    /// <see cref="PhantoonWaveDefinitions.PhaseCycle"/> minus one. A phase below zero, as the setup's
-    /// <see cref="PhantoonWaveDefinitions.InitialPhase"/> is, counts back from the cycle's end.
-    /// </summary>
-    /// <param name="phase">Any phase.</param>
-    internal static int PhaseInCycle(int phase)
-    {
-        int remainder = phase % PhantoonWaveDefinitions.PhaseCycle;
-        return remainder < 0 ? remainder + PhantoonWaveDefinitions.PhaseCycle : remainder;
-    }
 }

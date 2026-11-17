@@ -51,10 +51,10 @@ internal static class MotherBrainGlassObjectProgramVerification
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
         roomObjects.Step(level);
-        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage: 0, HitCountArmed: true },
+        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage.Place: 0, HitCountArmed: true },
             "intact glass first draw holds at the first stage's hit threshold");
         roomObjects.Step(level);
-        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage: 0 },
+        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage.Place: 0 },
             "zero head hits hold the first glass stage");
         AssertTrue(!eventSet && roomObjects.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
             "unhit glass emits neither event nor shards");

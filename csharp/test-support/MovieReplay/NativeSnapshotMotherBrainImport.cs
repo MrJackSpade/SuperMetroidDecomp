@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
@@ -52,7 +53,12 @@ internal static class NativeSnapshotMotherBrainImport
         state.TubeCollapseTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer));
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         state.FakeDeathExplosionTimer.Count = CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer));
-        state.FakeDeathExplosionIndex = W(MotherBrainMemory.FakeDeathExplosionIndex);
+        // The recorded place is the position the last explosion took, counted in the order the game stepped back through
+        // them; the positions are listed in the order they burst, so the next is the one after it there.
+        int lastExplosion = W(MotherBrainMemory.FakeDeathExplosionIndex);
+        int explosions = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Count;
+        state.NextFakeDeathExplosion = ListStep<Position16<RoomPixels>>.At(MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions,
+            (explosions - lastExplosion) % explosions);
         // The native palette words name rows: the neck draws in her brain's row, and her brain in it or, once her death
         // copied her brain's colours there, in the corpse's (#1512).
         int neckRow = SnesObjAttributeWordConstants.FromPaletteBits(W(MotherBrainMemory.NeckPaletteIndex)).PaletteIndex;
@@ -106,7 +112,10 @@ internal static class NativeSnapshotMotherBrainImport
         foreach (MotherBrainFadeProgress fade in new[] { state.FromFakeDeathGrey, state.DrainedGreying, state.RevivalFromGrey, state.DeathBodyFade, state.CorpseGreying })
             fade.Steps = transitionSteps;
         state.DroolGenerationEnabled = W(MotherBrainMemory.DroolGeneration) != 0;
-        state.LastDroolMouthPoint = W(MotherBrainMemory.DroolProjectileParameter);
+        // The recorded place is the mouth point the last drool took; the points are listed from the one a fresh encounter's
+        // first drool takes, so the next point sits at the recorded place there.
+        state.NextDroolMouthPoint = ListStep<Offset16<RoomPixels>>.At(MotherBrainBehavior.MotherBrainDroolOffsets,
+            W(MotherBrainMemory.DroolProjectileParameter));
         state.SmallPurpleBreathGenerationEnabled = W(MotherBrainMemory.SmallPurpleBreathGeneration) != 0;
         state.SmallPurpleBreathActive = W(MotherBrainMemory.SmallPurpleBreathActive) != 0;
         state.WalkCounter = SuperMetroid.Core.Compatibility.MotherBrainWalkCreditConstants.FromNativeWord(W(MotherBrainMemory.WalkCounter));

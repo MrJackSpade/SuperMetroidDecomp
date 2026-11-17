@@ -15,6 +15,8 @@ internal static class MotherBrainWalkBackwardsPoseVerification
         MotherBrainRainbowBeamAttackSequence Walking(ushort x, MotherBrainBodyPose pose)
         {
             var sequence = MotherBrainLateFightFixtures.NewSequence();
+            // The stagger walks back in its first stage, as its setup starts it.
+            sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.FirstOf(MotherBrainPainfulWalkingDefinitions.Stages);
             sequence.DrainedByBaby.PainfulWalkingForward = false;
             sequence.DrainedByBaby.PainfulWalkingSpeed = MotherBrainWalkSpeed.ReallyFast;
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(x);

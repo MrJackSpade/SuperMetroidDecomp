@@ -52,7 +52,7 @@ internal static class MotherBrainDeathExplosionStartVerification
         PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);
         var frame = MotherBrainLateFightFixtures.QuietFrame(new SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint(), 0, 0) with { NextRandomNumber = () => 0 };
         MotherBrainRainbowBeamAttackStepResult first = sequence.Step(runtime.Player.IntroducedSamus, frame);
-        AssertEqual(MotherBrainDeathDefinitions.EscapeDoorDustPositions[1],
+        AssertEqual(MotherBrainDeathDefinitions.EscapeDoorDustPositions[2],
             (first.EscapeDoorExplosion ?? throw new InvalidOperationException("The door's first dust did not burst.")).Position,
             "the door's first dust takes the position before the death explosions' place");
         AssertEqual(4, state.Bursts.Interval, "the door's dust waits four updates after a burst");
@@ -61,7 +61,7 @@ internal static class MotherBrainDeathExplosionStartVerification
             "the door's dust waits while the interval it continues has not run out");
 
         // The group selects positions only: every group draws one random number per explosion.
-        for (int place = 0; place < MotherBrainDeathExplosionDefinitions.GroupCount; place++)
+        for (int place = 0; place < MotherBrainDeathExplosionDefinitions.Groups.Count; place++)
         foreach (MotherBrainDeathExplosionStyle style in Enum.GetValues<MotherBrainDeathExplosionStyle>())
         {
             PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Interval), 0);

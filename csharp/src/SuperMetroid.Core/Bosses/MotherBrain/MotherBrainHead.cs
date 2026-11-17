@@ -474,8 +474,8 @@ internal sealed class MotherBrainHead
         if (!state.DroolGenerationEnabled)
             return;
 
-        state.LastDroolMouthPoint = (state.LastDroolMouthPoint + 1) % MotherBrainBehavior.MotherBrainDroolOffsets.Length;
-        Offset16<RoomPixels> mouth = MotherBrainBehavior.MotherBrainDroolOffsets[state.LastDroolMouthPoint];
+        Offset16<RoomPixels> mouth = state.NextDroolMouthPoint.Entry;
+        state.NextDroolMouthPoint = state.NextDroolMouthPoint.NextInCycle;
 
         EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
         if (drool is null)

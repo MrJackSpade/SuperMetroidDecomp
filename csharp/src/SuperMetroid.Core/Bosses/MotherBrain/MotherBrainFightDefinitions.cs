@@ -125,8 +125,6 @@ internal static class MotherBrainFightDefinitions
     /// <summary>The updates she reels, taken aback, before regaining her balance as the Baby drains her.</summary>
     internal const int RegainBalanceUpdates = 48;
 
-    /// <summary>The stagger stage at which her rainbow beam runs out as the Baby drains her.</summary>
-    internal const int BeamRunsOutStage = 6;
 
     /// <summary>The updates she waits, crouched, before turning grey.</summary>
     internal const int BeforeGreyUpdates = 64;

@@ -1,22 +1,30 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Paired forward/backward stages of Mother Brain's drained stagger.</summary>
+/// <summary>The stages of Mother Brain's drained stagger, forward and back in turn, each pair sharing its timing.</summary>
 internal static class MotherBrainPainfulWalkingDefinitions
 {
-    /// <summary>The painful-walk tables each describe eight stages, paired by walking direction.</summary>
-    internal const int StageCount = 8;
+    /// <summary>Her fastest stagger, forward and back: the neck turns five steps an update, then she pauses sixteen updates.</summary>
+    private static readonly MotherBrainStaggerStage Fastest = new(MotherBrainWalkSpeed.ReallyFast, RotationAngle.FromSteps(5), 16);
 
-    /// <summary>Each forward/backward pair of stages shares one timing.</summary>
-    internal const int StagesPerPair = 2;
+    /// <summary>Her middling stagger: the neck turns two steps an update, then she pauses thirty-two updates.</summary>
+    private static readonly MotherBrainStaggerStage Middling = new(MotherBrainWalkSpeed.Medium, RotationAngle.FromSteps(2), 32);
 
-    /// <summary>By pair: how fast she staggers, slowing from her fastest step through middling and slow to her slowest.</summary>
-    internal static readonly MotherBrainWalkSpeed[] Speeds =
-        [MotherBrainWalkSpeed.ReallyFast, MotherBrainWalkSpeed.Medium, MotherBrainWalkSpeed.Slow, MotherBrainWalkSpeed.ReallySlow];
+    /// <summary>Her slow stagger: the neck turns three quarters of a step an update, then she pauses forty-eight updates.</summary>
+    private static readonly MotherBrainStaggerStage Slow = new(MotherBrainWalkSpeed.Slow, RotationAngle.FromSteps(0, 192), 48);
 
-    /// <summary>By pair: how far the neck turns each update, slowing from five steps to two, three quarters and a quarter of a step.</summary>
-    internal static readonly RotationAngle[] NeckTurns =
-        [RotationAngle.FromSteps(5), RotationAngle.FromSteps(2), RotationAngle.FromSteps(0, 192), RotationAngle.FromSteps(0, 64)];
+    /// <summary>
+    /// Her slowest stagger forward, which her rainbow beam runs out as it begins: the neck turns a quarter of a step an
+    /// update, then she pauses sixty-four updates.
+    /// </summary>
+    private static readonly MotherBrainStaggerStage SlowestForward = new(MotherBrainWalkSpeed.ReallySlow, RotationAngle.FromSteps(0, 64), 64);
 
-    /// <summary>By pair: each successive forward/backward pair adds sixteen pause ticks.</summary>
-    internal static readonly int[] PauseTimers = [16, 32, 48, 64];
+    /// <summary>Her slowest stagger back, the last.</summary>
+    private static readonly MotherBrainStaggerStage SlowestBack = new(MotherBrainWalkSpeed.ReallySlow, RotationAngle.FromSteps(0, 64), 64);
+
+    /// <summary>The stage her rainbow beam runs out as she begins: her slowest stagger forward.</summary>
+    internal static MotherBrainStaggerStage BeamRunsOut => SlowestForward;
+
+    /// <summary>The stagger's stages in the order she walks them, forward first.</summary>
+    internal static IReadOnlyList<MotherBrainStaggerStage> Stages { get; } =
+        [Fastest, Fastest, Middling, Middling, Slow, Slow, SlowestForward, SlowestBack];
 }

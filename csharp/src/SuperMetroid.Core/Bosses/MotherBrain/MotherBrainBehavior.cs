@@ -146,17 +146,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Sequence of explosion positions used by the fake-death collapse.</summary>
-    internal static readonly Position16<RoomPixels>[] MotherBrainFakeDeathExplosionPositions =
+    /// <summary>
+    /// The positions the fake-death collapse's explosions burst at, in the order they burst (#2315), starting again after
+    /// the last.
+    /// </summary>
+    internal static IReadOnlyList<Position16<RoomPixels>> MotherBrainFakeDeathExplosionPositions { get; } =
     [
-        new Position16<RoomPixels>(136, 116),
-        new Position16<RoomPixels>(120, 132),
-        new Position16<RoomPixels>(124, 90),
-        new Position16<RoomPixels>(138, 146),
-        new Position16<RoomPixels>(120, 52),
-        new Position16<RoomPixels>(124, 170),
-        new Position16<RoomPixels>(138, 72),
         new Position16<RoomPixels>(120, 206),
+        new Position16<RoomPixels>(138, 72),
+        new Position16<RoomPixels>(124, 170),
+        new Position16<RoomPixels>(120, 52),
+        new Position16<RoomPixels>(138, 146),
+        new Position16<RoomPixels>(124, 90),
+        new Position16<RoomPixels>(120, 132),
+        new Position16<RoomPixels>(136, 116),
     ];
     /// <summary>Authored smoke puff X offsets cycled while a tube lands.</summary>
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
@@ -369,7 +372,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Six authored drool spawn offsets from the brain's center.</summary>
-    internal static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
-        [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
+    /// <summary>
+    /// The six mouth points, offsets from the brain's centre, her drool hangs from, in the order it takes them (#2315),
+    /// starting again after the last.
+    /// </summary>
+    internal static IReadOnlyList<Offset16<RoomPixels>> MotherBrainDroolOffsets { get; } =
+        [new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18), new(6, 20)];
 }

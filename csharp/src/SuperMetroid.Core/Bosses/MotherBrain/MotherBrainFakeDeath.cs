@@ -91,10 +91,8 @@ internal sealed class MotherBrainFakeDeath
             return;
 
         state.FakeDeathExplosionTimer.Count = 8;
-        // The index steps backward through the eight positions, from the first back to the last.
-        state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
-            MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
-        Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
+        Position16<RoomPixels> explosion = state.NextFakeDeathExplosion.Entry;
+        state.NextFakeDeathExplosion = state.NextFakeDeathExplosion.NextInCycle;
 
         // The tube dust reads the current random number and never draws a new one. Drawing a new
         // number here would desynchronize every later Rinka and phase-two attack decision.

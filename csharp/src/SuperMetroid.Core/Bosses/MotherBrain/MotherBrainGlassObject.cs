@@ -23,8 +23,8 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
     /// <summary>Where the glass is in its course.</summary>
     internal MotherBrainGlassPhase Phase { get; private set; } = MotherBrainGlassPhase.Starting;
 
-    /// <summary>The stage the glass is at, 0 through 8.</summary>
-    internal int Stage { get; private set; }
+    /// <summary>The stage the glass is at (#2315), or null before it shows its first.</summary>
+    internal ListStep<MotherBrainGlassStage>? Stage { get; private set; }
 
     /// <summary>The hits the glass has taken, from missiles on its block and Mother Brain's head shots.</summary>
     internal int Hits { get; private set; }
@@ -56,7 +56,6 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         }
         if (--_updatesBeforeNextStep != 0)
             return;
-        IReadOnlyList<MotherBrainGlassStage> stages = MotherBrainGlassStageDefinitions.Stages;
         switch (Phase)
         {
             case MotherBrainGlassPhase.Starting when _owner.IsBossDead():
@@ -67,23 +66,25 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
                 return;
             case MotherBrainGlassPhase.Starting:
                 HitCountArmed = true;
-                ShowStage(place, context, 0);
+                ShowStage(place, context, ListStep<MotherBrainGlassStage>.FirstOf(MotherBrainGlassStageDefinitions.Stages));
                 return;
-            case MotherBrainGlassPhase.Holding when Hits < stages[Stage].BreaksAtHits:
-                ShowStage(place, context, Stage);
+            case MotherBrainGlassPhase.Holding when Hits < ShownStage.Entry.BreaksAtHits:
+                ShowStage(place, context, ShownStage);
                 return;
-            case MotherBrainGlassPhase.Holding when stages[Stage].Burst is { } burst:
+            case MotherBrainGlassPhase.Holding when ShownStage.Entry.Burst is { } burst:
                 _owner.SpawnShards(place, burst.First);
-                Show(place, context, ImageAfter(Stage), MotherBrainGlassStageDefinitions.BurstFrameDuration, MotherBrainGlassPhase.Bursting);
+                Show(place, context, ShownStage.Following?.Entry.Image ?? MotherBrainGlassStageDefinitions.ShatteredImage,
+                    MotherBrainGlassStageDefinitions.BurstFrameDuration, MotherBrainGlassPhase.Bursting);
                 return;
             case MotherBrainGlassPhase.Holding:
-                ShowStage(place, context, Stage + 1);
+                ShowStage(place, context, ShownStage.Following ?? throw new InvalidOperationException(
+                    "Mother Brain's last glass stage broke without throwing its shards."));
                 return;
             case MotherBrainGlassPhase.Bursting:
-                _owner.SpawnShards(place, (stages[Stage].Burst ?? throw new InvalidOperationException(
-                    $"Mother Brain's glass burst at stage {Stage}, which throws no shards.")).Second);
-                if (Stage + 1 < stages.Count)
-                    ShowStage(place, context, Stage + 1);
+                _owner.SpawnShards(place, (ShownStage.Entry.Burst ?? throw new InvalidOperationException(
+                    $"Mother Brain's glass burst at {ShownStage}, which throws no shards.")).Second);
+                if (ShownStage.Following is { } next)
+                    ShowStage(place, context, next);
                 else
                     Show(place, context, MotherBrainGlassStageDefinitions.ShatteredImage, MotherBrainGlassStageDefinitions.FinalShatterDuration,
                         MotherBrainGlassPhase.Shattering);
@@ -100,17 +101,16 @@ internal sealed class MotherBrainGlassObject(MotherBrainGlassObjects owner) : Ro
         }
     }
 
-    /// <summary>The image after stage <paramref name="stage"/>: the next stage's, or the shattered glass after the last.</summary>
-    private static MotherBrainGlassDraw ImageAfter(int stage) =>
-        stage + 1 < MotherBrainGlassStageDefinitions.Stages.Count
-            ? MotherBrainGlassStageDefinitions.Stages[stage + 1].Image
-            : MotherBrainGlassStageDefinitions.ShatteredImage;
+    /// <summary>The stage the glass shows.</summary>
+    /// <exception cref="InvalidOperationException">The glass has shown no stage yet.</exception>
+    private ListStep<MotherBrainGlassStage> ShownStage => Stage ??
+        throw new InvalidOperationException($"Mother Brain's glass is {Phase} before showing its first stage.");
 
-    /// <summary>Shows stage <paramref name="stage"/> for one update and holds it.</summary>
-    private void ShowStage(RoomObjectPlace place, RoomObjectStepContext context, int stage)
+    /// <summary>Shows <paramref name="stage"/> for one update and holds it.</summary>
+    private void ShowStage(RoomObjectPlace place, RoomObjectStepContext context, ListStep<MotherBrainGlassStage> stage)
     {
         Stage = stage;
-        Show(place, context, MotherBrainGlassStageDefinitions.Stages[stage].Image, 1, MotherBrainGlassPhase.Holding);
+        Show(place, context, stage.Entry.Image, 1, MotherBrainGlassPhase.Holding);
     }
 
     /// <summary>Draws <paramref name="image"/> and holds it for <paramref name="updates"/> in <paramref name="phase"/>.</summary>

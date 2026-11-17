@@ -187,8 +187,11 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
     public BossCountdown FakeDeathExplosionTimer { get; } = new();
-    /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer runs out.</summary>
-    public int FakeDeathExplosionIndex { get; internal set; }
+    /// <summary>
+    /// Where the next fake-death explosion bursts (#2315): each burst takes the next of
+    /// <see cref="MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions"/>, the first after the last.
+    /// </summary>
+    public ListStep<Position16<RoomPixels>> NextFakeDeathExplosion { get; internal set; } = ListStep<Position16<RoomPixels>>.FirstOf(MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions);
 
     /// <summary>
     /// The room flash's current image (#641, #2259), or null while no flash runs. Its timer counts upward, unlike enemy
@@ -345,11 +348,10 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// The place in <see cref="MotherBrainBehavior.MotherBrainDroolOffsets"/> of the mouth point the last drool hung from.
-    /// Each drool takes the next of the six points, the first after the last, so a fresh encounter's first drool hangs
-    /// from the second.
+    /// The mouth point her next drool hangs from (#2315): each drool takes the next of
+    /// <see cref="MotherBrainBehavior.MotherBrainDroolOffsets"/>, the first after the last.
     /// </summary>
-    public int LastDroolMouthPoint { get; internal set; }
+    public ListStep<Offset16<RoomPixels>> NextDroolMouthPoint { get; internal set; } = ListStep<Offset16<RoomPixels>>.FirstOf(MotherBrainBehavior.MotherBrainDroolOffsets);
 
     /// <summary>The walk credit this encounter holds, over which an attached sequence is built.</summary>
     internal MotherBrainWalkCounter Walk { get; }

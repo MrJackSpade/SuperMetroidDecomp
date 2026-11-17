@@ -15,9 +15,8 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state = state;
     }
 
-    /// <summary>Current zero-based painful-walk stage, 0 through 8.</summary>
-    [IntegerQuantity("zero-based count of painful-walk steps taken, 0 through 8")]
-    public int PainfulWalkingStage { get; internal set; }
+    /// <summary>The stage of her stagger she walks (#2315), or null once she has walked every stage.</summary>
+    internal ListStep<MotherBrainStaggerStage>? PainfulWalkingStage { get; set; }
 
     /// <summary>How fast she staggers in the current stage, slowing as the stages pass.</summary>
     public MotherBrainWalkSpeed PainfulWalkingSpeed { get; internal set; }
@@ -38,7 +37,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             if (--PainfulWalkingPauseTimer == 0)
             {
-                PainfulWalkingStage++;
+                PainfulWalkingStage = WalkedStage.Following;
                 PainfulWalkingForward = !PainfulWalkingForward;
             }
             return;
@@ -48,11 +47,13 @@ internal sealed class MotherBrainDrainedByBabyPhases
             ? _state.RequestWalkForward(MotherBrainFightDefinitions.StaggerFrontX, PainfulWalkingSpeed)
             : _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, PainfulWalkingSpeed);
         if (walk.ReachedTarget)
-        {
-            int timerIndex = Math.Min(PainfulWalkingStage, MotherBrainPainfulWalkingDefinitions.StageCount - 1);
-            PainfulWalkingPauseTimer = MotherBrainPainfulWalking.PauseTimer(timerIndex);
-        }
+            PainfulWalkingPauseTimer = WalkedStage.Entry.PauseUpdates;
     }
+
+    /// <summary>The stage of her stagger she walks.</summary>
+    /// <exception cref="InvalidOperationException">She has walked every stage.</exception>
+    private ListStep<MotherBrainStaggerStage> WalkedStage => PainfulWalkingStage ??
+        throw new InvalidOperationException("Mother Brain's stagger walked on after its last stage.");
 
     /// <summary>
     /// Runs the second phase drained by baby taken aback body phase. True when it moves to the next body phase and the game runs
@@ -82,7 +83,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             PainfulWalkingForward = true;
-            PainfulWalkingStage = 0;
+            PainfulWalkingStage = ListStep<MotherBrainStaggerStage>.FirstOf(MotherBrainPainfulWalkingDefinitions.Stages);
             PainfulWalkingSpeed = MotherBrainWalkSpeed.ReallyFast;
             PainfulWalkingPauseTimer = 0;
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
@@ -108,12 +109,12 @@ internal sealed class MotherBrainDrainedByBabyPhases
 
         // The outer phase updates speed and neck delta after every step of the painful walk, so the beam's last step is seen
         // on the update that ends the pause before it, before its forward walk has begun.
-        if (PainfulWalkingStage < MotherBrainPainfulWalkingDefinitions.StageCount)
+        if (PainfulWalkingStage is { Entry: { } stage })
         {
-            PainfulWalkingSpeed = MotherBrainPainfulWalking.Speed(PainfulWalkingStage);
-            Encounter.NeckTurnPerUpdate = MotherBrainPainfulWalking.NeckTurn(PainfulWalkingStage);
+            PainfulWalkingSpeed = stage.Speed;
+            Encounter.NeckTurnPerUpdate = stage.NeckTurn;
         }
-        if (PainfulWalkingStage == MotherBrainFightDefinitions.BeamRunsOutStage)
+        if (ReferenceEquals(PainfulWalkingStage?.Entry, MotherBrainPainfulWalkingDefinitions.BeamRunsOut))
         {
             _state.RainbowBeamSoundPlaying = false;
             Encounter.DrainedPhase = MotherBrainDrainedPhase.RainbowBeamRunOut;
@@ -130,7 +131,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut()
     {
         StepPainfulWalking();
-        if (PainfulWalkingStage >= MotherBrainPainfulWalkingDefinitions.StageCount)
+        if (PainfulWalkingStage is null)
         {
             Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Slow;
             Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;

@@ -104,10 +104,13 @@ public sealed class BabyMetroidCutsceneState
     public BossCountdown DeathExplosionTimer { get; } = new();
 
     /// <summary>
-    /// Index into the shared death-explosion scatter pattern, cycling through its ten offsets.
-    /// This actor owns its increment and wrap.
+    /// Where the Baby's next death explosion bursts (#2315): each takes the next point of the scatter shared with Ridley's
+    /// death, the first after the last, starting from the scatter's second point.
     /// </summary>
-    public int DeathExplosionPatternIndex { get; private set; }
+    public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; private set; } = FirstDeathExplosion;
+
+    /// <summary>Where the Baby's first death explosion bursts: the shared scatter's second point.</summary>
+    private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.At(DeathExplosionScatterDefinitions.Offsets, 1);
 
     /// <summary>
     /// The updates the cutscene has spent readying Mother Brain's attacks again so far, zero through
@@ -157,7 +160,7 @@ public sealed class BabyMetroidCutsceneState
         FadeToBlackTimer.Count = 0;
         FadeToBlackImagesShown = 0;
         DeathExplosionTimer.Count = 0;
-        DeathExplosionPatternIndex = 0;
+        NextDeathExplosion = FirstDeathExplosion;
         AttacksAgainReadyingElapsed = 0;
         RecoveryLights.Restart();
         SamusRainbowFraction = RainbowFramePart.None;
@@ -764,13 +767,10 @@ public sealed class BabyMetroidCutsceneState
             return null;
 
         DeathExplosionTimer.Count = 4;
-        DeathExplosionPatternIndex++;
-        if (DeathExplosionPatternIndex >= DeathExplosionScatterDefinitions.Count)
-            DeathExplosionPatternIndex = 0;
-        // The death explosions hold the scatter shared with Ridley's death. The explosion step advances its
-        // index before looking up a pair, so a freshly cleared counter begins at the scatter's second place.
+        Offset16<RoomPixels> scatter = NextDeathExplosion.Entry;
+        NextDeathExplosion = NextDeathExplosion.NextInCycle;
         return new DustExplosionRequest(
-            Position: Position.Whole + DeathExplosionScatter.Offset(DeathExplosionPatternIndex),
+            Position: Position.Whole + scatter,
             Animation: MiscDustAnimation.SmallExplosion,
             SoundEffect: MotherBrainSoundDefinitions.Explosion);
     }

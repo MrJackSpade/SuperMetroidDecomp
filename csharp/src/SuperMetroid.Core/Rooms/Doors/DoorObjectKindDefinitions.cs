@@ -21,8 +21,6 @@ internal static class DoorObjectKindDefinitions
         [RoomObjectKind.GreenDoorFacingDown] = new(ColoredDoorColor.Green, ColoredDoorOrientation.Down),
         [RoomObjectKind.RedDoorFacingLeft] = new(ColoredDoorColor.Red, ColoredDoorOrientation.Left),
         [RoomObjectKind.RedDoorFacingRight] = new(ColoredDoorColor.Red, ColoredDoorOrientation.Right),
-        [RoomObjectKind.RedDoorFacingUp] = new(ColoredDoorColor.Red, ColoredDoorOrientation.Up),
-        [RoomObjectKind.RedDoorFacingDown] = new(ColoredDoorColor.Red, ColoredDoorOrientation.Down),
     };
 
     /// <summary>

@@ -48,14 +48,13 @@ internal static class RoomObjectSystemAccess
             return CollectibleObjects.TryIdentifyPermanentCollectible(header, out _, out _);
         }
 
-        /// <summary>Recognizes the twelve directional yellow, green, and red door headers.</summary>
+        /// <summary>Recognizes the ten directional yellow, green, and red door headers some room places.</summary>
         internal static bool IsColoredDoorHeader(RoomObjectKind header) => header is
             RoomObjectKind.YellowDoorFacingLeft or RoomObjectKind.YellowDoorFacingRight or
             RoomObjectKind.YellowDoorFacingUp or RoomObjectKind.YellowDoorFacingDown or
             RoomObjectKind.GreenDoorFacingLeft or RoomObjectKind.GreenDoorFacingRight or
             RoomObjectKind.GreenDoorFacingUp or RoomObjectKind.GreenDoorFacingDown or
-            RoomObjectKind.RedDoorFacingLeft or RoomObjectKind.RedDoorFacingRight or
-            RoomObjectKind.RedDoorFacingUp or RoomObjectKind.RedDoorFacingDown;
+            RoomObjectKind.RedDoorFacingLeft or RoomObjectKind.RedDoorFacingRight;
     }
 
     /// <summary>Inspects live door, collectible, and glass PLMs and drives scoped PLM verification operations.</summary>

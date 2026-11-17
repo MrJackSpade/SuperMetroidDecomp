@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -46,7 +47,39 @@ internal static class StraddledTerrainVerification
             pairs++;
         }
         AssertEqual(ushort.MaxValue + 1, pairs, "Every level word is checked as a first block once");
+        VerifyCollectibleBlocks(installed);
         Console.WriteLine($"PASS straddled terrain matches the level-word codec for {pairs} pairs of blocks.");
+    }
+
+    /// <summary>
+    /// The blocks a collectible that shows its own picture writes under it, named by pair and look (#2354), straddle as
+    /// the cartridge's numbered blocks they are stored as, whichever block they follow or lead: a read ending in the
+    /// first pair's blocks collides as a solid block, one ending in the other three pairs' blocks as a door block.
+    /// </summary>
+    private static void VerifyCollectibleBlocks(StraddledTerrain<RoomTerrainBlock> installed)
+    {
+        foreach (CollectiblePairBlock block in CollectiblePairBlock.All)
+        {
+            RoomTerrainBlock written = CollectibleObjectDraws.BlockPairTerrain(
+                CollectibleObjectDraws.VisibleFrame(InWorldCollectibleKind.Bombs, block.Look, block.Pair).Frame)
+                ?? throw new InvalidOperationException($"The {block}'s frame writes no pair block.");
+            AssertEqual(RoomBlockAppearance.Of(block), written.Appearance, $"The {block}'s frame writes the pair block");
+            RoomTerrainBlock stored = RoomLevelWordCodec.Decode(RoomLevelWordEncoder.Encode(written));
+            RoomCollisionType expectedCollision = block.Pair == CollectibleBlockPairs.Pair.First
+                ? RoomCollisionType.SolidBlock : RoomCollisionType.DoorBlock;
+            for (int value = 0; value <= ushort.MaxValue; value++)
+            {
+                RoomTerrainBlock other = RoomLevelWordCodec.Decode((ushort)value);
+                RoomTerrainBlock ending = installed.Straddling(other, written);
+                if (ending != installed.Straddling(other, stored))
+                    AssertEqual(installed.Straddling(other, stored), ending, $"A read from {other} into the {block} straddles as its stored block");
+                if (ending.Collision != expectedCollision)
+                    AssertEqual(expectedCollision, ending.Collision, $"A read from {other} into the {block} collides as its pair's family");
+                RoomTerrainBlock leading = installed.Straddling(written, other);
+                if (leading != installed.Straddling(stored, other))
+                    AssertEqual(installed.Straddling(stored, other), leading, $"A read from the {block} into {other} straddles as its stored block");
+            }
+        }
     }
 
     /// <summary>Runs the straddled-terrain check (#1612).</summary>

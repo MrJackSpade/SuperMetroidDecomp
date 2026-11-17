@@ -62,10 +62,15 @@ public readonly record struct RoomCellPicture
     public static RoomCellPicture OfBlock(int block) => new(Ensure.AtLeastZero(block), null, Blank.No);
 
     /// <summary>A cell showing what <paramref name="appearance"/> shows: its block, or nothing.</summary>
-    /// <exception cref="InvalidOperationException">The appearance is terrain beyond the room, which no cell shows.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The appearance is terrain beyond the room, which no cell shows, or a collectible's pair block, which its collectible's
+    /// own picture covers wherever it lies (#2354).
+    /// </exception>
     public static RoomCellPicture Of(RoomBlockAppearance appearance) =>
         appearance.ShowsNothing ? Nothing
             : appearance.ShowsBlock ? OfBlock(appearance.Block)
+            : appearance.IsCollectiblePairBlock
+                ? throw new InvalidOperationException($"No room cell shows {appearance}: its collectible's own picture covers it.")
             : throw new InvalidOperationException($"No room cell shows {appearance}: the room never shows terrain beyond its grid.");
 
     /// <summary>A cell showing the collectible picture <paramref name="picture"/>.</summary>

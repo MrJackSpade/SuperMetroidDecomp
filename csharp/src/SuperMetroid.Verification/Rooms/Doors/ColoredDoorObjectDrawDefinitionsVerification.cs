@@ -58,8 +58,6 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
             RoomObjectKind.GreenDoorFacingDown,
             RoomObjectKind.RedDoorFacingLeft,
             RoomObjectKind.RedDoorFacingRight,
-            RoomObjectKind.RedDoorFacingUp,
-            RoomObjectKind.RedDoorFacingDown,
         ];
         foreach (RoomObjectKind header in headers)
         {
@@ -156,7 +154,7 @@ internal static class ColoredDoorObjectDrawDefinitionsVerification
         }
         Suite(nameof(VerifyColoredDoorVisualInstallation), () => VerifyColoredDoorVisualInstallation(rom));
         Console.WriteLine(
-            "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
+            "  Colored doors: 1164 compiled program bytes, 10 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
     /// <summary>Compares every coloured cap's typed programs with its bank-$84 lists.</summary>

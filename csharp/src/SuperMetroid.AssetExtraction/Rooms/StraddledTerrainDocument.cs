@@ -7,7 +7,8 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// contributes (its tail), and a lead and a tail make one straddled block. The classes are listed, never numbered: each tail
 /// class names the block numbers it holds, whatever their mirroring and collision kind; each lead class names its collision
 /// kind, its mirroring and the block numbers it holds, and the terrain it makes with each tail class, in the order the tail
-/// classes are listed.
+/// classes are listed. The blocks a collectible that shows its own picture writes under it, which the game names by their
+/// pair and look rather than numbers (#2354), each name the block number whose end and start they contribute.
 /// </summary>
 /// <param name="Version">The schema revision, <see cref="StraddledTerrainFormat.Version"/>.</param>
 /// <param name="Tails">
@@ -18,10 +19,14 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Every lead class: what the end of a first block contributes. Every block of every mirroring and collision kind lies in
 /// exactly one.
 /// </param>
+/// <param name="CollectibleBlocks">
+/// Every block a collectible that shows its own picture writes under it, each once, and the block it straddles as.
+/// </param>
 internal sealed record StraddledTerrainDocument(
     int Version,
     IReadOnlyList<StraddledTerrainDocument.Tail> Tails,
-    IReadOnlyList<StraddledTerrainDocument.Lead> Leads)
+    IReadOnlyList<StraddledTerrainDocument.Lead> Leads,
+    IReadOnlyList<StraddledTerrainDocument.CollectibleBlock> CollectibleBlocks)
 {
     /// <summary>The block numbers from <paramref name="First"/> through <paramref name="Last"/>, each 0 through 1023.</summary>
     /// <param name="First">The first block number of the run.</param>
@@ -47,4 +52,13 @@ internal sealed record StraddledTerrainDocument(
     /// <param name="Mirroring">The name of how the block is mirrored.</param>
     /// <param name="Collision">The name of the kind the block collides as.</param>
     internal sealed record Outcome(int Block, string Mirroring, string Collision);
+
+    /// <summary>
+    /// One block a collectible that shows its own picture writes under it (#2354): its end and start contribute to a
+    /// straddled read what those of block <paramref name="StraddlesAs"/> of the same mirroring and collision kind do.
+    /// </summary>
+    /// <param name="Pair">The name of the block pair.</param>
+    /// <param name="Look">The name of the look of the collectible's picture the block lies under.</param>
+    /// <param name="StraddlesAs">The block number, 0 through 1023, the block straddles as.</param>
+    internal sealed record CollectibleBlock(string Pair, string Look, int StraddlesAs);
 }

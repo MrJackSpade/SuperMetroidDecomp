@@ -21,7 +21,7 @@ internal static class RoomObjectDefinitionMigrationVerification
         // The header words are verification's; the identities' own values are arbitrary.
         AssertEqual(0xb63b, RoomObjectNativeWords.Word(RoomObjectKind.RightwardsScrollExtension), "first PLM header word");
         AssertEqual(0xc85a, RoomObjectNativeWords.Word(RoomObjectKind.YellowDoorFacingLeft), "yellow door header word");
-        AssertEqual(0xefcf, RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockReserveTank), "last PLM header word");
+        AssertEqual(0xef87, RoomObjectNativeWords.Word(RoomObjectKind.ShotBlockSuperMissileTank), "last placed PLM header word");
         AssertEqual(RoomObjectKind.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");
 
         // Door and item identification by member equals the former range and stride arithmetic.
@@ -32,12 +32,13 @@ internal static class RoomObjectDefinitionMigrationVerification
             && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
         AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
             && down == ColoredDoorOrientation.Down, "grey door facing down");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ChozoMorphBall, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
-            && kind == InWorldCollectibleKind.MorphBall && presentation == CollectiblePresentation.ChozoOrb, "Chozo Morph Ball");
-        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ShotBlockReserveTank, out kind, out presentation)
-            && kind == InWorldCollectibleKind.ReserveTank && presentation == CollectiblePresentation.ShotBlock, "shot-block Reserve Tank");
-        AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.RedDoorFacingUp, out _, out _), "a door is no item");
-        AssertEqual(63, PermanentCollectibleObjectDefinitions.Items.Count, "three presentations of twenty-one items");
+        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ChozoBombs, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
+            && kind == InWorldCollectibleKind.Bombs && presentation == CollectiblePresentation.ChozoOrb, "Chozo Bombs");
+        AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ShotBlockSuperMissileTank, out kind, out presentation)
+            && kind == InWorldCollectibleKind.SuperMissileTank && presentation == CollectiblePresentation.ShotBlock, "shot-block Super Missile Tank");
+        AssertTrue(!CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.RedDoorFacingLeft, out _, out _), "a door is no item");
+        // Only the items some room places in each presentation (#2354): five exposed, nineteen in an orb, three in a shot block.
+        AssertEqual(27, PermanentCollectibleObjectDefinitions.Items.Count, "the items the rooms place");
 
         // The station animations are named by access rule instead of the header's list word plus an offset.
         AssertEqual(StationAnimation.MapIdle, StationAccessRuleDefinitions.Map.Animation, "map station animation");

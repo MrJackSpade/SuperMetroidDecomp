@@ -75,7 +75,7 @@ public static class RoomObjectCollectibleVisualFiles
     /// <summary>
     /// Checks the eight selectors of the frames each block pair's collectible writes (<see cref="CollectibleBlockPairs"/>),
     /// and that each frame lying under the item's own picture is one horizontal cell writing the terrain the game writes
-    /// there, appearance included, since the game shows that terrain as it is.
+    /// there, its pair's block stored as the number the import gives it (<see cref="CollectiblePairBlockNumbers"/>).
     /// </summary>
     /// <exception cref="InvalidDataException">A selector or a block pair's frame differs from the cartridge.</exception>
     private static void VerifyBlockPairs(ISnesAddressSpace bus)
@@ -99,7 +99,7 @@ public static class RoomObjectCollectibleVisualFiles
             RoomTerrainBlock terrain = CollectibleObjectDraws.BlockPairTerrain(frame.Draw)
                 ?? throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
-                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != terrain ||
+                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");

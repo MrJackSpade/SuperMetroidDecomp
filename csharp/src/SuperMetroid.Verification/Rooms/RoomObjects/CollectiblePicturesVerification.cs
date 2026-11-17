@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -22,26 +23,27 @@ namespace SuperMetroid.Verification.Rooms.RoomObjects;
 internal static class CollectiblePicturesVerification
 {
     /// <summary>
-    /// The room's five items that show their own picture, in population order: the fifth takes the first item's block
-    /// pair again.
+    /// The room's five items that show their own picture, in population order, each held in a Chozo statue's orb as rooms
+    /// place them (#2354): the fifth takes the first item's block pair again.
     /// </summary>
-    private static readonly InWorldCollectibleKind[] Kinds =
+    private static readonly (RoomObjectKind Header, InWorldCollectibleKind Kind)[] Items =
     [
-        InWorldCollectibleKind.Bombs, InWorldCollectibleKind.ChargeBeam, InWorldCollectibleKind.IceBeam,
-        InWorldCollectibleKind.HiJumpBoots, InWorldCollectibleKind.SpeedBooster,
+        (RoomObjectKind.ChozoBombs, InWorldCollectibleKind.Bombs),
+        (RoomObjectKind.ChozoChargeBeam, InWorldCollectibleKind.ChargeBeam),
+        (RoomObjectKind.ChozoIceBeam, InWorldCollectibleKind.IceBeam),
+        (RoomObjectKind.ChozoHiJumpBoots, InWorldCollectibleKind.HiJumpBoots),
+        (RoomObjectKind.ChozoSpeedBooster, InWorldCollectibleKind.SpeedBooster),
     ];
 
-    /// <summary>The block written under the first block pair's first frame.</summary>
-    private const int FirstPairFirstFrameBlock = 0x08e;
-
     /// <summary>
-    /// Loads a synthetic room placing five exposed items and draws their first frames: each item's terrain is its block
-    /// pair's first-frame block, the fifth sharing the first's, and each shows its own kind's picture, the fifth too.
+    /// Loads a synthetic room placing five Chozo-orb items, shoots their orbs open and draws their visible frames: each
+    /// item's terrain is its block pair's block under the look it shows (#2354), the fifth sharing the first's pair, and
+    /// each shows its own kind's picture in that look, the fifth too.
     /// </summary>
     internal static void VerifyCollectiblePictures()
     {
         var pairs = new CollectibleBlockPairs();
-        CollectibleBlockPairs.Pair[] taken = [.. Enumerable.Range(0, Kinds.Length).Select(_ => pairs.Take())];
+        CollectibleBlockPairs.Pair[] taken = [.. Enumerable.Range(0, Items.Length).Select(_ => pairs.Take())];
         AssertTrue(taken.SequenceEqual([CollectibleBlockPairs.Pair.First, CollectibleBlockPairs.Pair.Second,
                 CollectibleBlockPairs.Pair.Third, CollectibleBlockPairs.Pair.Fourth, CollectibleBlockPairs.Pair.First]),
             "collectibles take the four block pairs in turn, the fifth taking the first again");
@@ -51,9 +53,9 @@ internal static class CollectiblePicturesVerification
         const ushort population = 0x9000;
         var size = new Extent16<RoomBlocks>(8, 8);
         var records = new List<byte>();
-        for (int item = 0; item < Kinds.Length; item++)
+        for (int item = 0; item < Items.Length; item++)
         {
-            ushort header = unchecked((ushort)(0xeed7 + (int)Kinds[item] * 4));
+            ushort header = RoomObjectNativeWords.Word(Items[item].Header);
             records.AddRange([unchecked((byte)header), LittleEndianBytes.HighByte(header), unchecked((byte)(item + 1)), 1, unchecked((byte)item), 0]);
         }
         records.AddRange([0x00, 0x00]);
@@ -67,17 +69,27 @@ internal static class CollectiblePicturesVerification
             RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         roomObjects.Step(level);
-        for (int item = 0; item < Kinds.Length; item++)
+        for (int item = 0; item < Items.Length; item++)
+        {
+            AssertTrue(roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(new Position16<RoomBlocks>((ushort)(item + 1), 1)),
+                $"{Items[item].Kind}'s orb accepts a projectile");
+        }
+        StepUntil(
+            () => roomObjects.CollectiblePhases.All(phase => phase == CollectiblePhase.Visible),
+            _ => roomObjects.Step(level),
+            maximumFrames: 20,
+            context: "the orbs' bursts");
+        for (int item = 0; item < Items.Length; item++)
         {
             int blockIndex = size.RowMajorIndex(new Position16<RoomBlocks>((ushort)(item + 1), 1));
-            AssertEqual(RoomBlockAppearance.Of(FirstPairFirstFrameBlock + item % CollectibleBlockPairs.InTurn.Count * 2),
-                level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance,
-                $"{Kinds[item]} writes its block pair's first-frame block into the terrain");
-            AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Kinds[item], CollectibleLook.Primary)),
+            RoomBlockAppearance written = level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance;
+            AssertTrue(written.IsCollectiblePairBlock && written.PairBlock.Pair == taken[item],
+                $"{Items[item].Kind} writes a block of the block pair it took into the terrain, not {written}");
+            AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Items[item].Kind, written.PairBlock.Look)),
                 level.ForegroundPlane.Cells.Cells[blockIndex].Picture,
-                $"{Kinds[item]} shows its own picture's first frame");
+                $"{Items[item].Kind} shows its own picture in the look its pair block lies under");
         }
-        Console.WriteLine($"Collectible pictures: {Kinds.Length} items each show their own picture over the block pairs they take in turn.");
+        Console.WriteLine($"Collectible pictures: {Items.Length} items each show their own picture over the block pairs they take in turn.");
     }
 
     /// <summary>Runs the collectible picture check.</summary>

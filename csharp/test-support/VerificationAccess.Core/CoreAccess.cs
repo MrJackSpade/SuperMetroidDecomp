@@ -71,7 +71,7 @@ internal static class CoreAccess
         internal void AcceptDoorMusicWaitControllerRead(ControllerButton controllerInput)
         {
             SuperMetroidRuntime? runtime = game.RuntimeForVerification;
-            if (game.GameState != SuperMetroidGameState.DoorTransition || runtime is null)
+            if (!game.IsAt(DoorTransitionStep.Transitioning) || runtime is null)
                 throw new InvalidOperationException(
                     $"A door music-wait controller read arrived in game state {game.GameState}.");
             runtime.PlayerActions.Latch(runtime.Options.ControllerBindings.ToActions(controllerInput));

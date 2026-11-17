@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
@@ -85,7 +85,7 @@ public static class AudioInputReplaySmokeTest
                 started == SamusSound.UnchargedPowerBeam);
             powerBeamAcknowledged |= acknowledgements[SoundEffectLibrary.Samus].Acknowledges(SamusSound.UnchargedPowerBeam);
 
-            if (game.GameState == SuperMetroidGameState.DoorTransition)
+            if (game.IsAt(DoorTransitionStep.Transitioning))
                 firstDoorBegan = true;
             if (firstDoorBegan && activeRoom is { } room && room != sourceRoom)
                 destinationRoom = room;
@@ -199,9 +199,7 @@ public static class AudioInputReplaySmokeTest
         for (int frameIndex = 0; frameIndex < framesToReplay; frameIndex++)
         {
             FrontendFrame frame = game.Step(recording.InputAt(frameIndex));
-            bool pauseOwned = frame.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
-                SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused or SuperMetroidGameState.PauseScreenFadeOut or
-                SuperMetroidGameState.RestoringGameplayFromPause or SuperMetroidGameState.Unpausing;
+            bool pauseOwned = frame.GameState == SuperMetroidGameState.Pause;
             game.CopyAudioFrame(samples);
 
             if (pauseOwned && active is null)
@@ -218,7 +216,7 @@ public static class AudioInputReplaySmokeTest
                     pause.RecordEvents(frameIndex, frame.GameState, events);
                 if (pauseOwned)
                     pause.PauseOwnedFrames++;
-                if (frame.GameState == SuperMetroidGameState.Paused)
+                if (game.IsAt(PauseStep.Menu))
                     pause.AddPausedFrame(samples);
 
                 if (!pauseOwned && frame.GameState == SuperMetroidGameState.MainGameplay)

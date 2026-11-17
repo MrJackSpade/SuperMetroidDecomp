@@ -37,13 +37,13 @@ internal static class UnpauseStationLockReleaseVerification
         EnterPauseEquipment(pause);
         game.AdoptRuntime(runtime);
         game.Session.Show(pause);
-        game.GameState = SuperMetroidGameState.Paused;
+        game.Session.Enter(PauseStep.Menu);
 
-        for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.Paused; frame++)
+        for (int frame = 0; frame < 8 && game.IsAt(PauseStep.Menu); frame++)
             game.StepCaptured(ControllerButton.Start);
-        AssertEqual(SuperMetroidGameState.PauseScreenFadeOut, game.GameState, "Start closes the menu");
+        AssertTrue(game.IsAt(PauseStep.FadingOut), "Start closes the menu");
         AssertTrue(samus.Control.InputLocked && samus.Control.Mode.Movement == SamusMovementMode.RefillStation, "the station lock holds through the fade");
-        while (game.GameState != SuperMetroidGameState.Unpausing)
+        while (!game.IsAt(PauseStep.BrighteningGameplay))
             game.StepCaptured(0);
 
         AssertTrue(!samus.Control.InputLocked, "gameplay resume restores Samus's normal handlers");

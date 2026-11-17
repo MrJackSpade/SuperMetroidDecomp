@@ -27,7 +27,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal sealed class CeresDestructionCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);

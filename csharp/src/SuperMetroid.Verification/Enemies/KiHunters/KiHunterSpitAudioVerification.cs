@@ -84,7 +84,7 @@ internal static class KiHunterSpitAudioVerification
             selected = true;
         }
         AssertTrue(selected, "real KiHunter room has an exit");
-        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         int waitFrames = 0;
         for (int frame = 0; frame < 32; frame++)
         {

@@ -31,7 +31,7 @@ internal static class FrontendRenderCaptureTestsVerification
         });
         AssertEqual(new RgbaPixel(0, 0, 0, 255), captured.GetRetainedDisplay().SolidColor,
             "the initial display is a published black frame");
-        var states = new HashSet<SuperMetroidGameState>();
+        var states = new HashSet<object>();
         int packetCount = 0;
         DisplayPacket? held = null;
         byte[] heldDigest = [];
@@ -44,7 +44,7 @@ internal static class FrontendRenderCaptureTestsVerification
             AssertEqual(expected.Phase, actual.Frame.Phase, "captured frontend phase cadence");
             AssertEqual(expected.FrameNumber, actual.Frame.FrameNumber, "captured frontend NMI identity");
             AssertSequenceEqual(expected.Audio.Events, actual.Frame.Audio.Events, "captured frontend audio event order");
-            states.Add(expected.GameState);
+            states.Add(legacy.CurrentStep);
             DisplayPacket packet = actual.Snapshot;
             {
                 long allocationStart = GC.GetAllocatedBytesForCurrentThread();
@@ -74,8 +74,8 @@ internal static class FrontendRenderCaptureTestsVerification
                 $"frontend packet pixel parity at tick {tick}, {expected.Phase}");
             if (expected.GameState == SuperMetroidGameState.IntroCinematic)
             {
-                AssertTrue(states.Contains(SuperMetroidGameState.FileSelectMenus), "capture path covers file menu");
-                AssertTrue(states.Contains(SuperMetroidGameState.GameOptionsMenu), "capture path covers options");
+                AssertTrue(states.Contains(FileSelectStep.SaveSlots), "capture path covers file menu");
+                AssertTrue(states.Contains(FileSelectStep.Options), "capture path covers options");
                 AssertTrue(held is not null && heldDigest.AsSpan().SequenceEqual(GraphDigest(held)),
                     "retained title packet survives scene handoffs");
                 // Switching back to the compatibility entry point must also work.

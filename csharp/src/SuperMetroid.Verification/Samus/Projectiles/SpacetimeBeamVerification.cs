@@ -251,13 +251,13 @@ internal static class SpacetimeBeamVerification
             Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen),
                 () => frame = game.Step(0), 150, "SpaceTime title setup");
             frame = game.Step(ControllerButton.Start);
-            Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus,
+            Until(() => game.IsAt(FileSelectStep.SaveSlots),
                 () => frame = game.Step(0), 150, "SpaceTime file menu");
             // Native entry dispatches and fade-in end on the 35th update.
             Until(() => frame.Phase == nameof(FileSelectPhase.Main),
                 () => frame = game.Step(0), 40, "SpaceTime file menu interactive");
             frame = game.Step(ControllerButton.A);
-            Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu,
+            Until(() => game.IsAt(FileSelectStep.Options),
                 () => frame = game.Step(0), 200, "SpaceTime options menu");
             // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
             for (int frameIndex = 0; frameIndex < 18; frameIndex++)

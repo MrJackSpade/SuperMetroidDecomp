@@ -32,7 +32,7 @@ internal static class CeresEnginePaletteBindingVerification
             // The destruction scene's actors draw from the installed sprite sheets, as a full binding supplies them.
             SpriteSheets = sheets,
         });
-        game.GameState = SuperMetroidGameState.CeresGoesBoom;
+        game.Session.Enter(CeresDestructionOutcome.SamusEscaped);
 
         // Enter via the real frontend constructor call, then select exactly the
         // phase reported by the player. No preceding controller playthrough is needed.

@@ -17,7 +17,7 @@ internal interface IMenuFrontendScreen : IFrontendScreen
     void BindSpriteSheets(InstalledSpriteSheets sheets);
 
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);

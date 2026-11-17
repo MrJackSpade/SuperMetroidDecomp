@@ -65,7 +65,7 @@ internal static class DoorEntryEnemySoundVerification
         AssertTrue(selected, "the Ki Hunter room has an exit");
         var audio = game.AudioForVerification;
         SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         game.Step(0);
 
         IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);

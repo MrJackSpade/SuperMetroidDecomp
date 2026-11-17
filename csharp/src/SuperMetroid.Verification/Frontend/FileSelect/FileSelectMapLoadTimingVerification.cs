@@ -32,20 +32,20 @@ internal static class FileSelectMapLoadTimingVerification
         var game = CreateRetailGameFixture(saves);
         game.BindArtwork(game.Artwork with { ScreenContent = RetailPresentationFixture() });
 
-        var states = new List<SuperMetroidGameState>();
+        var states = new List<object>();
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
             game.Step(tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None);
-            states.Add(game.GameState);
+            states.Add(game.CurrentStep);
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the continued save reaches gameplay");
-        int firstLoading = states.IndexOf(SuperMetroidGameState.LoadingGameData);
+        int firstLoading = states.IndexOf(GameDataLoadRoute.SavedCheckpoint);
         AssertTrue(firstLoading > 0, "the continued save passes through state six");
-        AssertEqual(SuperMetroidGameState.FileSelectMap, states[firstLoading - 1], "state six follows the map directly");
-        int loadingUpdates = states.Skip(firstLoading).TakeWhile(state => state == SuperMetroidGameState.LoadingGameData).Count();
+        AssertEqual<object>(FileSelectStep.AreaMap, states[firstLoading - 1], "state six follows the map directly");
+        int loadingUpdates = states.Skip(firstLoading).TakeWhile(state => state.Equals(GameDataLoadRoute.SavedCheckpoint)).Count();
         AssertEqual(1 + GameLoadingDefinitions.OrdinaryLoadWaits, loadingUpdates,
             "state six's raising NMI, its loading dispatch and its NMI waits");
-        AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, states[firstLoading + loadingUpdates], "the fade-in follows the load");
+        AssertEqual<object>(SuperMetroidGameState.GameplayFadeIn, states[firstLoading + loadingUpdates], "the fade-in follows the load");
         Console.WriteLine($"  File-select map load: state six lasts {loadingUpdates} updates, then the fade-in.");
     }
 

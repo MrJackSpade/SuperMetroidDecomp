@@ -88,24 +88,24 @@ internal static class GameplayCaptureIntegrationTestsVerification
             game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawPause = false;
-        var fadeFrames = new Dictionary<SuperMetroidGameState, int>
+        var fadeFrames = new Dictionary<PauseStep, int>
         {
-            [SuperMetroidGameState.PausingDarkening] = 0,
-            [SuperMetroidGameState.PauseScreenFadeIn] = 0,
-            [SuperMetroidGameState.PauseScreenFadeOut] = 0,
-            [SuperMetroidGameState.Unpausing] = 0,
+            [PauseStep.DarkeningGameplay] = 0,
+            [PauseStep.FadingIn] = 0,
+            [PauseStep.FadingOut] = 0,
+            [PauseStep.BrighteningGameplay] = 0,
         };
         // The cartridge fade counter adds a hold frame for each brightness step.
         // Include the complete 30-frame gameplay restoration, not the former
         // truncated 15-frame fade that happened to finish inside 160 frames.
         for (int tick = 0; tick < 180; tick++)
         {
-            if (fadeFrames.ContainsKey(legacy.GameState)) fadeFrames[legacy.GameState]++;
+            if (legacy.GameState == SuperMetroidGameState.Pause && fadeFrames.ContainsKey(legacy.Session.PauseStep)) fadeFrames[legacy.Session.PauseStep]++;
             ControllerButton input = tick is 10 or >= 100 and <= 105 ? ControllerButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input);
             Compare(reference, actual);
-            sawPause |= legacy.GameState is SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused;
+            sawPause |= legacy.IsAt(PauseStep.FadingIn) || legacy.IsAt(PauseStep.Menu);
             AssertEqual(legacy.GameplaySamusX, packets.GameplaySamusX, "capture preserves Samus X");
             AssertEqual(legacy.GameplaySamusY, packets.GameplaySamusY, "capture preserves Samus Y");
             AssertEqual(legacy.GameplaySamusPose, packets.GameplaySamusPose, "capture preserves pose");

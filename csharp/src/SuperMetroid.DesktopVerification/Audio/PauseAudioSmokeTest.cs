@@ -42,9 +42,7 @@ public static class PauseAudioSmokeTest
             commandCount += next.Audio.Events.Count(audioEvent => audioEvent is not AudioEvent.ClockStep);
             continuity.Observe(samples);
             frames++;
-            if (next.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
-                SuperMetroidGameState.PauseScreenFadeIn or SuperMetroidGameState.Paused or SuperMetroidGameState.PauseScreenFadeOut or
-                SuperMetroidGameState.RestoringGameplayFromPause or SuperMetroidGameState.Unpausing)
+            if (next.GameState == SuperMetroidGameState.Pause)
             {
                 pauseFrames++;
                 // The driver starts the cancellations at a poll after the CPU writes them, so
@@ -65,12 +63,12 @@ public static class PauseAudioSmokeTest
         frame = Step(ControllerButton.Start);
         frame = StepUntil(frame, candidate => candidate.Phase == nameof(TitleSequencePhase.TitleScreen), 120);
         frame = Step(ControllerButton.Start);
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMenus, 120);
+        frame = StepUntil(frame, candidate => game.IsAt(FileSelectStep.SaveSlots), 120);
         // This fixture loads existing SRAM, so follow both saved-game map confirmations.
         // Accept on the cadence FileSelectSoundVerification uses until the area map opens: the
         // menus take a press only once their transitions settle. Keep the real frontend path
         // and audio acknowledgements.
-        for (int index = 0; !(frame.GameState == SuperMetroidGameState.FileSelectMap &&
+        for (int index = 0; !(game.IsAt(FileSelectStep.AreaMap) &&
             frame.Phase == nameof(FileSelectMapNavigationPhase.Area)); index++)
         {
             if (index == 600)
@@ -78,7 +76,7 @@ public static class PauseAudioSmokeTest
             frame = Step(index % 47 == 46 ? ControllerButton.A : ControllerButton.None);
         }
         frame = Step(ControllerButton.A);
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMap &&
+        frame = StepUntil(frame, candidate => game.IsAt(FileSelectStep.AreaMap) &&
             candidate.Phase == nameof(FileSelectMapNavigationPhase.Room), 120);
         frame = Step(ControllerButton.A);
         // Include the map's confirmation fade/black hold, gameplay fade-in, and the
@@ -88,7 +86,7 @@ public static class PauseAudioSmokeTest
         // Establish ordinary room music before measuring the exact pause sequence.
         for (int index = 0; index < 120; index++) frame = Step(0);
         frame = Step(ControllerButton.Start);
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.Paused, 128);
+        frame = StepUntil(frame, candidate => game.IsAt(PauseStep.Menu), 128);
         for (int index = 0; index < 120; index++) frame = Step(0);
         frame = Step(ControllerButton.Right);
         frame = Step(0);

@@ -328,11 +328,11 @@ internal static class FileSelectRoomMapVerification
         frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
         frame = game.Step(ControllerButton.Start);
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus, 150);
+        Until(() => game.IsAt(FileSelectStep.SaveSlots), 150);
         // Native entry dispatches and fade-in end on the 35th update.
         Until(() => frame.Phase == nameof(FileSelectPhase.Main), 40);
         frame = game.Step(ControllerButton.A);
-        Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
+        Until(() => game.IsAt(FileSelectStep.Options), 200);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.A);
@@ -345,7 +345,7 @@ internal static class FileSelectRoomMapVerification
                 "Ceres checkpoint still owns its arrival sequence");
             return;
         }
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap, 200);
+        Until(() => game.IsAt(FileSelectStep.AreaMap), 200);
         for (int i = 0; i < 70; i++)
         {
             frame = game.Step(ControllerButton.Start);
@@ -353,11 +353,11 @@ internal static class FileSelectRoomMapVerification
         AssertEqual("Area", frame.Phase, "holding confirm during initial reveal cannot skip area selection");
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
         frame = game.Step(ControllerButton.B);
-        Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
+        Until(() => game.IsAt(FileSelectStep.Options), 30);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.A);
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
+        Until(() => game.IsAt(FileSelectStep.AreaMap) && frame.Phase == "Area", 200);
         for (int i = 0; i < 10; i++) frame = game.Step(0);
         frame = game.Step(ControllerButton.Start);
         Until(() => frame.Phase == "Room", 80);

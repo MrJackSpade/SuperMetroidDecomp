@@ -40,7 +40,7 @@ internal static class RetailLoadAppearanceTests
                 expected.FrameNumber != actual.Frame.FrameNumber || expected.Phase != actual.Frame.Phase ||
                 !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                 throw new InvalidOperationException($"Saved-file load capture diverged at {tick}.");
-            sawMap |= legacy.GameState == SuperMetroidGameState.FileSelectMap;
+            sawMap |= legacy.IsAt(FileSelectStep.AreaMap);
             sawAppearance |= legacy.RuntimeForVerification?.SamusLoadAppearanceActive == true;
             if (legacy.RuntimeForVerification?.SamusLoadAppearanceFramesRemaining !=
                 captured.RuntimeForVerification?.SamusLoadAppearanceFramesRemaining)

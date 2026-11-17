@@ -30,7 +30,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 public sealed class IntroCinematicState : IFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);

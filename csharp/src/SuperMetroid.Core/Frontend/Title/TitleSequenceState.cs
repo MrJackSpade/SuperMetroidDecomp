@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 public sealed class TitleSequenceState : IFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);

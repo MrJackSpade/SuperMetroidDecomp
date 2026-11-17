@@ -45,9 +45,9 @@ internal static class UnpauseReserveBlackoutVerification
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
         unpausing.Session.screenFade.Show(0);
-        unpausing.GameState = SuperMetroidGameState.Unpausing;
+        unpausing.Session.Enter(PauseStep.BrighteningGameplay);
         unpausing.Step(0);
-        AssertEqual(SuperMetroidGameState.ReserveTanksAuto, unpausing.GameState,
+        AssertEqual(SuperMetroidGameState.ReserveTankRefill, unpausing.GameState,
             "state $12's gameplay pass routes zero health into the auto reserve refill");
         AssertEqual(0, unpausing.Session.PauseBrightness, "the interrupted fade-in leaves $51 black");
 
@@ -57,9 +57,9 @@ internal static class UnpauseReserveBlackoutVerification
         pausing.Session.screenFade.Show(0);
         pausing.Step(0);
         pausing.Step(ControllerButton.Start);
-        AssertEqual(SuperMetroidGameState.PausingDarkening, pausing.GameState, "Start pauses");
+        AssertTrue(pausing.IsAt(PauseStep.DarkeningGameplay), "Start pauses");
         pausing.Step(0);
-        AssertEqual(SuperMetroidGameState.Pausing, pausing.GameState,
+        AssertTrue(pausing.IsAt(PauseStep.PreparingPauseScreen),
             "darkening from a black screen ends on its first frame");
         Console.WriteLine("  Unpause reserve blackout: the refill starts in state $12 and the next pause darkens from black.");
     }

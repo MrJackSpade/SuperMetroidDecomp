@@ -58,7 +58,7 @@ internal static class DoorWaitsForMessageBoxVerification
             if (++frames > 200)
                 throw new InvalidOperationException("The station notice did not close.");
         }
-        AssertEqual(SuperMetroidGameState.HitDoorBlock, game.GameState, "the box's final frame publishes the door");
+        AssertTrue(game.IsAt(DoorTransitionStep.EnteringDoor), "the box's final frame publishes the door");
         Console.WriteLine("  Door waits for message box: state $09 follows the station notice.");
     }
 

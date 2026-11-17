@@ -310,7 +310,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).BaseY = top.Position.Y.Whole;
         State(top).BobTimer = 1;
         State(top).BobPhase = 0;
-        samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
+        samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + GunshipMotionDefinitions.LandedSamusRightOfShip);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;
@@ -499,9 +499,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         int rumbleFrame = State(top).RumbleFrame;
         bool strong = rumbleFrame >= GunshipTakeoffDefinitions.RumbleStrengthensFrame;
-        int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame)
-            ? (strong ? 2 : 1)
-            : (strong ? -2 : -1);
+        // The rumble shakes down and up by turns, one shake each update (#2339).
+        int shakeSize = strong ? GunshipTakeoffDefinitions.StrongRumbleShake : GunshipTakeoffDefinitions.RumbleShake;
+        int shake = GunshipTakeoffDefinitions.RumbleShakesDown.IsSetIn(rumbleFrame) ? shakeSize : -shakeSize;
         samus.Position += new Offset16<RoomPixels>(0, shake);
         PlaceGunshipAroundSamus(top, samus.Position.Y.Whole);
 

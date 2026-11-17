@@ -39,6 +39,9 @@ internal static class GunshipMotionDefinitions
     /// <summary>The landed ship's X, where Samus stands to board.</summary>
     internal const int LandedX = 1152;
 
+    /// <summary>How far right of the landed ship's centre Samus stands as its entrance pad opens, in pixels (#2339).</summary>
+    internal const int LandedSamusRightOfShip = 1;
+
     /// <summary>How far above its placement the landed top hull rests, in pixels.</summary>
     internal const int LandedTopHullRaise = 25;
 

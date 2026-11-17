@@ -54,11 +54,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Global RNG seed written when a Hopper initializes.</summary>
-    private const int HopperRandomSeed = 37;
-    /// <summary>Terminal place along the quadratic speed curve, mark 64, that caps the falling half of a hop.</summary>
-    private static readonly QuadraticSpeedCurvePlace MaximumHopperYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
-
     /// <summary>Initializes the Hopper.</summary>
     internal void InitializeHopper(RoomEnemyPlace place)
     {
@@ -66,7 +61,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer overwrites the global RNG seed and consumes one generated value
         // even though it never reads that value. This changes later enemy randomness and is
         // therefore observable whenever a hopper appears earlier in population order.
-        _room.Random.Seed(HopperRandomSeed);
+        _room.Random.Seed(HopperDecisions.SpawnRandomSeed);
         _room.Random.Generate();
 
         var state = new HopperEnemyState(HopperAction.ChooseHopSize)
@@ -231,7 +226,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // far inside the signed range, so that is the ordinary minimum.
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
             state.YSpeedCurvePlace + state.YSpeedCurvePlaceStep,
-            MaximumHopperYSpeedCurvePlace);
+            HopperHopDefinitions.FastestReturnPlace);
     }
 
     /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>

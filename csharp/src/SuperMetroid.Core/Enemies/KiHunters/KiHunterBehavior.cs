@@ -88,19 +88,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Grounded decision delay between jumps or spits.</summary>
-    private const int KiHunterGroundWaitFrames = 12;
-    /// <summary>Cooldown after an acid-spit cue.</summary>
-    private const int KiHunterSpitWaitFrames = 24;
-    /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
-    private const int KiHunterGroundAttackDistance = 96;
-
-
-    /// <summary>The detached wing's step along the speed curve while it slows: a mark and a half per update.</summary>
-    private static readonly QuadraticSpeedCurvePlace DetachedSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
-    /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
-    private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
-
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyPlace body)
     {
@@ -126,7 +113,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.HasLostWings = true;
             state.Action = KiHunterAction.FallingAfterWingLoss;
-            state.VerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
+            state.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
         }
     }
 
@@ -220,11 +207,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else if (CoordinateAxis.Precedes(body.Position.Y.Whole, state.UpperPatrolY))
         {
-            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(1);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
         }
         else if (!CoordinateAxis.Precedes(body.Position.Y.Whole, state.LowerPatrolY))
         {
-            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-1);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-KiHunterMotionDefinitions.PatrolSpeed);
         }
 
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -335,7 +322,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartKiHunterSwoopRecovery(KiHunterBodyState state)
     {
         state.Action = KiHunterAction.RecoveringFromSwoop;
-        state.VerticalVelocity = SignedSixteenSixteen.FromParts(-1, 0);
+        state.VerticalVelocity = KiHunterMotionDefinitions.SwoopRecoveryVerticalVelocity;
     }
 
     /// <summary>Runs the collision escape leg.</summary>
@@ -379,7 +366,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.VerticalVelocity += KiHunterGravity;
+        state.VerticalVelocity += KiHunterMotionDefinitions.Gravity;
     }
 
     /// <summary>Sets up a grounded jump.</summary>
@@ -416,13 +403,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (state.VerticalVelocity.WholePixels < 0)
             {
-                state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(1);
+                state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.HopReboundSpeed);
             }
             else
             {
                 state.VerticalVelocity = KiHunterMotionDefinitions.LandedVerticalVelocity;
                 state.Action = KiHunterAction.AnimatingOnGround;
-                state.WaitTimer = KiHunterGroundWaitFrames;
+                state.WaitTimer = KiHunterMotionDefinitions.LandingWait;
                 StartKiHunterAnimation(
                     body,
                     body.RequireSpeciesState<KiHunterBodyState>(),
@@ -443,7 +430,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
-        state.VerticalVelocity += KiHunterGravity;
+        state.VerticalVelocity += KiHunterMotionDefinitions.Gravity;
     }
 
     /// <summary>Waits after landing and decides what to do next.</summary>
@@ -456,7 +443,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         int distance = CoordinateAxis.Distance(body.Position.X.Whole, samus.Position.X.Whole);
-        state.Action = distance < KiHunterGroundAttackDistance
+        state.Action = distance < KiHunterMotionDefinitions.SpitRange
             ? KiHunterAction.SelectAcidSpit
             : KiHunterAction.StartGroundJump;
     }
@@ -588,7 +575,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 KiHunterWingState wingState = wings.RequireSpeciesState<KiHunterWingState>();
                 bodyState.HasLostWings = true;
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
-                bodyState.VerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
+                bodyState.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
                 if (wingState.Action != KiHunterWingAction.Detached)
                     DetachKiHunterWings(wings, wingState);
             }
@@ -662,8 +649,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
     private static void SlowDetachedKiHunterWing(KiHunterWingState state)
     {
-        QuadraticSpeedCurvePlace next = state.DetachedSpeedCurvePlace - DetachedSpeedStep;
-        state.DetachedSpeedCurvePlace = next.IsNegative ? SlowestDetachedCurvePlace : next;
+        QuadraticSpeedCurvePlace next = state.DetachedSpeedCurvePlace - KiHunterMotionDefinitions.DetachedWingClimb.StepPerPass;
+        state.DetachedSpeedCurvePlace = next.IsNegative ? KiHunterMotionDefinitions.SlowestDetachedWingPlace : next;
     }
 
     /// <summary>
@@ -702,7 +689,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction);
-        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterSpitWaitFrames;
+        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterMotionDefinitions.SpitWait;
     }
 
     /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>
@@ -751,9 +738,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restarts a wing animation from its first step.</summary>
     private static void StartKiHunterAnimation(RoomEnemyPlace wings, KiHunterWingState state, KiHunterSegment segment) =>
         state.Playback = EnemyAnimationPlayback.Start(wings, KiHunterAnimations.StartingWith(segment));
-
-    /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
-    internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal EnemyBombReaction KiHunterBombReaction => field ??= new()
@@ -838,12 +822,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
     };
-    /// <summary>Horizontal acid speed, three pixels per update, applied toward the way the acid is spat.</summary>
-    private static readonly SignedEightEight KiHunterAcidHorizontalSpeed = SignedEightEight.FromParts(3, 0);
-    /// <summary>Downward speed added to each active acid frame, a sixteenth of a pixel per update.</summary>
-    private static readonly SignedEightEight KiHunterAcidGravity = SignedEightEight.FromParts(0, 16);
-    /// <summary>Maximum downward speed for a falling acid projectile, two pixels per update.</summary>
-    private static readonly SignedEightEight KiHunterAcidTerminalYSpeed = SignedEightEight.FromParts(2, 0);
 
     /// <summary>
     /// Spawns an acid spit from its definition and initializer.
@@ -866,8 +844,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.State = new KiHunterAcidState(direction);
 
         projectile.Velocity = projectile.Velocity.WithX(direction == HorizontalDirection.Right
-            ? KiHunterAcidHorizontalSpeed
-            : -KiHunterAcidHorizontalSpeed);
+            ? KiHunterMotionDefinitions.AcidHorizontalSpeed
+            : -KiHunterMotionDefinitions.AcidHorizontalSpeed);
         projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole +
             (direction == HorizontalDirection.Right ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
@@ -908,9 +886,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SignedEightEight accelerated = projectile.Velocity.Y + KiHunterAcidGravity;
-        projectile.Velocity = projectile.Velocity.WithY(accelerated >= KiHunterAcidTerminalYSpeed
-            ? KiHunterAcidTerminalYSpeed
+        SignedEightEight accelerated = projectile.Velocity.Y + KiHunterMotionDefinitions.AcidGravity;
+        projectile.Velocity = projectile.Velocity.WithY(accelerated >= KiHunterMotionDefinitions.AcidFastestFall
+            ? KiHunterMotionDefinitions.AcidFastestFall
             : accelerated);
     }
 }

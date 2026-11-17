@@ -47,6 +47,41 @@ public static class KiHunterMotionDefinitions
     /// <summary>How far ahead the acid spit jumps as its launch starts, in pixels.</summary>
     public const int AcidLaunchShift = 19;
 
+    /// <summary>The downward velocity a Ki-Hunter that has lost its wings starts falling at: a pixel an update (#2339).</summary>
+    public static SignedSixteenSixteen WinglessFallStartVelocity { get; } = SignedSixteenSixteen.FromWholePixels(1);
+
+    /// <summary>The vertical velocity a Ki-Hunter recovering from a swoop climbs at: a pixel an update upward (#2339).</summary>
+    public static SignedSixteenSixteen SwoopRecoveryVerticalVelocity { get; } = SignedSixteenSixteen.FromWholePixels(-1);
+
+    /// <summary>
+    /// The whole downward speed a hopping Ki-Hunter turns to when it strikes the room above, in pixels an update; its
+    /// fraction is kept (#2339).
+    /// </summary>
+    public const int HopReboundSpeed = 1;
+
+    /// <summary>How long a landed Ki-Hunter waits before it decides whether to spit or hop again, in updates (#2339).</summary>
+    public const int LandingWait = 12;
+
+    /// <summary>How long a Ki-Hunter waits after spitting before it decides again, in updates (#2339).</summary>
+    public const int SpitWait = 24;
+
+    /// <summary>How near Samus must be sideways, in pixels, for a landed Ki-Hunter to spit at her rather than hop (#2339).</summary>
+    public const int SpitRange = 96;
+
+    /// <summary>How fast spat acid flies sideways, three pixels an update, toward the way it was spat (#2339).</summary>
+    public static SignedEightEight AcidHorizontalSpeed { get; } = SignedEightEight.FromParts(3, 0);
+
+    /// <summary>How much faster falling acid falls each update: a sixteenth of a pixel (#2339).</summary>
+    public static SignedEightEight AcidGravity { get; } = SignedEightEight.FromParts(0, 16);
+
+    /// <summary>The fastest acid falls: two pixels an update (#2339).</summary>
+    public static SignedEightEight AcidFastestFall { get; } = SignedEightEight.FromParts(2, 0);
+
+    /// <summary>
+    /// The place along the speed curve, mark one, a slowing detached wing lands on when its next step would take it before
+    /// the curve's start (#2339).
+    /// </summary>
+    internal static QuadraticSpeedCurvePlace SlowestDetachedWingPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(1);
     /// <summary>The falling wings' arc radius, used by detached-wing setup and both arcs.</summary>
     public const int DetachedWingRadius = 48;
 

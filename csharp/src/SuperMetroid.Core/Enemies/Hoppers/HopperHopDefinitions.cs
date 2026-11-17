@@ -14,4 +14,7 @@ internal static class HopperHopDefinitions
 
     /// <summary>How fast either hop carries a hopper sideways, in whole pixels an update.</summary>
     internal const int HorizontalSpeed = 3;
+
+    /// <summary>The place along the quadratic speed curve, mark 64, that caps a hop's return to its surface (#2339).</summary>
+    internal static QuadraticSpeedCurvePlace FastestReturnPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);
 }

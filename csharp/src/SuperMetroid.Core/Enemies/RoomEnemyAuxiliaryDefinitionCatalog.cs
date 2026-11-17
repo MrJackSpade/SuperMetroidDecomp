@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;

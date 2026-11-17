@@ -706,28 +706,4 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal bool TakeOneInFourBranch() =>
         _room.Random.Next(EnemyProjectileRandomBranchDefinitions.OneInFourBranch) == EnemyProjectileRandomBranchDefinitions.OneInFourBranchTaken;
-
-    /// <summary>Turns on every property <paramref name="flags"/> names, as an animation's property-setting cue does.</summary>
-    internal static void SetPropertyFlags(EnemyProjectile projectile, EnemyProjectilePropertyFlags flags)
-    {
-        Ensure.NotNull(projectile);
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
-            projectile.CanDamageSamus = false;
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))
-            projectile.PersistsOnSamusContact = true;
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.BlocksShots))
-            projectile.BlocksSamusProjectiles = true;
-    }
-
-    /// <summary>Turns off every property <paramref name="flags"/> names, as an animation's property-clearing cue does.</summary>
-    internal static void ClearPropertyFlags(EnemyProjectile projectile, EnemyProjectilePropertyFlags flags)
-    {
-        Ensure.NotNull(projectile);
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus))
-            projectile.CanDamageSamus = true;
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.PersistsOnContact))
-            projectile.PersistsOnSamusContact = false;
-        if (flags.HasFlag(EnemyProjectilePropertyFlags.BlocksShots))
-            projectile.BlocksSamusProjectiles = false;
-    }
 }

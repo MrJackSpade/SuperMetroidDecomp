@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 public static class SamusPoseInputTransitions
 {
-    /// <summary>Held Start and item selection, excluded from the pose-table input match.</summary>
+    /// <summary>Held Start and item selection, which the pose's input transitions do not read.</summary>
     private const GameplayAction StartAndItemSelect = GameplayAction.Start | GameplayAction.ItemSelect;
 
     /// <summary>
@@ -34,7 +34,7 @@ public static class SamusPoseInputTransitions
         GameplayAction newlyPressedActions)
     {
         // Branches directly to lookup-failure handling when no action is held,
-        // before it reads this table at all.
+        // before it reads the pose's input transitions at all.
         if (heldActions == GameplayAction.None)
             return new SamusPoseTransitionLookup(null, UsesPoseDefinitionFallback: true);
 

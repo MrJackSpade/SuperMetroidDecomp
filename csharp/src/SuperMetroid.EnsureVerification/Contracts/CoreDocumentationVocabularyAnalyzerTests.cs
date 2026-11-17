@@ -1281,5 +1281,26 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A menu's cursor, the step a cursor names and a hardware owner are English.
         Expect("class P { /// <summary>The cursor stays on the transfer; the options page's cursor; the step the cursor names.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: retail Evirs bob; the movement cursor crosses rows.</summary>\n[CompatibilityService(\"retail\")] class Retail { }");
+        // Samus's pose data narrated as the original's numbers and tables, outside hardware owners and markup (#2322): a
+        // direction read by number, on one line or across a documentation comment's lines, a table's entry or route, and
+        // a transition, input or distance table.
+        Expect("class P { /// <summary>Its pose X direction is deliberately eight.</summary>\nint F => 0; }", "('direction is deliberately eight')");
+        Expect("class P { /// <summary>Its pose X direction is deliberately\n/// eight: movement follows travel.</summary>\nint F => 0; }",
+            "('direction is deliberately\n/// eight')");
+        Expect("class P { /// <summary>Their pose-X direction is zero.</summary>\nint F => 0; }", "('direction is zero')");
+        Expect("class P { void Run() { // the current shot direction is two\n } }", "('direction is two')");
+        Expect("class P { /// <summary>Its stored direction stores 6 when it turns.</summary>\nint F => 0; }", "('direction stores 6')");
+        Expect("class P { /// <summary>Executes the bomb-jump movement table's entry for her movement.</summary>\nint F => 0; }",
+            "('table's entry')");
+        Expect("class P { /// <summary>Follows the landing table\u2019s routes.</summary>\nint F => 0; }", "('table\u2019s routes')");
+        Expect("class P { string S = \"Crouch jump is not a transition-table route.\"; }", "('transition-table')");
+        Expect("class P { void Run() { // An input-table transition out of the turn starts the jump.\n } }", "('input-table')");
+        Expect("class P { void Run() { // The posture change reads five from its distance table.\n } }", "('distance table')");
+        Expect("class P { /// <summary>The transition tables of the spin.</summary>\nint F => 0; }", "('transition tables')");
+        // A number that counts the noun after it, a direction alone, a table alone, a table of something, the input
+        // transitions and a hardware owner are English.
+        Expect("class P { /// <summary>Moves two pixels in her direction; the direction is two pixels away; a speed table; a table of distances; the input transitions.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The direction one turn on; the direction of one link; directions one full turn holds; direction zero of the rope's turn.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the shot direction is two in the transition table.</summary>\n[CompatibilityService(\"direction\")] class Direction { }");
     }
 }

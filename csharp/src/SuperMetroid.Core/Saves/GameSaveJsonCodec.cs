@@ -147,12 +147,12 @@ public static class GameSaveJsonCodec
     {
         Events = [.. progress.Events.Members.Select(storyEvent => storyEvent.ToString())],
         ZebetitesDestroyed = progress.ZebetitesDestroyed,
-        DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.BossesDefeatedIn(area)))],
+        DefeatedBosses = [.. SavedAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.BossesDefeatedIn(area)))],
         CollectedItems = [.. progress.CollectedItems.Members.Select(location => location.Name)],
         OpenedDoors = [.. progress.OpenedDoors.Members.Select(door => door.Name)],
         UsedStations = [.. progress.UsedStations.Members.Select(station => station.Name)],
-        AcquiredMaps = [.. RetailAreas.Where(progress.HasAreaMap)],
-        ExploredAreas = [.. RetailAreas.Select(area => new ExploredAreaJsonDocument(area,
+        AcquiredMaps = [.. SavedAreas.Where(progress.HasAreaMap)],
+        ExploredAreas = [.. SavedAreas.Select(area => new ExploredAreaJsonDocument(area,
             [.. progress.ExploredCells(area).Select(MapCoordinateJsonDocument.FromCell)]))],
     };
 
@@ -168,7 +168,7 @@ public static class GameSaveJsonCodec
             slot.Controller.ItemCancel,
             slot.Controller.AimUp,
             slot.Controller.AimDown);
-        bindings.RequireRetailPermutation();
+        bindings.RequireUniquePermutation();
         return new SuperMetroidSaveSnapshot
         {
             ControllerBindings = bindings,
@@ -296,7 +296,7 @@ public static class GameSaveJsonCodec
             slot.Controller.ItemSelect,
             slot.Controller.ItemCancel,
             slot.Controller.AimUp,
-            slot.Controller.AimDown).RequireRetailPermutation();
+            slot.Controller.AimDown).RequireUniquePermutation();
 
         _ = DecodeProgression(slot.Progression, $"slots[{expectedSlot}].progression");
     }
@@ -322,7 +322,7 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>Every area, in area order.</summary>
-    private static IReadOnlyList<AreaId> RetailAreas => AreaIds.All;
+    private static IReadOnlyList<AreaId> SavedAreas => AreaIds.All;
 
     /// <summary>Rebuilds the persistent progress a validated document lists, rejecting anything out of place.</summary>
     /// <param name="progression">The listed progress.</param>
@@ -380,8 +380,8 @@ public static class GameSaveJsonCodec
     /// <exception cref="InvalidDataException"><paramref name="area"/> names no area.</exception>
     private static int ListPosition(AreaId area)
     {
-        for (int position = 0; position < RetailAreas.Count; position++)
-            if (RetailAreas[position] == area)
+        for (int position = 0; position < SavedAreas.Count; position++)
+            if (SavedAreas[position] == area)
                 return position;
         throw new InvalidDataException($"The save names {area}, which is no area.");
     }
@@ -396,8 +396,8 @@ public static class GameSaveJsonCodec
                 throw new InvalidDataException($"{property}[{listed.Count}] is missing or out of area order");
             listed.Add(area);
         }
-        if (listed.Count != RetailAreas.Count)
-            throw new InvalidDataException($"{property} must contain {RetailAreas.Count} areas");
+        if (listed.Count != SavedAreas.Count)
+            throw new InvalidDataException($"{property} must contain {SavedAreas.Count} areas");
         return listed;
     }
 

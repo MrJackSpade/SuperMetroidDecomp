@@ -213,7 +213,7 @@ internal static void VerifySamusHorizontalSpeed()
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             movementType: SamusMovementType.Running,
             controllerInput: GameplayAction.Dash,
-            animationFrameBuffer: 0,
+            extraAnimationDelay: 0,
             out int boostTimer,
             requestEchoSound: () =>
             {

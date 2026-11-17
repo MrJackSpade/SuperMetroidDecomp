@@ -56,7 +56,7 @@ internal static class BeamSpeedRowsVerification
         foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
         {
             int row = 0x90c2d1 + beams.TableIndex * 4;
-            if (beams.IsRetail)
+            if (beams.CanBeEquipped)
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => unauthored.Speed(beams, diagonal: false), $"{beams}'s authored speeds are not read past the table");
                 continue;

@@ -291,7 +291,7 @@ internal static class SamusOverreadServicesReader
         var cardinal = new Dictionary<SamusBeamCombination, int>();
         var diagonal = new Dictionary<SamusBeamCombination, int>();
         var waits = new Dictionary<SamusBeamCombination, BeamShotCooldowns>();
-        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>().Where(beams => !beams.IsRetail))
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>().Where(beams => !beams.CanBeEquipped))
         {
             if (!speeds.TryGetValue(beams.ToString(), out SamusOverreadDocument.LaunchSpeeds? pair) || pair is null ||
                 pair.Cardinal is < short.MinValue or > short.MaxValue || pair.Diagonal is < short.MinValue or > short.MaxValue)

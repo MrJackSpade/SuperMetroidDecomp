@@ -18,7 +18,7 @@ internal static class SamusPosturePoseTransitions
     /// <returns>True when the final standing pose and animation are installed; false when collision retains the source or substitutes stable crouch, which may change an aimed crouch even on failure.</returns>
     /// <remarks>These input transitions bypass the animated aimed stand-up poses. Accepted expansion applies the whole-pixel Y adjustment but retains the crouching radius until Samus's next input phase, matching the larger-radius check's previous-pose radius publication.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="level"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
+    /// <exception cref="InvalidOperationException">The source and target are not a same-facing route from a crouch to a final standing pose.</exception>
     public static bool TryApplyDirectCrouchToStandingTransition(
         SamusState samus,
         RoomLevelData level,
@@ -37,7 +37,7 @@ internal static class SamusPosturePoseTransitions
             // This entry point is the exact crouching-to-normal-standing direct-exit route.
             // Animated stand-ups and cross-facing changes have separate initializers.
             throw new InvalidOperationException(
-                $"Direct crouch exit {samus.Pose} -> {targetPose} is not a transition-table route.");
+                $"Direct crouch exit {samus.Pose} -> {targetPose} is not one of its input transitions.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -66,7 +66,7 @@ internal static class SamusPosturePoseTransitions
     }
 
     /// <summary>
-    /// Applies the crouching table's neutral jump-transition entry through the ordering:
+    /// Applies the crouch's neutral jump transition in this order:
     /// enlarge radius 16 -> 19 with the larger-radius check, initialise normal-jumping movement, run the
     /// crouch-only Y adjustment, then start the jump.
     /// </summary>
@@ -97,7 +97,7 @@ internal static class SamusPosturePoseTransitions
             // Only the two neutral jump-transition poses enter this transition; aimed
             // crouches deliberately reuse the same facing-selected target.
             throw new InvalidOperationException(
-                $"Crouch jump {samus.Pose} -> {targetPose} is not a transition-table route.");
+                $"Crouch jump {samus.Pose} -> {targetPose} is not one of its input transitions.");
         }
 
         SamusPoseId sourcePose = samus.Pose;
@@ -182,7 +182,7 @@ internal static class SamusPosturePoseTransitions
         {
             // Admit exactly the crouch/stand poses enumerated above.
             throw new InvalidOperationException(
-                $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch/stand transition-table family.");
+                $"Posture transition {samus.Pose} -> {targetPose} is outside the crouch and stand transitions.");
         }
 
         if (startsCrouching)
@@ -204,8 +204,8 @@ internal static class SamusPosturePoseTransitions
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-            // The posture change reads five from its distance table, installs the target's
-            // radius 16, then probes those five pixels down through the downward block collision. On level
+            // The posture change installs the target's radius 16, then probes the crouch's downward entry
+            // distance down through the downward block collision. On level
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
@@ -255,7 +255,7 @@ internal static class SamusPosturePoseTransitions
     /// </summary>
     /// <remarks>
     /// The morphing transitions shrink the current humanoid radius to seven and the posture change moves center
-    /// Y down by the table's nine-pixel request, clipped against room blocks using the
+    /// Y down by the morph's downward entry distance (<see cref="SamusPostureDefinitions.MorphEntryDownwardPixels"/>), clipped against room blocks using the
     /// new radius. This is not the source/target radius difference. The unmorphing transitions expand 7 to 16 through
     /// the larger-radius check; floor collision normally moves center up nine. If both sides constrain a
     /// radius-seven body, the crouch selector rejects the target and keeps Samus morphed.
@@ -294,10 +294,10 @@ internal static class SamusPosturePoseTransitions
         bool startsUnmorphing = startsUnmorphingRight || startsUnmorphingLeft;
         if (!startsMorphing && !startsUnmorphing)
         {
-            // Morph and unmorph use a closed, facing-preserving table. Other ball pose
+            // Morph and unmorph keep their facing and take only these routes. Other ball pose
             // changes are handled by ApplyMorphBallPoseChange and must not enter here.
             throw new InvalidOperationException(
-                $"Morph transition {samus.Pose} -> {targetPose} is not a transition-table route.");
+                $"Morph transition {samus.Pose} -> {targetPose} is not one of its input transitions.");
         }
 
         if (startsMorphing)
@@ -596,7 +596,7 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Applies the Spring Ball jump when grounded Spring Ball changes to the Spring Ball jump.
-    /// Moving-ground poses first pass through the same table-selected target, but the
+    /// Moving-ground poses first pass through the same input-selected target, but the
     /// initializer only launches when the previous movement type was exactly grounded Spring Ball.
     /// </summary>
     public static void ApplySpringBallJump(SamusState samus, SamusPoseId targetPose)
@@ -627,7 +627,7 @@ internal static class SamusPosturePoseTransitions
         else if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.Standing or SamusMovementType.Running or
                  SamusMovementType.Crouching or SamusMovementType.Moonwalking or SamusMovementType.RanIntoWall)
             throw new InvalidOperationException(
-                $"Bomb-jump falling result for humanoid pose {samus.Pose} (airborne walk-off) is not translated.");
+                $"Bomb-jump falling result for humanoid pose {samus.Pose} (airborne walk-off) has no walk-off falling result.");
     }
 
     /// <summary>

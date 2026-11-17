@@ -328,7 +328,7 @@ public sealed class SamusLiquidPhysicsState
                 random);
 
             // Both forward-facing poses and every Gravity-Suit pose clear the
-            // buffer while spawning air bubbles, after all particle/audio side effects have run.
+            // extra animation delay while spawning air bubbles, after all particle/audio side effects have run.
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
                 samus.ExtraAnimationDelay = 0;
@@ -376,7 +376,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        // Publishes the X-speed divisor and clears the remembered medium. Only
+        // Takes the slowdown level as the extra animation delay and clears the remembered medium. Only
         // water owns an exit splash; lava/acid simply clears the remembered medium.
         samus.ExtraAnimationDelay = samus.SlowdownLevel;
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
@@ -683,9 +683,8 @@ public sealed class SamusLiquidPhysicsState
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
             SpawnFootstepPair(samus, SamusParticleKind.Dust);
 
-        // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
-        // a stored shinespark, and boost stage four each suppress the footstep sound.
-        // A held shine suppresses it; the boost's cycle shade timer, already nonzero during boost buildup, does not.
+        // The footstep particles show whatever the sound does. A cinematic, a boss, a held shine and the boost's full
+        // stage each silence the footsteps; the boost's cycle shade timer, already nonzero while the boost builds, does not.
         if (!cinematic &&
             !bossPresent &&
             !SamusInputSnapshot.HoldsShine(samus) &&

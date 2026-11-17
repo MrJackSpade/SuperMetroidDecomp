@@ -51,7 +51,7 @@ internal sealed class BeamCombos
         // the Ice and Plasma attacks start their particles at. Read as places to continue the attack, those angles lead into the game's live state, so the
         // game executes that state as code, which only full memory and processor emulation could reproduce: the
         // attack is rejected under the emulation scope limit (#1500).
-        if (!beam.IsRetail)
+        if (!beam.CanBeEquipped)
             throw new NotSupportedException(
                 "A Spazer and Plasma special attack runs the game's live state as code; reproducing it needs full memory " +
                 "and processor emulation, which is outside the port's scope.");

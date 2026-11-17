@@ -224,7 +224,7 @@ internal static class SamusGroundedPoseTransitions
             SamusPoseMetadata.IsLeftFacingRunningPose(targetPose);
         if (!rightRoute && !leftRoute)
         {
-            // Running exits are a strict same-facing subset of the ran-into-wall table.
+            // Running exits are a strict same-facing subset of the wall stop's input transitions.
             throw new InvalidOperationException(
                 $"Ran-into-wall running exit {samus.Pose} -> {targetPose} is not one of the game's routes.");
         }
@@ -267,8 +267,8 @@ internal static class SamusGroundedPoseTransitions
             // corresponding Moonwalk pose before the option gate runs. The initializer
             // does not special-case the old landing movement type: with Moonwalk off it
             // substitutes the same ordinary standing turn used from normal standing.
-            // Tests the candidate pose's X direction. The right-facing moonwalk poses store leftward travel
-            // and become the right-to-left turn; the left-facing ones store rightward travel and become left-to-right.
+            // Tests the way the candidate pose faces: the right-facing moonwalk poses travel left and become the
+            // right-to-left turn; the left-facing ones travel right and become left-to-right.
             ApplyGroundedTurn(samus,
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
@@ -286,7 +286,7 @@ internal static class SamusGroundedPoseTransitions
         if ((!entering || !moonwalkEnabled) && !sameVisualFamily &&
             !exitsToForwardRun && !exitsToStandingFallback)
         {
-            // The complete stable moonwalk table is represented by the predicates above;
+            // The predicates above cover every stable moonwalk route;
             // reaching this branch means the request chose the wrong pose change.
             throw new InvalidOperationException(
                 $"Moonwalk pose change {samus.Pose} -> {targetPose} is not a stable route.");
@@ -308,9 +308,9 @@ internal static class SamusGroundedPoseTransitions
             ? turnJump
             : throw new InvalidDataException(
                 $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose.");
-        SamusPoseId inputTableTarget = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
+        SamusPoseId inputTransitionTarget = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose;
-        if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTableTarget)
+        if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTransitionTarget)
         {
             // Input requests the un-aimed turn; the pose initializer then substitutes
             // the old muzzle's aimed turn, which is as valid a request.
@@ -419,21 +419,21 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the grounded turn initialization. Input transitions
-    /// first publish the generic standing turn; the initializer indexes the previous pose's shot
-    /// direction through the grounded turn table and may replace it with an aimed standing turn.
+    /// first publish the generic standing turn; the initializer reads the previous pose's aim
+    /// (<see cref="SamusAimedPoseChoiceDefinitions.StandingTurns"/>) and may replace it with an aimed standing turn.
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, GameplayAction controllerInput = GameplayAction.None)
     {
         // Gives the two front-view poses a deliberately unusual route.
-        // Their pose-X direction is zero, so they cannot honestly be classified as either
+        // They face neither way, so they cannot honestly be classified as either
         // a right-facing or left-facing source. The game instead skips the shot-direction
         // lookup entirely when the previous pose is forward-facing, retaining the generic
         // standing turn selected by that front-view pose's input transitions.
         bool wasForwardFacing = SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
 
         // Crouching input transitions publish the crouching turn directly, whereas every admitted
-        // standing/running/landing table publishes the standing turn. The initializer still uses
-        // previous SamusMovementType.Crouching to choose the full crouched aim-preserving table.
+        // standing, running and landing pose's transitions publish the standing turn. The initializer still uses
+        // the previous SamusMovementType.Crouching to choose the crouched turn that keeps her aim.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
         bool wasMoonwalking = sourceMovementType == SamusMovementType.Moonwalking;

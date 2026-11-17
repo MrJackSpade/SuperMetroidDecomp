@@ -198,8 +198,8 @@ internal static class SamusPoseTransitions
                 : SamusPoseId.SpinLandingRightPose;
         }
 
-        // A pose that disables shooting lands through the ordinary facing pair before the
-        // landing table is consulted; hurt and damage-boost art disable shooting.
+        // A pose that disables shooting lands through the ordinary facing pair before her
+        // aim chooses a landing; hurt and damage-boost art disable shooting.
         // Horizontal aims take the landing's extra Shot-binding test. Held Shot selects the
         // firing landing; released Shot selects the ordinary normal landing pair. The six
         // admitted aimed directions select the aimed landings.
@@ -302,9 +302,9 @@ internal static class SamusPoseTransitions
             return false;
 
         // The game's pose initialization computes its own local delay without replacing
-        // the buffer published by this frame's FX pass. The pose-transition cue adds that live
-        // buffer once more after installing the new animation.
-        int cueAnimationBuffer = samus.ExtraAnimationDelay;
+        // the extra animation delay this frame's liquid step published. The pose-transition cue adds that
+        // delay once more after installing the new animation.
+        int cueExtraAnimationDelay = samus.ExtraAnimationDelay;
 
         bool verified = new SamusPoseChange(samus.Pose, targetPose) is
             (SamusPoseId.TurningRightToLeftPose, SamusPoseId.FacingLeftNormalPose) or
@@ -450,11 +450,11 @@ internal static class SamusPoseTransitions
             // same radius and animation writes as the game's pose initializer.
             samus.Drained.CompleteRelease();
         }
-        // The pose-transition cue does not run the jump initializers. An input-table
+        // The pose-transition cue does not run the jump initializers. An input
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
         samus.MorphBallBounceState = SamusBallBounceState.None;
-        samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(cueAnimationBuffer);
+        samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(cueExtraAnimationDelay);
         return true;
     }
 }

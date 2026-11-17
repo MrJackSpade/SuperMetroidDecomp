@@ -1370,6 +1370,25 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// <c>ImpactSoundCall</c>, <c>DelayCallsPerRow</c>, <c>_holdCalls</c>; not <c>Callback</c>, <c>Called</c> or
     /// <c>Caller</c>). Core counts updates, frames or steps and names them so.
     /// </summary>
+    /// <summary>
+    /// Samus's pose data narrated as the original's stored numbers and tables in prose (#2322), outside hardware owners
+    /// and outside markup: a direction stated as a number (the pose X direction is deliberately eight, the pose-X
+    /// direction is zero, the shot direction is two, a direction that stores six), a table's entry or route (the bomb-jump movement table's entry, the landing
+    /// table's route), and a transition, input or distance table (a transition-table route, an input-table transition, the
+    /// posture change's distance table). The original stored a pose's facing and aim as numbers and chose her next pose,
+    /// her movement's response and her posture's distance by reading tables; Core names the facing and the aim and names
+    /// the input transitions, the movement's definition and the distances by their definitions. English stays legal: a
+    /// number that counts the noun after it (the direction is two pixels away), a direction a number measures from
+    /// (the direction one turn on, the direction of one link), a numbered direction of a type that numbers its own
+    /// (direction zero of the rope's turn), a direction alone, a table alone and a table's own words (a table of speeds).
+    /// </summary>
+    private static readonly Regex PoseDataNarrationProse = new(
+        @"\bdirections?(?:[-\s]|/{2,3})+(?:is|was|stores?|=)(?:[-\s]|/{2,3})+(?:deliberately(?:[-\s]|/{2,3})+)?" +
+        NumberWord + @"\b" + CountedNoun +
+        @"|\btable(?:'|\u2019)s(?:[-\s]|/{2,3})+(?:entr(?:y|ies)|routes?)\b" +
+        @"|\b(?:transition|input|distance)(?:[-\s]|/{2,3})+tables?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
     private static readonly Regex CallNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Cc]alls?(?![a-z])", RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -1843,6 +1862,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : UpdateCallProse.Match(Markup.Replace(text, " ")) is { Success: true } updateCall ? updateCall.Value
             : MachineReadingProse.Match(Markup.Replace(text, " ")) is { Success: true } machineReading ? machineReading.Value
             : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
+            : PoseDataNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } poseData ? poseData.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

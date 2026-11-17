@@ -34,7 +34,7 @@ internal static class ProjectileCooldownsVerification
                 BeamShotCooldowns.Shot.HeldFire => SamusSourceDefinitionsConstants.HeldFireCooldowns,
                 _ => throw new ArgumentOutOfRangeException(nameof(shot)),
             } + beams.TableIndex;
-            int actual = beams.IsRetail
+            int actual = beams.CanBeEquipped
                 ? SamusProjectileCooldowns.Read(beams, shot)
                 : InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring.Cooldown(beams, shot);
             AssertEqual(retail.ReadCartridgeByte(address), actual, $"{beams} {shot} cooldown matches the byte the fire routine reads");

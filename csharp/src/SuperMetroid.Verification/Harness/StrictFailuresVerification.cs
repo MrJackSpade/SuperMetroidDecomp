@@ -21,7 +21,7 @@ internal static void VerifyStrictFailureBoundaries()
         AimUp: ControllerButton.R,
         AimDown: ControllerButton.L);
     AssertThrows<InvalidDataException>(
-        () => duplicateBindings.RequireRetailPermutation(),
+        () => duplicateBindings.RequireUniquePermutation(),
         "duplicate persisted controller binding is rejected");
 
     AssertThrows<ArgumentOutOfRangeException>(

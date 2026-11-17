@@ -133,6 +133,16 @@ internal static class CoreVocabularyAnalyzerTests
         Expect("class P { void HandleUnderflow() { } }", $"'HandleUnderflow' {arithmetic} ('Underflow')");
         // Saying what the value did in the game, and words that only share its letters, are the game's own.
         Expect("class P { bool PassedZero; int Flow; int Under; int Underfloor; }");
+        // The released cartridge (#2322), in each kind of declaration a renamed identifier used it in: a property, a method,
+        // a field, a parameter and a local.
+        const string release = "names the released cartridge";
+        Expect("class P { bool IsRetail => true; }", $"'IsRetail' {release} ('Retail')");
+        Expect("class P { P RequireRetailPermutation() => this; }", $"'RequireRetailPermutation' {release} ('Retail')");
+        Expect("class P { static readonly int[] Retail = []; }", $"'Retail' {release} ('Retail')");
+        Expect("class P { void Run(bool retailRoom) { } }", $"'retailRoom' {release} ('Retail')");
+        Expect("class P { void Run() { int retail = 0; _ = retail; } }", $"'retail' {release} ('Retail')");
+        // Saying what the thing is, and words that only share its letters, are the game's own.
+        Expect("class P { bool CanBeEquipped; bool IsUniquePermutation; int Retailer; int Detail; }");
         // The video standard (#1848), in each casing the rule reads and each kind of declaration a renamed release value
         // could use it in: an enum and its member, a property, a method, a parameter, a local, an acronym and the file.
         const string standard = "names the video standard";

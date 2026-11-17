@@ -133,7 +133,7 @@ public readonly record struct ControllerBindings(
     }
 
     /// <summary>True when all seven bindings are single, distinct assignable buttons.</summary>
-    public bool IsRetailPermutation
+    public bool IsUniquePermutation
     {
         get
         {
@@ -157,9 +157,9 @@ public readonly record struct ControllerBindings(
     /// bindings safe. A malformed permutation is never replaced with the defaults: the save's loader gets the exact seven
     /// bindings in the exception and decides whether to delete or repair the save.
     /// </remarks>
-    public ControllerBindings RequireRetailPermutation()
+    public ControllerBindings RequireUniquePermutation()
     {
-        if (!IsRetailPermutation)
+        if (!IsUniquePermutation)
         {
             throw new InvalidDataException(
                 "Controller bindings are not a unique permutation of the seven assignable " +

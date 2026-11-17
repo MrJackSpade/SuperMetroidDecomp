@@ -104,7 +104,7 @@ public sealed record SuperMetroidSaveSnapshot
         return new SuperMetroidSaveSnapshot
         {
             ControllerBindings = (context.ControllerBindings ?? ControllerBindings.Default)
-                .RequireRetailPermutation(),
+                .RequireUniquePermutation(),
             MoonwalkEnabled = context.MoonwalkEnabled,
             IconCancelEnabled = context.IconCancelEnabled,
             EquippedItems = samus.EquippedItems,

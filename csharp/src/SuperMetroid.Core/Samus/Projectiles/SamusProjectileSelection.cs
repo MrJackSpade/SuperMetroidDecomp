@@ -10,7 +10,7 @@ internal static class SamusProjectileSelection
     /// The kind a shot of <paramref name="beams"/> is, charged when <paramref name="charged"/>. A Spazer and
     /// Plasma combination fires what the game selects past the beam selectors (<see cref="UnauthoredBeamShots{TBeams, TProjectile}"/>).
     /// </summary>
-    internal static SamusProjectileKind BeamShot(SamusBeamCombination beams, bool charged) => beams.IsRetail
+    internal static SamusProjectileKind BeamShot(SamusBeamCombination beams, bool charged) => beams.CanBeEquipped
         ? Lookup(charged ? ChargedBeamShots : UnchargedBeamShots, beams)
         : UnauthoredShots.Shot(beams, charged);
 
@@ -37,7 +37,7 @@ internal static class SamusProjectileSelection
     /// </summary>
     /// <exception cref="InvalidOperationException">The combination pairs Spazer with Plasma, which fires no special attack.</exception>
     internal static SamusProjectileKind? SpecialAttack(SamusBeamCombination beams) =>
-        !beams.IsRetail ? throw new InvalidOperationException($"{beams} fires no special attack.")
+        !beams.CanBeEquipped ? throw new InvalidOperationException($"{beams} fires no special attack.")
             : SpecialAttacks.TryGetValue(beams, out SamusProjectileKind kind) ? kind : null;
 
     /// <summary>The kind <paramref name="echo"/> is.</summary>

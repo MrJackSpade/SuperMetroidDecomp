@@ -62,7 +62,7 @@ public static class SamusKnockbackMovement
     /// the opening cinematic's flashback and a grapple-beam hurt.
     /// </param>
     /// <returns>
-    /// True when the movement-type table gives the knockback her movement. False for
+    /// True when her movement lets the knockback take it. False for
     /// interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
     internal static bool Start(SamusState samus, GameplayAction controllerInput, KnockbackLaunch launch, KnockbackPoseCollision? poseCollision)
@@ -171,10 +171,8 @@ public static class SamusKnockbackMovement
                 : forwardHeld ? SamusKnockbackDirection.DownRight : SamusKnockbackDirection.UpRight;
         }
 
-        // Enemy and enemy-projectile collision normally publish five, which is the default
-        // supplied above. The intro Rinka deliberately publishes eleven;
-        // accepting the producer-owned value here prevents this shared initializer from
-        // shortening that visibly longer scripted reaction to ordinary gameplay timing.
+        // The hit's producer owns its hurt countdown, taken above: an enemy's touch supplies the ordinary
+        // one and the intro Rinka's strike a longer one, which this shared start keeps.
         samus.KnockbackActive = true;
         // The knockback takes her movement, ending her flight after letting go of a
         // grapple swing if that was still running.
@@ -287,9 +285,9 @@ public static class SamusKnockbackMovement
         SamusPresentation.InitializeAnimation(samus);
     }
 
-    /// <summary>Installs a same-family target selected by the two damage-boost tables.</summary>
+    /// <summary>Installs the normal jump of the same facing that a damage boost's input selects.</summary>
     /// <param name="samus">The damage-boosting Samus.</param>
-    /// <param name="targetPose">The table's normal-jump exit.</param>
+    /// <param name="targetPose">The neutral or forward normal jump the damage boost leaves by.</param>
     /// <param name="controllerNewInput">This frame's newly pressed actions, which the normal-jump bookkeeping reads.</param>
     public static void ApplyDamageBoostPoseTransition(
         SamusState samus,
@@ -305,7 +303,7 @@ public static class SamusKnockbackMovement
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage-boost exit {samus.Pose} -> {targetPose} is not in the transition table.");
+                $"Damage-boost exit {samus.Pose} -> {targetPose} is not one of the damage boost's input transitions.");
         }
 
         // Both target families have the same radius. The pose change nevertheless runs
@@ -369,9 +367,8 @@ public static class SamusKnockbackMovement
     /// <summary>Finishes a Morph or Spring Ball hit while retaining its current pose, collision radii and rolling animation.</summary>
     private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
     {
-        // Republishes the current pose, so Samus's pose update neither reloads its
-        // radii nor resets its animation. This is the detail that keeps an interrupted
-        // rolling Morph/Spring Ball visually continuous across the five hurt frames.
+        // Keeps the current pose, so Samus's pose update neither reloads its radii nor
+        // resets its animation, and an interrupted roll stays continuous through the hurt.
         return FinishKnockback(samus);
     }
 

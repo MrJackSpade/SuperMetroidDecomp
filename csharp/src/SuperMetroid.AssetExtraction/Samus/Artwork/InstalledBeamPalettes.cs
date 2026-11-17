@@ -27,7 +27,7 @@ public sealed class InstalledBeamPalettes
     /// </summary>
     public RgbColor ColourOf(SamusBeamCombination selection, int color)
     {
-        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
+        if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         return palettes[selection.TableIndex][Ensure.BetweenInclusive(0, BeamPaletteDefinitions.ColorCount - 1, color)];
     }
 
@@ -36,7 +36,7 @@ public sealed class InstalledBeamPalettes
     /// <exception cref="ArgumentOutOfRangeException">The combination is not a retail one.</exception>
     public RgbColor[] Colours(SamusBeamCombination selection)
     {
-        if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
+        if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         return [.. palettes[selection.TableIndex]];
     }
 }

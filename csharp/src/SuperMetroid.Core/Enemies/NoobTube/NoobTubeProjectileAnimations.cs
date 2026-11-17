@@ -62,7 +62,7 @@ internal static class NoobTubeProjectileAnimations
         [P.CrackFallen] =
         [
             Show(F.NoobTubeShardsLanded, 16),
-            Show(F.NoobTubeShardsDropped19Twin, 16),
+            Show(F.NoobTubeShardsDropped19, 16),
         ],
         [P.Deletion] =
         [
@@ -81,7 +81,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardDownOutwardFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownOutwardTwin, F.NoobTubeShardDownOutwardMirroredTwin),
+            Flicker(F.NoobTubeShardDownOutward, F.NoobTubeShardDownOutwardMirrored),
         ],
         [P.ShardUpOutwardFlying] =
         [
@@ -96,7 +96,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardUpOutwardFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpOutwardTwin, F.NoobTubeShardUpOutwardMirroredTwin),
+            Flicker(F.NoobTubeShardUpOutward, F.NoobTubeShardUpOutwardMirrored),
         ],
         [P.ShardUpSteepFlying] =
         [
@@ -111,7 +111,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardUpSteepFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpSteepTwin, F.NoobTubeShardUpSteepMirroredTwin),
+            Flicker(F.NoobTubeShardUpSteep, F.NoobTubeShardUpSteepMirrored),
         ],
         [P.ShardUpDiagonalInnerFlying] =
         [
@@ -126,7 +126,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardUpDiagonalInnerFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpDiagonalInnerTwin, F.NoobTubeShardUpDiagonalInnerMirroredTwin),
+            Flicker(F.NoobTubeShardUpDiagonalInner, F.NoobTubeShardUpDiagonalInnerMirrored),
         ],
         [P.ShardUpDiagonalOuterFlying] =
         [
@@ -141,7 +141,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardUpDiagonalOuterFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardUpDiagonalOuterTwin, F.NoobTubeShardUpDiagonalOuterMirroredTwin),
+            Flicker(F.NoobTubeShardUpDiagonalOuter, F.NoobTubeShardUpDiagonalOuterMirrored),
         ],
         [P.ShardDownDiagonalFlying] =
         [
@@ -156,7 +156,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardDownDiagonalFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownDiagonalTwin, F.NoobTubeShardDownDiagonalMirroredTwin),
+            Flicker(F.NoobTubeShardDownDiagonal, F.NoobTubeShardDownDiagonalMirrored),
         ],
         [P.ShardDownOuterFlying] =
         [
@@ -171,7 +171,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardDownOuterFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownOuterTwin, F.NoobTubeShardDownOuterMirroredTwin),
+            Flicker(F.NoobTubeShardDownOuter, F.NoobTubeShardDownOuterMirrored),
         ],
         [P.ShardOutwardFlying] =
         [
@@ -186,7 +186,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardOutwardFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardOutwardTwin, F.NoobTubeShardOutwardMirroredTwin),
+            Flicker(F.NoobTubeShardOutward, F.NoobTubeShardOutwardMirrored),
         ],
         [P.ShardUpFlying] =
         [
@@ -201,7 +201,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardUpFalling] =
         [
             Cue(new(K.FlickerHidden)),
-            Flicker(F.NoobTubeShardUpTwin),
+            Flicker(F.NoobTubeShardUp),
         ],
         [P.ShardDownInnerFlying] =
         [
@@ -216,7 +216,7 @@ internal static class NoobTubeProjectileAnimations
         [P.ShardDownInnerFalling] =
         [
             Cue(new(K.FlickerReflected)),
-            Flicker(F.NoobTubeShardDownInnerTwin, F.NoobTubeShardDownInnerMirroredTwin),
+            Flicker(F.NoobTubeShardDownInner, F.NoobTubeShardDownInnerMirrored),
         ],
         [P.ReleasedAirBubble] =
         [
@@ -227,7 +227,7 @@ internal static class NoobTubeProjectileAnimations
             Show(F.NoobTubeDustTrail40, 2),
             Cue(new(K.AssignBubbleFallingAngle)),
             Cue(new(K.StartBubbleFall)),
-            Show(F.NoobTubeDustTrail40Twin, 2),
+            Show(F.NoobTubeDustTrail40, 2),
             Show(F.NoobTubeDustTrailThinning, 2),
             Show(F.NoobTubeDustTrailThin, 2),
             Show(F.NoobTubeDustTrailBreaking, 2),

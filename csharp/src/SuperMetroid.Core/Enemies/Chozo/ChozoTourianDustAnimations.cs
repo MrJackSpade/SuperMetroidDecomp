@@ -28,10 +28,10 @@ internal static class ChozoTourianDustAnimations
         [
             Cue(new EnemyProjectileCommonCue.Signal(CK.ReturnToOrigin)),
             Cue(new EnemyProjectileCommonCue.Scatter(Spread: new(XRange: new(0, 6), YRange: new(0, 2), Center: new(0, 0)))),
-            Show(EnemyProjectileFrameId.ChozoDustPuffTwin, 2),
-            Show(EnemyProjectileFrameId.ChozoDustPuffPairTwin, 2),
-            Show(EnemyProjectileFrameId.ChozoDustPuffTrioTwin, 2),
-            Show(EnemyProjectileFrameId.ChozoDustCloudsDenseTwin, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuff, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffPair, 2),
+            Show(EnemyProjectileFrameId.ChozoDustPuffTrio, 2),
+            Show(EnemyProjectileFrameId.ChozoDustCloudsDense, 2),
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });

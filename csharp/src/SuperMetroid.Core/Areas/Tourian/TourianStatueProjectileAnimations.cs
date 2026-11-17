@@ -72,7 +72,7 @@ internal static class TourianStatueProjectileAnimations
         [
             Show(EnemyProjectileFrameId.TourianStatueBaseDecoration, 128),
             Cue(new TourianStatueProjectileCue.Signal(K.FollowReveal)),
-            Hold(EnemyProjectileFrameId.TourianStatueBaseDecorationTwin),
+            Hold(EnemyProjectileFrameId.TourianStatueBaseDecoration),
         ],
         [P.Ridley] =
         [

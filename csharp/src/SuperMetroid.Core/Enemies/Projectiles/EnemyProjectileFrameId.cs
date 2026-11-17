@@ -3,9 +3,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// The frames an enemy projectile shows: the compositions its segments select, then every installed animation frame. Each
 /// is named for what its picture shows: its owner, then the shape, turn, size or placement that tells it from the owner's
-/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. A frame of its
-/// own that shows another frame's picture where that frame shows it is that frame's twin. Its values are arbitrary and its
-/// installed name is its name in snake case.
+/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture is
+/// one frame however many records store it. Its values are arbitrary and its installed name is its name in snake case.
 /// </summary>
 public enum EnemyProjectileFrameId
 {
@@ -193,36 +192,6 @@ public enum EnemyProjectileFrameId
     SpacePirateLaserBright32,
     /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long.</summary>
     SpacePirateLaserDim32,
-    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long: the picture of SpacePirateLaserBright32, as a frame of its own.</summary>
-    SpacePirateLaserBright32Twin,
-    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long: the picture of SpacePirateLaserDim32, as a frame of its own.</summary>
-    SpacePirateLaserDim32Twin,
-    /// <summary>A Space Pirate's laser: a glint of light: the picture of SpacePirateLaserFlareGlint, as a frame of its own.</summary>
-    SpacePirateLaserFlareGlintTwin,
-    /// <summary>A Space Pirate's laser: a small glow: the picture of SpacePirateLaserFlareGlow, as a frame of its own.</summary>
-    SpacePirateLaserFlareGlowTwin,
-    /// <summary>A Space Pirate's laser: a ball of light: the picture of SpacePirateLaserFlareBall, as a frame of its own.</summary>
-    SpacePirateLaserFlareBallTwin,
-    /// <summary>A Space Pirate's laser: a bright zigzag 8 pixels long: the picture of SpacePirateLaserBright8, as a frame of its own.</summary>
-    SpacePirateLaserBright8Twin,
-    /// <summary>A Space Pirate's laser: a dim zigzag 8 pixels long: the picture of SpacePirateLaserDim8, as a frame of its own.</summary>
-    SpacePirateLaserDim8Twin,
-    /// <summary>A Space Pirate's laser: a bright zigzag 16 pixels long: the picture of SpacePirateLaserBright16, as a frame of its own.</summary>
-    SpacePirateLaserBright16Twin,
-    /// <summary>A Space Pirate's laser: a dim zigzag 16 pixels long: the picture of SpacePirateLaserDim16, as a frame of its own.</summary>
-    SpacePirateLaserDim16Twin,
-    /// <summary>A Space Pirate's laser: a bright zigzag 24 pixels long: the picture of SpacePirateLaserBright24, as a frame of its own.</summary>
-    SpacePirateLaserBright24Twin,
-    /// <summary>A Space Pirate's laser: a dim zigzag 24 pixels long: the picture of SpacePirateLaserDim24, as a frame of its own.</summary>
-    SpacePirateLaserDim24Twin,
-    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long: the picture of SpacePirateLaserBright32, as a frame of its own.</summary>
-    SpacePirateLaserBright32TwinB,
-    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long: the picture of SpacePirateLaserDim32, as a frame of its own.</summary>
-    SpacePirateLaserDim32TwinB,
-    /// <summary>A Space Pirate's laser: a bright zigzag 32 pixels long: the picture of SpacePirateLaserBright32, as a frame of its own.</summary>
-    SpacePirateLaserBright32TwinC,
-    /// <summary>A Space Pirate's laser: a dim zigzag 32 pixels long: the picture of SpacePirateLaserDim32, as a frame of its own.</summary>
-    SpacePirateLaserDim32TwinC,
     /// <summary>A Space Pirate's claw thrown left: the claw turned 0 degrees.</summary>
     SpacePirateClawLeftTurned0,
     /// <summary>A Space Pirate's claw thrown left: the claw turned 45 degrees.</summary>
@@ -472,14 +441,6 @@ public enum EnemyProjectileFrameId
     ChozoDustPuffTrio,
     /// <summary>A Chozo statue's dust: dense clouds of dust.</summary>
     ChozoDustCloudsDense,
-    /// <summary>A Chozo statue's dust: a small puff of dust: the picture of ChozoDustPuff, as a frame of its own.</summary>
-    ChozoDustPuffTwin,
-    /// <summary>A Chozo statue's dust: a puff of dust and a smaller one: the picture of ChozoDustPuffPair, as a frame of its own.</summary>
-    ChozoDustPuffPairTwin,
-    /// <summary>A Chozo statue's dust: three puffs of dust: the picture of ChozoDustPuffTrio, as a frame of its own.</summary>
-    ChozoDustPuffTrioTwin,
-    /// <summary>A Chozo statue's dust: dense clouds of dust: the picture of ChozoDustCloudsDense, as a frame of its own.</summary>
-    ChozoDustCloudsDenseTwin,
     /// <summary>A Torizo's landing dust at its right foot: a small puff of dust.</summary>
     TorizoLandingDustRightDustPuff,
     /// <summary>A Torizo's landing dust at its right foot: a smaller puff of dust.</summary>
@@ -632,12 +593,6 @@ public enum EnemyProjectileFrameId
     EyeDoorBallRingCored,
     /// <summary>An eye door's energy ball: a whole blue ball.</summary>
     EyeDoorBallWhole,
-    /// <summary>An eye door's energy ball: a bright ring around a blue core: the picture of EyeDoorBallRingCored, as a frame of its own.</summary>
-    EyeDoorBallRingCoredTwin,
-    /// <summary>An eye door's energy ball: a blue ring: the picture of EyeDoorBallRing, as a frame of its own.</summary>
-    EyeDoorBallRingTwin,
-    /// <summary>An eye door's energy ball: a faint ring: the picture of EyeDoorBallRingFaint, as a frame of its own.</summary>
-    EyeDoorBallRingFaintTwin,
     /// <summary>An eye door's energy ball: a cloud of fire.</summary>
     EyeDoorBallFireCloud,
     /// <summary>An eye door's energy ball: a cloud of fire spreading.</summary>
@@ -704,8 +659,6 @@ public enum EnemyProjectileFrameId
     TourianStatueSoulMouthOpen,
     /// <summary>A Tourian statue's base decoration: the base's mossy decoration.</summary>
     TourianStatueBaseDecoration,
-    /// <summary>A Tourian statue's base decoration: the base's mossy decoration: the picture of TourianStatueBaseDecoration, as a frame of its own.</summary>
-    TourianStatueBaseDecorationTwin,
     /// <summary>The Tourian statue: Ridley's figure.</summary>
     TourianStatueRidley,
     /// <summary>The Tourian statue: Phantoon's figure.</summary>
@@ -722,16 +675,8 @@ public enum EnemyProjectileFrameId
     NuclearWaffleFireballBlazingRinged,
     /// <summary>The Nuclear Waffle's fireball: a densely mottled fireball.</summary>
     NuclearWaffleFireballMottledDense,
-    /// <summary>The Nuclear Waffle's fireball: a swirling fireball: the picture of NuclearWaffleFireballSwirl, as a frame of its own.</summary>
-    NuclearWaffleFireballSwirlTwin,
-    /// <summary>The Nuclear Waffle's fireball: a blazing fireball: the picture of NuclearWaffleFireballBlazing, as a frame of its own.</summary>
-    NuclearWaffleFireballBlazingTwin,
     /// <summary>The Nuclear Waffle's fireball: a mottled fireball turned the other way.</summary>
     NuclearWaffleFireballMottledTurned,
-    /// <summary>The Nuclear Waffle's fireball: a swirling fireball turned the other way: the picture of NuclearWaffleFireballSwirlTurned, as a frame of its own.</summary>
-    NuclearWaffleFireballSwirlTurnedTwin,
-    /// <summary>The Nuclear Waffle's fireball: a blazing fireball in a dark ring: the picture of NuclearWaffleFireballBlazingRinged, as a frame of its own.</summary>
-    NuclearWaffleFireballBlazingRingedTwin,
     /// <summary>The Nuclear Waffle's fireball: a sparsely mottled fireball.</summary>
     NuclearWaffleFireballMottledSparse,
     /// <summary>The Polyp's lava rock: a glowing rock.</summary>
@@ -1070,8 +1015,6 @@ public enum EnemyProjectileFrameId
     KiHunterAcidSpitLeftBlobTrailing,
     /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it.</summary>
     KiHunterAcidSpitLeftBlobSpattering,
-    /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it: the picture of KiHunterAcidSpitLeftBlobSpattering, as a frame of its own.</summary>
-    KiHunterAcidSpitLeftBlobSpatteringTwin,
     /// <summary>A Ki-Hunter's acid spit: a round blob.</summary>
     KiHunterAcidSpitLeftBall,
     /// <summary>A Ki-Hunter's acid spit: a mound of acid.</summary>
@@ -1094,8 +1037,6 @@ public enum EnemyProjectileFrameId
     KiHunterAcidSpitRightBlobTrailing,
     /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it.</summary>
     KiHunterAcidSpitRightBlobSpattering,
-    /// <summary>A Ki-Hunter's acid spit: a blob spattering drops behind it: the picture of KiHunterAcidSpitRightBlobSpattering, as a frame of its own.</summary>
-    KiHunterAcidSpitRightBlobSpatteringTwin,
     /// <summary>A Ki-Hunter's acid spit: a round blob.</summary>
     KiHunterAcidSpitRightBall,
     /// <summary>A Kago bug: curled up into a pale ball.</summary>
@@ -1104,12 +1045,6 @@ public enum EnemyProjectileFrameId
     KagoBugCrouched,
     /// <summary>A Kago bug: standing, legs out.</summary>
     KagoBugStanding,
-    /// <summary>A Kago bug: standing, legs out: the picture of KagoBugStanding, as a frame of its own.</summary>
-    KagoBugStandingTwin,
-    /// <summary>A Kago bug: crouched, legs tucked: the picture of KagoBugCrouched, as a frame of its own.</summary>
-    KagoBugCrouchedTwin,
-    /// <summary>A Kago bug: standing, legs out: the picture of KagoBugStanding, as a frame of its own.</summary>
-    KagoBugStandingTwinB,
     /// <summary>A Kago bug: leaping, legs stretched.</summary>
     KagoBugLeaping,
     /// <summary>A Kago bug bursting: a small spark.</summary>
@@ -1140,8 +1075,6 @@ public enum EnemyProjectileFrameId
     WorkRobotLaserFlareRing,
     /// <summary>The work robot's laser: a fading ring of light.</summary>
     WorkRobotLaserFlareRingFading,
-    /// <summary>The work robot's laser: a ring of light: the picture of WorkRobotLaserFlareRing, as a frame of its own.</summary>
-    WorkRobotLaserFlareRingTwin,
     /// <summary>The noob tube's crack: a crack 31 pixels across.</summary>
     NoobTubeCrackAcross31,
     /// <summary>The noob tube's crack: a crack 63 pixels across.</summary>
@@ -1214,84 +1147,44 @@ public enum EnemyProjectileFrameId
     NoobTubeShardsDropped19,
     /// <summary>The noob tube's shards: six shards landed.</summary>
     NoobTubeShardsLanded,
-    /// <summary>The noob tube's shards: six shards dropped 19 pixels: the picture of NoobTubeShardsDropped19, as a frame of its own.</summary>
-    NoobTubeShardsDropped19Twin,
     /// <summary>A noob tube shard: its down outward piece.</summary>
     NoobTubeShardDownOutward,
     /// <summary>A noob tube shard: its down outward piece, mirrored.</summary>
     NoobTubeShardDownOutwardMirrored,
-    /// <summary>A noob tube shard: its down outward piece: the picture of NoobTubeShardDownOutward, as a frame of its own.</summary>
-    NoobTubeShardDownOutwardTwin,
-    /// <summary>A noob tube shard: its down outward piece, mirrored: the picture of NoobTubeShardDownOutwardMirrored, as a frame of its own.</summary>
-    NoobTubeShardDownOutwardMirroredTwin,
     /// <summary>A noob tube shard: its up outward piece.</summary>
     NoobTubeShardUpOutward,
     /// <summary>A noob tube shard: its up outward piece, mirrored.</summary>
     NoobTubeShardUpOutwardMirrored,
-    /// <summary>A noob tube shard: its up outward piece: the picture of NoobTubeShardUpOutward, as a frame of its own.</summary>
-    NoobTubeShardUpOutwardTwin,
-    /// <summary>A noob tube shard: its up outward piece, mirrored: the picture of NoobTubeShardUpOutwardMirrored, as a frame of its own.</summary>
-    NoobTubeShardUpOutwardMirroredTwin,
     /// <summary>A noob tube shard: its up steep piece.</summary>
     NoobTubeShardUpSteep,
     /// <summary>A noob tube shard: its up steep piece, mirrored.</summary>
     NoobTubeShardUpSteepMirrored,
-    /// <summary>A noob tube shard: its up steep piece: the picture of NoobTubeShardUpSteep, as a frame of its own.</summary>
-    NoobTubeShardUpSteepTwin,
-    /// <summary>A noob tube shard: its up steep piece, mirrored: the picture of NoobTubeShardUpSteepMirrored, as a frame of its own.</summary>
-    NoobTubeShardUpSteepMirroredTwin,
     /// <summary>A noob tube shard: its up diagonal inner piece.</summary>
     NoobTubeShardUpDiagonalInner,
     /// <summary>A noob tube shard: its up diagonal inner piece, mirrored.</summary>
     NoobTubeShardUpDiagonalInnerMirrored,
-    /// <summary>A noob tube shard: its up diagonal inner piece: the picture of NoobTubeShardUpDiagonalInner, as a frame of its own.</summary>
-    NoobTubeShardUpDiagonalInnerTwin,
-    /// <summary>A noob tube shard: its up diagonal inner piece, mirrored: the picture of NoobTubeShardUpDiagonalInnerMirrored, as a frame of its own.</summary>
-    NoobTubeShardUpDiagonalInnerMirroredTwin,
     /// <summary>A noob tube shard: its up diagonal outer piece.</summary>
     NoobTubeShardUpDiagonalOuter,
     /// <summary>A noob tube shard: its up diagonal outer piece, mirrored.</summary>
     NoobTubeShardUpDiagonalOuterMirrored,
-    /// <summary>A noob tube shard: its up diagonal outer piece: the picture of NoobTubeShardUpDiagonalOuter, as a frame of its own.</summary>
-    NoobTubeShardUpDiagonalOuterTwin,
-    /// <summary>A noob tube shard: its up diagonal outer piece, mirrored: the picture of NoobTubeShardUpDiagonalOuterMirrored, as a frame of its own.</summary>
-    NoobTubeShardUpDiagonalOuterMirroredTwin,
     /// <summary>A noob tube shard: its down diagonal piece.</summary>
     NoobTubeShardDownDiagonal,
     /// <summary>A noob tube shard: its down diagonal piece, mirrored.</summary>
     NoobTubeShardDownDiagonalMirrored,
-    /// <summary>A noob tube shard: its down diagonal piece: the picture of NoobTubeShardDownDiagonal, as a frame of its own.</summary>
-    NoobTubeShardDownDiagonalTwin,
-    /// <summary>A noob tube shard: its down diagonal piece, mirrored: the picture of NoobTubeShardDownDiagonalMirrored, as a frame of its own.</summary>
-    NoobTubeShardDownDiagonalMirroredTwin,
     /// <summary>A noob tube shard: its down outer piece.</summary>
     NoobTubeShardDownOuter,
     /// <summary>A noob tube shard: its down outer piece, mirrored.</summary>
     NoobTubeShardDownOuterMirrored,
-    /// <summary>A noob tube shard: its down outer piece: the picture of NoobTubeShardDownOuter, as a frame of its own.</summary>
-    NoobTubeShardDownOuterTwin,
-    /// <summary>A noob tube shard: its down outer piece, mirrored: the picture of NoobTubeShardDownOuterMirrored, as a frame of its own.</summary>
-    NoobTubeShardDownOuterMirroredTwin,
     /// <summary>A noob tube shard: its outward piece.</summary>
     NoobTubeShardOutward,
     /// <summary>A noob tube shard: its outward piece, mirrored.</summary>
     NoobTubeShardOutwardMirrored,
-    /// <summary>A noob tube shard: its outward piece: the picture of NoobTubeShardOutward, as a frame of its own.</summary>
-    NoobTubeShardOutwardTwin,
-    /// <summary>A noob tube shard: its outward piece, mirrored: the picture of NoobTubeShardOutwardMirrored, as a frame of its own.</summary>
-    NoobTubeShardOutwardMirroredTwin,
     /// <summary>A noob tube shard: its up piece.</summary>
     NoobTubeShardUp,
-    /// <summary>A noob tube shard: its up piece: the picture of NoobTubeShardUp, as a frame of its own.</summary>
-    NoobTubeShardUpTwin,
     /// <summary>A noob tube shard: its down inner piece.</summary>
     NoobTubeShardDownInner,
     /// <summary>A noob tube shard: its down inner piece, mirrored.</summary>
     NoobTubeShardDownInnerMirrored,
-    /// <summary>A noob tube shard: its down inner piece: the picture of NoobTubeShardDownInner, as a frame of its own.</summary>
-    NoobTubeShardDownInnerTwin,
-    /// <summary>A noob tube shard: its down inner piece, mirrored: the picture of NoobTubeShardDownInnerMirrored, as a frame of its own.</summary>
-    NoobTubeShardDownInnerMirroredTwin,
     /// <summary>The noob tube's dust: a cloud with a trail 16 pixels tall.</summary>
     NoobTubeDustTrail16,
     /// <summary>The noob tube's dust: a cloud with a trail 24 pixels tall.</summary>
@@ -1300,8 +1193,6 @@ public enum EnemyProjectileFrameId
     NoobTubeDustTrail32,
     /// <summary>The noob tube's dust: a cloud with a trail 40 pixels tall.</summary>
     NoobTubeDustTrail40,
-    /// <summary>The noob tube's dust: a cloud with a trail 40 pixels tall: the picture of NoobTubeDustTrail40, as a frame of its own.</summary>
-    NoobTubeDustTrail40Twin,
     /// <summary>The noob tube's dust: the trail thinning.</summary>
     NoobTubeDustTrailThinning,
     /// <summary>The noob tube's dust: a thin trail.</summary>
@@ -1410,8 +1301,6 @@ public enum EnemyProjectileFrameId
     MiscDustSparksTwistedApart14,
     /// <summary>Misc dust: a small spark.</summary>
     MiscDustSpark,
-    /// <summary>Misc dust: a small spark: the picture of MiscDustSpark, as a frame of its own.</summary>
-    MiscDustSparkTwin,
     /// <summary>Misc dust: a small fireball.</summary>
     MiscDustFireballSmall,
     /// <summary>Misc dust: a large fireball.</summary>
@@ -1454,8 +1343,6 @@ public enum EnemyProjectileFrameId
     MiscDustCloudThin,
     /// <summary>Misc dust: a faint cloud of dust.</summary>
     MiscDustCloudFaint,
-    /// <summary>Misc dust: a small puff of dust: the picture of MiscDustPuff, as a frame of its own.</summary>
-    MiscDustPuffTwin,
     /// <summary>Misc dust: a smaller puff of dust.</summary>
     MiscDustPuffSmall,
     /// <summary>Misc dust: a thin puff of dust.</summary>
@@ -1478,12 +1365,6 @@ public enum EnemyProjectileFrameId
     MiscDustFireCloudBreaking,
     /// <summary>Misc dust: the embers of a cloud of fire.</summary>
     MiscDustFireCloudEmbers,
-    /// <summary>Misc dust: a small fireball: the picture of MiscDustFireballSmall, as a frame of its own.</summary>
-    MiscDustFireballSmallTwin,
-    /// <summary>Misc dust: a large fireball: the picture of MiscDustFireballLarge, as a frame of its own.</summary>
-    MiscDustFireballLargeTwin,
-    /// <summary>Misc dust: a fireball opening into a flaming ring: the picture of MiscDustFlamingRing, as a frame of its own.</summary>
-    MiscDustFlamingRingTwin,
     /// <summary>Misc dust: a huge fireball with a ring inside it.</summary>
     MiscDustFireballHuge,
     /// <summary>Misc dust: a wide ring of fire.</summary>
@@ -1530,14 +1411,6 @@ public enum EnemyProjectileFrameId
     MiscDustPuffTrio,
     /// <summary>Misc dust: dense clouds of dust.</summary>
     MiscDustCloudsDense,
-    /// <summary>Misc dust: a small puff of dust up and to the left: the picture of MiscDustPuffUpLeft, as a frame of its own.</summary>
-    MiscDustPuffUpLeftTwin,
-    /// <summary>Misc dust: a puff of dust and a smaller one: the picture of MiscDustPuffPair, as a frame of its own.</summary>
-    MiscDustPuffPairTwin,
-    /// <summary>Misc dust: three puffs of dust: the picture of MiscDustPuffTrio, as a frame of its own.</summary>
-    MiscDustPuffTrioTwin,
-    /// <summary>Misc dust: dense clouds of dust: the picture of MiscDustCloudsDense, as a frame of its own.</summary>
-    MiscDustCloudsDenseTwin,
     /// <summary>Misc dust: clouds of dust thinning.</summary>
     MiscDustCloudsThinning,
     /// <summary>Misc dust: thin clouds of dust.</summary>
@@ -1572,16 +1445,6 @@ public enum EnemyProjectileFrameId
     DownwardGateThreeBlocksTall,
     /// <summary>A downward gate: four blocks tall.</summary>
     DownwardGateFourBlocksTall,
-    /// <summary>A downward gate: four blocks tall: the picture of DownwardGateFourBlocksTall, as a frame of its own.</summary>
-    DownwardGateFourBlocksTallTwin,
-    /// <summary>A downward gate: four blocks tall: the picture of DownwardGateFourBlocksTall, as a frame of its own.</summary>
-    DownwardGateFourBlocksTallTwinB,
-    /// <summary>A downward gate: three blocks tall: the picture of DownwardGateThreeBlocksTall, as a frame of its own.</summary>
-    DownwardGateThreeBlocksTallTwin,
-    /// <summary>A downward gate: two blocks tall: the picture of DownwardGateTwoBlocksTall, as a frame of its own.</summary>
-    DownwardGateTwoBlocksTallTwin,
-    /// <summary>A downward gate: one block tall: the picture of DownwardGateOneBlockTall, as a frame of its own.</summary>
-    DownwardGateOneBlockTallTwin,
     /// <summary>A save station's electricity: a zigzag band 32 pixels up.</summary>
     SaveStationElectricityRaised32,
     /// <summary>A save station's electricity: a zigzag band 24 pixels up.</summary>
@@ -1696,10 +1559,6 @@ public enum EnemyProjectileFrameId
     YappingMawFacingUp,
     /// <summary>An enemy's death: nothing; it draws no picture.</summary>
     EnemyDeathBlank,
-    /// <summary>An enemy's death: nothing; it draws no picture: the picture of EnemyDeathBlank, as a frame of its own.</summary>
-    EnemyDeathBlankTwin,
-    /// <summary>An enemy's death: nothing; it draws no picture: the picture of EnemyDeathBlank, as a frame of its own.</summary>
-    EnemyDeathBlankTwinB,
     /// <summary>An enemy's death: a small fireball.</summary>
     EnemyDeathFireballSmall,
     /// <summary>An enemy's death: a large fireball.</summary>
@@ -1714,12 +1573,6 @@ public enum EnemyProjectileFrameId
     EnemyDeathWideRingFading,
     /// <summary>An enemy's death: a small spark.</summary>
     EnemyDeathSpark,
-    /// <summary>An enemy's death: a small fireball: the picture of EnemyDeathFireballSmall, as a frame of its own.</summary>
-    EnemyDeathFireballSmallTwin,
-    /// <summary>An enemy's death: a large fireball: the picture of EnemyDeathFireballLarge, as a frame of its own.</summary>
-    EnemyDeathFireballLargeTwin,
-    /// <summary>An enemy's death: a fireball opening into a flaming ring: the picture of EnemyDeathFlamingRing, as a frame of its own.</summary>
-    EnemyDeathFlamingRingTwin,
     /// <summary>An enemy's death: a starburst of flame.</summary>
     EnemyDeathStarburst,
     /// <summary>An enemy's death: scattering embers.</summary>
@@ -1738,8 +1591,6 @@ public enum EnemyProjectileFrameId
     EnemyPickupEnergyBigRinged,
     /// <summary>An enemy's energy drop: a big dark orb.</summary>
     EnemyPickupEnergyBigDark,
-    /// <summary>An enemy's energy drop: specks of energy: the picture of EnemyPickupEnergyScattered, as a frame of its own.</summary>
-    EnemyPickupEnergyScatteredTwin,
     /// <summary>An enemy's missile drop: a missile.</summary>
     EnemyPickupMissile,
     /// <summary>An enemy's missile drop: a missile flashing white.</summary>
@@ -1756,8 +1607,6 @@ public enum EnemyProjectileFrameId
     EnemyPickupPowerBombDim,
     /// <summary>An enemy's power bomb drop: a power bomb flashing white.</summary>
     EnemyPickupPowerBombFlashing,
-    /// <summary>An enemy's death: a large fireball: the picture of EnemyDeathFireballLarge, as a frame of its own.</summary>
-    EnemyDeathFireballLargeTwinB,
     /// <summary>An enemy's death: a fireball ringed by four smaller ones.</summary>
     EnemyDeathFireballCluster,
     /// <summary>An enemy's death: a starburst ringed by four fireballs.</summary>
@@ -1794,28 +1643,8 @@ public enum EnemyProjectileFrameId
     FallingSparkDiagonal,
     /// <summary>A falling spark: a small upright cross.</summary>
     FallingSparkUprightSmall,
-    /// <summary>A falling spark: an upright cross: the picture of FallingSparkUpright, as a frame of its own.</summary>
-    FallingSparkUprightTwin,
     /// <summary>A falling spark: nothing; it draws no picture.</summary>
     FallingSparkBlank,
-    /// <summary>A falling spark: an upright cross: the picture of FallingSparkUpright, as a frame of its own.</summary>
-    FallingSparkUprightTwinB,
-    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
-    FallingSparkBlankTwin,
-    /// <summary>A falling spark: a diagonal cross: the picture of FallingSparkDiagonal, as a frame of its own.</summary>
-    FallingSparkDiagonalTwin,
-    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
-    FallingSparkBlankTwinB,
-    /// <summary>A falling spark: a diagonal cross: the picture of FallingSparkDiagonal, as a frame of its own.</summary>
-    FallingSparkDiagonalTwinB,
-    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
-    FallingSparkBlankTwinC,
-    /// <summary>A falling spark: a small upright cross: the picture of FallingSparkUprightSmall, as a frame of its own.</summary>
-    FallingSparkUprightSmallTwin,
-    /// <summary>A falling spark: nothing; it draws no picture: the picture of FallingSparkBlank, as a frame of its own.</summary>
-    FallingSparkBlankTwinD,
-    /// <summary>A falling spark: a small upright cross: the picture of FallingSparkUprightSmall, as a frame of its own.</summary>
-    FallingSparkUprightSmallTwinB,
     /// <summary>The Ceres elevator pad: unlit.</summary>
     CeresElevatorPadUnlit,
     /// <summary>The Ceres elevator pad: lit.</summary>

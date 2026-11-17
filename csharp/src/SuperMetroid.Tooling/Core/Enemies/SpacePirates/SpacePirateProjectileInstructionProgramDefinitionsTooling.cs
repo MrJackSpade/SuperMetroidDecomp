@@ -16,10 +16,19 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
     public static int MechanicsWordCount => 58;
 
     /// <summary>Counts visual frame operands across the two lasers and two claw programs.</summary>
-    public static int PresentationWordCount => Frames.Length;
+    public static int PresentationWordCount => PresentationOperands.Length;
 
     /// <summary>The frames the lasers and claws show, in the order their animations first show them.</summary>
     private static readonly EnemyProjectileFrameId[] Frames = [.. SpacePirateProjectileAnimations.Segments.Frames];
+    /// <summary>
+    /// The bank-$86 operands the lasers and claws draw from: each shown frame's own, in that order, then the operands that
+    /// store one of those frames' pictures again (#2273).
+    /// </summary>
+    private static readonly ushort[] PresentationOperands =
+    [
+        .. Frames.Select(EnemyProjectileProgramFrameSources.Operand),
+        .. EnemyProjectileProgramFrameDefinitions.AlsoStoredAt.Where(pair => Frames.Contains(pair.Value)).Select(pair => pair.Key).Order(),
+    ];
     /// <summary>The program lives in bank $86, the enemy-projectile code bank.</summary>
     static int IDeclaredProgramBank.Bank => EnemyProjectileCodePointers.BankBase;
 
@@ -68,6 +77,6 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitionsToolin
 
     /// <summary>Locates a laser or claw projectile drawing operand: the installed artwork key of its pose.</summary>
     public static ushort PresentationWordAddress(int index) => (uint)index < (uint)PresentationWordCount
-        ? EnemyProjectileProgramFrameSources.Operand(Frames[index])
+        ? PresentationOperands[index]
         : throw new ArgumentOutOfRangeException(nameof(index));
 }

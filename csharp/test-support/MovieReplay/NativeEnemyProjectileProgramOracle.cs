@@ -462,7 +462,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(flicker.Shown), $"{at}: flicker presentation key");
                 Func<TFrame, ushort?> reflected = reflectedPresentationKey ??
                     throw new InvalidOperationException($"{at}: a flicker family supplies its reflected presentation keys.");
-                VerificationAssertions.AssertEqual(count == 4 ? unchecked((ushort)(cursor + 4)) : null, reflected(flicker.Shown), $"{at}: flicker reflected presentation key");
+                VerificationAssertions.AssertEqual(count == 4 ? rules.FrameOperand(unchecked((ushort)(cursor + 4))) : null, reflected(flicker.Shown), $"{at}: flicker reflected presentation key");
             }
             cursor = unchecked((ushort)(cursor + 2 + count));
             if (rules.EndsList?.Invoke(raised.Raised) != true)

@@ -40,24 +40,24 @@ internal static class DownwardGateProjectileAnimations
         [P.Closed] =
         [
             Cue(new DownwardGateProjectileCue.SetYVelocity(YVelocity: -SignedEightEight.FromParts(1, 0))),
-            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwin),
+            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTall),
         ],
         [P.Rising] =
         [
             Cue(new DownwardGateProjectileCue.Signal(K.StartSliding)),
-            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTallTwinB),
+            Hold(EnemyProjectileFrameId.DownwardGateFourBlocksTall),
         ],
         [P.RisenOneBlock] =
         [
-            Hold(EnemyProjectileFrameId.DownwardGateThreeBlocksTallTwin),
+            Hold(EnemyProjectileFrameId.DownwardGateThreeBlocksTall),
         ],
         [P.RisenTwoBlocks] =
         [
-            Hold(EnemyProjectileFrameId.DownwardGateTwoBlocksTallTwin),
+            Hold(EnemyProjectileFrameId.DownwardGateTwoBlocksTall),
         ],
         [P.RisenThreeBlocks] =
         [
-            Hold(EnemyProjectileFrameId.DownwardGateOneBlockTallTwin),
+            Hold(EnemyProjectileFrameId.DownwardGateOneBlockTall),
         ],
         [P.Vanishing] =
         [

@@ -62,7 +62,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         foreach (EnemyProjectileFrameId scene in new[]
         {
             EnemyProjectileFrameId.TourianStatueParticleTurned0, EnemyProjectileFrameId.TourianStatueTailBright,
-            EnemyProjectileFrameId.TourianStatueBaseDecorationTwin, EnemyProjectileFrameId.TourianStatueRidley, EnemyProjectileFrameId.TourianStatuePhantoon,
+            EnemyProjectileFrameId.TourianStatueRidley, EnemyProjectileFrameId.TourianStatuePhantoon,
         })
         {
             AssertEqual(statueSheet.Name, scenePictures.Frame(EnemySheetDefinitions.ProjectileFrameName(scene)).Sheet.Name,

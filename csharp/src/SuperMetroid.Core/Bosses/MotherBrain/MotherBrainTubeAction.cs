@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The falling-tube main actions, in order.</summary>
+/// <summary>What a falling tube of Mother Brain's room does, in the order the main tube goes through them.</summary>
 internal enum MotherBrainTubeAction
 {
-    /// <summary>Mother Brain tubes behaviour: non main tube.</summary>
+    /// <summary>A side tube, which falls from the start.</summary>
     NonMainTube,
 
-    /// <summary>Mother Brain tubes behaviour: main tube, waiting to fall.</summary>
+    /// <summary>The main tube, waiting out its delay before it falls.</summary>
     WaitingToFall,
 
-    /// <summary>Mother Brain tubes behaviour: main tube, falling.</summary>
+    /// <summary>The main tube, falling.</summary>
     Falling,
 }

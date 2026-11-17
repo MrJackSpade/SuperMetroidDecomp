@@ -237,7 +237,7 @@ public sealed class SamusHorizontalSpeedState
 
         // The cap test reads the whole pixels and the fraction each on their own (SamusSpeedMagnitude.ReadsAtCap). The
         // cap has no fraction, so a normal progression reaches exactly two pixels and is held there on the following
-        // call before another sixteenth of a pixel can be added.
+        // update before another sixteenth of a pixel can be added.
         if (SamusSpeedMagnitude.ReadsAtCap(ExtraRunSpeed, UnboostedExtraRunSpeedCap))
         {
             ExtraRunSpeed = UnboostedExtraRunSpeedCap;

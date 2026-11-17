@@ -243,8 +243,8 @@ internal sealed class DraygonGrab
 
     /// <summary>
     /// Carries Samus with Draygon. It places Samus without checking that she is
-    /// still held, and only then tests the escape flag Samus's grapple publishes. The first carry
-    /// call after an escape therefore drags the released Samus once more before Draygon
+    /// still held, and only then tests the escape flag Samus's grapple publishes. The first carrying
+    /// update after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
     /// </summary>
     internal void MoveSamusWithDraygon(DraygonEnemyState state, SamusState samus)

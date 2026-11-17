@@ -479,7 +479,7 @@ internal sealed class MotherBrainHead
         state.SmallPurpleBreathActive = true;
     }
 
-    /// <summary>Runs the rainbow charging projectile's spawn, including the initializer's same-call pin.</summary>
+    /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
     internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();

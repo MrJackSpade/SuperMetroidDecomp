@@ -98,8 +98,7 @@ internal sealed class MotherBrainAttacks
         {
             if (MotherBrainRandomDefinitions.AttacksAtFullStrength.IsTakenBy(random))
             {
-                // The attack setup installs the attack sequence and returns. It does not execute
-                // phase zero until the body's next enemy-AI update.
+                // Choosing an attack only sets it up; the attack's first step runs on her next update.
                 state.Phase2FightPhase = MotherBrainPhase2FightPhase.TryAttack;
                 return;
             }
@@ -117,9 +116,8 @@ internal sealed class MotherBrainAttacks
             state.Phase2FightPhase = MotherBrainPhase2FightPhase.TryAttack;
             return;
         }
-        // The hand-beam setup installs the ordinary red hand-beam sequence. It does not execute phase
-        // zero until the next body AI call; the rainbow beam's sequence is separate and
-        // entered only when health reaches zero.
+        // Choosing the hand beam only sets it up; its first step runs on her next update. The rainbow beam is a
+        // separate attack she starts only when her health reaches zero.
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.HandBeam;
     }
 
@@ -478,9 +476,8 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Goes straight on from the attack setup, at zero health, into the rainbow beam's setup. Setup happens on the
-    /// same body-AI update, but the freshly installed rainbow timer is not decremented until
-    /// Mother Brain's next enemy turn.
+    /// Goes straight on from the attack setup, at zero health, into the rainbow beam's setup in the same update; the
+    /// beam's timer first counts down on her next update.
     /// </summary>
     internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)
     {

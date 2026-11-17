@@ -58,8 +58,8 @@ internal sealed class RoomMainRoutines
         ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
 
     /// <summary>
-    /// The block animations' step: gameplay and the door
-    /// transition's scroll and every fade step call it. The X-Ray Scope's setup
+    /// The block animations' step: gameplay, the door
+    /// transition's scroll and every fade step take it. The X-Ray Scope's setup
     /// disables the block animations, freezing every animation until the scope ends.
     /// </summary>
     internal void RunBlockAnimations(RoomScope room)

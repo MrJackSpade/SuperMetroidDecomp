@@ -203,10 +203,10 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase recover make some distance body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Changes her to her third phase's form, walks her back quickly and starts the wait before she fights. True when
+    /// her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseRecoverMakeSomeDistance()
+    internal bool RecoverAndBackAway()
     {
         // The recovery changes her form before the wait to fight, and she walks back fourteen pixels quickly; at
         // the arena's left limit she stays where she is.
@@ -220,10 +220,10 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase recover setup for fighting body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Waits out the one-update recovery, then starts the fight with her neck and walking at their start. True when her
+    /// next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseRecoverSetupForFighting()
+    internal bool WaitToFight()
     {
         // The wait to fight starts on the update after the one-update recovery.
         if (Encounter.PhaseTimer.StepRunsOut())
@@ -239,10 +239,10 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase fighting main body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Fights: moves her neck, walks and chooses whether to attack, until her health runs out. True when her next phase
+    /// runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseFightingMain(RainbowBeamAttackFrame frame)
+    internal bool Fight(RainbowBeamAttackFrame frame)
     {
         // The fight checks for her death before the neck or the walking steps. Her death starts on the next update;
         // nothing of the fight runs in between.
@@ -276,10 +276,9 @@ internal sealed class MotherBrainThirdPhaseFight
     }
 
     /// <summary>
-    /// Runs the third phase fighting attack cooldown body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Waits out an attack's cooldown, then fights again. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseFightingAttackCooldown()
+    internal bool CoolDownFromAttack()
     {
         // The attack's cooldown ends on its last update and the fight resumes on the next, so the neck and the walking
         // pause for every update of the cooldown.
@@ -294,10 +293,10 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool Run(RainbowBeamAttackFrame frame) => Encounter.Phase3FightPhase switch
     {
-        MotherBrainPhase3FightPhase.RecoverMakeSomeDistance => RunThirdPhaseRecoverMakeSomeDistance(),
-        MotherBrainPhase3FightPhase.RecoverSetupForFighting => RunThirdPhaseRecoverSetupForFighting(),
-        MotherBrainPhase3FightPhase.FightingMain => RunThirdPhaseFightingMain(frame),
-        MotherBrainPhase3FightPhase.FightingAttackCooldown => RunThirdPhaseFightingAttackCooldown(),
+        MotherBrainPhase3FightPhase.RecoverMakeSomeDistance => RecoverAndBackAway(),
+        MotherBrainPhase3FightPhase.RecoverSetupForFighting => WaitToFight(),
+        MotherBrainPhase3FightPhase.FightingMain => Fight(frame),
+        MotherBrainPhase3FightPhase.FightingAttackCooldown => CoolDownFromAttack(),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainPhase3FightPhase)} {Encounter.Phase3FightPhase}."),
     };
 }

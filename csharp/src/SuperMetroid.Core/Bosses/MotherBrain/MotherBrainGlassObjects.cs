@@ -81,7 +81,7 @@ internal sealed class MotherBrainGlassObjects
     internal void SpawnShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards)
     {
         _sounds.Queue(RoomSound.MotherBrainGlassShatter, Priority: ShatterSoundPriority);
-        // The fragment spawn carries both block coordinates, each below 256.
+        // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(

@@ -12,12 +12,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// release, ceiling retreat, route to Samus, latch, and healing, and the movement they share.
 /// </summary>
 /// <remarks>
-/// The entrance uses no floating point, spline or physics engine. It holds a 1/256-pixel velocity, adds
-/// its fraction to the position's 256ths of a pixel only, leaving the finer part, and lets that addition's
-/// overflow enter the whole-pixel position. The curved entrance
-/// also scales by the game's signed sine (<see cref="Trigonometry.MultiplySignedSine"/>). Keeping those details
-/// here is important: replacing them with visually similar interpolation changes the exact
-/// frame on which the Baby's collision rectangle reaches Mother Brain's brain.
+/// The entrance moves by a velocity in 256ths of a pixel, adding it to the position's 256ths of a pixel and carrying
+/// into its whole pixels, and the curved entrance scales by the game's sine
+/// (<see cref="Trigonometry.MultiplySignedSine"/>). Those steps decide the update on which the Baby's hit area reaches
+/// Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
 public sealed class BabyMetroidCutsceneState
 {
@@ -269,8 +267,8 @@ public sealed class BabyMetroidCutsceneState
             }
 
             case BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack:
-                // The drain step passes animation-delay index two and target Body.X-1. With a
-                // standing body this always starts the really-fast backward animation.
+                // The drain asks her to stumble back a pixel; standing, she always starts her really-fast backward
+                // walk.
                 motherBrain.RequestBabyStumbleBackward();
                 Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
                 goto case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
@@ -639,14 +637,13 @@ public sealed class BabyMetroidCutsceneState
                 throw new InvalidOperationException($"Unsupported Baby Metroid phase {Phase}.");
         }
 
-        // Main AI calls this even on phase transitions and target snaps. In the snap case
-        // both velocities were explicitly zeroed, so the pin remains exact.
+        // The Baby moves by its velocity on every update, its phase changes and its snaps to a target included; a snap
+        // zeroes both velocities, so the Baby stays exactly on its target.
         MoveAccordingToVelocity();
 
-        // The flash step is called after the common velocity mover. It decrements the same
-        // extra timer that onion-ring hits write and shows the flash colours while the
-        // decremented value, modulo four, is two or three. Starting from sixteen, the first post-hit enemy call sees
-        // sixteen for its shake above, then displays the normal colours with timer fifteen.
+        // After the Baby moves, its hit flash counts down the timer an onion ring's hit sets, and shows the flash colours
+        // while the count, modulo four, is two or three. A hit sets sixteen: the next update shakes the Baby at sixteen,
+        // then shows its normal colours at fifteen.
         if (OnionRingHitFlashTimer != 0)
         {
             OnionRingHitFlashTimer--;
@@ -719,14 +716,14 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Slows the horizontal speed by the death fall's drag and adds its gravity to the vertical speed.</summary>
     private void AccelerateDownwardsForDeath()
     {
-        // The slowing step takes the drag from the speed, stopping at rest and keeping its direction, and
-        // independently adds the gravity to the vertical velocity. The fall ends 63 updates after the Baby reaches
-        // line 128, so even a fall across the whole coordinate space leaves the speed below 33 pixels an update.
+        // The slowing takes the drag from the speed, stopping at rest and keeping its direction, and adds the gravity
+        // to the vertical velocity. The fall ends 63 updates after the Baby's center reaches Y 128, so its speed stays
+        // below 33 pixels an update.
         Velocity = new(Velocity.X.SlowedBy(BabyMetroidCutsceneFlightDefinitions.DeathFallDrag), Velocity.Y + BabyMetroidCutsceneFlightDefinitions.DeathFallGravity);
     }
 
     /// <summary>
-    /// Shows the next image of the Baby's fade to black every nine updates after its center reaches Y=128; true on the call
+    /// Shows the next image of the Baby's fade to black every nine updates after its center reaches Y=128; true on the update
     /// after its last image, which completes the fade.
     /// </summary>
     private bool StepFadeToBlack(ref MotherBrainFadeImage? fadeImage)
@@ -867,8 +864,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Checks the generous signed camera rectangle used by the Baby's wrong-way movement recovery.</summary>
     private bool IsVaguelyOffScreen(Position16<RoomPixels> cameraPosition)
     {
-        // This is the signed-branch sequence; its generous rectangle extends
-        // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
+        // The Baby is off screen only outside a generous rectangle: 16 pixels past the view's sides and 96 above and
+        // below it.
         if (SignedPlace.Y < 0)
             return true;
         int relativeY = SignedPlace.Y + BabyMetroidFlightWindowDefinitions.VerticalMargin - cameraPosition.Y;

@@ -299,8 +299,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         RoomLevelData level)
     {
-        // Sets the next action but still executes this attached movement
-        // call. Falling displacement begins on the following AI frame.
+        // Sets the next action but still moves along the wall in this update; the fall begins on the next.
         TriggerCrawlerEarthquakeFall(state);
         SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, CrawlerMotionDefinitions.ProbeMargin);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, wallProbe))

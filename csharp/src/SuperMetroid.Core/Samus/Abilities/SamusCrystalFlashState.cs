@@ -235,8 +235,8 @@ public sealed class SamusCrystalFlashState
         // The raise changes only the whole pixels. The subposition survives.
         samus.Position -= new Offset16<RoomPixels>(0, CrystalFlashDefinitions.RaiseStep);
 
-        // The count starts one below the raise's updates, then decrements and checks for a count below zero. The last
-        // raising call runs past zero and starts the main bubble phase after completing its Y move.
+        // The count starts one below the raise's updates and falls by one each update; the raise's last update takes
+        // it below zero and starts the main bubble phase after completing its rise.
         if (--RaiseTimer >= 0)
             return;
 

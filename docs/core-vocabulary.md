@@ -479,6 +479,14 @@ game itself. A helper alone, the helper text, the player's controller and its in
 Shaktool's room controller, a bit more, the Speed Booster's stages, a call to another owner, one call per room, an input
 built for one call, a signed value, a sum written with spaces, a signed list of deltas and a menu's cursor stay English.
 
+#2321 closes the forms that escaped #2292's calls and storage: a call picked out with up to four words before it,
+hyphenated or joined by a slash (`the next body AI call`, `the first post-hit enemy call`, `another beam/movement call`);
+a `same-call` step; rot calls; the call as the update's own work (`true on the call after its last image`, `the image the
+call shows`, `the call that takes it to zero`, `the call's result`); sound-effect and vulnerability flags or bits (`the
+shared SFX flag`, `the vulnerability bit`); and a counter told by the range its storage holds (`the frame counter of 0
+through 65535`). Core counts updates, says whether a sound plays or a shot is blocked, and names the updates a cadence
+picks. The call alone and a call that returns to its caller stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

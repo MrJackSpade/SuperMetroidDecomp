@@ -380,7 +380,7 @@ internal sealed class RoomLoader
     public DoorDefinition? PendingDoorTransition => _room.LevelData?.PendingDoorTransition;
 
     /// <summary>
-    /// Runs one source-room alignment call at the start of a door transition. Horizontal doors move the
+    /// Takes one update of the source room's alignment at the start of a door transition. Horizontal doors move the
     /// camera's Y toward the nearest screen boundary; vertical doors move X, one pixel per update: a camera past the middle
     /// of its screen moves on to the next screen's edge and one before it back to its own, so one pixel either side of
     /// the boundary reaches it in one step.

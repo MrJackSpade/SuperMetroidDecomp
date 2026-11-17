@@ -1245,6 +1245,34 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { string S = \"A per-call input, built for one call and never kept.\"; }");
         Expect("class P { System.Action Callback = () => { }; bool Called; void Calling() { } }");
         Expect(CompatibilityService + "/// <summary>Evidence: sixteen calls precede it.</summary>\n[CompatibilityService(\"calls\")] class Calls { int HoldCalls; }");
+        // The update-call forms that escaped #2292 (#2321): a call picked out with up to four words before it, hyphenated
+        // or joined by a slash; a same-call step; rot calls; and the call as the update's own work.
+        Expect("class P { /// <summary>Choosing an attack waits until the next body AI call.</summary>\nint F => 0; }",
+            "('next body AI call')");
+        Expect("class P { void Run() { // the first post-hit enemy call sees sixteen\n } }", "('first post-hit enemy call')");
+        Expect("class P { /// <summary>Runs another beam/movement call.</summary>\nint F => 0; }", "('another beam/movement call')");
+        Expect("class P { /// <summary>What one Mother Brain active-rainbow body-phase call asks of the room.</summary>\nint F => 0; }",
+            "('one Mother Brain active-rainbow body-phase call')");
+        Expect("class P { /// <summary>Spawns the glow with its same-call pin.</summary>\nint F => 0; }", "('same-call')");
+        Expect("class P { /// <summary>The rows as its rot calls have left them.</summary>\nint F => 0; }", "('rot calls')");
+        Expect("class P { /// <summary>Shows the last image; true on the call after it.</summary>\nint F => 0; }", "('on the call')");
+        Expect("class P { /// <summary>The image the call shows, if it shows one.</summary>\nint F => 0; }", "('the call shows')");
+        Expect("class P { void Run() { // the call that takes it to zero ends the destruction\n } }", "('the call that')");
+        Expect("class P { /// <summary>The call's result.</summary>\nint F => 0; }", "('The call's result')");
+        // The call alone, a call that returns to its caller, a call into another owner with words before it and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>Each row falls before the call returns; the call; the first host call to the queue.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the first post-hit enemy call; its rot calls.</summary>\n[CompatibilityService(\"rot\")] class Rot { }");
+        // Sound-effect and vulnerability flags or bits (#2321).
+        Expect("class P { /// <summary>Rainbow-beam SFX-playing flag.</summary>\nint F => 0; }", "('SFX-playing flag')");
+        Expect("class P { void Run() { // The Baby's drain writes the shared SFX flag.\n } }", "('SFX flag')");
+        Expect("class P { void Run() { // The vulnerability bit is toggled every update.\n } }", "('vulnerability bit')");
+        // A counter told by the range its storage holds (#2321).
+        Expect("class P { /// <summary>Every second update of the frame counter of 0 through 65535.</summary>\nint F => 0; }",
+            "('counter of 0 through 65535')");
+        // Whether a sound plays, a counter's cadence and a hardware owner are English.
+        Expect("class P { /// <summary>Whether her beam's sound plays; every second update of the frame counter.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the SFX flag; the frame counter of 0 through 255.</summary>\n[CompatibilityService(\"sfx\")] class Sfx { }");
         // The machine's arithmetic and the original's data told for a value, outside hardware owners and markup (#2292).
         Expect("class P { /// <summary>Gravity applies while the whole pixels, compared as signed, stay below the cap.</summary>\nint F => 0; }",
             "('compared as signed')");

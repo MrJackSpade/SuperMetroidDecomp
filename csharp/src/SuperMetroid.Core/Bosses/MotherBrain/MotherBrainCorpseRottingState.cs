@@ -16,10 +16,10 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>The corpse's own rot schedule, from before its first rot update.</summary>
     internal CorpseRotSchedule Schedule { get; } = new(EntryCount);
 
-    /// <summary>The corpse's rows as its rot calls have left them.</summary>
+    /// <summary>The corpse's rows as its rot has left them.</summary>
     private readonly RottingCorpseRows rows = new(EntryCount);
 
-    /// <summary>The corpse's rows as its rot calls so far have left them (#1539).</summary>
+    /// <summary>The corpse's rows as its rot has left them so far (#1539).</summary>
     internal CorpseRotRows Shown => rows.Shown;
 
     /// <summary>Runs one rot update of Mother Brain's corpse.</summary>

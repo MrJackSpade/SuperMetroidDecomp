@@ -310,7 +310,7 @@ public sealed class TourianStatueSequence
             _system.RandomNumber, _system.EarthquakeSoundDelay);
         if (_descentPhase == TourianStatueDescentPhase.Holding)
         {
-            // The call that takes the hold to zero raises the dust.
+            // The update that takes the hold to zero raises the dust.
             if (--_holdUpdates <= 0)
             {
                 _enemies.TourianStatue.SpawnDescentDust();

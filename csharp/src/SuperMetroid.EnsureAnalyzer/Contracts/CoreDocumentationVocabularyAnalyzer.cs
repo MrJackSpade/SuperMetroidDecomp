@@ -1282,10 +1282,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// path; an equipment, state, suit, item, beam, facing, release, turning or liquid bit and an item's own bit (the Screw
     /// Attack bit, both suit bits are equipped); both bits; and this, that, the, its or which bit (Grapple physics reads this
     /// bit). Core names the item equipped, the flag or the state. English stays legal: a bit more, a bit of the way, and a
-    /// hardware owner.
+    /// hardware owner. #2321 adds the sound-effect and vulnerability flags or bits that escaped it (the shared SFX flag,
+    /// the rainbow-beam SFX-playing flag, the vulnerability bit): Core says whether the sound plays or the shot blocks.
     /// </summary>
     private static readonly Regex StateBitProse = new(
-        @"\bmerge[-\s]+paths?\b" +
+        @"\b(?:SFX(?:-playing)?|sound-playing|vulnerability)[-\s]+(?:flags?|bits?)\b" +
+        @"|\bmerge[-\s]+paths?\b" +
         @"|\b(?:equipment|state|suit|item|beam|boss|event|status|collected|enabled|upgrade|pickup|facing|release|turning" +
         @"|liquid|Varia|Gravity|Spazer|Plasma|Morph|Attack|Jump|Draygon-facing)[-\s]+bits?\b" +
         @"|\bboth\s+bits\b|\b(?:this|that|the|its|which)\s+bit\b(?!\s+(?:of|more|less|further|longer)\b)",
@@ -1314,12 +1316,26 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// count, order or cadence, and counted, flashing or approach calls. Core counts updates, frames or steps. English
     /// stays legal: a call into another owner (a call to the queue), one call per room, one host call, an input built for
     /// one call, and calling.
+    /// <para>
+    /// #2321 closes the forms that escaped: a call picked out with up to four words before it, hyphenated or joined by a
+    /// slash (the next body AI call, the first post-hit enemy call, another beam/movement call, one Mother Brain
+    /// active-rainbow body-phase call); a same-call step; rot calls; and the call as the update's own work, on the call
+    /// or the call that shows, gave, applied, ran, runs, asks, completes, reaches or takes something, the call after
+    /// another and the call's result. English stays legal: the call alone and a call that returns to its caller.
+    /// </para>
     /// </summary>
     private static readonly Regex UpdateCallProse = new(
         @"\b(?:" + NumberWord + @"|how\s+many|many|several|few|more|fewer)\s+(?:[\w-]+\s+)?calls\b" +
-        @"|\b" + NumberWord + @"-calls?\b" +
+        @"|\b(?:" + NumberWord + @"|same)-calls?\b" +
         @"|(?<!\b(?:for|in)\s)\b(?:each|every|per|this|that|next|previous|following|same|first|last|second|third|final|one|another)\s+" +
-        @"(?:(?!the\b|host\b)[\w-]+\s+)?call\b(?!\s+to\b)(?!\s+per\s+(?!(?:update|frame)s?\b))" +
+        @"(?:(?!the\b|host\b)[\w/-]+\s+)?call\b(?!\s+to\b)(?!\s+per\s+(?!(?:update|frame)s?\b))" +
+        @"|(?<!\b(?:for|in)\s)\b(?:each|every|this|that|next|previous|following|same|first|last|second|third|final|one|another)\s+" +
+        @"(?:(?!(?:the|a|an|host|is|it|its|and|or|of|to|that|which|does|then|per|for|in|on|at|as|by)\b)[\w/-]+\s+){2,4}call\b" +
+        @"(?!\s+(?:to|into|per)\b)" +
+        @"|\brot\s+calls?\b" +
+        @"|\b(?:on|until)\s+the\s+call\b(?!\s+(?:to|into)\b)" +
+        @"|\bthe\s+call(?:'s|’s)?\s+(?:after|that|which|shows|showed|gave|gives|applied|applies|ran|runs|asks|asked|last" +
+        @"|completes|reaches|takes|result)\b" +
         @"|\bcalls?\s+(?:left|remaining|apart|later|earlier|longer|precedes?)\b|\bcall\s+(?:counts?|counters?|order|cadences?)\b" +
         @"|\b(?:counted|flashing|approach)\s+calls\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -1334,9 +1350,12 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// written as a summary (the left edge (-24) minus two, 256 + 108 * 96 = 10624). Core states what the value means:
     /// which way a distance lies, where the camera stops, the room's wrap, the destination. English stays legal: a signed
     /// value, a sum written with spaces (n + 1 updates), a signed list of deltas (+1 for frames 0..5) and a hardware owner.
+    /// #2321 adds a counter told by the range its storage holds (the frame counter of 0 through 65535), which escaped it:
+    /// Core says which updates a cadence picks.
     /// </summary>
     private static readonly Regex MachineReadingProse = new(
-        @"\b(?:compared|compares|read|reads|treated|taken|interpreted|tested)\s+(?:as\s+)?signed\b" +
+        @"\bcounters?\s+of\s+0\s+through\s+(?:255|65535)\b" +
+        @"|\b(?:compared|compares|read|reads|treated|taken|interpreted|tested)\s+(?:as\s+)?signed\b" +
         @"|\b(?:deferred|pending|delayed)\s+(?:copy|copies|writes?)\b|\b(?:suit|shade|normal-colou?r)\s+(?:colou?rs?\s+)?(?:copy|copies)\b" +
         @"|\b(?:odd|even)\s+(?:frames?|updates?)\s+return\b|\breturns?\s+(?:early\s+)?on\s+(?:odd|even)\s+(?:frames?|updates?)\b" +
         @"|\bhard-?coded\b" +

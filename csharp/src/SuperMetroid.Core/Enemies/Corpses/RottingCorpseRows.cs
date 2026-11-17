@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One rotting corpse's own pixel rows as its rot calls have left them (#1539): which of the corpse's rows each of its rows
-/// shows, or none once a move has cleared it. Each corpse owns one, which only its own rot calls move, and its frames are
+/// One rotting corpse's own pixel rows as its rot has left them (#1539): which of the corpse's rows each of its rows
+/// shows, or none once a move has cleared it. Each corpse owns one, which only its own rot moves, and its frames are
 /// drawn whole through it. It decides nothing about the rot's timing, its dust or its collisions.
 /// </summary>
 internal sealed class RottingCorpseRows
@@ -39,7 +39,7 @@ internal sealed class RottingCorpseRows
     }
 
     /// <summary>
-    /// The rows as the corpse's rot calls so far have left them, which its frames are drawn through; remade by each move,
+    /// The rows as the corpse's rot has left them so far, which its frames are drawn through; remade by each move,
     /// not by each draw.
     /// </summary>
     internal CorpseRotRows Shown { get; private set; }

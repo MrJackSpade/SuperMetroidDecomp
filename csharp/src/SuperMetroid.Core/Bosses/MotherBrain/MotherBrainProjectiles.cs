@@ -713,9 +713,8 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Consumes one request emitted by the glass room object's shard step. The request retains the
-    /// glass's block origin because the shard initializer calls
-    /// for the room object's block coordinates after the shared projectile allocator runs.
+    /// Spawns one shard the breaking glass asked for. The request keeps the glass's block, from which the shard takes
+    /// its starting position once it has its own place among the enemy projectiles.
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
@@ -860,8 +859,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile bullet,
         RoomLevelData level)
     {
-        // The vulnerability bit is toggled before the projectile-vs-projectile pass every frame,
-        // reproducing the bullet's alternating vulnerability rather than a visual alpha hack.
+        // The bullet blocks Samus's shots on every other update, switching before her shots meet it.
         bullet.BlocksSamusProjectiles = !bullet.BlocksSamusProjectiles;
         bullet.Position = bullet.Position.Advance(bullet.Velocity.ToSixteenSixteen());
 

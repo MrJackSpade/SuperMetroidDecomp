@@ -21,7 +21,7 @@ public sealed class DeadSidehopperEnemyState
 
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
-    /// <summary>The corpse's own pixel rows as its rot calls have left them, which its frames are drawn through (#1539).</summary>
+    /// <summary>The corpse's own pixel rows as its rot has left them, which its frames are drawn through (#1539).</summary>
     internal RottingCorpseRows Rows { get; }
 
     /// <summary>The current dead-sidehopper AI behaviour.</summary>

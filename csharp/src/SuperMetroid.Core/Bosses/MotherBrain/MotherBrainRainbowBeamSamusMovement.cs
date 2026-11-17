@@ -135,7 +135,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         RainbowBeamCameraCheckpoint cameraCheckpoint,
         SignedEightEight velocity)
     {
-        FixedCoordinate moved = AddVelocityToHighSubpixel(
+        FixedCoordinate moved = MoveByPushVelocity(
             new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
@@ -164,7 +164,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Applies 1/256-pixel X movement, copies the result into the previous position, and clamps at the right wall X=235.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint, SignedEightEight velocity)
     {
-        FixedCoordinate moved = AddVelocityToHighSubpixel(
+        FixedCoordinate moved = MoveByPushVelocity(
             new FixedCoordinate(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.Fraction);
@@ -186,7 +186,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Moves the position by the velocity in 256ths of a pixel, carrying into whole pixels, and keeps its finer precision unchanged.</summary>
-    private static FixedCoordinate AddVelocityToHighSubpixel(FixedCoordinate position, SignedEightEight velocity) =>
+    private static FixedCoordinate MoveByPushVelocity(FixedCoordinate position, SignedEightEight velocity) =>
         // The push moves only in 256ths of a pixel; precision finer than that is never read or changed.
         position.MovedBy(velocity);
 

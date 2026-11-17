@@ -346,8 +346,7 @@ internal sealed class MotherBrainBody
     {
         _earthquake.Start(MotherBrainFightDefinitions.FootstepShake, MotherBrainFightDefinitions.FootstepShakeUpdates);
 
-        // Form three additionally makes the footstep sound. Phase two normally never
-        // reaches that branch, but retaining it here makes the shared gait cue complete.
+        // Only while the Baby drains her does a footstep also make its sound.
         if (state.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }
@@ -380,8 +379,7 @@ internal sealed class MotherBrainBody
         turret.State = new MotherBrainTurretState(state, definition);
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
-        // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
-        // 256 upward.
+        // A new turret draws a random number for each of its two waits, its turning wait first.
         _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);
         _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turret);
     }

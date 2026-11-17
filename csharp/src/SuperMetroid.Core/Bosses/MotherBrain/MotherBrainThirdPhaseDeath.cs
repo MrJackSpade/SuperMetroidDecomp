@@ -137,10 +137,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death move to back of room body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Walks her back, ignoring Samus and with no hit areas, to the back of the room. True when her next phase runs on
+    /// in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathMoveToBackOfRoom()
+    internal bool RetreatToBackOfRoom()
     {
         // Moving to the back, the body and the brain ignore Samus and have no hitboxes, and she walks back at medium
         // speed. Once she reaches the back of the room the idle's wait starts, and its first smoky explosion and update happen
@@ -159,10 +159,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death idle whilst exploding body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Bursts smoky explosions over her at the back of the room until the wait runs out. True when her next phase runs
+    /// on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathIdleWhilstExploding(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool ExplodeAtBackOfRoom(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
@@ -172,13 +172,13 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death stumble to middle of room body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Stumbles her forward really fast through smoky explosions toward the middle of the room, then lowers her neck
+    /// and drools. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathStumbleToMiddleOfRoom(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool StumbleForward(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // The stumble smokes before she walks forward really fast toward X the middle of the room. Standing at 96 still starts a whole
-        // step; only passing it, or reaching the arena's limit at 128, ends the stumble.
+        // The stumble smokes before she walks forward really fast toward the middle of the room. Standing on the
+        // stumble's target still starts a whole step; only passing it, or reaching the arena's front limit, ends it.
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
         MotherBrainWalkResult dyingAdvance = _state.RequestWalkForward(MotherBrainLateFightDefinitions.DyingStumbleX, MotherBrainWalkSpeed.ReallyFast);
@@ -195,10 +195,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death disable brain effects body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// When the wait runs out, stops her neck, drool, breath and health colours and lets her brain come away from the
+    /// neck. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathDisableBrainEffects(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool LetGoOfBrain(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, requests.DeathExplosions);
@@ -221,10 +221,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death setup body fade out body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Bursts mixed explosions until the wait runs out, then starts her body's fade. True when her next phase runs on
+    /// in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathSetupBodyFadeOut(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool WaitBeforeBodyFades(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
@@ -239,10 +239,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death fade out body body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Fades her flickering body to black through mixed explosions, then hides it. True when her next phase runs on in
+    /// this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathFadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool FadeOutBody(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The body flickers on every update, apart from the fade's steps. The fade's steps show its blackening colourings; the
         // step after them shows none and completes it.
@@ -270,10 +270,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death final few explosions body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Bursts the last mixed explosions until the wait runs out. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathFinalFewExplosions(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool ExplodeAfterBodyFades(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         GenerateDeathExplosions(
             style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, requests.DeathExplosions);
@@ -283,10 +282,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death realize decapitation body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Shows her decapitated and starts her brain's fall from rest. True when her next phase runs on in this same
+    /// update.
     /// </summary>
-    internal bool RunThirdPhaseDeathRealizeDecapitation()
+    internal bool DropBrain()
     {
         // The body starts the decapitated animation and the brain's own draw without its neck, which hands the brain's
         // position from the articulated neck to the fall; it starts the brain falling from rest, and the fall takes
@@ -299,10 +298,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death brain falls to ground body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Drops her brain faster each update until it lands on the floor, shaking the room. True when her next phase runs
+    /// on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathBrainFallsToGround(MotherBrainRainbowBeamStepRequests requests)
+    internal bool FallBrainToFloor(MotherBrainRainbowBeamStepRequests requests)
     {
         // The brain gains fall speed each update and falls the speed's whole pixels.
         // Reaching the floor clamps the head and starts the brain's landing earthquake.
@@ -324,10 +323,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death's readying of her corpse. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Readies her corpse one update at a time, then starts the wait before it greys. True when her next phase runs on
+    /// in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathReadyCorpse()
+    internal bool SettleCorpse()
     {
         // Each update readies one update of her corpse; the last moves on to the fade in that same update.
         ReadyCorpse();
@@ -340,10 +339,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death setup fade to grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Waits, then starts her corpse's fade to grey. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathSetupFadeToGrey()
+    internal bool WaitBeforeCorpseGreys()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -355,10 +353,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death fade to grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Greys her corpse one step each time the wait runs out, then shows the corpse and starts the wait before it tips
+    /// over. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathFadeToGrey(MotherBrainRainbowBeamStepRequests requests)
+    internal bool GreyCorpse(MotherBrainRainbowBeamStepRequests requests)
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -378,10 +376,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death corpse tips over body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Waits as the corpse tips over, then it stops meeting Samus and starts to rot. True when her next phase runs on
+    /// in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathCorpseTipsOver()
+    internal bool TipCorpseOver()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -393,10 +391,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death corpse rots away body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Rots her corpse away with its dust, then hides the brain, stops the music and queues the escape music. True when
+    /// her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathCorpseRotsAway(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool RotCorpse(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         MotherBrainCorpseRottingStepResult corpseRotting = CorpseRotting.Step(
             _state.BrainPosition,
@@ -422,10 +420,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the pause before the escape, once her corpse has rotted away, until it runs out. True when it moves to the next
-    /// body phase and the game runs on into it in the same update.
+    /// Pauses before the escape, once her corpse has rotted away, until the wait runs out. True when her next phase
+    /// runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathPauseBeforeEscape()
+    internal bool PauseBeforeEscape()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -439,10 +437,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death's readying of the escape timer and message. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Readies the escape timer and message one update at a time, then starts the escape. True when her next phase runs
+    /// on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathReadyEscapeWarning()
+    internal bool PrepareEscapeWarning()
     {
         ReadyEscapeWarning();
         if (EscapeWarningReadyingElapsed == MotherBrainReadyingDefinitions.EscapeWarningDuration)
@@ -456,10 +454,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death start escape body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Readies the escape door's explosion one update at a time, then starts the escape's music, earthquake, red
+    /// flashing and text. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathStartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool StartEscape(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         ReadyExplodedDoor();
         if (ExplodedDoorReadyingElapsed != MotherBrainReadyingDefinitions.ExplodedDoorDuration)
@@ -483,10 +481,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death spawn time bomb set subtitle body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Types the escape text on until the wait runs out, then asks for the Japanese time-bomb subtitle. True when her
+    /// next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathSpawnTimeBombSetSubtitle(MotherBrainRainbowBeamStepRequests requests)
+    internal bool ShowTimeBombSubtitle(MotherBrainRainbowBeamStepRequests requests)
     {
         // The subtitle's delay does not merely wait: the escape text types on in every update of it. When it runs out the typing proper begins and the Japanese subtitle is requested, which spawns
         // only where the enemy projectiles have room; the text types on in that same update.
@@ -499,10 +497,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death type out zebes escape text body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Waits for the escape text to finish typing, then starts the wait before the escape door bursts. True when her
+    /// next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathTypeOutZebesEscapeText(RainbowBeamAttackFrame frame)
+    internal bool TypeEscapeText(RainbowBeamAttackFrame frame)
     {
         // The escape text types on by its own cadence; Mother Brain's death waits for it to finish.
         if (frame.TypewriterFinished)
@@ -514,10 +512,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death door exploding start timer body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Bursts dust over the escape door until the wait runs out, then starts the escape timer and records her defeat.
+    /// True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathDoorExplodingStartTimer(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal bool BurstDoorAndStartTimer(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // The door's dust bursts before the countdown steps, so dust may burst even on the countdown's last update.
         requests.EscapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
@@ -536,10 +534,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death blow up escape door body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Blows the escape door into its fragments and opens it. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunThirdPhaseDeathBlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
+    internal bool BlowUpEscapeDoor(MotherBrainRainbowBeamStepRequests requests)
     {
         // The door bursts into its eight fragments, each spawning where the enemy projectiles have room.
         foreach (MotherBrainDoorFragmentDefinition fragment in MotherBrainDoorFragmentDefinitions.Fragments)
@@ -553,10 +550,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     }
 
     /// <summary>
-    /// Runs the third phase death keep earthquake going body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Keeps the escape's earthquake going whenever it has stopped. True when her next phase runs on in this same
+    /// update.
     /// </summary>
-    internal static bool RunThirdPhaseDeathKeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
+    internal static bool KeepEarthquakeGoing(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
         // A producer may give the room's earthquake a length, which runs down outside enemy AI. Only a stopped earthquake
         // is run on again, indefinitely, with whatever shake the room has; a running one is left as it is.
@@ -571,28 +568,28 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool Run(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.DeathPhase switch
     {
-        MotherBrainDeathPhase.MoveToBackOfRoom => RunThirdPhaseDeathMoveToBackOfRoom(),
-        MotherBrainDeathPhase.IdleWhilstExploding => RunThirdPhaseDeathIdleWhilstExploding(frame, requests),
-        MotherBrainDeathPhase.StumbleToMiddleOfRoom => RunThirdPhaseDeathStumbleToMiddleOfRoom(frame, requests),
-        MotherBrainDeathPhase.DisableBrainEffects => RunThirdPhaseDeathDisableBrainEffects(frame, requests),
-        MotherBrainDeathPhase.SetupBodyFadeOut => RunThirdPhaseDeathSetupBodyFadeOut(frame, requests),
-        MotherBrainDeathPhase.FadeOutBody => RunThirdPhaseDeathFadeOutBody(frame, requests),
-        MotherBrainDeathPhase.FinalFewExplosions => RunThirdPhaseDeathFinalFewExplosions(frame, requests),
-        MotherBrainDeathPhase.RealizeDecapitation => RunThirdPhaseDeathRealizeDecapitation(),
-        MotherBrainDeathPhase.BrainFallsToGround => RunThirdPhaseDeathBrainFallsToGround(requests),
-        MotherBrainDeathPhase.ReadyCorpse => RunThirdPhaseDeathReadyCorpse(),
-        MotherBrainDeathPhase.SetupFadeToGrey => RunThirdPhaseDeathSetupFadeToGrey(),
-        MotherBrainDeathPhase.FadeToGrey => RunThirdPhaseDeathFadeToGrey(requests),
-        MotherBrainDeathPhase.CorpseTipsOver => RunThirdPhaseDeathCorpseTipsOver(),
-        MotherBrainDeathPhase.CorpseRotsAway => RunThirdPhaseDeathCorpseRotsAway(frame, requests),
-        MotherBrainDeathPhase.PauseBeforeEscape => RunThirdPhaseDeathPauseBeforeEscape(),
-        MotherBrainDeathPhase.ReadyEscapeWarning => RunThirdPhaseDeathReadyEscapeWarning(),
-        MotherBrainDeathPhase.StartEscape => RunThirdPhaseDeathStartEscape(frame, requests),
-        MotherBrainDeathPhase.SpawnTimeBombSetSubtitle => RunThirdPhaseDeathSpawnTimeBombSetSubtitle(requests),
-        MotherBrainDeathPhase.TypeOutZebesEscapeText => RunThirdPhaseDeathTypeOutZebesEscapeText(frame),
-        MotherBrainDeathPhase.DoorExplodingStartTimer => RunThirdPhaseDeathDoorExplodingStartTimer(frame, requests),
-        MotherBrainDeathPhase.BlowUpEscapeDoor => RunThirdPhaseDeathBlowUpEscapeDoor(requests),
-        MotherBrainDeathPhase.KeepEarthquakeGoing => RunThirdPhaseDeathKeepEarthquakeGoing(frame, requests),
+        MotherBrainDeathPhase.MoveToBackOfRoom => RetreatToBackOfRoom(),
+        MotherBrainDeathPhase.IdleWhilstExploding => ExplodeAtBackOfRoom(frame, requests),
+        MotherBrainDeathPhase.StumbleToMiddleOfRoom => StumbleForward(frame, requests),
+        MotherBrainDeathPhase.DisableBrainEffects => LetGoOfBrain(frame, requests),
+        MotherBrainDeathPhase.SetupBodyFadeOut => WaitBeforeBodyFades(frame, requests),
+        MotherBrainDeathPhase.FadeOutBody => FadeOutBody(frame, requests),
+        MotherBrainDeathPhase.FinalFewExplosions => ExplodeAfterBodyFades(frame, requests),
+        MotherBrainDeathPhase.RealizeDecapitation => DropBrain(),
+        MotherBrainDeathPhase.BrainFallsToGround => FallBrainToFloor(requests),
+        MotherBrainDeathPhase.ReadyCorpse => SettleCorpse(),
+        MotherBrainDeathPhase.SetupFadeToGrey => WaitBeforeCorpseGreys(),
+        MotherBrainDeathPhase.FadeToGrey => GreyCorpse(requests),
+        MotherBrainDeathPhase.CorpseTipsOver => TipCorpseOver(),
+        MotherBrainDeathPhase.CorpseRotsAway => RotCorpse(frame, requests),
+        MotherBrainDeathPhase.PauseBeforeEscape => PauseBeforeEscape(),
+        MotherBrainDeathPhase.ReadyEscapeWarning => PrepareEscapeWarning(),
+        MotherBrainDeathPhase.StartEscape => StartEscape(frame, requests),
+        MotherBrainDeathPhase.SpawnTimeBombSetSubtitle => ShowTimeBombSubtitle(requests),
+        MotherBrainDeathPhase.TypeOutZebesEscapeText => TypeEscapeText(frame),
+        MotherBrainDeathPhase.DoorExplodingStartTimer => BurstDoorAndStartTimer(frame, requests),
+        MotherBrainDeathPhase.BlowUpEscapeDoor => BlowUpEscapeDoor(requests),
+        MotherBrainDeathPhase.KeepEarthquakeGoing => KeepEarthquakeGoing(frame, requests),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainDeathPhase)} {Encounter.DeathPhase}."),
     };
 }

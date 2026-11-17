@@ -160,7 +160,7 @@ internal sealed class BeamFiring
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
             {
-                // The game tries the special beam attack only on the call after charge reaches 120.
+                // The game tries the special beam attack only on the update after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
                 // failed family selection leaves charge intact, including its ammo debit.
                 _charge.ClearCount();

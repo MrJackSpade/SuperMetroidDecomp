@@ -22,10 +22,10 @@ internal sealed class MotherBrainRevivalPhases
     public int BabyMetroidAttackCounter { get; internal set; }
 
     /// <summary>
-    /// Runs the second phase revive inanimate grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Starts her inanimate wait as a grey corpse; the wait starts on the next update. True when her next phase runs on
+    /// in this same update.
     /// </summary>
-    internal bool RunSecondPhaseReviveInanimateGrey()
+    internal bool LieInanimate()
     {
         // The grey body only moves on to its signs of life, whose wait starts on the next update.
         Encounter.RevivalPhase = MotherBrainRevivalPhase.ShowSignsOfLife;
@@ -34,10 +34,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive show signs of life body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// As her inanimate wait runs out, starts her breath and drool again and her colour's return. True when her next
+    /// phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseReviveShowSignsOfLife()
+    internal bool ShowSignsOfLife()
     {
         // As her inanimate wait runs out, her breath and drool start again and the transition from grey starts, its first
         // update this same update.
@@ -54,10 +54,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive transition from grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Brings her colour back one step each time the wait runs out; the step after the last wakes her. True when her
+    /// next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseReviveTransitionFromGrey(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RegainColour(MotherBrainRainbowBeamStepRequests requests)
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -77,10 +77,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive wake up body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Stands her up from her corpse pose, then lowers her neck and starts her stretch. True when her next phase runs
+    /// on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseReviveWakeUp()
+    internal bool WakeUp()
     {
         // She counts as standing only once her standing pose already shows. From her corpse pose she starts
         // standing up, and the neck and timer are set once her body animation shows her standing.
@@ -99,10 +99,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive wake up stretch body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Stretches until the wait runs out, then starts the wait before she walks up to the Baby. True when her next
+    /// phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseReviveWakeUpStretch()
+    internal bool Stretch()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -115,10 +115,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive walk up to baby body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Walks her forward fast until she is past the Baby's walk target, then her colours follow her health again. True
+    /// when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseReviveWalkUpToBaby()
+    internal bool WalkUpToBaby()
     {
         // Once the wait has run out it stays run out, and she asks to walk forward on every update until she is past the
         // walk's target.
@@ -138,10 +138,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive prepare neck for baby death body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Starts her neck's slow bob and her count of attacks on the Baby. True when her next phase runs on in this same
+    /// update.
     /// </summary>
-    internal bool RunSecondPhaseRevivePrepareNeckForBabyDeath()
+    internal bool BobNeckToAttackBaby()
     {
         // Readying the neck for the Baby's death takes one update and moves on in that same update; her body may
         // still be finishing the last walk.
@@ -155,10 +155,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase revive finish preparing for baby death body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Stands her up, then starts her really slow walk and her attacks. True when her next phase runs on in this same
+    /// update.
     /// </summary>
-    internal bool RunSecondPhaseReviveFinishPreparingForBabyDeath()
+    internal bool StandToAttackBaby()
     {
         bool stoodUp = _state.MakeBodyStandUp();
         if (stoodUp)
@@ -171,10 +171,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase murder baby attack body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Fires her volley at the Baby, or at Samus before the Baby appears, when her chance to fire comes. True when her
+    /// next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseMurderBabyAttack(RainbowBeamAttackFrame frame)
+    internal bool AttackBaby(RainbowBeamAttackFrame frame)
     {
         _state.MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.BabyVolleyFires))
@@ -190,10 +190,9 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase murder baby attack cooldown body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Waits out the attack's cooldown, then attacks again. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseMurderBabyAttackCooldown()
+    internal bool CoolDownFromBabyAttack()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
             Encounter.RevivalPhase = MotherBrainRevivalPhase.MurderBabyAttack;
@@ -201,10 +200,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase prepare for final baby attack body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Stands her and walks her back fast toward her retreat until the Baby moves her on. True when her next phase runs
+    /// on in this same update.
     /// </summary>
-    internal bool RunSecondPhasePrepareForFinalBabyAttack()
+    internal bool BackAwayForFinalBabyAttack()
     {
         // This phase never moves on itself: it asks her to stand and walk back fast toward its retreat on every update until
         // the Baby moves her on.
@@ -214,10 +213,9 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase execute final baby attack body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Fires her last volley at the Baby. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseExecuteFinalBabyAttack()
+    internal bool FireFinalBabyAttack()
     {
         _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingBabyMetroid);
         Encounter.RevivalPhase = MotherBrainRevivalPhase.FinalBabyAttackHolding;
@@ -225,10 +223,10 @@ internal sealed class MotherBrainRevivalPhases
     }
 
     /// <summary>
-    /// Runs the second phase final baby attack holding body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Holds after her last volley while the volley and the Baby finish. True when her next phase runs on in this same
+    /// update.
     /// </summary>
-    internal static bool RunSecondPhaseFinalBabyAttackHolding()
+    internal static bool HoldFinalBabyAttack()
     {
         // The final attack's holding step is empty. The last ring volley owns the remaining
         // health reduction and the Baby actor owns its death/recovery sequence.
@@ -241,19 +239,19 @@ internal sealed class MotherBrainRevivalPhases
     /// </summary>
     internal bool Run(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests) => Encounter.RevivalPhase switch
     {
-        MotherBrainRevivalPhase.InanimateGrey => RunSecondPhaseReviveInanimateGrey(),
-        MotherBrainRevivalPhase.ShowSignsOfLife => RunSecondPhaseReviveShowSignsOfLife(),
-        MotherBrainRevivalPhase.TransitionFromGrey => RunSecondPhaseReviveTransitionFromGrey(requests),
-        MotherBrainRevivalPhase.WakeUp => RunSecondPhaseReviveWakeUp(),
-        MotherBrainRevivalPhase.WakeUpStretch => RunSecondPhaseReviveWakeUpStretch(),
-        MotherBrainRevivalPhase.WalkUpToBaby => RunSecondPhaseReviveWalkUpToBaby(),
-        MotherBrainRevivalPhase.PrepareNeckForBabyDeath => RunSecondPhaseRevivePrepareNeckForBabyDeath(),
-        MotherBrainRevivalPhase.FinishPreparingForBabyDeath => RunSecondPhaseReviveFinishPreparingForBabyDeath(),
-        MotherBrainRevivalPhase.MurderBabyAttack => RunSecondPhaseMurderBabyAttack(frame),
-        MotherBrainRevivalPhase.MurderBabyAttackCooldown => RunSecondPhaseMurderBabyAttackCooldown(),
-        MotherBrainRevivalPhase.PrepareForFinalBabyAttack => RunSecondPhasePrepareForFinalBabyAttack(),
-        MotherBrainRevivalPhase.ExecuteFinalBabyAttack => RunSecondPhaseExecuteFinalBabyAttack(),
-        MotherBrainRevivalPhase.FinalBabyAttackHolding => RunSecondPhaseFinalBabyAttackHolding(),
+        MotherBrainRevivalPhase.InanimateGrey => LieInanimate(),
+        MotherBrainRevivalPhase.ShowSignsOfLife => ShowSignsOfLife(),
+        MotherBrainRevivalPhase.TransitionFromGrey => RegainColour(requests),
+        MotherBrainRevivalPhase.WakeUp => WakeUp(),
+        MotherBrainRevivalPhase.WakeUpStretch => Stretch(),
+        MotherBrainRevivalPhase.WalkUpToBaby => WalkUpToBaby(),
+        MotherBrainRevivalPhase.PrepareNeckForBabyDeath => BobNeckToAttackBaby(),
+        MotherBrainRevivalPhase.FinishPreparingForBabyDeath => StandToAttackBaby(),
+        MotherBrainRevivalPhase.MurderBabyAttack => AttackBaby(frame),
+        MotherBrainRevivalPhase.MurderBabyAttackCooldown => CoolDownFromBabyAttack(),
+        MotherBrainRevivalPhase.PrepareForFinalBabyAttack => BackAwayForFinalBabyAttack(),
+        MotherBrainRevivalPhase.ExecuteFinalBabyAttack => FireFinalBabyAttack(),
+        MotherBrainRevivalPhase.FinalBabyAttackHolding => HoldFinalBabyAttack(),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainRevivalPhase)} {Encounter.RevivalPhase}."),
     };
 }

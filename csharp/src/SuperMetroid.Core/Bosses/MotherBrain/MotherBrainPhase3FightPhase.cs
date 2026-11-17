@@ -6,7 +6,7 @@ public enum MotherBrainPhase3FightPhase
     /// <summary>Changes her form to <see cref="MotherBrainForm.ThirdPhase"/>, requests a fourteen-pixel backward target, and starts the combat-setup wait.</summary>
     RecoverMakeSomeDistance,
 
-    /// <summary>When the wait runs out, installs the normal neck and walking steps and immediately runs the first phase-three fighting call.</summary>
+    /// <summary>When the wait runs out, starts her neck's and her walking's ordinary steps, and the fight's first update runs at once.</summary>
     RecoverSetupForFighting,
 
     /// <summary>Checks head death before neck/walking work, then uses standing pose, attack admission, and sampled RNG to choose bombs or four onion rings.</summary>

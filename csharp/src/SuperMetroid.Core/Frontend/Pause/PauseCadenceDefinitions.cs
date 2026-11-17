@@ -12,13 +12,13 @@ internal static class PauseCadenceDefinitions
     internal const int HeldInputRepeatDelay = 3;
 
     /// <summary>
-    /// The phase of the pause screen's frame counter of 0 through 255 that picks the pulsing AUTO arrow's picture: one of
+    /// The phase of the pause screen's frame counter that picks the pulsing AUTO arrow's picture: one of
     /// its <see cref="PauseReserveArrowDefinitions.ArrowFrames"/> pulse frames, one an update in turn.
     /// </summary>
     internal static readonly UpdateCounterField ReserveArrowPulseFrame = new(0, 5);
 
     /// <summary>
-    /// The phase of the pause screen's frame counter of 0 through 255 on which a partly filled reserve tank hides its
+    /// The phase of the pause screen's frame counter on which a partly filled reserve tank hides its
     /// flickering next step: set for four updates of every eight; the step shows for the other four.
     /// </summary>
     internal static readonly UpdateCounterField ReserveFlickerStepHidden = new(2, 1);

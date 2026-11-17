@@ -1,9 +1,11 @@
 ﻿namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// Sixteen bank-$A3 OAM compositions used by the shared Tripper/Kamer platform
+/// Twelve bank-$A3 OAM compositions used by the shared Tripper/Kamer platform
 /// dispatcher. The typed programs and movement state own direction and timing;
-/// the two frozen Tripper compositions are selected directly by its shot AI.
+/// the two frozen Tripper compositions are selected directly by its shot AI. The
+/// suspensor platform's lights are the Kamer's pictures, which bank $A2 stores; its
+/// bank-$A3 records store them again (#2307).
 /// </summary>
 internal static class TripperKamerVisualDefinitions
 {
@@ -14,8 +16,7 @@ internal static class TripperKamerVisualDefinitions
     internal const ushort FrozenMovingLeft = 0xa009;
     /// <summary><c>Spritemap_Tripper_Frozen_MovingRight</c> at $A3:A015.</summary>
     internal const ushort FrozenMovingRight = 0xa015;
-    /// <summary>Enumerates the moving, stationary, and frozen Tripper maps followed by
-    /// the four Kamer platform poses for artwork extraction.</summary>
+    /// <summary>Enumerates the moving, stationary, and frozen Tripper maps for artwork extraction.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, MovingTripperFrame(0, 0), "tripper_moving_left_0"),
@@ -32,14 +33,8 @@ internal static class TripperKamerVisualDefinitions
             "tripper_frozen_moving_left"),
         new(Bank, FrozenMovingRight,
             "tripper_frozen_moving_right"),
-        new(Bank, KamerFrame(0), "tripper_kamer_platform_0"),
-        new(Bank, KamerFrame(1), "tripper_kamer_platform_1"),
-        new(Bank, KamerFrame(2), "tripper_kamer_platform_2"),
-        new(Bank, KamerFrame(3), "tripper_kamer_platform_3"),
     ];
 
-    /// <summary>Locates one Kamer pose in the contiguous two-entry OAM records.</summary>
-    private static ushort KamerFrame(int frame) => (ushort)(0xa021 + 12 * frame);
     /// <summary>Locates a three-entry moving Tripper pose; each facing has three records.</summary>
     private static ushort MovingTripperFrame(int facing, int pose) =>
         (ushort)(0x9f29 + 51 * facing + 17 * pose);

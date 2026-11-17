@@ -32,10 +32,10 @@ internal static class ShutterAnimations
         ],
         [P.KamerPlatform] =
         [
-            Show(EnemyFrameId.KamerLightDark, 10),
-            Show(EnemyFrameId.KamerLightDim, 10),
-            Show(EnemyFrameId.KamerLightLit, 10),
-            Show(EnemyFrameId.KamerLightBright, 10),
+            Show(EnemyFrameId.PlatformLightDark, 10),
+            Show(EnemyFrameId.PlatformLightDim, 10),
+            Show(EnemyFrameId.PlatformLightLit, 10),
+            Show(EnemyFrameId.PlatformLightBright, 10),
         ],
     });
 

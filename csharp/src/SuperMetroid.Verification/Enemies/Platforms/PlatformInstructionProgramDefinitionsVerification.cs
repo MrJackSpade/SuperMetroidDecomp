@@ -117,21 +117,26 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
     /// <summary>
     /// Checks that the programs show exactly the fourteen animated pictures and their native sprite counts; the long jet's
-    /// second records store its picture again (#2272).
+    /// second records store its picture again (#2272), and the lights' records store the Kamer's bank-$A2 light pictures
+    /// again (#2307).
     /// </summary>
     private static void VerifyPlatformVisualPointers(CartridgeImportAddressSpace rom)
     {
-        ushort[] kamer = [0xa021, 0xa02d, 0xa039, 0xa045];
+        ushort[] lights = [0xa021, 0xa02d, 0xa039, 0xa045];
+        ushort[] kamerLights = [0xf468, 0xf474, 0xf480, 0xf48c];
         ushort[] threeEntryTripper = [0x9f29, 0x9f3a, 0x9f5c, 0x9f6d, 0x9fa5, 0x9fe2];
         ushort[] fourEntryTripper = [0x9f8f, 0x9fb6, 0x9fcc, 0x9ff3];
-        foreach (ushort pointer in kamer)
-            AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Kamer native two-entry map");
+        foreach (ushort pointer in lights)
+            AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "platform light native two-entry map");
+        AssertTrue(lights.Select(pointer => SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(0xa3, pointer))
+                .SequenceEqual(kamerLights.Select(pointer => SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(0xa2, pointer))),
+            "the suspensor platform's light records show the Kamer's light frames");
         foreach (ushort pointer in threeEntryTripper)
             AssertEqual((ushort)3, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native three-entry map");
         foreach (ushort pointer in fourEntryTripper)
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
         AssertTrue(PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet()
-                .SetEquals(kamer.Concat(threeEntryTripper).Concat(fourEntryTripper)),
+                .SetEquals(lights.Concat(threeEntryTripper).Concat(fourEntryTripper)),
             "platform programs show exactly the fourteen animated pictures");
     }
     /// <summary>Checks published frame order, asset names, and consecutive native record sizes.</summary>
@@ -146,8 +151,6 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             new PlatformInstructionProgramDefinitionsExpected(0x9fb6, "tripper_still_moving_left_2"), new PlatformInstructionProgramDefinitionsExpected(0x9fcc, "tripper_still_moving_right_0"),
             new PlatformInstructionProgramDefinitionsExpected(0x9fe2, "tripper_still_moving_right_1"), new PlatformInstructionProgramDefinitionsExpected(0x9ff3, "tripper_still_moving_right_2"),
             new PlatformInstructionProgramDefinitionsExpected(0xa009, "tripper_frozen_moving_left"), new PlatformInstructionProgramDefinitionsExpected(0xa015, "tripper_frozen_moving_right"),
-            new PlatformInstructionProgramDefinitionsExpected(0xa021, "tripper_kamer_platform_0"), new PlatformInstructionProgramDefinitionsExpected(0xa02d, "tripper_kamer_platform_1"),
-            new PlatformInstructionProgramDefinitionsExpected(0xa039, "tripper_kamer_platform_2"), new PlatformInstructionProgramDefinitionsExpected(0xa045, "tripper_kamer_platform_3"),
         ];
         NativeEnemySpritemapDefinition[] actual = TripperKamerVisualDefinitions.Frames();
         AssertEqual(expected.Length, actual.Length, "platform export frame count");
@@ -162,7 +165,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
     /// <summary>
     /// Where the installed record after the one at <paramref name="pointer"/> starts: past any record that stores an
-    /// installed picture again, such as the long jet's second records (#2272).
+    /// installed picture again, such as the long jet's second records (#2272) and the lights (#2307).
     /// </summary>
     private static int RecordAfter(CartridgeImportAddressSpace rom, ushort pointer)
     {

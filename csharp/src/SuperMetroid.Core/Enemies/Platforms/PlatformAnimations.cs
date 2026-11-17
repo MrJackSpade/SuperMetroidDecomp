@@ -20,10 +20,10 @@ internal static class PlatformAnimations
         ],
         [P.SuspensorPlatformLights] =
         [
-            Show(EnemyFrameId.SuspensorPlatformLightDark, 10),
-            Show(EnemyFrameId.SuspensorPlatformLightDim, 10),
-            Show(EnemyFrameId.SuspensorPlatformLightLit, 10),
-            Show(EnemyFrameId.SuspensorPlatformLightBright, 10),
+            Show(EnemyFrameId.PlatformLightDark, 10),
+            Show(EnemyFrameId.PlatformLightDim, 10),
+            Show(EnemyFrameId.PlatformLightLit, 10),
+            Show(EnemyFrameId.PlatformLightBright, 10),
         ],
         [P.SuspensorPlatformHeadingRight] =
         [

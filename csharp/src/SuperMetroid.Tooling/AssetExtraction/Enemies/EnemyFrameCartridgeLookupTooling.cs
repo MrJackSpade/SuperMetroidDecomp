@@ -51,12 +51,33 @@ internal static class EnemyFrameCartridgeLookupTooling
 
     /// <summary>
     /// The bank-local word the installed frame shown from bank <paramref name="bank"/>'s record at <paramref name="word"/> is
-    /// stored at: the word itself, or, for a record that stores a frame's picture again (#2210, #2272), that frame's own word.
+    /// stored at in that bank: the word itself, or, for a record that stores a frame's picture again (#2210, #2272), the
+    /// frame's word in that bank (<see cref="WordIn"/>).
     /// </summary>
     internal static ushort OwnWord(byte bank, ushort word) =>
         EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt.TryGetValue(new SnesAddress(bank, word), out EnemyFrameId frame)
-            ? EnemyFrameCartridgeLookup.Of(frame).Offset
+            ? WordIn(bank, frame)
             : word;
+
+    /// <summary>
+    /// The bank-local word bank <paramref name="bank"/> stores <paramref name="frame"/> at: the frame's own record when the
+    /// bank holds it, otherwise the one record of the bank that stores its picture again, as the suspensor platform's bank
+    /// stores the Kamer's lights (#2307).
+    /// </summary>
+    internal static ushort WordIn(byte bank, EnemyFrameId frame)
+    {
+        if (frame == EnemyFrameId.Empty)
+            return EmptySpritemapWord;
+        SnesAddress own = EnemyFrameCartridgeLookup.Of(frame);
+        if (own.Bank == bank)
+            return own.Offset;
+        SnesAddress[] copies = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+            .Where(pair => pair.Key.Bank == bank && pair.Value == frame).Select(pair => pair.Key)];
+        return copies.Length == 1
+            ? copies[0].Offset
+            : throw new InvalidOperationException(
+                $"Bank ${bank:X2} stores frame {frame} in {copies.Length} records; its own is ${own.Bank:X2}:{own.Offset:X4}.");
+    }
 
     /// <summary>The bank-local word of the frame an enemy colliding by its radius shows, zero before it shows any.</summary>
     internal static ushort Word(EnemyFrameId? frame) => frame is { } shown ? Word(shown) : (ushort)0;

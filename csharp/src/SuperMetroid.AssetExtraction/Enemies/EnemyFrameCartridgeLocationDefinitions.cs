@@ -451,10 +451,10 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.NamiheFacingRightMouthOpen] = new(0xa8, 0x992e),
         [EnemyFrameId.NamiheFacingRightMouthWide] = new(0xa8, 0x9958),
         [EnemyFrameId.NamiheFacingRightMouthWidest] = new(0xa8, 0x9982),
-        [EnemyFrameId.KamerLightDark] = new(0xa2, 0xf468),
-        [EnemyFrameId.KamerLightDim] = new(0xa2, 0xf474),
-        [EnemyFrameId.KamerLightLit] = new(0xa2, 0xf480),
-        [EnemyFrameId.KamerLightBright] = new(0xa2, 0xf48c),
+        [EnemyFrameId.PlatformLightDark] = new(0xa2, 0xf468),
+        [EnemyFrameId.PlatformLightDim] = new(0xa2, 0xf474),
+        [EnemyFrameId.PlatformLightLit] = new(0xa2, 0xf480),
+        [EnemyFrameId.PlatformLightBright] = new(0xa2, 0xf48c),
         [EnemyFrameId.ElevatorPadUnlit] = new(0xa3, 0x962f),
         [EnemyFrameId.ElevatorPadLit] = new(0xa3, 0x9645),
         [EnemyFrameId.EffectActorEvirFacingLeftLegsStretched] = new(0xb4, 0xdb42),
@@ -770,10 +770,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.TripperThrustingRightJetLong] = new(0xa3, 0x9ff3),
         [EnemyFrameId.TripperFrozenFacingLeft] = new(0xa3, 0xa009),
         [EnemyFrameId.TripperFrozenFacingRight] = new(0xa3, 0xa015),
-        [EnemyFrameId.SuspensorPlatformLightDark] = new(0xa3, 0xa021),
-        [EnemyFrameId.SuspensorPlatformLightDim] = new(0xa3, 0xa02d),
-        [EnemyFrameId.SuspensorPlatformLightLit] = new(0xa3, 0xa039),
-        [EnemyFrameId.SuspensorPlatformLightBright] = new(0xa3, 0xa045),
         [EnemyFrameId.DragonBodyFacingLeft] = new(0xa2, 0xe80c),
         [EnemyFrameId.DragonWingFacingLeftRaised] = new(0xa2, 0xe8b4),
         [EnemyFrameId.DragonWingFacingLeftLowered] = new(0xa2, 0xe8bb),
@@ -807,7 +803,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.ChozoStatueLowerNorfairHandsCupped] = new(0xaa, 0xefd8),
         [EnemyFrameId.ChozoStatueLowerNorfairHandReaching] = new(0xaa, 0xf034),
         [EnemyFrameId.ChozoStatueLowerNorfairHandOutstretched] = new(0xaa, 0xf08b),
-        [EnemyFrameId.ChozoStatueLowerNorfairHandOpening] = new(0xaa, 0xf0e2),
         [EnemyFrameId.ChozoStatueLowerNorfairHandOpen] = new(0xaa, 0xf4b4),
         [EnemyFrameId.ChozoStatueLowerNorfairHandOpenEyeGlowing] = new(0xaa, 0xf510),
         [EnemyFrameId.ChozoStatueLowerNorfairFingersCurling] = new(0xaa, 0xf56c),
@@ -816,7 +811,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.ChozoStatueWreckedShipHandsCupped] = new(0xaa, 0xe7dd),
         [EnemyFrameId.ChozoStatueWreckedShipHandReaching] = new(0xaa, 0xe839),
         [EnemyFrameId.ChozoStatueWreckedShipHandOutstretched] = new(0xaa, 0xe890),
-        [EnemyFrameId.ChozoStatueWreckedShipHandOpening] = new(0xaa, 0xe8e7),
         [EnemyFrameId.ChozoStatueWreckedShipHandOpen] = new(0xaa, 0xecb9),
         [EnemyFrameId.ChozoStatueWreckedShipHandOpenEyeGlowing] = new(0xaa, 0xed15),
         [EnemyFrameId.ChozoStatueWreckedShipFingersCurling] = new(0xaa, 0xed71),
@@ -1785,8 +1779,10 @@ internal static class EnemyFrameCartridgeLocationDefinitions
     /// is a byte-identical copy of his fully open record (#2234); and Draygon's shut jaw, whose fire-goop lists write only
     /// the jaw's cells over the whole body his idle and reset lists draw (#2268); and the Rios' swept, diving and climbing wings,
     /// the Ki-Hunter's hovering and crouched poses, the Tripper's long jet, the Yard's closed shell, the turtles' shells and
-    /// the walking and ninja pirates' ready stances, which their lists show again from records of their own (#2272).
-    /// The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
+    /// the walking and ninja pirates' ready stances, which their lists show again from records of their own (#2272); and the
+    /// suspensor platform's lights, whose bank-$A3 records are byte-identical copies of the Kamer's, and the Chozo statues'
+    /// open hands, whose records the opening hand shows list the same non-overlapping objects in another order (#2307).
+    /// A record in another bank than its frame's own shows that frame as well. The import composes each picture once from <see cref="Locations"/>; tools reading native records find its frame here.
     /// </summary>
     internal static IReadOnlyDictionary<SnesAddress, EnemyFrameId> AlsoStoredAt { get; } = new Dictionary<SnesAddress, EnemyFrameId>
     {
@@ -1863,5 +1859,11 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [new(0xb2, 0x8d1a)] = EnemyFrameId.WalkingPirateStandingFacingLeft,
         [new(0xb2, 0x8d60)] = EnemyFrameId.WalkingPirateStandingFacingRight,
         [new(0xb2, 0x8ac0)] = EnemyFrameId.NinjaPirateClawsReadyFacingLeft,
+        [new(0xa3, 0xa021)] = EnemyFrameId.PlatformLightDark,
+        [new(0xa3, 0xa02d)] = EnemyFrameId.PlatformLightDim,
+        [new(0xa3, 0xa039)] = EnemyFrameId.PlatformLightLit,
+        [new(0xa3, 0xa045)] = EnemyFrameId.PlatformLightBright,
+        [new(0xaa, 0xf0e2)] = EnemyFrameId.ChozoStatueLowerNorfairHandOpen,
+        [new(0xaa, 0xe8e7)] = EnemyFrameId.ChozoStatueWreckedShipHandOpen,
     };
 }

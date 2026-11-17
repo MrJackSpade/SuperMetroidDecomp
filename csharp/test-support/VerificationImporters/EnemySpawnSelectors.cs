@@ -151,7 +151,7 @@ internal static class EnemySpawnSelectors
     /// step for each of its rows.
     /// </summary>
     /// <exception cref="InvalidDataException"><paramref name="steps"/> is past the curve.</exception>
-    public static int QuadraticSteps(int steps) => steps is >= 0 and < QuadraticSpeedCurveDefinitions.MarkCount
+    public static int QuadraticSteps(int steps) => steps >= 0 && steps < QuadraticSpeedCurveDefinitions.MarkCount
         ? steps
         : throw new InvalidDataException($"Quadratic-speed step {steps} is past the {QuadraticSpeedCurveDefinitions.MarkCount} authored rows.");
 }

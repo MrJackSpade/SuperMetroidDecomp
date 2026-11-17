@@ -27,7 +27,7 @@ internal static class CrawlerBehaviorVerification
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Viola, EnemyDefinitionId.Viola),
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Sciser, EnemyDefinitionId.Sciser),
             new CrawlerBehaviorFamily(CrawlerAnimationFamily.Zero, EnemyDefinitionId.Zero),
-            new CrawlerBehaviorFamily(CrawlerAnimationFamily.OrangeZoomer, EnemyDefinitionId.OrangeZoomer),
+            new CrawlerBehaviorFamily(CrawlerAnimationFamily.Shared, EnemyDefinitionId.OrangeZoomer),
         ];
         foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
@@ -41,7 +41,7 @@ internal static class CrawlerBehaviorVerification
                 place.SetSpawnSettings(new ViolaSpawnSettings(orientation, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             else
                 place.SetSpawnSettings(new CrawlerSpawnSettings(orientation, CrawlerSurfaceOrientation.UpsideRight, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
-            if (family == CrawlerAnimationFamily.OrangeZoomer)
+            if (definition == EnemyDefinitionId.OrangeZoomer)
                 CrawlersBehavior.InitializeOrangeZoomer(place);
             else
                 CrawlersBehavior.InitializeCrawler(place, family);
@@ -63,7 +63,7 @@ internal static class CrawlerBehaviorVerification
                     AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
                         $"{context} pose ${pose:X4} has installed artwork");
         }
-        Console.WriteLine("  Crawler behavior: all five families' four surfaces start, settle into their crawls and loop on time.");
+        Console.WriteLine("  Crawler behavior: all four families' four surfaces, the orange Zoomer's with its own setup, start, settle into their crawls and loop on time.");
     }
 
     /// <summary>Runs the crawler behavior check and the program oracle against the local retail cartridge.</summary>

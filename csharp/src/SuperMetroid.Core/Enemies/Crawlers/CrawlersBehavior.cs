@@ -147,12 +147,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerSurfaceOrientation orientation = settings.Orientation;
         var state = new CrawlerEnemyState(CrawlerAction.Settling)
         {
-            SurfaceFamily = CrawlerAnimationFamily.OrangeZoomer,
+            SurfaceFamily = CrawlerAnimationFamily.Shared,
             Surface = orientation,
         };
         Bind(place, state);
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
-            CrawlerAnimationFamily.OrangeZoomer, orientation)), AnimationPlace.StartOfAnimation);
+            CrawlerAnimationFamily.Shared, orientation)), AnimationPlace.StartOfAnimation);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.StepOnNextUpdate();
         state.Velocity = SignedForBlockSide(settings.BlockSide, new EightEightVector<RoomPixels>(crawlSpeed, crawlSpeed));

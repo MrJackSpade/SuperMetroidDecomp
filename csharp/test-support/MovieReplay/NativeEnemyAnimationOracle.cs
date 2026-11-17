@@ -615,10 +615,7 @@ internal static class NativeEnemyAnimationOracle
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
             NativeEnemyListDefinitions.WordKind kind = NativeEnemyListDefinitions.Classify(word);
-            // A frame word repeating another record's picture shows the frame read from that record (#2249): the owner's own
-            // rule where it has one, otherwise the record of the frame the import's repeated records name (#2272).
-            ushort pictured = kind != NativeEnemyListDefinitions.WordKind.Frame ? operand
-                : picturedAt?.Invoke(operand) ?? EnemyFrameCartridgeLookupToolingConstants.OwnWord(bank, operand);
+            ushort pictured = kind != NativeEnemyListDefinitions.WordKind.Frame ? operand : Pictured(operand);
             if (kind == NativeEnemyListDefinitions.WordKind.Callback && goesTo?.Invoke(word) is { } goneTo)
             {
                 // An owner routine that only goes on to another list (#2167) is that list's goto.
@@ -659,12 +656,13 @@ internal static class NativeEnemyAnimationOracle
                     cursor = unchecked((ushort)(cursor + 4));
                     // A pose the list shows for one update and then again straight after, in its own list, is one typed
                     // frame of both durations (#2276): the picture shows on for as long, and the pointer stands at the
-                    // first record while it lasts. A typed frame as long as the first record is that record alone.
+                    // first record while it lasts. A typed frame as long as the first record is that record alone. The
+                    // record after may name another spritemap of the same picture (#2369).
                     int shown = word;
                     while (shown < frame.Duration && !entries.Any(item => item.Entry == cursor)
                         && cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor)) is var again
                         && NativeEnemyListDefinitions.Classify(again) == NativeEnemyListDefinitions.WordKind.Frame
-                        && cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor) + 2) == operand)
+                        && Pictured(cartridge.ReadCartridgeWord((int)new SnesAddress(bank, cursor) + 2)) == pictured)
                     {
                         shown += again;
                         cursor = unchecked((ushort)(cursor + 4));
@@ -783,6 +781,11 @@ internal static class NativeEnemyAnimationOracle
         TSegment SegmentAt(ushort address, string at) =>
             entries.Where(item => item.Entry == address).Select(item => (TSegment?)item.Program).SingleOrDefault()
                 ?? throw new InvalidDataException($"{at}: ${address:X4} is no segment's native entry.");
+
+        // A frame word repeating another record's picture shows the frame read from that record (#2249): the owner's own
+        // rule where it has one, otherwise the record of the frame the import's repeated records name (#2272).
+        ushort Pictured(ushort spritemapWord) =>
+            picturedAt?.Invoke(spritemapWord) ?? EnemyFrameCartridgeLookupToolingConstants.OwnWord(bank, spritemapWord);
     }
 }
 

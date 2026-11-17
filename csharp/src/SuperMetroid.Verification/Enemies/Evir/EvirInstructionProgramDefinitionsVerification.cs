@@ -34,8 +34,10 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem();
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             PrepareEvirBodyLoop(place, loop);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Segments, loop, EvirFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Segments, loop)),
+            // The arms wave four times and rest folded before they loop (#2369): the check reads the animation's whole pass.
+            Animation<EvirSegment> animation = EvirAnimations.StartingWith(loop);
+            AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(EvirAnimations.Segments, animation, EvirFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(EvirAnimations.Segments, animation)),
                 $"Evir {loop} loop");
         }
 

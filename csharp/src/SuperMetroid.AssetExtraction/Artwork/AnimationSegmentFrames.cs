@@ -11,7 +11,7 @@ internal static class AnimationSegmentFrames
 {
     /// <summary>The frames of one family's animations.</summary>
     extension<TSegment, TFrame, TEvent>(AnimationSegments<TSegment, TFrame, TEvent> segments)
-        where TSegment : struct, Enum
+        where TSegment : struct
         where TFrame : struct
         where TEvent : notnull
     {

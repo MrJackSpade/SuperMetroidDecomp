@@ -22,11 +22,11 @@ internal static class FirefleaBehaviorVerification
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
         FirefleaBehavior.InitializeFireflea(place);
-        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
+        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
             "Fireflea initializer animation");
         place.AnimationClock.StepOnNextUpdate();
-        AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Segments, FirefleaSegment.Loop, FirefleaFrameToolingDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Segments, FirefleaSegment.Loop)),
+        AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), FirefleaFrameToolingDefinitions.Spritemap),
+            EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat))),
             "Fireflea runs its loop and returns through its goto");
         Console.WriteLine("  Fireflea behavior: the initializer starts and runs its loop.");
     }

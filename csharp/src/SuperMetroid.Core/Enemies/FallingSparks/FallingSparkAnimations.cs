@@ -41,12 +41,15 @@ internal static class FallingSparkAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<FallingSparkSegment, Animation<FallingSparkSegment>> StartingAt { get; } = new Dictionary<FallingSparkSegment, Animation<FallingSparkSegment>>
     {
-        [P.Falling] = new([new(P.Falling, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HitFloor] = new([new(P.HitFloor, 0, 12, 1)], AnimationEnd.Holds),
+        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.LoopsFrom(0)),
+        [P.HitFloor] = new([Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FallingSparkSegment> StartingWith(FallingSparkSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<FallingSparkSegment> Whole(FallingSparkSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);

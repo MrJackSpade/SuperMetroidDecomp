@@ -11,17 +11,23 @@ internal enum EvirSegment
     /// </summary>
     BodyFacingLeft,
     /// <summary>
-    /// The arms facing left reaching, curling, folding and spreading four times, then held folded, repeating.
+    /// One wave of the arms facing left: reaching, curling, folding and spreading. Their animation waves four times,
+    /// then rests folded, repeating.
     /// </summary>
     ArmsFacingLeft,
+    /// <summary>The arms facing left resting folded after their waves.</summary>
+    ArmsFoldedFacingLeft,
     /// <summary>
     /// The body facing right, its legs tucking, curling, lowering, hanging, stretching and lifting, repeating.
     /// </summary>
     BodyFacingRight,
     /// <summary>
-    /// The arms facing right reaching, curling, folding and spreading four times, then held folded, repeating.
+    /// One wave of the arms facing right: reaching, curling, folding and spreading. Their animation waves four times,
+    /// then rests folded, repeating.
     /// </summary>
     ArmsFacingRight,
+    /// <summary>The arms facing right resting folded after their waves.</summary>
+    ArmsFoldedFacingRight,
     /// <summary>Its spine ball, held while it flies.</summary>
     ProjectileNormal,
     /// <summary>A regenerating spit's start at the mouth, its entry cue.</summary>

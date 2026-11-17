@@ -55,14 +55,17 @@ internal static class AtomicAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
     {
-        [P.UpRight] = new([new(P.UpRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UpLeft] = new([new(P.UpLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DownLeft] = new([new(P.DownLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DownRight] = new([new(P.DownRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.UpRight] = new([Whole(P.UpRight)], AnimationEnd.LoopsFrom(0)),
+        [P.UpLeft] = new([Whole(P.UpLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.DownLeft] = new([Whole(P.DownLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.DownRight] = new([Whole(P.DownRight)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AtomicSegment> StartingWith(AtomicSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<AtomicSegment> Whole(AtomicSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

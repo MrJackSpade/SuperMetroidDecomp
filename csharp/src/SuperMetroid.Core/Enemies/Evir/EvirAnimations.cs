@@ -30,18 +30,9 @@ internal static class EvirAnimations
             Show(EnemyFrameId.EvirArmsFacingLeftCurling, 10),
             Show(EnemyFrameId.EvirArmsFacingLeftFolding, 10),
             Show(EnemyFrameId.EvirArmsFacingLeftSpreading, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftReaching, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftCurling, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftFolding, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftSpreading, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftReaching, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftCurling, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftFolding, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftSpreading, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftReaching, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftCurling, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftFolding, 10),
-            Show(EnemyFrameId.EvirArmsFacingLeftSpreading, 10),
+        ],
+        [P.ArmsFoldedFacingLeft] =
+        [
             Show(EnemyFrameId.EvirArmsFacingLeftFolded, 48),
         ],
         [P.BodyFacingRight] =
@@ -59,18 +50,9 @@ internal static class EvirAnimations
             Show(EnemyFrameId.EvirArmsFacingRightCurling, 10),
             Show(EnemyFrameId.EvirArmsFacingRightFolding, 10),
             Show(EnemyFrameId.EvirArmsFacingRightSpreading, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightReaching, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightCurling, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightFolding, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightSpreading, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightReaching, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightCurling, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightFolding, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightSpreading, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightReaching, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightCurling, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightFolding, 10),
-            Show(EnemyFrameId.EvirArmsFacingRightSpreading, 10),
+        ],
+        [P.ArmsFoldedFacingRight] =
+        [
             Show(EnemyFrameId.EvirArmsFacingRightFolded, 48),
         ],
         [P.ProjectileNormal] = [new AnimationBeat<EnemyFrameId, EvirCue>.HeldFrame(EnemyFrameId.EvirSpineBall)],
@@ -94,19 +76,23 @@ internal static class EvirAnimations
         ],
     });
 
+    /// <summary>How many times the arms wave before they rest folded.</summary>
+    private const int ArmWaves = 4;
+
     /// <summary>How many times a regenerating spit regrows a step out from the mouth.</summary>
     private const int RegrowthSteps = 8;
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at (#2275): the spit is a still picture,
+    /// The animation that starts at each segment an owner can start or restart at (#2275, #2369): the arms wave four times
+    /// and rest folded, the spit is a still picture,
     /// and a regenerating spit starts its own regrowth, sounds, regrows eight steps out from the mouth and is whole again.
     /// </summary>
     internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
         [P.BodyFacingLeft] = new([Whole(P.BodyFacingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingLeft] = new([Whole(P.ArmsFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingLeft] = new([Repeated(P.ArmsFacingLeft, ArmWaves), Whole(P.ArmsFoldedFacingLeft)], AnimationEnd.LoopsFrom(0)),
         [P.BodyFacingRight] = new([Whole(P.BodyFacingRight)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingRight] = new([Whole(P.ArmsFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingRight] = new([Repeated(P.ArmsFacingRight, ArmWaves), Whole(P.ArmsFoldedFacingRight)], AnimationEnd.LoopsFrom(0)),
         [P.ProjectileNormal] = new([Whole(P.ProjectileNormal)], AnimationEnd.Holds),
         [P.ProjectileRegenerating] = new(
             [Whole(P.ProjectileRegenerating), Whole(P.ProjectileRegeneratingSound), Repeated(P.ProjectileRegrowing, RegrowthSteps), Whole(P.ProjectileRegrown)],

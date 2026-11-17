@@ -41,7 +41,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(new FirefleaEnemyState(flight)
         {
-            Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.Loop), AnimationPlace.StartOfAnimation),
+            Playback = new(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation),
         });
     }
 

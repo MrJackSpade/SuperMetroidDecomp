@@ -136,7 +136,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Hibashi collision-part state for every physical slot a collision part occupies.</summary>
         internal IReadOnlyList<HibashiCollisionPartState?> HibashiCollisionPartStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<HibashiEntity, HibashiCollisionPartState>())];
+            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<HibashiCollisionPartEntity, HibashiCollisionPartState>())];
 
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates =>
@@ -271,7 +271,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Magdollite extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<MagdollitePartState?> MagdolliteStates =>
-            [.. self.Places.InUpdateOrder.Select(place => place.EntityState<MagdolliteEntity, MagdollitePartState>())];
+            [.. self.Places.InUpdateOrder.Select(place => (place.Entity as MagdollitePartEntity)?.State)];
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>

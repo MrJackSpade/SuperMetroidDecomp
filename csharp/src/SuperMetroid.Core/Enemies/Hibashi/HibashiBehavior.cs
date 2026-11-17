@@ -9,8 +9,11 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new HibashiEntity(this, place, common);
+    /// <summary>The Hibashi's flame, or the collision part its placement names (#2342).</summary>
+    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        Ensure.NotNull(place).SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart
+            ? new HibashiCollisionPartEntity(place, common)
+            : new HibashiEntity(this, place, common);
 
     /// <summary>The room's enemy places, where each visible geyser finds its hitbox when it is placed.</summary>
     private readonly EnemyPlaces _places;
@@ -46,19 +49,21 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Initializes the Hibashi.</summary>
+    /// <summary>Initializes the collision part, which holds the one-frame hitbox animation.</summary>
+    internal static void InitializeHibashiCollisionPart(RoomEnemyPlace place) =>
+        place.SetSpeciesState(new HibashiCollisionPartState
+        {
+            Playback = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox)),
+        });
+
+    /// <summary>
+    /// Initializes the flame: it starts the one-frame hitbox animation as its collision part does, then replaces it with
+    /// the eruption animation and sets up its rest and the collision part it finds.
+    /// </summary>
     internal void InitializeHibashi(RoomEnemyPlace place)
     {
         HibashiSpawnSettings settings = place.SpawnSettings<HibashiSpawnSettings>();
-
-        // Every part starts with the one-frame hitbox animation. Only the flame replaces it with
-        // the eruption animation and initializes the state-machine values below.
-        AnimationPlayback<HibashiSegment> hitboxMap = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
-        if (settings.Part == HibashiPart.CollisionPart)
-        {
-            place.SetSpeciesState(new HibashiCollisionPartState { Playback = hitboxMap });
-            return;
-        }
+        _ = EnemyAnimationPlayback.Start(place, HibashiAnimations.StartingWith(HibashiSegment.Hitbox));
 
         var state = new HibashiEnemyState(HibashiAction.Inactive) { InactiveTimerReset = settings.InactiveTime };
         place.SetSpeciesState(state);
@@ -158,33 +163,21 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The hitbox part the visible geyser found when it was placed; every room that has the geyser lists one right after it.</summary>
     private RoomEnemyPlace GetFollowingHibashiPart(RoomEnemyPlace flame) => _hitboxes.Of(flame);
 
-    /// <summary>Runs Hibashi's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemyPlace place, IEnemyAiFrame _)
-    {
-        // The collision part takes no action of its own; its graphics part moves it.
-        if (IsCollisionPart(place))
-            return;
+    /// <summary>Runs the flame's main AI.</summary>
+    internal void RunHibashiMainAi(RoomEnemyPlace place, IEnemyAiFrame _) =>
         RunHibashiMain(place, place.RequireSpeciesState<HibashiEnemyState>());
-    }
 
-    /// <summary>Whether <paramref name="place"/>'s placement makes it a Hibashi's collision part.</summary>
-    private static bool IsCollisionPart(RoomEnemyPlace place) =>
-        place.SpawnSettings<HibashiSpawnSettings>().Part == HibashiPart.CollisionPart;
+    /// <summary>Advances the collision part's hitbox hold.</summary>
+    internal static void AdvanceHibashiCollisionPartTypedAnimation(RoomEnemyPlace place) =>
+        EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
+            static (HibashiCollisionPartState state) => state.Playback, static (state, playback) => state.Playback = playback,
+            static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
 
-    /// <summary>Advances Hibashi's typed animation: the graphics part's eruption, or the collision part's hitbox hold.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
-    {
-        if (IsCollisionPart(place))
-        {
-            EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
-                static (HibashiCollisionPartState state) => state.Playback, static (state, playback) => state.Playback = playback,
-                static (_, cue) => throw new InvalidOperationException($"The Hibashi collision part's animation raised {cue}."));
-            return;
-        }
+    /// <summary>Advances the flame's eruption animation.</summary>
+    internal void AdvanceHibashiTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
         EnemyAnimationPlayback.Advance(place, HibashiAnimations.Segments,
             static (HibashiEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) => ApplyHibashiCue(place, cue) is { } target
                 ? new AnimationContinuation<HibashiSegment>(HibashiAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
-    }
 }

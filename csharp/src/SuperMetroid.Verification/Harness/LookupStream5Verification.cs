@@ -1104,7 +1104,7 @@ internal static class LookupStream5Verification
         var body = owner.Places.InUpdateOrder[1];
         body.SetSpawnSettings(new MorphBallEyeSpawnSettings(HorizontalDirection.Right, MorphBallEyePart.Eye, MorphBallEyeMountSide.Left));
         body.Bind(EnemyDefinitionId.MorphBallEye, body.Definition);
-        new Action<RoomEnemyPlace>(owner.MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
+        new Action<RoomEnemyPlace>(MorphBallEyeBehavior.InitializeMorphBallEyeBody)(body);
         (body.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException("Verification requires the eye body's state.")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Body = body;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;

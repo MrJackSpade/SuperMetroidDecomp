@@ -13,35 +13,46 @@ internal static class MamaTurtleNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa2;
 
-    /// <summary>Each typed program's native entry point, in authored order.</summary>
+    /// <summary>Each of the Mama Turtle's typed programs' native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<MamaTurtleSegment>[] Entries =
     [
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyCrawlingLeft, 0x8b80),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabySpinning, 0x8bd2),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaSpinning, 0x8c02),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaEnterShellLeft, 0x8c1c),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyHidingLeft, 0x8c30),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaAsleep, 0x8c44),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaLeaveShellLeft, 0x8c4a),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyLeaveShellLeft, 0x8c62),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyCrawlingRight, 0x8c72),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaEnterShellRight, 0x8d00),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyHidingRight, 0x8d14),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaLeaveShellRight, 0x8d28),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyLeaveShellRight, 0x8d40),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.Spinning, 0x8c02),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.EnterShellLeft, 0x8c1c),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.Asleep, 0x8c44),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.LeaveShellLeft, 0x8c4a),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.EnterShellRight, 0x8d00),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.LeaveShellRight, 0x8d28),
     ];
 
-    /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
+    /// <summary>Each of the baby turtles' typed programs' native entry point, in authored order.</summary>
+    internal static readonly NativeProgramEntry<BabyTurtleSegment>[] BabyEntries =
+    [
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.CrawlingLeft, 0x8b80),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.Spinning, 0x8bd2),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.HidingLeft, 0x8c30),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.LeaveShellLeft, 0x8c62),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.CrawlingRight, 0x8c72),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.HidingRight, 0x8d14),
+        new NativeProgramEntry<BabyTurtleSegment>(BabyTurtleSegment.LeaveShellRight, 0x8d40),
+    ];
+
+    /// <summary>Each owner instruction the Mama Turtle's lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, MamaTurtleNativeListAddressesInstruction> Instructions = new()
     {
-        [0x9381] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.Crawl), ""),
-        [0x9412] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.LoopOrTurnAround), ""),
         [0x9447] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.EnterShell), ""),
         [0x9451] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.RiseToHover(HorizontalDirection.Left), ""),
         [0x946b] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.RiseToHover(HorizontalDirection.Right), ""),
-        [0x9485] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.LeaveShell), ""),
-        [0x94a1] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.LeftShell), ""),
-        [0x94c7] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.SetSpinningStoppable), ""),
         [0x94d1] = new MamaTurtleNativeListAddressesInstruction(new MamaTurtleCue.Signal(MamaTurtleCueKind.PlaySpinningSound), ""),
+    };
+
+    /// <summary>Each owner instruction the baby turtles' lists use, keyed by its native routine: its cue and operand roles.</summary>
+    internal static readonly Dictionary<ushort, BabyTurtleNativeListAddressesInstruction> BabyInstructions = new()
+    {
+        [0x9381] = new BabyTurtleNativeListAddressesInstruction(new BabyTurtleCue(BabyTurtleCueKind.Crawl), ""),
+        [0x9412] = new BabyTurtleNativeListAddressesInstruction(new BabyTurtleCue(BabyTurtleCueKind.LoopOrTurnAround), ""),
+        [0x9485] = new BabyTurtleNativeListAddressesInstruction(new BabyTurtleCue(BabyTurtleCueKind.LeaveShell), ""),
+        [0x94a1] = new BabyTurtleNativeListAddressesInstruction(new BabyTurtleCue(BabyTurtleCueKind.LeftShell), ""),
+        [0x94c7] = new BabyTurtleNativeListAddressesInstruction(new BabyTurtleCue(BabyTurtleCueKind.SetSpinningStoppable), ""),
+        [0x94d1] = new BabyTurtleNativeListAddressesInstruction(new BabyTurtleCue(BabyTurtleCueKind.PlaySpinningSound), ""),
     };
 }

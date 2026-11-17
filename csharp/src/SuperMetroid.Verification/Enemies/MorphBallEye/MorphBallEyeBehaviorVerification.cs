@@ -128,23 +128,44 @@ internal static class MorphBallEyeBehaviorVerification
     }
 
     /// <summary>
-    /// #1835: the Morph Ball room, where the elevator from Crateria arrives, lists its beam mount right before the eye its
-    /// beam follows, so the room's load places the mount before that eye. Loading the room's population through the
-    /// production loader links the beam to the eye listed right after the mount once both are placed.
+    /// #2342: the game's beam follows the eye listed right after the last beam mount placed, whichever eye opens (#1835);
+    /// every room population that places the eye places one beam mount with one eye right after it, so that eye is the eye
+    /// that opens, and the beam follows the eye that opened. Loading the Morph Ball room through the production loader and
+    /// running its eye's opening requests the beam on that eye.
     /// </summary>
-    internal static void VerifyMorphBallEyeBeamFollowsEyeListedAfterMount()
+    internal static void VerifyMorphBallEyeBeamFollowsOpeningEye()
     {
+        int rooms = 0;
+        foreach (RoomEnemyPopulationDefinition population in RoomEnemyPopulationDefinitions.Definitions)
+        {
+            RoomEnemyPlacement[] placements = population.Placements.ToArray();
+            int[] eyes = [.. Enumerable.Range(0, placements.Length).Where(index => placements[index].DefinitionId == EnemyDefinitionId.MorphBallEye)];
+            if (eyes.Length == 0)
+                continue;
+            rooms++;
+            AssertEqual(2, eyes.Length, $"{population.Name} places one beam mount and one eye");
+            AssertEqual(eyes[0] + 1, eyes[1], $"{population.Name} lists its eye right after its beam mount");
+            AssertEqual(MorphBallEyePart.BeamMount, ((MorphBallEyeSpawnSettings)placements[eyes[0]].SpawnSettings).Part, $"{population.Name} lists its beam mount first");
+            AssertEqual(MorphBallEyePart.Eye, ((MorphBallEyeSpawnSettings)placements[eyes[1]].SpawnSettings).Part, $"{population.Name} lists its eye second");
+        }
+        AssertEqual(3, rooms, "the Morph Ball room, the Blue Brinstar energy tank room and the final missile room place the eye");
+
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1));
         enemies.Load(new RoomEnemyLoadRequest(BrinstarRoomStateDefinitions.MorphBallDefault.EnemyPopulation, BgArtworkFixtures.For(new SnesVram())) { Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Samus = RoomEnemyFrameFixtures.StandaloneSamus() });
-        RoomEnemyPlace mount = enemies.Places.InUpdateOrder.Single(place => place.DefinitionId == EnemyDefinitionId.MorphBallEye
-            && place.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount);
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[mount.Ordinal + 1];
-        AssertTrue(mount.Entity is MorphBallEyeMountEntity, "the room's mount placement places a beam mount (#2164)");
-        AssertEqual(EnemyDefinitionId.MorphBallEye, eye.DefinitionId, "the room lists an eye right after its beam mount");
-        AssertTrue(eye.Entity is MorphBallEyeEntity, "the place after the mount holds the eye body");
-        AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.BeamFollowedEye), "the room's beam follows the eye listed right after its mount");
-        Console.WriteLine("  Morph Ball eye beam: the Morph Ball room's beam follows the eye listed after its mount.");
+        RoomEnemyPlace eye = enemies.Places.InUpdateOrder.Single(place => place.Entity is MorphBallEyeEntity);
+        MorphBallEyeEnemyState state = eye.RequireSpeciesState<MorphBallEyeEnemyState>();
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        samus.CollectedItems = SamusEquipmentFlags.MorphBall;
+        samus.Position = eye.Position;
+        state.Action = MorphBallEyeAction.Activating;
+        state.ActionTimer = 1;
+        var frame = new ClockedEnemyAiFrame(RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Samus = samus }, new FrameCounters(0));
+        enemies.MorphBallEyeBehavior.RunMorphBallEyeMainAi(eye, frame);
+        AssertEqual(MorphBallEyeAction.Active, state.Action, "the eye has opened");
+        AssertEqual(MorphBallEyeBeamPhase.PendingInitialization, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Phase, "the opened eye requests the beam");
+        AssertTrue(ReferenceEquals(eye, enemies.MorphBallEyeBehavior.MorphBallEyeBeam.Body), "the beam follows the eye that opened");
+        Console.WriteLine("  Morph Ball eye beam: every room places one mount and one eye, and the beam follows the eye that opened.");
     }
 
     /// <summary>An eye body after its real initializer.</summary>
@@ -183,7 +204,7 @@ internal static class MorphBallEyeBehaviorVerification
         CartridgeImportAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMorphBallEyeBehavior), () => VerifyMorphBallEyeBehavior());
         Suite(nameof(VerifyMorphBallEyeBeamWideningAndFade), () => VerifyMorphBallEyeBeamWideningAndFade());
-        Suite(nameof(VerifyMorphBallEyeBeamFollowsEyeListedAfterMount), () => VerifyMorphBallEyeBeamFollowsEyeListedAfterMount());
+        Suite(nameof(VerifyMorphBallEyeBeamFollowsOpeningEye), () => VerifyMorphBallEyeBeamFollowsOpeningEye());
         Suite(nameof(MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations), () => MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations(rom));
         return 0;
     }

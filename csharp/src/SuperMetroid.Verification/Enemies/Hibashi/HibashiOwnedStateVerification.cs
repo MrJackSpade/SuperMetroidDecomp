@@ -16,15 +16,15 @@ internal static class HibashiOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
-        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.SetSpawnParameter1(EnemyDefinitionId.Hibashi, ushort.MaxValue);
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
+        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.Position = graphics.Position.WithWhole(new(0x0040, 0x0120));
-        enemies.HibashiBehavior.InitializeHibashi(graphics);
+        graphics.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
-        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
         hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
-        enemies.HibashiBehavior.InitializeHibashi(hitbox);
+        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
+        hitbox.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
         HibashiEnemyState graphicsState = enemies.HibashiStates[0] ?? throw new InvalidOperationException("The graphics part has no state.");
         AssertTrue(enemies.HibashiCollisionPartStates[0] is null && enemies.HibashiCollisionPartStates[1] is not null && enemies.HibashiStates[1] is null,

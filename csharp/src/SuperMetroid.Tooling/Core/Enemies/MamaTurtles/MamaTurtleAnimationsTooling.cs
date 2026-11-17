@@ -3,12 +3,21 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
-/// <summary>Development-tool members of <see cref="MamaTurtleAnimations"/>; never linked by player hosts.</summary>
+/// <summary>
+/// Development-tool members of <see cref="MamaTurtleAnimations"/> and <see cref="BabyTurtleAnimations"/>; never linked by
+/// player hosts.
+/// </summary>
 internal static class MamaTurtleAnimationsTooling
 {
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
+    /// <summary>The spritemaps the Mama Turtle's <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MamaTurtleSegment[] programs) =>
         programs.SelectMany(program => MamaTurtleAnimations.Segments.Beats(program))
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => MamaTurtleFrameToolingDefinitions.Spritemap(frame));
+
+    /// <summary>The spritemaps the baby turtles' <paramref name="programs"/> show, in authored order with repeats.</summary>
+    internal static IEnumerable<ushort> Spritemaps(params BabyTurtleSegment[] programs) =>
+        programs.SelectMany(program => BabyTurtleAnimations.Segments.Beats(program))
             .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
             .Select(frame => MamaTurtleFrameToolingDefinitions.Spritemap(frame));
 }

@@ -6,6 +6,9 @@ internal static class KzanMotionDefinitions
     /// <summary>How far below the Kzan's top its lower part follows, in pixels.</summary>
     internal const int BottomBelowTop = 12;
 
-    /// <summary>How far below Samus's middle the Kzan samples her when it tests whether it touches her from below, in pixels.</summary>
-    internal const int TouchSampleDrop = 5;
+    /// <summary>
+    /// How far below Samus's centre the Kzan reckons her when it tests whether she stands on it, in pixels: five, where
+    /// every other enemy reckons three (<see cref="EnemyCollisionDefinitions.SamusStandingBias"/>).
+    /// </summary>
+    internal const int SamusStandingBias = 5;
 }

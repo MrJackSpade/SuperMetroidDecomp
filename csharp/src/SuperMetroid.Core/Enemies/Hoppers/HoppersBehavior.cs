@@ -79,11 +79,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
 
         SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
-
-        // Every Hopper definition authors the same small and big hops, so the definition selects nothing here; the
-        // two hop sizes' starting speeds are still calculated independently.
-        state.SmallHopInitialYSpeedCurvePlace = HopperHopDefinitions.SmallHop.StartPlace;
-        state.BigHopInitialYSpeedCurvePlace = HopperHopDefinitions.BigHop.StartPlace;
     }
 
     /// <summary>Runs the Hopper's current action.</summary>
@@ -135,15 +130,16 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Selects big or small quadratic-speed parameters and routes to the direction choice for the next hop.</summary>
+    /// <summary>
+    /// Selects the big or small hop, which every hopper definition authors alike, and routes to the direction choice for
+    /// the next hop: the hop starts at its climb's place along the speed curve.
+    /// </summary>
     private static void PrepareHopperHop(HopperEnemyState state, HopperHopSize size)
     {
         QuadraticCurveClimb hop = size == HopperHopSize.Big ? HopperHopDefinitions.BigHop : HopperHopDefinitions.SmallHop;
         state.YSpeedCurvePlaceStep = hop.StepPerPass;
         state.XVelocity = HopperHopDefinitions.HorizontalSpeed;
-        state.YSpeedCurvePlace = size == HopperHopSize.Big
-            ? state.BigHopInitialYSpeedCurvePlace
-            : state.SmallHopInitialYSpeedCurvePlace;
+        state.YSpeedCurvePlace = hop.StartPlace;
         state.Action = HopperAction.ChooseDirection;
     }
 

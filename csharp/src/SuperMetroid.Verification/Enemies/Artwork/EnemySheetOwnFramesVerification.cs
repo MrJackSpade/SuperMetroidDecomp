@@ -172,19 +172,20 @@ internal static class EnemySheetOwnFramesVerification
         });
 
     /// <summary>The Mama Turtle sleeps, leaves and enters her shell and spins; the baby crawls, hides, leaves its shell and spins.</summary>
-    private static EnemySheetOwnFrameFamily TurtlesFamily() => new("turtles", MamaTurtleAnimations.Segments.Frames.ToHashSet(),
+    private static EnemySheetOwnFrameFamily TurtlesFamily() => new("turtles",
+        MamaTurtleAnimations.Segments.Frames.Concat(BabyTurtleAnimations.Segments.Frames).ToHashSet(),
         new Dictionary<EnemyDefinitionId, IReadOnlySet<EnemyFrameId>>
         {
             [EnemyDefinitionId.MamaTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt,
             [
-                MamaTurtleSegment.MamaAsleep, MamaTurtleSegment.MamaLeaveShellLeft, MamaTurtleSegment.MamaLeaveShellRight,
-                MamaTurtleSegment.MamaEnterShellLeft, MamaTurtleSegment.MamaEnterShellRight, MamaTurtleSegment.MamaSpinning,
+                MamaTurtleSegment.Asleep, MamaTurtleSegment.LeaveShellLeft, MamaTurtleSegment.LeaveShellRight,
+                MamaTurtleSegment.EnterShellLeft, MamaTurtleSegment.EnterShellRight, MamaTurtleSegment.Spinning,
             ]),
-            [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt,
+            [EnemyDefinitionId.BabyTurtle] = Reach(BabyTurtleAnimations.Segments, BabyTurtleAnimations.StartingAt,
             [
-                MamaTurtleSegment.BabyCrawlingLeft, MamaTurtleSegment.BabyCrawlingRight, MamaTurtleSegment.BabyHidingLeft,
-                MamaTurtleSegment.BabyHidingRight, MamaTurtleSegment.BabySpinning, MamaTurtleSegment.BabyLeaveShellLeft,
-                MamaTurtleSegment.BabyLeaveShellRight,
+                BabyTurtleSegment.CrawlingLeft, BabyTurtleSegment.CrawlingRight, BabyTurtleSegment.HidingLeft,
+                BabyTurtleSegment.HidingRight, BabyTurtleSegment.Spinning, BabyTurtleSegment.LeaveShellLeft,
+                BabyTurtleSegment.LeaveShellRight,
             ]),
         });
 

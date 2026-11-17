@@ -38,10 +38,6 @@ public sealed class HopperEnemyState
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<HopperSegment> Playback { get; set; }
-    /// <summary>Initial whole-mark place within the quadratic speed curve's 95 marks, where the small hop's climb of 16 pixels at three marks a pass starts (<see cref="HopperHopDefinitions.SmallHop"/>).</summary>
-    public QuadraticSpeedCurvePlace SmallHopInitialYSpeedCurvePlace { get; internal set; }
-    /// <summary>Initial whole-mark place within the quadratic speed curve's 95 marks, where the big hop's climb of 48 pixels at four marks a pass starts (<see cref="HopperHopDefinitions.BigHop"/>).</summary>
-    public QuadraticSpeedCurvePlace BigHopInitialYSpeedCurvePlace { get; internal set; }
     /// <summary>True selects motion back toward the attachment surface, downward for floor Hoppers or upward for ceiling Hoppers; collision or the apex ends the outward phase.</summary>
     public bool Falling { get; internal set; }
     /// <summary>Latch set by the idle animation's ready cue and consumed by WaitToHop; authored animation cadence, not a separate jump timer, controls the next hop.</summary>

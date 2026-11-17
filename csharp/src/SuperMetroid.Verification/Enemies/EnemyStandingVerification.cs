@@ -14,7 +14,8 @@ internal static class EnemyStandingVerification
     /// it with every sixteen-bit wrap. Across enemy centres at the room's origin, its middle and its far wrapped end,
     /// Samus is placed on every pixel from 40 left to 40 right and from 60 above to 10 below, with ordinary radii and the
     /// Mama Turtle shell's large wrapped radius, so the horizontal and vertical tangencies, the three-pixel bias and the
-    /// wrap across the room's edges are all crossed. Named cases then pin each boundary.
+    /// wrap across the room's edges are all crossed; the Kzan's five-pixel bias is compared the same way with the routine
+    /// its own copy wrote (#2342). Named cases then pin each boundary.
     /// </summary>
     internal static void VerifySamusStandingOnEnemy()
     {
@@ -24,8 +25,10 @@ internal static class EnemyStandingVerification
         Extent16<RoomPixels>[] samusRadii = [new(5, 19), new(8, 10)];
         Extent16<RoomPixels>[] enemyRadii = [new(8, 8), new(16, 4), Extent16<RoomPixels>.Zero, new(65530, 65530)];
         int[] centres = [4, 300, 65530];
+        int[] biases = [EnemyCollisionDefinitions.SamusStandingBias, SuperMetroid.Core.Enemies.Kzan.KzanMotionDefinitions.SamusStandingBias];
         int cases = 0;
         int standing = 0;
+        foreach (int bias in biases)
         foreach (Extent16<RoomPixels> samusRadius in samusRadii)
         foreach (Extent16<RoomPixels> enemyRadius in enemyRadii)
         foreach (int enemyX in centres)
@@ -35,14 +38,14 @@ internal static class EnemyStandingVerification
         {
             int samusX = unchecked((ushort)(enemyX + dx));
             int samusY = unchecked((ushort)(enemyY + dy));
-            bool expected = CartridgeStandingTest(samusX, samusY, samusRadius, enemyX, enemyY, enemyRadius);
-            AssertEqual(expected, Standing(enemy, samus, new(enemyX, enemyY), enemyRadius, new(samusX, samusY), samusRadius),
-                $"Samus at ({samusX}, {samusY}) radius {samusRadius} on an enemy at ({enemyX}, {enemyY}) radius {enemyRadius}");
+            bool expected = CartridgeStandingTest(samusX, samusY, samusRadius, enemyX, enemyY, enemyRadius, bias);
+            AssertEqual(expected, Standing(enemy, samus, new(enemyX, enemyY), enemyRadius, new(samusX, samusY), samusRadius, bias),
+                $"Samus at ({samusX}, {samusY}) radius {samusRadius} on an enemy at ({enemyX}, {enemyY}) radius {enemyRadius} with bias {bias}");
             cases++;
             if (expected)
                 standing++;
         }
-        AssertEqual(2 * 4 * 3 * 3 * 81 * 71, cases, "every placement was compared");
+        AssertEqual(2 * 2 * 4 * 3 * 3 * 81 * 71, cases, "every placement was compared");
         AssertTrue(standing > 0 && standing < cases, "the placements cover both standing and not standing");
 
         Extent16<RoomPixels> body = new(5, 19);
@@ -57,31 +60,37 @@ internal static class EnemyStandingVerification
         AssertTrue(Standing(enemy, samus, centre, block, new(100, 96), body), "a centre four pixels above the enemy's stands");
         AssertTrue(!Standing(enemy, samus, centre, block, new(100, 97), body), "a centre three pixels above the enemy's, the bias, does not");
         AssertTrue(Standing(enemy, samus, new(2, 10), block, new(65534, 65516), body), "the test reaches across the room's top-left wrap");
+        int kzan = SuperMetroid.Core.Enemies.Kzan.KzanMotionDefinitions.SamusStandingBias;
+        AssertTrue(Standing(enemy, samus, centre, block, new(100, 94), body, kzan), "a centre six pixels above a Kzan's stands on it");
+        AssertTrue(!Standing(enemy, samus, centre, block, new(100, 95), body, kzan), "a centre five pixels above a Kzan's, its bias, does not");
         Console.WriteLine($"  Samus standing on an enemy: {cases} placements match the cartridge's routine; tangencies, bias and wrap hold.");
     }
 
     /// <summary>The shared standing test for the given centres and radii.</summary>
     private static bool Standing(RoomEnemyPlace enemy, SamusState samus, Position16<RoomPixels> enemyCentre, Extent16<RoomPixels> enemyRadius,
-        Position16<RoomPixels> samusCentre, Extent16<RoomPixels> samusRadius)
+        Position16<RoomPixels> samusCentre, Extent16<RoomPixels> samusRadius, int bias = EnemyCollisionDefinitions.SamusStandingBias)
     {
         enemy.Position = enemy.Position.WithWhole(enemyCentre);
         enemy.Radius = enemyRadius;
         samus.Position = samus.Position.WithWhole(samusCentre);
         samus.Kinematics.Radius = samusRadius;
-        return EnemyCollision.IsSamusStandingOn(enemy, samus);
+        return bias == EnemyCollisionDefinitions.SamusStandingBias
+            ? EnemyCollision.IsSamusStandingOn(enemy, samus)
+            : EnemyCollision.IsSamusStandingOn(enemy, samus, bias);
     }
 
     /// <summary>
-    /// The cartridge's routine, as each family's copy wrote it before #2155: the wrapped horizontal distance less Samus's
-    /// radius compared strictly with the enemy's, then Samus's centre three pixels lower, the wrapped difference read as
-    /// signed, its magnitude less Samus's radius compared inclusively with the enemy's.
+    /// The cartridge's routine, as each family's copy wrote it before #2155 and the Kzan's before #2342: the wrapped
+    /// horizontal distance less Samus's radius compared strictly with the enemy's, then Samus's centre
+    /// <paramref name="bias"/> pixels lower, the wrapped difference read as signed, its magnitude less Samus's radius
+    /// compared inclusively with the enemy's.
     /// </summary>
-    private static bool CartridgeStandingTest(int samusX, int samusY, Extent16<RoomPixels> samusRadius, int enemyX, int enemyY, Extent16<RoomPixels> enemyRadius)
+    private static bool CartridgeStandingTest(int samusX, int samusY, Extent16<RoomPixels> samusRadius, int enemyX, int enemyY, Extent16<RoomPixels> enemyRadius, int bias)
     {
         int xDistance = Math.Abs((int)unchecked((short)(samusX - enemyX)));
         if (xDistance >= samusRadius.X && unchecked((ushort)(xDistance - samusRadius.X)) >= enemyRadius.X)
             return false;
-        int biased = unchecked((ushort)(samusY + 3 - enemyY));
+        int biased = unchecked((ushort)(samusY + bias - enemyY));
         if (unchecked((short)biased) >= 0)
             return false;
         int yDistance = unchecked((ushort)-biased);

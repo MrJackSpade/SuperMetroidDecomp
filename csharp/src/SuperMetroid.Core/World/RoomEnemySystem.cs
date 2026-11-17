@@ -624,7 +624,7 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
         BossPresentation = new BossPresentation(Presentation, BossArtworkBinding);
         Places = new EnemyPlaces();
         Audio = new EnemyAudioQueue(session.AudioRequests);
-        MorphBallEyeBehavior = new MorphBallEyeBehavior(Audio, Places);
+        MorphBallEyeBehavior = new MorphBallEyeBehavior(Audio);
         ProcessingWindow = new EnemyProcessingWindow(FrameContext, new MorphBallEyeBeamStep(MorphBallEyeBehavior), Places);
         Lifecycle = new EnemyLifecycle(Room, Places, ProcessingWindow);
         PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, Places, Lifecycle);

@@ -9,7 +9,7 @@ public sealed class BabyTurtleEnemyState
     internal BabyTurtleEnemyState(BabyTurtleAction action) => Action = action;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<MamaTurtleSegment> Playback { get; set; }
+    internal AnimationPlayback<BabyTurtleSegment> Playback { get; set; }
 
     /// <summary>Gets the Baby Turtle's current action.</summary>
     public BabyTurtleAction Action { get; internal set; }

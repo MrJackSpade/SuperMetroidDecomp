@@ -128,7 +128,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         else
         {
             place.Position = place.Position.WithWholeY(place.Position.Y.Whole - GunshipMotionDefinitions.LandedTopHullRaise);
-            ship = new GunshipState(GunshipPhase.Idle) { BaseY = place.Position.Y.Whole };
+            // The landed ship's engine sound starts as the ship is placed.
+            ship = new GunshipState(GunshipPhase.Idle) { BaseY = place.Position.Y.Whole, EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelay };
         }
         ship.BobTimer = 1;
         ship.BobPhase = 0;
@@ -164,9 +165,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             else
             {
                 place.Position = place.Position.WithWholeY(place.Position.Y.Whole + GunshipMotionDefinitions.LandedBottomHullDrop);
-                // The ship's engine sound starts with its bottom hull, which the room lists right after the top hull that
-                // holds the ship.
-                State(_places.ListedBefore(place, 1)).EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelay;
             }
         }
     }

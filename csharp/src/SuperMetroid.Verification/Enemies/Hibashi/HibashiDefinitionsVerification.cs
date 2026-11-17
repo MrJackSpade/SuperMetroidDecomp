@@ -21,17 +21,17 @@ internal static class HibashiDefinitionsVerification
         const int yRadiusTable = 0xa68de7;
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = enemies.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemyPlace> initialize = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
         Action<RoomEnemyPlace, HibashiEruptionStep> applyStep = enemies.HibashiBehavior.ApplyHibashiEruptionStep;
 
         RoomEnemyPlace graphics = enemies.Places.InUpdateOrder[0];
-        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
+        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.Position = graphics.Position.WithWholeY(0x0200);
         initialize(graphics);
         RoomEnemyPlace hitbox = enemies.Places.InUpdateOrder[1];
-        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
         hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
+        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
 
@@ -57,33 +57,33 @@ internal static class HibashiDefinitionsVerification
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemyPlace> initializeProgram = static place => place.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
 
         RoomEnemyPlace programGraphics = programSystem.Places.InUpdateOrder[0];
+        programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
         programGraphics.Bind(programGraphics.DefinitionId, default(RoomEnemyDefinition));
-        programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemyPlace programHitbox = programSystem.Places.InUpdateOrder[1];
+        programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
         programHitbox.Bind(programHitbox.DefinitionId, default(RoomEnemyDefinition));
-        programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 
         // A second geyser erupting in lockstep: its eruption sound is queued in the same frame.
         RoomEnemyPlace twinGraphics = programSystem.Places.InUpdateOrder[2];
+        twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.Definition);
         twinGraphics.Bind(twinGraphics.DefinitionId, programGraphics.Definition);
-        twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
         initializeProgram(twinGraphics);
         RoomEnemyPlace twinHitbox = programSystem.Places.InUpdateOrder[3];
+        twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.Definition);
         twinHitbox.Bind(twinHitbox.DefinitionId, programGraphics.Definition);
-        twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
         initializeProgram(twinHitbox);
 

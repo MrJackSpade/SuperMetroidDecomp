@@ -359,9 +359,9 @@ internal static class NativeEnemyFamilyStateImport
                 yellowPipeBug.Action = PipeBugsNativeWords.YellowPipeBugActions.Decode(words.A, "recorded YellowPipeBugAction");
             }
         }
-        if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteHeadState magdolliteHead)
+        if (enemy.SpeciesState<MagdolliteHeadState>() is { } magdolliteHead)
             magdolliteHead.Action = MagdolliteNativeWords.MagdolliteHeadActions.Decode(words.F, "recorded MagdolliteHeadAction");
-        if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteBodyState magdolliteBody)
+        if (enemy.SpeciesState<MagdolliteBodyState>() is { } magdolliteBody)
         {
             magdolliteBody.Action = MagdolliteNativeWords.MagdolliteBodyActions.Decode(words.F, "recorded MagdolliteBodyAction");
             // The recorded word counts the arm's stages up from its setup, two to a stage.
@@ -371,7 +371,7 @@ internal static class NativeEnemyFamilyStateImport
             magdolliteBody.BodyPhase = stage;
             magdolliteBody.RiseDisplacementY = unchecked((short)words.E);
         }
-        if (enemy.SpeciesState<MagdollitePartState>() is MagdolliteOverlayState magdolliteOverlay)
+        if (enemy.SpeciesState<MagdolliteOverlayState>() is { } magdolliteOverlay)
         {
             magdolliteOverlay.Action = MagdolliteNativeWords.MagdolliteOverlayActions.Decode(words.F, "recorded MagdolliteOverlayAction");
             magdolliteOverlay.ThrowsRight = words.B != 0;

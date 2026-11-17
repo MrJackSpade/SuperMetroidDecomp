@@ -194,30 +194,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Kzan's private copy of the check whether an enemy touches Samus from below. Its only
-    /// difference from the common check is the shifted Y sample (<see cref="KzanMotionDefinitions.TouchSampleDrop"/>). Horizontal
-    /// overlap is strict; vertical tangency is accepted after the shifted center test.
-    /// </summary>
-    private static bool IsKzanTouchingSamusFromBelow(
-        RoomEnemyPlace place,
-        SamusState samus)
-    {
-        int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, place.Position.X.Whole);
-        if (xDistance >= samus.Kinematics.Radius.X + place.Radius.X)
-            return false;
-
-        int shiftedYDelta = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole) + KzanMotionDefinitions.TouchSampleDrop;
-        if (shiftedYDelta >= 0)
-            return false;
-
-        int yDistance = Math.Abs(shiftedYDelta);
-        if (yDistance < samus.Kinematics.Radius.Y)
-            return true;
-
-        return yDistance - samus.Kinematics.Radius.Y <= place.Radius.Y;
-    }
-
-    /// <summary>
     /// Adds only the accepted whole-pixel Kzan delta to Samus's extra Y displacement.
     /// Code deliberately leaves extra Y subdisplacement untouched.
     /// </summary>
@@ -226,7 +202,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState samus)
     {
-        if (!IsKzanTouchingSamusFromBelow(place, samus))
+        if (!EnemyCollision.IsSamusStandingOn(place, samus, KzanMotionDefinitions.SamusStandingBias))
             return;
 
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY));

@@ -56,11 +56,11 @@ internal static class MagdolliteApexThresholdVerification
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[part];
-                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
-                enemies.MagdolliteBehavior.InitializeMagdollite(member, RoomEnemyFrameFixtures.StandaloneSamus());
+                member.InitializeAsPlaced(RoomEnemyFrameFixtures.StandaloneSamus());
             }
             var head = enemies.MagdolliteStates[0] as MagdolliteHeadState ?? throw new InvalidOperationException("Magdollite head has no state.");
             head.Speed = SixteenSixteenWords.ToDisplacement(onePixel + onePixel / 2);
@@ -83,14 +83,14 @@ internal static class MagdolliteApexThresholdVerification
         static void VerifyApex(int headSlot, bool grows)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            Action<RoomEnemyPlace, SamusState> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+            Action<RoomEnemyPlace, SamusState> initialize = static (place, samus) => place.InitializeAsPlaced(samus);
             Action<RoomEnemyPlace, MagdolliteBodyState, SamusState> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemyPlace member = enemies.Places.InUpdateOrder[headSlot + part];
-                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
                 member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, RoomEnemyFrameFixtures.StandaloneSamus());
             }

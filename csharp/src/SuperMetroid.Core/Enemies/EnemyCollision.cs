@@ -1069,20 +1069,26 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Whether Samus stands on <paramref name="enemy"/> (#2155): the one test every enemy that carries or supports her
-    /// makes, Kraid's lints, the platforms, the Mama Turtle and her babies, the shutters, Oum and the Work Robots. Her
-    /// centre, reckoned <see cref="EnemyCollisionDefinitions.SamusStandingBias"/> pixels lower, lies above the enemy's
-    /// centre, and their bodies overlap: horizontally strictly, so bodies that only meet side by side do not count, and
-    /// vertically including the pixel where her feet meet the enemy's top. Both distances are across the room's wrapping
-    /// coordinates.
+    /// makes, Kraid's lints, the platforms, the Mama Turtle and her babies, the shutters, Oum and the Work Robots, with
+    /// her centre reckoned <see cref="EnemyCollisionDefinitions.SamusStandingBias"/> pixels lower.
     /// </summary>
-    internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus)
+    internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus) =>
+        IsSamusStandingOn(enemy, samus, EnemyCollisionDefinitions.SamusStandingBias);
+
+    /// <summary>
+    /// Whether Samus stands on <paramref name="enemy"/> with her centre reckoned <paramref name="bias"/> pixels lower
+    /// (#2155, #2342): that centre lies above the enemy's centre, and their bodies overlap: horizontally strictly, so bodies
+    /// that only meet side by side do not count, and vertically including the pixel where her feet meet the enemy's top.
+    /// Both distances are across the room's wrapping coordinates. The Kzan reckons her five pixels lower
+    /// (<see cref="Kzan.KzanMotionDefinitions.SamusStandingBias"/>), every other enemy three.
+    /// </summary>
+    internal static bool IsSamusStandingOn(RoomEnemyPlace enemy, SamusState samus, int bias)
     {
         if (CoordinateAxis.Distance(samus.Position.X.Whole, enemy.Position.X.Whole) >=
             samus.Kinematics.Radius.X + enemy.Radius.X)
             return false;
 
-        int below = CoordinateAxis.Difference(
-            samus.Position.Y.Whole + EnemyCollisionDefinitions.SamusStandingBias, enemy.Position.Y.Whole);
+        int below = CoordinateAxis.Difference(samus.Position.Y.Whole + bias, enemy.Position.Y.Whole);
         return below < 0 && -below <= samus.Kinematics.Radius.Y + enemy.Radius.Y;
     }
 }

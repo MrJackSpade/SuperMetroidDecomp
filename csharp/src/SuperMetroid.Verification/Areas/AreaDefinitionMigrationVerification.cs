@@ -34,7 +34,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(CeresElevatorDoorPhase.Destroyed, CeresNativeWords.ElevatorDoorPhases.Decode(0xf850, "door function"), "destroyed elevator door decodes");
         AssertEqual(0xf019, CeresNativeWords.SteamActions.Word(CeresSteamAction.ApplyRotatingElevatorOffset), "rotating steam function word");
         AssertEqual(0xad80, CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationFrame.WingsLowered), "second wing frame list word");
-        AssertEqual(CeresFloorAnimationFrame.BabyRound, CeresFloorAnimation.BabyFrameForPhase(3), "the capsule's fourth phase reuses frame one");
+        AssertEqual(CeresFloorAnimationFrame.BabyRound, CeresFloorAnimationDefinitions.CapsuleCycle[3], "the capsule's fourth phase reuses frame one");
         AssertTrue(CeresFloorDrawings.Cells(CeresFloorAnimationFrame.BabyRound).ContainsKey(11 * 128 + 4), "the capsule's lower run's floor cell");
         AssertEqual(6, CeresFloorDrawingDefinitions.Frames[CeresFloorAnimationFrame.WingsRaised].Count, "the wings' six runs");
 

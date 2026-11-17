@@ -329,6 +329,7 @@ using static SuperMetroid.Verification.Enemies.RespawnedEnemyContactVerification
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyExplosionDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyShotHealthStageVerification;
+using static SuperMetroid.Verification.Bosses.Ridley.RidleyWingBeatVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RightFacingGateGlitchVerification;
 using static SuperMetroid.Verification.Rooms.RoomAssetRomDataVerification;
 using static SuperMetroid.Verification.Rooms.RoomCallbackDefinitionsVerification;
@@ -1194,6 +1195,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyKnockbackShinesparkLaunch), () => VerifyKnockbackShinesparkLaunch()),
         new(nameof(VerifyUnpauseElevatorFlags), () => VerifyUnpauseElevatorFlags()),
         new(nameof(VerifyRidleyShotHealthStage), () => VerifyRidleyShotHealthStage()),
+        new(nameof(VerifyRidleyWingBeat), () => VerifyRidleyWingBeat()),
         new(nameof(VerifyPowampDeathSequence), () => VerifyPowampDeathSequence()),
         new(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout()),
         new(nameof(VerifyFrozenTimeEnemyProjectiles), () => VerifyFrozenTimeEnemyProjectiles()),

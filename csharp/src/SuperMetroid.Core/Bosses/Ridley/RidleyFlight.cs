@@ -143,30 +143,22 @@ internal sealed class RidleyFlight
     internal static void StartAnimation(RidleyFlightState flight, RoomEnemyPlace place, RidleyFacedAnimation animation) =>
         StartAnimation(flight, place, animation.For(Ensure.NotNull(flight).FacingDirection));
 
-    /// <summary>Animates Ridley's wings after his movement pass.</summary>
-    internal static void TickWingAnimation(RidleyFlightState flight)
+    /// <summary>Beats Ridley's wings after his movement pass, at the pace his flight speed sets (#2329).</summary>
+    internal static void TickWingAnimation(RidleyFlightState flight) => flight.Wings.Beat(WingPace(flight.Velocity));
+
+    /// <summary>
+    /// The countdown Ridley's wing beat takes off in an update he flies at <paramref name="velocity"/>: none while he is
+    /// still, otherwise the pace of his faster axis's speed, halved unless he climbs.
+    /// </summary>
+    private static int WingPace(EightEightVector<RoomPixels> velocity)
     {
         // Every acceleration clamps Ridley to five pixels an update, so his speed on each axis has a magnitude.
-        SignedEightEight largestAxisVelocity = SignedEightEight.Max(flight.Velocity.X.Magnitude(), flight.Velocity.Y.Magnitude());
+        SignedEightEight largestAxisVelocity = SignedEightEight.Max(velocity.X.Magnitude(), velocity.Y.Magnitude());
         if (largestAxisVelocity.IsZero)
-        {
-            flight.WingAnimationTimerDelta = 0;
-        }
-        else
-        {
-            // The wing beat quickens with each quarter pixel of speed up to seven quarters (#1935).
-            int wingStep = Math.Min(RidleyWingDefinitions.AnimationTimerSteps.Length - 1, largestAxisVelocity.WholeQuarterPixels);
-            int delta = RidleyWingDefinitions.AnimationTimerSteps[wingStep];
-            if (!flight.Velocity.Y.IsNegative)
-                delta >>= 1;
-            flight.WingAnimationTimerDelta = delta;
-        }
-
-        flight.WingAnimationTimer -= flight.WingAnimationTimerDelta;
-        if (flight.WingAnimationTimer >= 0)
-            return;
-
-        flight.WingAnimationTimer = RidleyWingDefinitions.BeatCountdown;
-        flight.WingBeatStep = (flight.WingBeatStep + 1) % RidleySupplementalVisualDefinitions.WingBeatSteps;
+            return 0;
+        // The wing beat quickens with each quarter pixel of speed up to seven quarters (#1935).
+        int pace = RidleyWingDefinitions.BeatPaces[Math.Min(RidleyWingDefinitions.BeatPaces.Length - 1, largestAxisVelocity.WholeQuarterPixels)];
+        // A climb beats the wings at the full pace; level and descending flight beat them at half of it.
+        return velocity.Y.IsNegative ? pace : pace / 2;
     }
 }

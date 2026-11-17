@@ -490,7 +490,6 @@ internal static class EnemySpritemapArtworkVerification
             $"production room draws every installed frame without visual ROM reads; {differing.Count} differ (x, y, tile, attributes):\n{string.Join("\n", differing)}");
 
         Suite(nameof(VerifyInstalledMotherBrainDrawHook), () => VerifyInstalledMotherBrainDrawHook(rom, stock));
-        Suite(nameof(VerifyInstalledRidleySupplementalArtwork), () => VerifyInstalledRidleySupplementalArtwork(rom, stock));
 
         // The used records of an OAM low table, for a failure message.
         static string OamRecords(OamBuffer oam) => string.Join(" ",

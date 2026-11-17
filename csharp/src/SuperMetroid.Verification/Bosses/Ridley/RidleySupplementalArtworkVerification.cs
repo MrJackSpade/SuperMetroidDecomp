@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -86,7 +87,7 @@ internal static class RidleySupplementalArtworkVerification
         var state = new CeresRidleyState(Position16<RoomPixels>.Zero)
         {
             MovementAnimationEnabled = true,
-            Flight = { FacingDirection = facing, WingBeatStep = wingFrame },
+            Flight = { FacingDirection = facing, Wings = { Pose = ListStep<RidleyWingPose>.At(RidleySupplementalVisualDefinitions.WingBeat, wingFrame) } },
         };
         if (tailDirection is { } direction)
         {

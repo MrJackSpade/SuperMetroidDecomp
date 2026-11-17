@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -40,6 +41,24 @@ internal static class GraphicsSetCharacterLayoutVerification
         GraphicsSetCharacterLayout turtleLayout = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(turtles));
         AssertEqual(turtleLayout.TileBaseOf(EnemyDefinitionId.MamaTurtle), turtleLayout.TileBaseOf(EnemyDefinitionId.BabyTurtle),
             $"a Baby Turtle in {turtles.Name} draws from its Mama's characters");
+
+        // Big Boy's set: the dead Sidehopper, then the large Sidehopper's tiles, from which the dead Sidehopper draws the
+        // large Sidehopper's legs before the Baby drains it (#2327); its own frames draw from its own characters.
+        GraphicsSetCharacterLayout bigBoy = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetDefinitions.BigBoy));
+        GraphicsSetMemberCharacters corpse = bigBoy.Members[0];
+        GraphicsSetMemberCharacters living = bigBoy.Members[1];
+        AssertEqual(EnemyDefinitionId.CorpseSidehopper, corpse.DefinitionId, "the dead Sidehopper is Big Boy's set's first member");
+        AssertEqual(UnplacedEnemyArtwork.DeadSidehopperLivingTiles, living.Member.Unplaced, "the large Sidehopper's tiles follow it");
+        AssertEqual(corpse.TileByteCount / TileBytes, living.TileIndexBase, "the large Sidehopper's tiles land past the dead Sidehopper's own");
+        foreach (EnemyFrameId legs in new[] { EnemyFrameId.LargeSidehopperLegsBent, EnemyFrameId.LargeSidehopperLegsCrouched, EnemyFrameId.LargeSidehopperLegsStraight })
+            AssertEqual(living.TileIndexBase, bigBoy.TileBaseOf(EnemyDefinitionId.CorpseSidehopper, legs),
+                $"the dead Sidehopper draws {legs} from the large Sidehopper's tiles");
+        AssertEqual(corpse.TileIndexBase, bigBoy.TileBaseOf(EnemyDefinitionId.CorpseSidehopper, EnemyFrameId.DeadSidehopperSprawled),
+            "the dead Sidehopper draws its sprawled corpse from its own characters");
+        GraphicsSetCharacterLayout corpseAlone = GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("dead Sidehopper alone",
+            [new(EnemyDefinitionId.CorpseSidehopper)]));
+        AssertThrows<InvalidDataException>(() => corpseAlone.TileBaseOf(EnemyDefinitionId.CorpseSidehopper, EnemyFrameId.LargeSidehopperLegsBent),
+            "a set that loads no large Sidehopper tiles cannot draw the dead Sidehopper's legs");
 
         AssertThrows<InvalidDataException>(() => GraphicsSetCharacterLayout.Of(new RoomEnemyGraphicsSetMembers("five members",
             [.. Enumerable.Repeat(new RoomEnemyGraphicsSetMember(EnemyDefinitionId.Beetom), 5)])),

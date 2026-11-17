@@ -23,14 +23,14 @@ internal static class DeadTourianCorpseVisualDefinitions
         new DeadTourianCorpseFrameName(0xedb5, "dead_skree_corpse_0"),
     ];
 
-    /// <summary>Provides each installed corpse spritemap once for the four dead Tourian enemy families.</summary>
+    /// <summary>
+    /// Provides each installed corpse spritemap once for the four dead Tourian enemy families; the dead Sidehopper's legs
+    /// are the large Sidehopper's frames (#2327).
+    /// </summary>
     internal static NativeEnemySpritemapDefinition[] Frames() =>
     [
         .. Entries.Select(entry => new NativeEnemySpritemapDefinition(
             Bank, checked((ushort)entry.Frame), entry.Name)),
-        new(Bank, 0xee3c, "dead_sidehopper_hop_body"),
-        new(Bank, 0xee61, "dead_sidehopper_hop_crouched"),
-        new(Bank, 0xee86, "dead_sidehopper_idle"),
         new(Bank, 0xed25, "dead_sidehopper_corpse"),
         new(Bank, 0xed4f, "dead_sidehopper_initially_dead"),
     ];

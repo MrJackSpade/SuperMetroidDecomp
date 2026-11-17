@@ -14,8 +14,13 @@ internal static class FriendlyAnimalVisualDefinitions
     internal const int EtecoonFrameCount = 31;
     /// <summary>Twenty-nine selected Dachora body/echo compositions at $A7:F9C4..FF53.</summary>
     internal const int DachoraFrameCount = 29;
-    /// <summary>Ten selected rescue Etecoon compositions at $B3:E736..E91F.</summary>
-    internal const int EscapeEtecoonFrameCount = 10;
-    /// <summary>Twelve selected rescue Dachora compositions at $B3:EB1B..ED3E.</summary>
-    internal const int EscapeDachoraFrameCount = 12;
+    /// <summary>
+    /// Four rescue Etecoon compositions of their own at $B3:E8B0..E91F; their strides at $B3:E736..E77C store the Etecoon's
+    /// again (#2327).
+    /// </summary>
+    internal const int EscapeEtecoonFrameCount = 4;
+    /// <summary>
+    /// No rescue Dachora composition of its own: its strides at $B3:EB1B..ED3E store the Dachora's again (#2327).
+    /// </summary>
+    internal const int EscapeDachoraFrameCount = 0;
 }

@@ -65,6 +65,9 @@ internal static class DeadTourianCorpseArtworkVerification
         EnemyTileSourceArtwork stock)
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
+        // A frame the dead Sidehopper draws from the large Sidehopper's tiles, which Big Boy's room loads after its own, is
+        // the large Sidehopper's composition drawn from where those tiles land (#2327).
+        GraphicsSetCharacterLayout bigBoy = GraphicsSetCharacterLayout.Of(RoomEnemyGraphicsSetLists.MembersOf(RoomEnemyGraphicsSetDefinitions.BigBoy));
         // One pose per way a corpse lies (#1810): a variant showing an earlier variant's picture is that pose.
         DeadTourianSegment[] corpsePrograms =
         [
@@ -90,10 +93,14 @@ internal static class DeadTourianCorpseArtworkVerification
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     DeadTourianCorpseVisualDefinitions.Bank, pointer, out EnemySpritemapParts installedParts),
                 $"{context} has installed OAM");
+            EnemyFrameId shown = EnemyFrameCartridgeLookupTooling.TryFrameAt(DeadTourianCorpseVisualDefinitions.Bank, pointer)
+                ?? throw new InvalidOperationException($"{context} shows no installed frame.");
+            ushort drawnFrom = checked((ushort)(bigBoy.TileBaseOf(EnemyDefinitionId.CorpseSidehopper, shown)
+                - bigBoy.TileBaseOf(EnemyDefinitionId.CorpseSidehopper)));
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = DeadTourianCorpseVisualDefinitions.Bank, Pointer = pointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
-            installedOam.AddEnemySpritemap(installedParts, new Position16<ScreenPixels>(128, 128), 0, 0);
+            installedOam.AddEnemySpritemap(installedParts, new Position16<ScreenPixels>(128, 128), 0, drawnFrom);
             AssertTrue(nativeOam.ImageEquals(installedOam) && nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"{context} installed OAM matches cartridge");
         }

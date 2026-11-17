@@ -81,6 +81,7 @@ internal sealed class CoreModel
         SpriteGraphics = SingleType("SpriteGraphics");
         SpawnedObjectOwner = SingleType("SpawnedObjectOwner");
         RoomEnemyPlace = SingleType("RoomEnemyPlace");
+        AnimationSegments = SingleType("AnimationSegments", arity: 3);
         _entity = SingleType("IEnemyEntity");
         INamedTypeSymbol factory = SingleType("IEnemyEntityFactory");
         INamedTypeSymbol typedAnimation = SingleType("EnemyProjectileTypedAnimation", arity: 3);
@@ -155,6 +156,9 @@ internal sealed class CoreModel
 
     /// <summary>An enemy place (#1961).</summary>
     public INamedTypeSymbol RoomEnemyPlace { get; }
+
+    /// <summary>The segments a family's typed animations declare, each segment's beats showing frames and raising cues.</summary>
+    public INamedTypeSymbol AnimationSegments { get; }
 
     /// <summary>
     /// The base every projectile program family derives from (#1600), whose type arguments are its segment, frame and event

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
 /// The gunship's state, one for the whole ship, which its top hull keeps and runs: its phase, landing brakes, bob and
-/// engine timers, and its takeoff. The engine readying rejects a count past its duration.
+/// engine timers, and its takeoff.
 /// </summary>
 internal sealed class GunshipState
 {

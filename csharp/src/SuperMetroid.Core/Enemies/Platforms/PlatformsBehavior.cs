@@ -38,8 +38,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isSuspensorPlatform;
-        // The platform moves left or right; any other movement is corrupt room data and is rejected rather than
-        // normalized to rightward movement.
+        // The platform moves left or right as its spawn settings say.
         PlatformSpawnSettings settings = place.SpawnSettings<PlatformSpawnSettings>();
         state.XMovement = settings.Movement;
 
@@ -191,8 +190,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Steps the place along the quadratic speed curve one mark on without crossing its variant-specific cap. The place
-    /// stays within the curve's start through the cap (at most mark 255), and one step can only reach mark 256.
+    /// Steps the place one mark on along the quadratic speed curve, holding it at its variant's cap.
     /// </summary>
     internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {

@@ -76,7 +76,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Dachora's population already supplies both properties, and the setup sets the animating property again.
+        // Dachora's placement already animates and keeps it from touching Samus; the setup makes it animate again.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         place.AnimationClock.Restart();

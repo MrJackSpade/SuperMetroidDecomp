@@ -141,8 +141,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces;
         }
 
-        // StopMovementNextFrame was produced at the end of the preceding main-AI call. The
-        // current frame clears/recomputes it only after this behavior returns.
+        // The stop is the one the previous update asked for; this update asks again only after it rolls.
         if (state.StopMovementNextFrame)
             return;
 
@@ -191,7 +190,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BouncePhase)
         {
             case MaridiaLargeSnailBouncePhase.Falling:
-                // The place stays within 3712 256ths of a mark below the start through mark 64.
+                // Falling holds the place at mark 64.
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
                     state.YSpeedCurvePlace + MaridiaLargeSnailMotionDefinitions.BounceAcceleration,
                     MaridiaLargeSnailMotionDefinitions.FastestFallPlace);
@@ -409,8 +408,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Runs the common/non-damaging Oum hitbox tail after the frame-hitbox check selected a
-    /// concrete frame hitbox. Damaging hitboxes call common touch before entering this tail.
+    /// Shoves Samus away from Oum when she touches it without standing on it, after any damage its hitbox does.
     /// </summary>
     private static void ResolveMaridiaLargeSnailTouchAfterCommon(
         RoomEnemyPlace place,

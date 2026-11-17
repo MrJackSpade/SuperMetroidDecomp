@@ -59,7 +59,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Every part finds the enemy its follow-up to a hit reaches.
         PlaceFollowUpRecipient(place);
-        // Its intangibility property keeps the cosmetic wing out of touch/shot collision passes.
+        // The cosmetic wing ignores Samus, so it is never touched or shot.
         place.SetSpeciesState(new DragonWingState
         {
             Playback = new(DragonAnimations.StartingWith(DragonSegment.WingsFacingLeft), AnimationPlace.StartOfAnimation),

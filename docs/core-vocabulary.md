@@ -545,6 +545,16 @@ way, citing `CoordinateAxis`, the encoding owner that states the wrap once; whic
 with the value and on which update. A thing wrapped around, a turn's wrap, installed art and loading installed art, a
 table, a multiplier and a range alone stay English.
 
+#2377 widens SME6454, outside hardware owners, to the original's storage and program as enemy, boss and world prose tell
+them: an enemy's presence, contact or processing told as a property, alone or in a list (`the intangibility property`,
+`the animating, intangibility and invisibility properties`, `both of his contact properties`, `the plasma-blocking enemy
+property`, `the hide-drawing property`); a `post-decrement` or `pre-increment`; a `main-AI call` or an `AI invocation`;
+running the code's loop (`Runs the projectile-link loop`); `the handler's` guard; a `signed wrapped` comparison; and a
+`strict modular` range. Core says what the enemy does (it is hidden or gone, ignores Samus, stops the Plasma Beam,
+animates, keeps updating off screen), which update a count runs out on, what a step places and how far apart two things
+lie. A property of a thing, an enemy's other properties, a projectile's property set or mask, a handler alone, an
+animation's loop, a decrement and a call alone stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

@@ -99,7 +99,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Starts the 32-frame opening animation only inside strict modular X and Y activation ranges.</summary>
+    /// <summary>Starts the eye's opening once Samus is closer than its opening reach on both axes (<see cref="CoordinateAxis.Distance"/>).</summary>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemyPlace eye,
         MorphBallEyeEnemyState state,

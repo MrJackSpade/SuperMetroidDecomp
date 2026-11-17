@@ -109,23 +109,20 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DiveSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Probes solid terrain ahead before whole-pixel descent; ground contact begins burrowing while airborne frames steer toward Samus.</summary>
+    /// <summary>Dives at its whole-pixel speed while steering toward Samus, until the block below stops it and it starts burrowing.</summary>
     private void RunMetareeDive(
         RoomEnemyPlace place,
         MetareeEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        // The game reloads this every airborne frame. It becomes a countdown only after
-        // the attachment probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = MetareeMotionDefinitions.BurrowLifetime;
-
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
                 place,
                 SignedSixteenSixteen.FromWholePixels(state.YVelocity)))
         {
             place.AnimationClock.Restart();
+            state.BurrowTimer = MetareeMotionDefinitions.BurrowLifetime;
             state.Action = MetareeAction.Burrowing;
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;

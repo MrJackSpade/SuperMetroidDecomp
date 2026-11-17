@@ -999,8 +999,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                 }
             }
 
-            // The enemy pass queues each live enemy to show only after its AI and animation work; the two
-            // hide-drawing properties keep it from being shown. The draw pass reaches an enemy its radius puts on
+            // The enemy pass queues each live enemy to show only after its AI and animation work; a hidden
+            // or removed enemy is not shown. The draw pass reaches an enemy its radius puts on
             // screen, and every enemy that collides by its frames' hitboxes wherever it is. Only a reached enemy's draw
             // clears the value a Puyo's later ceiling strike reads, consumes its shake tick and shows its boss body
             // frame, so which enemies are reached stays the game's; what is off screen is culled by the display.

@@ -49,8 +49,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstallSpawnSettings(place.SpawnSettings<EtecoonSpawnSettings>());
         place.SetSpeciesState(state);
 
-        // The setup sets the animating property, which the enemy animation pass reads before it plays the
-        // authored animation, so the Etecoon animates whether or not its population entry set it.
+        // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.Initial));

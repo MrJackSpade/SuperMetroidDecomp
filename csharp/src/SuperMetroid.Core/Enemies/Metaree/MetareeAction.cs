@@ -10,7 +10,7 @@ public enum MetareeAction
     Idling,
     /// <summary>Waits for the animation to signal it is ready to attack, then starts the dive animation and plays the dive sound.</summary>
     PreparingAttack,
-    /// <summary>Reloads the 21-update burrow timer, probes solid blocks below, and otherwise dives at fixed whole-pixel Y speed while steering two pixels toward Samus.</summary>
+    /// <summary>Dives at its whole-pixel speed, steering two pixels an update toward Samus, until the block below stops it and it starts burrowing for 21 updates.</summary>
     LaunchedAttack,
     /// <summary>Decrements the timer, emits four metal particles when it reaches eight, sinks one pixel per surviving update, and deletes the actor at zero.</summary>
     Burrowing,

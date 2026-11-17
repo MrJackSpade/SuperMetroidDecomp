@@ -22,9 +22,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
     /// <summary>
-    /// Spawns the fake-wall explosion for the wall's frame behaviour. It
-    /// places the explosion on the middle of the
-    /// breaking wall.
+    /// Spawns the fake wall's explosion, on the middle of the breaking wall.
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()
     {

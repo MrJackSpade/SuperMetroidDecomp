@@ -33,8 +33,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case SparkCueKind.BecomeIntangible:
-                // Flicker-out: the intangibility property removes the actor from every ordinary Samus, beam and grapple
-                // collision pass.
+                // Flicker-out: the spark stops touching Samus and passes her beams and the grapple.
                 place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
                 break;
             case SparkCueKind.BecomeTangible:

@@ -568,8 +568,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the Powamp's touch to the balloon while it accepts contact.</summary>
     internal void ReactToPowampBalloonTouch(EnemyTouchContext context)
     {
-        // Balloons are normally absent from the interactive list because their intangibility property excludes them,
-        // but retain the handler's literal guard.
+        // A balloon that refuses contact ignores Samus's touch.
         if (!context.Place.RequireSpeciesState<PowampBalloonState>().RefusesContact)
             ResolvePowampTouch(context.Place, context.Samus, context.PseudoScrew);
     }
@@ -583,16 +582,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal int? SpawnPowampSpikeBurst(RoomEnemyPlace body, PictureShading look)
     {
         int? lastSpikePlace = null;
-        // The spikes fire in their authored order. Each spike searches the room's places for
-        // enemy projectiles afresh, from the last place down.
+        // The spikes fire in their authored order, each taking the last free enemy-projectile place afresh.
         foreach (CompassDirection direction in PowampMotionDefinitions.SpikeFiringOrder)
         {
             EnemyProjectile? spike = _projectiles.AllocateEnemyProjectile();
             if (spike is null)
                 return null;
 
-            // Spawning copies the spike's definition, its animation, frame, radii, damage and properties, before its
-            // setup zeros velocities and captures the owner position.
+            // The spike starts as its definition has it, with its animation, size and damage, still, at the Powamp.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 spike,
                 RoomEnemyProjectileKind.PowampSpike,

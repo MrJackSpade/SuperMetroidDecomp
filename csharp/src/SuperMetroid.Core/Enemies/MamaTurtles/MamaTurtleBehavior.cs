@@ -310,7 +310,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (--state.ActionTimer != 0)
             return;
 
-        // The two adjacent accelerations accelerate toward Samus's side by a sixteenth of a pixel per update.
+        // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
         state.XAcceleration = CoordinateAxis.Difference(mama.Position.X.Whole, samus.Position.X.Whole) < 0
             ? MamaTurtleMotionDefinitions.HoverAcceleration
             : -MamaTurtleMotionDefinitions.HoverAcceleration;

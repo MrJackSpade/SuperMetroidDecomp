@@ -168,7 +168,7 @@ internal sealed class KraidLimbs
         arm.Position = arm.Position.WithWhole(body.Position.Whole + KraidArenaDefinitions.ArmOffset);
 
         // The arm hides only when its anchor leaves the screen's gameplay
-        // viewport. This is actor visibility, not background priority, so preserve the hide-drawing property.
+        // viewport: it is hidden, not drawn behind anything.
         bool onScreen = arm.Position.Y.Whole >= cameraY &&
             arm.Position.Y.Whole - cameraY < ScreenGeometry.ScreenHeightPixels;
         arm.Presence = onScreen

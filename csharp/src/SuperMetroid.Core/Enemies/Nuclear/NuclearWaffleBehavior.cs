@@ -146,11 +146,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             if (segment is null)
                 throw new InvalidOperationException("Nuclear Waffle exhausted the enemy-projectile pool during room load.");
 
-            // The link starts as its definition has it:
-            // the twelve-frame animation, the link's
-            // frame behaviour, 8x8 radii, interaction flags, and 64 damage. The
-            // setup below only copies the live owner coordinates, associates this
-            // projectile with one articulated link, and makes it an indestructible dud.
+            // The link starts as its definition has it: its twelve-frame animation, an 8 by 8 pixel size and 64
+            // damage. It then starts at the head as one link of the body, which shots cannot destroy.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
                 segment,
                 RoomEnemyProjectileKind.NuclearWaffleBody,
@@ -158,9 +155,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphics);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial));
             segment.Position = owner.Position.WithWhole(initialHead);
-            // The setup makes these four links indestructible duds. Their
-            // shot-blocking property admits the beam overlap; this independent flag selects the persistent
-            // dud response rather than the definition's delete-on-shot animation.
+            // The four links stop shots without being destroyed: a beam that strikes one is a dud, and the link
+            // stays rather than playing its definition's destruction.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
             links[segmentIndex] = new NuclearWaffleLink<EnemyProjectile>(segment);
         }
@@ -183,7 +179,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return links;
     }
 
-    /// <summary>Runs the projectile-link loop.</summary>
+    /// <summary>Places each damaging link along the sweep behind the head, and reports whether the last has reached the sweep's end.</summary>
     private bool PositionNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state)
     {
         NuclearWaffleSweepAngle angle = state.CurrentAngle.TurnedBySteps(state.InterleavedSegmentOffset);
@@ -213,7 +209,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return finished;
     }
 
-    /// <summary>Runs the effect-actor-link loop.</summary>
+    /// <summary>Places each cosmetic link along the sweep behind the head.</summary>
     private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state)
     {
         NuclearWaffleSweepAngle angle = state.CurrentAngle;

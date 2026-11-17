@@ -1520,5 +1520,33 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // Installed art and loading installed art, a table, a multiplier, a range alone and a hardware owner are English.
         Expect("class P { /// <summary>Draws it with installed sprite art; loads installed flight art; a table; the speed multiplier; a column 0 through 255.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the game stores the count in a value of 0 through 255.</summary>\n[CompatibilityService(\"store\")] class Store { }");
+        // An enemy's presence, contact or processing told as a stored property, outside hardware owners and markup (#2377):
+        // an intangible, invisible, hide-drawing, animating, off-screen, shot- or plasma-blocking, contact or listed property.
+        Expect("class P { void Run() { // The intangible property removes the dead body from the list.\n } }", "('intangible property')");
+        Expect("class P { void Run() { // The invisibility property controls rendering only.\n } }", "('invisibility property')");
+        Expect("class P { void Run() { // preserve the hide-drawing property\n } }", "('hide-drawing property')");
+        Expect("class P { void Run() { // The setup sets the animating, intangibility and invisibility properties.\n } }",
+            "('intangibility and invisibility properties')");
+        Expect("class P { void Run() { // He starts with both of his contact properties.\n } }", "('contact properties')");
+        Expect("class P { void Run() { // sets their process-off-screen property below\n } }", "('process-off-screen property')");
+        Expect("class P { void Run() { // The plasma-blocking enemy property also forces the mark.\n } }", "('plasma-blocking enemy property')");
+        // A property of a thing, an enemy's other properties, a projectile's property set or mask and a hardware owner are
+        // English.
+        Expect("class P { /// <summary>A property of the frame; its other properties are kept; the animation's property set and property mask.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the death leaves the dying enemy's respawn property set.</summary>\n[CompatibilityService(\"respawn\")] class Respawn { }");
+        // The original program's steps and arithmetic told in enemy prose, outside hardware owners and markup (#2377): a
+        // post- or pre-decrement, a main-AI call or AI invocation, running the code's loop, the handler's guard, a signed
+        // wrapped comparison and a strict modular range.
+        Expect("class P { /// <summary>Runs the escape, including post-decrement timer semantics.</summary>\nint F => 0; }", "('post-decrement')");
+        Expect("class P { void Run() { // the pixelation reads this pre-increment value\n } }", "('pre-increment')");
+        Expect("class P { void Run() { // The flag was produced at the end of the preceding main-AI call.\n } }", "('main-AI call')");
+        Expect("class P { /// <summary>Spends one AI invocation choosing its movement.</summary>\nint F => 0; }", "('AI invocation')");
+        Expect("class P { /// <summary>Runs the projectile-link loop.</summary>\nint F => 0; }", "('Runs the projectile-link loop')");
+        Expect("class P { void Run() { // but retain the handler's literal guard\n } }", "('the handler's')");
+        Expect("class P { /// <summary>Compares only the whole pixels as signed wrapped values.</summary>\nint F => 0; }", "('signed wrapped')");
+        Expect("class P { /// <summary>Opens only inside strict modular X and Y ranges.</summary>\nint F => 0; }", "('strict modular')");
+        // A handler alone, an animation's loop, a decrement or a call alone and a hardware owner are English.
+        Expect("class P { /// <summary>A handler; the idle animation's loop; each decrement; a call to the queue.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the handler's post-decrement test runs the main loop.</summary>\n[CompatibilityService(\"loop\")] class Loop { }");
     }
 }

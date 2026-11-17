@@ -104,9 +104,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Action)
         {
             case BrinstarPipeBugAction.WaitUntilOnScreen:
-                // The wait arms the proximity check while the
-                // origin is visible: this initial
-                // state arms it on screen, not after a despawn boundary.
+                // The bug starts watching for Samus once its pipe is on screen.
                 if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
                     state.Action = BrinstarPipeBugAction.WaitForSamus;
                 return;
@@ -301,9 +299,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         leaderState.CountFormationTick();
-        // The formation tick resets only the current (leader) place. The following
-        // formation changes every animation, but leaves follower
-        // timers intact, including zero timers in cleared respawn placeholders.
+        // Only the leader's animation clock restarts. The formation then changes every member's animation but leaves
+        // the followers' frame timers as they are, a killed member's included.
         leader.AnimationClock.Restart();
         bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
         NorfairPipeBugFormation formation = RequireNorfairPipeBugFormation(leader);

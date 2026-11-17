@@ -106,7 +106,7 @@ public sealed class EnemyProjectile
         State as TState ?? throw new InvalidOperationException(
             $"Enemy projectile {Kind} in place {Place} holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
 
-    /// <summary>Gets whether this actor participates in damaging Samus-contact checks, independently of persistence and shot-blocking properties.</summary>
+    /// <summary>Gets whether this actor damages Samus when it touches her, whether or not it survives contact or stops shots.</summary>
     public bool CanDamageSamus { get; internal set; }
     /// <summary>Contact does not delete this actor.</summary>
     public bool PersistsOnSamusContact { get; internal set; }

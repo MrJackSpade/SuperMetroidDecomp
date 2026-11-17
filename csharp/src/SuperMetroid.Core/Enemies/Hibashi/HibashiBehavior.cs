@@ -108,9 +108,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActivityFinished = false;
         state.Playback = EnemyAnimationPlayback.Start(flame, HibashiAnimations.StartingWith(HibashiSegment.Flame));
 
-        // The invisibility property controls rendering only. The intangibility property controls admission to
-        // Samus/projectile/grapple collision. The bottom remains visually invisible for the
-        // entire eruption while becoming a live collision body here.
+        // The flame shows, and its unseen hitbox part starts touching Samus, her shots and the grapple: the hitbox
+        // part stays unseen through the whole eruption.
         flame.Presence = flame.Presence.Without(EnemyPresence.Hidden);
         hitbox.Contact = hitbox.Contact.Without(EnemyContact.IgnoresSamus);
     }

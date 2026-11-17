@@ -63,9 +63,9 @@ public sealed class NuclearWaffleEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
     /// <summary>The link spawn position: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
     public Position16<RoomPixels> InitialHead { get; internal set; }
-    /// <summary>Signed same-pool link pitch in steps, 24 backward or 24 forward, subtracted successively from each link angle.</summary>
+    /// <summary>The steps between one link and the next of the same kind, subtracted from each link's angle in turn: -24 for the backward sweep, whose links trail at larger angles, or 24 for the forward.</summary>
     public int SegmentSpacing { get; internal set; }
-    /// <summary>Signed half-pitch in steps, -12 or +12, added before the projectile-link loop to stagger it against the effect-actor links.</summary>
+    /// <summary>The steps the damaging links are staggered by against the cosmetic ones, half the spacing: -12 for the backward sweep or 12 for the forward.</summary>
     public int InterleavedSegmentOffset { get; internal set; }
     /// <summary>The falling explosion angle: 256 steps backward or 384 forward; crossing it is the silent second joint turn.</summary>
     public NuclearWaffleSweepAngle FallingTurnThreshold { get; internal set; }

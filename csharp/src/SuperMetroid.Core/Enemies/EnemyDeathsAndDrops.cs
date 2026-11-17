@@ -294,7 +294,7 @@ internal sealed class EnemyDeathsAndDrops
         projectile.State = new EnemyPickupState(kind, EnemyPickupDefinitions.Lifetime);
         projectile.StartMotion(SingleMotion.Moving);
 
-        // Becoming a pickup clears the persists-on-contact property and keeps the projectile's other properties.
+        // A pickup is gone when Samus touches it; it keeps the explosion's other behaviours.
         projectile.PersistsOnSamusContact = false;
         return animation.Animation;
     }

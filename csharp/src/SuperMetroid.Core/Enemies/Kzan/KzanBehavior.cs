@@ -179,8 +179,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Adds only the accepted whole-pixel Kzan delta to Samus's extra Y displacement.
-    /// Code deliberately leaves extra Y subdisplacement untouched.
+    /// Carries Samus, standing on the Kzan, by the whole pixels it moved this update; her fraction of a pixel is left
+    /// as it is.
     /// </summary>
     private static void CarrySamusWithKzanIfTouchingFromBelow(
         RoomEnemyPlace place,

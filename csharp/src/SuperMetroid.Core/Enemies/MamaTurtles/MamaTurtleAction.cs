@@ -10,7 +10,7 @@ public enum MamaTurtleAction
     Initial,
     /// <summary>Does nothing of its own while Mama's animation plays, such as leaving or entering her shell; its cues move her.</summary>
     Idle,
-    /// <summary>Waits dormant until the shared wake counter is cleared.</summary>
+    /// <summary>Waits dormant in her shell, which Samus can stand on, until a touch or shot on one of her babies wakes her.</summary>
     Asleep,
     /// <summary>Moves Samus along the shell while Mama Turtle emerges.</summary>
     LeavingShell,

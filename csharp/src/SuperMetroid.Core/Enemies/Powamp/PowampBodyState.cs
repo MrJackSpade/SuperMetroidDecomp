@@ -22,7 +22,7 @@ public sealed class PowampBodyState
     /// <summary>The body's AI-update countdown, restarted at five for each horizontal wiggle offset.</summary>
     public int WiggleTimer { get; internal set; }
 
-    /// <summary>The body's countdown, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or past it.</summary>
+    /// <summary>The updates left of the body's current wait: 60 at rest, ten while inflating or deflating, 32 while dying; it ends on the update it reaches zero.</summary>
     public int ActionTimer { get; internal set; }
 
     /// <summary>The main-AI behaviour.</summary>

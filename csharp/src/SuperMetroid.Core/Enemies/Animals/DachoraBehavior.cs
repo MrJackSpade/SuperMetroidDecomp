@@ -71,8 +71,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Readies a Dachora body's or echo's place: the animating property both disables Samus collision and admits enemy
-    /// animations, and the population's tangibility property already excludes these actors from collisions.
+    /// Readies a Dachora body's or echo's place to animate; its placement already keeps it from touching Samus or being
+    /// shot.
     /// </summary>
     private static void PrepareDachoraPlace(RoomEnemyPlace place)
     {

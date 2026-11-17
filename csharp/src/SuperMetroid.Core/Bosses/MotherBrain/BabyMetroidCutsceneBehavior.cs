@@ -76,7 +76,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         babyPlace.SetSpeciesState(state);
         _lifecycle.RunInitializationAi(babyPlace, EnemySpawnSurroundings.None);
 
-        // Spawning leaves the Baby undrawn after its setup when its hide-drawing property is set.
+        // Spawning leaves the Baby undrawn after its setup while it animates.
         // Its animation is still live and shows its first visible frame on its first
         // scheduled turn; this update's list of running enemies was fixed before the Baby was placed.
         babyPlace.Frame = babyPlace.Processing.HasAny(EnemyProcessing.Animates)

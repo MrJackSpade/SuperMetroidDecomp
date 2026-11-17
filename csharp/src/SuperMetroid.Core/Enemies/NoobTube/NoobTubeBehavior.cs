@@ -33,9 +33,8 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Executes the setup selected by the tube-crack definitions. The request
-    /// retains the executing room object's block because the projectile spawn reads the current room object
-    /// while constructing each actor.
+    /// Spawns the crack, glass shard or released air bubble the request names, at the tube's block the request
+    /// carries.
     /// </summary>
     public void SpawnNoobTubeProjectile(
         NoobTubeProjectileRequest request)

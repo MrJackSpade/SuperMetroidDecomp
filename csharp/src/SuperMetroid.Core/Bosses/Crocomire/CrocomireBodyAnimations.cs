@@ -474,6 +474,7 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodySkeletonCollapseStage17, 5),
             Dust(64),
             Cue(K.BigExplosionSound),
+            Mark(K.SkeletonCollapsed),
             Show(F.CrocomireBodySkeletonCollapseStage18, 5),
         ],
         [P.SkeletonStable] =
@@ -577,6 +578,10 @@ internal static class CrocomireBodyAnimations
     /// <summary>Publishes a signalling cue of <paramref name="kind"/>.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Cue(CrocomireBodyCueKind kind) =>
         new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Event(new CrocomireBodyCue.Signal(kind));
+
+    /// <summary>Marks the moment <paramref name="kind"/> names (#2301), which his state notes and which plays nothing.</summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Mark(CrocomireBodyCueKind kind) =>
+        new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Marker(new CrocomireBodyCue.Signal(kind));
 
     /// <summary>Publishes a big dust cloud <paramref name="offset"/> pixels from the body.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Dust(int offset) =>

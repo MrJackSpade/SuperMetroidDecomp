@@ -9,7 +9,9 @@ namespace SuperMetroid.TestSupport.MovieReplay;
 /// <summary>
 /// The ROM oracle of an enemy family's typed animations (#1600): each segment's beats matched to its native list, and
 /// each animation matched to the lists' control flow (sleeps, stops, gotos, gotos back into a list's own beats, counter
-/// loads, counted repeats and runs on into the next authored list), under the family's rules for its own instructions.
+/// loads, counted repeats and runs on into the next authored list), under the family's rules for its own instructions. A
+/// marker beat (#2301) is the port's own and occupies no native beat: it stands at the native address of what follows it
+/// in its list, and a play resting before it stands where the pointer rests before the beat after it.
 /// </summary>
 internal static class NativeEnemyAnimationOracle
 {
@@ -322,15 +324,23 @@ internal static class NativeEnemyAnimationOracle
         {
             TSegment segment = pair.Key;
             NativeEnemyList<TSegment> list = pair.Value;
+            // Markers (#2301) share the address of what follows them, and a play rests before a marker, never just past it:
+            // the pointer stands at the first of the beats sharing its address, and an end those beats run up to is theirs.
+            var pastMarkers = new HashSet<int>();
             for (int beat = 0; beat < list.BeatAddresses.Length; beat++)
             {
-                if (list.BeatAddresses[beat] == nativePointer)
-                    beats.Add(new(segment, beat));
+                if (list.BeatAddresses[beat] != nativePointer || (beat > 0 && list.BeatAddresses[beat - 1] == nativePointer))
+                    continue;
+                beats.Add(new(segment, beat));
+                int past = beat;
+                while (past < list.BeatAddresses.Length && list.BeatAddresses[past] == nativePointer)
+                    past++;
+                pastMarkers.Add(past);
             }
             // The pointer rests on a list's first control after a beat; a later control at the same beat never holds it.
             foreach (IGrouping<int, NativeEnemyControl<TSegment>> after in list.Controls.GroupBy(control => control.AfterBeat))
             {
-                if (after.First().Address == nativePointer
+                if (after.First().Address == nativePointer && !pastMarkers.Contains(after.Key)
                     && after.First().Kind is not (NativeEnemyControlKind.RunOnIntoNext or NativeEnemyControlKind.LoopStart or NativeEnemyControlKind.PoseShownAgain))
                     ends.Add(new(segment, after.Key));
             }
@@ -570,6 +580,12 @@ internal static class NativeEnemyAnimationOracle
                     : new(NativeEnemyControlKind.RunOnIntoNext, beat, following, null, cursor));
                 return Finish();
             }
+            if (beat < beats.Count && beats[beat] is AnimationBeat<TFrame, TEvent>.Marker)
+            {
+                // A marker (#2301) occupies no native beat: it stands at the address of what follows it in the list.
+                addresses.Add(cursor);
+                continue;
+            }
             int address = (int)new SnesAddress(bank, cursor);
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
@@ -768,7 +784,9 @@ internal sealed record NativeCountedStart<TSegment>(NativeCountedEntry<TSegment>
 
 /// <summary>One enemy segment's native list (#1600): each beat's native address, and its control instructions.</summary>
 /// <typeparam name="TSegment">The segment identity.</typeparam>
-/// <param name="BeatAddresses">The native address of each beat, in order.</param>
+/// <param name="BeatAddresses">
+/// The native address of each beat, in order; a marker beat (#2301), which occupies none, has the address of what follows it.
+/// </param>
 /// <param name="Controls">The list's control instructions, in order.</param>
 internal sealed record NativeEnemyList<TSegment>(ushort[] BeatAddresses, NativeEnemyControl<TSegment>[] Controls)
     where TSegment : struct, Enum;

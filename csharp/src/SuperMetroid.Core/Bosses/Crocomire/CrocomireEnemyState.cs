@@ -48,11 +48,14 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal EnemyFrameId? BodyFrame { get; set; }
 
     /// <summary>
-    /// Whether his skeleton's collapse has shown its last picture (#2180): the collapse's end, or the stable skeleton it
-    /// rests on after. The death waits on this before it lays his dead skeleton down.
+    /// Whether his skeleton's collapse has shown its last picture (#2180, #2301), as the collapse marks it; he collapses
+    /// once, so it stays set through the stable skeleton the collapse rests on after. The death waits on this before it
+    /// lays his dead skeleton down.
     /// </summary>
-    internal bool SkeletonHasCollapsed =>
-        BodyFrame is EnemyFrameId.CrocomireBodySkeletonCollapseStage18 or EnemyFrameId.CrocomireBodySkeletonStable;
+    internal bool SkeletonHasCollapsed { get; private set; }
+
+    /// <summary>His skeleton's collapse shows its last picture, as its animation's cue marks.</summary>
+    internal void MarkSkeletonCollapsed() => SkeletonHasCollapsed = true;
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =

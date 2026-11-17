@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Animation;
 
 /// <summary>
-/// One beat of an animation segment (#1600): a frame shown for a duration, a frame held for good (#1607), a pause, or an
-/// event its owner reacts to.
+/// One beat of an animation segment (#1600): a frame shown for a duration, a frame held for good (#1607), a pause, an
+/// event its owner reacts to, or a marker (#2301), a moment of the animation its owner reacts to as it does to an event.
 /// </summary>
 /// <typeparam name="TFrame">The frame identity.</typeparam>
 /// <typeparam name="TEvent">The events the owner reacts to.</typeparam>
@@ -33,6 +33,15 @@ internal abstract record AnimationBeat<TFrame, TEvent>
     /// <summary>An event the owner reacts to as the animation reaches it, before the next frame shows.</summary>
     /// <param name="Raised">The event.</param>
     internal sealed record Event(TEvent Raised) : AnimationBeat<TFrame, TEvent>;
+
+    /// <summary>
+    /// A moment of the animation its owner reacts to as it reaches it, before the next frame shows, as it does to an
+    /// <see cref="Event"/> (#2301): Kraid's arm reaching its pause, a walk reaching its last frame. It marks where the
+    /// animation stands for an owner that waits on that moment, and plays nothing of its own: it takes no time, and the
+    /// frames shown and their timing are the beats' around it.
+    /// </summary>
+    /// <param name="Raised">The moment, raised as the owner's event.</param>
+    internal sealed record Marker(TEvent Raised) : AnimationBeat<TFrame, TEvent>;
 
     /// <summary>The frame the beat shows: a frame's or a held frame's; none for a pause or an event.</summary>
     internal TFrame? ShownFrame => this switch

@@ -21,8 +21,4 @@ internal readonly record struct AnimationPlayback<TSegment>(Animation<TSegment> 
     internal bool HasShownPhaseEnd => Animation.Phases.Count > Place.Phase
         ? Place.Beat >= Animation.Phases[Place.Phase].BeatCount
         : throw new InvalidOperationException("An animation of no phase has no phase to finish.");
-
-    /// <summary>Whether the play plays <paramref name="segment"/> and has shown its phase's last beat (#1886).</summary>
-    internal bool HasShownLastBeatOf(TSegment segment) =>
-        EqualityComparer<TSegment>.Default.Equals(PlayingSegment, segment) && HasShownPhaseEnd;
 }

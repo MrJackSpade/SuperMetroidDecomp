@@ -17,4 +17,9 @@ internal enum CrocomireBodyCueKind
     ShakeScreen,
     /// <summary>Steps four pixels toward the spike wall, backing off when the wall stops him, and otherwise spawns foot dust.</summary>
     StepTowardSpikeWall,
+    /// <summary>
+    /// Marks his skeleton's collapse reaching its last picture (#2301): the collapse has ended, and his death lays his dead
+    /// skeleton down.
+    /// </summary>
+    SkeletonCollapsed,
 }

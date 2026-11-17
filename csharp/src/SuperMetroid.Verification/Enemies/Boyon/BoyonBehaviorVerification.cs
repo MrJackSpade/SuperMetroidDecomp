@@ -20,6 +20,15 @@ internal static class BoyonBehaviorVerification
     /// <summary>The spawn selectors of the jump heights a Boyon bounces, 48 through 128 pixels.</summary>
     private const int BouncedHeightSelectors = 6;
 
+    /// <summary>
+    /// The highest arc, in 256ths of a pixel, the derivation is checked against the original's word arithmetic for: up to
+    /// 128 pixels the original's sign test of the arc's distance against its height is a plain comparison.
+    /// </summary>
+    private const int PlainComparisonHeight = 128 * 256;
+
+    /// <summary>The largest multiplier the derivation is checked with: up to it, one entry's scaled sample is under 128 pixels.</summary>
+    private const int PlainComparisonMultiplier = 128;
+
     /// <summary>The bounce curve's stored samples, as the original reads them before saturating.</summary>
     private const int StoredSamples = 23;
 
@@ -52,26 +61,26 @@ internal static class BoyonBehaviorVerification
 
     /// <summary>
     /// The first update derives the arc's baseline (#1684): for every height of 0 through 128 pixels with each of the
-    /// cartridge's eight multipliers, and every multiplier of 1 through 128 with each bounced selector height, the
-    /// production derivation ends at the entry, and with the arc distance, the original's word arithmetic reaches: the
-    /// index and distance kept in sixteen bits and the distance compared with the height by the sign of their difference.
-    /// A height above 128 pixels and a multiplier of nothing or above 128 are refused.
+    /// cartridge's eight multipliers, and every multiplier of 1 through 128 with each bounced selector height up to 128
+    /// pixels, the production derivation ends at the entry, and with the arc distance, the original's word arithmetic
+    /// reaches: the index and distance kept in sixteen bits and the distance compared with the height by the sign of their
+    /// difference, which is a plain comparison over that range, past every retail Boyon's arc (#2282). A negative height and
+    /// a multiplier of nothing are refused.
     /// </summary>
     internal static void VerifyBoyonArcBaseline(CartridgeImportAddressSpace rom)
     {
         int[] samples = StoredCurve(rom);
         int derivations = 0;
         foreach (int multiplier in SelectorMultipliers)
-        for (int height = 0; height <= BoyonSpeedDefinitions.LargestJumpHeight * 256; height++)
+        for (int height = 0; height <= PlainComparisonHeight; height++)
             derivations += CheckBaseline(samples, multiplier, height);
-        for (int multiplier = 1; multiplier <= BoyonSpeedDefinitions.LargestArcMultiplier; multiplier++)
+        for (int multiplier = 1; multiplier <= PlainComparisonMultiplier; multiplier++)
         for (int selector = 0; selector < BouncedHeightSelectors; selector++)
             derivations += CheckBaseline(samples, multiplier, rom.ReadCartridgeWord(0xa286ef + selector * 2));
 
-        AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(BoyonSpeedDefinitions.LargestJumpHeight * 256 + 1) },
-            "an arc above 128 pixels is refused");
-        foreach (int multiplier in new[] { 0, BoyonSpeedDefinitions.LargestArcMultiplier + 1 })
-            AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { SpeedMultiplier = multiplier }, $"a Boyon with multiplier {multiplier} is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { JumpHeight = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(-1) },
+            "a negative arc is refused");
+        AssertThrows<ArgumentOutOfRangeException>(() => new BoyonEnemyState { SpeedMultiplier = 0 }, "a Boyon with multiplier 0 is refused");
         Console.WriteLine($"  Boyon arc baseline: {derivations} derivations end at the original's entry and distance.");
     }
 

@@ -156,8 +156,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Body and wing rise exactly one whole pixel, so both fractions stay untouched.
         RoomEnemyPlace wing = bodyState.Wing;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
-        wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole - 1);
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole - 1);
+        wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole - 1);
     }
 
     /// <summary>Attacks, spitting fireballs.</summary>
@@ -208,8 +208,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // As with rising, the sink moves exactly one whole pixel each update.
         RoomEnemyPlace wing = bodyState.Wing;
-        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
-        wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole + 1);
+        body.Position = body.Position.WithWholeY(body.Position.Y.Whole + 1);
+        wing.Position = wing.Position.WithWholeY(wing.Position.Y.Whole + 1);
     }
 
     /// <summary>

@@ -29,11 +29,6 @@ internal static class BoyonSpeedDefinitionsVerification
             {
                 actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (ushort)((height << 8) | multiplier));
                 int authoredHeight = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2));
-                if (authoredHeight > BoyonSpeedDefinitions.LargestJumpHeight * 256)
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => initialize(actor), $"Boyon height selector {height}, above 128 pixels, is refused");
-                    continue;
-                }
                 initialize(actor);
                 initialized++;
                 BoyonEnemyState state = (enemies.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BoyonStates[0]."));
@@ -41,7 +36,7 @@ internal static class BoyonSpeedDefinitionsVerification
                 AssertEqual(authoredHeight, state.JumpHeight.InTwoFiftySixths, "Boyon real initialized height without bus");
             }
         }
-        AssertEqual(48, initialized, "the six selectors up to 128 pixels initialize with each of the eight multipliers");
+        AssertEqual(72, initialized, "every height selector initializes with each of the eight multipliers (#2282)");
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8), "Boyon import rejects the multiplier past its table");
         AssertThrows<InvalidDataException>(() => actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900), "Boyon import rejects the height past its table");
         Func<BoyonEnemyState, UnsignedSixteenSixteen> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
@@ -51,7 +46,7 @@ internal static class BoyonSpeedDefinitionsVerification
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;
             AssertEqual(sample, BoyonBounceCurve.Sample(BoyonCurvePlaceConstants.AtEntry(index)), "Boyon native curve/saturation");
             curve.CurvePlace = BoyonCurvePlaceConstants.AtEntry(index);
-            for (int multiplier = 1; multiplier <= BoyonSpeedDefinitions.LargestArcMultiplier; multiplier++)
+            for (int multiplier = 1; multiplier <= 128; multiplier++)
             {
                 // Exercise every multiplier a Boyon takes (#2066).
                 curve.SpeedMultiplier = multiplier;

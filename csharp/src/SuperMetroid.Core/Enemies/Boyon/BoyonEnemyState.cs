@@ -7,38 +7,30 @@ public sealed class BoyonEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BoyonSegment> Playback { get; set; }
 
-    /// <summary>
-    /// The multiplier its bounce curve is scaled by, from its spawn settings: one or more, and no larger than
-    /// <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/>, up to which its arc is derived as the game derives it.
-    /// </summary>
+    /// <summary>The multiplier its bounce curve is scaled by, from its spawn settings: one or more (8 to 16 for retail Boyons).</summary>
     public int SpeedMultiplier
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(1, BoyonSpeedDefinitions.LargestArcMultiplier, value);
+        internal set => field = value >= 1
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's curve is scaled by one or more.");
     }
 
     /// <summary>
-    /// The latest product of the curve sample and the multiplier, read as a speed in 256ths of a pixel per update, up to
-    /// <see cref="BoyonSpeedDefinitions.LargestScaledSample"/> 256ths; the Boyon moves by its whole pixels.
+    /// The latest product of the curve sample and the multiplier, read as a speed in 256ths of a pixel per update; the
+    /// Boyon moves by its whole pixels.
     /// </summary>
-    public UnsignedSixteenSixteen Speed
-    {
-        get;
-        internal set => field = value.InTwoFiftySixths > BoyonSpeedDefinitions.LargestScaledSample
-            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's speed is no faster than its largest scaled sample.")
-            : value;
-    }
+    public UnsignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>
-    /// The height of the arc, from its spawn settings: 48 to 96 pixels for retail Boyons, never more than
-    /// <see cref="BoyonSpeedDefinitions.LargestJumpHeight"/>, the height up to which the game's height test is a plain
-    /// comparison (<see cref="HasReachedJumpHeight"/>); a higher arc is refused.
+    /// The height of the arc, from its spawn settings: 48 to 96 pixels for retail Boyons, compared plainly with the arc's
+    /// distance (<see cref="HasReachedJumpHeight"/>, #2282).
     /// </summary>
     public SignedSixteenSixteen JumpHeight
     {
         get;
-        internal set => field = value.IsNegative || value.InTwoFiftySixths > SignedSixteenSixteen.FromWholePixels(BoyonSpeedDefinitions.LargestJumpHeight).InTwoFiftySixths
-            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's arc is no lower than nothing and no higher than 128 pixels.")
+        internal set => field = value.IsNegative
+            ? throw new ArgumentOutOfRangeException(nameof(value), value, "A Boyon's arc is no lower than nothing.")
             : value;
     }
 

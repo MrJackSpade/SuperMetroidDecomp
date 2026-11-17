@@ -185,7 +185,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeEtecoonCue.LowTideRunStarts lowTide:
                 return IsAcidLow(samus) ? null : HighTideRun(lowTide.Running);
             case EscapeEtecoonCue.Move move:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
+                place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue}.");
@@ -205,7 +205,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case EscapeDachoraCue.Move move:
-                place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + move.Offset);
+                place.Position = place.Position.WithWholeX(place.Position.X.Whole + move.Offset);
                 return null;
             case EscapeDachoraCue.LowTideLapEnds lowTide:
                 return IsAcidLow(samus) ? null : RisingTideTakesOver(lowTide.Lap);

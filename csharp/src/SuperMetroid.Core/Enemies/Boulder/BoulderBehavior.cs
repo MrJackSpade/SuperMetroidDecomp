@@ -159,13 +159,13 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBoulderWaiting(RoomEnemyPlace place, BoulderEnemyState state, SamusState samus)
     {
         int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, place.Position.Y.Whole);
-        if (deltaY < 0 || CoordinateAxis.Difference(deltaY, state.TriggerReach.Y) >= 0)
+        if (deltaY < 0 || deltaY >= state.TriggerReach.Y)
             return;
 
         int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole);
         bool enteredHorizontalWindow = state.Roll != BoulderRoll.Right
-            ? deltaX < 0 && CoordinateAxis.Difference(deltaX, state.TriggerReach.X) >= 0
-            : deltaX >= 0 && CoordinateAxis.Difference(deltaX, state.TriggerReach.X) < 0;
+            ? deltaX < 0 && deltaX >= state.TriggerReach.X
+            : deltaX >= 0 && deltaX < state.TriggerReach.X;
         if (!enteredHorizontalWindow)
             return;
 

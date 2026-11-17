@@ -15,11 +15,10 @@ public static class BoyonBounceCurve
         ? place.EntryFromTop * (place.EntryFromTop + 1) / 2
         : SaturatedSample;
 
-    /// <summary>
-    /// The sample at <paramref name="place"/> scaled by <paramref name="multiplier"/>, 1 through
-    /// <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/>; the product is 0 through <see cref="BoyonSpeedDefinitions.LargestScaledSample"/>.
-    /// </summary>
+    /// <summary>The sample at <paramref name="place"/> scaled by <paramref name="multiplier"/>, one or more.</summary>
     /// <param name="place">The place along the curve, never past the top.</param>
     /// <param name="multiplier">The Boyon's speed multiplier.</param>
-    public static int Multiply(BoyonCurvePlace place, int multiplier) => Sample(place) * Ensure.BetweenInclusive(1, LargestArcMultiplier, multiplier);
+    public static int Multiply(BoyonCurvePlace place, int multiplier) => Sample(place) * (multiplier >= 1
+        ? multiplier
+        : throw new ArgumentOutOfRangeException(nameof(multiplier), multiplier, "A Boyon's curve is scaled by one or more."));
 }

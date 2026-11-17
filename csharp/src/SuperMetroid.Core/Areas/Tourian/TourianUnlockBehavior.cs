@@ -109,7 +109,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
         projectile.StartAnimation(new TourianStatueProjectileAnimation(start));
         projectile.Position = projectile.Position.WithWhole(parent.Position.Whole);
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
-            projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
+            projectile.Position = projectile.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         // A particle leaves within an eighth of a turn either side of the zero angle; one below zero lies near a full turn.
         TrigonometryAngle angle = TrigonometryAngle.Wrapped(
@@ -123,7 +123,7 @@ internal sealed class TourianUnlockBehavior : TourianStatueProjectileBehavior<To
 
     /// <summary>Holds a splash at the water surface.</summary>
     private void HoldTourianStatueSplash(EnemyProjectile projectile) =>
-        projectile.Position = projectile.Position.WithWrappedWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
+        projectile.Position = projectile.Position.WithWholeY(WaterSurface - TourianStatueParticleDefinitions.SplashHeightAboveSurface);
 
     /// <summary>Raises a soul, accelerating upward, and deletes it once it rises above the room's top.</summary>
     internal static void RaiseTourianStatueSoul(EnemyProjectile projectile)

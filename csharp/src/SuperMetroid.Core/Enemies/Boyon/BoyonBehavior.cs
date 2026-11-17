@@ -126,7 +126,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Derives the arc's baseline: from the place it stands, the Boyon moves down its curve one entry at a time, adding
     /// each entry's scaled sample to the arc's distance, until the distance reaches the jump height; the place it then
     /// stands at is where every fall ends. Each entry past the top adds at least one 256th of a pixel, so the derivation
-    /// ends; the state holds no multiplier outside 1 through <see cref="BoyonSpeedDefinitions.LargestArcMultiplier"/>.
+    /// ends; the state holds no multiplier below one.
     /// </summary>
     internal static void DeriveBoyonArcBaseline(BoyonEnemyState state)
     {
@@ -151,7 +151,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Taking the product's whole pixels discards its fraction. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's whole pixels.
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + state.Speed.Whole);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + state.Speed.Whole);
         if (state.CurvePlace < state.BaselineCurvePlace)
             return;
 
@@ -164,7 +164,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBoyonRising(RoomEnemyPlace place, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - state.Speed.Whole);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole - state.Speed.Whole);
         if (state.RiseOneEntry())
             state.BounceMovement = BoyonBounceMovement.Falling;
     }

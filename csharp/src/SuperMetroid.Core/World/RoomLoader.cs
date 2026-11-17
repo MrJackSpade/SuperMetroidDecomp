@@ -631,10 +631,10 @@ internal sealed class RoomLoader
         switch (state.Direction)
         {
             case DoorDirection.Right:
-                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(RoomGridConversions.HalfBlockEnd(_player.Samus.Position.X.Whole));
+                _player.Samus.Position = _player.Samus.Position.WithWholeX(RoomGridConversions.HalfBlockEnd(_player.Samus.Position.X.Whole));
                 break;
             case DoorDirection.Left:
-                _player.Samus.Position = _player.Samus.Position.WithWrappedWholeX(RoomGridConversions.HalfBlockStart(_player.Samus.Position.X.Whole));
+                _player.Samus.Position = _player.Samus.Position.WithWholeX(RoomGridConversions.HalfBlockStart(_player.Samus.Position.X.Whole));
                 break;
             case DoorDirection.Down:
             case DoorDirection.Up:
@@ -1184,7 +1184,7 @@ internal sealed class RoomLoader
     /// </summary>
     private static int NudgeOffScreenLeftEdge(int pixel) =>
         RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeNearBlock
-            ? CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(pixel) + DoorOpeningScrollDefinitions.DoorwayNudgePixels)
+            ? RoomGridConversions.BlockEnd(pixel) + DoorOpeningScrollDefinitions.DoorwayNudgePixels
             : pixel;
 
     /// <summary>
@@ -1193,6 +1193,6 @@ internal sealed class RoomLoader
     /// </summary>
     private static int NudgeOffScreenRightEdge(int pixel) =>
         RoomGridConversions.BlockRowWithinScreen(pixel) == DoorOpeningScrollDefinitions.DoorwayNudgeFarBlock
-            ? CoordinateAxis.Wrap(RoomGridConversions.BlockStart(pixel) - DoorOpeningScrollDefinitions.DoorwayNudgePixels)
+            ? RoomGridConversions.BlockStart(pixel) - DoorOpeningScrollDefinitions.DoorwayNudgePixels
             : pixel;
 }

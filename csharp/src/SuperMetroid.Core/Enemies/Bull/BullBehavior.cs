@@ -50,14 +50,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs a Bull's per-frame behaviour through all four of its actions.</summary>
     internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
-        state.ShotReactionDisableTimer = state.ShotReactionDisableTimer.Decrement().Remaining;
-        if (state.ShotReactionDisableTimer.IsZero)
-        {
-            // Once the timer reaches zero the game pins it at one, clearing the guard
-            // every subsequent frame. A zero-initialized timer first wraps to -1 instead.
-            state.ShotReactionDisableTimer = WrappingCountdown.Start(1);
+        // A kick's guard runs out on the update its countdown reaches zero.
+        if (state.ShotReactionDisableTimer > 0 && --state.ShotReactionDisableTimer == 0)
             state.ShotReactionDisabled = false;
-        }
 
         switch (state.Action)
         {
@@ -183,6 +178,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         return position.MovedBy(displacement);
     }
 
+    /// <summary>The updates a no-damage kick's guard keeps the Bull from being kicked again.</summary>
+    private const int ShotReactionGuardUpdates = 48;
+
     /// <summary>Runs the no-damage tail of the Bull's shot reaction.</summary>
     internal static void ResolveBullImmuneShot(
         RoomEnemyPlace bull,
@@ -197,7 +195,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Acceleration = ShotKickAcceleration;
         state.Speed = ShotKickSpeed;
         state.Action = BullAction.Decelerating;
-        state.ShotReactionDisableTimer = WrappingCountdown.Start(48);
+        state.ShotReactionDisableTimer = ShotReactionGuardUpdates;
         state.ShotReactionDisabled = true;
     }
 

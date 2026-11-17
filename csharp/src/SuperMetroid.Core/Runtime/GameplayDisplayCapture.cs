@@ -223,12 +223,12 @@ public static class GameplayDisplayCapture
         RoomShakeFrameResult shake = scrolls.RoomShake;
         PerspectiveFloor perspective = latched.PerspectiveFloor
             ?? throw new InvalidOperationException("A perspective-floor capture has no latched floor.");
-        // Room shake moves the floor with the foreground, wrapping as the scroll does.
+        // Room shake moves the floor with the foreground.
         FloorView transform = perspective.Transform with
         {
             Scroll = new Offset16<FloorPixels>(
-                CoordinateAxis.AsSigned(perspective.Transform.Scroll.X + shake.Foreground.X),
-                CoordinateAxis.AsSigned(perspective.Transform.Scroll.Y + shake.Foreground.Y)),
+                perspective.Transform.Scroll.X + shake.Foreground.X,
+                perspective.Transform.Scroll.Y + shake.Foreground.Y),
         };
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, scrolls.BackgroundScroll + shake.Background,

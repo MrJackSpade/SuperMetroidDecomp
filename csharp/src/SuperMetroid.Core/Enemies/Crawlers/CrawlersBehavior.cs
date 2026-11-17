@@ -488,14 +488,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         int surfaceY = velocity.Y.IsNegative
-            ? CoordinateAxis.Wrap(place.Position.Y.Whole - place.Radius.Y)
-            : CoordinateAxis.Wrap(place.Position.Y.Whole + place.Radius.Y - 1);
-        int blockX = RoomGridConversions.PixelToBlock(place.Position.X.Whole);
-        int blockY = RoomGridConversions.PixelToBlock(surfaceY);
-        if ((uint)blockX < level.Size.X &&
-            (uint)blockY < level.Size.Y)
+            ? place.Position.Y.Whole - place.Radius.Y
+            : place.Position.Y.Whole + place.Radius.Y - 1;
+        Position16<RoomBlocks> surface = new Position16<RoomPixels>(place.Position.X.Whole, surfaceY).ToRoomBlock();
+        if (level.Size.Contains(surface))
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+            RoomCollisionBlock block = level.GetCollisionBlock(surface);
             SlopeShape slopeShape = block.Behavior.Slope.Shape;
             if (block.CollisionType == RoomCollisionType.Slope && !slopeShape.IsSquare)
             {

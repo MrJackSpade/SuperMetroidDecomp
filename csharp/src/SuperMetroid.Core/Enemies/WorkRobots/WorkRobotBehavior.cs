@@ -206,10 +206,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemyPlace robot,
         Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
-        CoordinateAxis.AsSigned(camera.X + ScreenGeometry.ScreenWidthPixels - robot.Position.X.Whole) >= 0 &&
-        CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
-        CoordinateAxis.AsSigned(camera.Y + ScreenGeometry.ScreenHeightPixels - robot.Position.Y.Whole) >= 0;
+        robot.Position.X.Whole > camera.X &&
+        robot.Position.X.Whole <= camera.X + ScreenGeometry.ScreenWidthPixels &&
+        robot.Position.Y.Whole > camera.Y &&
+        robot.Position.Y.Whole <= camera.Y + ScreenGeometry.ScreenHeightPixels;
 
     /// <summary>Uses the existing random number to reset cooldown and starts the firing animation when ready.</summary>
     private WorkRobotSegment? TryFireWorkRobotLaser(

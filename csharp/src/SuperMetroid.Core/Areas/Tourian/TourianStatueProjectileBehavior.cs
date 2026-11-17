@@ -39,7 +39,7 @@ internal abstract class TourianStatueProjectileBehavior<TMotion>
                 projectile.Delete();
                 break;
             case TourianStatueProjectileCue.MoveDown moveDown:
-                projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + moveDown.Pixels);
+                projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + moveDown.Pixels);
                 break;
             case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.FollowReveal }:
                 FollowReveal(projectile);

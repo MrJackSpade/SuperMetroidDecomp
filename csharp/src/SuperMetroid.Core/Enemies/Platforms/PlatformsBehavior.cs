@@ -171,10 +171,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // Sinking always accelerates.
         IncrementAndClampPlatformYSpeed(state);
 
-        // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
+        // Add the whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
-        int xDelta = CoordinateAxis.Wrap(place.Position.X.Whole - preHorizontalX);
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xDelta), 0);
+        int xDelta = place.Position.X.Whole - preHorizontalX;
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(xDelta, 0);
 
         int preVerticalY = place.Position.Y.Whole;
         SignedSixteenSixteen displacement = state.YSpeedCurvePlace.Speed.Positive;
@@ -186,8 +186,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        int yDelta = CoordinateAxis.Wrap(place.Position.Y.Whole - preVerticalY);
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(yDelta));
+        int yDelta = place.Position.Y.Whole - preVerticalY;
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, yDelta);
     }
 
     /// <summary>

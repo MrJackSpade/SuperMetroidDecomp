@@ -218,7 +218,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             // The statue base adds the camera Y position and subtracts the reveal effect's camera Y plus displacement.
             // The camera terms cancel here; ordinary sprite drawing subtracts the camera once.
             // This keeps the statue's sprite pictures attached to the descending background statue artwork.
-            projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - room.Services.TourianStatueRoom.StatueOffset);
+            projectile.Position = projectile.Position.WithWholeY(anchor.Y - room.Services.TourianStatueRoom.StatueOffset);
         }
     }
 }

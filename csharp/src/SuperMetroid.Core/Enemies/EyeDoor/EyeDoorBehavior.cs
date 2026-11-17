@@ -217,7 +217,7 @@ internal sealed class EyeDoorBehavior
         bool collidedVertically = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical, EyeDoorEffectCollision.Rule);
         if (!projectile.Velocity.Y.IsNegative && collidedVertically)
         {
-            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
+            projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole - 4);
             // The floor splash stops the drop's movement, as the animation switch does.
             projectile.HoldStill();
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatSegment.HitFloor));

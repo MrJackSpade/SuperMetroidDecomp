@@ -37,8 +37,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // retail room, so the height stays well within the room (#1620).
         int jumpHeight = place.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance;
         state.InitialYSpeedCurvePlace = CalculateInitialChootYSpeedCurvePlace(jumpHeight);
-        state.InitialFallingPosition = state.SpawnPosition.WithY(CoordinateAxis.Wrap(
-            state.SpawnPosition.Y - jumpHeight));
+        state.InitialFallingPosition = state.SpawnPosition.WithY(state.SpawnPosition.Y - jumpHeight);
         state.YSpeedCurvePlace = state.InitialYSpeedCurvePlace;
     }
 
@@ -120,8 +119,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         Offset16<RoomPixels>? offset = ChootFalls.At(state.FallingPath, state.FallingPatternFrame);
         if (offset is not { } pathOffset)
         {
-            state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(
-                state.FallingOrigin.Y + state.FallingPatternYDistance));
+            state.FallingOrigin = state.FallingOrigin.WithY(state.FallingOrigin.Y + state.FallingPatternYDistance);
             state.FallingPatternFrame = 0;
             if (--state.FallingPatternLoopCounter >= 0)
                 return;

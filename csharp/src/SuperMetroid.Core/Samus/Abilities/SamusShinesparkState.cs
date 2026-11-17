@@ -587,9 +587,10 @@ public sealed class SamusShinesparkState
 
         // The point is recalculated from Samus's current position on every update; these are expanding radial
         // copies, not ordinary projectiles with independent velocity.
-        shot.EchoRadius += ShinesparkDefinitions.EchoRadiusStep;
+        ShinesparkEchoShotState flight = shot.KindStateAs<ShinesparkEchoShotState>();
+        flight.Radius += ShinesparkDefinitions.EchoRadiusStep;
         Position16<RoomPixels> point = samus.Position.Whole +
-            OffsetAlong(shot.EchoAngle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(shot.EchoRadius));
+            OffsetAlong(flight.Angle.ToAngle(), ShinesparkEchoReturn.PlacementRadius(flight.Radius));
         bool onScreen = CoordinateAxis.Difference(point.X, cameraPosition.X) is >= 0 and < ShinesparkDefinitions.EchoScreenReach &&
             CoordinateAxis.Difference(point.Y, cameraPosition.Y) is >= 0 and < ShinesparkDefinitions.EchoScreenReach;
 

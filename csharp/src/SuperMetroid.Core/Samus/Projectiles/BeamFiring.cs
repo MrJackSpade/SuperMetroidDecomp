@@ -318,7 +318,7 @@ internal sealed class BeamFiring
             // that, which is outside the emulation scope limit (#1500).
             SamusShotBehavior behavior = SamusBeamShotBehaviors.Resolve(charged, beamType);
             behavior.AdmitFiring();
-            projectile.Behavior = behavior;
+            projectile.Install(behavior, behavior.FiredKindState());
             InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
         }
         return new BeamShot(place, sound);
@@ -385,7 +385,7 @@ internal sealed class BeamFiring
             projectile,
             roomObjects,
             waveBeam: true);
-        projectile.Behavior = SamusShotBehaviors.HyperBeam;
+        projectile.Install(SamusShotBehaviors.HyperBeam, kindState: null);
         InitializePowerBeamVelocity(samus.ProjectileInheritance, projectile, _unauthoredFiring);
 
         // The shot starts the Hyper Beam's own suit glow, and its flare in place of the charge.
@@ -450,9 +450,6 @@ internal sealed class BeamFiring
         projectile.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
         projectile.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
         projectile.PicturedBeams = SamusBeamCombinations.Of(samus.EquippedBeams);
-        projectile.MissileIgnition = SamusMissileIgnition.Pending;
-        if (isSuperMissile)
-            projectile.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
 
         // The producer first calls the generic velocity initializer with base speed zero.
         // Ignition replaces that zero with one pixel per update during this same frame's input phase;
@@ -466,9 +463,13 @@ internal sealed class BeamFiring
         projectile.Playback = SamusProjectilePlayback.Start(segment);
         projectile.Radius = SamusProjectilePlayback.InitialRadius(segment);
         projectile.FrameHold = WrappingCountdown.Start(1);
-        projectile.Behavior = isSuperMissile
-            ? SamusShotBehaviors.SuperMissile
-            : SamusShotBehaviors.Missile;
+        if (isSuperMissile)
+        {
+            projectile.Install(SamusShotBehaviors.SuperMissile,
+                new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
+        }
+        else
+            projectile.Install(SamusShotBehaviors.Missile, new MissileShotState(SamusMissileIgnition.Pending));
 
         // The missile sound and the missile's shared cooldown. An item-selection press made while item cancel
         // is held records a one-shot auto-cancel index; a successful missile consumes that

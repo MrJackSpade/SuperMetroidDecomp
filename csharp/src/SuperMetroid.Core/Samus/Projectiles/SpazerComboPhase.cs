@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 public enum SpazerComboPhase
 {
-    /// <summary>Circling Samus; also the phase of a projectile that is no particle.</summary>
+    /// <summary>Circling Samus.</summary>
     Circling,
 
     /// <summary>Flying up towards the convergence point.</summary>

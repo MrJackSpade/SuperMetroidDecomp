@@ -1029,7 +1029,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x0064, missile.Damage, "missile reads damage from `$93:8641`");
     AssertEqual(SamusShotBehaviors.Missile, missile.Behavior,
         "missile selects `$90:AF68` pre-instruction family");
-    AssertEqual(SamusMissileIgnition.Ignited, missile.MissileIgnition,
+    AssertEqual(SamusMissileIgnition.Ignited, missile.KindStateAs<MissileShotState>().Ignition,
         "first alpha pass ignites the missile");
     AssertEqual(0x0100, missile.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "right missile begins at one pixel per frame after ignition");
@@ -1514,8 +1514,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
     AssertEqual(0x0100, super.Velocity.X.InTwoHundredFiftySixthsOfPixel,
         "super ignition begins at one pixel per frame");
-    AssertEqual(SamusMissileIgnition.Ignited, super.MissileIgnition, "super owner has ignited");
-    AssertEqual(1, super.SuperMissileLinkPlace,
+    AssertEqual(SamusMissileIgnition.Ignited, super.KindStateAs<SuperMissileShotState>().Ignition, "super owner has ignited");
+    AssertEqual(1, super.KindStateAs<SuperMissileShotState>().LinkPlace,
         "super owner names place one as its link");
     AssertEqual(SamusShotBehaviors.SuperMissile, super.Behavior,
         "super owner selects `$90:AFE5`");

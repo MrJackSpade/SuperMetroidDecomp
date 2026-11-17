@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal sealed class ChainsawPowerBombShot : SamusShotBehavior
 {
     /// <inheritdoc/>
+    internal override SamusShotKindState FiredKindState() => new ChainsawFuseShotState();
+
+    /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
         update.Shots.Chainsaw.RunPowerBombFuse(update.Terrain.Level, update.Shot, update.SharedProjectiles,
             update.Terrain.RoomObjects);

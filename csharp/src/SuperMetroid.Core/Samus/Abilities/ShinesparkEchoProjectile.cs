@@ -67,8 +67,7 @@ internal sealed class ShinesparkEchoProjectile
         echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
         echo.PicturedBeams = picturedBeams;
         BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
-        echo.Behavior = SamusShotBehaviors.ShinesparkEcho;
-        echo.EchoAngle = angle.ToTrigonometryAngle();
+        echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
         return echo;
     }
 

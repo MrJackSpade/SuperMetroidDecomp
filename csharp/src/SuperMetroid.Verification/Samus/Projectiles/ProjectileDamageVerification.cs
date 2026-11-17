@@ -71,7 +71,7 @@ internal static class ProjectileDamageVerification
             Check(system.Shots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Shots[0].Direction.ToAimIndex());
             if (item == 2)
             {
-                system.Motion.SpawnSuperMissileLink(samus, system.Shots[0]);
+                system.Motion.SpawnSuperMissileLink(samus, system.Shots[0], system.Shots[0].KindStateAs<SuperMissileShotState>());
                 AssertEqual(300, system.Shots[1].Damage, "Invisible link remains occupied/nonzero damage");
                 AssertEqual(300, system.Shots[0].Damage, "Link allocation does not replace its owner");
             }
@@ -197,18 +197,18 @@ internal static class ProjectileDamageVerification
                 $"beam {beam:X} activates with cost/angle ROM reads forbidden");
             AssertEqual(9, samus.PowerBombs,
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
+            if (beam == 1)
+                continue;
             for (int slot = 0; slot < 4; slot++)
                 AssertEqual(beam is 2 or 8
                         ? SpecialAttackParticleDefinitions.InPlaceOrder[slot].OrbitStart
                         : default,
-                    projectiles.Shots[slot].ComboAngle,
+                    projectiles.Shots[slot].KindStateAs<OrbitingParticleState>().Angle,
                     $"beam {beam:X} slot {slot} receives its compiled origin angle");
 
-            if (beam == 1)
-                continue;
             SamusProjectile first = projectiles.Shots[0];
-            int amplitude = beam == 2 ? 32 : first.ComboOrbitRadius;
-            Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(first.ComboAngle, amplitude);
+            OrbitingParticleState orbit = first.KindStateAs<OrbitingParticleState>();
+            Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(orbit.Angle, orbit.Radius);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)
@@ -249,15 +249,18 @@ internal static class ProjectileDamageVerification
             };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 $"{pose} Plasma special attack activates");
-            // The cartridge stores the signed step; the typed turn is the same step taken round the circle.
-            AssertEqual(TrigonometryAngle.Wrapped(step), projectiles.Combos.OrbitTurnPerUpdate, $"{pose} Plasma special attack orbit turn");
-            for (int angle = 0; angle < 256; angle++)
-                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + projectiles.Combos.OrbitTurnPerUpdate,
-                    $"{pose} orbit turn from angle {angle} matches the signed step {step}");
             SamusProjectile first = projectiles.Shots[0];
-            first.ComboAngle = new TrigonometryAngle(checked((byte)from));
+            PlasmaParticleState ring = first.KindStateAs<PlasmaParticleState>();
+            // The cartridge stores the signed step; the typed turn is the same step taken round the circle.
+            for (int place = 0; place < 4; place++)
+                AssertEqual(TrigonometryAngle.Wrapped(step), projectiles.Shots[place].KindStateAs<PlasmaParticleState>().TurnPerUpdate,
+                    $"{pose} Plasma special attack particle {place} orbit turn");
+            for (int angle = 0; angle < 256; angle++)
+                AssertEqual(TrigonometryAngle.Wrapped(angle + step), new TrigonometryAngle(angle) + ring.TurnPerUpdate,
+                    $"{pose} orbit turn from angle {angle} matches the signed step {step}");
+            ring.Angle = new TrigonometryAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
-            AssertEqual(new TrigonometryAngle(checked((byte)to)), first.ComboAngle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
+            AssertEqual(new TrigonometryAngle(checked((byte)to)), ring.Angle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
         }
         Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
     }
@@ -290,18 +293,19 @@ internal static class ProjectileDamageVerification
         };
         AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _), "the Plasma special attack activates");
         SamusProjectile ring = projectiles.Shots[0];
-        ring.PlasmaPhase = PlasmaRingPhase.FinalExpansion;
-        ring.ComboOrbitRadius = 254;
+        PlasmaParticleState ringState = ring.KindStateAs<PlasmaParticleState>();
+        ringState.Phase = PlasmaRingPhase.FinalExpansion;
+        ringState.Radius = 254;
         // The camera centres the particle's place at radius 254, so the final expansion's screen test keeps it.
-        Offset16<RoomPixels> outer = SamusComboMechanics.GetSineOffset(ring.ComboAngle, 254);
+        Offset16<RoomPixels> outer = SamusComboMechanics.GetSineOffset(ringState.Angle, 254);
         projectiles.Combos.StepPlasmaCombo(samus, ring, shared, new Position16<RoomPixels>(1024 + outer.X - 128, 1024 + outer.Y - 112));
-        AssertEqual(2, ring.ComboOrbitRadius, "an on-screen ring grown from 254 past 255 collapses onto Samus at radius 2");
-        TrigonometryAngle angle = ring.ComboAngle;
+        AssertEqual(2, ringState.Radius, "an on-screen ring grown from 254 past 255 collapses onto Samus at radius 2");
+        TrigonometryAngle angle = ringState.Angle;
         var centredOnSamus = new Position16<RoomPixels>(1024 - 128, 1024 - 112);
         projectiles.Combos.StepPlasmaCombo(samus, ring, shared, centredOnSamus);
         AssertEqual(new Position16<RoomPixels>(1024, 1024) + SamusComboMechanics.GetSineOffset(angle, 2), ring.Position.Whole,
             "the collapsed ring orbits Samus two pixels away");
-        AssertEqual(2 + BeamComboDefinitions.PlasmaRadiusStep, ring.ComboOrbitRadius, "the collapsed ring grows outward again");
+        AssertEqual(2 + BeamComboDefinitions.PlasmaRadiusStep, ringState.Radius, "the collapsed ring grows outward again");
         Console.WriteLine("Combo ring: a ring grown past 255 pixels collapses onto Samus and grows outward again.");
     }
 

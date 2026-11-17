@@ -45,7 +45,7 @@ public sealed class SamusProjectileSystem
     /// <summary>Owns the projectile visuals emitted by Shinespark echoes.</summary>
     internal ShinesparkEchoProjectile Shinespark { get; }
 
-    /// <summary>Advances special beam combinations that share ordinary projectile storage.</summary>
+    /// <summary>Starts and runs the special beam attacks, whose particles take Samus's first shot places.</summary>
     internal BeamCombos Combos { get; }
 
     /// <summary>Plays projectile records and draws their sprite compositions.</summary>
@@ -588,7 +588,6 @@ public sealed class SamusProjectileSystem
     /// </summary>
     private void ClearProjectileData()
     {
-        Combos.OrbitTurnPerUpdate = TrigonometryAngle.Zero;
         Pool.ClearAll();
         Trails.Clear();
         Pool.ShotCount.Clear();

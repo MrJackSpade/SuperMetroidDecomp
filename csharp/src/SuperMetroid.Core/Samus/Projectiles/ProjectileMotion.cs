@@ -182,11 +182,12 @@ internal sealed class ProjectileMotion
         // so this addition is intentionally overwritten; subsequent frames retain it.
         Accelerate(shot, accelerations.Beam);
 
-        if (shot.MissileIgnition != SamusMissileIgnition.Ignited)
+        MissileShotState missile = shot.KindStateAs<MissileShotState>();
+        if (missile.Ignition != SamusMissileIgnition.Ignited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
             // ignition speed plus Samus's inherited motion.
-            IgniteMissile(samus, shot);
+            IgniteMissile(samus, shot, missile);
         }
         else
         {
@@ -243,12 +244,13 @@ internal sealed class ProjectileMotion
         }
 
         SamusProjectileDirection direction = shot.Direction;
-        if (shot.MissileIgnition != SamusMissileIgnition.Ignited)
+        SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
+        if (superMissile.Ignition != SamusMissileIgnition.Ignited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then
             // immediately allocates its invisible collision link.
-            IgniteMissile(samus, shot);
-            SpawnSuperMissileLink(samus, shot);
+            IgniteMissile(samus, shot, superMissile);
+            SpawnSuperMissileLink(samus, shot, superMissile);
         }
         else
         {
@@ -262,7 +264,7 @@ internal sealed class ProjectileMotion
             if (collided)
                 _terrainCollision.KillMissile(shot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, shot, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
+                level, shot, superMissile, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
         }
         if (!collided && MovesVertically(direction))
         {
@@ -270,7 +272,7 @@ internal sealed class ProjectileMotion
             if (collided)
                 _terrainCollision.KillMissile(shot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, shot, axis: Axis.Vertical, sharedProjectiles, roomObjects);
+                level, shot, superMissile, axis: Axis.Vertical, sharedProjectiles, roomObjects);
         }
 
         if (DeleteIfOutsideMovementWindow(shot, cameraPosition))
@@ -329,12 +331,12 @@ internal sealed class ProjectileMotion
     /// Ignites a missile: its velocity is rebuilt from its ignition speed, one pixel per update, or more after a
     /// reflection's head start, combined with Samus's inherited motion.
     /// </summary>
-    private static void IgniteMissile(SamusState samus, SamusProjectile shot)
+    private static void IgniteMissile(SamusState samus, SamusProjectile shot, MissileShotState missile)
     {
-        SignedEightEight ignitionSpeed = shot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
+        SignedEightEight ignitionSpeed = missile.Ignition == SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-        shot.MissileIgnition = SamusMissileIgnition.Ignited;
+        missile.Ignition = SamusMissileIgnition.Ignited;
         BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, shot, ignitionSpeed);
     }
 
@@ -344,7 +346,8 @@ internal sealed class ProjectileMotion
     /// </summary>
     internal void SpawnSuperMissileLink(
         SamusState samus,
-        SamusProjectile owner)
+        SamusProjectile owner,
+        SuperMissileShotState ownerState)
     {
         if (_pool.FindFreePlace() is not { } place)
             return;
@@ -364,10 +367,10 @@ internal sealed class ProjectileMotion
         link.Damage = SamusProjectileDamage.Read(kind);
         link.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         link.FrameHold = WrappingCountdown.Start(1);
-        link.Behavior = SamusShotBehaviors.SuperMissileLink;
-        link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
+        link.Install(SamusShotBehaviors.SuperMissileLink,
+            new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
 
-        owner.SuperMissileLinkPlace = link.Place;
+        ownerState.LinkPlace = link.Place;
         _pool.ShotCount.CountShot();
     }
 
@@ -386,11 +389,12 @@ internal sealed class ProjectileMotion
     private void UpdateSuperMissileLinkAxis(
         RoomLevelData level,
         SamusProjectile owner,
+        SuperMissileShotState ownerState,
         Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects roomObjects)
     {
-        if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkPlace is not { } linkPlace)
+        if (ownerState.Ignition != SamusMissileIgnition.Ignited || ownerState.LinkPlace is not { } linkPlace)
             return;
         SamusProjectile link = _pool.Shots[linkPlace];
         if (!link.IsActive)

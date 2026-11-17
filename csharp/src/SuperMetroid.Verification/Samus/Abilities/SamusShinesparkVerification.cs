@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
@@ -372,11 +373,11 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertTrue(ReferenceEquals(horizontalShots.Shots[3], horizontal.Shinespark.FirstReleasedEcho.Shot) &&
         ReferenceEquals(horizontalShots.Shots[4], horizontal.Shinespark.SecondReleasedEcho.Shot),
         "the echoes take the shot pool's last two places, the first echo the one before the last");
-    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoAngle.RawValue,
+    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Angle.RawValue,
         "horizontal-right first departing echo uses ROM table angle zero");
-    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedEcho.Shot!.EchoAngle.RawValue,
+    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Angle.RawValue,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
-    AssertEqual(0, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoRadius,
+    AssertEqual(0, horizontal.Shinespark.FirstReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Radius,
         "departing projectile radius starts at zero, separate from drawing speed");
     AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.X,
         "departing echo does not move in its spawn frame");
@@ -386,7 +387,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     horizontalShots.StepReleasedCrashEchoProjectiles(
         horizontal,
         cameraPosition: new(unchecked((ushort)(crashCenterX - 128)), 0));
-    AssertEqual(8, horizontal.Shinespark.FirstReleasedEcho.Shot!.EchoRadius,
+    AssertEqual(8, horizontal.Shinespark.FirstReleasedEcho.Shot!.KindStateAs<ShinesparkEchoShotState>().Radius,
         "speed-echo pre-instruction expands radius by eight");
     AssertEqual(crashCenterX,
         horizontal.Shinespark.FirstReleasedEcho.ShownPosition!.Value.X,
@@ -535,10 +536,10 @@ internal static void VerifySamusStoredShineAndShinespark()
                 new ShinesparkDepartureAngles(RotationAngle.Zero, RotationAngle.HalfTurn), SuperMetroid.Core.Progression.SamusBeamCombination.Power, samus.Position.Whole),
             "an empty shot pool releases both echoes");
         SuperMetroid.Core.Samus.Projectiles.SamusProjectile echoShot = samus.Shinespark.FirstReleasedEcho.Shot!;
-        echoShot.EchoRadius = 65528;
+        echoShot.KindStateAs<ShinesparkEchoShotState>().Radius = 65528;
         shots.Shinespark.StepShinesparkEcho(samus, echoShot, new Position16<RoomPixels>(0, 0));
         AssertTrue(samus.Shinespark.FirstReleasedEcho.ShownPosition is not null, "an echo a whole number of lookups out stays inside the viewport");
-        AssertEqual(65536, echoShot.EchoRadius, "a departing echo's radius grows by eight past 65535");
+        AssertEqual(65536, echoShot.KindStateAs<ShinesparkEchoShotState>().Radius, "a departing echo's radius grows by eight past 65535");
         AssertEqual(samus.Position.Whole, samus.Shinespark.FirstReleasedEcho.ShownPosition!.Value, "a radius of whole lookups places the echo on Samus");
         Console.WriteLine("Shinespark crash: angular travel wraps past 65535 to zero; a departing echo at whole lookups is on Samus.");
     }

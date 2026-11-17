@@ -75,8 +75,8 @@ internal static class HopperAnimationDefinitionsVerification
             HopperSegment jumping = HopperAnimationChoices.Animation(kind, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(landed), AnimationPlace.StartOfAnimation), state.Playback, $"hopper initial landed program {context}");
 
-            state.XVelocity = 3;
-            HoppersBehavior.StartHopperJump(place, state, HopperHopDirection.Forward);
+            state.Heading = HorizontalDirection.Right;
+            HoppersBehavior.StartHopperJump(place, state);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             // The airborne pose is a still picture (#2337): it shows once and rests there.
@@ -122,7 +122,7 @@ internal static class HopperAnimationDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.SidehopperTourian, place.Definition);
         place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
+        place.SetSpawnSettings(new HopperSpawnSettings(HopperSurface.Floor));
         enemies.HoppersBehavior.InitializeHopper(place);
         EnemyInstructionRunner.ShownFrames(place, 1);
         AssertEqual((SoundEffectId?)EnemySound.LowThud, enemies.Audio.LatestSound,

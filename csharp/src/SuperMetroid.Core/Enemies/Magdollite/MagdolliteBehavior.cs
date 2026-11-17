@@ -117,8 +117,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HeadWaitsForBodyLanding = false;
         state.OriginY = place.Position.Y.Whole;
 
-        bool samusIsLeft = (samus.Position.Whole - place.Position.Whole).X < 0;
-        StartMagdolliteAnimation(place, state, samusIsLeft ? MagdolliteSegment.LeftIdle : MagdolliteSegment.RightIdle);
+        HorizontalDirection samusSide = (samus.Position.Whole - place.Position.Whole).X < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        StartMagdolliteAnimation(place, state, samusSide == HorizontalDirection.Left ? MagdolliteSegment.LeftIdle : MagdolliteSegment.RightIdle);
     }
 
     /// <summary>Hides the rising body 32 pixels below its origin until the head triggers an attack.</summary>
@@ -247,8 +247,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteHeadState state,
         SamusState samus)
     {
-        bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
+        HorizontalDirection samusSide = SamusSide(samus, head);
+        StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
 
         (_, _, RoomEnemyPlace overlay) = RequireMagdolliteComposite(head);
         MagdolliteOverlayState overlayState = PartState<MagdolliteOverlayState>(overlay);
@@ -260,7 +260,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
-        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightSubmerge : MagdolliteSegment.LeftSubmerge);
+        StartMagdolliteAnimation(head, state, samusSide == HorizontalDirection.Right ? MagdolliteSegment.RightSubmerge : MagdolliteSegment.LeftSubmerge);
         state.Action = MagdolliteHeadAction.WaitingForAttackAnimation;
     }
 
@@ -287,8 +287,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HeadWaitsForBodyLanding)
             return;
 
-        bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightEmerge : MagdolliteSegment.LeftEmerge);
+        StartMagdolliteAnimation(head, state, SamusSide(samus, head) == HorizontalDirection.Right ? MagdolliteSegment.RightEmerge : MagdolliteSegment.LeftEmerge);
         state.Action = MagdolliteHeadAction.WaitingForReturnAnimation;
     }
 
@@ -301,8 +300,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.AnimationBusy)
             return;
 
-        bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, head.Position.X.Whole);
-        StartMagdolliteAnimation(head, state, samusIsRight ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
+        StartMagdolliteAnimation(head, state, SamusSide(samus, head) == HorizontalDirection.Right ? MagdolliteSegment.RightIdle : MagdolliteSegment.LeftIdle);
         state.Action = MagdolliteHeadAction.Waiting;
     }
 
@@ -425,9 +423,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteBodyState bodyState = PartState<MagdolliteBodyState>(body);
         if (bodyState.BodyReachedApex)
         {
-            bool samusIsRight = !CoordinateAxis.Precedes(samus.Position.X.Whole, overlay.Position.X.Whole);
-            state.ThrowsRight = samusIsRight;
-            StartMagdolliteAnimation(overlay, state, samusIsRight ? MagdolliteSegment.RightThrow : MagdolliteSegment.LeftThrow);
+            state.ThrowDirection = SamusSide(samus, overlay);
+            StartMagdolliteAnimation(overlay, state, state.ThrowDirection == HorizontalDirection.Right ? MagdolliteSegment.RightThrow : MagdolliteSegment.LeftThrow);
             state.Action = MagdolliteOverlayAction.WaitingForThrowAnimation;
             state.ThrowOrigin = overlay.Position.Whole;
         }
@@ -617,7 +614,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             }
             case MagdolliteCue.Signal { Kind: MagdolliteCueKind.SpawnLava }:
-                SpawnMagdolliteLava(place, PartState<MagdolliteOverlayState>(place).ThrowsRight);
+                SpawnMagdolliteLava(place, PartState<MagdolliteOverlayState>(place).ThrowDirection);
                 break;
             case MagdolliteCue.ShiftFromThrowOrigin shift:
                 place.Position = place.Position.WithWhole(PartState<MagdolliteOverlayState>(place).ThrowOrigin + shift.Offset);
@@ -746,8 +743,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveMagdolliteCombatAfterCommon(context.Place);
     }
 
-    /// <summary>Spawns and initializes a Magdollite lava ball.</summary>
-    internal void SpawnMagdolliteLava(RoomEnemyPlace source, bool throwsRight)
+    /// <summary>The side of <paramref name="part"/> Samus is on: right unless she is to its left (#2338).</summary>
+    private static HorizontalDirection SamusSide(SamusState samus, RoomEnemyPlace part) =>
+        CoordinateAxis.Precedes(samus.Position.X.Whole, part.Position.X.Whole) ? HorizontalDirection.Left : HorizontalDirection.Right;
+
+    /// <summary>Spawns and initializes a Magdollite lava ball thrown <paramref name="thrown"/>.</summary>
+    internal void SpawnMagdolliteLava(RoomEnemyPlace source, HorizontalDirection thrown)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -763,9 +764,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // lava sideways in the overlay's facing.
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + MagdolliteMotionDefinitions.LavaDrop), source.Position.Y.Fraction));
         projectile.Velocity = new(
-            throwsRight ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
+            thrown == HorizontalDirection.Right ? MagdolliteMotionDefinitions.LavaThrowSpeed : -MagdolliteMotionDefinitions.LavaThrowSpeed,
             SignedEightEight.Zero);
-        projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
+        projectile.InstallAnimation(new MagdolliteLavaAnimation(thrown == HorizontalDirection.Right ? MagdolliteLavaSegment.Right : MagdolliteLavaSegment.Left));
     }
 
     /// <summary>Flies the lava one update: it flies sideways at its speed until it leaves the view.</summary>

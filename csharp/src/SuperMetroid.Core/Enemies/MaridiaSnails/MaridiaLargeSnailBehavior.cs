@@ -37,18 +37,18 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         var state = new MaridiaLargeSnailEnemyState(MaridiaLargeSnailAction.Idle, MaridiaLargeSnailBouncePhase.Falling)
         {
-            FacesLeft = false,
+            Facing = HorizontalDirection.Right,
             RollsBackwards = false,
             ShowsSpawnIdle = true,
             AttackAnimationFinished = false,
             AttackAllowsRotation = false,
             SamusInPushingRange = false,
-            SamusIsLeft = false,
+            SamusSide = HorizontalDirection.Right,
             PreviousPosition = Position16<RoomPixels>.Zero,
             StopMovementNextFrame = false,
             YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start,
             AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown,
-            MovingLeft = false,
+            Heading = HorizontalDirection.Right,
             RemainingBounces = MaridiaLargeSnailMotionDefinitions.SettlingBounces,
         };
         place.SetSpeciesState(state);
@@ -105,11 +105,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
-        if (samusIsLeft)
-            state.MovingLeft = true;
-        state.FacesLeft = samusIsLeft;
-        StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Idle(state.FacesLeft));
+        state.Facing = SamusSide(samus, place);
+        // Only Samus to its left turns the way it would roll; to its right it keeps the way it rolled last.
+        if (state.Facing == HorizontalDirection.Left)
+            state.Heading = HorizontalDirection.Left;
+        StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Idle(state.Facing));
 
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.X.Whole,
@@ -162,10 +162,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 state.RemainingBounces == 0;
             if (mayAttack)
             {
-                state.MovingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
+                state.Heading = SamusSide(samus, place);
                 state.AttackCooldown = MaridiaLargeSnailMotionDefinitions.InitialAttackCooldown;
-                state.FacesLeft = state.MovingLeft;
-                StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Attacking(state.FacesLeft));
+                state.Facing = state.Heading;
+                StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailAnimationChoices.Attacking(state.Facing));
                 state.Action = MaridiaLargeSnailAction.Attacking;
                 return;
             }
@@ -249,15 +249,16 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         MaridiaLargeSnailEnemyState state,
         RoomLevelData level)
     {
-        SignedSixteenSixteen speed = state.MovingLeft ? -MaridiaLargeSnailMotionDefinitions.RollSpeed : MaridiaLargeSnailMotionDefinitions.RollSpeed;
+        bool movingLeft = state.Heading == HorizontalDirection.Left;
+        SignedSixteenSixteen speed = movingLeft ? -MaridiaLargeSnailMotionDefinitions.RollSpeed : MaridiaLargeSnailMotionDefinitions.RollSpeed;
         bool temporarilyReachTowardSamus = state.SamusInPushingRange &&
-            state.MovingLeft == state.SamusIsLeft;
+            state.Heading == state.SamusSide;
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
             // performs collision, then retracts the center. Net velocity remains one
             // pixel per frame while wall clipping naturally passes the lost distance to Samus.
-            speed = speed.WithWholePixels(speed.WholePixels + (state.MovingLeft
+            speed = speed.WithWholePixels(speed.WholePixels + (movingLeft
                 ? -MaridiaLargeSnailMotionDefinitions.PushReach
                 : MaridiaLargeSnailMotionDefinitions.PushReach));
         }
@@ -271,7 +272,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (temporarilyReachTowardSamus)
         {
             place.Position = place.Position.WithWrappedWholeX(
-                place.Position.X.Whole + (state.MovingLeft
+                place.Position.X.Whole + (movingLeft
                     ? MaridiaLargeSnailMotionDefinitions.PushReach
                     : -MaridiaLargeSnailMotionDefinitions.PushReach));
         }
@@ -279,7 +280,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!collided)
             return;
 
-        state.MovingLeft = !state.MovingLeft;
+        state.Heading = state.Heading.Reversed();
         state.RollsBackwards = !state.RollsBackwards;
         StartMaridiaLargeSnailAnimation(place, state, MaridiaLargeSnailRoll(state));
     }
@@ -291,7 +292,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         SamusState samus)
     {
         state.SamusInPushingRange = false;
-        state.SamusIsLeft = false;
+        state.SamusSide = HorizontalDirection.Right;
         if (!EnemyMath.IsWithinStrictModularDistance(
                 samus.Position.Y.Whole,
                 place.Position.Y.Whole,
@@ -305,7 +306,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         state.SamusInPushingRange = true;
-        state.SamusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0;
+        state.SamusSide = SamusSide(samus, place);
     }
 
     /// <summary>Publishes Oum's vertical platform motion and sideward push into Samus's extra displacement.</summary>
@@ -328,7 +329,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         int deltaX = CoordinateAxis.Wrap(place.Position.X.Whole - state.PreviousPosition.X);
         bool movedLeft = CoordinateAxis.AsSigned(deltaX) < 0;
-        if (movedLeft != state.SamusIsLeft)
+        if (movedLeft != (state.SamusSide == HorizontalDirection.Left))
             return;
 
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(deltaX), 0);
@@ -347,11 +348,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         bool stop;
         if (deltaX == 0)
         {
-            stop = state.SamusIsLeft
-                ? state.MovingLeft &&
-                    controllerInput.HasAny(GameplayAction.Right)
-                : !state.MovingLeft &&
-                    controllerInput.HasAny(GameplayAction.Left);
+            // Pushing against the way Oum rolls toward Samus stops it.
+            stop = state.SamusSide == state.Heading &&
+                controllerInput.HasAny(state.Heading == HorizontalDirection.Left ? GameplayAction.Right : GameplayAction.Left);
         }
         else if (deltaX < 0)
         {
@@ -393,8 +392,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>The roll Oum shows: facing as it faced when the roll began, forwards or, after a wall, backwards.</summary>
     private static MaridiaLargeSnailSegment MaridiaLargeSnailRoll(MaridiaLargeSnailEnemyState state) => state.RollsBackwards
-        ? MaridiaLargeSnailAnimationChoices.RollingBackwards(state.FacesLeft)
-        : MaridiaLargeSnailAnimationChoices.RollingForwards(state.FacesLeft);
+        ? MaridiaLargeSnailAnimationChoices.RollingBackwards(state.Facing)
+        : MaridiaLargeSnailAnimationChoices.RollingForwards(state.Facing);
+
+    /// <summary>The side of Oum Samus is on: left when she is to its left, otherwise right (#2338).</summary>
+    private static HorizontalDirection SamusSide(SamusState samus, RoomEnemyPlace place) =>
+        CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
 
     /// <summary>
     /// Starts <paramref name="segment"/>'s animation only when it differs from the one the snail plays. While the snail

@@ -26,8 +26,8 @@ internal static class MagdolliteLavaBehaviorVerification
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: false);
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, throwsRight: true);
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, HorizontalDirection.Left);
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, HorizontalDirection.Right);
         foreach ((ushort direction, MagdolliteLavaSegment program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaSegment.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaSegment.Right) })
         {
             EnemyProjectile lava = Find(direction);

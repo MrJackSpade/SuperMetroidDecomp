@@ -74,11 +74,11 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             Falling = false,
             ReadyToHop = false,
             Kind = kind,
-            UpsideDown = place.SpawnSettings<HopperSpawnSettings>().Mounting == HopperMounting.Ceiling,
+            Surface = place.SpawnSettings<HopperSpawnSettings>().Surface,
         };
         place.SetSpeciesState(state);
 
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
 
         // Every Hopper definition authors the same small and big hops, so the definition selects nothing here; the
         // two hop sizes' starting speeds are still calculated independently.
@@ -97,30 +97,23 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case HopperAction.ChooseHopSize:
                 // The game consumes an entire frame choosing one of two hop setups.
-                state.Action = HopperDecisions.BigHop.IsSetIn(_room.Random.Generate())
-                    ? HopperAction.PrepareBigHop
-                    : HopperAction.PrepareSmallHop;
+                state.HopSize = HopperDecisions.BigHop.IsSetIn(_room.Random.Generate()) ? HopperHopSize.Big : HopperHopSize.Small;
+                state.Action = HopperAction.PrepareHop;
                 return;
-            case HopperAction.PrepareSmallHop:
-                PrepareHopperHop(state, HopperHopSize.Small);
-                return;
-            case HopperAction.PrepareBigHop:
-                PrepareHopperHop(state, HopperHopSize.Big);
+            case HopperAction.PrepareHop:
+                PrepareHopperHop(state);
                 return;
             case HopperAction.ChooseDirection:
                 ChooseHopperDirection(place, state, samus);
                 return;
-            case HopperAction.StartBackwardHop:
-                StartHopperJump(place, state, HopperHopDirection.Backward);
-                return;
-            case HopperAction.StartForwardHop:
-                StartHopperJump(place, state, HopperHopDirection.Forward);
+            case HopperAction.StartHop:
+                StartHopperJump(place, state);
                 return;
             case HopperAction.Landed:
                 LandHopper(place, state);
                 return;
             case HopperAction.Jumping:
-                RunHopperMovement(place, state, level, SurfaceOf(state));
+                RunHopperMovement(place, state, level);
                 return;
             case HopperAction.WaitToHop:
                 if (state.ReadyToHop)
@@ -135,48 +128,40 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Selects big or small quadratic-speed parameters and routes to the direction choice for the next hop.</summary>
-    private static void PrepareHopperHop(HopperEnemyState state, HopperHopSize size)
+    /// <summary>Selects the chosen hop size's quadratic-speed parameters and routes to the direction choice for the next hop.</summary>
+    private static void PrepareHopperHop(HopperEnemyState state)
     {
-        QuadraticCurveClimb hop = size == HopperHopSize.Big ? HopperHopDefinitions.BigHop : HopperHopDefinitions.SmallHop;
+        QuadraticCurveClimb hop = state.HopSize == HopperHopSize.Big ? HopperHopDefinitions.BigHop : HopperHopDefinitions.SmallHop;
         state.YSpeedCurvePlaceStep = hop.StepPerPass;
-        state.XVelocity = HopperHopDefinitions.HorizontalSpeed;
-        state.YSpeedCurvePlace = size == HopperHopSize.Big
+        state.YSpeedCurvePlace = state.HopSize == HopperHopSize.Big
             ? state.BigHopInitialYSpeedCurvePlace
             : state.SmallHopInitialYSpeedCurvePlace;
         state.Action = HopperAction.ChooseDirection;
     }
 
-    /// <summary>Chooses the hop's direction from Samus's signed horizontal position relative to the actor.</summary>
+    /// <summary>Heads the hop toward Samus: left when she is left of the actor, otherwise right.</summary>
     private static void ChooseHopperDirection(
         RoomEnemyPlace place,
         HopperEnemyState state,
         SamusState samus)
     {
-        state.Action = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
-            ? HopperAction.StartBackwardHop
-            : HopperAction.StartForwardHop;
+        state.Heading = CoordinateAxis.Difference(samus.Position.X.Whole, place.Position.X.Whole) < 0
+            ? HorizontalDirection.Left
+            : HorizontalDirection.Right;
+        state.Action = HopperAction.StartHop;
     }
 
-    /// <summary>Installs the jumping animation and negates X velocity only for the leftward branch.</summary>
-    internal static void StartHopperJump(
-        RoomEnemyPlace place,
-        HopperEnemyState state,
-        HopperHopDirection direction)
+    /// <summary>Installs the jumping animation and starts the hop along the chosen heading.</summary>
+    internal static void StartHopperJump(RoomEnemyPlace place, HopperEnemyState state)
     {
-        // “Backward” is the leftward branch selected when Samus is left of the actor. The
-        // initial setup always gives three pixels rightward, so only this branch reverses the speed.
-        if (direction == HopperHopDirection.Backward)
-            state.XVelocity = -state.XVelocity;
-
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Jumping));
+        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Jumping));
         state.Action = HopperAction.Jumping;
     }
 
     /// <summary>Starts the landed animation and returns the actor to its wait-for-hop action.</summary>
     internal static void LandHopper(RoomEnemyPlace place, HopperEnemyState state)
     {
-        SetHopperAnimation(place, state, ReadHopperAnimation(state, SurfaceOf(state), HopperPhase.Landed));
+        SetHopperAnimation(place, state, ReadHopperAnimation(state, HopperPhase.Landed));
         state.Action = HopperAction.WaitToHop;
     }
 
@@ -184,15 +169,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunHopperMovement(
         RoomEnemyPlace place,
         HopperEnemyState state,
-        RoomLevelData level,
-        HopperSurface surface)
+        RoomLevelData level)
     {
         bool movingAwayFromSurface = !state.Falling;
         // Has four movements: floor actors use the negative half while
         // jumping and the positive half while falling; ceiling actors do the inverse.
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
-        bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
+        bool useNegativeSpeed = (state.Surface == HopperSurface.Ceiling) != movingAwayFromSurface;
         SignedSixteenSixteen verticalDisplacement = state.YSpeedCurvePlace.Speed.Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every movement entry resolves Y first. A collision while rising reverses
@@ -202,7 +186,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (movingAwayFromSurface)
             {
-                state.XVelocity = -state.XVelocity;
+                state.Heading = state.Heading.Reversed();
                 state.Falling = true;
             }
             else
@@ -216,7 +200,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(state.XVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, horizontalDisplacement))
         {
-            state.XVelocity = -state.XVelocity;
+            state.Heading = state.Heading.Reversed();
             if (movingAwayFromSurface)
             {
                 // Rising code treats a wall exactly like a ceiling/floor interruption and
@@ -250,16 +234,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             MaximumHopperYSpeedCurvePlace);
     }
 
-    /// <summary>Selects the animation for this kind's facing and jumping or landing half.</summary>
-    private static HopperSegment ReadHopperAnimation(
-        HopperEnemyState state,
-        HopperSurface surface,
-        HopperPhase phase) =>
-        HopperAnimationChoices.Animation(state.Kind, surface, phase);
-
-    /// <summary>The surface its spawn settings placed this hopper on.</summary>
-    private static HopperSurface SurfaceOf(HopperEnemyState state) =>
-        state.UpsideDown ? HopperSurface.Ceiling : HopperSurface.Floor;
+    /// <summary>Selects the animation for this kind on its surface in its jumping or landing half.</summary>
+    private static HopperSegment ReadHopperAnimation(HopperEnemyState state, HopperPhase phase) =>
+        HopperAnimationChoices.Animation(state.Kind, state.Surface, phase);
 
     /// <summary>Starts a new animation with a one-tick countdown.</summary>
     private static void SetHopperAnimation(

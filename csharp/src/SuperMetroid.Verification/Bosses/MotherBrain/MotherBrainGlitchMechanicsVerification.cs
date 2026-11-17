@@ -50,7 +50,7 @@ internal static class MotherBrainGlitchMechanicsVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = WrappingCountdown.Start(invincibility) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var baby = new BabyMetroidCutsceneState();
-            baby.Initialize(FixedPosition<RoomPixels>.Zero, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Contact, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Processing, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Presence);
+            baby.Initialize(FixedPosition<RoomPixels>.Zero);
             baby.Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
             baby.Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(0x0080 + startDx), 0x008c)).WithFractionsOf(baby.Position);
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.

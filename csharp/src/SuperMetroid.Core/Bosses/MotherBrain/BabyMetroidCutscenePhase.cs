@@ -89,4 +89,10 @@ public enum BabyMetroidCutscenePhase
 
     /// <summary>Hands control to the final Mother Brain combat/cutscene state after the Baby sequence completes.</summary>
     FinalCutscene,
+
+    /// <summary>
+    /// The Baby has deleted itself at the end of <see cref="FinalCutscene"/>: the cutscene is over, the room frees its
+    /// place, and Mother Brain's rings no longer look for it. It never steps again.
+    /// </summary>
+    Deleted,
 }

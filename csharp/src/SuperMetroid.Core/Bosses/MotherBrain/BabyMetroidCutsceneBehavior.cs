@@ -97,7 +97,11 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         var baby = new BabyMetroidCutsceneState();
         // The place keeps its previous occupant's fractions, which the Baby starts from (BabyMetroidArrivalFractions).
-        baby.Initialize(place.Position, place.Contact, place.Processing, place.Presence);
+        baby.Initialize(place.Position);
+        // The place owns the Baby's contact, processing and presence (#2310): initialization makes it block the Plasma
+        // Beam and starts its animation; its population entry's presence stands.
+        place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
+        place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.BabyMetroidPlace = place;
         state.BabyMetroid = baby;
         state.BabyAppliedAnimation = baby.Animation;
@@ -161,19 +165,40 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (baby.Animation != state.BabyAppliedAnimation)
             SetBabyMetroidCutsceneAnimation(state, place, baby.Animation);
         CopyBabyMetroidActorToPhysicalPlace(place, baby, state.Colours);
+        ShowOrDeleteBabyMetroid(place, step);
         ApplyBabyMetroidFrameEffects(state.Colours, step);
     }
 
-    /// <summary>Copies cutscene position, contact, processing, presence, shading and health state into the live enemy.</summary>
+    /// <summary>
+    /// Shows, hides or deletes the Baby's place as <paramref name="step"/> asks: its death's flicker and finished fade
+    /// show and hide it, and the cutscene's end deletes it (#2310).
+    /// </summary>
+    private static void ShowOrDeleteBabyMetroid(RoomEnemyPlace place, BabyMetroidCutsceneStepResult step)
+    {
+        switch (step.Visibility)
+        {
+            case BabyMetroidVisibilityRequest.Show:
+                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+                break;
+            case BabyMetroidVisibilityRequest.Hide:
+                place.Presence = place.Presence.With(EnemyPresence.Hidden);
+                break;
+            case BabyMetroidVisibilityRequest.Unchanged:
+                break;
+            default:
+                throw new InvalidOperationException($"Unsupported Baby visibility request {step.Visibility}.");
+        }
+        if (step.BabyDeleted)
+            place.Presence = place.Presence.With(EnemyPresence.Deleted);
+    }
+
+    /// <summary>Copies cutscene position, shading and health state into the live enemy.</summary>
     private static void CopyBabyMetroidActorToPhysicalPlace(
         RoomEnemyPlace place,
         BabyMetroidCutsceneState baby,
         MotherBrainColours colours)
     {
         place.Position = baby.Position;
-        place.Contact = baby.Contact;
-        place.Processing = baby.Processing;
-        place.Presence = baby.Presence;
         place.Shading = baby.HurtFlashShown ? EnemyShades.HurtFlashLook : colours.BabyShading;
         place.Health = baby.Health;
     }

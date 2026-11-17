@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Metroids.Artwork;
+﻿using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Metroids;

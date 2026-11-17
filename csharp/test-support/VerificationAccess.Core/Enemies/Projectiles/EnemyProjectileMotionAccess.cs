@@ -17,7 +17,7 @@ internal static class EnemyProjectileMotionAccess
     internal static ushort PirateClawThrow(HorizontalDirection direction) => EnemyProjectileMotionWords.PirateClawThrows[direction];
 
     /// <summary>The bank-$86 routine that launches Ki-Hunter acid spat <paramref name="direction"/> (#2338).</summary>
-    internal static ushort KiHunterAcidLaunch(HorizontalDirection direction) => EnemyProjectileMotionWords.KiHunterAcidLaunches[direction];
+    internal static ushort KiHunterAcidLaunch(HorizontalDirection direction) => EnemyProjectileMotionWordsConstants2.KiHunterAcidLaunches[direction];
 
     /// <summary>Every bank-$86 routine word that stands for a motion or for holding still, with the word zero of a freed slot.</summary>
     internal static IReadOnlyCollection<ushort> RoutineWords => EnemyProjectileMotionWords.Motions.Keys;

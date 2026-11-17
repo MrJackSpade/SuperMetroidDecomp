@@ -162,19 +162,9 @@ internal static class EnemyProjectileMotionWords
     };
 
     /// <summary>
-    /// The routine that launches Ki-Hunter acid spat each way (#2338): both stand for
-    /// <see cref="KiHunterAcidMotion.Launching"/>, and the acid's state keeps the way it was spat.
-    /// </summary>
-    internal static readonly IReadOnlyDictionary<HorizontalDirection, ushort> KiHunterAcidLaunches = new Dictionary<HorizontalDirection, ushort>
-    {
-        [HorizontalDirection.Left] = 0xcfd5,
-        [HorizontalDirection.Right] = 0xcfe6,
-    };
-
-    /// <summary>
     /// The one routine address of <paramref name="motion"/>; holding still, and the one motion of the kinds that move
     /// one way, stand for several routines and have no single word: a family that keeps its way in its state names its
-    /// routines by that way (<see cref="PirateLaserFlights"/>, <see cref="PirateClawThrows"/>, <see cref="KiHunterAcidLaunches"/>).
+    /// routines by that way (<see cref="PirateLaserFlights"/>, <see cref="PirateClawThrows"/>, <see cref="EnemyProjectileMotionWordsConstants2.KiHunterAcidLaunches"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="motion"/> has no single routine address.</exception>
     internal static ushort Word(Enum? motion)

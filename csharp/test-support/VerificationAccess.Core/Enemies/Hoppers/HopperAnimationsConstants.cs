@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies.Hoppers.Artwork;
+﻿using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Hoppers;

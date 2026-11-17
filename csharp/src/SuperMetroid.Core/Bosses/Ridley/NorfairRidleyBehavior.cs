@@ -153,8 +153,8 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             case NorfairRidleyPhase.SwoopAimDown:
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
-                    SwoopTurn(state, RotationAngle.FromSteps(0, 32)),
-                    SwoopTarget(state, RotationAngle.FromSteps(2)),
+                    SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopDiveTurn),
+                    SwoopTarget(state, NorfairRidleyMotionDefinitions.SwoopDiveHeading),
                     NorfairRidleyMotionDefinitions.SwoopDiveSpeed,
                     NorfairRidleyPhase.SwoopAimSideways,
                     NorfairRidleyMotionDefinitions.SwoopSweepUpdates);
@@ -163,7 +163,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             case NorfairRidleyPhase.SwoopAimSideways:
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
-                        SwoopTurn(state, RotationAngle.FromSteps(1, 64)),
+                        SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopSweepTurn),
                         SwoopTarget(state, RotationAngle.QuarterTurn),
                         NorfairRidleyMotionDefinitions.SwoopSweepSpeed,
                         NorfairRidleyPhase.SwoopAimUp,
@@ -176,7 +176,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             case NorfairRidleyPhase.SwoopAimUp:
                 NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                     state,
-                    SwoopTurn(state, RotationAngle.FromSteps(2)),
+                    SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopTurnUpTurn),
                     SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
                     NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                     NorfairRidleyPhase.SwoopClimb,
@@ -186,7 +186,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             case NorfairRidleyPhase.SwoopClimb:
                 if (NorfairRidleyCombat.TickNorfairRidleySwoopPhase(
                         state,
-                        SwoopTurn(state, RotationAngle.FromSteps(4)),
+                        SwoopTurn(state, NorfairRidleyMotionDefinitions.SwoopClimbTurn),
                         SwoopTarget(state, RidleyFlight.SwoopClimbTarget),
                         NorfairRidleyMotionDefinitions.SwoopClimbSpeed,
                         NorfairRidleyPhase.SwoopRecover,
@@ -281,7 +281,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 else
                 {
                     NorfairRidleyMovement.MoveNorfairRidleyToward(
-                        place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.CarryReleaseX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.CarryReleaseY), NorfairRidleyMotionDefinitions.CarryDivisor);
+                        place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.CarryRelease.For(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.CarryReleaseY), NorfairRidleyMotionDefinitions.CarryDivisor);
                 }
                 return;
 
@@ -290,7 +290,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 return;
 
             case NorfairRidleyPhase.DeathRoar:
-                Death.TickNorfairRidleyDeathRoar(place, state);
+                Death.TickNorfairRidleyDeathRoar(place, state, samus);
                 return;
 
             case NorfairRidleyPhase.DeathExplosions:

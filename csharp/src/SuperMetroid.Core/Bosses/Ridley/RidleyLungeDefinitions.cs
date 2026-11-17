@@ -7,8 +7,6 @@ public static class RidleyLungeDefinitions
     public const int DeathLungeLimit = 10;
     /// <summary>Abandon after passing Samus by 32 pixels.</summary>
     public const int PassDistance = 32;
-    /// <summary>Claw height below the body origin.</summary>
-    public const int ClawHeight = 35;
     /// <summary>Target left of a right-side bomb.</summary>
     public const int DodgeLeftX = 80;
     /// <summary>Target right of a left-side bomb.</summary>

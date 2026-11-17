@@ -11,9 +11,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 [RoomLifetime]
 internal sealed class TorizoAttacks
 {
-    /// <summary>The smoke a death explosion turns into one time in four (#2167).</summary>
-    internal const TorizoProjectileSegment DeathSmoke = TorizoProjectileSegment.DeathSmoke;
-
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the room's enemy projectiles, which Torizo's attacks spawn.</summary>
@@ -193,7 +190,7 @@ internal sealed class TorizoAttacks
                     return state.EyeBeamExplosionsEnabled ? null : TorizoProjectileAnimations.ReplayPhase(pastCue);
                 }
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
-                    return projectiles.TakeOneInFourBranch() ? TorizoProjectileAnimations.ContinueWith(DeathSmoke) : null;
+                    return projectiles.TakeOneInFourBranch() ? TorizoProjectileAnimations.ContinueWith(TorizoProjectileSegment.DeathSmoke) : null;
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileTowardSamus } or TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.AimSuperMissileAwayFromSamus }:
                     SetGoldenTorizoSuperMissileVelocity(
                         projectile,
@@ -572,10 +569,9 @@ internal sealed class TorizoAttacks
         projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileSegment.EyeBeam));
         Offset16<RoomPixels> muzzle = TorizoProjectilePlacementDefinitions.EyeBeamMuzzle;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (facing == HorizontalDirection.Right ? muzzle : muzzle.MirroredX()));
-        // The beam's launch draws the two velocity jitters every randomized launch draws; its aimed heading then sets its
-        // velocity, so the draws only advance the room's random numbers (#1945).
-        _room.Random.Generate();
-        _room.Random.Generate();
+        // The beam's launch draws the velocity jitter every randomized launch draws; its aimed heading then sets its
+        // velocity, so the jitter only advances the room's random numbers (#1945, #2335).
+        _ = DrawVelocityJitter();
 
         // The beam's heading is its facing's spread by up to eight steps either way.
         TrigonometryAngle heading = EyeBeamHeading(facing, _room.Random.Next(TorizoRandomDefinitions.EyeBeamSpread));
@@ -590,10 +586,26 @@ internal sealed class TorizoAttacks
     {
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
+<<<<<<< HEAD
         // The setup draws the X jitter before the Y jitter.
         projectile.Velocity = new EightEightVector<RoomPixels>(
             definition.BaseVelocity.X + VelocityJitter(_room.Random.Generate()),
             definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
+||||||| ccc5bcd718
+        // The initializer draws the X jitter before the Y jitter.
+        projectile.Velocity = new EightEightVector<RoomPixels>(
+            definition.BaseVelocity.X + VelocityJitter(_room.Random.Generate()),
+            definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
+=======
+        projectile.Velocity = definition.BaseVelocity + DrawVelocityJitter();
+    }
+
+    /// <summary>A randomized launch's velocity jitter (#2335): its X drawn from the room's random numbers before its Y.</summary>
+    private EightEightVector<RoomPixels> DrawVelocityJitter()
+    {
+        SignedEightEight x = VelocityJitter(_room.Random.Generate());
+        return new EightEightVector<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
+>>>>>>> worktree-agent-a263abbbd85c36f1d
     }
 
     /// <summary>A randomized projectile's jitter on one axis: the random number's lowest 256-value field, less 128, in 256ths of a pixel.</summary>
@@ -739,7 +751,7 @@ internal sealed class TorizoAttacks
             projectile.StartAnimation(new TorizoProjectileAnimation(egg.LaidFacing == HorizontalDirection.Right
                 ? TorizoProjectileSegment.EggHatchingRight
                 : TorizoProjectileSegment.EggHatchingLeft));
-            projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromPixels(egg.Facing == HorizontalDirection.Right ? 1 : -1));
+            projectile.Velocity = projectile.Velocity.WithX(egg.Facing == HorizontalDirection.Right ? TorizoMotionDefinitions.EggHatchingSpeed : -TorizoMotionDefinitions.EggHatchingSpeed);
             return;
         }
 

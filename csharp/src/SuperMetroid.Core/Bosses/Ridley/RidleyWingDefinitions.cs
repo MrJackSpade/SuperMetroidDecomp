@@ -1,23 +1,25 @@
+using SuperMetroid.Core.Bosses.Ridley.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>How fast Ridley's wings beat for the speed he flies at, and where each Ridley's wing beat starts (#2232).</summary>
+/// <summary>How fast Ridley's wings beat for the speed he flies at, and the pose each Ridley's wing beat starts in (#2232, #2329).</summary>
 internal static class RidleyWingDefinitions
 {
     /// <summary>
-    /// The frames each update takes off the wing animation timer, slowest flight first; a descending or level flight
-    /// halves the selected step.
+    /// The countdown each update takes off the wing beat for Ridley's speed, by the whole quarter pixels of his faster axis,
+    /// slowest first; the last serves every faster speed. Flight that does not climb beats at half the selected pace.
     /// </summary>
-    internal static readonly int[] AnimationTimerSteps = [12, 14, 16, 18, 28, 32, 40, 48];
+    internal static readonly int[] BeatPaces = [12, 14, 16, 18, 28, 32, 40, 48];
 
     /// <summary>The wing countdown each beat starts from: the beat steps once the countdown runs below zero.</summary>
     internal const int BeatCountdown = 32;
 
-    /// <summary>The wing countdown, and its step, as Ridley takes off, before his speed selects the step.</summary>
+    /// <summary>The wing countdown as Ridley takes off, before his speed paces the beat.</summary>
     internal const int TakeOffCountdown = 8;
 
-    /// <summary>The step of his wing beat Ceres Ridley's wings show first.</summary>
-    internal const int CeresFirstBeatStep = 5;
+    /// <summary>The pose Ceres Ridley's wings show first: fully lowered.</summary>
+    internal static RidleyWingPose CeresFirstPose => RidleySupplementalVisualDefinitions.WingsDown;
 
-    /// <summary>The step of his wing beat Lower Norfair Ridley's wings show first.</summary>
-    internal const int NorfairFirstBeatStep = 0;
+    /// <summary>The pose Lower Norfair Ridley's wings show first: fully raised.</summary>
+    internal static RidleyWingPose NorfairFirstPose => RidleySupplementalVisualDefinitions.WingsRaised;
 }

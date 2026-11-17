@@ -37,14 +37,15 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord((RoomEnemyRomLayout.DefinitionBank | 0xdf7f) + 58)),
             SporeSpawnProjectileDefinitions.SporeDropChances, "a shot spore's drop chances are the cartridge's");
-        // The cartridge keeps the drift as one byte stream, each step's X then its Y.
+        // The cartridge keeps the drift as one byte stream, each step's X then its Y, and moves a spore down by its Y byte
+        // twice each step.
         AssertEqual(128, SporeSpawnProjectiles.DriftStepCount, "Spore Spawn drift steps");
         for (int step = 0; step < SporeSpawnProjectiles.DriftStepCount; step++)
         {
             Offset16<RoomPixels> delta = SporeSpawnProjectiles.DriftAt(step);
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step)), delta.X,
                 $"Spore Spawn drift X {step}");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step + 1)),
+            AssertEqual(2 * unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + 2 * step + 1)),
                 delta.Y, $"Spore Spawn drift Y {step}");
         }
 

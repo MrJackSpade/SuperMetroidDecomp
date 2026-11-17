@@ -9,29 +9,33 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 internal static class RidleySupplementalVisualDefinitions
 {
 
+    /// <summary>The wings fully raised, where the downstroke starts.</summary>
+    internal static RidleyWingPose WingsRaised { get; } = new(EnemyFrameId.RidleyWingFacingLeftRaised, EnemyFrameId.RidleyWingFacingRightRaised);
+
+    /// <summary>The wings lowering from fully raised.</summary>
+    internal static RidleyWingPose WingsLowering { get; } = new(EnemyFrameId.RidleyWingFacingLeftLowering, EnemyFrameId.RidleyWingFacingRightLowering);
+
+    /// <summary>The wings level, seen edge on.</summary>
+    internal static RidleyWingPose WingsEdgeOn { get; } = new(EnemyFrameId.RidleyWingFacingLeftEdgeOn, EnemyFrameId.RidleyWingFacingRightEdgeOn);
+
+    /// <summary>The wings just below level, tilted edge on.</summary>
+    internal static RidleyWingPose WingsEdgeOnTilted { get; } = new(EnemyFrameId.RidleyWingFacingLeftEdgeOnTilted, EnemyFrameId.RidleyWingFacingRightEdgeOnTilted);
+
+    /// <summary>The wings dipping toward the bottom of the stroke.</summary>
+    internal static RidleyWingPose WingsDipping { get; } = new(EnemyFrameId.RidleyWingFacingLeftDipping, EnemyFrameId.RidleyWingFacingRightDipping);
+
+    /// <summary>The wings fully lowered, where the upstroke starts.</summary>
+    internal static RidleyWingPose WingsDown { get; } = new(EnemyFrameId.RidleyWingFacingLeftDown, EnemyFrameId.RidleyWingFacingRightDown);
+
     /// <summary>
-    /// The wing beat facing left (#1935): the wings' downstroke from fully raised to fully lowered, then the upstroke
-    /// through the four poses between.
+    /// The wing beat (#1935, #2329): the wings' downstroke from fully raised to fully lowered, then the upstroke through
+    /// the four poses between, after which the beat starts again.
     /// </summary>
-    internal static IReadOnlyList<EnemyFrameId> WingBeatFacingLeft { get; } =
+    internal static IReadOnlyList<RidleyWingPose> WingBeat { get; } =
     [
-        EnemyFrameId.RidleyWingFacingLeftRaised, EnemyFrameId.RidleyWingFacingLeftLowering, EnemyFrameId.RidleyWingFacingLeftEdgeOn,
-        EnemyFrameId.RidleyWingFacingLeftEdgeOnTilted, EnemyFrameId.RidleyWingFacingLeftDipping, EnemyFrameId.RidleyWingFacingLeftDown,
-        EnemyFrameId.RidleyWingFacingLeftDipping, EnemyFrameId.RidleyWingFacingLeftEdgeOnTilted, EnemyFrameId.RidleyWingFacingLeftEdgeOn,
-        EnemyFrameId.RidleyWingFacingLeftLowering,
+        WingsRaised, WingsLowering, WingsEdgeOn, WingsEdgeOnTilted, WingsDipping,
+        WingsDown, WingsDipping, WingsEdgeOnTilted, WingsEdgeOn, WingsLowering,
     ];
-
-    /// <summary>The wing beat facing right, step for step the mirror of <see cref="WingBeatFacingLeft"/>.</summary>
-    internal static IReadOnlyList<EnemyFrameId> WingBeatFacingRight { get; } =
-    [
-        EnemyFrameId.RidleyWingFacingRightRaised, EnemyFrameId.RidleyWingFacingRightLowering, EnemyFrameId.RidleyWingFacingRightEdgeOn,
-        EnemyFrameId.RidleyWingFacingRightEdgeOnTilted, EnemyFrameId.RidleyWingFacingRightDipping, EnemyFrameId.RidleyWingFacingRightDown,
-        EnemyFrameId.RidleyWingFacingRightDipping, EnemyFrameId.RidleyWingFacingRightEdgeOnTilted, EnemyFrameId.RidleyWingFacingRightEdgeOn,
-        EnemyFrameId.RidleyWingFacingRightLowering,
-    ];
-
-    /// <summary>The steps of a wing beat, the same facing either way.</summary>
-    internal static int WingBeatSteps => WingBeatFacingLeft.Count;
 
     /// <summary>
     /// The installed frame the drawn tail tip shows for each sixteenth of the turn its direction can point into, in turn

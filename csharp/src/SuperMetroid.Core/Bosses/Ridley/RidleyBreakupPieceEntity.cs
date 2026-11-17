@@ -27,7 +27,12 @@ internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, Roo
     /// <summary>None: the piece's definition ignores shots.</summary>
     public EnemyReaction? SpeciesShot => null;
 
-    /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        RidleyInteractions.FindRidleyHitboxReaction(Place, probe, out reaction);
+    /// <summary>None: the game defines no hitboxes for a breakup piece's frames (#2335).</summary>
+    /// <param name="probe">The colliding edges and walker.</param>
+    /// <param name="reaction">No reaction.</param>
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    {
+        reaction = null;
+        return null;
+    }
 }

@@ -30,26 +30,6 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
     }
     /// <summary>Sprite colour set used for fireballs and every afterburn stage.</summary>
     private static readonly SpriteGraphics FireballGraphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
-    /// <summary>The fireball's 1/256-pixel speed: five pixels per update.</summary>
-    private static readonly SignedEightEight FireballSpeed = SignedEightEight.FromPixels(5);
-
-    /// <summary>The start of the arc a left-facing Ridley aims his fireballs within.</summary>
-    private static readonly TrigonometryAngle LeftFacingAimStart = new(176);
-
-    /// <summary>The end of the arc a left-facing Ridley aims his fireballs within; the clamp keeps this end itself.</summary>
-    private static readonly TrigonometryAngle LeftFacingAimEnd = new(235);
-
-    /// <summary>Below this a left-facing Ridley's aim clamps to the arc's end rather than its start: a quarter turn.</summary>
-    private static readonly TrigonometryAngle LeftFacingAimSplit = new(64);
-
-    /// <summary>The start of the arc a right-facing Ridley aims his fireballs within.</summary>
-    private static readonly TrigonometryAngle RightFacingAimStart = new(21);
-
-    /// <summary>The end of the arc a right-facing Ridley aims his fireballs within; the clamp keeps this end itself.</summary>
-    private static readonly TrigonometryAngle RightFacingAimEnd = new(80);
-
-    /// <summary>From this a right-facing Ridley's aim clamps to the arc's start rather than its end: three quarters of a turn.</summary>
-    private static readonly TrigonometryAngle RightFacingAimSplit = new(192);
 
     /// <summary>Runs Ridley's fireball aim step and retains its asymmetric aim clamps.</summary>
     /// <param name="ridley">Ridley's body.</param>
@@ -65,25 +45,25 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
         // end, and any other aim outside it takes the near end.
         if (state.FacingDirection == RidleyFacing.Left)
         {
-            if (angle < LeftFacingAimSplit || angle >= LeftFacingAimEnd)
-                angle = LeftFacingAimEnd;
-            else if (angle < LeftFacingAimStart)
-                angle = LeftFacingAimStart;
+            if (angle < RidleyFireballDefinitions.LeftFacingAimSplit || angle >= RidleyFireballDefinitions.LeftFacingAimEnd)
+                angle = RidleyFireballDefinitions.LeftFacingAimEnd;
+            else if (angle < RidleyFireballDefinitions.LeftFacingAimStart)
+                angle = RidleyFireballDefinitions.LeftFacingAimStart;
         }
         else
         {
-            if (angle < RightFacingAimStart || angle >= RightFacingAimSplit)
-                angle = RightFacingAimStart;
-            else if (angle >= RightFacingAimEnd)
-                angle = RightFacingAimEnd;
+            if (angle < RidleyFireballDefinitions.RightFacingAimStart || angle >= RidleyFireballDefinitions.RightFacingAimSplit)
+                angle = RidleyFireballDefinitions.RightFacingAimStart;
+            else if (angle >= RidleyFireballDefinitions.RightFacingAimEnd)
+                angle = RidleyFireballDefinitions.RightFacingAimEnd;
         }
 
         // The speed is scaled by the game's sine and cosine of the aim, the cosine being the sine a quarter turn on:
         // each takes the speed by the sine's size in 256ths and keeps the sine's direction, so neither part of the
         // velocity ever exceeds the speed of 1280/256 of a pixel an update.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            EnemyMath.SineSpeed(FireballSpeed, angle),
-            EnemyMath.SineSpeed(FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle),
+            EnemyMath.SineSpeed(RidleyFireballDefinitions.FireballSpeed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
     /// <summary>Allocates Ridley's fireball at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>

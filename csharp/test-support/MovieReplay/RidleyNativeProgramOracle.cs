@@ -216,18 +216,40 @@ internal static class RidleyNativeProgramOracle
     internal static ushort BreakupList(EnemyFrameId frame) => BreakupEntry(frame);
 
     /// <summary>
-    /// Compares every fireball segment with its native bank-$86 list and every fireball animation with the lists' control
-    /// flow, and returns each list's beat and control addresses.
+    /// The puff every afterburn run plays after its spark (#2331), which the cartridge repeats at the end of each afterburn
+    /// list: it has no native entry of its own.
     /// </summary>
-    internal static Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> FireballLists(IImportCartridgeSource cartridge)
+    private const RidleyFireballSegment Puff = RidleyFireballSegment.AfterburnPuff;
+
+    /// <summary>
+    /// Compares every fireball segment with its native bank-$86 list and every fireball animation with the lists' control
+    /// flow, and returns each list's beat and control addresses. Each afterburn list's spark runs on into the shared puff,
+    /// which is compared with that list's own tail (#2331): every tail plays the puff's beats and ends as the others do.
+    /// </summary>
+    internal static RidleyFireballNativeLists FireballLists(IImportCartridgeSource cartridge)
     {
-        NativeEnemyAnimationOracle.RequireAuthoredOrder(FireballListEntries);
+        VerificationAssertions.AssertTrue(
+            FireballEntries.Select(item => item.Program).SequenceEqual(Enum.GetValues<RidleyFireballSegment>().Where(segment => segment != Puff)),
+            "every typed fireball segment but the shared puff has a native entry, in authored order");
         Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> lists =
             FireballEntries.ToDictionary(item => item.Program, item => ReadFireballList(cartridge, item.Program, item.Entry));
-        // The flight is the part of the fireball's list its goto loops back to, which the launch runs on into (#2235).
+        Dictionary<RidleyFireballSegment, NativeEnemyList<RidleyFireballSegment>> puffs = lists
+            .Where(pair => pair.Value.Controls.Any(control => control is { Kind: NativeEnemyControlKind.RunOnIntoNext, Target: Puff }))
+            .ToDictionary(pair => pair.Key, pair => ReadFireballList(cartridge, Puff,
+                pair.Value.Controls.Single(control => control is { Kind: NativeEnemyControlKind.RunOnIntoNext, Target: Puff }).Address));
+        VerificationAssertions.AssertEqual(4, puffs.Count, "the four afterburn lists each end with the shared puff");
+        NativeEnemyList<RidleyFireballSegment> firstPuff = puffs.Values.First();
+        foreach ((RidleyFireballSegment opener, NativeEnemyList<RidleyFireballSegment> puff) in puffs)
+            VerificationAssertions.AssertTrue(puff.Controls.Select(Shape).SequenceEqual(firstPuff.Controls.Select(Shape)),
+                $"Ridley fireball {opener}'s puff ends as every afterburn list's does");
+        lists.Add(Puff, firstPuff);
+        // The flight is the part of the fireball's list its goto loops back to, which the launch runs on into (#2235); the
+        // puff is the part of every afterburn list its spark runs on into (#2331).
         NativeEnemyAnimationOracle.CompareAnimations(lists, RidleyFireballAnimations.StartingAt,
-            onlyRunOnInto: new HashSet<RidleyFireballSegment> { RidleyFireballSegment.FireballFlight });
-        return lists;
+            onlyRunOnInto: new HashSet<RidleyFireballSegment> { RidleyFireballSegment.FireballFlight, Puff });
+        return new RidleyFireballNativeLists(lists, puffs);
+
+        static NativeEnemyControl<RidleyFireballSegment> Shape(NativeEnemyControl<RidleyFireballSegment> control) => control with { Address = 0 };
     }
 
     /// <summary>
@@ -247,6 +269,13 @@ internal static class RidleyNativeProgramOracle
             if (cursor != entry && FireballProgramAt(cursor) is { } next)
             {
                 controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, next, null, cursor));
+                return Finish();
+            }
+            if (beat == beats.Count && PlaysPuffAfter(segment))
+            {
+                // An afterburn run's spark ends its own segment; its list goes on with the puff every afterburn list repeats,
+                // which the run plays next (#2331).
+                controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, Puff, null, cursor));
                 return Finish();
             }
             int address = NativeEnemyProjectileListDefinitions.ProjectileBank | cursor;
@@ -399,4 +428,9 @@ internal static class RidleyNativeProgramOracle
         RidleyFireballCue Raised(int beat, string at) =>
             VerificationAssertions.AssertIs<AnimationBeat<EnemyProjectileFrameId, RidleyFireballCue>.Event>(Beat(beat, at), $"{at}: event").Raised;
     }
+
+    /// <summary>Whether the animation starting at <paramref name="segment"/> plays the shared puff straight after it (#2331).</summary>
+    private static bool PlaysPuffAfter(RidleyFireballSegment segment) =>
+        RidleyFireballAnimations.StartingAt.TryGetValue(segment, out Animation<RidleyFireballSegment>? animation)
+        && animation.Phases is [{ Segment: var first }, { Segment: Puff }, ..] && first == segment;
 }

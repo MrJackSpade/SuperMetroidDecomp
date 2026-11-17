@@ -113,7 +113,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        Position16<RoomPixels> target = new(RidleyMovementTargets.HoverX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.FlightLineY);
+        Position16<RoomPixels> target = new(RidleyMovementTargets.Hover.For(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.FlightLineY);
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             place,
             state.Flight,
@@ -126,7 +126,7 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Moves to the high side point and initializes the swoop angle timer.</summary>
     internal static void TickNorfairRidleySwoopMoveToStart(RoomEnemyPlace place, NorfairRidleyState state)
     {
-        Position16<RoomPixels> target = new(RidleyMovementTargets.SwoopStartX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.SwoopStartY);
+        Position16<RoomPixels> target = new(RidleyMovementTargets.SwoopStart.For(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.SwoopStartY);
         NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, target, divisor: NorfairRidleyMotionDefinitions.SwoopStartDivisor);
         if (!RidleyFlight.IsWithinRectangle(place, target, NorfairRidleyArenaDefinitions.FlightTargetReach))
             return;
@@ -169,7 +169,7 @@ internal sealed class NorfairRidleyCombat
             place,
             state.Flight,
             new Position16<RoomPixels>(
-                wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehindX(facing) : RidleyMovementTargets.WallAheadX(facing),
+                (wall == RidleyWallSweepTarget.WallBehind ? RidleyMovementTargets.WallBehind : RidleyMovementTargets.WallAhead).For(facing),
                 int.Min(samus.Position.Y.Whole, NorfairRidleyArenaDefinitions.PogoZoneTopY)),
             ReadRidleyHealthMovementDivisor(state));
         state.Tail.WhipRequested = true;
@@ -219,7 +219,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         NorfairRidleyMovement.MoveNorfairRidleyToward(
-            place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.PogoSideX(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.PogoHeightY), divisor: NorfairRidleyMotionDefinitions.PogoSetupDivisor);
+            place, state.Flight, new Position16<RoomPixels>(RidleyMovementTargets.PogoSide.For(state.Flight.FacingDirection), NorfairRidleyArenaDefinitions.PogoHeightY), divisor: NorfairRidleyMotionDefinitions.PogoSetupDivisor);
     }
 
     /// <summary>Settles at the pogo's height, sets the pogo tail, and starts the pogo's random time limit.</summary>
@@ -353,7 +353,7 @@ internal sealed class NorfairRidleyCombat
         bool passedSamus = state.Flight.FacingDirection == RidleyFacing.Right ? deltaX >= 0 : deltaX < 0;
         if (state.Flight.HitRoomBoundary ||
             (passedSamus && Math.Abs(deltaX) >= RidleyLungeDefinitions.PassDistance) ||
-            place.Position.Y.Whole + RidleyLungeDefinitions.ClawHeight >= samus.Position.Y.Whole)
+            place.Position.Y.Whole + RidleyClawOffsets.Below.For(RidleyClawHeight.Standing) >= samus.Position.Y.Whole)
         {
             HandleNorfairRidleyMissedLunge(place, state, powerBomb);
             return;
@@ -401,7 +401,7 @@ internal sealed class NorfairRidleyCombat
     internal static void BeginNorfairRidleyCarry(RoomEnemyPlace place, NorfairRidleyState state)
     {
         state.Target = new Position16<RoomPixels>(
-            RidleyMovementTargets.CarryAnchorX(state.Flight.FacingDirection),
+            RidleyMovementTargets.CarryAnchor.For(state.Flight.FacingDirection),
             place.Position.Y.Whole < NorfairRidleyArenaDefinitions.CarryHighLineY
                 ? NorfairRidleyArenaDefinitions.FlightLineY
                 : place.Position.Y.Whole - NorfairRidleyArenaDefinitions.CarryLift);
@@ -448,8 +448,8 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Ridley's claw: his body's place moved by the claw offsets for the way he faces and his feet's height.</summary>
     private static Position16<RoomPixels> NorfairRidleyClaw(RoomEnemyPlace place, NorfairRidleyState state) =>
         place.Position.Whole + new Offset16<RoomPixels>(
-            RidleyClawOffsets.ReadX(state.Flight.FacingDirection),
-            RidleyClawOffsets.ReadY(state.Flight.ClawHeight));
+            RidleyClawOffsets.Across.For(state.Flight.FacingDirection),
+            RidleyClawOffsets.Below.For(state.Flight.ClawHeight));
 
     /// <summary>Starts a turn only when Ridley faces away from the half of his arena he lies in.</summary>
     internal static void SelectNorfairRidleyFacingAnimation(RoomEnemyPlace place, NorfairRidleyState state)
@@ -466,7 +466,7 @@ internal sealed class NorfairRidleyCombat
             state.Flight.FacingDirection == RidleyFacing.Left
                 ? RidleyBodySegment.TurnFromLeftToRight
                 : RidleyBodySegment.TurnFromRightToLeft);
-        place.AnimationClock.HoldFor(2);
+        place.AnimationClock.HoldFor(NorfairRidleyMotionDefinitions.TurnStartUpdates);
     }
 
     /// <summary>The hover acceleration divisor of Ridley's health band.</summary>

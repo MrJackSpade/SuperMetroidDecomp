@@ -853,9 +853,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimation.BabyFrameForPhase(phase)), "Baby reflected phase preserves native transfer identity");
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresFloorAnimation.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationDefinitions.CapsuleCycle[phase]), "Baby reflected phase preserves native transfer identity");
         // The getaway draws the capsule's frames over the room's turning floor, which each NMI publishes; it writes no VRAM (#1349, #1467).
         RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance,
@@ -880,8 +878,8 @@ internal static class LookupStream4Verification
             if (advances) expectedPhase = (expectedPhase + 1) & 3;
             tick(null, nmi);
             AssertTrue(vram.Bytes.SequenceEqual(untouched), "The getaway leaves VRAM to the published floor");
-            AssertEqual((ushort)expectedPhase, escape.Floor.CapsuleStep, "Actual getaway advances Baby before selection only on every fourth NMI");
-            AssertEqual(advances ? CeresFloorAnimation.BabyFrameForPhase(expectedPhase) : before, Capsule(),
+            AssertEqual(expectedPhase, escape.Floor.Capsule.Place, "Actual getaway advances Baby before selection only on every fourth NMI");
+            AssertEqual(advances ? CeresFloorAnimationDefinitions.CapsuleCycle[expectedPhase] : before, Capsule(),
                 "Actual getaway draws the native capsule frame and keeps it on non-update NMIs");
         }
         Console.WriteLine("Baby reflected phase: four original pointers and one actual 16-NMI cycle preserve advance-before-select and the drawn capsule frames.");
@@ -1209,7 +1207,7 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
-    private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
         // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
@@ -1229,7 +1227,7 @@ internal static class LookupStream4Verification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Func<SamusState, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
-        Action<NorfairRidleyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
+        Action<NorfairRidleyState, SamusState> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
@@ -1245,9 +1243,7 @@ internal static class LookupStream4Verification
             AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
         }
-        var absentState = new NorfairRidleyState();
-        release(absentState, null);
-        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
+
     }
 
     /// <summary>Checks Ridley tail angle selection data against native table values.</summary>
@@ -1961,7 +1957,7 @@ internal static class LookupStream4Verification
                 }
                 AssertEqual(RidleyRevealPhase.TakingOff, state.RevealPhase, "Native terminator handoff");
                 AssertEqual<int?>(RidleyLiquidDefinitions.BattleHeight, liquid.TargetSurface, "Native liquid target handoff");
-                AssertEqual(8, state.Flight.WingAnimationTimer, "Native wing timer handoff");
+                AssertEqual(8, state.Flight.Wings.Countdown, "Native wing timer handoff");
                 AssertTrue(state.Tail.Links.All(segment => segment.Active), "Native tail activation handoff");
             }
         }

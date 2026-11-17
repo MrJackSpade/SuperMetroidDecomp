@@ -26,24 +26,27 @@ internal static class SporeSpawnProjectileDefinitions
     /// <summary>The chances the drop a shot spore leaves rolls (#2244): mostly a missile, sometimes energy, never a Super Missile or Power Bomb.</summary>
     internal static readonly EnemyDropChances SporeDropChances = new(SmallEnergy: 10, BigEnergy: 20, Missile: 200, Nothing: 25, SuperMissile: 0, PowerBomb: 0);
 
-    /// <summary>A spore's drift path: its signed pixel movement at each step, repeating after the last.</summary>
+    /// <summary>
+    /// A spore's drift path: how many pixels it moves across and down at each step, repeating after the last (#2335). It
+    /// falls two pixels on each step it falls.
+    /// </summary>
     internal static readonly Offset16<RoomPixels>[] Drift =
     [
-        new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0),
-        new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(0, 1),
-        new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0),
-        new(1, 0), new(0, 1), new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0),
-        new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(1, 0),
-        new(0, 1), new(1, 0), new(1, 0), new(1, 0), new(0, 1), new(1, 0), new(1, 0), new(1, 0),
+        new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0),
+        new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(0, 2),
+        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0),
+        new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0),
+        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
+        new(0, 2), new(1, 0), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
         new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(0, -1), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(0, -1), new(1, 0), new(1, 0), new(0, 0), new(-1, 1), new(-1, 1), new(-1, 1), new(-1, 0),
-        new(0, 1), new(-1, 1), new(-1, 1), new(-1, 0), new(0, 1), new(-1, 1), new(-1, 0), new(0, 1),
-        new(-1, 0), new(0, 1), new(-1, 0), new(0, 1), new(-1, 0), new(-1, 1), new(-1, 1), new(-1, 0),
-        new(0, 1), new(-1, 0), new(-1, 1), new(-1, 0), new(0, 1), new(-1, 0), new(-1, 1), new(-1, 0),
-        new(-1, 0), new(0, 1), new(-1, 0), new(-1, 0), new(0, 1), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 1), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -1), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, -1), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -1), new(-1, 0), new(-1, 0), new(-1, -1), new(-1, 0), new(0, 0),
+        new(1, 0), new(0, -2), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
+        new(0, -2), new(1, 0), new(1, 0), new(0, 0), new(-1, 2), new(-1, 2), new(-1, 2), new(-1, 0),
+        new(0, 2), new(-1, 2), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 2), new(-1, 0), new(0, 2),
+        new(-1, 0), new(0, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 2), new(-1, 0),
+        new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0),
+        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(-1, 0),
+        new(-1, 2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0),
+        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0),
+        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
     ];
 }

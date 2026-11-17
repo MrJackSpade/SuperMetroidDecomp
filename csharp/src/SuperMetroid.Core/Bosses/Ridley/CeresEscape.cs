@@ -98,8 +98,8 @@ internal sealed class CeresEscape : IGameplayShadingSource
         Floor.Offset = CeresRidleyGetawayDefinitions.InitialFloorOffset;
         Floor.Zoom = CeresRidleyGetawayDefinitions.InitialZoom;
         Floor.Center = CeresRidleyGetawayDefinitions.InitialFloorCentre;
-        Floor.CapsuleStep = 0;
-        Floor.WingBeat = 0;
+        Floor.Capsule = CeresTurningFloor.FirstCapsulePicture;
+        Floor.Wings = CeresTurningFloor.FirstWingPicture;
         _presentation.BossShadings.Show(BossShadingLayer.CeresEscape, this);
     }
 
@@ -162,16 +162,16 @@ internal sealed class CeresEscape : IGameplayShadingSource
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1.
         if (RidleyCadenceDefinitions.GetawayCapsuleStepEveryFourthUpdate.IsDue(frameCounter))
         {
-            Floor.CapsuleStep = (Floor.CapsuleStep + 1) % CeresFloorAnimationDefinitions.CapsuleCycle.Length;
-            _room.Services.ShowFloorFrame(CeresFloorAnimation.BabyFrameForPhase(Floor.CapsuleStep));
+            Floor.Capsule = Floor.Capsule.NextInCycle;
+            _room.Services.ShowFloorFrame(Floor.Capsule.Entry);
         }
 
         // The wings beat on every eighth frame of the frame counter. Each wing frame leaves behind the delays
         // Samus's unauthored Speed Booster cadence runs on from then on.
         if (RidleyCadenceDefinitions.GetawayWingStepEveryEighthUpdate.IsDue(frameCounter))
         {
-            Floor.WingBeat = (Floor.WingBeat + 1) % CeresFloorAnimationDefinitions.WingCycle.Length;
-            CeresFloorAnimationFrame wing = CeresFloorAnimation.WingFrameForPhase(Floor.WingBeat);
+            Floor.Wings = Floor.Wings.NextInCycle;
+            CeresFloorAnimationFrame wing = Floor.Wings.Entry;
             _room.Services.ShowFloorFrame(wing);
             _unauthoredBoostCadence.TakeDelaysLeftByWings(_bossArtwork.CeresRidleyGetawayBoostDelays.LeftBy(wing));
         }

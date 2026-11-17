@@ -7,7 +7,11 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Golden Torizo's own animations.</summary>
+/// <summary>
+/// Golden Torizo's own animations. A pose shown twice running, with nothing between, is one beat of both durations
+/// (#2331): a Torizo is no boss-body part, so nothing reads the new-frame flag a second showing would raise, and no owner
+/// resumes a catch partway.
+/// </summary>
 internal static class GoldenTorizoAnimations
 {
     /// <summary>Each segment's steps, in the order it plays them.</summary>
@@ -310,8 +314,7 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmRaised, 1),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmLevel, 1),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmLifting, 1),
-            Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmDown, 1),
-            Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmDown, 2),
+            Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmDown, 3),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmLifting, 2),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmLevel, 2),
             Show(EnemyFrameId.TorizoFacingLeftLeftFootForwardNearArmRaised, 2),
@@ -338,8 +341,7 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmRaised, 1),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLevel, 1),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLifting, 1),
-            Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmDown, 1),
-            Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmDown, 2),
+            Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmDown, 3),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLifting, 2),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmLevel, 2),
             Show(EnemyFrameId.TorizoFacingLeftRightFootForwardNearArmRaised, 2),
@@ -365,8 +367,7 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmOverhead, 1),
             Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmRaised, 1),
             Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmLevel, 1),
-            Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmLifting, 1),
-            Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmLifting, 2),
+            Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmLifting, 3),
             Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmLevel, 2),
             Show(EnemyFrameId.TorizoFacingRightRightFootForwardNearArmRaised, 2),
             Cue(new TorizoCue.Signal(K.SpawnSuperMissile)),
@@ -391,8 +392,7 @@ internal static class GoldenTorizoAnimations
             Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmOverhead, 1),
             Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmRaised, 1),
             Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmLevel, 1),
-            Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmLifting, 1),
-            Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmLifting, 2),
+            Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmLifting, 3),
             Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmLevel, 2),
             Show(EnemyFrameId.TorizoFacingRightLeftFootForwardNearArmRaised, 2),
             Cue(new TorizoCue.Signal(K.SpawnSuperMissile)),

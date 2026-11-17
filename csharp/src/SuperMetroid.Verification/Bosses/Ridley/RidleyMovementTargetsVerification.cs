@@ -32,12 +32,12 @@ internal static class RidleyMovementTargetsVerification
             }
             return native;
         }
-        var behind = Facings(EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords, RidleyMovementTargets.WallBehindX);
-        var ahead = Facings(EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords, RidleyMovementTargets.WallAheadX);
-        var pogoSide = Facings(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.PogoSideX);
+        var behind = Facings(EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords, RidleyMovementTargets.WallBehind.For);
+        var ahead = Facings(EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords, RidleyMovementTargets.WallAhead.For);
+        var pogoSide = Facings(EnemyRomTablePointers.Ridley.GroundAttackTargetXWords, RidleyMovementTargets.PogoSide.For);
         NorfairRidleyHealthBand[] bands = RidleyNativeWords.HealthBandsInStageOrder;
-        var carry = Facings(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchorX);
-        var release = Facings(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryReleaseX);
+        var carry = Facings(EnemyRomTablePointers.Ridley.CarryAnchorXWords, RidleyMovementTargets.CarryAnchor.For);
+        var release = Facings(EnemyRomTablePointers.Ridley.CarryReleaseXWords, RidleyMovementTargets.CarryRelease.For);
         // The cartridge stores each divisor as its index into a table counting the divisors down from the largest.
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords,
             stage => RidleyInertiaDefinitions.LargestDivisor - bands[stage].HoverDivisor, 4);

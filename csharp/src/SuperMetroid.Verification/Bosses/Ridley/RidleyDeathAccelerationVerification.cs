@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyInertiaVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -22,7 +23,8 @@ internal static class RidleyDeathAccelerationVerification
         AssertEqual((byte)16, rom.ReadCartridgeByte(0xa6c612), "Death movement native extra deceleration");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
         Action<RoomEnemyPlace, NorfairRidleyState> approaching = NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot;
-        Action<RoomEnemyPlace, NorfairRidleyState> roaring = enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathRoar;
+        SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        Action<RoomEnemyPlace, NorfairRidleyState> roaring = (body, roaringState) => enemies.NorfairRidleyBehavior.Death.TickNorfairRidleyDeathRoar(body, roaringState, samus);
         var place = enemies.Places.InUpdateOrder[0];
         var state = new NorfairRidleyState();
         int[] distances = [-256, -64, -16, -1, 0, 1, 16, 64, 256];

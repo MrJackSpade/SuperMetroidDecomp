@@ -20,6 +20,8 @@ internal static class RidleyAnimations
     private const int BurstPauseDuration = 32;
     /// <summary>The open-mouth hold after a fireball burst.</summary>
     private const int BurstTailDuration = 48;
+    /// <summary>The open-mouth hold after each fireball of a burst but its last.</summary>
+    private const int FireballShotDuration = 5;
     /// <summary>Each lift-off pose after the jump.</summary>
     private const int LiftoffPoseDuration = 17;
 
@@ -166,35 +168,40 @@ internal static class RidleyAnimations
     /// (<see cref="RidleyBodyCueKind.MayCutFireballingShort"/>); the left-facing burst aims once more before its second roar,
     /// and the animation runs on into its end.
     /// </summary>
-    private static AnimationBeat<F, RidleyBodyCue>[] FireballingBeats(Side side, AnimationBeat<F, RidleyBodyCue>[] beforeSecondBurst)
-    {
-        var steps = new List<AnimationBeat<F, RidleyBodyCue>>
-        {
-            Cue(K.MayCutFireballingShort),
-            Show(side.Standing, 8),
-        };
-        steps.AddRange(Burst(side));
-        steps.Add(Cue(K.MayCutFireballingShort));
-        steps.Add(Show(side.Standing, BurstPauseDuration));
-        steps.AddRange(beforeSecondBurst);
-        steps.AddRange(Burst(side));
-        return [.. steps];
-    }
+    private static AnimationBeat<F, RidleyBodyCue>[] FireballingBeats(Side side, AnimationBeat<F, RidleyBodyCue>[] beforeSecondBurst) =>
+    [
+        Cue(K.MayCutFireballingShort),
+        Show(side.Standing, 8),
+        .. Burst(side),
+        Cue(K.MayCutFireballingShort),
+        Show(side.Standing, BurstPauseDuration),
+        .. beforeSecondBurst,
+        .. Burst(side),
+    ];
 
-    /// <summary>One roar and four fireballs, the first with its afterburn.</summary>
-    private static IEnumerable<AnimationBeat<F, RidleyBodyCue>> Burst(Side side)
-    {
-        yield return Cue(K.Roar);
-        yield return Show(side.MouthHalfOpen, 8);
-        yield return Show(side.MouthOpen, 2);
-        for (int fireball = 0; fireball < 4; fireball++)
-        {
-            yield return Cue(K.AimFireball);
-            yield return Cue(fireball == 0 ? K.SpawnFireballWithAfterburn : K.SpawnFireballWithoutAfterburn);
-            yield return Show(side.MouthOpen, fireball == 3 ? BurstTailDuration : 5);
-        }
-        yield return Show(side.MouthHalfOpen, 8);
-    }
+    /// <summary>
+    /// One roar and four fireballs (#2331): the first with its afterburn, each shot with the mouth open for its five
+    /// updates, the last for the burst's tail, before the mouth half closes.
+    /// </summary>
+    private static AnimationBeat<F, RidleyBodyCue>[] Burst(Side side) =>
+    [
+        Cue(K.Roar),
+        Show(side.MouthHalfOpen, 8),
+        Show(side.MouthOpen, 2),
+        .. Shot(side, K.SpawnFireballWithAfterburn, FireballShotDuration),
+        .. Shot(side, K.SpawnFireballWithoutAfterburn, FireballShotDuration),
+        .. Shot(side, K.SpawnFireballWithoutAfterburn, FireballShotDuration),
+        .. Shot(side, K.SpawnFireballWithoutAfterburn, BurstTailDuration),
+        Show(side.MouthHalfOpen, 8),
+    ];
+
+    /// <summary>One fireball shot (#2331): an aim, the fireball <paramref name="spawn"/> spawns, and the open mouth held <paramref name="duration"/> updates.</summary>
+    private static AnimationBeat<F, RidleyBodyCue>[] Shot(Side side, RidleyBodyCueKind spawn, int duration) =>
+    [
+        Cue(K.AimFireball),
+        Cue(spawn),
+        Show(side.MouthOpen, duration),
+    ];
 
     /// <summary>The crouch, two hops and lift-off of one facing; the encounter that owns the body handles the lift-off (#2230).</summary>
     private static AnimationBeat<F, RidleyBodyCue>[] TransitionToFlyingBeats(

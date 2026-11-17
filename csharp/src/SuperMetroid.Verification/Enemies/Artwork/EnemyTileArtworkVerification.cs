@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Areas.Ceres.CeresEscapeOverlayTilemapsVerification;
 using static SuperMetroid.Verification.Areas.Ceres.Artwork.CeresEscapeTileArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBg2ScrollVerification;
+using static SuperMetroid.Verification.Bosses.Ridley.RidleySupplementalArtworkVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireBodyVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireMeltingDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.Artwork.CrocomireSkeletonArtworkVerification;
@@ -172,6 +173,13 @@ internal static class EnemyTileArtworkVerification
         Suite(nameof(VerifyInstalledEnemyExtendedFrames), () => VerifyInstalledEnemyExtendedFrames(bus, stock));
     }
 
+    /// <summary>Checks Ridley's installed wings and tail against retail, apart from every other enemy's spritemaps (#2329).</summary>
+    private static void VerifyRidleySupplementFrameArtwork()
+    {
+        var (bus, _, stock) = new EnemyTileFixture();
+        Suite(nameof(VerifyInstalledRidleySupplementalArtwork), () => VerifyInstalledRidleySupplementalArtwork(bus, stock));
+    }
+
     /// <summary>Checks Crocomire's, Phantoon's and Draygon's installed bodies against retail.</summary>
     private static void VerifyBossBodyFrameArtwork()
     {
@@ -271,6 +279,7 @@ internal static class EnemyTileArtworkVerification
         new(nameof(VerifyEnemyProjectileFrameArtwork), () => VerifyEnemyProjectileFrameArtwork()),
         new(nameof(VerifyKraidFrameArtwork), () => VerifyKraidFrameArtwork()),
         new(nameof(VerifyEnemySpritemapFrameArtwork), () => VerifyEnemySpritemapFrameArtwork()),
+        new(nameof(VerifyRidleySupplementFrameArtwork), () => VerifyRidleySupplementFrameArtwork()),
         new(nameof(VerifyBossBodyFrameArtwork), () => VerifyBossBodyFrameArtwork()),
         new(nameof(VerifyGunshipFrameArtwork), () => VerifyGunshipFrameArtwork()),
     ];

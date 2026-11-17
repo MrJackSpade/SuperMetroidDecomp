@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Signed claw displacements used by Ridley's grab collision and carried-Samus placement.</summary>
-public static class RidleyClawOffsets
+/// <summary>Where Ridley's claw lies from his body (#2335), which his grab's reach and a carried Samus's place follow.</summary>
+internal static class RidleyClawOffsets
 {
+<<<<<<< HEAD
     /// <summary>The held Samus's horizontal offset: twelve pixels right facing left, none turning, twelve pixels left facing right.</summary>
     public static int ReadX(RidleyFacing facing) => facing switch
     {
@@ -11,17 +12,23 @@ public static class RidleyClawOffsets
         RidleyFacing.Right => -12,
         _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
     };
+||||||| ccc5bcd718
+    /// <summary>The held Samus's horizontal offset: left/turning/right displacements decrease twelve pixels per facing.</summary>
+    public static int ReadX(RidleyFacing facing) => facing switch
+    {
+        RidleyFacing.Left => 12,
+        RidleyFacing.Turning => 0,
+        RidleyFacing.Right => -12,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {facing}."),
+    };
+=======
+    /// <summary>The claw's horizontal offset by the way he faces: twelve pixels less with each facing, left to right.</summary>
+    internal static RidleyFacedX Across { get; } = new(FacingLeft: 12, Turning: 0, FacingRight: -12);
+>>>>>>> worktree-agent-a263abbbd85c36f1d
 
     /// <summary>
-    /// The held Samus's vertical offset: the claw's height below Ridley's origin for <paramref name="height"/>, lower by
-    /// 10.5 pixels, rounded upward, for each step his legs extend.
+    /// The claw's drop below his body by his legs' reach: lower by 10.5 pixels, rounded upward, for each step his legs
+    /// extend.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="height"/> is not one of the three claw heights.</exception>
-    public static int ReadY(RidleyClawHeight height) => height switch
-    {
-        RidleyClawHeight.Standing => 35,
-        RidleyClawHeight.LegsHalfExtended => 46,
-        RidleyClawHeight.LegsExtended => 56,
-        _ => throw new ArgumentOutOfRangeException(nameof(height), height, "Ridley has three claw heights."),
-    };
+    internal static RidleyClawDrop Below { get; } = new(Standing: 35, LegsHalfExtended: 46, LegsExtended: 56);
 }

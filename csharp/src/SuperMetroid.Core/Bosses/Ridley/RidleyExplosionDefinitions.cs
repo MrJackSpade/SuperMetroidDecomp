@@ -32,8 +32,8 @@ internal static class RidleyExplosionDefinitions
     /// </summary>
     internal static readonly RidleyExplosionPart[] BreakupOrder =
     [
-        RidleyExplosionPart.TailTip, RidleyExplosionPart.TailSixthSegment, RidleyExplosionPart.TailFifthSegment, RidleyExplosionPart.TailFourthSegment,
-        RidleyExplosionPart.TailThirdSegment, RidleyExplosionPart.TailSecondSegment, RidleyExplosionPart.TailBaseSegment, RidleyExplosionPart.Wings,
+        RidleyExplosionPart.TailTip, RidleyExplosionPart.TailInnerJoint, RidleyExplosionPart.TailFourthShaftLink, RidleyExplosionPart.TailThirdShaftLink,
+        RidleyExplosionPart.TailSecondShaftLink, RidleyExplosionPart.TailFirstShaftLink, RidleyExplosionPart.TailBase, RidleyExplosionPart.Wings,
         RidleyExplosionPart.Legs, RidleyExplosionPart.Torso, RidleyExplosionPart.OpenHeadAndNeck, RidleyExplosionPart.Claw,
     ];
 
@@ -43,12 +43,12 @@ internal static class RidleyExplosionDefinitions
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, int> LifetimeUpdates = new Dictionary<RidleyExplosionPart, int>
     {
-        [RidleyExplosionPart.TailBaseSegment] = 73,
-        [RidleyExplosionPart.TailSecondSegment] = 81,
-        [RidleyExplosionPart.TailThirdSegment] = 89,
-        [RidleyExplosionPart.TailFourthSegment] = 97,
-        [RidleyExplosionPart.TailFifthSegment] = 105,
-        [RidleyExplosionPart.TailSixthSegment] = 113,
+        [RidleyExplosionPart.TailBase] = 73,
+        [RidleyExplosionPart.TailFirstShaftLink] = 81,
+        [RidleyExplosionPart.TailSecondShaftLink] = 89,
+        [RidleyExplosionPart.TailThirdShaftLink] = 97,
+        [RidleyExplosionPart.TailFourthShaftLink] = 105,
+        [RidleyExplosionPart.TailInnerJoint] = 113,
         [RidleyExplosionPart.TailTip] = 121,
         [RidleyExplosionPart.Wings] = 41,
         [RidleyExplosionPart.Legs] = 49,
@@ -57,26 +57,18 @@ internal static class RidleyExplosionDefinitions
         [RidleyExplosionPart.Torso] = 129,
     }.ToFrozenDictionary();
 
-    /// <summary>The tail fragment each link of the tail becomes, from the base to the tip (#2238).</summary>
-    internal static readonly IReadOnlyList<RidleyExplosionPart> TailLinkParts =
-    [
-        RidleyExplosionPart.TailBaseSegment, RidleyExplosionPart.TailSecondSegment, RidleyExplosionPart.TailThirdSegment,
-        RidleyExplosionPart.TailFourthSegment, RidleyExplosionPart.TailFifthSegment, RidleyExplosionPart.TailSixthSegment,
-        RidleyExplosionPart.TailTip,
-    ];
-
     /// <summary>The definition of <paramref name="part"/>.</summary>
     public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(LifetimeUpdates[part]);
 
     /// <summary>The tail pose each of the first six tail fragments shows.</summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, EnemyFrameId> TailFrames = new Dictionary<RidleyExplosionPart, EnemyFrameId>
     {
-        [RidleyExplosionPart.TailBaseSegment] = EnemyFrameId.RidleyTailBaseLink,
-        [RidleyExplosionPart.TailSecondSegment] = EnemyFrameId.RidleyTailBaseLink,
-        [RidleyExplosionPart.TailThirdSegment] = EnemyFrameId.RidleyTailMiddleLink,
-        [RidleyExplosionPart.TailFourthSegment] = EnemyFrameId.RidleyTailMiddleLink,
-        [RidleyExplosionPart.TailFifthSegment] = EnemyFrameId.RidleyTailOuterLink,
-        [RidleyExplosionPart.TailSixthSegment] = EnemyFrameId.RidleyTailOuterLink,
+        [RidleyExplosionPart.TailBase] = EnemyFrameId.RidleyTailBaseLink,
+        [RidleyExplosionPart.TailFirstShaftLink] = EnemyFrameId.RidleyTailBaseLink,
+        [RidleyExplosionPart.TailSecondShaftLink] = EnemyFrameId.RidleyTailMiddleLink,
+        [RidleyExplosionPart.TailThirdShaftLink] = EnemyFrameId.RidleyTailMiddleLink,
+        [RidleyExplosionPart.TailFourthShaftLink] = EnemyFrameId.RidleyTailOuterLink,
+        [RidleyExplosionPart.TailInnerJoint] = EnemyFrameId.RidleyTailOuterLink,
     }.ToFrozenDictionary();
 
     /// <summary>

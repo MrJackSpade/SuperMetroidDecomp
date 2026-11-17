@@ -13,7 +13,7 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     internal NorfairRidleyState()
         : base(
             new RidleyFlightState(RidleyFacing.Right, NorfairRidleyArenaDefinitions.MovementMinimum, NorfairRidleyArenaDefinitions.MovementMaximum,
-                wingBeatStep: RidleyWingDefinitions.NorfairFirstBeatStep),
+                firstWingPose: RidleyWingDefinitions.NorfairFirstPose),
             new RidleyTailState(damage: RidleyTailDefinitions.NorfairTipDamage))
     {
     }

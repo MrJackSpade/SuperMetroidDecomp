@@ -230,7 +230,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
         bool paletteWritten = left.Drained.HyperBeamColourEffect.FrameHold == 1;
         left.Drained.HyperBeamColourEffect.Step(drainedColours);
         int expectedFrame = (call / 2) % HyperBeamColourEffectState.FrameCount;
-        AssertEqual(expectedFrame, left.Drained.HyperBeamColourEffect.ShownCycleShade,
+        AssertEqual(expectedFrame, drainedColours.ShownHyperBeamCycleShade,
             $"Hyper Beam palette-FX call {call + 1} frame index");
         AssertEqual((call & 1) == 0, paletteWritten,
             $"Hyper Beam palette-FX call {call + 1} write cadence");

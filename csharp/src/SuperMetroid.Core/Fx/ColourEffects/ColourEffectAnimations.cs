@@ -1,119 +1,40 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Animation;
 using A = SuperMetroid.Core.Fx.ColourEffects.ColourEffectId;
+using S = SuperMetroid.Core.Fx.ColourEffects.ColourEffectSegment;
 
 namespace SuperMetroid.Core.Fx.ColourEffects;
 
 /// <summary>
-/// The colour effects (#1298, #1554, #1598, #1600, #1739, #1982): each effect's steps, its frames, numbered by their place
-/// among the effect's frames (a <see cref="ColourEffectFrame"/> of that effect), with their durations, and the
-/// <see cref="ColourEffectCue"/> events the running effect reacts to between them; and each effect's definition: how it
-/// starts, the colours its frames show in, the condition it watches, the phases it plays its steps in, each a run of its
-/// steps played a number of times, and whether it then stops or loops. Frames two effects show alike are one run of steps
-/// both reuse.
+/// The colour effects (#1298, #1554, #1598, #1600, #1739, #1982, #2366): the runs of frames they play
+/// (<see cref="ColourEffectSegment"/>), each frame numbered by its place among the frames of the effect playing it (a
+/// <see cref="ColourEffectFrame"/> of that effect) with its duration, and the <see cref="ColourEffectCue"/> events the
+/// running effect reacts to between them; and each effect's definition: how it starts, the colours its frames show in, the
+/// condition it watches, the phases it plays, each a whole run played a number of times, and whether it then stops or
+/// loops. Effects that show alike play one run, each in its own colours.
 /// </summary>
 internal static class ColourEffectAnimations
 {
-    /// <summary>The frames <see cref="A.CutsceneCeresNavigationLightsSprite"/>, <see cref="A.CutsceneCeresNavigationLightsBackground"/> show alike.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] CeresNavigationLightsFrames =
-    [
-        F(0, 4),
-        F(1, 4),
-        F(2, 4),
-        F(3, 4),
-        F(4, 4),
-        F(5, 4),
-        F(6, 4),
-        F(7, 4),
-        F(8, 4),
-        F(9, 4),
-        F(10, 4),
-        F(11, 4),
-        F(12, 4),
-        F(13, 4),
-    ];
+    /// <summary>
+    /// The updates the heat pulse shows each heat phase's look for, in phase order (<see cref="HeatPhase.InOrder"/>):
+    /// longest at the coolest and quickest between.
+    /// </summary>
+    private static readonly int[] HeatLookUpdates = [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];
 
-    /// <summary>The frames <see cref="A.WhiteOutSpaceDuringZebesExplosion"/>, <see cref="A.WidePartOfZebesExplosionBackground"/> show alike.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] ZebesExplosionFrames =
-    [
-        F(0, 14),
-        F(1, 14),
-        F(2, 14),
-        F(3, 14),
-        F(4, 14),
-        F(5, 14),
-        F(6, 14),
-        F(7, 14),
-        F(8, 14),
-        F(9, 14),
-        F(10, 14),
-        F(11, 14),
-        F(12, 14),
-        F(13, 14),
-        F(14, 14),
-    ];
+    /// <summary>The updates the Power Suit's heat pulse shows its last heat phase's look for, cut short from the pulse's.</summary>
+    private const int PowerSuitLastHeatLookUpdates = 3;
 
-    /// <summary>The frames <see cref="A.GreyOutTourianStatueDraygon"/>, <see cref="A.GreyOutTourianStatueKraid"/>, <see cref="A.GreyOutTourianStatueRidley"/>, <see cref="A.GreyOutTourianStatuePhantoon"/> show alike.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] GreyOutTourianStatueFrames =
-    [
-        F(0, 8),
-        F(1, 8),
-        F(2, 8),
-        F(3, 8),
-        F(4, 8),
-        F(5, 8),
-        F(6, 8),
-        F(7, 8),
-    ];
-
-    /// <summary>The frames <see cref="A.TourianGeneralLevelRedFlashing"/>, <see cref="A.TourianRedFlashingArkanoidBlocksAndRedOrbs"/> show alike.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] TourianEscapeRedFlashingCycleFrames =
-    [
-        F(0, 2),
-        F(1, 2),
-        F(2, 2),
-        F(3, 2),
-        F(4, 2),
-        F(5, 2),
-        F(6, 2),
-        F(7, 2),
-        F(8, 2),
-        F(9, 2),
-        F(10, 2),
-        F(11, 2),
-        F(12, 2),
-        F(13, 2),
-    ];
-
-    /// <summary>The frames <see cref="A.VariaSuitHeatPulse"/>, <see cref="A.GravitySuitHeatPulse"/> show alike.</summary>
-    private static readonly AnimationBeat<int, ColourEffectCue>[] SuitHeatPulseFrames =
-    [
-            F(0, 16),
-            F(1, 4),
-            F(2, 4),
-            F(3, 5),
-            F(4, 6),
-            F(5, 7),
-            F(6, 8),
-            F(7, 8),
-            F(8, 8),
-            F(9, 8),
-            F(10, 7),
-            F(11, 6),
-            F(12, 5),
-            F(13, 4),
-            F(14, 4),
-            F(15, 16),
-    ];
+    /// <summary>Each heat phase's look shown for its updates, in phase order: the heat pulse.</summary>
+    private static readonly AnimationBeat<int, ColourEffectCue>[] HeatPulseLooks = [.. HeatPhase.InOrder.Zip(HeatLookUpdates, Heat)];
 
     /// <summary>
-    /// Each effect's steps; each suit's heat pulse has its own (#2054), and Samus in heat, which plays her suit's pulse
-    /// (<see cref="HeatShimmers"/>), shows none of its own.
+    /// The runs of frames the effects play; each suit's heat pulse plays its own (#2054), and Samus in heat, which plays her
+    /// suit's pulse (<see cref="ColourEffectHeatAnimations.Shimmer"/>), shows none of its own.
     /// </summary>
-    internal static AnimationSegments<ColourEffectId, int, ColourEffectCue> Steps { get; } = new(
-        new Dictionary<ColourEffectId, AnimationBeat<int, ColourEffectCue>[]>
+    internal static AnimationSegments<ColourEffectSegment, int, ColourEffectCue> Segments { get; } = new(
+        new Dictionary<ColourEffectSegment, AnimationBeat<int, ColourEffectCue>[]>
     {
-        [A.FadeInSuperMetroidTitleLogo] =
+        [S.TextFade] =
         [
             F(0, 3),
             F(1, 3),
@@ -124,18 +45,12 @@ internal static class ColourEffectAnimations
             F(6, 3),
             F(7, 3),
         ],
-        [A.FadeInNintendoCopyright] =
+        [S.Flicker] =
         [
-            F(0, 3),
-            F(1, 3),
-            F(2, 3),
-            F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
+            F(0, 1),
+            F(1, 1),
         ],
-        [A.TitleScreenBabyMetroidTubeLight] =
+        [S.SlowGlow] =
         [
             F(0, 10),
             F(1, 10),
@@ -146,47 +61,24 @@ internal static class ColourEffectAnimations
             F(6, 10),
             F(7, 10),
         ],
-        [A.TitleScreenFlickeringDisplays] =
+        [S.SteadyBlink] =
         [
-            F(0, 1),
-            F(1, 1),
+            F(0, 4),
+            F(1, 4),
+            F(2, 4),
+            F(3, 4),
+            F(4, 4),
+            F(5, 4),
+            F(6, 4),
+            F(7, 4),
+            F(8, 4),
+            F(9, 4),
+            F(10, 4),
+            F(11, 4),
+            F(12, 4),
+            F(13, 4),
         ],
-        [A.CutsceneGunshipEngineFlicker] =
-        [
-            F(0, 1),
-            F(1, 1),
-        ],
-        [A.CutsceneCeresNavigationLightsSprite] =
-        [
-            .. CeresNavigationLightsFrames,
-        ],
-        [A.FadeInPlanetZebesText] =
-        [
-            F(0, 3),
-            F(1, 3),
-            F(2, 3),
-            F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
-        ],
-        [A.FadeOutPlanetZebesText] =
-        [
-            F(0, 3),
-            F(1, 3),
-            F(2, 3),
-            F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
-        ],
-        [A.CutsceneCeresNavigationLightsBackground] =
-        [
-            .. CeresNavigationLightsFrames,
-        ],
-        [A.OldMotherBrainFightBackgroundLights] =
+        [S.OldMotherBrainBackgroundLights] =
         [
             F(0, 6),
             F(1, 6),
@@ -203,7 +95,7 @@ internal static class ColourEffectAnimations
             F(12, 6),
             F(13, 6),
         ],
-        [A.GunshipGlow] =
+        [S.GunshipGlow] =
         [
             F(0, 5),
             F(1, 5),
@@ -220,7 +112,7 @@ internal static class ColourEffectAnimations
             F(12, 5),
             F(13, 5),
         ],
-        [A.FadeOutZoomedOutExplodingZebes] =
+        [S.ZoomedOutZebesFade] =
         [
             F(0, 8),
             F(1, 8),
@@ -230,7 +122,7 @@ internal static class ColourEffectAnimations
             F(5, 8),
             F(6, 8),
         ],
-        [A.WidePartOfZebesExplosionForeground] =
+        [S.WideZebesExplosionForeground] =
         [
             F(0, 4),
             F(1, 4),
@@ -249,7 +141,7 @@ internal static class ColourEffectAnimations
             F(14, 6),
             F(15, 6),
         ],
-        [A.ZebesExplosionFinale] =
+        [S.ZebesExplosionFinale] =
         [
             F(0, 2),
             F(1, 2),
@@ -297,11 +189,25 @@ internal static class ColourEffectAnimations
             F(43, 9),
             F(44, 9),
         ],
-        [A.WhiteOutSpaceDuringZebesExplosion] =
+        [S.ZebesExplosionWhiteOut] =
         [
-            .. ZebesExplosionFrames,
+            F(0, 14),
+            F(1, 14),
+            F(2, 14),
+            F(3, 14),
+            F(4, 14),
+            F(5, 14),
+            F(6, 14),
+            F(7, 14),
+            F(8, 14),
+            F(9, 14),
+            F(10, 14),
+            F(11, 14),
+            F(12, 14),
+            F(13, 14),
+            F(14, 14),
         ],
-        [A.ZebesExplosionPlanetAfterglow] =
+        [S.ZebesAfterglow] =
         [
             F(0, 16),
             F(1, 16),
@@ -310,7 +216,7 @@ internal static class ColourEffectAnimations
             F(4, 16),
             F(5, 16),
         ],
-        [A.ExplodingZebesLava] =
+        [S.ExplodingZebesLava] =
         [
             F(0, 9),
             F(1, 8),
@@ -323,7 +229,7 @@ internal static class ColourEffectAnimations
             F(8, 8),
             F(9, 9),
         ],
-        [A.FadeOutExplodingZebesCrust] =
+        [S.ExplodingZebesCrustFade] =
         [
             F(0, 20),
             F(1, 20),
@@ -334,7 +240,7 @@ internal static class ColourEffectAnimations
             F(6, 20),
             F(7, 20),
         ],
-        [A.FadeOutExplodingZebesGreyClouds] =
+        [S.ExplodingZebesGreyCloudsFade] =
         [
             F(0, 14),
             F(1, 14),
@@ -345,7 +251,7 @@ internal static class ColourEffectAnimations
             F(6, 14),
             F(7, 14),
         ],
-        [A.GunshipEmergingFromZebesExplosion] =
+        [S.GunshipEmerging] =
         [
             F(0, 24),
             F(1, 24),
@@ -364,11 +270,7 @@ internal static class ColourEffectAnimations
             F(14, 24),
             F(15, 24),
         ],
-        [A.WidePartOfZebesExplosionBackground] =
-        [
-            .. ZebesExplosionFrames,
-        ],
-        [A.HyperBeam] =
+        [S.HyperBeam] =
         [
             F(0, 2),
             F(1, 2),
@@ -381,43 +283,31 @@ internal static class ColourEffectAnimations
             F(8, 2),
             F(9, 2),
         ],
-        [A.SamusLoadingPowerSuit] =
+        [S.SuitLoadingOpeningFlicker] =
         [
             F(0, 3),
             F(1, 3),
-            F(2, 3),
-            F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
-            F(8, 1),
         ],
-        [A.SamusLoadingVariaSuit] =
+        [S.SuitLoadingSecondFlicker] =
         [
-            F(0, 3),
-            F(1, 3),
             F(2, 3),
             F(3, 3),
-            F(4, 3),
-            F(5, 3),
-            F(6, 3),
-            F(7, 3),
-            F(8, 1),
         ],
-        [A.SamusLoadingGravitySuit] =
+        [S.SuitLoadingThirdFlicker] =
         [
-            F(0, 3),
-            F(1, 3),
-            F(2, 3),
-            F(3, 3),
             F(4, 3),
             F(5, 3),
+        ],
+        [S.SuitLoadingLastFlicker] =
+        [
             F(6, 3),
             F(7, 3),
+        ],
+        [S.SuitLoaded] =
+        [
             F(8, 1),
         ],
-        [A.PostCreditsSuperMetroidIcon] =
+        [S.PostCreditsIcon] =
         [
             F(0, 1),
             F(1, 1),
@@ -434,65 +324,34 @@ internal static class ColourEffectAnimations
             F(12, 1),
             F(13, 1),
         ],
-        [A.GreyOutTourianStatueDraygon] =
+        [S.StatueGreyOut] =
         [
-            .. GreyOutTourianStatueFrames,
-        ],
-        [A.GreyOutTourianStatueKraid] =
-        [
-            .. GreyOutTourianStatueFrames,
-        ],
-        [A.GreyOutTourianStatueRidley] =
-        [
-            .. GreyOutTourianStatueFrames,
-        ],
-        [A.GreyOutTourianStatuePhantoon] =
-        [
-            .. GreyOutTourianStatueFrames,
-        ],
-        [A.BombTorizoBelly] =
-        [
-            F(0, 10),
+            F(0, 8),
             F(1, 8),
             F(2, 8),
-            F(3, 10),
+            F(3, 8),
             F(4, 8),
             F(5, 8),
-        ],
-        [A.GoldenTorizoBelly] =
-        [
-            F(0, 10),
-            F(1, 8),
-            F(2, 8),
-            F(3, 10),
-            F(4, 8),
-            F(5, 8),
-        ],
-        [A.SamusInHeat] = [],
-        [A.PowerSuitHeatPulse] =
-        [
-            F(0, 16),
-            F(1, 4),
-            F(2, 4),
-            F(3, 5),
-            F(4, 6),
-            F(5, 7),
             F(6, 8),
             F(7, 8),
-            F(8, 8),
-            F(9, 8),
-            F(10, 7),
-            F(11, 6),
-            F(12, 5),
-            F(13, 4),
-            F(14, 4),
-            F(15, 3),
         ],
-        [A.VariaSuitHeatPulse] = SuitHeatPulseFrames,
-        [A.GravitySuitHeatPulse] = SuitHeatPulseFrames,
-        [A.CrateriaLightning] =
+        [S.TorizoBelly] =
+        [
+            F(0, 10),
+            F(1, 8),
+            F(2, 8),
+            F(3, 10),
+            F(4, 8),
+            F(5, 8),
+        ],
+        [S.HeatPulse] = HeatPulseLooks,
+        [S.PowerSuitHeatPulse] = [.. HeatPulseLooks.SkipLast(1), Heat(HeatPhase.InOrder[^1], PowerSuitLastHeatLookUpdates)],
+        [S.LandingSiteCalm] =
         [
             F(0, 240),
+        ],
+        [S.LandingSiteDoubleStrike] =
+        [
             F(1, 2),
             F(2, 1),
             F(3, 1),
@@ -500,24 +359,19 @@ internal static class ColourEffectAnimations
             F(5, 1),
             F(6, 1),
             F(7, 2),
+        ],
+        [S.LandingSiteSecondCalm] =
+        [
             F(8, 240),
+        ],
+        [S.LandingSiteSingleStrike] =
+        [
             F(9, 1),
             F(10, 1),
             F(11, 1),
             F(12, 2),
         ],
-        [A.WreckedShipGreenLights] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
-            F(6, 10),
-            F(7, 10),
-        ],
-        [A.BrinstarBlueBackgroundSpores] =
+        [S.SporeDrift] =
         [
             F(0, 10),
             F(1, 10),
@@ -534,41 +388,7 @@ internal static class ColourEffectAnimations
             F(12, 10),
             F(13, 10),
         ],
-        [A.SporeSpawnBlueBackgroundSpores] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
-            F(6, 10),
-            F(7, 10),
-            F(8, 10),
-            F(9, 10),
-            F(10, 10),
-            F(11, 10),
-            F(12, 10),
-            F(13, 10),
-        ],
-        [A.BrinstarRedBackgroundGlow] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-            F(4, 10),
-            F(5, 10),
-            F(6, 10),
-            F(7, 10),
-            F(8, 10),
-            F(9, 10),
-            F(10, 10),
-            F(11, 10),
-            F(12, 10),
-            F(13, 10),
-        ],
-        [A.BeaconFlashing] =
+        [S.BeaconFlashing] =
         [
             F(0, 10),
             F(1, 10),
@@ -582,113 +402,16 @@ internal static class ColourEffectAnimations
             F(8, 10),
             F(9, 10),
         ],
-        [A.NorfairForegroundAndHeatPhase] =
-        [
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(0))),
-            F(0, 16),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(1))),
-            F(1, 4),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(2))),
-            F(2, 4),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(3))),
-            F(3, 5),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(4))),
-            F(4, 6),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(5))),
-            F(5, 7),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(6))),
-            F(6, 8),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(7))),
-            F(7, 8),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(8))),
-            F(8, 8),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(9))),
-            F(9, 8),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(10))),
-            F(10, 7),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(11))),
-            F(11, 6),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(12))),
-            F(12, 5),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(13))),
-            F(13, 4),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(14))),
-            F(14, 4),
-            E(new ColourEffectCue.PublishHeatPhase(new HeatPhase(15))),
-            F(15, 16),
-        ],
-        [A.NorfairGreenForegroundHeatGlow] =
-        [
-            F(0, 16),
-            F(1, 4),
-            F(2, 4),
-            F(3, 5),
-            F(4, 6),
-            F(5, 7),
-            F(6, 8),
-            F(7, 8),
-            F(8, 8),
-            F(9, 8),
-            F(10, 7),
-            F(11, 6),
-            F(12, 5),
-            F(13, 4),
-            F(14, 4),
-            F(15, 16),
-        ],
-        [A.NorfairPurpleForegroundHeatGlow] =
-        [
-            F(0, 16),
-            F(1, 4),
-            F(2, 4),
-            F(3, 5),
-            F(4, 6),
-            F(5, 7),
-            F(6, 8),
-            F(7, 8),
-            F(8, 8),
-            F(9, 8),
-            F(10, 7),
-            F(11, 6),
-            F(12, 5),
-            F(13, 4),
-            F(14, 4),
-            F(15, 16),
-        ],
-        [A.NorfairDarkForegroundHeatGlow] =
-        [
-            F(0, 16),
-            F(1, 4),
-            F(2, 4),
-            F(3, 5),
-            F(4, 6),
-            F(5, 7),
-            F(6, 8),
-            F(7, 8),
-            F(8, 8),
-            F(9, 8),
-            F(10, 7),
-            F(11, 6),
-            F(12, 5),
-            F(13, 4),
-            F(14, 4),
-            F(15, 16),
-        ],
-        [A.MaridiaSandPits] =
+        [S.NorfairHeatPhases] = [.. HeatPhase.InOrder.Zip(HeatLookUpdates, (phase, updates) => new[] { E(new ColourEffectCue.PublishHeatPhase(phase)), Heat(phase, updates) })
+            .SelectMany(look => look)],
+        [S.MaridiaSand] =
         [
             F(0, 10),
             F(1, 10),
             F(2, 10),
             F(3, 10),
         ],
-        [A.MaridiaSandFalls] =
-        [
-            F(0, 10),
-            F(1, 10),
-            F(2, 10),
-            F(3, 10),
-        ],
-        [A.MaridiaBackgroundWaterfalls] =
+        [S.MaridiaBackgroundWaterfalls] =
         [
             F(0, 2),
             F(1, 2),
@@ -699,7 +422,7 @@ internal static class ColourEffectAnimations
             F(6, 2),
             F(7, 2),
         ],
-        [A.TourianGlowingArkanoidBlocksAndRedOrbs] =
+        [S.TourianArkanoidBlocksGlow] =
         [
             F(0, 10),
             F(1, 10),
@@ -713,7 +436,7 @@ internal static class ColourEffectAnimations
             F(9, 10),
             F(10, 10),
         ],
-        [A.TourianShutterRedFlashing] =
+        [S.TourianEscapeRedFlashing] =
         [
             F(0, 2),
             F(1, 2),
@@ -730,32 +453,7 @@ internal static class ColourEffectAnimations
             F(12, 2),
             F(13, 2),
         ],
-        [A.TourianBackgroundRedFlashing] =
-        [
-            F(0, 4),
-            F(1, 4),
-            F(2, 4),
-            F(3, 4),
-            F(4, 4),
-            F(5, 4),
-            F(6, 4),
-            F(7, 4),
-            F(8, 4),
-            F(9, 4),
-            F(10, 4),
-            F(11, 4),
-            F(12, 4),
-            F(13, 4),
-        ],
-        [A.TourianGeneralLevelRedFlashing] =
-        [
-            .. TourianEscapeRedFlashingCycleFrames,
-        ],
-        [A.TourianRedFlashingArkanoidBlocksAndRedOrbs] =
-        [
-            .. TourianEscapeRedFlashingCycleFrames,
-        ],
-        [A.OldTourianRedFlashing] =
+        [S.OldTourianRedFlashing] =
         [
             F(0, 3),
             F(1, 3),
@@ -772,7 +470,7 @@ internal static class ColourEffectAnimations
             F(12, 3),
             F(13, 3),
         ],
-        [A.OldTourianBackgroundRailingsFlashYellow] =
+        [S.OldTourianYellowFlash] =
         [
             F(0, 16),
             F(1, 1),
@@ -790,25 +488,7 @@ internal static class ColourEffectAnimations
             F(13, 1),
             F(14, 1),
         ],
-        [A.OldTourianBackgroundPanelsFlashYellow] =
-        [
-            F(0, 16),
-            F(1, 1),
-            F(2, 1),
-            F(3, 2),
-            F(4, 1),
-            F(5, 2),
-            F(6, 1),
-            F(7, 1),
-            F(8, 1),
-            F(9, 1),
-            F(10, 32),
-            F(11, 2),
-            F(12, 1),
-            F(13, 1),
-            F(14, 1),
-        ],
-        [A.UpperCrateriaRedFlashing] =
+        [S.UpperCrateriaRedFlashing] =
         [
             F(0, 8),
             F(1, 7),
@@ -825,21 +505,7 @@ internal static class ColourEffectAnimations
             F(12, 6),
             F(13, 7),
         ],
-        [A.CrateriaEscapeYellowLightning] =
-        [
-            F(0, 49),
-            F(1, 1),
-            F(2, 1),
-            F(3, 1),
-            F(4, 1),
-            F(5, 17),
-            F(6, 1),
-            F(7, 24),
-            F(8, 1),
-            F(9, 1),
-            F(10, 1),
-        ],
-        [A.ParlorEscapeSkyFlicker] =
+        [S.EscapeLightning] =
         [
             F(0, 49),
             F(1, 1),
@@ -856,143 +522,104 @@ internal static class ColourEffectAnimations
     });
 
     /// <summary>
+    /// A suit's loading: its opening flicker played thirty-six times, its second and third three times each, its last twice,
+    /// then its loaded look once. Each suit plays it in its own frames.
+    /// </summary>
+    private static readonly Animation<ColourEffectSegment> SuitLoading = new(
+        [
+            Repeated(S.SuitLoadingOpeningFlicker, 36),
+            Repeated(S.SuitLoadingSecondFlicker, 3),
+            Repeated(S.SuitLoadingThirdFlicker, 3),
+            Repeated(S.SuitLoadingLastFlicker, 2),
+            Whole(S.SuitLoaded),
+        ],
+        AnimationEnd.Stops);
+
+    /// <summary>
+    /// The Varia and Gravity Suits' heat shimmer and Norfair's heated foreground glows: the heat pulse, looped. Each plays it
+    /// in its own frames.
+    /// </summary>
+    private static readonly Animation<ColourEffectSegment> HeatPulseLoop = Looping(S.HeatPulse);
+
+    /// <summary>
     /// How each effect starts, the colours its frames show in, the condition it watches from the update after its first
-    /// frame, and how it plays its steps: its phases, then whether it stops or loops. The heat shimmer's animation is the
-    /// Power Suit's pulse; its start chooses the suit's (<see cref="HeatShimmers"/>). Each suit's pulse plays as the heat
-    /// shimmer does, in the same colours and watching the same heat.
+    /// frame, and how it plays its runs: its phases, then whether it stops or loops. Samus in heat plays none of her own: her
+    /// start chooses her suit's pulse (<see cref="ColourEffectHeatAnimations.Shimmer"/>), which plays as her shimmer does, in
+    /// the same colours and watching the same heat.
     /// </summary>
     private static readonly FrozenDictionary<ColourEffectId, ColourEffectDefinition> Definitions =
         new Dictionary<ColourEffectId, ColourEffectDefinition>
     {
-        [A.FadeInSuperMetroidTitleLogo] = new(ColourEffectStart.Plain, ColourEffectColours.TitleLogo, null,
-            new([new(A.FadeInSuperMetroidTitleLogo, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.FadeInNintendoCopyright] = new(ColourEffectStart.Plain, ColourEffectColours.NintendoCopyright, null,
-            new([new(A.FadeInNintendoCopyright, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.TitleScreenBabyMetroidTubeLight] = new(ColourEffectStart.Plain, ColourEffectColours.BabyMetroidTubeLight, null,
-            new([new(A.TitleScreenBabyMetroidTubeLight, 0, 8, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.TitleScreenFlickeringDisplays] = new(ColourEffectStart.Plain, ColourEffectColours.TitleScreenDisplays, null,
-            new([new(A.TitleScreenFlickeringDisplays, 0, 2, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.CutsceneGunshipEngineFlicker] = new(ColourEffectStart.Plain, ColourEffectColours.CutsceneGunshipEngine, null,
-            new([new(A.CutsceneGunshipEngineFlicker, 0, 2, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.CutsceneCeresNavigationLightsSprite] = new(ColourEffectStart.Plain, ColourEffectColours.CeresNavigationLightsSprite, null,
-            new([new(A.CutsceneCeresNavigationLightsSprite, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.FadeInPlanetZebesText] = new(ColourEffectStart.Plain, ColourEffectColours.PlanetZebesText, null,
-            new([new(A.FadeInPlanetZebesText, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.FadeOutPlanetZebesText] = new(ColourEffectStart.Plain, ColourEffectColours.PlanetZebesText, null,
-            new([new(A.FadeOutPlanetZebesText, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.CutsceneCeresNavigationLightsBackground] = new(ColourEffectStart.Plain, ColourEffectColours.CeresNavigationLightsBackground, null,
-            new([new(A.CutsceneCeresNavigationLightsBackground, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.OldMotherBrainFightBackgroundLights] = new(ColourEffectStart.Plain, ColourEffectColours.OldMotherBrainBackgroundLights, null,
-            new([new(A.OldMotherBrainFightBackgroundLights, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.GunshipGlow] = new(ColourEffectStart.Plain, ColourEffectColours.GunshipGlow, null,
-            new([new(A.GunshipGlow, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.FadeOutZoomedOutExplodingZebes] = new(ColourEffectStart.Plain, ColourEffectColours.ZoomedOutExplodingZebes, null,
-            new([new(A.FadeOutZoomedOutExplodingZebes, 0, 7, 1)], AnimationEnd.Stops)),
-        [A.WidePartOfZebesExplosionForeground] = new(ColourEffectStart.Plain, ColourEffectColours.WideZebesExplosionForeground, null,
-            new([new(A.WidePartOfZebesExplosionForeground, 0, 16, 1)], AnimationEnd.Stops)),
-        [A.ZebesExplosionFinale] = new(ColourEffectStart.Plain, ColourEffectColours.ZebesExplosionFinale, null,
-            new([new(A.ZebesExplosionFinale, 0, 45, 1)], AnimationEnd.Stops)),
-        [A.WhiteOutSpaceDuringZebesExplosion] = new(ColourEffectStart.Plain, ColourEffectColours.SpaceDuringZebesExplosion, null,
-            new([new(A.WhiteOutSpaceDuringZebesExplosion, 0, 15, 1)], AnimationEnd.Stops)),
-        [A.ZebesExplosionPlanetAfterglow] = new(ColourEffectStart.Plain, ColourEffectColours.ZebesPlanetAfterglow, null,
-            new([new(A.ZebesExplosionPlanetAfterglow, 0, 6, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.ExplodingZebesLava] = new(ColourEffectStart.Plain, ColourEffectColours.ExplodingZebesLava, null,
-            new([new(A.ExplodingZebesLava, 0, 10, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.FadeOutExplodingZebesCrust] = new(ColourEffectStart.Plain, ColourEffectColours.ExplodingZebesCrust, null,
-            new([new(A.FadeOutExplodingZebesCrust, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.FadeOutExplodingZebesGreyClouds] = new(ColourEffectStart.Plain, ColourEffectColours.ExplodingZebesGreyClouds, null,
-            new([new(A.FadeOutExplodingZebesGreyClouds, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.GunshipEmergingFromZebesExplosion] = new(ColourEffectStart.Plain, ColourEffectColours.GunshipEmergingFromExplosion, null,
-            new([new(A.GunshipEmergingFromZebesExplosion, 0, 16, 1)], AnimationEnd.Stops)),
-        [A.WidePartOfZebesExplosionBackground] = new(ColourEffectStart.Plain, ColourEffectColours.WideZebesExplosionBackground, null,
-            new([new(A.WidePartOfZebesExplosionBackground, 0, 15, 1)], AnimationEnd.Stops)),
-        [A.HyperBeam] = new(ColourEffectStart.Plain, ColourEffectColours.HyperBeam, null,
-            new([new(A.HyperBeam, 0, 10, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.SamusLoadingPowerSuit] = new(ColourEffectStart.Plain, ColourEffectColours.SamusLoadingSuit, null,
-            new([new(A.SamusLoadingPowerSuit, 0, 2, 36), new(A.SamusLoadingPowerSuit, 2, 2, 3), new(A.SamusLoadingPowerSuit, 4, 2, 3), new(A.SamusLoadingPowerSuit, 6, 2, 2), new(A.SamusLoadingPowerSuit, 8, 1, 1)], AnimationEnd.Stops)),
-        [A.SamusLoadingVariaSuit] = new(ColourEffectStart.Plain, ColourEffectColours.SamusLoadingSuit, null,
-            new([new(A.SamusLoadingVariaSuit, 0, 2, 36), new(A.SamusLoadingVariaSuit, 2, 2, 3), new(A.SamusLoadingVariaSuit, 4, 2, 3), new(A.SamusLoadingVariaSuit, 6, 2, 2), new(A.SamusLoadingVariaSuit, 8, 1, 1)], AnimationEnd.Stops)),
-        [A.SamusLoadingGravitySuit] = new(ColourEffectStart.Plain, ColourEffectColours.SamusLoadingSuit, null,
-            new([new(A.SamusLoadingGravitySuit, 0, 2, 36), new(A.SamusLoadingGravitySuit, 2, 2, 3), new(A.SamusLoadingGravitySuit, 4, 2, 3), new(A.SamusLoadingGravitySuit, 6, 2, 2), new(A.SamusLoadingGravitySuit, 8, 1, 1)], AnimationEnd.Stops)),
-        [A.PostCreditsSuperMetroidIcon] = new(ColourEffectStart.Plain, ColourEffectColours.PostCreditsSuperMetroidIcon, null,
-            new([new(A.PostCreditsSuperMetroidIcon, 0, 14, 1)], AnimationEnd.Stops)),
-        [A.GreyOutTourianStatueDraygon] = new(ColourEffectStart.Plain, ColourEffectColours.DraygonStatue, null,
-            new([new(A.GreyOutTourianStatueDraygon, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.GreyOutTourianStatueKraid] = new(ColourEffectStart.Plain, ColourEffectColours.KraidStatue, null,
-            new([new(A.GreyOutTourianStatueKraid, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.GreyOutTourianStatueRidley] = new(ColourEffectStart.Plain, ColourEffectColours.RidleyStatue, null,
-            new([new(A.GreyOutTourianStatueRidley, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.GreyOutTourianStatuePhantoon] = new(ColourEffectStart.Plain, ColourEffectColours.PhantoonStatue, null,
-            new([new(A.GreyOutTourianStatuePhantoon, 0, 8, 1)], AnimationEnd.Stops)),
-        [A.BombTorizoBelly] = new(ColourEffectStart.Plain, ColourEffectColours.TorizoBelly, ColourEffectCondition.EndsWhenTorizoDies.Instance,
-            new([new(A.BombTorizoBelly, 0, 6, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.GoldenTorizoBelly] = new(ColourEffectStart.Plain, ColourEffectColours.TorizoBelly, ColourEffectCondition.EndsWhenTorizoDies.Instance,
-            new([new(A.GoldenTorizoBelly, 0, 6, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.CrateriaLightning] = new(ColourEffectStart.Plain, ColourEffectColours.LandingSiteLightning, new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight),
-            new([new(A.CrateriaLightning, 0, 1, 1), new(A.CrateriaLightning, 1, 7, 2), new(A.CrateriaLightning, 8, 1, 1), new(A.CrateriaLightning, 9, 4, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.WreckedShipGreenLights] = new(ColourEffectStart.Plain, ColourEffectColours.WreckedShipGreenLights, null,
-            new([new(A.WreckedShipGreenLights, 0, 8, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.BrinstarBlueBackgroundSpores] = new(ColourEffectStart.Plain, ColourEffectColours.BrinstarBlueSpores, null,
-            new([new(A.BrinstarBlueBackgroundSpores, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.SporeSpawnBlueBackgroundSpores] = new(ColourEffectStart.SkippedOnceAreaMiniBossIsDead, ColourEffectColours.BrinstarBlueSpores, ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance,
-            new([new(A.SporeSpawnBlueBackgroundSpores, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.BrinstarRedBackgroundGlow] = new(ColourEffectStart.Plain, ColourEffectColours.BrinstarRedGlow, null,
-            new([new(A.BrinstarRedBackgroundGlow, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.BeaconFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.Beacon, null,
-            new([new(A.BeaconFlashing, 0, 11, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.NorfairForegroundAndHeatPhase] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairHeatForeground, null,
-            new([new(A.NorfairForegroundAndHeatPhase, 0, 32, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.NorfairGreenForegroundHeatGlow] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairGreenForeground, null,
-            new([new(A.NorfairGreenForegroundHeatGlow, 0, 16, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.NorfairPurpleForegroundHeatGlow] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairPurpleForeground, null,
-            new([new(A.NorfairPurpleForegroundHeatGlow, 0, 16, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.NorfairDarkForegroundHeatGlow] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairDarkForeground, null,
-            new([new(A.NorfairDarkForegroundHeatGlow, 0, 16, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.MaridiaSandPits] = new(ColourEffectStart.Plain, ColourEffectColours.MaridiaSandPits, null,
-            new([new(A.MaridiaSandPits, 0, 4, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.MaridiaSandFalls] = new(ColourEffectStart.Plain, ColourEffectColours.MaridiaSandFalls, null,
-            new([new(A.MaridiaSandFalls, 0, 4, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.MaridiaBackgroundWaterfalls] = new(ColourEffectStart.Plain, ColourEffectColours.MaridiaBackgroundWaterfalls, null,
-            new([new(A.MaridiaBackgroundWaterfalls, 0, 8, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.TourianGlowingArkanoidBlocksAndRedOrbs] = new(ColourEffectStart.Plain, ColourEffectColours.TourianArkanoidBlocksAndOrbs, null,
-            new([new(A.TourianGlowingArkanoidBlocksAndRedOrbs, 0, 11, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.TourianShutterRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.TourianShutters, null,
-            new([new(A.TourianShutterRedFlashing, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.TourianBackgroundRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.TourianBackground, null,
-            new([new(A.TourianBackgroundRedFlashing, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.TourianGeneralLevelRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.TourianLevel, null,
-            new([new(A.TourianGeneralLevelRedFlashing, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.TourianRedFlashingArkanoidBlocksAndRedOrbs] = new(ColourEffectStart.Plain, ColourEffectColours.TourianArkanoidBlocksAndOrbs, null,
-            new([new(A.TourianRedFlashingArkanoidBlocksAndRedOrbs, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.OldTourianRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.OldTourianLevel, null,
-            new([new(A.OldTourianRedFlashing, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.OldTourianBackgroundRailingsFlashYellow] = new(ColourEffectStart.Plain, ColourEffectColours.OldTourianRailings, null,
-            new([new(A.OldTourianBackgroundRailingsFlashYellow, 0, 15, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.OldTourianBackgroundPanelsFlashYellow] = new(ColourEffectStart.Plain, ColourEffectColours.OldTourianPanels, null,
-            new([new(A.OldTourianBackgroundPanelsFlashYellow, 0, 15, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.UpperCrateriaRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.UpperCrateriaLevel, null,
-            new([new(A.UpperCrateriaRedFlashing, 0, 14, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.CrateriaEscapeYellowLightning] = new(ColourEffectStart.Plain, ColourEffectColours.CrateriaEscapeLightning, null,
-            new([new(A.CrateriaEscapeYellowLightning, 0, 11, 1)], AnimationEnd.LoopsFrom(0))),
-        [A.ParlorEscapeSkyFlicker] = new(ColourEffectStart.Plain, ColourEffectColours.ParlorEscapeSky, null,
-            new([new(A.ParlorEscapeSkyFlicker, 0, 11, 1)], AnimationEnd.LoopsFrom(0))),
+        [A.FadeInSuperMetroidTitleLogo] = new(ColourEffectStart.Plain, ColourEffectColours.TitleLogo, null, Once(S.TextFade)),
+        [A.FadeInNintendoCopyright] = new(ColourEffectStart.Plain, ColourEffectColours.NintendoCopyright, null, Once(S.TextFade)),
+        [A.TitleScreenBabyMetroidTubeLight] = new(ColourEffectStart.Plain, ColourEffectColours.BabyMetroidTubeLight, null, Looping(S.SlowGlow)),
+        [A.TitleScreenFlickeringDisplays] = new(ColourEffectStart.Plain, ColourEffectColours.TitleScreenDisplays, null, Looping(S.Flicker)),
+        [A.CutsceneGunshipEngineFlicker] = new(ColourEffectStart.Plain, ColourEffectColours.CutsceneGunshipEngine, null, Looping(S.Flicker)),
+        [A.CutsceneCeresNavigationLightsSprite] = new(ColourEffectStart.Plain, ColourEffectColours.CeresNavigationLightsSprite, null, Looping(S.SteadyBlink)),
+        [A.FadeInPlanetZebesText] = new(ColourEffectStart.Plain, ColourEffectColours.PlanetZebesText, null, Once(S.TextFade)),
+        [A.FadeOutPlanetZebesText] = new(ColourEffectStart.Plain, ColourEffectColours.PlanetZebesText, null, Once(S.TextFade)),
+        [A.CutsceneCeresNavigationLightsBackground] = new(ColourEffectStart.Plain, ColourEffectColours.CeresNavigationLightsBackground, null, Looping(S.SteadyBlink)),
+        [A.OldMotherBrainFightBackgroundLights] = new(ColourEffectStart.Plain, ColourEffectColours.OldMotherBrainBackgroundLights, null, Looping(S.OldMotherBrainBackgroundLights)),
+        [A.GunshipGlow] = new(ColourEffectStart.Plain, ColourEffectColours.GunshipGlow, null, Looping(S.GunshipGlow)),
+        [A.FadeOutZoomedOutExplodingZebes] = new(ColourEffectStart.Plain, ColourEffectColours.ZoomedOutExplodingZebes, null, Once(S.ZoomedOutZebesFade)),
+        [A.WidePartOfZebesExplosionForeground] = new(ColourEffectStart.Plain, ColourEffectColours.WideZebesExplosionForeground, null, Once(S.WideZebesExplosionForeground)),
+        [A.ZebesExplosionFinale] = new(ColourEffectStart.Plain, ColourEffectColours.ZebesExplosionFinale, null, Once(S.ZebesExplosionFinale)),
+        [A.WhiteOutSpaceDuringZebesExplosion] = new(ColourEffectStart.Plain, ColourEffectColours.SpaceDuringZebesExplosion, null, Once(S.ZebesExplosionWhiteOut)),
+        [A.ZebesExplosionPlanetAfterglow] = new(ColourEffectStart.Plain, ColourEffectColours.ZebesPlanetAfterglow, null, Looping(S.ZebesAfterglow)),
+        [A.ExplodingZebesLava] = new(ColourEffectStart.Plain, ColourEffectColours.ExplodingZebesLava, null, Looping(S.ExplodingZebesLava)),
+        [A.FadeOutExplodingZebesCrust] = new(ColourEffectStart.Plain, ColourEffectColours.ExplodingZebesCrust, null, Once(S.ExplodingZebesCrustFade)),
+        [A.FadeOutExplodingZebesGreyClouds] = new(ColourEffectStart.Plain, ColourEffectColours.ExplodingZebesGreyClouds, null, Once(S.ExplodingZebesGreyCloudsFade)),
+        [A.GunshipEmergingFromZebesExplosion] = new(ColourEffectStart.Plain, ColourEffectColours.GunshipEmergingFromExplosion, null, Once(S.GunshipEmerging)),
+        [A.WidePartOfZebesExplosionBackground] = new(ColourEffectStart.Plain, ColourEffectColours.WideZebesExplosionBackground, null, Once(S.ZebesExplosionWhiteOut)),
+        [A.HyperBeam] = new(ColourEffectStart.Plain, ColourEffectColours.HyperBeam, null, Looping(S.HyperBeam)),
+        [A.SamusLoadingPowerSuit] = new(ColourEffectStart.Plain, ColourEffectColours.SamusLoadingSuit, null, SuitLoading),
+        [A.SamusLoadingVariaSuit] = new(ColourEffectStart.Plain, ColourEffectColours.SamusLoadingSuit, null, SuitLoading),
+        [A.SamusLoadingGravitySuit] = new(ColourEffectStart.Plain, ColourEffectColours.SamusLoadingSuit, null, SuitLoading),
+        [A.PostCreditsSuperMetroidIcon] = new(ColourEffectStart.Plain, ColourEffectColours.PostCreditsSuperMetroidIcon, null, Once(S.PostCreditsIcon)),
+        [A.GreyOutTourianStatueDraygon] = new(ColourEffectStart.Plain, ColourEffectColours.DraygonStatue, null, Once(S.StatueGreyOut)),
+        [A.GreyOutTourianStatueKraid] = new(ColourEffectStart.Plain, ColourEffectColours.KraidStatue, null, Once(S.StatueGreyOut)),
+        [A.GreyOutTourianStatueRidley] = new(ColourEffectStart.Plain, ColourEffectColours.RidleyStatue, null, Once(S.StatueGreyOut)),
+        [A.GreyOutTourianStatuePhantoon] = new(ColourEffectStart.Plain, ColourEffectColours.PhantoonStatue, null, Once(S.StatueGreyOut)),
+        [A.BombTorizoBelly] = new(ColourEffectStart.Plain, ColourEffectColours.TorizoBelly, ColourEffectCondition.EndsWhenTorizoDies.Instance, Looping(S.TorizoBelly)),
+        [A.GoldenTorizoBelly] = new(ColourEffectStart.Plain, ColourEffectColours.TorizoBelly, ColourEffectCondition.EndsWhenTorizoDies.Instance, Looping(S.TorizoBelly)),
+        [A.CrateriaLightning] = new(ColourEffectStart.Plain, ColourEffectColours.LandingSiteLightning,
+            new ColourEffectCondition.RestartsWhileSamusIsHigh(CrateriaLightningDefinitions.SamusHighOnSurfaceHeight),
+            Animation<ColourEffectSegment>.Looping(
+            [
+                Whole(S.LandingSiteCalm),
+                Repeated(S.LandingSiteDoubleStrike, 2),
+                Whole(S.LandingSiteSecondCalm),
+                Whole(S.LandingSiteSingleStrike),
+            ])),
+        [A.WreckedShipGreenLights] = new(ColourEffectStart.Plain, ColourEffectColours.WreckedShipGreenLights, null, Looping(S.SlowGlow)),
+        [A.BrinstarBlueBackgroundSpores] = new(ColourEffectStart.Plain, ColourEffectColours.BrinstarBlueSpores, null, Looping(S.SporeDrift)),
+        [A.SporeSpawnBlueBackgroundSpores] = new(ColourEffectStart.SkippedOnceAreaMiniBossIsDead, ColourEffectColours.BrinstarBlueSpores, ColourEffectCondition.EndsWhenAreaMiniBossDies.Instance, Looping(S.SporeDrift)),
+        [A.BrinstarRedBackgroundGlow] = new(ColourEffectStart.Plain, ColourEffectColours.BrinstarRedGlow, null, Looping(S.SporeDrift)),
+        [A.BeaconFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.Beacon, null, Looping(S.BeaconFlashing)),
+        [A.NorfairForegroundAndHeatPhase] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairHeatForeground, null, Looping(S.NorfairHeatPhases)),
+        [A.NorfairGreenForegroundHeatGlow] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairGreenForeground, null, HeatPulseLoop),
+        [A.NorfairPurpleForegroundHeatGlow] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairPurpleForeground, null, HeatPulseLoop),
+        [A.NorfairDarkForegroundHeatGlow] = new(ColourEffectStart.Plain, ColourEffectColours.NorfairDarkForeground, null, HeatPulseLoop),
+        [A.MaridiaSandPits] = new(ColourEffectStart.Plain, ColourEffectColours.MaridiaSandPits, null, Looping(S.MaridiaSand)),
+        [A.MaridiaSandFalls] = new(ColourEffectStart.Plain, ColourEffectColours.MaridiaSandFalls, null, Looping(S.MaridiaSand)),
+        [A.MaridiaBackgroundWaterfalls] = new(ColourEffectStart.Plain, ColourEffectColours.MaridiaBackgroundWaterfalls, null, Looping(S.MaridiaBackgroundWaterfalls)),
+        [A.TourianGlowingArkanoidBlocksAndRedOrbs] = new(ColourEffectStart.Plain, ColourEffectColours.TourianArkanoidBlocksAndOrbs, null, Looping(S.TourianArkanoidBlocksGlow)),
+        [A.TourianShutterRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.TourianShutters, null, Looping(S.TourianEscapeRedFlashing)),
+        [A.TourianBackgroundRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.TourianBackground, null, Looping(S.SteadyBlink)),
+        [A.TourianGeneralLevelRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.TourianLevel, null, Looping(S.TourianEscapeRedFlashing)),
+        [A.TourianRedFlashingArkanoidBlocksAndRedOrbs] = new(ColourEffectStart.Plain, ColourEffectColours.TourianArkanoidBlocksAndOrbs, null, Looping(S.TourianEscapeRedFlashing)),
+        [A.OldTourianRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.OldTourianLevel, null, Looping(S.OldTourianRedFlashing)),
+        [A.OldTourianBackgroundRailingsFlashYellow] = new(ColourEffectStart.Plain, ColourEffectColours.OldTourianRailings, null, Looping(S.OldTourianYellowFlash)),
+        [A.OldTourianBackgroundPanelsFlashYellow] = new(ColourEffectStart.Plain, ColourEffectColours.OldTourianPanels, null, Looping(S.OldTourianYellowFlash)),
+        [A.UpperCrateriaRedFlashing] = new(ColourEffectStart.Plain, ColourEffectColours.UpperCrateriaLevel, null, Looping(S.UpperCrateriaRedFlashing)),
+        [A.CrateriaEscapeYellowLightning] = new(ColourEffectStart.Plain, ColourEffectColours.CrateriaEscapeLightning, null, Looping(S.EscapeLightning)),
+        [A.ParlorEscapeSkyFlicker] = new(ColourEffectStart.Plain, ColourEffectColours.ParlorEscapeSky, null, Looping(S.EscapeLightning)),
         [A.SamusInHeat] = new(ColourEffectStart.ChoosesHeatAnimationForSuit, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
-            HeatShimmer.Power),
+            new([], AnimationEnd.Stops)),
         [A.PowerSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
-            HeatShimmer.Power),
-        [A.VariaSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
-            HeatShimmer.Varia),
-        [A.GravitySuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance,
-            HeatShimmer.Gravity),
-    }.ToFrozenDictionary();
-
-    /// <summary>The heat shimmer's animation for each suit: its suit's pulse, which it loops.</summary>
-    internal static FrozenDictionary<ColourEffectHeatSuit, Animation<ColourEffectId>> HeatShimmers { get; } =
-        new Dictionary<ColourEffectHeatSuit, Animation<ColourEffectId>>
-    {
-        [ColourEffectHeatSuit.Power] = HeatShimmer.Power,
-        [ColourEffectHeatSuit.Varia] = HeatShimmer.Varia,
-        [ColourEffectHeatSuit.Gravity] = HeatShimmer.Gravity,
+            Looping(S.PowerSuitHeatPulse)),
+        [A.VariaSuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance, HeatPulseLoop),
+        [A.GravitySuitHeatPulse] = new(ColourEffectStart.Plain, ColourEffectColours.HeatSuitGlow, ColourEffectCondition.BurnsSamusInHeat.Instance, HeatPulseLoop),
     }.ToFrozenDictionary();
 
     /// <summary>Each suit's heat pulse, whose sixteen frames are the heat phases' looks in that suit.</summary>
@@ -1007,20 +634,31 @@ internal static class ColourEffectAnimations
     /// <summary>How <paramref name="effect"/> starts, the colours it shows its frames in, what it watches and how it plays.</summary>
     internal static ColourEffectDefinition Definition(ColourEffectId effect) => Definitions[effect];
 
+    /// <summary>
+    /// The frame of a heat pulse that shows <paramref name="phase"/>'s look: a pulse's frames are the heat phases' looks, in
+    /// phase order.
+    /// </summary>
+    internal static int HeatLook(HeatPhase phase) => phase.Index;
+
     /// <summary>Shows frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<int, ColourEffectCue> F(int frame, int duration) => new AnimationBeat<int, ColourEffectCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="phase"/>'s look of a heat pulse for <paramref name="updates"/> updates.</summary>
+    private static AnimationBeat<int, ColourEffectCue> Heat(HeatPhase phase, int updates) => F(HeatLook(phase), updates);
 
     /// <summary>Raises <paramref name="cue"/> for the running effect.</summary>
     private static AnimationBeat<int, ColourEffectCue> E(ColourEffectCue cue) => new AnimationBeat<int, ColourEffectCue>.Event(cue);
 
-    /// <summary>The heat shimmer's animation for each suit, which <see cref="HeatShimmers"/> and the effect's definition share.</summary>
-    private static class HeatShimmer
-    {
-        /// <summary>The Power Suit's shimmer: its pulse, looped.</summary>
-        internal static readonly Animation<ColourEffectId> Power = new([new(A.PowerSuitHeatPulse, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
-        /// <summary>The Varia Suit's shimmer: its pulse, looped.</summary>
-        internal static readonly Animation<ColourEffectId> Varia = new([new(A.VariaSuitHeatPulse, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
-        /// <summary>The Gravity Suit's shimmer: its pulse, looped.</summary>
-        internal static readonly Animation<ColourEffectId> Gravity = new([new(A.GravitySuitHeatPulse, 0, 16, 1)], AnimationEnd.LoopsFrom(0));
-    }
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ColourEffectSegment> Whole(ColourEffectSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ColourEffectSegment> Repeated(ColourEffectSegment segment, int plays) =>
+        new(segment, 0, Segments.Beats(segment).Count, plays);
+
+    /// <summary>An animation that plays <paramref name="segment"/> once and is over.</summary>
+    private static Animation<ColourEffectSegment> Once(ColourEffectSegment segment) => new([Whole(segment)], AnimationEnd.Stops);
+
+    /// <summary>An animation that plays <paramref name="segment"/> over and over.</summary>
+    private static Animation<ColourEffectSegment> Looping(ColourEffectSegment segment) => Animation<ColourEffectSegment>.Looping([Whole(segment)]);
 }

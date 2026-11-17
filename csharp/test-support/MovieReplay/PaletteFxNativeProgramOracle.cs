@@ -42,7 +42,7 @@ internal static class PaletteFxNativeProgramOracle
         foreach (PaletteFxTypedAnimation typed in Enum.GetValues<ColourEffectId>().SelectMany(AnimationsOf))
         {
             (List<AnimationPhase<ColourEffectId>> phases, AnimationEnd end) = Linearize(lists, typed.Effect, typed.Start);
-            VerificationAssertions.AssertTrue(typed.Animation.Phases.SequenceEqual(phases),
+            VerificationAssertions.AssertTrue(InEffectSteps(typed.Effect, typed.Animation).SequenceEqual(phases),
                 $"{typed.Effect}'s animation from $8D:{typed.Start:X4} follows its native lists");
             VerificationAssertions.AssertEqual(end, typed.Animation.End, $"{typed.Effect}'s end from $8D:{typed.Start:X4} follows its native lists");
         }
@@ -57,10 +57,29 @@ internal static class PaletteFxNativeProgramOracle
     {
         SuperMetroid.Core.Fx.ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
         return definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
-            ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(suit => new PaletteFxTypedAnimation(ColourEffectAnimations.HeatPulses[suit],
+            ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(suit => new PaletteFxTypedAnimation(ColourEffectHeatAnimations.Pulse(suit),
                 ColourEffectHeatAnimations.Shimmer(suit),
-                PaletteFxNativeListAddresses.Entry(ColourEffectAnimations.HeatPulses[suit])))]
+                PaletteFxNativeListAddresses.Entry(ColourEffectHeatAnimations.Pulse(suit))))]
             : [new PaletteFxTypedAnimation(effect, definition.Animation, PaletteFxNativeListAddresses.Entry(effect))];
+    }
+
+    /// <summary>
+    /// The phases of <paramref name="animation"/> as runs of <paramref name="effect"/>'s steps (#2366), the numbering the
+    /// native lists' entries use (<see cref="ColourEffectShownFrames.Steps"/>): each run's beats start where the runs the
+    /// animation plays before it end, each run counted once.
+    /// </summary>
+    internal static AnimationPhase<ColourEffectId>[] InEffectSteps(ColourEffectId effect, Animation<ColourEffectSegment> animation)
+    {
+        Ensure.NotNull(animation);
+        var firstSteps = new Dictionary<ColourEffectSegment, int>();
+        int next = 0;
+        foreach (ColourEffectSegment segment in animation.Phases.Select(phase => phase.Segment).Distinct())
+        {
+            firstSteps[segment] = next;
+            next += ColourEffectAnimations.Segments.Beats(segment).Count;
+        }
+        return [.. animation.Phases.Select(phase =>
+            new AnimationPhase<ColourEffectId>(effect, firstSteps[phase.Segment] + phase.FirstBeat, phase.BeatCount, phase.Plays))];
     }
 
     /// <summary>The native list <paramref name="effect"/>'s step <paramref name="step"/> lies in, and where the list starts in it.</summary>
@@ -94,7 +113,7 @@ internal static class PaletteFxNativeProgramOracle
         if (place.SetsUp)
             return 0;
         int next = PaletteFxNativeListAddresses.Entries.Where(entry => entry.Effect == place.Effect && !entry.SetsUp && entry.FirstStep > place.FirstStep)
-            .Select(entry => entry.FirstStep).DefaultIfEmpty(ColourEffectAnimations.Steps.Beats(place.Effect).Count).Min();
+            .Select(entry => entry.FirstStep).DefaultIfEmpty(ColourEffectShownFrames.Steps(place.Effect).Count()).Min();
         return next - place.FirstStep;
     }
 
@@ -112,26 +131,27 @@ internal static class PaletteFxNativeProgramOracle
         PaletteFxTypedAnimation[] typed = [.. Ensure.NotNull(candidates)];
         foreach (PaletteFxTypedAnimation candidate in typed)
         {
-            Animation<ColourEffectId> animation = candidate.Animation;
+            Animation<ColourEffectSegment> animation = candidate.Animation;
             if (candidate.Start == nativePointer)
-                return new(animation, AnimationPlace.StartOfAnimation);
-            for (int index = 0; index < animation.Phases.Count; index++)
+                return new(candidate.Effect, animation, AnimationPlace.StartOfAnimation);
+            AnimationPhase<ColourEffectId>[] phases = InEffectSteps(candidate.Effect, animation);
+            for (int index = 0; index < phases.Length; index++)
             {
-                AnimationPhase<ColourEffectId> phase = animation.Phases[index];
+                AnimationPhase<ColourEffectId> phase = phases[index];
                 PaletteFxNativeListAddressesEntry holding = ListHolding(candidate.Effect, phase.FirstBeat);
                 PaletteFxNativeList list = lists[holding.Entry];
                 int first = phase.FirstBeat - holding.FirstStep;
                 // A pointer at a list's entry stands at its first beat, before any deleted inspection the list opens with.
                 if (first == 0 && holding.Entry == nativePointer)
-                    return new(animation, new AnimationPlace(index, 0));
+                    return new(candidate.Effect, animation, new AnimationPlace(index, 0));
                 for (int beat = 0; beat < phase.BeatCount; beat++)
                 {
                     if (list.BeatAddresses[first + beat] == nativePointer)
-                        return new(animation, new AnimationPlace(index, beat));
+                        return new(candidate.Effect, animation, new AnimationPlace(index, beat));
                 }
                 if (list.Controls.FirstOrDefault(control => control.AfterBeat == first + phase.BeatCount) is { } after &&
                     after.Address == nativePointer && after.Kind != PaletteFxNativeControlKind.RunOnIntoNext)
-                    return new(animation, new AnimationPlace(index, phase.BeatCount));
+                    return new(candidate.Effect, animation, new AnimationPlace(index, phase.BeatCount));
             }
         }
         throw new InvalidDataException($"Native palette-FX pointer $8D:{nativePointer:X4} stands at no beat of the animations " +
@@ -195,10 +215,10 @@ internal static class PaletteFxNativeProgramOracle
     {
         PaletteFxNativeListAddressesEntry program = places[0];
         ushort entry = program.Entry;
-        AnimationBeat<int, ColourEffectCue>[] beats = [.. ColourEffectAnimations.Steps.Beats(program.Effect).Skip(program.FirstStep).Take(StepCount(program))];
+        AnimationBeat<int, ColourEffectCue>[] beats = [.. ColourEffectShownFrames.Steps(program.Effect).Skip(program.FirstStep).Take(StepCount(program))];
         foreach (PaletteFxNativeListAddressesEntry place in places)
         {
-            VerificationAssertions.AssertTrue(beats.SequenceEqual(ColourEffectAnimations.Steps.Beats(place.Effect).Skip(place.FirstStep).Take(StepCount(place))),
+            VerificationAssertions.AssertTrue(beats.SequenceEqual(ColourEffectShownFrames.Steps(place.Effect).Skip(place.FirstStep).Take(StepCount(place))),
                 $"the native list at $8D:{entry:X4} is the same steps in {place.Effect} as in {program.Effect}");
         }
         var addresses = new List<ushort>();

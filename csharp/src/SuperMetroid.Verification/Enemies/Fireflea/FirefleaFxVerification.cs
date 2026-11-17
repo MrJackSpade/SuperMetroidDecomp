@@ -41,21 +41,21 @@ internal static class FirefleaFxVerification
         Suite(nameof(VerifyFirefleaFlashCount), VerifyFirefleaFlashCount);
         RoomFxOverlayState fx = RoomFxOverlayState.ForDefinition(record, 0);
         FirefleaFxState state = Darkness(fx);
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, state.FramesUntilNextFlash, "Fireflea load initializes native six-frame timer");
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, state.UpdatesUntilNextFlash, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
         {
             fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
             int expectedPhase = (frame / 6) % 12;
             int shade = LittleEndianBytes.HighByte(flash[expectedPhase]);
-            AssertEqual(expectedPhase, state.FlashPhase, $"Fireflea flash phase frame {frame}");
+            AssertEqual(new FirefleaFlashShade(shade), state.Flash, $"Fireflea flash look frame {frame}");
             AssertEqual(new RgbColor?(new FadeLevelColour(shade, shade, shade).ToColour()), fx.FirefleaTint,
                 $"Fireflea grey shade frame {frame}");
         }
-        int timer = state.FramesUntilNextFlash;
+        int timer = state.UpdatesUntilNextFlash;
         RgbColor tint = state.Tint;
         for (int frame = 0; frame < 100; frame++) fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true });
-        AssertEqual(timer, state.FramesUntilNextFlash, "X-ray frozen time retains flashing phase");
+        AssertEqual(timer, state.UpdatesUntilNextFlash, "X-ray frozen time retains flashing phase");
         AssertEqual(tint, state.Tint, "X-ray frozen time retains the shade");
         for (int step = 0; step < darkness.Length; step++)
         {
@@ -63,15 +63,15 @@ internal static class FirefleaFxVerification
             state = Darkness(fx);
             for (int frame = 1; frame <= 78; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarknessStep = step });
+                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(step) });
                 int index = step < 5 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 // The native shade's bits above the level name the colour channels each write sets, all to the level.
                 int shade = LittleEndianBytes.HighByte((ushort)(darkness[step] + flash[index])) & FadeLevelColour.FullLevel;
                 AssertEqual(new FadeLevelColour(shade, shade, shade).ToColour(), state.Tint, $"darkness step {step}, frame {frame}: grey shade");
-                AssertEqual(step, state.DarknessStep, "the enemies' darkness step reaches the Fireflea FX state");
+                AssertEqual(step, state.Darkness.FirefleasKilled, "the enemies' count of Firefleas killed reaches the Fireflea FX state");
             }
             RgbColor retained = state.Tint;
-            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarknessStep = step });
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarkness = new FirefleaDarkness(step) });
             AssertEqual(retained, state.Tint, "frozen death level retains its exact shade");
         }
         // A room without the effect has no Fireflea darkness and shows no Fireflea shade; the darkness lives with its room.
@@ -85,20 +85,23 @@ internal static class FirefleaFxVerification
     }
 
     /// <summary>
-    /// Checks all twelve calculated flash shade levels against the high byte of each native word, and that every
-    /// native flash word's low byte is zero, so adding a darkness word never carries into the shade (#1415: the shade
-    /// is a level, not the cartridge's word).
+    /// Checks the flash's twelve looks, in the order its animation shows them (#2367), against the high byte of each native
+    /// word, and that every native flash word's low byte is zero, so adding a darkness word never carries into the shade
+    /// (#1415: the shade is a level, not the cartridge's word).
     /// </summary>
     private static void VerifyFirefleaFlashingAlgorithm(CartridgeImportAddressSpace rom)
     {
-        for (ushort i = 0; i < 12; i++)
+        FirefleaFlashShade[] looks = [.. FirefleaFlashAnimations.Segments.Beats(FirefleaFlashSegment.Flashing)
+            .Select(beat => beat.ShownFrame ?? throw new InvalidOperationException($"The Fireflea flash holds a beat that shows no look: {beat}."))];
+        AssertEqual(12, looks.Length, "Fireflea flash looks");
+        for (int i = 0; i < looks.Length; i++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
-            AssertEqual(LittleEndianBytes.HighByte(word), FirefleaShades.FlashingShade(i), $"Original Fireflea flash {i}");
+            AssertEqual((int)LittleEndianBytes.HighByte(word), looks[i].Level, $"Original Fireflea flash {i}");
             AssertEqual((byte)0, LittleEndianBytes.LowByte(word), $"Original Fireflea flash {i} carries nothing");
         }
-        AssertThrows<InvalidDataException>(() => FirefleaShades.FlashingShade(12), "Flash upper bound");
-        AssertThrows<InvalidDataException>(() => FirefleaShades.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaFlashShade(7), "Flash upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaFlashShade(-1), "Flash lower bound");
     }
 
     /// <summary>
@@ -111,9 +114,9 @@ internal static class FirefleaFxVerification
         AssertEqual(7, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
         for (int step = 0; step < FirefleaFxDefinitions.DarknessLevels.Length; step++)
             AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
-                FirefleaShades.DarknessShade(step), $"Original Fireflea darkness of step {step}");
-        AssertThrows<InvalidDataException>(() => FirefleaShades.DarknessShade(7), "Darkness upper bound");
-        AssertThrows<InvalidDataException>(() => FirefleaShades.DarknessShade(-1), "Darkness negative step");
+                new FirefleaDarkness(step).Level, $"Original Fireflea darkness of step {step}");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(7), "Darkness upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(-1), "Darkness negative step");
     }
 
     /// <summary>The Fireflea darkness <paramref name="fx"/>'s room effect started, which the check requires.</summary>
@@ -124,24 +127,24 @@ internal static class FirefleaFxVerification
     private static void VerifyFirefleaFrozenDarkness()
     {
         var fireflea = new FirefleaFxState();
-        for (int frame = 0; frame < 10; frame++) fireflea.Step(frozen: false, darknessStep: 0);
-        int timer = fireflea.FramesUntilNextFlash;
-        int phase = fireflea.FlashPhase;
-        fireflea.Step(frozen: true, darknessStep: 1);
-        AssertEqual(timer, fireflea.FramesUntilNextFlash, "frozen Fireflea holds its flash timer");
-        AssertEqual(phase, fireflea.FlashPhase, "frozen Fireflea holds its flash phase");
-        AssertEqual(1, fireflea.DarknessStep, "frozen Fireflea still publishes the enemies' darkness step");
+        for (int frame = 0; frame < 10; frame++) fireflea.Step(frozen: false, new FirefleaDarkness(0));
+        int timer = fireflea.UpdatesUntilNextFlash;
+        FirefleaFlashShade look = fireflea.Flash;
+        fireflea.Step(frozen: true, new FirefleaDarkness(1));
+        AssertEqual(timer, fireflea.UpdatesUntilNextFlash, "frozen Fireflea holds its flash timer");
+        AssertEqual(look, fireflea.Flash, "frozen Fireflea holds its flash look");
+        AssertEqual(1, fireflea.Darkness.FirefleasKilled, "frozen Fireflea still publishes the enemies' darkness");
     }
 
     /// <summary>Checks that a new Fireflea darkness starts from its first flash and advances the phase when its count reaches zero.</summary>
     private static void VerifyFirefleaFlashCount()
     {
         var fireflea = new FirefleaFxState();
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.FramesUntilNextFlash, "a new darkness waits a whole flash");
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.UpdatesUntilNextFlash, "a new darkness waits a whole flash");
         for (int step = 0; step < FirefleaFxDefinitions.FlashDuration; step++)
-            fireflea.Step(frozen: false, darknessStep: 0);
-        AssertEqual(1, fireflea.FlashPhase, "the count reaching zero advances the flash phase");
-        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.FramesUntilNextFlash, "the count reaching zero restarts it");
+            fireflea.Step(frozen: false, new FirefleaDarkness(0));
+        AssertEqual(new FirefleaFlashShade(1), fireflea.Flash, "the count reaching zero shows the flash's next look");
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.UpdatesUntilNextFlash, "the count reaching zero restarts it");
     }
 
     /// <summary>Checks the retail Fireflea room's fixed-color subtraction before, during, and after X-Ray.</summary>
@@ -161,7 +164,7 @@ internal static class FirefleaFxVerification
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
-        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarknessStep = 3 });
+        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(3) });
         int shade = Darkness(runtime.RoomFxOverlay).Tint.FadeLevels.Red;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The darkness and its shade reach the screen at the accepted frame (#1307).

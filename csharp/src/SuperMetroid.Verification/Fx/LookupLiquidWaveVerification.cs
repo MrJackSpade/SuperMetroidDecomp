@@ -14,12 +14,16 @@ internal static class LookupLiquidWaveVerification
     {
         short Water(int index) => unchecked((short)ReadVerificationWord(rom, 0x88c46e + 2 * index));
         short Heat(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b60a + 2 * index));
+        // Each wave's waveform is authored as its first phase shows it (#2367): the surface wave's first phase draws the
+        // cartridge's water samples one line later, its background wave's one line earlier, and the vertical haze's as
+        // they lie.
         for (int index = 0; index < 16; index++)
         {
-            AssertEqual(Water(index), WaterWaveDefinitions.Waveform[index], "Original water displacement");
-            AssertEqual(Heat(index), WaterWaveDefinitions.Waveform[index], "The vertical heat haze repeats the water wave");
+            AssertEqual(Water((index + 15) & 15), WaterWaveDefinitions.SurfaceWaveform[index], "Original water displacement, surface wave");
+            AssertEqual(Water((index + 1) & 15), WaterWaveDefinitions.BackgroundWaveform[index], "Original water displacement, background wave");
+            AssertEqual(Heat(index), LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Vertical][index], "Original vertical heat displacement");
         }
-        AssertEqual(16, WaterWaveDefinitions.Waveform.Length, "Water retains original sixteen-word span");
+        AssertEqual(16, WaterWaveDefinitions.SurfaceWaveform.Length, "Water retains original sixteen-word span");
 
         // Confirm actual projection consumers over every circular phase and camera
         // low nibble, with signed-displacement overflow at both ushort boundaries.
@@ -33,7 +37,8 @@ internal static class LookupLiquidWaveVerification
             var captured = GameplayEffectCapture.CaptureRoomFxOverlay(water, RoomBackgroundsFixtures.BlankFxOverlay());
             for (int y = ScreenGeometry.GameplayHudHeightPixels; y < ScreenGeometry.ScreenHeightPixels; y++)
             {
-                int offset = y > 100 ? Water((y - 101 - phase + 16) % 16) : 0;
+                // The surface wave's phase counts from its first, which shows the cartridge's second.
+                int offset = y > 100 ? Water((y - 101 - (phase + 1) + 32) % 16) : 0;
                 AssertEqual(unchecked((ushort)(baseScroll + offset)), ScrollShapeLines.Scroll((captured ?? throw new InvalidOperationException("Verification requires captured.")).Horizontal, y),
                     "Water BG3 phase subtraction and signed addition");
             }
@@ -48,12 +53,13 @@ internal static class LookupLiquidWaveVerification
                 for (int line = 0; line < bg2.Length; line++)
                 {
                     int y = line + ScreenGeometry.GameplayHudHeightPixels;
-                    int waterOffset = y > 100 ? Water((phase + cameraPhase + y - 101) & 15) : 0;
+                    // The background wave's phase counts from its first, which shows the cartridge's second.
+                    int waterOffset = y > 100 ? Water((phase + 1 + cameraPhase + y - 101) & 15) : 0;
                     AssertEqual(unchecked((ushort)(baseScroll + waterOffset)), bg2[line],
                         "Water BG2 phase addition, surface boundary and signed wrap");
                     // The haze moves about the row the screen's top shows, one below the camera's (#1514).
-                    AssertEqual(unchecked((ushort)(GameplaySceneView.LayerRowAtScreenTop(cameraY) + Heat((phase + cameraPhase + line) & 15))),
-                        (heatScroll)[line], "Vertical heat HDMA phase and signed wrap");
+                    AssertEqual(unchecked((ushort)(GameplaySceneView.LayerRowAtScreenTop(cameraY) + Heat((cameraPhase + line - phase) & 15))),
+                        (heatScroll)[line], "Vertical heat phase drawn back and signed wrap");
                 }
             }
         }

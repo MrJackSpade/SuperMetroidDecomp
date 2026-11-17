@@ -62,7 +62,11 @@ internal static class RoomPaletteFxDefinitionsVerification
             }
             else
             {
-                AssertTrue(ColourEffectAnimations.DefinitionAt(pointer).Animation.Phases.Count > 0,
+                ColourEffectDefinition started = ColourEffectAnimations.DefinitionAt(pointer);
+                // The heat shimmer plays none of its own: its start begins the program of the suit's pulse (#2366).
+                AssertTrue((started.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+                        ? ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)
+                        : started.Animation).Phases.Count > 0,
                     $"palette-FX ${pointer:X4} begins a typed program");
                 genericCompiledPrograms++;
             }
@@ -117,8 +121,9 @@ internal static class RoomPaletteFxDefinitionsVerification
 
         var hyperBeam = new HyperBeamColourEffectState();
         hyperBeam.Spawn();
-        hyperBeam.Step(new SamusColours());
-        AssertEqual(0, hyperBeam.ShownCycleShade,
+        var hyperBeamColours = new SamusColours();
+        hyperBeam.Step(hyperBeamColours);
+        AssertEqual(0, hyperBeamColours.ShownHyperBeamCycleShade,
             "specialized Hyper Beam owner executes with its definition bytes forbidden");
 
         AssertThrows<InvalidDataException>(
@@ -160,7 +165,7 @@ internal static class RoomPaletteFxDefinitionsVerification
             // watched before the effect's first frame.
             AssertEqual(null, effect.WatchedCondition, $"${pointer:X4} production condition");
             AssertEqual(definition.Condition, effect.Condition, $"${pointer:X4} the definition's condition");
-            Animation<ColourEffectId> expected = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
+            Animation<ColourEffectSegment> expected = definition.Start == ColourEffectStart.ChoosesHeatAnimationForSuit
                 ? ColourEffectHeatAnimations.Shimmer(ColourEffectHeatSuit.Power)
                 : definition.Animation;
             AssertTrue(ReferenceEquals(expected, effect.Animation), $"${pointer:X4} production initial animation");

@@ -18,9 +18,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// <para>
 /// <b>Negative.</b> A countdown at 32768 or more is negative (<see cref="IsNegative"/>): it has run past zero, and an owner
-/// that tests for expiry by sign treats it as expired. A timer set that high on purpose (the escape's 65535-frame
-/// earthquake) therefore reads as already expired to such an owner while it keeps counting for tens of thousands of
-/// frames to an owner that waits for zero.
+/// that tests for expiry by sign treats it as expired. A timer started that high therefore reads as already expired to
+/// such an owner while it keeps counting for tens of thousands of frames to an owner that waits for zero.
 /// </para>
 /// <para>
 /// <b>Sustained.</b> A producer that renews a running timer every update without restarting it (<see cref="Sustained"/>)

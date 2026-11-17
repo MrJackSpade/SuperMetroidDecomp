@@ -32,7 +32,7 @@ internal static class PaletteFxRecords
 
     /// <summary>The number of frames <paramref name="effect"/> shows.</summary>
     internal static int FrameCount(ColourEffectId effect) =>
-        ColourEffectAnimations.Steps.Beats(effect).Count(beat => beat is AnimationBeat<int, ColourEffectCue>.Frame);
+        ColourEffectShownFrames.Steps(effect).Count(beat => beat is AnimationBeat<int, ColourEffectCue>.Frame);
 
     /// <summary>
     /// Each run's frames in the runs' order, each run's in the order its animation shows them; every animation's frames are
@@ -45,7 +45,7 @@ internal static class PaletteFxRecords
         foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
             int next = 0;
-            foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectAnimations.Steps.Beats(animation))
+            foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectShownFrames.Steps(animation))
             {
                 if (beat is not AnimationBeat<int, ColourEffectCue>.Frame frame)
                     continue;

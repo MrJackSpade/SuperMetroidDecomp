@@ -93,7 +93,8 @@ internal static class RoomFxOverlayStateAccess
 
         /// <summary>Places the quake sounds at <paramref name="position"/> in their rhythm, for a check of the sound each position plays.</summary>
         internal void SetEarthquakeSoundRhythmPositionForCheck(int position) =>
-            SetPrivate(self, nameof(RoomFxOverlayState.EarthquakeSoundRhythmPosition), position);
+            SetPrivate(self, nameof(RoomFxOverlayState.EarthquakeSoundRhythm),
+                CyclingSequence<int>.At(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays, position));
 
         /// <summary>Returns the loaded room to its own effect, <paramref name="type"/>, which has no Fireflea darkness.</summary>
         internal void EndFirefleaDarknessForCheck(RoomFxType type)

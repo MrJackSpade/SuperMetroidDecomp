@@ -42,9 +42,9 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are fade levels: the high bytes of the former shade words, below their channel bits.
-        AssertEqual(2, FirefleaShades.DarknessShade(6), "the sixth death's faint darkness level");
-        AssertEqual(25, FirefleaShades.DarknessShade(5), "deepest darkness level");
-        AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
+        AssertEqual(2, new FirefleaDarkness(6).Level, "the sixth death's faint darkness level");
+        AssertEqual(25, new FirefleaDarkness(5).Level, "deepest darkness level");
+        AssertEqual(6, FirefleaFlashShade.Brightest.Level, "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.
         AssertEqual(34, RoomFxBlockAnimationAtlasFile.Segments.Count(), "atlas segments");
@@ -68,10 +68,10 @@ internal static class FxDefinitionMigrationVerification
         // RoomFxRomData's effect motion, waves and tides.
         AssertEqual(10, WaterWaveDefinitions.OverlayWavePhaseDuration, "water layer-three wave step");
         AssertEqual(0x40, WaterWaveDefinitions.SurfaceDriftSpeed.InTwoHundredFiftySixthsOfPixel, "water drift");
-        AssertEqual(16, WaterWaveDefinitions.WaveDisplacementCount, "water wave steps");
-        AssertEqual(-1, WaterWaveDefinitions.Waveform[5], "water wave sample 5");
-        AssertEqual(1, LavaAcidWaveDefinitions.HorizontalHazeWaveform[2], "horizontal heat-haze sample 2");
-        AssertEqual(-1, LavaAcidWaveDefinitions.HorizontalHazeWaveform[8], "horizontal heat-haze sample 8");
+        AssertEqual(16, WaterWaveDefinitions.SurfaceWaveform.Length, "water wave steps");
+        AssertEqual(-1, WaterWaveDefinitions.SurfaceWaveform[6], "water surface wave sample 6");
+        AssertEqual(1, LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Horizontal][2], "horizontal heat-haze sample 2");
+        AssertEqual(-1, LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Horizontal][8], "horizontal heat-haze sample 8");
         AssertEqual(4, LavaAcidWaveDefinitions.VerticalWavePhaseDuration, "vertical heat-haze step");
         AssertEqual(0x70, LavaAcidWaveDefinitions.AmbientSoundPeriod, "lava sound period");
         AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta.RawValue, "small tide rising phase step");

@@ -30,7 +30,7 @@ internal static class PaletteFxProgramsVerification
         foreach (ColourEffectId animation in Enum.GetValues<ColourEffectId>())
         {
             int next = 0;
-            foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectAnimations.Steps.Beats(animation))
+            foreach (AnimationBeat<int, ColourEffectCue> beat in ColourEffectShownFrames.Steps(animation))
             {
                 if (beat is not AnimationBeat<int, ColourEffectCue>.Frame frame)
                     continue;

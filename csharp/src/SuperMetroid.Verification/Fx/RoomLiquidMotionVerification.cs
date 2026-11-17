@@ -59,10 +59,10 @@ internal static class RoomLiquidMotionVerification
         RoomFxOverlayState water = Water(startLevel: 100, targetLevel: 100);
         RoomFxOverlayRenderSnapshot loaded = water.CaptureForDisplay()
             ?? throw new InvalidOperationException("Verification requires the water's display snapshot.");
-        AssertEqual(WaterWaveDefinitions.FirstPhase, loaded.WaterOverlayWavePhase, "the surface wave starts at its first phase");
-        AssertEqual(WaterWaveDefinitions.FirstPhase, loaded.WaterBackgroundWavePhase, "the background wave starts at its first phase");
+        AssertEqual(0, loaded.WaterOverlayWavePhase, "the surface wave starts at its first phase");
+        AssertEqual(0, loaded.WaterBackgroundWavePhase, "the background wave starts at its first phase");
 
-        int updates = WaterWaveDefinitions.WaveDisplacementCount * WaterWaveDefinitions.OverlayWavePhaseDuration + 1;
+        int updates = WaterWaveDefinitions.SurfaceWaveform.Length * WaterWaveDefinitions.OverlayWavePhaseDuration + 1;
         for (int update = 1; update <= updates; update++)
         {
             water.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame
@@ -82,7 +82,7 @@ internal static class RoomLiquidMotionVerification
 
         // The phase a wave shows after its update-th update: the first phase for a whole phase, then one phase a phase.
         static int PhaseAfter(int update, int phaseLength) =>
-            (WaterWaveDefinitions.FirstPhase + (update - 1) / phaseLength) % WaterWaveDefinitions.WaveDisplacementCount;
+            (update - 1) / phaseLength % WaterWaveDefinitions.SurfaceWaveform.Length;
     }
 
     /// <summary>Runs the liquid's motion passes until its rise ends, failing if it has not ended within <see cref="MostPasses"/>.</summary>

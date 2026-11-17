@@ -135,9 +135,9 @@ internal static class NativeSnapshotImport
                 : effect is ColourEffectId.GreyOutTourianStatueRidley or ColourEffectId.GreyOutTourianStatuePhantoon
                     ? runtime.Enemies.TourianStatue.SpriteStatueGreyOut(ColourEffectAnimations.Definition(effect).Colours)
                     : litTorizo;
-            var imported = new RoomColourEffect(effect, resumed.Animation, litTorizo, glowingEnemy)
+            var imported = new RoomColourEffect(effect, resumed.FramesOf, litTorizo, glowingEnemy)
             {
-                Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectId>(resumed.Animation, resumed.Place),
+                Place = NativeEnemyAnimationOracle.WithNativePlaysLeft(new AnimationPlayback<ColourEffectSegment>(resumed.Animation, resumed.Place),
                     W(NativeSnapshotMemory.PaletteFxTimer + slot * 2)).Place,
                 UpdatesUntilNextStep = W(NativeSnapshotMemory.PaletteFxFrameHold + slot * 2),
             };
@@ -447,7 +447,7 @@ internal static class NativeSnapshotImport
         foreach (RoomColourEffect effect in Enumerable.Reverse(runtime.RoomPaletteFx.effects))
         {
             ColourEffectColours colours = effect.Colours;
-            if (LastShownFrame(effect.Animation, effect.Place) is not { } frame)
+            if (LastShownFrame(effect.FramesOf, effect.Animation, effect.Place) is not { } frame)
                 continue;
             effect.Frame = frame;
             if (ColourEffectRoomColourDefinitions.RoomColours.Contains(colours))
@@ -465,22 +465,21 @@ internal static class NativeSnapshotImport
     }
 
     /// <summary>
-    /// The frame a colour effect showed last before <paramref name="place"/> in <paramref name="animation"/>: the nearest
-    /// frame before the step it resumes at, among its animation's steps. The native instruction pointer rests after the
-    /// record it last showed (a loop's or a jump's goto runs only when the object next advances), so the steps before the
-    /// place are the ones the object played, a list that runs on into the next one's last record among them. A place with no
-    /// frame before it has shown no frame yet: null.
+    /// The frame a colour effect showed last before <paramref name="place"/> in <paramref name="animation"/>, in the frames
+    /// of <paramref name="framesOf"/>: the nearest frame before the step it resumes at, among that effect's steps. The native
+    /// instruction pointer rests after the record it last showed (a loop's or a jump's goto runs only when the object next
+    /// advances), so the steps before the place are the ones the object played, a list that runs on into the next one's last
+    /// record among them. A place with no frame before it has shown no frame yet: null.
     /// </summary>
-    private static ColourEffectFrame? LastShownFrame(SuperMetroid.Core.Animation.Animation<ColourEffectId> animation, SuperMetroid.Core.Animation.AnimationPlace place)
+    private static ColourEffectFrame? LastShownFrame(
+        ColourEffectId framesOf, SuperMetroid.Core.Animation.Animation<ColourEffectSegment> animation, SuperMetroid.Core.Animation.AnimationPlace place)
     {
-        AnimationPhase<ColourEffectId> phase = animation.Phases[place.Phase];
-        IReadOnlyList<AnimationBeat<int, ColourEffectCue>> steps = ColourEffectAnimations.Steps.Beats(phase.Segment);
-        // The animation's steps start at its phases' first beat: the heat shimmer's suits play their own runs of its steps.
-        int firstStep = animation.Phases.Min(played => played.FirstBeat);
-        for (int step = Math.Min(phase.FirstBeat + place.Beat, steps.Count) - 1; step >= firstStep; step--)
+        AnimationPhase<ColourEffectId> phase = PaletteFxNativeProgramOracle.InEffectSteps(framesOf, animation)[place.Phase];
+        AnimationBeat<int, ColourEffectCue>[] steps = [.. ColourEffectShownFrames.Steps(framesOf)];
+        for (int step = Math.Min(phase.FirstBeat + place.Beat, steps.Length) - 1; step >= 0; step--)
         {
             if (steps[step] is AnimationBeat<int, ColourEffectCue>.Frame shown)
-                return new ColourEffectFrame(phase.Segment, shown.Shown);
+                return new ColourEffectFrame(framesOf, shown.Shown);
         }
         return null;
     }

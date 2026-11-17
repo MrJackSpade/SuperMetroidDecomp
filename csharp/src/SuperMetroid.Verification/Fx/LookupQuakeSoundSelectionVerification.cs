@@ -31,7 +31,7 @@ internal static class LookupQuakeSoundSelectionVerification
                 sound.SoundEffect, "Original sound, decoded by the import, including terminator restart");
             AssertEqual(SoundEffectLibrary.Enemies, sound.SoundEffect.Library, "Earthquake sounds are library-two sounds");
             AssertEqual(SoundRequestPriority.Normal, sound.Priority, "Earthquake sounds are requested at normal priority");
-            AssertEqual((index + 1) % count, state.EarthquakeSoundRhythmPosition,
+            AssertEqual((index + 1) % count, state.EarthquakeSoundRhythm.Position,
                 "Next chronological position after selection, the last returning to the first as the reset marker does");
         }
     }

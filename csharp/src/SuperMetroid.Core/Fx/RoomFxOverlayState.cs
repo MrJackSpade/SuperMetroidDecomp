@@ -93,10 +93,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// or null while it is not placed: none has been, or the liquid had no surface within the room then.
     /// </summary>
     private int? liquidSurfaceLine;
-    /// <summary>Countdown for lava or acid's optional background wave.</summary>
-    private int lavaAcidBackgroundWaveTimer;
-    /// <summary>Selected lava or acid background wave displacement frame.</summary>
-    private int lavaAcidBackgroundWavePhase;
+    /// <summary>Where lava's or acid's heat haze stands in its cycle.</summary>
+    private WaveCycle lavaAcidHaze;
     /// <summary>
     /// Whether the liquid's motion has begun (<see cref="LiquidMotionStart"/>): a room's liquid begins moving on its
     /// second motion pass after the room loads, and each pass from then moves the lava, acid or water before the main
@@ -109,8 +107,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// </summary>
     internal bool LiquidMotionStopped { get; private set; }
 
-    /// <summary>The lava/acid effect overlay's ambient sound timer.</summary>
-    private int lavaSoundTimer;
+    /// <summary>Lava's bubbling clock, which falls due each time lava bubbles.</summary>
+    private IntervalClock lavaBubbling;
     /// <summary>Current liquid rise or fall state the room effect's liquid motion selects.</summary>
     private LiquidRisePhase liquidRisePhase;
 
@@ -132,12 +130,8 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// Where the quake sounds stand in their rhythm (<see cref="RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays"/>):
     /// the delay the next sound waits after it plays, returning to the first after the last.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The position lies outside the rhythm.</exception>
-    internal int EarthquakeSoundRhythmPosition
-    {
-        get;
-        private set => field = Ensure.BetweenInclusive(0, RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays.Count - 1, value);
-    }
+    internal CyclingSequence<int> EarthquakeSoundRhythm { get; private set; } =
+        CyclingSequence<int>.StartOf(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays);
 
     /// <summary>
     /// Whether the room's quakes are silent (<see cref="RoomEarthquakeDefinitions.SoundSuppressedRooms"/>): rising lava or
@@ -265,16 +259,15 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (RoomFxTypes.UsesWater(Type))
         {
             // Both water waves, the surface's and the background's, start at their first phase.
-            waterOverlayWave = WaveCycle.StartingAt(WaterWaveDefinitions.FirstPhase);
-            waterBackgroundWave = WaveCycle.StartingAt(WaterWaveDefinitions.FirstPhase);
+            waterOverlayWave = WaveCycle.StartingAt(0);
+            waterBackgroundWave = WaveCycle.StartingAt(0);
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            // Lava and acid start their heat haze at its first displacement, held for a whole phase: the haze's
-            // first step in the game moves it to that displacement and starts that wait, so the first haze shown is
-            // the same.
-            lavaAcidBackgroundWaveTimer = HazePhaseDuration;
-            lavaAcidBackgroundWavePhase = 0;
+            // Lava and acid start their heat haze at its first phase, which the room's load counts as shown for one
+            // update: the game's first haze step set that phase and started its wait, so the first phase moves on one
+            // update sooner than the later ones.
+            lavaAcidHaze = new WaveCycle(Phase: 0, UpdatesShown: 1);
         }
         else if (Type == RoomFxType.Rain)
         {
@@ -341,9 +334,9 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!MotionStart.HasBegun)
         {
             MotionStart = LiquidMotionStart.Begun;
-            // The pass that begins lava's or acid's motion also starts its ambient sound clock.
+            // The pass that begins lava's or acid's motion also starts its bubbling clock.
             if (lavaOrAcid)
-                lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
+                lavaBubbling = IntervalClock.Starting(LavaAcidWaveDefinitions.AmbientSoundPeriod);
             return;
         }
         if (timeIsFrozen)
@@ -361,18 +354,16 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     }
 
     /// <summary>
-    /// The lava sound clock: while a lava surface's Y is not negative, its timer
-    /// counts down and, on reaching zero, reloads and queues a random ambient sound.
-    /// Acid shares the per-frame behaviour step but not this sound.
+    /// Lava's bubbling: while a lava surface lies within the room, its clock runs, and each time it falls due lava queues
+    /// the bubbling sound <paramref name="random"/> chooses. Acid shares the per-frame behaviour step but not this sound.
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
         if (Type != RoomFxType.Lava || Surface is not >= 0)
             return;
-        if (--lavaSoundTimer != 0)
-            return;
-        lavaSoundTimer = LavaAcidWaveDefinitions.AmbientSoundPeriod;
-        AudioRequests.QueueSound(LiquidEffects.LavaAmbientSound(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
+        lavaBubbling = lavaBubbling.Run(out bool bubbles);
+        if (bubbles)
+            AudioRequests.QueueSound(LavaAcidWaveDefinitions.AmbientSound.Choose(random), LavaAcidWaveDefinitions.AmbientSoundPriority);
     }
 
     /// <summary>
@@ -384,7 +375,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         Ensure.NotNull(frames);
         if (Fireflea is { } fireflea)
         {
-            fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarknessStep);
+            fireflea.Step(frame.TimeIsFrozen, frame.FirefleaDarkness);
             return;
         }
         if (!IsRenderable || frame.TimeIsFrozen)
@@ -478,7 +469,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
             waterBackgroundWave.Phase,
             waterSurfaceScreenY)
         {
-            LavaAcidBackgroundWavePhase = lavaAcidBackgroundWavePhase,
+            LavaAcidBackgroundWavePhase = lavaAcidHaze.Phase,
             LiquidSurfaceLine = liquidSurfaceLine,
         }
         : null;
@@ -585,7 +576,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         PlaceLiquid(camera, waterDrift.Whole);
 
         waterOverlayWave = waterOverlayWave.Advanced(WaterWaveDefinitions.OverlayWavePhaseDuration,
-            WaterWaveDefinitions.WaveDisplacementCount);
+            WaterWaveDefinitions.SurfaceWaveform.Length);
 
         if (Liquid is RoomWater { SurfaceDrift: true })
             waterDrift += WaterSurfaceDrift;
@@ -595,7 +586,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (Type != RoomFxType.Water || Liquid is not RoomWater { BackgroundWave: true })
             return;
         waterBackgroundWave = waterBackgroundWave.Advanced(WaterWaveDefinitions.BackgroundWavePhaseDuration,
-            WaterWaveDefinitions.WaveDisplacementCount);
+            WaterWaveDefinitions.BackgroundWaveform.Length);
     }
 
     /// <summary>Advances rise and tide state before publishing the current liquid surface.</summary>
@@ -609,7 +600,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
     /// <summary>
     /// Runs the visible outputs of the lava/acid effect and its heat haze. The liquid surface its motion pass
     /// (<see cref="AdvanceLiquidMotion(SharedGameState, bool)"/>) left and the effect overlay follow the room camera,
-    /// while one of two sixteen-row background waveforms rotates at the cadence of the liquid's heat haze.
+    /// while the heat haze moves on through its cycle at its own cadence.
     /// </summary>
     private void StepLavaAcid(Position16<RoomPixels> camera)
     {
@@ -618,13 +609,7 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
 
         if (Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Horizontal or HeatHazeDirection.Vertical })
             return;
-        if (--lavaAcidBackgroundWaveTimer != 0)
-            return;
-
-        lavaAcidBackgroundWavePhase =
-            (lavaAcidBackgroundWavePhase - 1 + LavaAcidWaveDefinitions.WaveDisplacementCount) %
-            LavaAcidWaveDefinitions.WaveDisplacementCount;
-        lavaAcidBackgroundWaveTimer = HazePhaseDuration;
+        lavaAcidHaze = lavaAcidHaze.Advanced(HazePhaseDuration, LavaAcidWaveDefinitions.HazePhaseCount);
     }
 
     /// <summary>
@@ -717,11 +702,10 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         if (!step.IsNegative)
             return;
 
-        IReadOnlyList<int> baseDelays = RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays;
         AudioRequests.QueueSound(EnemySound.Lavaquake, SoundRequestPriority.Normal);
-        EarthquakeSoundTimer = WrappingCountdown.Start(baseDelays[EarthquakeSoundRhythmPosition])
+        EarthquakeSoundTimer = WrappingCountdown.Start(EarthquakeSoundRhythm.Current)
             .AddFrames(RoomEarthquakeDefinitions.RisingLiquidSoundJitter.Of(randomNumber) + earthquakeSoundDelay.ExtraFrames);
-        EarthquakeSoundRhythmPosition = (EarthquakeSoundRhythmPosition + 1) % baseDelays.Count;
+        EarthquakeSoundRhythm = EarthquakeSoundRhythm.Next;
     }
 
     /// <summary>Plays the statue descent's earthquake sound, as a room's earthquake plays it.</summary>
@@ -832,15 +816,14 @@ public sealed class RoomFxOverlayState : IGameplayShadingSource
         waterBackgroundWave = default;
         waterSurfaceScreenY = null;
         liquidSurfaceLine = null;
-        lavaAcidBackgroundWaveTimer = 0;
-        lavaAcidBackgroundWavePhase = 0;
+        lavaAcidHaze = default;
         liquidRisePhase = LiquidRisePhase.Dormant;
         MotionStart = LiquidMotionStart.AfterRoomLoad;
         LiquidMotionStopped = false;
-        lavaSoundTimer = 0;
+        lavaBubbling = default;
         SustainedEarthquake = null;
         EarthquakeSoundTimer = WrappingCountdown.Start(0);
-        EarthquakeSoundRhythmPosition = 0;
+        EarthquakeSoundRhythm = CyclingSequence<int>.StartOf(RoomEarthquakeDefinitions.RisingLiquidSoundBaseDelays);
         QuakeSoundsSilenced = false;
     }
 

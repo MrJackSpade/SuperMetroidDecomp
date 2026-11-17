@@ -87,5 +87,11 @@ internal static class SamusColoursAccess
         public IReadOnlyList<PictureShade> SuitOverlays => self.suitOverlays;
         /// <summary>The shades laid over the beams', oldest first.</summary>
         public IReadOnlyList<PictureShade> BeamOverlays => self.beamOverlays;
+        /// <summary>
+        /// The Hyper Beam cycle's shade laid over her beams, by its place in the cycle, or none before the cycle's first
+        /// update laid one: the shade the effect showed last.
+        /// </summary>
+        internal int? ShownHyperBeamCycleShade =>
+            self.beamOverlays.Where(shade => shade.Effect == SamusShades.HyperBeamCycle(0).Effect).Select(shade => (int?)shade.Step).LastOrDefault();
     }
 }

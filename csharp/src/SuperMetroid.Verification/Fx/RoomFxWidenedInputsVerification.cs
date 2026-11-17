@@ -19,8 +19,8 @@ internal static class RoomFxWidenedInputsVerification
         AssertEqual(ushort.MaxValue, Conditions(ushort.MaxValue).SamusY, "palette-FX Samus Y keeps the room's lowest line");
         AssertEqual(0, Conditions(0).SamusY, "palette-FX Samus Y keeps the room's top line");
 
-        AssertEqual(6, Frame(6).FirefleaDarknessStep, "Fireflea darkness keeps its last step");
-        AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false }.FirefleaDarknessStep,
+        AssertEqual(6, Frame(6).FirefleaDarkness.FirefleasKilled, "Fireflea darkness keeps its last step");
+        AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false }.FirefleaDarkness.FirefleasKilled,
             "Fireflea darkness defaults to none");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(7), "Fireflea darkness past its last step");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(-1), "negative Fireflea darkness");
@@ -66,7 +66,7 @@ internal static class RoomFxWidenedInputsVerification
         static ColourEffectInputs Conditions(int samusY) =>
             new() { SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarknessStep = darkness };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(darkness) };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
             new() { Fx = null, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }

@@ -151,13 +151,13 @@ internal static class GameplayDisplayFrameTestsVerification
         // offset six shades level eighteen and one at offset two level six.
         RoomFxType originalFx = runtime.RoomFxOverlay.Type;
         FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
-        fireflea.Step(frozen: false, darknessStep: 3);
+        fireflea.Step(frozen: false, new FirefleaDarkness(3));
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(18, darkness.Blend.Colour.FadeLevels.Red, "Fireflea's shade publishes with its blend");
-        fireflea.Step(frozen: false, darknessStep: 1);
+        fireflea.Step(frozen: false, new FirefleaDarkness(1));
         AssertEqual(18, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
             "a shade chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);

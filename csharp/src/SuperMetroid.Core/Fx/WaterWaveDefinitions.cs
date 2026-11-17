@@ -15,18 +15,16 @@ public static class WaterWaveDefinitions
     public static SignedEightEight SurfaceDriftSpeed { get; } = SignedEightEight.FromParts(0, 64);
 
     /// <summary>
-    /// One period of the water wave, one row displacement in pixels per step (#1468, #2054): two identical eight-step
-    /// triangular half-periods, rising then falling, which a water surface's waves and the vertical heat haze are drawn
-    /// from.
+    /// One period of the wave on the water's surface as its first phase shows it, one sideways displacement in pixels per
+    /// line below the surface (#1468, #2054, #2367): two identical eight-line triangular half-periods, rising then
+    /// falling, each with its crest two lines down. Each later phase draws it one line further down.
     /// </summary>
-    public static ImmutableArray<int> Waveform { get; } = [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
-
-    /// <summary>The steps in one cycle of the water wave.</summary>
-    public static int WaveDisplacementCount => Waveform.Length;
+    public static ImmutableArray<int> SurfaceWaveform { get; } = [0, 0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1];
 
     /// <summary>
-    /// The step of the cycle each water wave shows first, from the room's first update: the step after the cycle's start,
-    /// which the wave returns to only once it has shown every other.
+    /// One period of the water's optional background wave as its first phase shows it, one sideways background
+    /// displacement in pixels per line below the surface (#1468, #2054, #2367): the surface wave's two half-periods
+    /// started at their crest. Each later phase draws it one line further up.
     /// </summary>
-    public const int FirstPhase = 1;
+    public static ImmutableArray<int> BackgroundWaveform { get; } = [1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0, 0];
 }

@@ -127,7 +127,7 @@ internal static class EtecoonAnimations
         [P.HoppingFacingRight] = new([Whole(P.HoppingFacingRight)], AnimationEnd.Holds),
         [P.ContinueHoppingFacingRight] = new([Whole(P.ContinueHoppingFacingRight)], AnimationEnd.Holds),
         [P.WallJumpRightEligible] = new([Whole(P.WallJumpRightEligible)], AnimationEnd.Holds),
-        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.LoopsFrom(0)),
+        [P.Initial] = new([Whole(P.Initial)], AnimationEnd.Holds),
     };
 
     /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>

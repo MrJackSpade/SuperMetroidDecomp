@@ -48,7 +48,7 @@ internal static class EyeDoorSweatBehaviorVerification
             EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatSegment.HitFloor), 30, "eye-door sweat splash");
         AssertTrue(deleted, "the splash deletes the drop");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the sweat's native list bytes");
-        Console.WriteLine("  Eye-door sweat behavior: the falling loop and the floor splash match their native lists.");
+        Console.WriteLine("  Eye-door sweat behavior: the held falling drop and the floor splash match their native lists.");
     }
 
     /// <summary>Runs the eye-door sweat's program oracle and behavior suite.</summary>

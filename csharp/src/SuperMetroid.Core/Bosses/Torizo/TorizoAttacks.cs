@@ -586,17 +586,6 @@ internal sealed class TorizoAttacks
     {
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
-<<<<<<< HEAD
-        // The setup draws the X jitter before the Y jitter.
-        projectile.Velocity = new EightEightVector<RoomPixels>(
-            definition.BaseVelocity.X + VelocityJitter(_room.Random.Generate()),
-            definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
-||||||| ccc5bcd718
-        // The initializer draws the X jitter before the Y jitter.
-        projectile.Velocity = new EightEightVector<RoomPixels>(
-            definition.BaseVelocity.X + VelocityJitter(_room.Random.Generate()),
-            definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
-=======
         projectile.Velocity = definition.BaseVelocity + DrawVelocityJitter();
     }
 
@@ -605,7 +594,6 @@ internal sealed class TorizoAttacks
     {
         SignedEightEight x = VelocityJitter(_room.Random.Generate());
         return new EightEightVector<RoomPixels>(x, VelocityJitter(_room.Random.Generate()));
->>>>>>> worktree-agent-a263abbbd85c36f1d
     }
 
     /// <summary>A randomized projectile's jitter on one axis: the random number's lowest 256-value field, less 128, in 256ths of a pixel.</summary>

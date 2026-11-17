@@ -119,19 +119,11 @@ internal sealed class TorizoChoices
         return TorizoAnimations.ContinueWith(target);
     }
 
-<<<<<<< HEAD
-    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, reacts to meeting a wall, and arms a turn toward Samus behind it.</summary>
-    internal AnimationContinuation<TorizoAnimation>? ProcessGoldenTorizoWalkAnimation(
-||||||| ccc5bcd718
-    /// <summary>Moves by the walking step's <paramref name="stepPixels"/>, branches on wall collision, and arms a turn toward Samus behind it.</summary>
-    internal AnimationContinuation<TorizoAnimation>? ProcessGoldenTorizoWalkAnimation(
-=======
     /// <summary>
     /// Moves the Torizo by the walking step's <paramref name="stepPixels"/>, turns it as <paramref name="walker"/> turns at a
     /// wall in its way, and otherwise arms its turn toward a Samus behind it (#2335).
     /// </summary>
     internal AnimationContinuation<TorizoAnimation>? ProcessTorizoWalkStep(
->>>>>>> worktree-agent-a263abbbd85c36f1d
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
         SamusState samus,

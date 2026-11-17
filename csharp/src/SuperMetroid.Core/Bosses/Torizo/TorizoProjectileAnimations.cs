@@ -351,17 +351,17 @@ internal static class TorizoProjectileAnimations
 
     /// <summary>
     /// The animation that starts at each segment a spawn, a reaction or a cue starts (#2235): the segments it plays whole,
-    /// once or a number of times, and whether it then loops or holds. A still picture holds, or loops on its held frame
-    /// where its list goes back to it.
+    /// once or a number of times, and whether it then loops or holds. An animation that reaches a still picture holds it
+    /// for good (#2353).
     /// </summary>
     internal static IReadOnlyDictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>> StartingAt { get; } = new Dictionary<TorizoProjectileSegment, Animation<TorizoProjectileSegment>>
     {
         [P.LowHealthExplosion] = new([Whole(P.LowHealthExplosion), Repeat(P.LowHealthExplosionBurst, 3), Whole(P.Deletion)], AnimationEnd.Holds),
         [P.DeathExplosion] = new([Whole(P.DeathExplosion), Repeat(P.DeathExplosionBurst, 2), Whole(P.Deletion)], AnimationEnd.Holds),
         [P.DeathSmoke] = new([Repeat(P.DeathSmoke, 2), Whole(P.Deletion)], AnimationEnd.Holds),
-        [P.DroolFourFrameDelay] = Animation<P>.LeadingInto([Whole(P.DroolFourFrameDelay), Whole(P.DroolTwoFrameDelay), Whole(P.DroolNoDelay)], [Whole(P.DroolFalling)]),
-        [P.DroolTwoFrameDelay] = Animation<P>.LeadingInto([Whole(P.DroolTwoFrameDelay), Whole(P.DroolNoDelay)], [Whole(P.DroolFalling)]),
-        [P.DroolNoDelay] = Animation<P>.LeadingInto([Whole(P.DroolNoDelay)], [Whole(P.DroolFalling)]),
+        [P.DroolFourFrameDelay] = new([Whole(P.DroolFourFrameDelay), Whole(P.DroolTwoFrameDelay), Whole(P.DroolNoDelay), Whole(P.DroolFalling)], AnimationEnd.Holds),
+        [P.DroolTwoFrameDelay] = new([Whole(P.DroolTwoFrameDelay), Whole(P.DroolNoDelay), Whole(P.DroolFalling)], AnimationEnd.Holds),
+        [P.DroolNoDelay] = new([Whole(P.DroolNoDelay), Whole(P.DroolFalling)], AnimationEnd.Holds),
         [P.DroolWallImpact] = new([Whole(P.DroolWallImpact)], AnimationEnd.Holds),
         [P.DroolFloorImpact] = new([Whole(P.DroolFloorImpact)], AnimationEnd.Holds),
         [P.ExplosiveSwipe] = new([Whole(P.ExplosiveSwipe)], AnimationEnd.Holds),
@@ -373,13 +373,13 @@ internal static class TorizoProjectileAnimations
         [P.StatueFragmentBottomLeft] = new([Whole(P.StatueFragmentBottomLeft)], AnimationEnd.Holds),
         [P.StatueFragmentBottomMiddle] = new([Whole(P.StatueFragmentBottomMiddle)], AnimationEnd.Holds),
         [P.StatueFragmentBottomRight] = new([Whole(P.StatueFragmentBottomRight)], AnimationEnd.Holds),
-        [P.ChozoOrbMovingLeft] = Animation<P>.Looping([Whole(P.ChozoOrbMovingLeft)]),
-        [P.ChozoOrbMovingRight] = Animation<P>.Looping([Whole(P.ChozoOrbMovingRight)]),
+        [P.ChozoOrbMovingLeft] = new([Whole(P.ChozoOrbMovingLeft)], AnimationEnd.Holds),
+        [P.ChozoOrbMovingRight] = new([Whole(P.ChozoOrbMovingRight)], AnimationEnd.Holds),
         [P.ChozoOrbWallImpact] = new([Whole(P.ChozoOrbWallImpact)], AnimationEnd.Holds),
         [P.ChozoOrbFloorImpact] = new([Whole(P.ChozoOrbFloorImpact)], AnimationEnd.Holds),
         [P.ChozoOrbShot] = new([Whole(P.ChozoOrbShot)], AnimationEnd.Holds),
-        [P.SonicBoomFiredLeft] = Animation<P>.LeadingInto([Whole(P.SonicBoomFiredLeft)], [Whole(P.SonicBoomFlyingLeft)]),
-        [P.SonicBoomFiredRight] = Animation<P>.LeadingInto([Whole(P.SonicBoomFiredRight)], [Whole(P.SonicBoomFlyingRight)]),
+        [P.SonicBoomFiredLeft] = new([Whole(P.SonicBoomFiredLeft), Whole(P.SonicBoomFlyingLeft)], AnimationEnd.Holds),
+        [P.SonicBoomFiredRight] = new([Whole(P.SonicBoomFiredRight), Whole(P.SonicBoomFlyingRight)], AnimationEnd.Holds),
         [P.SonicBoomWallImpact] = new([Whole(P.SonicBoomWallImpact), Repeat(P.SonicBoomWallImpactBurst, 5), Whole(P.Deletion)], AnimationEnd.Holds),
         [P.LandingDustRightFoot] = new([Whole(P.LandingDustRightFoot)], AnimationEnd.Holds),
         [P.LandingDustLeftFoot] = new([Whole(P.LandingDustLeftFoot)], AnimationEnd.Holds),

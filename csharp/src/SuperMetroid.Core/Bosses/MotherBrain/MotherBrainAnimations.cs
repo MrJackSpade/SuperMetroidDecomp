@@ -402,24 +402,24 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn,
-    /// and the one it loops from. Only the segments she starts an animation at, or a random hold or drool continues at,
+    /// and the one it loops from, or rests on the still picture it ends at (#2353). Only the segments she starts an animation at, or a random hold or drool continues at,
     /// start one; the segments an animation only runs on into are listed in it and start none.
     /// </summary>
     internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
-        [H.StretchingPhase2] = Looping(1, H.StretchingPhase2, H.StretchingPhase2Loop),
-        [H.StretchingPhase3] = Looping(1, H.StretchingPhase3, H.StretchingPhase3Loop),
-        [H.HyperBeamRecoil] = Looping(1, H.HyperBeamRecoil, H.HyperBeamRecoilLoop),
-        [H.Initial] = Looping(0, H.Initial),
-        [H.Decapitated] = Looping(1, H.Decapitated, H.DecapitatedLoop),
+        [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Loop),
+        [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Loop),
+        [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilLoop),
+        [H.Initial] = Resting(H.Initial),
+        [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedLoop),
         [H.DyingDrool] = Looping(2, H.DyingDrool, H.DyingDroolBurst, H.DyingDroolLoop),
         [H.DyingDroolBurst] = Looping(1, H.DyingDroolBurst, H.DyingDroolLoop),
-        [H.FiringRainbowBeam] = Looping(0, H.FiringRainbowBeam),
+        [H.FiringRainbowBeam] = Resting(H.FiringRainbowBeam),
         [H.NeutralPhase2] = Looping(0, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.NeutralPhase2Hold] = Looping(0, H.NeutralPhase2Hold, H.NeutralPhase2),
         [H.NeutralPhase3] = Looping(0, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.NeutralPhase3Hold] = Looping(0, H.NeutralPhase3Hold, H.NeutralPhase3),
-        [H.Corpse] = Looping(1, H.Corpse, H.CorpseLoop),
+        [H.Corpse] = Resting(H.Corpse, H.CorpseLoop),
         [H.FourOnionRingsPhase2] = Looping(1, H.FourOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.TwoOnionRingsPhase2] = Looping(1, H.TwoOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.AttackingBabyMetroid] = Looping(2, H.AttackingBabyMetroid, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),
@@ -498,4 +498,10 @@ internal static class MotherBrainAnimations
 
     /// <summary>An animation of <paramref name="segments"/>, each played once in turn, that loops from phase <paramref name="loopsFrom"/>.</summary>
     private static Animation<H> Looping(int loopsFrom, params H[] segments) => new([.. segments.Select(segment => Whole(segment))], AnimationEnd.LoopsFrom(loopsFrom));
+
+    /// <summary>
+    /// An animation of <paramref name="segments"/>, each played once in turn, that rests on the still picture the last one
+    /// holds (#2353): her brain shows it for good, until she plays another.
+    /// </summary>
+    private static Animation<H> Resting(params H[] segments) => new([.. segments.Select(segment => Whole(segment))], AnimationEnd.Holds);
 }

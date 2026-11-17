@@ -468,18 +468,8 @@ internal sealed class RidleyTail
         HandleRidleyPogoTailControl(place, state, samus, action == RidleyTailAction.StabSetup);
         foreach (RidleyTailLink link in state.Tail.Links)
             TickRidleyTailLink(state.Tail, link);
-<<<<<<< HEAD
-        if (pointed && !state.Tail.Links.Any(link => link.Active))
-            state.Tail.Action = RidleyTailAction.Pogo;
-        // The tail's setup and stab take precedence over the pointed tail's choice.
-||||||| ccc5bcd718
-        if (pointed && !state.Tail.Links.Any(link => link.Active))
-            state.Tail.Action = RidleyTailAction.Pogo;
-        // The tail's setup and stab overwrite the result of the shared pointed-tail step.
-=======
         // The tail's setup points it down next and a stab keeps stabbing, whatever the step did; a tail pointing down
         // becomes a pogo once none of its links is active.
->>>>>>> worktree-agent-a263abbbd85c36f1d
         if (action == RidleyTailAction.PogoSetup)
             state.Tail.Action = RidleyTailAction.PointDown;
         else if (action == RidleyTailAction.Stab)

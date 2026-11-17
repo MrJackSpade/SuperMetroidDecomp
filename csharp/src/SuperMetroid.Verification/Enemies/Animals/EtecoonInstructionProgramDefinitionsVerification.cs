@@ -31,11 +31,10 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemyPlace place, EtecoonEnemyState state) = NewEtecoon();
             AssertEqual(new AnimationPlayback<EtecoonSegment>(EtecoonAnimations.StartingWith(EtecoonSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "real Etecoon initializer");
-            // The self-looping animations: one phase of their own segment, played again and again.
+            // The self-looping animations: one phase of their own segment, played again and again. A still picture holds
+            // (#2353): it has no loop to follow.
             if (!EtecoonAnimations.StartingAt.TryGetValue(program, out Animation<EtecoonSegment>? animation) ||
-                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program ||
-                // A still picture shows for good: it has no timed loop to follow.
-                EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Segments, program) == 1)
+                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
                 continue;
             state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();

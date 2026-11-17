@@ -88,8 +88,8 @@ internal static class CrocomireAnimations
         new Dictionary<CrocomireProjectileSegment, Animation<CrocomireProjectileSegment>>
         {
             [CrocomireProjectileSegment.Mouth] = new([WholeProjectile(CrocomireProjectileSegment.Mouth)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireProjectileSegment.BridgeFragment] = new([WholeProjectile(CrocomireProjectileSegment.BridgeFragment)], AnimationEnd.LoopsFrom(0)),
-            [CrocomireProjectileSegment.SpikeWallPiece] = new([WholeProjectile(CrocomireProjectileSegment.SpikeWallPiece)], AnimationEnd.LoopsFrom(0)),
+            [CrocomireProjectileSegment.BridgeFragment] = new([WholeProjectile(CrocomireProjectileSegment.BridgeFragment)], AnimationEnd.Holds),
+            [CrocomireProjectileSegment.SpikeWallPiece] = new([WholeProjectile(CrocomireProjectileSegment.SpikeWallPiece)], AnimationEnd.Holds),
             [CrocomireProjectileSegment.Shot] = new([WholeProjectile(CrocomireProjectileSegment.Shot)], AnimationEnd.Holds),
         };
 

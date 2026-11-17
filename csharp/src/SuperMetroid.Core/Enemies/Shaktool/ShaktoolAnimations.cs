@@ -81,12 +81,12 @@ internal static class ShaktoolAnimations
         [P.SawHandHeadBobPrimaryPiece] = new([Whole(P.SawHandHeadBobPrimaryPiece), Whole(P.SawHandPrimaryPiece)], AnimationEnd.LoopsFrom(1)),
         [P.SawHandHeadBobFinalPiece] = new([Whole(P.SawHandHeadBobFinalPiece), Whole(P.SawHandFinalPiece)], AnimationEnd.LoopsFrom(1)),
         [P.SawHandPrimaryPiece] = new([Whole(P.SawHandPrimaryPiece)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmPieceHeadBobBack] = new([Whole(P.ArmPieceHeadBobBack), Whole(P.ArmPieceNormal)], AnimationEnd.LoopsFrom(1)),
-        [P.ArmPieceHeadBobFront] = new([Whole(P.ArmPieceHeadBobFront), Whole(P.ArmPieceNormal)], AnimationEnd.LoopsFrom(1)),
-        [P.ArmPieceNormal] = new([Whole(P.ArmPieceNormal)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadHeadBob] = new([Whole(P.HeadHeadBob), Whole(P.HeadAimingLeft)], AnimationEnd.LoopsFrom(1)),
-        [P.HeadAimingLeft] = new([Whole(P.HeadAimingLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.HeadAimingDown] = new([Whole(P.HeadAimingDown)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmPieceHeadBobBack] = new([Whole(P.ArmPieceHeadBobBack), Whole(P.ArmPieceNormal)], AnimationEnd.Holds),
+        [P.ArmPieceHeadBobFront] = new([Whole(P.ArmPieceHeadBobFront), Whole(P.ArmPieceNormal)], AnimationEnd.Holds),
+        [P.ArmPieceNormal] = new([Whole(P.ArmPieceNormal)], AnimationEnd.Holds),
+        [P.HeadHeadBob] = new([Whole(P.HeadHeadBob), Whole(P.HeadAimingLeft)], AnimationEnd.Holds),
+        [P.HeadAimingLeft] = new([Whole(P.HeadAimingLeft)], AnimationEnd.Holds),
+        [P.HeadAimingDown] = new([Whole(P.HeadAimingDown)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

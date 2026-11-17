@@ -278,7 +278,8 @@ internal static class MotherBrainNativeListAddresses
                     {
                         // A held frame stands for a frame its list's sleep follows: its duration only times a sleep that
                         // shows nothing else (#2250). It stands too for a list's only frame followed by a goto back to the
-                        // list, which shows it again and again, for good, whatever duration it names (#2318).
+                        // list, which shows it again and again, for good, whatever duration it names (#2318): the list rests
+                        // on it at the goto, as at a sleep (#2353).
                         VerificationAssertions.AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(held.Shown), $"{at}: held frame's spritemap");
                         ushort following = cartridge.ReadCartridgeWord(bank | (cursor + 4));
                         bool sleeps = NativeEnemyListDefinitions.Classify(following) == NativeEnemyListDefinitions.WordKind.Sleep;
@@ -289,6 +290,8 @@ internal static class MotherBrainNativeListAddresses
                         VerificationAssertions.AssertTrue(sleeps || loopsOnItself, $"{at}: the held frame's sleep, or the goto back to its own list");
                         addresses.Add(cursor);
                         cursor = unchecked((ushort)(cursor + 4));
+                        if (loopsOnItself)
+                            controls.Add(new(NativeEnemyControlKind.Sleep, addresses.Count, null, null, cursor));
                         continue;
                     }
                     case NativeEnemyListDefinitions.WordKind.Frame:

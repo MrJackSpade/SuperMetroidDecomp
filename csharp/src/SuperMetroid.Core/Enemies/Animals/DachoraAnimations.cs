@@ -138,16 +138,16 @@ internal static class DachoraAnimations
         [P.RunningLeftVeryFast] = new([Whole(P.RunningLeftVeryFast)], AnimationEnd.LoopsFrom(0)),
         [P.IdleLeft] = new([Whole(P.IdleLeft)], AnimationEnd.LoopsFrom(0)),
         [P.BlinkLeft] = new([Whole(P.BlinkLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.EchoLeft] = new([Whole(P.EchoLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingLeft] = new([Whole(P.FallingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.EchoLeft] = new([Whole(P.EchoLeft)], AnimationEnd.Holds),
+        [P.FallingLeft] = new([Whole(P.FallingLeft)], AnimationEnd.Holds),
         [P.RunningRight] = new([Whole(P.RunningRight)], AnimationEnd.LoopsFrom(0)),
         [P.RunningRightFast] = new([Whole(P.RunningRightFast)], AnimationEnd.LoopsFrom(0)),
         [P.RunningRightVeryFast] = new([Whole(P.RunningRightVeryFast)], AnimationEnd.LoopsFrom(0)),
         [P.IdleRight] = new([Whole(P.IdleRight)], AnimationEnd.LoopsFrom(0)),
         [P.BlinkRight] = new([Whole(P.BlinkRight)], AnimationEnd.LoopsFrom(0)),
         [P.ChargeRight] = new([Whole(P.ChargeRight)], AnimationEnd.Holds),
-        [P.EchoRight] = new([Whole(P.EchoRight)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingRight] = new([Whole(P.FallingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.EchoRight] = new([Whole(P.EchoRight)], AnimationEnd.Holds),
+        [P.FallingRight] = new([Whole(P.FallingRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

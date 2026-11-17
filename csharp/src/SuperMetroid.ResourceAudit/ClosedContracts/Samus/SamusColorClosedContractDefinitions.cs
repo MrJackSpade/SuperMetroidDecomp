@@ -34,7 +34,7 @@ internal static class SamusColorClosedContractDefinitions
         new("SuperMetroid.AssetExtraction.Samus.Artwork.SamusHyperBeamColours", "samus-hyper-beam-complete-palettes", ["Apply", "Resolve"],
             [PaletteDefinitions, FullBodyCyclePalettes,
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/SamusHyperBeamColours.cs")]),
-        new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColors", "samus-visor-complete-colors", ["Resolve"],
+        new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledSamusVisorColors", "samus-visor-complete-colors", ["XrayWidening", "Cycle"],
             [PaletteDefinitions, FullBodyCyclePalettes,
              new("csharp/src/SuperMetroid.AssetExtraction/Samus/Artwork/InstalledSamusVisorColors.cs")]),
         new("SuperMetroid.AssetExtraction.Samus.Artwork.InstalledCrystalFlashColors", "crystal-flash-complete-color-streams", ["ApplyBody", "ApplyBubble", "ResolveBody", "ResolveBubble"],

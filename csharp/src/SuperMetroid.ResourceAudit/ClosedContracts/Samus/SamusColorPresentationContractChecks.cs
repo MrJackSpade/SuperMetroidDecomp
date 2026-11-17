@@ -38,8 +38,8 @@ internal static class SamusColorPresentationContractChecks
                     hyper.Resolve(SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1,
                         SamusColourSets.ColoursPerSet - 1);
                     hyper.Resolve(SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount, 0);
-                    visor.Resolve(SamusVisorColorFormat.ColorCount - 1);
-                    visor.Resolve(SamusVisorColorFormat.ColorCount);
+                    visor.Cycle(SamusShadeDefinitions.Visor.CycleShades - 1);
+                    visor.Cycle(SamusShadeDefinitions.Visor.CycleShades);
                     bomb.Resolve(PowerBombGlowSequence.Explosion, SamusShadeDefinitions.PowerBomb.ExplosionColorCount - 1);
                     bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusShadeDefinitions.PowerBomb.PreExplosionColorCount - 1);
                     bomb.Resolve(PowerBombGlowSequence.PreExplosion, SamusShadeDefinitions.PowerBomb.PreExplosionColorCount);

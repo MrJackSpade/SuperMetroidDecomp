@@ -724,7 +724,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 2276,
+      "files": 2277,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -43742,7 +43742,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileAnimation.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropAnimation.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Deaths",
@@ -43755,7 +43755,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileAnimations.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropAnimations.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Deaths",
@@ -43768,7 +43768,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileCue.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropCue.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Deaths",
@@ -43778,7 +43778,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileCueKind.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropCueKind.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Deaths",
@@ -43788,7 +43788,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileSegment.cs",
+      "path": "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropSegment.cs",
       "module": "csharp/src/SuperMetroid.Core/Enemies",
       "role": "production",
       "namespace": "SuperMetroid.Core.Enemies.Deaths",
@@ -108966,6 +108966,25 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Enemies"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Enemies/Metaree/MetareeBurrowVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Enemies.Metaree",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Spatial",
+        "csharp/src/SuperMetroid.Core/World",
+        "csharp/test-support/Assertions",
+        "csharp/test-support/RepositoryInstallation.Verification",
+        "csharp/test-support/VerificationAccess.Core"
       ]
     },
     {

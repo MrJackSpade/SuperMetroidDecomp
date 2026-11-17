@@ -67864,92 +67864,92 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileAnimation",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropAnimation",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileAnimation.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropAnimation.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileAnimations",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropAnimations",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileAnimations.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropAnimations.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCue",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropCue",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileCue.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropCue.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCue.Signal",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropCue.Signal",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileCue.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropCue.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCue.SpawnEffectActor",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropCue.SpawnEffectActor",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileCue.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropCue.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileCueKind",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropCueKind",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileCueKind.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropCueKind.cs"
       ],
       "partial": "none",
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathProjectileSegment",
+      "type": "SuperMetroid.Core.Enemies.Deaths.EnemyDeathAndDropSegment",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathProjectileSegment.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Deaths/EnemyDeathAndDropSegment.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -160676,6 +160676,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Metaree.MetareeBurrowVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Metaree/MetareeBurrowVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.Metaree.MetareeDiveSpeedVerification",

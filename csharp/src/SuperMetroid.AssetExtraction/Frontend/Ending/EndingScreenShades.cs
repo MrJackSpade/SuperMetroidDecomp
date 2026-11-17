@@ -68,9 +68,9 @@ internal static class EndingScreenShades
             shades.Add(new SheetShade(EndingShades.Flashed(flashed.Flash), inks, [.. inks.Select(_ => flashed.Colour)]));
         }
         EndingPalette crossfade = palettes[EndingPaletteId.LogoCrossfade];
-        for (int step = 0; step < EndingShades.LogoCrossfadeSteps; step++)
+        foreach (EndingLogoCrossfadeStep step in EndingLogoCrossfadeStep.All)
         {
-            int stepShown = step;
+            int stepShown = step.Step;
             RgbColor[] colours =
             [
                 .. Enumerable.Range(0, EndingScreenInks.GroupColours).Select(colour => crossfade.LogoCrossfadeColour(stepShown, EndingLogoLayer.Background, colour)),

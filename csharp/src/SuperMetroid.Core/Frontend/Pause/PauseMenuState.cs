@@ -367,7 +367,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
         foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
-            if (!control.Upgrade.IsSetIn(samus.CollectedBeams, samus.CollectedItems))
+            if (!control.Upgrade.IsIn(samus.CollectedBeams, samus.CollectedItems))
                 continue;
             SelectedControl = control;
             return;
@@ -397,7 +397,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         IAreaMapView map = screenContent.Get(area);
         MapScrollLimits limits = mapRevealMode == MapRevealMode.None
             ? MapScrollLimits.OfRevealedPlane(map, system)
-            : MapScrollLimits.Scan(area, cell => AreaMapVisibility.IsVisible(
+            : MapScrollLimits.Scan(cell => AreaMapVisibility.IsVisible(
                 system.IsMapTileExplored(area, cell),
                 hasAreaMap,
                 map.IsRevealedByMapStation(cell),
@@ -523,10 +523,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // exclusion. Do not add a category guard that corrects this: the game has none. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
-        PauseEquipmentBit mask = target.Upgrade;
-        // The upgrade belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
-        samus.EquippedBeams ^= mask.Beam;
-        samus.EquippedItems ^= mask.Item;
+        target.Upgrade.ToggleEquipped(samus);
 
         audio.QueueSound(SamusSound.MenuConfirm, priority: SoundRequestPriority.Normal);
         if (handlingCategory == PauseEquipmentCategory.Beams)
@@ -575,7 +572,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         int step = direction == ColumnSearch.Down ? 1 : -1;
         for (int place = start; place >= 0 && place < column.Length; place += step)
         {
-            if (!column[place].Upgrade.IsSetIn(samus.CollectedBeams, samus.CollectedItems))
+            if (!column[place].Upgrade.IsIn(samus.CollectedBeams, samus.CollectedItems))
             {
                 // The suit search down the column checks for its last control only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit control can succeed, but searching down from an earlier
@@ -702,7 +699,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal PictureShading ReserveArrowShading => samus.MaxReserveEnergy == 0
         ? PictureShading.Standard
         : PictureShading.Shaded(ReserveArrow == ReserveArrowState.Animated
-            ? PauseReserveArrowShades.Pulse(PauseCadenceDefinitions.ReserveArrowPulseFrame.Of(pauseFrameCycle))
+            ? PauseReserveArrowShades.Pulse(PauseReserveArrowPulseFrame.PacedBy(pauseFrameCycle))
             : PauseReserveArrowShades.Solid);
 
     /// <summary>

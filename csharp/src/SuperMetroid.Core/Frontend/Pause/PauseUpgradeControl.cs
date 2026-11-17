@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 public sealed class PauseUpgradeControl : PauseEquipmentControl
 {
     /// <summary>Names the control of <paramref name="upgrade"/> in <paramref name="category"/>, shown by <paramref name="label"/>.</summary>
-    internal PauseUpgradeControl(PauseEquipmentCategory category, string anchor, PauseEquipmentBit upgrade, PauseEquipmentLabelId label)
+    internal PauseUpgradeControl(PauseEquipmentCategory category, string anchor, PauseUpgrade upgrade, PauseEquipmentLabelId label)
         : base(category, anchor)
     {
         Upgrade = upgrade;
@@ -17,7 +17,7 @@ public sealed class PauseUpgradeControl : PauseEquipmentControl
     }
 
     /// <summary>The upgrade the control tests and toggles.</summary>
-    public PauseEquipmentBit Upgrade { get; }
+    public PauseUpgrade Upgrade { get; }
 
     /// <summary>The label the page shows for the upgrade.</summary>
     public PauseEquipmentLabelId Label { get; }

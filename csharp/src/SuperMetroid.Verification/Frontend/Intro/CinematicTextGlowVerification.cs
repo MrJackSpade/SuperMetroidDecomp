@@ -31,7 +31,7 @@ internal static class CinematicTextGlowVerification
                 for (int column = 0; column < IntroNarrationText.GlyphColumns; column++)
                 {
                     bool rectangle = row is 4 or 5 && column is 1 or 2;
-                    var expected = new IntroTextCell('A', rectangle ? Math.Min(age / 5, 3) : 0);
+                    var expected = new IntroTextCell('A', IntroTextGlowStep.All[rectangle ? Math.Min(age / 5, 3) : 0]);
                     AssertEqual(expected, text.ShownAt(column, row), $"glow age {age} letter ({column}, {row}) keeps its letter and recolours only the glowing square");
                     if (restoredText is not null)
                         AssertEqual(expected, restoredText.ShownAt(column, row), "mid-glow debugger restore retains all timers and rectangle state");
@@ -50,11 +50,11 @@ internal static class CinematicTextGlowVerification
         for (int i = 0; i < IntroNarrationText.GlyphColumns; i++) glow.Spawn(i, 4);
         for (int frame = 0; frame < 16; frame++) glow.Step(text);
         for (int i = 0; i < IntroNarrationText.GlyphColumns; i++)
-            AssertEqual(3, text.ShownAt(i, 4).ColourVariant, $"simultaneous glow {i} of {IntroNarrationText.GlyphColumns} matures");
-        text.Recolour(8, 4, 0);
+            AssertEqual(IntroTextGlowStep.All[^1], text.ShownAt(i, 4).Glow, $"simultaneous glow {i} of {IntroNarrationText.GlyphColumns} matures");
+        text.Recolour(8, 4, IntroTextGlowStep.Typed);
         glow.Spawn(8, 4);
         for (int frame = 0; frame < 16; frame++) glow.Step(text);
-        AssertEqual(3, text.ShownAt(8, 4).ColourVariant, "a letter glows again after its earlier glow ended");
+        AssertEqual(IntroTextGlowStep.All[^1], text.ShownAt(8, 4).Glow, "a letter glows again after its earlier glow ended");
         Console.WriteLine("  Cinematic text glow: exact 0/5/10/15-frame colour variants, letter preservation, unbounded simultaneous glows, and debugger continuation pass.");
     }
 

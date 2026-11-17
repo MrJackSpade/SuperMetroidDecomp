@@ -88,34 +88,33 @@ internal static class PauseEquipmentRulesVerification
         var guard = NewPauseRulesReadGuard(bus);
         foreach (ImmutableArray<PauseUpgradeControl> column in PauseEquipmentControls.UpgradeColumns)
         {
-            PauseEquipmentBit[] masks = [.. column.Select(control => control.Upgrade)];
+            PauseUpgrade[] masks = [.. column.Select(control => control.Upgrade)];
             for (int item = 0; item < masks.Length; item++)
             {
-                var samus = Inventory(masks[item]);
+                var samus = Inventory(PauseOwnedUpgrades.Only(masks[item]));
                 var pause = Create(samus);
                 EnterPauseEquipment(pause);
                 AssertEqual<PauseEquipmentControl>(column[item], pause.SelectedControl, "single owned upgrade selects its actual native menu entry");
                 pause.Step(0, ControllerButton.A);
-                AssertEqual(default(PauseEquipmentBit), new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit off");
+                AssertEqual(PauseOwnedUpgrades.None, new PauseOwnedUpgrades(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade off");
                 pause.Step(0, 0); pause.Step(0, ControllerButton.A);
-                AssertEqual(masks[item], new PauseEquipmentBit(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade bit on");
-                AssertEqual(masks[item], new PauseEquipmentBit(samus.CollectedBeams, samus.CollectedItems), "menu toggle cannot change collection");
+                AssertEqual(PauseOwnedUpgrades.Only(masks[item]), new PauseOwnedUpgrades(samus.EquippedBeams, samus.EquippedItems), "A toggles exactly the compiled upgrade on");
+                AssertEqual(PauseOwnedUpgrades.Only(masks[item]), new PauseOwnedUpgrades(samus.CollectedBeams, samus.CollectedItems), "menu toggle cannot change collection");
             }
             for (int subset = 0; subset < 1 << masks.Length; subset++)
             {
-                PauseEquipmentBit owned = default;
+                PauseOwnedUpgrades owned = PauseOwnedUpgrades.None;
                 for (int item = 0; item < masks.Length; item++)
-                    if ((subset & (1 << item)) != 0) owned = new(owned.Beam | masks[item].Beam, owned.Item | masks[item].Item);
+                    if ((subset & (1 << item)) != 0) owned = owned.With(masks[item]);
                 var pause = Create(Inventory(owned));
-                int expected = Array.FindIndex(masks, mask => mask.IsSetIn(owned.Beam, owned.Item));
+                int expected = Array.FindIndex(masks, mask => mask.IsIn(owned.Beams, owned.Items));
                 AssertEqual<PauseEquipmentControl>(expected < 0 ? PauseEquipmentControls.ReserveMode : column[expected], pause.SelectedControl, "all category subsets retain first-owned selection");
             }
         }
         // `$82:9142` runs EquipmentScreenMain before the Start handler, so an A press in the
         // frame that unpauses still toggles the item. The 13% movie unequips the Speed Booster
         // with Start+A this way.
-        PauseEquipmentBit speedBooster = PauseEquipmentControls.SpeedBooster.Upgrade;
-        var unpausing = Inventory(speedBooster);
+        var unpausing = Inventory(PauseOwnedUpgrades.Only(PauseEquipmentControls.SpeedBooster.Upgrade));
         var startAndA = Create(unpausing);
         EnterPauseEquipment(startAndA);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.SpeedBooster, startAndA.SelectedControl, "the Speed Booster is selected");
@@ -159,9 +158,9 @@ internal static class PauseEquipmentRulesVerification
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");
         // Create a pause menu backed by guarded ROM reads and the supplied Samus inventory.
         PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = samus, System = new SharedGameState(new SharedRandom()), Area = AreaId.Crateria, RoomMapPosition = new(0, 1), ScreenContent = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
-        // Equip exactly the collected bits in the beam or item field for a category fixture.
-        static SamusState Inventory(PauseEquipmentBit owned) =>
-            new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };
+        // Collect and equip exactly the owned beams and items for a category fixture.
+        static SamusState Inventory(PauseOwnedUpgrades owned) =>
+            new(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { CollectedBeams = owned.Beams, EquippedBeams = owned.Beams, CollectedItems = owned.Items, EquippedItems = owned.Items };
     }
 
     /// <summary>Forbids production reads of migrated equipment masks, wireframe masks, and reserve-transfer rate.</summary>

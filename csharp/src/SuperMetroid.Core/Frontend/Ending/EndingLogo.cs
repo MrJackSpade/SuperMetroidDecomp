@@ -21,10 +21,10 @@ internal sealed class EndingLogo
     private readonly CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> lowerCircle;
     /// <summary>Becomes true when the grey-out cue begins paired background and sprite changes.</summary>
     public bool CrossfadeStarted { get; private set; }
-    /// <summary>Number of crossfade steps already shown.</summary>
-    public int CrossfadeStep { get; private set; }
-    /// <summary>The logo hands off to percentage text after its sixteenth colour step.</summary>
-    public bool Completed => CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps;
+    /// <summary>The crossfade step the logo showed last, or null before its crossfade shows a step.</summary>
+    public EndingLogoCrossfadeStep? ShownCrossfade { get; private set; }
+    /// <summary>Whether the logo has shown its crossfade's last step and hands off to the percentage text.</summary>
+    public bool Completed { get; private set; }
 
     /// <summary>Creates the four logo actors, blacks out the logo's background colours and shows its first sprite colours (#1512).</summary>
     /// <param name="stage">The stage whose colours the logo shows.</param>
@@ -52,8 +52,16 @@ internal sealed class EndingLogo
         // request, not on the update that requests it.
         if (CrossfadeStarted)
         {
-            Ensure.NotNull(colours).LogoCrossfade(CrossfadeStep);
-            if (++CrossfadeStep == EndingLogoDefinitions.CrossfadeSteps) return;
+            EndingLogoCrossfadeStep step = ShownCrossfade is { } shown
+                ? shown.Following ?? throw new InvalidOperationException("The logo's crossfade showed its last step.")
+                : EndingLogoCrossfadeStep.First;
+            Ensure.NotNull(colours).LogoCrossfade(step);
+            ShownCrossfade = step;
+            if (step.Following is null)
+            {
+                Completed = true;
+                return;
+            }
         }
         // Each S half moves just before its own animation steps.
         upperS.Move();
@@ -83,7 +91,7 @@ internal sealed class EndingLogo
         Ensure.NotNull(destination);
         if (!Completed)
             foreach (CinematicActor<EndingLogoAnimation, CinematicSpritePose, EndingLogoCue> actor in Actors)
-                actor.Draw(destination, installedArt, EndingLogoDefinitions.Camera);
+                actor.Draw(destination, installedArt);
     }
 
     /// <summary>Creates the actor <paramref name="definition"/> describes, in the logo's colouring.</summary>

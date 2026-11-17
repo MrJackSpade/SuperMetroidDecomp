@@ -224,9 +224,9 @@ internal static class EndingPaletteArtworkVerification
                 "installed initial logo colours match the cartridge");
         byte[] nativeColors = EndingPaletteImport.ReadNativePalette(nativeBus,
             EndingPaletteId.LogoCrossfade, EndingPaletteImport.ColorCount(EndingPaletteId.LogoCrossfade));
-        for (int step = 0; step < EndingShades.LogoCrossfadeSteps; step++)
+        for (int step = 0; step < EndingLogoCrossfadeStep.All.Count; step++)
         {
-            SheetShade shown = shades.Single(shade => shade.Shade == EndingShades.LogoCrossfade(step));
+            SheetShade shown = shades.Single(shade => shade.Shade == EndingShades.LogoCrossfade(EndingLogoCrossfadeStep.All[step]));
             for (int palette = 0; palette < 2; palette++)
                 for (int color = 0; color < 16; color++)
                 {

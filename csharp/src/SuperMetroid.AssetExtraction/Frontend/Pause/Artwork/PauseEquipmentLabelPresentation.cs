@@ -53,15 +53,15 @@ public sealed class PauseEquipmentLabelPresentation
         {
             if (control.Category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
-            PauseEquipmentBit mask = control.Upgrade;
+            PauseUpgrade upgrade = control.Upgrade;
             CompiledLabel label = labels[control.Label];
             Span<BackgroundTile> destination = tilemap.Slice(label.PageCell, label.CellCount);
-            if (!mask.IsSetIn(collectedBeams, collectedItems))
+            if (!upgrade.IsIn(collectedBeams, collectedItems))
                 WriteBlank(destination);
             else
             {
                 label.CopyTo(destination);
-                if (!mask.IsSetIn(equippedBeams, equippedItems)) Recolor(destination, DisabledPalette);
+                if (!upgrade.IsIn(equippedBeams, equippedItems)) Recolor(destination, DisabledPalette);
             }
         }
     }

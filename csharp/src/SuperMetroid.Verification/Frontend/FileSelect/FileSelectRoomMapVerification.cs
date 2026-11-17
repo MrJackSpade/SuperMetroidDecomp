@@ -189,21 +189,21 @@ internal static class FileSelectRoomMapVerification
         }
         // The highlighted sprites name the shade of the cycle's current frame, which the import pre-colours from the cycle's
         // colours (#1512, #1597).
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)),
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)),
             animations.HighlightShading, "before the first cycle step the map highlight shows frame zero's shade");
         AssertTrue(!animations.StepHighlight(), "initial map highlight tick advances to frame one without loop sound");
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.At(1))), animations.HighlightShading,
             "map highlight shows frame one's shade");
         AssertTrue(!animations.StepHighlight(), "highlight delay does not queue a sound");
         AssertTrue(animations.StepHighlight(), "highlight sentinel queues exactly one loop sound");
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)), animations.HighlightShading,
             "highlight sentinel returns the highlight to frame zero's shade");
         for (int tick = 0; tick < 3; tick++)
             AssertTrue(!animations.StepHighlight(), "frame zero's hold queues no sound");
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(1)), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.At(1))), animations.HighlightShading,
             "frame zero's three-tick hold ends on frame one before the reset");
         animations.ResetHighlight();
-        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(0)), animations.HighlightShading,
+        AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)), animations.HighlightShading,
             "resetting the cycle shows frame zero's shade at once");
         animations.StepArrows(direction => direction == MapScrollDirection.Left);
         ScreenSprites Draw()

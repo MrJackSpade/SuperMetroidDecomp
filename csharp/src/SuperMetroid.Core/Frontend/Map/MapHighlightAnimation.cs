@@ -16,8 +16,8 @@ public sealed class MapHighlightAnimation
     /// decrements only a positive count, so the value stays within zero through the longest authored hold.
     /// </summary>
     internal int Timer { get; private set; } = 1;
-    /// <summary>The cycle's current frame index, below the installed cycle's frame count; the highlighted sprites show its shade.</summary>
-    internal int Frame { get; private set; }
+    /// <summary>The cycle's current frame; the highlighted sprites show its shade.</summary>
+    internal MapHighlightFrame Frame { get; private set; } = MapHighlightFrame.First;
     /// <summary>The installed cycle's timing.</summary>
     private MapHighlightCycle content;
 
@@ -29,7 +29,7 @@ public sealed class MapHighlightAnimation
     public void Bind(MapHighlightCycle cycle) => content = Ensure.NotNull(cycle);
 
     /// <summary>Restores the cycle's initial frame and one-tick delay.</summary>
-    public void Reset() { Timer = 1; Frame = 0; }
+    public void Reset() { Timer = 1; Frame = MapHighlightFrame.First; }
 
     /// <summary>The shading the map's highlighted sprites show (#1512, #1597): the highlight shade of the cycle's current frame.</summary>
     public PictureShading Shading => PictureShading.Shaded(MapSpriteShades.Highlight(Frame));
@@ -43,9 +43,9 @@ public sealed class MapHighlightAnimation
         MapHighlightCycle cycle = content;
         // Preserve the game's increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
-        int next = Frame + 1;
-        bool wrapped = next >= cycle.FrameCount;
-        Frame = wrapped ? 0 : next;
+        MapHighlightFrame? next = cycle.After(Frame);
+        bool wrapped = next is null;
+        Frame = next is { } following ? following : MapHighlightFrame.First;
         Timer = cycle.Duration(Frame);
         return wrapped;
     }

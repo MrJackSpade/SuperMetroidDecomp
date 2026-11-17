@@ -28,8 +28,8 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     /// running effect. The order is observable through Samus's heat shimmer: started first in every heated room, it takes
     /// its turn before the room's heat glow that publishes the heat phase, so the shimmer, which restarts her suit's pulse
     /// on that phase, follows a new phase one update late. The effects whose turns gameplay observes, the heat shimmer
-    /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's FX record
-    /// and run until the room ends (<c>docs/compatibility-layer.md</c> gives the evidence).
+    /// that burns Samus, the heat glow that paces it and the beacon that sounds, are all started by the room's effect as
+    /// the room loads and run until the room ends (<c>docs/compatibility-layer.md</c> gives the evidence).
     /// </summary>
     internal readonly List<RoomColourEffect> effects = [];
     /// <summary>

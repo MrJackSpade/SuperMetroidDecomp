@@ -59,7 +59,7 @@ public static class IntroNarrationPictures
             {
                 IntroTextCell cell = text.ShownAt(column, row);
                 if (cell.Letter is { } letter)
-                    placed.Add(new(sheet.Frame(Letter(letter)), At(column, row), shown(PictureShading.Shaded(IntroShades.Glow(cell.ColourVariant)))));
+                    placed.Add(new(sheet.Frame(Letter(letter)), At(column, row), shown(PictureShading.Shaded(IntroShades.Glow(cell.Glow)))));
             }
         }
         return Plane(placed.ToImmutable());

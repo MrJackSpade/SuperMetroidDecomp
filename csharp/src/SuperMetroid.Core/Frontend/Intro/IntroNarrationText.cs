@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// The opening's narration text as a typed text scene (#1467, #1555): the letter typed at each place of the narration's
-/// fixed-width text rows, each in the colour variant its glow last gave it. The narration types letters into it and its
+/// fixed-width text rows, each in the colours of the glow step it last showed. The narration types letters into it and its
 /// glows recolour them; the cinematic shows it as it is, each letter at its screen pixel over the installed final line.
 /// </summary>
 /// <remarks>
@@ -30,17 +30,17 @@ internal sealed class IntroNarrationText
     /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
     internal IntroTextCell ShownAt(int column, int row) => places[PlaceIndex(column, row)];
 
-    /// <summary>Types <paramref name="character"/> at its place, in colour variant zero; a space blanks the place.</summary>
+    /// <summary>Types <paramref name="character"/> at its place, in the typed colours; a space blanks the place.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The character's place lies outside the text rows.</exception>
     internal void Type(IntroNarrationCharacter character) =>
-        places[PlaceIndex(character.Column, character.Row)] = new(character.IsSpace ? null : character.Character, 0);
+        places[PlaceIndex(character.Column, character.Row)] = new(character.IsSpace ? null : character.Character, IntroTextGlowStep.Typed);
 
-    /// <summary>Gives the place at <paramref name="column"/> of row <paramref name="row"/> colour variant <paramref name="colourVariant"/>, keeping its letter.</summary>
+    /// <summary>Gives the place at <paramref name="column"/> of row <paramref name="row"/> the colours of glow step <paramref name="glow"/>, keeping its letter.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The place lies outside the text rows.</exception>
-    internal void Recolour(int column, int row, int colourVariant)
+    internal void Recolour(int column, int row, IntroTextGlowStep glow)
     {
         int index = PlaceIndex(column, row);
-        places[index] = places[index] with { ColourVariant = colourVariant };
+        places[index] = places[index] with { Glow = glow };
     }
 
     /// <summary>Blanks every place of the text rows.</summary>

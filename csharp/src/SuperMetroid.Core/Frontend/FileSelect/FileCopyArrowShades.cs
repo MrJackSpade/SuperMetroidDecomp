@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 public static class FileCopyArrowShades
 {
-    /// <summary>The arrows after <paramref name="step"/> rotations, below <see cref="FileCopyArrowDefinitions.RotationSteps"/>.</summary>
-    public static PictureShade Rotation(int step) => new("FileCopyArrowRotation", step);
+    /// <summary>The arrows at rotation step <paramref name="step"/>.</summary>
+    public static PictureShade Rotation(FileCopyArrowRotationStep step) => new("FileCopyArrowRotation", step.Step);
 }

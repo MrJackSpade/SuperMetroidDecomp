@@ -26,14 +26,11 @@ public static class MapFramingDefinitions
     /// <summary>The rightmost revealed column a map takes when none of its columns is revealed.</summary>
     public const int UnrevealedRightColumn = 28;
 
-    /// <summary>The top revealed row a map takes when no row above its last is revealed.</summary>
+    /// <summary>The top revealed row a map takes when none of its rows is revealed.</summary>
     public const int UnrevealedTopRow = 1;
 
-    /// <summary>The bottom revealed row a map takes when no row below its first is revealed.</summary>
+    /// <summary>The bottom revealed row a map takes when none of its rows is revealed.</summary>
     public const int UnrevealedBottomRow = 11;
-
-    /// <summary>Map pixels Maridia's revealed map reaches left of its leftmost revealed column.</summary>
-    public const int MaridiaLeftReachPixels = 24;
 
     /// <summary>The screen column the middle of the revealed columns is centred on.</summary>
     public const int CentreColumn = 128;

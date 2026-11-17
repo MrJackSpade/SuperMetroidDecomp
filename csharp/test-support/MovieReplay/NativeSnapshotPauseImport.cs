@@ -24,7 +24,7 @@ internal static class NativeSnapshotPauseImport
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {
-        VerificationAssertions.AssertEqual(SuperMetroidGameState.Paused, GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState)),
+        VerificationAssertions.AssertTrue(game.IsAt(PauseStep.Menu) && GameStateNumberCodec.IsAt(game, W(NativeSnapshotMemory.GameState)),
             "pause import covers the stable pause menu");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         VerificationAssertions.AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
@@ -34,7 +34,7 @@ internal static class NativeSnapshotPauseImport
         menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         var highlight = menu.mapHighlight;
         PrivateState.Set(highlight, nameof(highlight.Timer), (int)memory[PauseMemory.PaletteAnimationTimer]);
-        PrivateState.Set(highlight, nameof(highlight.Frame), (int)memory[PauseMemory.PaletteAnimationFrame]);
+        PrivateState.Set(highlight, nameof(highlight.Frame), SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame.At(memory[PauseMemory.PaletteAnimationFrame]));
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
         PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationFrame), W(PauseMemory.IndicatorAnimationFrame) / 2);
         PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationTimer), (int)W(PauseMemory.IndicatorAnimationTimer));

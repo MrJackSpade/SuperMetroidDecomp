@@ -85,7 +85,7 @@ internal static class IntroScreenMemory
             {
                 IntroTextCell cell = text.ShownAt(column, row);
                 BackgroundTile shown = cell.Letter is { } letter ? IntroNarrationGlyphTiles.CompileGlyph(letter) : IntroNarrationTilemapConstants.Blank;
-                tiles[row * IntroNarrationText.GlyphColumns + column] = shown with { ColourVariant = cell.ColourVariant };
+                tiles[row * IntroNarrationText.GlyphColumns + column] = shown with { ColourVariant = cell.Glow.Step };
             }
         }
         return tiles;

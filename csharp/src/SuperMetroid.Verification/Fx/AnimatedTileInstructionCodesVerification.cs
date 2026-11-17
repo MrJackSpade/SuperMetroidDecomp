@@ -87,7 +87,7 @@ internal static class AnimatedTileInstructionCodesVerification
             frames = new ArtworkFrameSelections();
             state.Step(areaBossDefeated: true, frames);
             AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame shown) &&
-                    shown == BlockAnimationFrames.Frame(definition.Animation, frame),
+                    shown == BlockAnimationLoops.Of(definition.Animation).Frames[frame].Frame,
                 $"{direction} retail frame {frame} is the frame the treadmill shows");
             AssertEqual(expectedSources[frame], AnimatedTileImageSources.OfShown(frames, definition.Animation),
                 $"{direction} retail source frame {frame}");
@@ -96,7 +96,7 @@ internal static class AnimatedTileInstructionCodesVerification
         frames = new ArtworkFrameSelections();
         state.Step(areaBossDefeated: true, frames);
         AssertTrue(frames.TryShown(BlockAnimationFrames.Of(definition.Animation), out ArtworkFrame wrapped) &&
-                wrapped == BlockAnimationFrames.Frame(definition.Animation, 0),
+                wrapped == BlockAnimationLoops.Of(definition.Animation).Frames[0].Frame,
             $"{direction} compiled goto returns to frame zero");
         AssertEqual(expectedSources[0], AnimatedTileImageSources.OfShown(frames, definition.Animation),
             $"{direction} compiled goto returns to frame zero's source");

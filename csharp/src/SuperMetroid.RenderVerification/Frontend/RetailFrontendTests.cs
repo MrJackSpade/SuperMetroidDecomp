@@ -46,7 +46,7 @@ internal static class RetailFrontendTests
 
         var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         var captured = RenderRetailFixture.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore());
-        var states = new HashSet<SuperMetroidGameState>();
+        var states = new HashSet<object>();
         for (int tick = 0; tick < 500; tick++)
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None;
@@ -56,13 +56,13 @@ internal static class RetailFrontendTests
                 expected.FrameNumber != actual.Frame.FrameNumber ||
                 !expected.Audio.Events.SequenceEqual(actual.Frame.Audio.Events))
                 throw new InvalidOperationException($"Frontend state/audio diverged at tick {tick}.");
-            states.Add(expected.GameState);
+            states.Add(legacy.CurrentStep);
             var packet = actual.Snapshot;
             PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet),
                 $"{device.Kind}: retail frontend {expected.Phase}, tick {tick}");
             if (expected.GameState == SuperMetroidGameState.IntroCinematic)
             {
-                if (!states.Contains(SuperMetroidGameState.FileSelectMenus) || !states.Contains(SuperMetroidGameState.GameOptionsMenu))
+                if (!states.Contains(FileSelectStep.SaveSlots) || !states.Contains(FileSelectStep.Options))
                     throw new InvalidOperationException("Retail frontend did not visit file/options menus.");
                 Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {titleCount} natural title and {tick + 1} frontend frames match the WARP reference device; frontend state/audio commands agree.");
                 return;

@@ -61,7 +61,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");
-        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");

@@ -28,7 +28,7 @@ public static class MapHighlightTimingFile
         return JsonSerializer.SerializeToUtf8Bytes(new MapHighlightTimingDocument
         {
             Version = Version,
-            DurationTicks = [.. Enumerable.Range(0, cycle.Timing.FrameCount).Select(cycle.Timing.Duration)],
+            DurationTicks = [.. Enumerable.Range(0, cycle.Timing.FrameCount).Select(frame => cycle.Timing.Duration(MapHighlightFrame.At(frame)))],
         }, ArtworkJson.Options);
     }
 

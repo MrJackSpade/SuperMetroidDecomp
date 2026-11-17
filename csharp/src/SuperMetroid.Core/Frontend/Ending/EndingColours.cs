@@ -43,7 +43,7 @@ internal sealed class EndingColours
     private readonly Dictionary<EndingFlash, RgbColor?> flashes = [];
 
     /// <summary>The logo crossfade's current step, or none before the crossfade.</summary>
-    private int? logoCrossfadeStep;
+    private EndingLogoCrossfadeStep? logoCrossfadeStep;
 
     /// <summary>The ending's colour effects, which each scene boundary clears.</summary>
     internal ColourEffectSystem ColourEffects { get; private set; } = new(new ColourEffectSessionState());
@@ -93,9 +93,7 @@ internal sealed class EndingColours
     internal void Flash(EndingFlash flash, RgbColor? backdrop) => flashes[flash] = backdrop;
 
     /// <summary>Shows the logo crossfade's <paramref name="step"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The step is outside the crossfade.</exception>
-    internal void LogoCrossfade(int step) =>
-        logoCrossfadeStep = Ensure.BetweenInclusive(0, EndingShades.LogoCrossfadeSteps - 1, step);
+    internal void LogoCrossfade(EndingLogoCrossfadeStep step) => logoCrossfadeStep = step;
 
     /// <summary>
     /// Clears the colour effects at a scene boundary (#1544): every effect ends, so the frames they showed stop showing.

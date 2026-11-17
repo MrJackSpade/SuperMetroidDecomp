@@ -43,7 +43,7 @@ internal static class SaveLoadRandomAudit
             }
             for (int tick = 0; tick < 2000 && game.RuntimeForVerification is null; tick++)
             {
-                if (!insertedWait && game.GameState == SuperMetroidGameState.FileSelectMap)
+                if (!insertedWait && game.IsAt(FileSelectStep.AreaMap))
                 {
                     insertedWait = true;
                     for (int extra = 0; extra < wait; extra++) Step(0);
@@ -88,7 +88,7 @@ internal static class SaveLoadRandomAudit
 
             // Isolate the continue-menu handoff without a route-length death setup.
             // Retain the actual loaded runtime/RNG/SRAM and enter its file-map state.
-            game.GameState = SuperMetroidGameState.FileSelectMap;
+            game.Session.Enter(FileSelectStep.AreaMap);
             for (int tick = 0; tick < 1000 && (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification)); tick++)
             {
                 // The map's final dispatch resumes after its forced-blank NMI wait without a main-loop call.
@@ -103,7 +103,7 @@ internal static class SaveLoadRandomAudit
             if (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification))
                 throw new InvalidDataException("Continue-menu audit did not replace the loaded runtime.");
             Console.WriteLine($"CONTINUE RNG wait={wait} rng={expected.RandomNumber}");
-            game.GameState = SuperMetroidGameState.Reset;
+            game.Session.Enter(TitleStep.Starting);
             sequence++;
             game.StepCaptured(0);
             if (game.DispatcherRandomNumber != 758)

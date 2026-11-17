@@ -66,10 +66,10 @@ internal static class PauseDoorShinesparkVerification
             samus.Position = samus.Position.WithWhole(new(128, 128));
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(ControllerButton.Start);
-            AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins darkening before reaching the open door");
+            AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins darkening before reaching the open door");
             AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "initial Start frame is short of the door");
             if (scenario.Brightening)
-                game.GameState = SuperMetroidGameState.Unpausing;
+                game.Session.Enter(PauseStep.BrighteningGameplay);
             // The pause's fade keeps its step delay with no update left to wait, so the next update steps.
             game.Session.screenFade.Show(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15));
             game.Session.screenFade.SetCadence(SuperMetroid.Core.Frontend.Pause.PauseFadeTiming.CounterReload, 0);
@@ -78,15 +78,15 @@ internal static class PauseDoorShinesparkVerification
             game.Step(0);
             AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "horizontal shinespark actually touches the open door during the fade");
             AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "door contact does not crash the shinespark");
-            var expected = scenario.Terminal
-                ? scenario.Brightening ? SuperMetroidGameState.MainGameplay : SuperMetroidGameState.BeginningDoorTransition
-                : SuperMetroidGameState.HitDoorBlock;
-            AssertEqual(expected, game.GameState, "door publication retains native fade completion ordering");
+            bool publishedExpected = scenario.Terminal
+                ? scenario.Brightening ? game.GameState == SuperMetroidGameState.MainGameplay : game.IsAt(DoorTransitionStep.BeginningTransition)
+                : game.IsAt(DoorTransitionStep.EnteringDoor);
+            AssertTrue(publishedExpected, $"door publication retains native fade completion ordering; ended in {game.GameState}");
             if (!scenario.Brightening || !scenario.Terminal)
             {
                 ushort contactX = samus.Position.X.Whole;
                 game.Step(0);
-                AssertEqual(SuperMetroidGameState.DoorTransition, game.GameState, "published door state starts the transition coroutine");
+                AssertTrue(game.IsAt(DoorTransitionStep.Transitioning), "published door state starts the transition coroutine");
                 AssertEqual(contactX, samus.Position.X.Whole, "no additional source-room shinespark movement before transition");
             }
         }

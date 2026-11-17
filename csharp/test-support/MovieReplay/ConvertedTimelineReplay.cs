@@ -256,7 +256,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
             Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));
             throw new InvalidDataException(
                 $"{movie.Name} movie first divergence after update {update} (source frame {step.SourceFrame}, " +
-                $"native state {MovieDesyncComparison.Word(memory, MovieDesyncMemory.GameState):X2}, port state {GameStateNumberCodec.Encode(Game.GameState):X2}): " +
+                $"native state {MovieDesyncComparison.Word(memory, MovieDesyncMemory.GameState):X2}, port state {GameStateNumberCodec.Encode(Game):X2}): " +
                 string.Join("; ", mismatches));
         }
         if (update % 10000 == 0)

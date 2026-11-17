@@ -59,10 +59,10 @@ internal static class XrayGameStateVerification
         // State $0C: Start publishes the darkening state; the next dispatch runs gameplay.
         {
             game.Step(ControllerButton.Start);
-            AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins pause darkening");
+            AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins pause darkening");
             game.Step(runtime.Options.ControllerBindings.Dash);
-            AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "the held-Run frame is a darkening gameplay frame");
-            AssertEqual(SuperMetroidGameState.PausingDarkening, runtime.RunningGameState, "the runtime sees the live darkening state");
+            AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "the held-Run frame is a darkening gameplay frame");
+            AssertEqual(SuperMetroidGameState.Pause, runtime.RunningGameState, "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $0C rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }
@@ -70,10 +70,10 @@ internal static class XrayGameStateVerification
         // State $12: the unpause fade also runs the state-eight routine.
         {
             game.Session.screenFade.Show(0);
-            game.GameState = SuperMetroidGameState.Unpausing;
+            game.Session.Enter(PauseStep.BrighteningGameplay);
             game.Step(runtime.Options.ControllerBindings.Dash);
-            AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "the held-Run frame is an unpausing gameplay frame");
-            AssertEqual(SuperMetroidGameState.Unpausing, runtime.RunningGameState, "the runtime sees the live unpausing state");
+            AssertTrue(game.IsAt(PauseStep.BrighteningGameplay), "the held-Run frame is an unpausing gameplay frame");
+            AssertEqual(SuperMetroidGameState.Pause, runtime.RunningGameState, "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $12 rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }

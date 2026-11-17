@@ -15,5 +15,5 @@ public static class MapSpriteShades
     /// A map sprite's recolourable parts drawn in the highlight colours, at frame <paramref name="frame"/> of the
     /// highlight cycle: the scroll arrows on both map screens.
     /// </summary>
-    public static PictureShade Highlight(int frame) => new("MapHighlight", frame);
+    public static PictureShade Highlight(MapHighlightFrame frame) => new("MapHighlight", frame.Frame);
 }

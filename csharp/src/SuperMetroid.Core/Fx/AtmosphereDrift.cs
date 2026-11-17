@@ -4,16 +4,11 @@ namespace SuperMetroid.Core.Fx;
 public static class AtmosphereDrift
 {
     /// <summary>
-    /// The wind a rainy room's load chooses from the shared random number, chooses
-    /// one of the four winds, and the rest of the number is ignored.
+    /// The wind a rainy room's load chooses from the shared random number: the one of the rain's winds
+    /// (<see cref="AtmosphereDriftDefinitions.RainWinds"/>) its choice reads; the rest of the number is ignored.
     /// </summary>
-    public static RainWind RainWindChosenBy(int randomNumber) => AtmosphereDriftDefinitions.RainWindChoice.Of(randomNumber) switch
-    {
-        0 => RainWind.StrongLeft,
-        1 => RainWind.StrongRight,
-        2 => RainWind.GentleLeft,
-        _ => RainWind.GentleRight,
-    };
+    public static RainWind RainWindChosenBy(int randomNumber) =>
+        AtmosphereDriftDefinitions.RainWinds[AtmosphereDriftDefinitions.RainWindChoice.Of(randomNumber)];
 
     /// <summary>The rain's sideways velocity a frame under <paramref name="wind"/>: negative blows it left.</summary>
     public static SignedEightEight RainHorizontalVelocity(RainWind wind) => wind switch

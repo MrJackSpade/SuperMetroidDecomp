@@ -57,7 +57,7 @@ internal static class MapSpriteSheetComposer
             RgbColor[] colours = fileSelect.AsSpan(highlighted * GroupColours, GroupColours).ToArray();
             foreach (int ink in MapPaletteCycleFormat.HighlightInks)
                 colours[ink] = highlight.Highlight(frame);
-            shades.Add(SheetShade.DrawnOver(MapSpriteShades.Highlight(frame), highlighted, pictures.SetsOf(MapSpriteColouring.Highlighted),
+            shades.Add(SheetShade.DrawnOver(MapSpriteShades.Highlight(MapHighlightFrame.At(frame)), highlighted, pictures.SetsOf(MapSpriteColouring.Highlighted),
                 colours) with { TakesColourMath = false });
         }
         return new SpriteSheetSources([.. frames.Select(frame => frame.Frame)], fileSelect, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection),

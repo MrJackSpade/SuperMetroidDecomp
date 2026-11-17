@@ -169,7 +169,7 @@ internal static class DoorTransitionAutosaveVerification
                 SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
                 runtime.Room.LoadedLevelData.ResolveDoorCollision(block, samus.Pose.ForRoomCollision(), true);
                 game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-                game.GameState = SuperMetroidGameState.HitDoorBlock;
+                game.Session.Enter(DoorTransitionStep.EnteringDoor);
             }
             // The door block leading from a source room to a destination, found in the room's cartridge level the first
             // time that door is asked for (#1532): a repeated door reuses it instead of loading the room once more to

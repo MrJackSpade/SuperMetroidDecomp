@@ -76,7 +76,7 @@ internal static class DoorEntryRoomFxSoundVerification
         AssertTrue(selected, "Rising Tide has an exit");
         var audio = game.AudioForVerification;
         SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         game.Step(0);
 
         AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,

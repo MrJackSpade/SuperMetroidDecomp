@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
-/// The map highlight cycle's timing (#1512): how many frames it steps through and how long each holds. The colours of each
+/// The map highlight cycle's timing (#1512): the frames it steps through and how long each holds. The colours of each
 /// frame are a shade the import pre-colours the map sprite sheet in (<see cref="MapSpriteShades.Highlight"/>).
 /// </summary>
 public sealed class MapHighlightCycle
@@ -27,7 +27,11 @@ public sealed class MapHighlightCycle
     /// <summary>The number of frames the cycle steps through before it wraps.</summary>
     public int FrameCount => durations.Length;
 
-    /// <summary>How many updates frame <paramref name="frame"/> holds.</summary>
+    /// <summary>How many updates <paramref name="frame"/> holds.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the cycle.</exception>
-    public int Duration(int frame) => durations[Ensure.BetweenInclusive(0, durations.Length - 1, frame)];
+    public int Duration(MapHighlightFrame frame) => durations[Ensure.BetweenInclusive(0, durations.Length - 1, frame.Frame)];
+
+    /// <summary>The frame after <paramref name="frame"/>, or null after the cycle's last, where it wraps to its first.</summary>
+    public MapHighlightFrame? After(MapHighlightFrame frame) =>
+        frame.Frame + 1 < durations.Length ? MapHighlightFrame.At(frame.Frame + 1) : null;
 }

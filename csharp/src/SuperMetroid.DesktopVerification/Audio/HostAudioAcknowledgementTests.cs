@@ -45,7 +45,7 @@ internal static class HostAudioAcknowledgementTests
             for (int tick = 0; tick < 2000 && moves < FileSelectCursorMoves; tick++)
             {
                 ControllerButton input = 0;
-                if (reference.GameState != SuperMetroidGameState.FileSelectMenus)
+                if (!reference.IsAt(FileSelectStep.SaveSlots))
                     input = tick % 47 == 0 ? ControllerButton.Start : ControllerButton.None;
                 else if (tick % 20 == 0)
                 {

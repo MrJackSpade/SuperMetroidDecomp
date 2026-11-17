@@ -48,7 +48,7 @@ internal static class PauseHudLocationVerification
             RgbColor[] centerColors = [.. Enumerable.Range(inks + 1, 3).Select(color => RgbColor.FromWord(checked(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + color * 2))))];
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
-            game.GameState = SuperMetroidGameState.Paused;
+            game.Session.Enter(PauseStep.Menu);
             for (int frame = 0; frame < 24; frame++)
             {
                 game.StepCaptured(0);

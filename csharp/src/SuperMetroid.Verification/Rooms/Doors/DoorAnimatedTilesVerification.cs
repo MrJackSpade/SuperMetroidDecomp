@@ -53,7 +53,7 @@ internal static class DoorAnimatedTilesVerification
 
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.GameState = SuperMetroidGameState.HitDoorBlock;
+        game.Session.Enter(DoorTransitionStep.EnteringDoor);
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
         {

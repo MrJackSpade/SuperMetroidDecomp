@@ -48,18 +48,18 @@ internal static class EndingLogoVerification
             logo.Step(screen.Colours);
             frame++;
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
-            if (logo.CrossfadeStep > 0)
+            if (logo.ShownCrossfade is { } shownStep)
             {
                 // The screen names the step shown; the import's shade of that step holds the cartridge's table entry (#1512).
-                AssertEqual(EndingShades.LogoCrossfade(logo.CrossfadeStep - 1), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
-                SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(logo.CrossfadeStep - 1));
+                AssertEqual(EndingShades.LogoCrossfade(shownStep), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
+                SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(shownStep));
                 AssertTrue(step.Inks.SequenceEqual([.. Enumerable.Range(16, 16), .. Enumerable.Range(240, 16)]),
                     "a crossfade step covers the logo's background and sprite colours");
                 for (int p = 0; p < 2; p++)
                 {
                     int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                         EndingPaletteSources.NativeTableAddress +
-                        (logo.CrossfadeStep - 1) * 4 + p * 2);
+                        shownStep.Step * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
                             step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
@@ -142,9 +142,11 @@ internal static class EndingLogoVerification
             int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
+            // The logo scene sets both camera coordinates to 256, so each native origin lies 256 pixels right of and below
+            // its place on the screen.
             Offset16<ScreenPixels> origin = actual.Origin;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)), (int)origin.X, "native actor X origin");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)), (int)origin.Y, "native actor Y origin");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)) - 256, (int)origin.X, "native actor X origin, less the logo's camera");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)) - 256, (int)origin.Y, "native actor Y origin, less the logo's camera");
         }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(

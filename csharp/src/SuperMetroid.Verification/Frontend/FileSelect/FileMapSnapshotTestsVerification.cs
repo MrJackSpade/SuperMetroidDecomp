@@ -83,7 +83,7 @@ internal static class FileMapSnapshotTestsVerification
         {
             ControllerButton input = tick % 47 == 0 ? ControllerButton.Start : 0;
             var reference = game.Step(input); var actual = capturedGame.StepCaptured(input);
-            sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
+            sawMap |= game.IsAt(FileSelectStep.AreaMap);
             AssertTrue(ScenePixels.Same(game.GetRetainedDisplay(), actual.Snapshot), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
             AssertEqual(reference.Phase, actual.Frame.Phase, "saved-file frontend phase");

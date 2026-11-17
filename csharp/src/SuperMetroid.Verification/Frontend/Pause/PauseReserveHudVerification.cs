@@ -48,7 +48,7 @@ internal static class PauseReserveHudVerification
         // latch and presentation below are real production calls, not a fake refill.
         game.AdoptRuntime(runtime);
         game.Session.Show(pause);
-        game.GameState = SuperMetroidGameState.Paused;
+        game.Session.Enter(PauseStep.Menu);
         // The pause screen's BG3 words: the HUD's static top row, its three mutable rows, then the cleared effect rows.
         ushort Shown(int hudCell) => pause.screen.Bg3Tiles(RetailPresentationFixture())[FxOverlayPlaneConstants.Columns + hudCell].PackedWord;
         ushort originalAuto = Shown(8);
@@ -83,12 +83,12 @@ internal static class PauseReserveHudVerification
             AssertEqual(initialHud[index], Shown(index), "reserve updates preserve other HUD cells");
         AssertTrue(initialFx.AsSpan().SequenceEqual(BackgroundTileWordBytes.Words(pause.screen.Bg3Tiles(RetailPresentationFixture()).AsSpan(FxOverlayPlaneConstants.HudRows * FxOverlayPlaneConstants.Columns, PauseClearedEffectWords))),
             "HUD synchronization preserves cleared pause FX rows");
-        for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.Paused; frame++)
+        for (int frame = 0; frame < 8 && game.IsAt(PauseStep.Menu); frame++)
         {
             samus.Health = (ushort)(31 + frame);
             Step(ControllerButton.Start);
         }
-        AssertEqual(SuperMetroidGameState.PauseScreenFadeOut, game.GameState, "Start begins fade after queueing HUD");
+        AssertTrue(game.IsAt(PauseStep.FadingOut), "Start begins fade after queueing HUD");
         AssertEqual(bus.ReadCartridgeWord((0x809dbf + (samus.Health - 1) % 10 * 2)), Shown(71), "last paused HUD write waits for the next accepted NMI");
         Step();
         AssertEqual(bus.ReadCartridgeWord((0x809dbf + samus.Health % 10 * 2)), Shown(71), "first fade frame accepts final paused HUD write");

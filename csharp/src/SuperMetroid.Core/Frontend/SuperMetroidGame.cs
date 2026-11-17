@@ -16,39 +16,16 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The game: each update runs the phase of the current <see cref="SuperMetroidGameState"/> and the audio around it.
+/// The game: each update runs the current <see cref="SuperMetroidGameState"/> sequence and the audio around it.
 /// </summary>
 /// <remarks>
-/// Every state owns its own logic and display, and a transition always names the state it enters, so an
-/// unexpected state stops the game with its name instead of continuing somewhere arbitrary.
+/// Every sequence owns its own steps, logic and display, and a transition always names the sequence and step it enters,
+/// so an undefined step stops the game with its name instead of continuing somewhere arbitrary.
 /// </remarks>
 public sealed class SuperMetroidGame
 {
     /// <summary>The state and owners every phase runs against (<see cref="FrontendSession"/>).</summary>
     internal FrontendSession Session { get; }
-    /// <summary>The menu phases (<see cref="MenuGamePhases"/>).</summary>
-    private MenuGamePhases MenuPhases => field ??= new MenuGamePhases(Session);
-
-    /// <summary>The game-loading phases (<see cref="LoadingGamePhases"/>).</summary>
-    private LoadingGamePhases LoadingPhases => field ??= new LoadingGamePhases(Session);
-
-    /// <summary>The gameplay phases (<see cref="GameplayGamePhases"/>).</summary>
-    private GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(Session);
-
-    /// <summary>The pause-menu phases (<see cref="PauseGamePhases"/>).</summary>
-    private PauseGamePhases PausePhases => field ??= new PauseGamePhases(Session);
-
-    /// <summary>The death-sequence phases (<see cref="DeathGamePhases"/>).</summary>
-    private DeathGamePhases DeathPhases => field ??= new DeathGamePhases(Session);
-
-    /// <summary>The door phases (<see cref="DoorGamePhases"/>).</summary>
-    private DoorGamePhases DoorPhases => field ??= new DoorGamePhases(Session);
-
-    /// <summary>The cinematic phases (<see cref="CinematicGamePhases"/>).</summary>
-    private CinematicGamePhases CinematicPhases => field ??= new CinematicGamePhases(Session);
-
-    /// <summary>The attract-demo phases (<see cref="AttractGamePhases"/>).</summary>
-    private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
     /// <summary>
     /// Binds installed artwork whenever a host binds the game to its content (<see cref="GameSessionComposer.Bind"/>). Each
@@ -67,7 +44,7 @@ public sealed class SuperMetroidGame
         // Every screen is built over the session's bound artwork, so a shown screen always has artwork to rebind from.
         if (Session.Screen is { } screen)
             screen.BindArtwork(previous ?? throw new InvalidOperationException(
-                "A frontend screen is shown in a session whose installed artwork was never bound."), artwork, Session.GameState);
+                "A frontend screen is shown in a session whose installed artwork was never bound."), artwork);
     }
 
 
@@ -137,8 +114,8 @@ public sealed class SuperMetroidGame
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
 
-    /// <summary>The phase the game is in.</summary>
-    public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.GameState = value; }
+    /// <summary>The sequence the game is running. Setting it enters the sequence at its first step.</summary>
+    public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.Enter(value); }
 
     /// <summary>
     /// The number of updates the game has run. Hosts and diagnostics name frames by it; no gameplay reads it, so it counts
@@ -232,204 +209,37 @@ public sealed class SuperMetroidGame
         return new(Session.GameState, PhaseName, FrameNumber, audio);
     }
 
-    /// <summary>One phase per game state; each runs that state's update.</summary>
+    /// <summary>The gameplay phases, which the pause's brightening and the time-up's white-out also run (<see cref="GameplayGamePhases"/>).</summary>
+    private GameplayGamePhases GameplayPhases => field ??= new GameplayGamePhases(Session);
+
+    /// <summary>One phase per sequence; each runs that sequence's update and owns its steps.</summary>
     private GamePhaseTable Phases => field ??= new GamePhaseTable(
         [
-            new GamePhase(SuperMetroidGameState.Reset,
-                PhaseRandomStep.Reseed,
-                step: _ => MenuPhases.RunReset(),
-                name: () => "Reset"),
-            new GamePhase(SuperMetroidGameState.OpeningCinematic,
-                PhaseRandomStep.Advance,
-                step: controllerInput => MenuPhases.RunOpeningCinematic(controllerInput),
-                name: () => Session.ActiveTitle.Phase.ToString()),
-            new GamePhase(SuperMetroidGameState.GameOptionsMenu,
-                PhaseRandomStep.Advance,
-                step: controllerInput => MenuPhases.RunGameOptionsMenu(controllerInput),
-                name: () => Session.ActiveOptions.Phase.ToString()),
-            new GamePhase(SuperMetroidGameState.FileSelectMenus,
-                PhaseRandomStep.Advance,
-                step: controllerInput => MenuPhases.RunFileSelectMenus(controllerInput),
-                name: () => Session.ActiveFileSelect.Phase.ToString(),
-                waitingOutDisplayFrame: () => Session.ScreenAs<FileSelectMenuState>()?.IsWaitingOutDisplayFrame == true),
-            // The map's final update latched its load request, blanked the display and waits
-            // out one frame; the next update continues that step.
-            new GamePhase(SuperMetroidGameState.FileSelectMap,
-                PhaseRandomStep.Advance,
-                step: controllerInput => MenuPhases.RunFileSelectMap(controllerInput),
-                name: () => Session.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
-                waitingOutDisplayFrame: () => Session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true),
-            new GamePhase(SuperMetroidGameState.LoadingGameData,
-                PhaseRandomStep.Advance,
-                step: controllerInput => LoadingPhases.RunLoadingGameData(controllerInput),
-                name: () => $"Loading Landing Site ({Session.GameLoading.WaitsRemaining} updates)",
-                waitingOutDisplayFrame: () => Session.ResumesGameLoadingWait),
-            new GamePhase(SuperMetroidGameState.MainGameplayFadeIn,
+            new TitleGameSequence(Session),
+            new FileSelectGameSequence(Session),
+            new LoadingGameSequence(Session),
+            new GamePhase(SuperMetroidGameState.GameplayFadeIn,
                 PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => LoadingPhases.RunMainGameplayFadeIn(controllerInput),
+                step: controllerInput => GameplayPhases.RunGameplayFadeIn(controllerInput),
                 name: () => Session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.GameplayFadeIn.Level})" : $"Landing Site fade-in (brightness {Session.GameplayFadeIn.Level})"),
             new GamePhase(SuperMetroidGameState.MainGameplay,
                 PhaseRandomStep.RuntimeOwned,
                 step: controllerInput => GameplayPhases.RunMainGameplay(controllerInput),
                 name: () => "Gameplay"),
-            new GamePhase(SuperMetroidGameState.HitDoorBlock,
+            new DoorTransitionGameSequence(Session),
+            new PauseGameSequence(Session, GameplayPhases),
+            new GamePhase(SuperMetroidGameState.ReserveTankRefill,
                 PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DoorPhases.RunDoorCollisionAndLoading(controllerInput),
-                name: () => "Door collision",
-                audio: GamePhaseAudio.DoorTransition),
-            new GamePhase(SuperMetroidGameState.BeginningDoorTransition,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DoorPhases.RunDoorCollisionAndLoading(controllerInput),
-                name: () => "Loading destination room",
-                audio: GamePhaseAudio.DoorTransition),
-            new GamePhase(SuperMetroidGameState.DoorTransition,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DoorPhases.RunDoorTransition(controllerInput),
-                name: () => "Destination room ready",
-                audio: GamePhaseAudio.DoorTransitionSoundsDisabled),
-            new GamePhase(SuperMetroidGameState.PausingDarkening,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunPausingDarkening(controllerInput),
-                name: () => $"Pausing: gameplay darken ({Session.PauseBrightness})"),
-            new GamePhase(SuperMetroidGameState.Pausing,
-                PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-                step: controllerInput => PausePhases.RunPausing(controllerInput),
-                name: () => "Pausing: load pause assets",
-                audio: GamePhaseAudio.PauseInputEpilogue),
-            // The random generator advances once before each pause-only phase as well. The
-            // pause fades run gameplay, which advances it itself.
-            new GamePhase(SuperMetroidGameState.PauseScreenFadeIn,
-                PhaseRandomStep.Advance,
-                step: controllerInput => PausePhases.RunPauseScreenFadeIn(controllerInput),
-                name: () => $"Paused: fade in ({Session.PauseBrightness})",
-                audio: GamePhaseAudio.PauseInputEpilogue),
-            new GamePhase(SuperMetroidGameState.Paused,
-                PhaseRandomStep.Advance,
-                step: controllerInput => PausePhases.RunPaused(controllerInput),
-                name: () => Session.ScreenAs<PauseMenuState>()?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
-                audio: GamePhaseAudio.PauseInputEpilogue),
-            new GamePhase(SuperMetroidGameState.PauseScreenFadeOut,
-                PhaseRandomStep.Advance,
-                step: controllerInput => PausePhases.RunPauseScreenFadeOut(controllerInput),
-                name: () => $"Unpausing: fade out ({Session.PauseBrightness})",
-                audio: GamePhaseAudio.PauseInputEpilogue),
-            new GamePhase(SuperMetroidGameState.RestoringGameplayFromPause,
-                PhaseRandomStep.Advance,
-                step: controllerInput => PausePhases.RunRestoringGameplayFromPause(controllerInput),
-                name: () => "Unpausing: restore gameplay",
-                audio: GamePhaseAudio.PauseInputEpilogue),
-            new GamePhase(SuperMetroidGameState.Unpausing,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunUnpausing(controllerInput),
-                name: () => $"Unpausing: gameplay brighten ({Session.PauseBrightness})"),
-            new GamePhase(SuperMetroidGameState.DeathSequenceStart,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DeathPhases.RunDeathSequenceStart(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathSequenceStart)),
-            new GamePhase(SuperMetroidGameState.DeathBlackOutSurroundings,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DeathPhases.RunDeathBlackOutSurroundings(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathBlackOutSurroundings)),
-            new GamePhase(SuperMetroidGameState.DeathWaitForMusic,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DeathPhases.RunDeathWaitForMusic(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathWaitForMusic)),
-            new GamePhase(SuperMetroidGameState.DeathPreFlashing,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DeathPhases.RunDeathFlashing(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathPreFlashing)),
-            new GamePhase(SuperMetroidGameState.DeathFlashing,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DeathPhases.RunDeathFlashing(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathFlashing)),
-            new GamePhase(SuperMetroidGameState.DeathExplosionWhiteOut,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => DeathPhases.RunDeathFlashing(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathExplosionWhiteOut)),
-            // The final black-out only fades; the random generator advances before it as before any phase.
-            new GamePhase(SuperMetroidGameState.DeathFinalBlackOut,
-                PhaseRandomStep.Advance,
-                step: controllerInput => DeathPhases.RunDeathFinalBlackOut(controllerInput),
-                name: () => nameof(SuperMetroidGameState.DeathFinalBlackOut)),
-            // The game-over menu's first two steps each wait out a frame of the display.
-            new GamePhase(SuperMetroidGameState.GameOverMenu,
-                PhaseRandomStep.Advance,
-                step: controllerInput => MenuPhases.RunGameOverMenu(controllerInput),
-                name: () => nameof(SuperMetroidGameState.GameOverMenu),
-                waitingOutDisplayFrame: () => Session.ScreenAs<GameOverMenuState>()?.IsWaitingOutDisplayFrame == true),
-            new GamePhase(SuperMetroidGameState.ReserveTanksAuto,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunReserveTanksAuto(controllerInput),
-                name: () => nameof(SuperMetroidGameState.ReserveTanksAuto)),
-            new GamePhase(SuperMetroidGameState.IntroCinematic,
-                PhaseRandomStep.Advance,
-                step: controllerInput => CinematicPhases.RunIntroCinematic(controllerInput),
-                name: () => Session.ActiveIntro.Phase.ToString()),
-            new GamePhase(SuperMetroidGameState.SetUpNewGame,
-                PhaseRandomStep.Advance,
-                step: controllerInput => LoadingPhases.RunSetUpNewGame(controllerInput),
-                name: () => Session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
-                waitingOutDisplayFrame: () => Session.ResumesGameLoadingWait),
-            new GamePhase(SuperMetroidGameState.MadeItToCeresElevator,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunMadeItToCeresElevator(controllerInput),
-                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining})" : Session.Runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
-            new GamePhase(SuperMetroidGameState.BlackoutFromCeres,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunBlackoutFromCeres(controllerInput),
-                name: () => $"Ceres blackout (brightness {Session.ceresDeparture.Brightness})"),
-            // The Ceres destruction cinematics share the intro's cinematic phase and its random advance.
-            new GamePhase(SuperMetroidGameState.CeresGoesBoom,
-                PhaseRandomStep.Advance,
-                step: controllerInput => CinematicPhases.RunCeresGoesBoom(controllerInput),
-                name: () => $"Ceres destruction: {Session.ScreenAs<CeresDestructionCinematicState>()?.Phase}",
-                waitingOutDisplayFrame: () => Session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true),
-            new GamePhase(SuperMetroidGameState.TimeUp,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunTimeUp(controllerInput),
-                name: () => nameof(SuperMetroidGameState.TimeUp)),
-            // The time-up white-out fades without gameplay; the room liquid's wave and the statues' descent still advance
-            // until it clears the room's effects.
-            new GamePhase(SuperMetroidGameState.WhitingOutFromTimeUp,
-                PhaseRandomStep.LiquidWaveAndStatueDescentThenAdvance,
-                step: controllerInput => CinematicPhases.RunWhitingOutFromTimeUp(controllerInput),
-                name: () => nameof(SuperMetroidGameState.WhitingOutFromTimeUp)),
-            new GamePhase(SuperMetroidGameState.CeresGoesBoomWithSamus,
-                PhaseRandomStep.Advance,
-                step: controllerInput => CinematicPhases.RunCeresGoesBoomWithSamus(controllerInput),
-                name: () => nameof(SuperMetroidGameState.CeresGoesBoomWithSamus),
-                waitingOutDisplayFrame: () => Session.ScreenAs<CeresDestructionCinematicState>()?.IsWaitingOutDisplayFrame == true),
-            new GamePhase(SuperMetroidGameState.SamusEscapesFromZebes,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => GameplayPhases.RunSamusEscapesFromZebes(controllerInput),
-                name: () => $"Zebes escape fade-out ({Session.EscapeFade.Level})"),
-            // The ending runs after the random advance, except while its setup waits out
-            // frames of the display.
-            new GamePhase(SuperMetroidGameState.EndingAndCredits,
-                PhaseRandomStep.Advance,
-                step: _ => CinematicPhases.RunEndingAndCredits(),
-                name: () => $"Ending: {Session.ScreenAs<EndingCreditsState>()?.Stage.Phase}",
-                waitingOutDisplayFrame: () => Session.ScreenAs<EndingCreditsState>()?.IsWaitingOutDisplayFrame == true),
-            new GamePhase(SuperMetroidGameState.LoadingDemo,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => AttractPhases.RunAttractDemo(controllerInput),
-                name: () => nameof(SuperMetroidGameState.LoadingDemo)),
-            new GamePhase(SuperMetroidGameState.StartingDemo,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => AttractPhases.RunAttractDemo(controllerInput),
-                name: () => nameof(SuperMetroidGameState.StartingDemo)),
-            new GamePhase(SuperMetroidGameState.PlayingDemo,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => AttractPhases.RunAttractDemo(controllerInput),
-                name: () => nameof(SuperMetroidGameState.PlayingDemo)),
-            new GamePhase(SuperMetroidGameState.UnloadingDemo,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => AttractPhases.RunAttractDemo(controllerInput),
-                name: () => nameof(SuperMetroidGameState.UnloadingDemo)),
-            new GamePhase(SuperMetroidGameState.RoutingAfterDemo,
-                PhaseRandomStep.RuntimeOwned,
-                step: controllerInput => AttractPhases.RunAttractDemo(controllerInput),
-                name: () => nameof(SuperMetroidGameState.RoutingAfterDemo)),
+                step: controllerInput => GameplayPhases.RunReserveTankRefill(controllerInput),
+                name: () => "Reserve tank refill"),
+            new DeathGameSequence(Session),
+            new GameOverMenuGamePhase(Session),
+            new IntroCinematicGamePhase(Session),
+            new CeresDepartureGameSequence(Session),
+            new CeresDestructionGameSequence(Session),
+            new TimeUpGameSequence(Session, GameplayPhases),
+            new EndingGameSequence(Session),
+            new AttractDemoGameSequence(Session),
         ]);
 
     /// <summary>

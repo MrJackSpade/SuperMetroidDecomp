@@ -31,16 +31,15 @@ internal static class PauseEquipmentPageLayout
         SamusEquipmentFlags collectedItems = SamusEquipmentFlags.None, equippedItems = SamusEquipmentFlags.None;
         foreach (PauseUpgradeControl control in PauseEquipmentControls.Upgrades)
         {
-            PauseEquipmentBit bit = control.Upgrade;
             PauseEquipmentLabelState state = page.Label(control.Label).State;
             if (state == PauseEquipmentLabelState.Blank)
                 continue;
-            collectedBeams |= bit.Beam;
-            collectedItems |= bit.Item;
+            collectedBeams = control.Upgrade.AddedTo(collectedBeams);
+            collectedItems = control.Upgrade.AddedTo(collectedItems);
             if (state == PauseEquipmentLabelState.Enabled)
             {
-                equippedBeams |= bit.Beam;
-                equippedItems |= bit.Item;
+                equippedBeams = control.Upgrade.AddedTo(equippedBeams);
+                equippedItems = control.Upgrade.AddedTo(equippedItems);
             }
         }
         labels.ApplyInventory(tiles, collectedBeams, equippedBeams, collectedItems, equippedItems, page.HyperBeam);

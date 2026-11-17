@@ -91,7 +91,7 @@ internal static class InstalledSporesTests
                         mechanics.FrameInstructionPointer(tick / 10 % 3));
                     Require(stock.BlockAnimationAtlas.TryResolve(source, 48, out var expected), "Missing stock spores frame.");
                     // Animated frames are selected, and the room's BG3 pictures show the selected frame (#1406).
-                    ArtworkFrame cadence = BlockAnimationFrames.Frame(BlockAnimation.Spores, tick / 10 % 3);
+                    ArtworkFrame cadence = BlockAnimationLoops.Of(BlockAnimation.Spores).Frames[tick / 10 % 3].Frame;
                     Require(baselineFrames.TryShown(BlockAnimationFrames.Of(BlockAnimation.Spores), out ArtworkFrame stockShown) && stockShown == cadence,
                         "Stock spore cadence differs.");
                     tick++;

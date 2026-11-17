@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -62,16 +63,16 @@ internal static class FileSelectSoundVerification
         bool reachedSavedMap = false;
         for (int tick = 0; tick < 500; tick++)
         {
-            ControllerButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : ControllerButton.Start;
+            ControllerButton button = game.IsAt(FileSelectStep.SaveSlots) ? accept : ControllerButton.Start;
             var frame = game.StepCaptured(tick % 47 == 0 ? button : ControllerButton.None).Frame;
-            reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
+            reachedSavedMap |= game.IsAt(FileSelectStep.AreaMap);
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent is AudioEvent.StartSoundEffect started &&
                 started.SoundEffect == SamusSound.FileSelected;
             starts += frame.Audio.Events.Count(IsSwoosh);
             if (frame.Audio.Events.Any(IsSwoosh) && firstSoundTick < 0)
             {
                 firstSoundTick = tick;
-                AssertEqual(SuperMetroidGameState.FileSelectMenus, frame.GameState, "swoosh starts on the file screen, not after loading");
+                AssertTrue(game.IsAt(FileSelectStep.SaveSlots), "swoosh starts on the file screen, not after loading");
                 AssertEqual(nameof(FileSelectPhase.TurnSelectedHelmet), frame.Phase, "swoosh accompanies selected helmet turn");
             }
             game.CopyAudioFrame(pcm);

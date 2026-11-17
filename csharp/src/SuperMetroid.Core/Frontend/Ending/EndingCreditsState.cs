@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal sealed class EndingCreditsState : IFrontendScreen
 {
     /// <inheritdoc/>
-    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
     {
         Ensure.NotNull(previous);
         Ensure.NotNull(artwork);

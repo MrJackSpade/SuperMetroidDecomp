@@ -12,7 +12,6 @@ internal static class BlockAnimationFrames
     /// <summary>The animation <paramref name="animation"/> shows.</summary>
     internal static ArtworkAnimation Of(BlockAnimation animation) => new($"{animation} block animation");
 
-    /// <summary>Frame <paramref name="frame"/> of <paramref name="animation"/>'s timed loop.</summary>
-    internal static ArtworkFrame Frame(BlockAnimation animation, int frame) =>
-        new(Of(animation), $"frame {Ensure.AtLeastZero(frame)}");
+    /// <summary>The frame of <paramref name="animation"/> named <paramref name="name"/>.</summary>
+    internal static ArtworkFrame Frame(BlockAnimation animation, string name) => new(Of(animation), Ensure.NotNull(name));
 }

@@ -1,10 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>How the opening's narration letters glow in: each glow's colour variants and how long each lasts.</summary>
+/// <summary>How the opening's narration letters glow in: how long each step of a glow (<see cref="IntroTextGlowStep"/>) lasts.</summary>
 internal static class CinematicTextGlowDefinitions
 {
-    /// <summary>Updates each colour variant of a glowing rectangle lasts.</summary>
+    /// <summary>Updates between one step of a glow and the next.</summary>
     internal const int VariantDuration = 5;
-    /// <summary>The fourth and final colour variant, after which the rectangle stops glowing.</summary>
-    internal const int FinalVariant = 3;
 }

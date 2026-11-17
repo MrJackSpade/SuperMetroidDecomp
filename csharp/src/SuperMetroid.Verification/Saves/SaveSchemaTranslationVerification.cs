@@ -509,7 +509,7 @@ internal static class SaveSchemaTranslationVerification
         ending.Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.Stage.PhaseTimer = 1;
         frontend.Session.Show(ending);
-        frontend.GameState = SuperMetroidGameState.EndingAndCredits;
+        frontend.Session.Enter(EndingStep.Credits);
         int writes = 0;
         frontend.SavesChanged += () => writes++;
         frontend.Step(0);

@@ -502,7 +502,8 @@ internal static class LookupStream2Verification
         {
             PauseEquipmentLabel label = document.Labels[PauseEquipmentLabelKeys.Name(identity.Label)];
             BackgroundTile[] labelTiles = PauseTileGrid.Compile(label.Cells, "Stock label");
-            PauseEquipmentBit bit = identity.Upgrade;
+            SamusBeamFlags beams = identity.Upgrade.AddedTo(SamusBeamFlags.None);
+            SamusEquipmentFlags items = identity.Upgrade.AddedTo(SamusEquipmentFlags.None);
             foreach (bool disabled in new[] { false, true })
             {
                 BackgroundTile[] actual = Enumerable.Repeat(sentinel, 32 * 32).ToArray();
@@ -518,8 +519,8 @@ internal static class LookupStream2Verification
                     if (disabled) tile = tile with { ColourVariant = document.DisabledPalette };
                     expected[label.Row * 32 + label.Column + cell] = tile;
                 }
-                stock.ApplyInventory(actual, bit.Beam, disabled ? SamusBeamFlags.None : bit.Beam,
-                    bit.Item, disabled ? SamusEquipmentFlags.None : bit.Item, hyperBeam: false);
+                stock.ApplyInventory(actual, beams, disabled ? SamusBeamFlags.None : beams,
+                    items, disabled ? SamusEquipmentFlags.None : items, hyperBeam: false);
                 AssertTrue(expected.SequenceEqual(actual), "Actual label/disabled recolor writes every cell of the label and no surrounding tile");
             }
         }
@@ -1215,7 +1216,7 @@ internal static class LookupStream2Verification
         SuperMetroid.AssetExtraction.Artwork.SheetShade[] shades = [.. stock.ArrowColours.Shades()];
         for (int frame = 0; frame < 32; frame++)
         {
-            var pulse = shades.Single(shade => shade.Shade == SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowShades.Pulse(frame));
+            var pulse = shades.Single(shade => shade.Shade == SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowShades.Pulse(SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All[frame]));
             AssertTrue(pulse.Inks.SequenceEqual([102, 107]), "the pulse shade recolours the arrow's two bevel colours");
             AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.Colours[0], "Native arrow color6 reaches the arrow's shade colour");
             AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");

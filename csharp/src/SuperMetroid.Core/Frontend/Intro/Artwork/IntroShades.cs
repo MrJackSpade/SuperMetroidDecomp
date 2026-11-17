@@ -28,6 +28,6 @@ public static class IntroShades
     public static PictureShade Faded(IntroCrossfadeScene scene, int level, PictureShade drawn) =>
         new($"{drawn.Effect}.IntroFade{scene}", level);
 
-    /// <summary>A narration letter in the colour <paramref name="variant"/> its typing or glow gives it.</summary>
-    public static PictureShade Glow(int variant) => new(GlowEffect, variant);
+    /// <summary>A narration letter in the colours of glow step <paramref name="step"/>, which its typing or glow gives it.</summary>
+    public static PictureShade Glow(IntroTextGlowStep step) => new(GlowEffect, step.Step);
 }

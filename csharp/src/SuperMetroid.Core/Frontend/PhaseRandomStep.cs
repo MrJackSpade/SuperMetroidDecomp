@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>What the random generator does before a game state's phase runs each update (#1420).</summary>
+/// <summary>What the random generator does before a sequence's current step runs each update (#1420).</summary>
 internal enum PhaseRandomStep
 {
     /// <summary>The generator is reseeded at power-on, then advances once: the reset state runs after the first advance.</summary>

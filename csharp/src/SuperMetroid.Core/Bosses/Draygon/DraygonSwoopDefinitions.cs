@@ -1,0 +1,20 @@
+namespace SuperMetroid.Core.Bosses.Draygon;
+
+/// <summary>How Draygon's swoops speed up as his eye is hit, and when his arms reach out on them (#2300).</summary>
+internal static class DraygonSwoopDefinitions
+{
+    /// <summary>The swoop acceleration a fight starts with and a tail-whip hit restores: 24/256 pixel per frame per frame downward.</summary>
+    internal static readonly SignedEightEight InitialAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
+
+    /// <summary>The swoop acceleration each eye hit adds, 8/256 pixel per frame per frame, while below the limit.</summary>
+    internal static readonly SignedEightEight ShotAccelerationStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
+
+    /// <summary>The swoop acceleration, 160/256 pixel per frame per frame, an eye hit may not reach.</summary>
+    internal static readonly SignedEightEight AccelerationLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(160);
+
+    /// <summary>
+    /// The updates before the bottom of a swoop at which Draygon's arms reach out on the way down, and the updates after it
+    /// at which they return to rest on the climb: each update of the swoop follows one entry of its path.
+    /// </summary>
+    internal const int ArmsReachUpdatesFromBottom = 26;
+}

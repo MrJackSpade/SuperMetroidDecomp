@@ -16,6 +16,21 @@ internal static class DraygonArenaDefinitions
     /// <summary>Where a pass to the left sets up its swoop, right of the arena.</summary>
     internal const int RightSwoopSetupX = 592;
 
+    /// <summary>
+    /// The X Draygon parks at off the left edge (-80, wrapped into the coordinate range); a goop pass leftwards ends once
+    /// the body crosses it.
+    /// </summary>
+    internal static readonly int OffscreenLeftX = CoordinateAxis.Wrap(-80);
+
+    /// <summary>
+    /// The Y Draygon parks at above the room after a goop pass (-80, wrapped into the coordinate range), from which his
+    /// next swoop starts.
+    /// </summary>
+    internal static readonly int OffscreenAboveY = CoordinateAxis.Wrap(-80);
+
+    /// <summary>How far right of the left-side reset place the right-side one lies: 672 pixels.</summary>
+    internal const int RightSideResetDistance = 672;
+
     /// <summary>How near Samus Draygon's goop pass comes, horizontally, before he turns to whip his tail.</summary>
     internal const int GoopTailRange = 208;
 
@@ -84,6 +99,18 @@ internal static class DraygonArenaDefinitions
 
     /// <summary>How far, on each axis, the dying Draygon's scattered effects land from his body each way.</summary>
     internal const int DyingScatterReach = 64;
+
+    /// <summary>Arena X coordinate to which Draygon drifts before burial.</summary>
+    internal const int DeathTargetX = 256;
+
+    /// <summary>Arena Y coordinate at which the death drift hands off to burial.</summary>
+    internal const int DeathTargetY = 480;
+
+    /// <summary>Y threshold below the room where Draygon's burial is complete.</summary>
+    internal const int BurialFinishedY = 576;
+
+    /// <summary>The updates the dying Draygon waits for his burial Evirs before he sinks.</summary>
+    internal const int BurialWaitUpdates = 416;
 
     /// <summary>How near his burial point the dying Draygon must drift, on each axis, before he sinks.</summary>
     internal const int BurialPointTolerance = 4;

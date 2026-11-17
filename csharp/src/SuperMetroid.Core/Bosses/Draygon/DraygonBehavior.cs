@@ -206,36 +206,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static DraygonSwoopSide SwoopSideOf(DraygonEnemyState state) =>
         state.PassDirection == HorizontalDirection.Right ? RightSwoop : LeftSwoop;
 
-    /// <summary>
-    /// The X Draygon parks at off the left edge (-80, wrapped into the coordinate range); a goop pass leftwards ends once
-    /// the body crosses it.
-    /// </summary>
-    internal static readonly int DraygonOffscreenLeftX = CoordinateAxis.Wrap(-80);
-
-    /// <summary>
-    /// The Y Draygon parks at above the room after a goop pass (-80, wrapped into the coordinate range), from which his
-    /// next swoop starts.
-    /// </summary>
-    internal static readonly int DraygonOffscreenAboveY = CoordinateAxis.Wrap(-80);
-
-    /// <summary>How far right of the left-side reset place the right-side one lies: 672 pixels.</summary>
-    internal const int DraygonRightSideResetDistance = 672;
-
-    /// <summary>The swoop acceleration a fight starts with and a tail-whip hit restores: 24/256 pixel per frame per frame downward.</summary>
-    internal static readonly SignedEightEight DraygonInitialSwoopAcceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(24);
-
-    /// <summary>The swoop acceleration each eye hit adds, 8/256 pixel per frame per frame, while below the limit.</summary>
-    internal static readonly SignedEightEight DraygonShotSwoopAccelerationStep = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(8);
-
-    /// <summary>The swoop acceleration, 160/256 pixel per frame per frame, an eye hit may not reach.</summary>
-    internal static readonly SignedEightEight DraygonSwoopAccelerationLimit = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(160);
-
-    /// <summary>
-    /// The updates before the bottom of a swoop at which Draygon's arms reach out on the way down, and the updates after it
-    /// at which they return to rest on the climb: each update of the swoop follows one entry of its path.
-    /// </summary>
-    internal const int DraygonArmsReachUpdatesFromSwoopBottom = 26;
-
     /// <summary>Advances the typed animation of <paramref name="place"/>, one of the parts of <paramref name="draygon"/>.</summary>
     internal void AdvanceDraygonTypedAnimation(DraygonEnemyState draygon, RoomEnemyPlace place, EnemyAnimationCueContext context)
     {
@@ -249,38 +219,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // counter that wraps every 256 frames; only its place in a short repeating cycle is tested.
         RunDraygonBodyMain(place, frame.Samus, _frameContext.FrameCounter);
     }
-
-    /// <summary>Arena X coordinate to which Draygon drifts before burial.</summary>
-    internal const int DraygonDeathTargetX = 256;
-    /// <summary>Arena Y coordinate at which the death drift hands off to burial.</summary>
-    internal const int DraygonDeathTargetY = 480;
-    /// <summary>Y threshold below the room where Draygon's burial is complete.</summary>
-    internal const int DraygonBurialFinishedY = 576;
-    /// <summary>The updates the dying Draygon waits for his burial Evirs before he sinks.</summary>
-    internal const int DraygonBurialWaitUpdates = 416;
-    /// <summary>Whole-pixel speed of Draygon's direct chase before the carry spiral.</summary>
-    internal const int DraygonChaseSpeed = 2;
-    /// <summary>The carry spiral's target and initial center, (256, 384).</summary>
-    internal static readonly Position16<RoomPixels> DraygonSpiralTarget = new(256, 384);
-    /// <summary>Initial angular position used when the Samus-carry spiral begins: three quarters of a turn.</summary>
-    internal static readonly RotationAngle DraygonInitialSpiralAngle = RotationAngle.ThreeQuarterTurn;
-    /// <summary>Initial per-frame angular step of the Samus-carry spiral: eight steps (256ths of a turn), slowed by 1/256 of a step each frame.</summary>
-    internal static readonly RotationAngle DraygonInitialSpiralAngleDelta = RotationAngle.FromSteps(8);
-
-    /// <summary>How much the spiral's turn each frame slows every frame: a 256th of a step.</summary>
-    internal static readonly RotationAngle DraygonSpiralTurnSlowing = RotationAngle.FromSteps(0, 1);
-    /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
-    internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromSixteenthsOfPixel(2);
-    /// <summary>Largest radius reached by the expanding carry spiral.</summary>
-    internal const int DraygonMaximumSpiralRadius = 160;
-    /// <summary>Upper room boundary for the spiral center's vertical lift.</summary>
-    internal const int DraygonMinimumSpiralCenterY = 64;
-    /// <summary>The spiral center's per-frame 1/65536-pixel lift, a quarter pixel upward.</summary>
-    internal static readonly SignedSixteenSixteen DraygonSpiralCenterLift = -SignedSixteenSixteen.FromSixteenthsOfPixel(4);
-    /// <summary>Number of AI calls in Draygon's tail-whip phase.</summary>
-    internal const int DraygonTailWhipDuration = 64;
-    /// <summary>Countdown value that triggers the first tail-whip animation step.</summary>
-    internal const int DraygonTailWhipStartFrame = 63;
 
     /// <summary>
     /// Disables a wall cannon for the room object that names it. Cannon setup names one of

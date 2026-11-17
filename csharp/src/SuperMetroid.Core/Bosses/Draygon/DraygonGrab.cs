@@ -63,7 +63,7 @@ internal sealed class DraygonGrab
             EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, DraygonArenaDefinitions.GrabWindow);
         if (!insideGrabWindow)
         {
-            MoveDraygonToward(body, samus.Position.Whole, DraygonBehavior.DraygonChaseSpeed);
+            MoveDraygonToward(body, samus.Position.Whole, DraygonGrabDefinitions.ChaseSpeed);
             return;
         }
 
@@ -84,10 +84,10 @@ internal sealed class DraygonGrab
 
         samus.DraygonGrabbed.Begin(samus, state.Facing);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
-        state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonBehavior.DraygonSpiralTarget);
+        state.SpiralCenter = state.SpiralCenter.StartSpiral(DraygonGrabDefinitions.SpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
-        state.SpiralAngle = DraygonBehavior.DraygonInitialSpiralAngle;
-        state.SpiralAngleDelta = DraygonBehavior.DraygonInitialSpiralAngleDelta;
+        state.SpiralAngle = DraygonGrabDefinitions.InitialSpiralAngle;
+        state.SpiralAngleDelta = DraygonGrabDefinitions.InitialSpiralAngleDelta;
         state.Phase = DraygonPhase.CarrySamus;
     }
 
@@ -112,8 +112,8 @@ internal sealed class DraygonGrab
 
         RoomEnemyPlace body = state.Body;
         bool reachedTarget =
-            EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonSpiralTarget.X, DraygonArenaDefinitions.SpiralTargetTolerance) &&
-            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonBehavior.DraygonSpiralTarget.Y, DraygonArenaDefinitions.SpiralTargetTolerance);
+            EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonGrabDefinitions.SpiralTarget.X, DraygonArenaDefinitions.SpiralTargetTolerance) &&
+            EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonGrabDefinitions.SpiralTarget.Y, DraygonArenaDefinitions.SpiralTargetTolerance);
         if (reachedTarget)
         {
             state.Phase = DraygonPhase.FlailWithSamus;
@@ -126,7 +126,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        MoveDraygonToward(body, DraygonBehavior.DraygonSpiralTarget, DraygonBehavior.DraygonChaseSpeed);
+        MoveDraygonToward(body, DraygonGrabDefinitions.SpiralTarget, DraygonGrabDefinitions.ChaseSpeed);
         MoveSamusWithDraygon(state, samus);
     }
 
@@ -146,7 +146,7 @@ internal sealed class DraygonGrab
         // actors draw them. A tail-whip roll of zero inserts one 64-frame tail whip.
         if (DraygonRandomDefinitions.TailWhips.IsTakenBy(_room.Random.Read()))
         {
-            state.TailWhipTimer = DraygonBehavior.DraygonTailWhipDuration;
+            state.TailWhipTimer = DraygonGrabDefinitions.TailWhipUpdates;
             state.Phase = DraygonPhase.TailWhipWithSamus;
             return;
         }
@@ -168,18 +168,18 @@ internal sealed class DraygonGrab
                 graphics: default);
         }
 
-        state.SpiralXRadius += DraygonBehavior.DraygonSpiralRadiusGrowth;
-        if (state.SpiralXRadius.WholePixels >= DraygonBehavior.DraygonMaximumSpiralRadius)
+        state.SpiralXRadius += DraygonGrabDefinitions.SpiralRadiusGrowth;
+        if (state.SpiralXRadius.WholePixels >= DraygonGrabDefinitions.MaximumSpiralRadius)
         {
             state.Phase = DraygonPhase.FinalTailWhips;
             return;
         }
 
-        state.SpiralAngleDelta -= DraygonBehavior.DraygonSpiralTurnSlowing;
+        state.SpiralAngleDelta -= DraygonGrabDefinitions.SpiralTurnSlowing;
         state.SpiralAngle += state.SpiralAngleDelta.WholeStep;
 
-        state.SpiralCenter = state.SpiralCenter.Lifted(DraygonBehavior.DraygonSpiralCenterLift);
-        if (CoordinateAxis.Difference(state.SpiralCenter.Center.Y.Whole, DraygonBehavior.DraygonMinimumSpiralCenterY) < 0)
+        state.SpiralCenter = state.SpiralCenter.Lifted(DraygonGrabDefinitions.SpiralCenterLift);
+        if (CoordinateAxis.Difference(state.SpiralCenter.Center.Y.Whole, DraygonGrabDefinitions.MinimumSpiralCenterY) < 0)
         {
             state.Phase = DraygonPhase.FinalTailWhips;
             return;
@@ -198,7 +198,8 @@ internal sealed class DraygonGrab
             return;
         }
 
-        if (state.TailWhipTimer == DraygonBehavior.DraygonTailWhipStartFrame)
+        // On the pause's first update his tail starts its whip.
+        if (state.TailWhipTimer == DraygonGrabDefinitions.TailWhipUpdates - 1)
         {
             DraygonParts.StartDraygonAnimation(
                 state.Tail,

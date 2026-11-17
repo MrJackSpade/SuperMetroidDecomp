@@ -241,7 +241,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
-            source.Position.Whole + new Offset16<RoomPixels>(xOffset, -16));
+            source.Position.Whole + new Offset16<RoomPixels>(xOffset, FakeKraidProjectileDefinitions.SpitYOffset));
         projectile.Velocity = velocity;
     }
 
@@ -324,7 +324,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _deathsAndDrops.SpawnEnemyDropScatterAround(
             EnemyDefinitionId.FakeKraid,
-            count: 4,
+            count: FakeKraidProjectileDefinitions.DeathDropCount,
             origin,
             samus);
     }

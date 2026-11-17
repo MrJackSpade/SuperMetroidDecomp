@@ -10,6 +10,30 @@ internal static class CrocomireBridgeCollapseDefinitions
     /// </summary>
     internal const int TongueHoldsUntilHidden = 32767;
 
+    /// <summary>The body X from which Crocomire's weight breaks the bridge and he falls through it.</summary>
+    internal const int CollapseStartX = 1600;
+
+    /// <summary>The dust clouds the collapsing bridge bursts into, a block apart along it.</summary>
+    internal const int CollapseDustCount = 7;
+
+    /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
+    internal static readonly SignedEightEight SinkStartingAcceleration = SignedEightEight.FromPixels(8);
+
+    /// <summary>Acceleration the sink adds each frame: three and a half pixels per frame per frame.</summary>
+    internal static readonly SignedEightEight SinkAccelerationIncrement = SignedEightEight.FromParts(3, 128);
+
+    /// <summary>The sink's acceleration stops growing at forty-eight whole pixels, keeping its fraction.</summary>
+    internal const int MaximumSinkAccelerationWhole = 48;
+
+    /// <summary>The sink's speed stops growing at three whole pixels per frame, keeping its fraction.</summary>
+    internal const int MaximumSinkSpeedWhole = 3;
+
+    /// <summary>The rise's acceleration stops growing at thirty-one pixels per frame per frame.</summary>
+    internal static readonly SignedEightEight MaximumRiseAcceleration = SignedEightEight.FromPixels(31);
+
+    /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
+    internal static readonly SignedEightEight RiseSpeedAfterStalling = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(255);
+
     /// <summary>How far below the top of Crocomire's view, in pixels, the row from which his sinking hides his body lies.</summary>
     internal const int SinkHiddenRowDepth = 288;
 

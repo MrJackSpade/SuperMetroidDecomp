@@ -66,7 +66,7 @@ internal sealed class KraidBackground
             KraidProjectiles.Rocks,
             graphics: SpriteGraphics.SharedIn(KraidColours.RocksShading));
         rock.StartAnimation(new KraidRockAnimation(KraidRockSegment.SharedPose));
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, KraidArenaDefinitions.CeilingRockY));
         rock.Velocity = rock.Velocity.WithX(SignedEightEight.Zero);
         rock.Velocity = rock.Velocity.WithY(KraidRandomDefinitions.CeilingRockSlowestFall +
             SignedEightEight.FromTwoHundredFiftySixthsOfPixel(KraidRandomDefinitions.CeilingRockFallSpeedSpread.Of(_access.ReadKraidRandomNumber())));

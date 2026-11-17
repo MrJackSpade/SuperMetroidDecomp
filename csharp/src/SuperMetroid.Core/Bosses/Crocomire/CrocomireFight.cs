@@ -116,7 +116,7 @@ internal sealed class CrocomireFight
         state.Tongue = place;
         CrocomireBodyLayer.StartCrocomireTongueAnimation(state, CrocomireTongueSegment.Fight, 1);
         place.CollidesByFrameHitboxes = true;
-        var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
+        var tongueState = new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset };
         place.SetSpeciesState(tongueState);
         place.Shading = state.Body.Shading;
     }
@@ -351,7 +351,7 @@ internal sealed class CrocomireFight
                     }
                 }
                 if (CoordinateAxis.Difference(
-                        state.Body.Position.X.Whole, CrocomireBehavior.CrocomireSpikeWallThreshold) < 0)
+                        state.Body.Position.X.Whole, CrocomireFightDefinitions.SpikeWallChargeX) < 0)
                 {
                     state.Phase = CrocomirePhase.NearSpikeWallCharge;
                     return CrocomireBodySegment.NearSpikeWallCharge;
@@ -395,7 +395,7 @@ internal sealed class CrocomireFight
 
             case CrocomirePhase.BackingOffSpikeWall:
                 if (CoordinateAxis.Difference(
-                        state.Body.Position.X.Whole, CrocomireBehavior.CrocomireSpikeWallThreshold) >= 0)
+                        state.Body.Position.X.Whole, CrocomireFightDefinitions.SpikeWallChargeX) >= 0)
                 {
                     state.Phase = CrocomirePhase.SteppingForward;
                     return CrocomireBodySegment.StepForward;

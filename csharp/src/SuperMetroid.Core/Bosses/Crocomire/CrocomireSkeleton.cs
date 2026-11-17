@@ -187,7 +187,7 @@ internal sealed class CrocomireSkeleton
     {
         state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, CrocomireSkeletonDefinitions.Arc);
         state.Body.Position = state.Body.Position.WithY(
-            CrocomireBehavior.SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
+            CrocomireSkeletonDefinitions.ArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
         state.Body.Position = state.Body.Position.WithX(
             state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         if (CoordinateAxis.Difference(state.Body.Position.X.Whole, CrocomireSkeletonDefinitions.ArcEndX) < 0)

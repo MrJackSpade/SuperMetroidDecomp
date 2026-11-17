@@ -45,13 +45,13 @@ internal sealed class CrocomireBridgeCollapse
     {
         RoomEnemyPlace body = state.Body;
         HandleCrocomireBridgeApproach(body, state.Death);
-        if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBehavior.CrocomireBridgeThreshold) < 0)
+        if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBridgeCollapseDefinitions.CollapseStartX) < 0)
             return;
 
         state.DeathPhase = CrocomireDeathPhase.CrumbleBridgeAndSink;
         CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, CrocomireBodySegment.BridgeCollapsed);
         body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-        state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
+        state.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         body.Radius = body.Radius.WithY(16);
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = state.Death;
@@ -135,7 +135,7 @@ internal sealed class CrocomireBridgeCollapse
             _access.PublishCrocomireObject(
                 CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(block, 0), CrocomireArenaMutation.ClearBridgeBlock);
 
-        for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
+        for (int puff = 0; puff < CrocomireBridgeCollapseDefinitions.CollapseDustCount; puff++)
             _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
 
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
@@ -146,7 +146,7 @@ internal sealed class CrocomireBridgeCollapse
     /// approach's dust row, the others lie on the lower row.
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
-        (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
+        (uint)puff < CrocomireBridgeCollapseDefinitions.CollapseDustCount
             ? new Position16<RoomPixels>(ApproachStage(puff),
                 puff is 0 or 2 ? CrocomireBridgeCollapseDefinitions.DustY : CrocomireBridgeCollapseDefinitions.LowDustY)
             : throw new ArgumentOutOfRangeException(nameof(puff));
@@ -216,7 +216,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
         state.DeathPhase = state.DeathPhase.Next();
-        state.VerticalSpeed = SignedEightEight.FromPixels(CrocomireBehavior.MaximumSinkSpeedWhole);
+        state.VerticalSpeed = SignedEightEight.FromPixels(CrocomireBridgeCollapseDefinitions.MaximumSinkSpeedWhole);
     }
 
     /// <summary>Crocomire's exact fixed-point sinking fall, with the camera his main update runs with.</summary>
@@ -240,12 +240,12 @@ internal sealed class CrocomireBridgeCollapse
 
         // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
         // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
-        SignedEightEight acceleration = (state.VerticalAcceleration + CrocomireBehavior.SinkAccelerationIncrement)
-            .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkAccelerationWhole);
+        SignedEightEight acceleration = (state.VerticalAcceleration + CrocomireBridgeCollapseDefinitions.SinkAccelerationIncrement)
+            .WithWholePixelsAtMost(CrocomireBridgeCollapseDefinitions.MaximumSinkAccelerationWhole);
         state.VerticalAcceleration = acceleration;
         // The speed grows by the acceleration's whole pixels read as 256ths of a pixel.
         SignedEightEight speed = (state.VerticalSpeed + SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.WholePixels))
-            .WithWholePixelsAtMost(CrocomireBehavior.MaximumSinkSpeedWhole);
+            .WithWholePixelsAtMost(CrocomireBridgeCollapseDefinitions.MaximumSinkSpeedWhole);
         state.VerticalSpeed = speed;
 
         SignedEightEight travelled = state.VerticalFraction + speed;
@@ -268,14 +268,14 @@ internal sealed class CrocomireBridgeCollapse
 
         CrocomireBodyLayer.PlaceCrocomireTongue(state);
         SignedEightEight acceleration = SignedEightEight.Min(
-            state.VerticalAcceleration + SignedEightEight.FromPixels(1), CrocomireBehavior.MaximumRiseAcceleration);
+            state.VerticalAcceleration + SignedEightEight.FromPixels(1), CrocomireBridgeCollapseDefinitions.MaximumRiseAcceleration);
         state.VerticalAcceleration = acceleration;
 
         // The speed loses the acceleration's whole pixels read as 256ths of a pixel; a speed that would fall below zero
         // stalls just under one pixel per frame instead of reversing.
         SignedEightEight speed = state.VerticalSpeed - SignedEightEight.FromTwoHundredFiftySixthsOfPixel(acceleration.WholePixels);
         if (speed.IsNegative)
-            speed = CrocomireBehavior.RiseSpeedAfterStalling;
+            speed = CrocomireBridgeCollapseDefinitions.RiseSpeedAfterStalling;
         state.VerticalSpeed = speed;
 
         // The rise moves up: the carried fraction less the speed, its whole pixels zero or below.

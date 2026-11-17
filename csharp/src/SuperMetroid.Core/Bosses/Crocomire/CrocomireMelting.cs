@@ -231,7 +231,7 @@ internal sealed class CrocomireMelting
     /// <summary>Clears his body layer and moves the actor on after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
-        state.StartVerticalMotion(CrocomireBehavior.SinkStartingAcceleration);
+        state.StartVerticalMotion(CrocomireBridgeCollapseDefinitions.SinkStartingAcceleration);
         _bodyLayer.ClearCrocomireBody();
         state.DeathPhase = state.DeathPhase.Next();
     }

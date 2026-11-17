@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 
@@ -36,7 +36,7 @@ internal sealed class DraygonGoop
             _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
 
         RoomEnemyPlace body = state.Body;
-        body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonBehavior.DraygonOffscreenLeftX : state.RightSideResetX, DraygonArenaDefinitions.SwimLineY));
+        body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonArenaDefinitions.OffscreenLeftX : state.RightSideResetX, DraygonArenaDefinitions.SwimLineY));
         state.SwoopVelocity = new UnsignedSixteenSixteen(1, 0);
         state.GoopYOscillationAngle = RotationAngle.Zero;
         state.Phase = DraygonPhase.GoopApproach;
@@ -99,8 +99,8 @@ internal sealed class DraygonGoop
         MoveDraygonAlongGoopPath(state, direction);
         int x = state.Body.Position.X.Whole;
         bool crossedExit = direction == HorizontalDirection.Right
-            ? CoordinateAxis.AsSigned(x) >= 0 && x >= DraygonBehavior.DraygonRightSideResetDistance
-            : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonBehavior.DraygonOffscreenLeftX) < 0;
+            ? CoordinateAxis.AsSigned(x) >= 0 && x >= DraygonArenaDefinitions.RightSideResetDistance
+            : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonArenaDefinitions.OffscreenLeftX) < 0;
         if (crossedExit)
             FinishDraygonGoopFiring(state, direction);
     }
@@ -133,8 +133,8 @@ internal sealed class DraygonGoop
         MoveDraygonAlongGoopPath(state, direction);
         int x = state.Body.Position.X.Whole;
         bool offScreen = direction == HorizontalDirection.Right
-            ? CoordinateAxis.AsSigned(x) >= 0 && x >= DraygonBehavior.DraygonRightSideResetDistance
-            : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonBehavior.DraygonOffscreenLeftX) < 0;
+            ? CoordinateAxis.AsSigned(x) >= 0 && x >= DraygonArenaDefinitions.RightSideResetDistance
+            : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonArenaDefinitions.OffscreenLeftX) < 0;
         if (!offScreen)
             return;
 
@@ -149,9 +149,9 @@ internal sealed class DraygonGoop
         {
             state.Phase = DraygonPhase.SwoopSetup;
             state.PassDirection = HorizontalDirection.Right;
-            state.Body.Position = state.Body.Position.WithWholeX(DraygonBehavior.DraygonOffscreenLeftX);
+            state.Body.Position = state.Body.Position.WithWholeX(DraygonArenaDefinitions.OffscreenLeftX);
         }
-        state.Body.Position = state.Body.Position.WithWholeY(DraygonBehavior.DraygonOffscreenAboveY);
+        state.Body.Position = state.Body.Position.WithWholeY(DraygonArenaDefinitions.OffscreenAboveY);
     }
 
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>

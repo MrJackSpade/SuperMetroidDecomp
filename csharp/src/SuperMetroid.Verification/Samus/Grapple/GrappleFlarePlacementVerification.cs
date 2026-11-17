@@ -62,8 +62,8 @@ internal static class GrappleFlarePlacementVerification
             SamusPoseId pose = authored.Pose;
             var native = Seed(stock);
             var selected = Seed(InstalledFixtures.Projectiles.Grapple.FlarePlacement);
-            SamusGrappleMovement.BeginFiring(native);
-            SamusGrappleMovement.BeginFiring(selected);
+            SamusGrappleMovement.BeginFiring(native, SuperMetroid.Core.Input.GameplayAction.None);
+            SamusGrappleMovement.BeginFiring(selected, SuperMetroid.Core.Input.GameplayAction.None);
             Compare();
             refresh(native, native.Grapple); refresh(selected, selected.Grapple);
             Compare();

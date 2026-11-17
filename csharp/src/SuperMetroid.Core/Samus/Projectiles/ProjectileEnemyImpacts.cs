@@ -145,7 +145,8 @@ internal sealed class ProjectileEnemyImpacts
     /// the projectile system owns the exact impact conversion.
     /// </remarks>
     public bool TryImpactIntroMotherBrainMissile(
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        int impactLine)
     {
         Ensure.NotNull(sharedProjectiles);
 
@@ -154,7 +155,9 @@ internal sealed class ProjectileEnemyImpacts
             if (!shot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
 
-            if (CoordinateAxis.Difference(shot.Position.X.Whole, 84) >= 0)
+            // The missile flies left from Samus toward the brain and is killed on crossing the line, so its position never
+            // leaves the room's first screens.
+            if (shot.Position.X.Whole >= impactLine)
                 return false;
 
             _terrainCollision.KillMissile(shot, sharedProjectiles);

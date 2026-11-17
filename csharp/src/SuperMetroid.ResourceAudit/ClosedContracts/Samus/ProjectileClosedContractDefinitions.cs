@@ -13,6 +13,8 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusFlareAim.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusTurningAim.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMuzzleOrigins.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusMuzzleOriginDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionMap.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileFamily.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileFamilies.cs"),
              new("csharp/src/SuperMetroid.Core/Progression/SamusProjectileFamilyDefinitions.cs"),

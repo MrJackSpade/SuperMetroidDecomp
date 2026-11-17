@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// <summary>How the camera following Samus meets the room's scroll zones and how far it may move an update (#2118).</summary>
 internal static class SamusCameraDefinitions
 {
+    /// <summary>Half a 256-pixel screen: the camera's centre (#2280).</summary>
+    internal const int HalfScreen = 128;
+
     /// <summary>
     /// The pixels below a screen's top the camera may sit in a screen not aligned to its top: the lower alignment of the
     /// 224-line view.

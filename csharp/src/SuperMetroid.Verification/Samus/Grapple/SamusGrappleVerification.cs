@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -160,7 +161,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
 
     SamusState firingSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     firingSamus.Kinematics.YSpeed = firingSamus.Kinematics.YSpeed.WithWhole(1); // selects moving-vertically connection table $C3EE
-    SamusGrappleMovement.BeginFiring(firingSamus);
+    SamusGrappleMovement.BeginFiring(firingSamus, SuperMetroid.Core.Input.GameplayAction.None);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
     AssertEqual(0x0bf4, firingSamus.Grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel,
         "grapple X extension velocity comes from ROM");
@@ -216,7 +217,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
         SamusPoseId.FallingRightPose,
         new(32, 56));
     deferredConnectionSamus.Kinematics.YSpeed = deferredConnectionSamus.Kinematics.YSpeed.WithWhole(1);
-    SamusGrappleMovement.BeginFiring(deferredConnectionSamus);
+    SamusGrappleMovement.BeginFiring(deferredConnectionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 
         firingLevel,
@@ -269,7 +270,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     breakableFiringSamus.Kinematics.YSpeed = breakableFiringSamus.Kinematics.YSpeed.WithWhole(1);
     var breakableFiringObjects = RoomObjectFixtures.Unbound();
-    SamusGrappleMovement.BeginFiring(breakableFiringSamus);
+    SamusGrappleMovement.BeginFiring(breakableFiringSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 
         breakableFiringLevel,
@@ -303,7 +304,7 @@ firingLevel, firingSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixt
     RoomLevelData horizontalExtensionLevel = CreateRoom(new(8, 8), horizontalExtensionBlocks, horizontalExtensionBts);
     SamusState horizontalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     horizontalExtensionSamus.Kinematics.YSpeed = horizontalExtensionSamus.Kinematics.YSpeed.WithWhole(1);
-    SamusGrappleMovement.BeginFiring(horizontalExtensionSamus);
+    SamusGrappleMovement.BeginFiring(horizontalExtensionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 horizontalExtensionLevel, horizontalExtensionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     GrappleMovementResult horizontalExtensionConnection = SamusGrappleMovement.StepFiringAndCommit(
@@ -325,7 +326,7 @@ horizontalExtensionLevel, horizontalExtensionSamus, GameplayAction.Shoot, roomOb
     RoomLevelData verticalExtensionLevel = CreateRoom(new(8, 8), verticalExtensionBlocks, verticalExtensionBts);
     SamusState verticalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     verticalExtensionSamus.Kinematics.YSpeed = verticalExtensionSamus.Kinematics.YSpeed.WithWhole(1);
-    SamusGrappleMovement.BeginFiring(verticalExtensionSamus);
+    SamusGrappleMovement.BeginFiring(verticalExtensionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 verticalExtensionLevel, verticalExtensionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     GrappleMovementResult verticalExtensionConnection = SamusGrappleMovement.StepFiringAndCommit(
@@ -341,7 +342,7 @@ verticalExtensionLevel, verticalExtensionSamus, GameplayAction.Shoot, roomObject
     solidBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData solidLevel = CreateRoom(new(8, 8), solidBlocks, new RoomBlockBehavior[solidBlocks.Length]);
     SamusState solidCollisionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-    SamusGrappleMovement.BeginFiring(solidCollisionSamus);
+    SamusGrappleMovement.BeginFiring(solidCollisionSamus, SuperMetroid.Core.Input.GameplayAction.None);
     SamusGrappleMovement.StepFiringAndCommit(
 solidLevel, solidCollisionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     GrappleMovementResult solidCancellation = SamusGrappleMovement.StepFiringAndCommit(
@@ -367,7 +368,7 @@ solidLevel, solidCollisionSamus, GameplayAction.Shoot, roomObjects: SamusRoomObj
         RoomLevelData spikeLevel = CreateRoom(new(8, 8), spikeBlocks, spikeBts);
         SamusState spikeSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         spikeSamus.Kinematics.YSpeed = spikeSamus.Kinematics.YSpeed.WithWhole(1);
-        SamusGrappleMovement.BeginFiring(spikeSamus);
+        SamusGrappleMovement.BeginFiring(spikeSamus, SuperMetroid.Core.Input.GameplayAction.None);
         SamusGrappleMovement.StepFiringAndCommit(
 spikeLevel, spikeSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         GrappleMovementResult spikeReaction = SamusGrappleMovement.StepFiringAndCommit(
@@ -404,7 +405,7 @@ spikeLevel, spikeSamus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtur
         RoomLevelData endpointLevel = CreateRoom(new(8, 8), endpointBlocks, endpointBts);
         var endpointObjects = RoomObjectFixtures.Unbound();
         SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-        SamusGrappleMovement.BeginFiring(endpointSamus);
+        SamusGrappleMovement.BeginFiring(endpointSamus, SuperMetroid.Core.Input.GameplayAction.None);
         SamusGrappleMovement.StepFiringAndCommit(
 endpointLevel, endpointSamus, GameplayAction.Shoot, endpointObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         GrappleMovementResult endpointReaction = SamusGrappleMovement.StepFiringAndCommit(
@@ -423,7 +424,7 @@ endpointLevel, endpointSamus, GameplayAction.Shoot, endpointObjects, enemyCollis
     var emptyWideBlocks = new RoomTerrainBlock[16 * 8];
     RoomLevelData emptyWideLevel = CreateRoom(new(16, 8), emptyWideBlocks, new RoomBlockBehavior[emptyWideBlocks.Length]);
     SamusState rangeLimitedSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
-    SamusGrappleMovement.BeginFiring(rangeLimitedSamus);
+    SamusGrappleMovement.BeginFiring(rangeLimitedSamus, SuperMetroid.Core.Input.GameplayAction.None);
     for (int firingFrame = 0; firingFrame < 10; firingFrame++)
     {
         GrappleMovementResult liveRange = SamusGrappleMovement.StepFiringAndCommit(
@@ -448,7 +449,7 @@ emptyWideLevel, rangeLimitedSamus, GameplayAction.Shoot, roomObjects: SamusRoomO
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)),
     };
     BindGrapplePresentation(cancelledSamus);
-    SamusGrappleMovement.BeginFiring(cancelledSamus);
+    SamusGrappleMovement.BeginFiring(cancelledSamus, SuperMetroid.Core.Input.GameplayAction.None);
     GrappleMovementResult cancelQueued = SamusGrappleMovement.StepFiringAndCommit(
 firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
     AssertTrue(cancelQueued.Phase == GrapplePhase.CancelPending,
@@ -518,7 +519,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
             connectionSamus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 2);
             connectionSamus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 4);
 
-            SamusGrappleMovement.BeginFiring(connectionSamus);
+            SamusGrappleMovement.BeginFiring(connectionSamus, SuperMetroid.Core.Input.GameplayAction.None);
             GrappleMovementResult tableConnection = SamusGrappleMovement.StepFiring(
                 connectionLevel,
                 connectionSamus,
@@ -670,14 +671,14 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     OamBuffer grappleFlareOam = grappleFlareOamFrame.FinalizeAsOam();
     AssertEqual(GrappleFlareStage.JustFired, samus.Grapple.FlareStage,
         "grapple flare moves on only in post-Samus tile pass");
-    AssertEqual(16, samus.Grapple.FlarePlace,
+    AssertEqual(16, ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, samus.Grapple.FlarePlace),
         "first grapple flare selects shared main frame sixteen");
     AssertEqual(2, samus.Grapple.FlareAnimationTimer.RawValue,
         "first grapple flare performs decrement-before-test");
     var grappleFlare = (ImageSpriteDraw)grappleFlareOamFrame.Draws.Single();
     AssertEqual(InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(SuperMetroid.Core.Progression.SamusBeamCombinations.Of(samus.EquippedBeams)))
             .Frame(ProjectileSheetFrames.FlareFrame(
-            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, 16))), grappleFlare.Image,
+            ChargeFlarePictures.Of(SuperMetroid.Core.Samus.Projectiles.ChargeFlareComponent.MainFlare, facingLeft: false, ChargeFlareAnimations.PlaceAt(ChargeFlareComponent.MainFlare, 16)))), grappleFlare.Image,
         "grapple flare shows main flare frame sixteen from the sheet of the beams she has equipped");
     AssertEqual(new Offset16<ScreenPixels>(98, 103), grappleFlare.Origin, "grapple flare is placed at the flare origin");
 
@@ -776,7 +777,7 @@ firingLevel, cancelledSamus, controllerInput: 0, roomObjects: SamusRoomObjectFix
     AssertEqual(0x0c90, samus.Kinematics.YSpeed.Fraction, "release pose preserves fractional Y velocity");
     AssertEqual(GrappleFlareStage.None, samus.Grapple.FlareStage,
         "completed grapple release clears the flare");
-    AssertEqual(0, samus.Grapple.FlarePlace,
+    AssertEqual(0, ChargeFlareAnimations.NumberOf(ChargeFlareComponent.MainFlare, samus.Grapple.FlarePlace),
         "completed grapple release clears flare frame");
     AssertEqual(0, samus.Grapple.FlareAnimationTimer.RawValue,
         "completed grapple release clears flare timer");

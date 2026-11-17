@@ -12,12 +12,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public readonly record struct ChargedShotGlow
 {
-    /// <summary>The steps an ordinary charged shot's flash starts with.</summary>
-    private const int ChargedShotFlashSteps = 4;
-
-    /// <summary>The steps the Hyper Beam's glow starts with: two for each of its ten frames.</summary>
-    private const int HyperBeamGlowSteps = 20;
-
     /// <summary>Creates a glow of <paramref name="kind"/> with <paramref name="remainingSteps"/> left.</summary>
     private ChargedShotGlow(ChargedShotGlowKind kind, int remainingSteps)
     {
@@ -29,10 +23,10 @@ public readonly record struct ChargedShotGlow
     public static ChargedShotGlow None => default;
 
     /// <summary>An ordinary charged shot's flash as the shot starts it.</summary>
-    public static ChargedShotGlow ChargedShotFlash { get; } = new(ChargedShotGlowKind.ChargedShotFlash, ChargedShotFlashSteps);
+    public static ChargedShotGlow ChargedShotFlash { get; } = new(ChargedShotGlowKind.ChargedShotFlash, BeamChargeDefinitions.ChargedShotFlashSteps);
 
     /// <summary>The Hyper Beam's glow as its shot starts it.</summary>
-    public static ChargedShotGlow HyperBeamGlow { get; } = new(ChargedShotGlowKind.HyperBeamGlow, HyperBeamGlowSteps);
+    public static ChargedShotGlow HyperBeamGlow { get; } = new(ChargedShotGlowKind.HyperBeamGlow, BeamChargeDefinitions.HyperBeamGlowSteps);
 
     /// <summary>
     /// A glow of <paramref name="kind"/> part-way through: an ordinary flash with one through four steps left, or the
@@ -43,8 +37,8 @@ public readonly record struct ChargedShotGlow
     public static ChargedShotGlow Of(ChargedShotGlowKind kind, int remainingSteps) => kind switch
     {
         ChargedShotGlowKind.None => new(kind, Ensure.BetweenInclusive(0, 0, remainingSteps)),
-        ChargedShotGlowKind.ChargedShotFlash => new(kind, Ensure.BetweenInclusive(1, ChargedShotFlashSteps, remainingSteps)),
-        ChargedShotGlowKind.HyperBeamGlow => new(kind, Ensure.BetweenInclusive(0, HyperBeamGlowSteps, remainingSteps)),
+        ChargedShotGlowKind.ChargedShotFlash => new(kind, Ensure.BetweenInclusive(1, BeamChargeDefinitions.ChargedShotFlashSteps, remainingSteps)),
+        ChargedShotGlowKind.HyperBeamGlow => new(kind, Ensure.BetweenInclusive(0, BeamChargeDefinitions.HyperBeamGlowSteps, remainingSteps)),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, $"Undefined {nameof(ChargedShotGlowKind)}."),
     };
 

@@ -67,7 +67,7 @@ internal static class GrappleFiringDefinitionsVerification
                 samus.Position = samus.Position.WithWhole(new(raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
-                SamusGrappleMovement.BeginFiring(samus);
+                SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
                 AssertEqual(vx, grapple.ExtensionVelocity.X.InTwoHundredFiftySixthsOfPixel, "Actual launch X velocity");
                 AssertEqual(vy, grapple.ExtensionVelocity.Y.InTwoHundredFiftySixthsOfPixel, "Actual launch Y velocity");
                 AssertEqual(angle, grapple.Angle.RawValue, "Actual launch angle");
@@ -104,7 +104,7 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(samus);
+            SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
             for (int frame = 1; frame <= 10; frame++)
             {
                 SamusGrappleMovement.StepFiringAndCommit(empty, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);

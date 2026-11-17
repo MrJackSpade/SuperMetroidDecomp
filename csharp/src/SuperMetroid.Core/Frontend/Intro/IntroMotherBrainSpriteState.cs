@@ -124,7 +124,7 @@ internal sealed class IntroMotherBrainSpriteState
         Ensure.NotNull(impacts);
         if (ExplosionStarted)
             return false;
-        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles) && RecordMissileHit();
+        return impacts.TryImpactIntroMotherBrainMissile(sharedProjectiles, IntroMotherBrainDefinitions.MissileImpactLine) && RecordMissileHit();
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>

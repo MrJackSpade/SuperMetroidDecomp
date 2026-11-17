@@ -23,8 +23,13 @@ internal sealed class SamusProjectileListLayout
     internal readonly Dictionary<SamusProjectileSegment, ushort[]> beatPositions;
     /// <summary>The place each instruction pointer stands for: a segment's start, else the one place at that pointer.</summary>
     private readonly Dictionary<ushort, SamusProjectileSegmentBeat> _places;
-    /// <summary>Each timed record's instruction pointer.</summary>
-    private readonly Dictionary<SamusProjectileFrameId, int> _recordPositions;
+    /// <summary>
+    /// The instruction pointers of the timed records that show each frame, in list order: a frame an animation shows again
+    /// with the same picture and gameplay is shown from every record that stores it (#2274).
+    /// </summary>
+    private readonly Dictionary<SamusProjectileFrameId, List<int>> _recordPositions;
+    /// <summary>The frame each timed record's instruction pointer shows.</summary>
+    private readonly Dictionary<int, SamusProjectileFrameId> _recordFrames;
     /// <summary>Each segment's list entry and the word just before it.</summary>
     internal readonly IReadOnlyDictionary<SamusProjectileSegment, ListPosition> positions;
 
@@ -47,14 +52,21 @@ internal sealed class SamusProjectileListLayout
         this.positions = positions;
         beatPositions = Enum.GetValues<SamusProjectileSegment>().ToDictionary(program => program, Layout);
         _places = BuildPlaces();
-        _recordPositions = BuildRecordPositions();
+        _recordFrames = BuildRecordFrames();
+        _recordPositions = BuildRecordPositions(_recordFrames);
     }
 
     /// <summary>The instruction pointer <paramref name="place"/> stands for.</summary>
     internal ushort Position(SamusProjectileSegmentBeat place) => beatPositions[place.Segment][place.Beat];
 
-    /// <summary>The instruction pointer timed record <paramref name="record"/> stands at.</summary>
-    internal ushort RecordPosition(SamusProjectileFrameId record) => checked((ushort)_recordPositions[record]);
+    /// <summary>The instruction pointer of the first timed record that shows <paramref name="record"/>.</summary>
+    internal ushort RecordPosition(SamusProjectileFrameId record) => checked((ushort)_recordPositions[record][0]);
+
+    /// <summary>The instruction pointers of every timed record that shows <paramref name="record"/>, in list order.</summary>
+    internal IReadOnlyList<int> RecordPositions(SamusProjectileFrameId record) => _recordPositions[record];
+
+    /// <summary>The frame each timed record's instruction pointer shows.</summary>
+    internal IReadOnlyDictionary<int, SamusProjectileFrameId> RecordFrames => _recordFrames;
 
     /// <summary>The animation place a nonzero instruction pointer <paramref name="pointer"/> stands for, when it is a list position.</summary>
     internal bool TryPlaceAt(int pointer, out SamusProjectileSegmentBeat place) =>
@@ -87,10 +99,10 @@ internal sealed class SamusProjectileListLayout
         return places;
     }
 
-    /// <summary>Finds the one pointer each timed record is shown from.</summary>
-    private Dictionary<SamusProjectileFrameId, int> BuildRecordPositions()
+    /// <summary>Finds the one frame each timed record's pointer shows.</summary>
+    private Dictionary<int, SamusProjectileFrameId> BuildRecordFrames()
     {
-        var places = new Dictionary<SamusProjectileFrameId, int>();
+        var frames = new Dictionary<int, SamusProjectileFrameId>();
         foreach (SamusProjectileSegment program in ListOrder)
         {
             IReadOnlyList<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(program);
@@ -99,17 +111,28 @@ internal sealed class SamusProjectileListLayout
                 if (beats[beat] is not AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame shown)
                     continue;
                 int place = beatPositions[program][beat];
-                SamusProjectileFrameId record = shown.Shown;
-                if (places.TryGetValue(record, out int known) && known != place)
-                    throw new InvalidDataException($"Timed projectile record {record} stands at $93:{known:X4} and $93:{place:X4}.");
-                places[record] = place;
+                if (!frames.TryAdd(place, shown.Shown) && frames[place] != shown.Shown)
+                    throw new InvalidDataException($"The timed projectile record at $93:{place:X4} shows both {frames[place]} and {shown.Shown}.");
             }
+        }
+        return frames;
+    }
+
+    /// <summary>Finds every pointer each frame is shown from, in list order, from the frame each record shows.</summary>
+    private static Dictionary<SamusProjectileFrameId, List<int>> BuildRecordPositions(Dictionary<int, SamusProjectileFrameId> frames)
+    {
+        var positions = new Dictionary<SamusProjectileFrameId, List<int>>();
+        foreach ((int place, SamusProjectileFrameId record) in frames)
+        {
+            if (!positions.TryGetValue(record, out List<int>? places))
+                positions.Add(record, places = []);
+            places.Add(place);
         }
         foreach (SamusProjectileFrameId record in SamusProjectileFrameOrder.Frames)
         {
-            if (!places.ContainsKey(record))
+            if (!positions.ContainsKey(record))
                 throw new InvalidDataException($"Timed projectile record {record} stands in no list.");
         }
-        return places;
+        return positions;
     }
 }

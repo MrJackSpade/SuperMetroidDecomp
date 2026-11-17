@@ -45,8 +45,11 @@ public static class SamusShades
     /// <summary>The suit's visible colours under an ordinary charged shot's yellow glow.</summary>
     public static PictureShade ChargedShotGlow { get; } = new("ChargedShotGlow", 0);
 
-    /// <summary>The visor under one of the X-ray and room visor cycle's shades.</summary>
-    public static PictureShade Visor(int shade) => new("Visor", shade);
+    /// <summary>The visor under one shade of the X-ray widening glow (#2285).</summary>
+    public static PictureShade XrayWideningVisor(int shade) => new("VisorXrayWidening", shade);
+
+    /// <summary>The visor under one shade of the steady visor cycle, which the full X-ray beam and the room both show (#2285).</summary>
+    public static PictureShade VisorCycle(int shade) => new("VisorCycle", shade);
 
     /// <summary>The visor's green as a door transition finishes loading the next room.</summary>
     public static PictureShade DoorCompletionVisor { get; } = new("VisorDoorCompletion", 0);

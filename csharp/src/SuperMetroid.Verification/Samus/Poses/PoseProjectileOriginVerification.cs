@@ -65,7 +65,7 @@ internal static class PoseProjectileOriginVerification
                 var g = samus.Grapple;
                 g.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
-                SamusGrappleMovement.BeginFiring(samus);
+                SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
                 SamusPoseId poseId = SamusPoseNumbering.FromNumber(pose);
                 bool held = poseId is SamusPoseId.DraygonGrabbedMovingLeftPose or SamusPoseId.DraygonGrabbedMovingRightPose;
                 int firingDirection = held ? (poseId == SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);

@@ -150,7 +150,7 @@ public sealed class SamusLiquidPhysicsState
     /// Configures the water surface, or none, and whether Samus ignores it, while preserving the ordinary or statue room's
     /// FX identity; the room has no lava or acid surface.
     /// </summary>
-    public void ConfigureWater(int? surfaceY, bool ignoresSurface = false, RoomFxType type = RoomFxType.Water)
+    public void ConfigureWater(int? surfaceY, bool ignoresSurface, RoomFxType type)
     {
         if (!RoomFxTypes.UsesWater(type))
             throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water effect.");
@@ -261,14 +261,14 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Returns the extra animation delay used by the pose initializer while installing a changed
-    /// pose. That step samples <c>Y + radius - 1</c>, not the normal bottom boundary.
+    /// Returns the extra animation delay the pose initializer gives a changed pose (#2286): the liquid's delay, or the
+    /// slowdown level on dry ground. That step samples <c>Y + radius - 1</c>, not the normal bottom boundary.
     /// </summary>
-    public int DeterminePoseChangeAnimationBuffer(SamusState samus)
+    public int DeterminePoseChangeExtraAnimationDelay(SamusState samus)
     {
         Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
-            return samus.XSpeedDivisor;
+            return samus.SlowdownLevel;
 
         int bottomMinusOne = CoordinateAxis.Wrap(
             samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
@@ -277,7 +277,7 @@ public sealed class SamusLiquidPhysicsState
         {
             SamusLiquidMedium.Water => SamusAnimationDelayDefinitions.WaterAnimationDelay,
             SamusLiquidMedium.LavaOrAcid => SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay,
-            SamusLiquidMedium.Air => samus.XSpeedDivisor,
+            SamusLiquidMedium.Air => samus.SlowdownLevel,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
     }
@@ -314,7 +314,7 @@ public sealed class SamusLiquidPhysicsState
             // two grounded splashes; every submerged call then gets the bubble opportunity.
             bool enteredWater = LiquidPhysicsType != SamusLiquidMedium.Water;
             LiquidPhysicsType = SamusLiquidMedium.Water;
-            samus.AnimationFrameBuffer = SamusAnimationDelayDefinitions.WaterAnimationDelay;
+            samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.WaterAnimationDelay;
             if (enteredWater)
             {
                 QueueSound(EnemySound.SplashIn, priority: SoundRequestPriority.Normal);
@@ -331,7 +331,7 @@ public sealed class SamusLiquidPhysicsState
             // buffer while spawning air bubbles, after all particle/audio side effects have run.
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
-                samus.AnimationFrameBuffer = 0;
+                samus.ExtraAnimationDelay = 0;
             return;
         }
 
@@ -354,7 +354,7 @@ public sealed class SamusLiquidPhysicsState
                 // Acid intentionally has no equivalent early exit and still hurts at quarter
                 // strength when periodic damage runs later in the same movement phase.
                 LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
-                samus.AnimationFrameBuffer = 0;
+                samus.ExtraAnimationDelay = 0;
                 return;
             }
 
@@ -368,17 +368,17 @@ public sealed class SamusLiquidPhysicsState
 
             // Both lava and acid now share one submerged delay.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
-            samus.AnimationFrameBuffer = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
+            samus.ExtraAnimationDelay = SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
             TrySpawnLavaSurfaceSpray(samus, top, frameCounter);
             if (samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose || gravitySuit)
-                samus.AnimationFrameBuffer = 0;
+                samus.ExtraAnimationDelay = 0;
             return;
         }
 
         // Publishes the X-speed divisor and clears the remembered medium. Only
         // water owns an exit splash; lava/acid simply clears the remembered medium.
-        samus.AnimationFrameBuffer = samus.XSpeedDivisor;
+        samus.ExtraAnimationDelay = samus.SlowdownLevel;
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)

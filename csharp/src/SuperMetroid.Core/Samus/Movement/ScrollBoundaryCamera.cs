@@ -15,9 +15,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 [RoomLifetime]
 public sealed class ScrollBoundaryCamera
 {
-    /// <summary>Half a 256-pixel screen: the camera's centre.</summary>
-    private const int HalfScreen = 128;
-
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
     /// <param name="scrolls">Room-sized grid of directional scroll states.</param>
     public ScrollBoundaryCamera(RoomScrollGrid scrolls)
@@ -556,14 +553,14 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     private Position16<RoomScreens> HorizontalCheckScreen() => new(
         RoomGridConversions.PixelToScreen(Position.X.Whole),
-        RoomGridConversions.PixelToScreen(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen)));
+        RoomGridConversions.PixelToScreen(CoordinateAxis.Wrap(Position.Y.Whole + SamusCameraDefinitions.HalfScreen)));
 
     /// <summary>
     /// The screen the vertical checks read: the camera's screen row, in the column through the camera's horizontal
     /// centre (its left edge plus half a screen).
     /// </summary>
     private Position16<RoomScreens> VerticalCheckScreen() => new(
-        RoomGridConversions.PixelToScreen(CoordinateAxis.Wrap(Position.X.Whole + HalfScreen)),
+        RoomGridConversions.PixelToScreen(CoordinateAxis.Wrap(Position.X.Whole + SamusCameraDefinitions.HalfScreen)),
         RoomGridConversions.PixelToScreen(Position.Y.Whole));
 
     /// <summary>
@@ -579,7 +576,7 @@ public sealed class ScrollBoundaryCamera
     private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
     /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
-    private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * HalfScreen);
+    private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * SamusCameraDefinitions.HalfScreen);
 
     /// <summary>
     /// Compares only the whole pixels as signed wrapped values, then

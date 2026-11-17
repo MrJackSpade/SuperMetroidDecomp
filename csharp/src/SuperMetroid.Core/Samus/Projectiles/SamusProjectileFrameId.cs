@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// One frame a Samus projectile animation shows (#1301, #2124), named for what it shows: the shot of its animation and
-/// the pose of the picture it shows. A frame that shows the same picture as an earlier frame of its animation at another
-/// point of the animation is that frame's twin, named for it with Twin, then Twin and a letter. What a frame pictures is installed
-/// only (#1596); its values are arbitrary.
+/// One frame a Samus projectile animation shows (#1301, #2124, #2274), named for what it shows: the shot of its animation
+/// and the pose of the picture it shows, a stage of a swing, spread, growth or cycle named for that stage. A frame that
+/// shows another frame's picture again with that frame's hitbox and trail placements is that frame; one that differs in
+/// either is named for the difference. What a frame pictures is installed only (#1596); its values are arbitrary.
 /// </summary>
 internal enum SamusProjectileFrameId
 {
@@ -28,348 +28,272 @@ internal enum SamusProjectileFrameId
     WaveUpFacingRightHidden,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, centre.</summary>
     WaveDownFacingRightCentre,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 1.</summary>
-    WaveDownFacingRightRight1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 2.</summary>
-    WaveDownFacingRightRight2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 3.</summary>
-    WaveDownFacingRightRight3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 4.</summary>
-    WaveDownFacingRightRight4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 3, as <see cref="WaveDownFacingRightRight3"/> does.</summary>
-    WaveDownFacingRightRight3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 2, as <see cref="WaveDownFacingRightRight2"/> does.</summary>
-    WaveDownFacingRightRight2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right 1, as <see cref="WaveDownFacingRightRight1"/> does.</summary>
-    WaveDownFacingRightRight1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, centre, as <see cref="WaveDownFacingRightCentre"/> does.</summary>
-    WaveDownFacingRightCentreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 1.</summary>
-    WaveDownFacingRightLeft1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 2.</summary>
-    WaveDownFacingRightLeft2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 3.</summary>
-    WaveDownFacingRightLeft3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 4.</summary>
-    WaveDownFacingRightLeft4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 3, as <see cref="WaveDownFacingRightLeft3"/> does.</summary>
-    WaveDownFacingRightLeft3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 2, as <see cref="WaveDownFacingRightLeft2"/> does.</summary>
-    WaveDownFacingRightLeft2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left 1, as <see cref="WaveDownFacingRightLeft1"/> does.</summary>
-    WaveDownFacingRightLeft1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right, its lobe near the centre.</summary>
+    WaveDownFacingRightRightNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right, its lobe midway out.</summary>
+    WaveDownFacingRightRightMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right, its lobe far out.</summary>
+    WaveDownFacingRightRightFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, right, its lobe at its peak.</summary>
+    WaveDownFacingRightRightPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left, its lobe near the centre.</summary>
+    WaveDownFacingRightLeftNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left, its lobe midway out.</summary>
+    WaveDownFacingRightLeftMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left, its lobe far out.</summary>
+    WaveDownFacingRightLeftFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownFacingRight"/> showing the Wave picture, down, left, its lobe at its peak.</summary>
+    WaveDownFacingRightLeftPeak,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, centre.</summary>
     WaveUpRightCentre,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 1.</summary>
-    WaveUpRightUpLeft1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 2.</summary>
-    WaveUpRightUpLeft2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 3.</summary>
-    WaveUpRightUpLeft3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 4.</summary>
-    WaveUpRightUpLeft4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 3, as <see cref="WaveUpRightUpLeft3"/> does.</summary>
-    WaveUpRightUpLeft3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 2, as <see cref="WaveUpRightUpLeft2"/> does.</summary>
-    WaveUpRightUpLeft2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left 1, as <see cref="WaveUpRightUpLeft1"/> does.</summary>
-    WaveUpRightUpLeft1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, centre, as <see cref="WaveUpRightCentre"/> does.</summary>
-    WaveUpRightCentreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 1.</summary>
-    WaveUpRightDownRight1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 2.</summary>
-    WaveUpRightDownRight2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 3.</summary>
-    WaveUpRightDownRight3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 4.</summary>
-    WaveUpRightDownRight4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 3, as <see cref="WaveUpRightDownRight3"/> does.</summary>
-    WaveUpRightDownRight3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 2, as <see cref="WaveUpRightDownRight2"/> does.</summary>
-    WaveUpRightDownRight2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right 1, as <see cref="WaveUpRightDownRight1"/> does.</summary>
-    WaveUpRightDownRight1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left, its lobe near the centre.</summary>
+    WaveUpRightUpLeftNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left, its lobe midway out.</summary>
+    WaveUpRightUpLeftMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left, its lobe far out.</summary>
+    WaveUpRightUpLeftFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left, its lobe at its peak.</summary>
+    WaveUpRightUpLeftPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, up left, its lobe near the centre, as <see cref="WaveUpRightUpLeftNear"/> does, with a narrower hitbox.</summary>
+    WaveUpRightUpLeftNearNarrowHitbox,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, centre, as <see cref="WaveUpRightCentre"/> does, with a narrower hitbox.</summary>
+    WaveUpRightCentreNarrowHitbox,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right, its lobe near the centre.</summary>
+    WaveUpRightDownRightNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right, its lobe midway out.</summary>
+    WaveUpRightDownRightMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right, its lobe far out.</summary>
+    WaveUpRightDownRightFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right, its lobe at its peak.</summary>
+    WaveUpRightDownRightPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveUpRight"/> showing the Wave picture, up right, down right, its lobe near the centre, as <see cref="WaveUpRightDownRightNear"/> does, with a wider hitbox.</summary>
+    WaveUpRightDownRightNearWideHitbox,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, centre.</summary>
     WaveRightCentre,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 1.</summary>
-    WaveRightUp1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 2.</summary>
-    WaveRightUp2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 3.</summary>
-    WaveRightUp3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 4.</summary>
-    WaveRightUp4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 3, as <see cref="WaveRightUp3"/> does.</summary>
-    WaveRightUp3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 2, as <see cref="WaveRightUp2"/> does.</summary>
-    WaveRightUp2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up 1, as <see cref="WaveRightUp1"/> does.</summary>
-    WaveRightUp1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, centre, as <see cref="WaveRightCentre"/> does.</summary>
-    WaveRightCentreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 1.</summary>
-    WaveRightDown1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 2.</summary>
-    WaveRightDown2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 3.</summary>
-    WaveRightDown3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 4.</summary>
-    WaveRightDown4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 3, as <see cref="WaveRightDown3"/> does.</summary>
-    WaveRightDown3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 2, as <see cref="WaveRightDown2"/> does.</summary>
-    WaveRightDown2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down 1, as <see cref="WaveRightDown1"/> does.</summary>
-    WaveRightDown1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up, its lobe near the centre.</summary>
+    WaveRightUpNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up, its lobe midway out.</summary>
+    WaveRightUpMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up, its lobe far out.</summary>
+    WaveRightUpFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, up, its lobe at its peak.</summary>
+    WaveRightUpPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down, its lobe near the centre.</summary>
+    WaveRightDownNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down, its lobe midway out.</summary>
+    WaveRightDownMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down, its lobe far out.</summary>
+    WaveRightDownFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveRight"/> showing the Wave picture, right, down, its lobe at its peak.</summary>
+    WaveRightDownPeak,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, centre.</summary>
     WaveDownRightCentre,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 1.</summary>
-    WaveDownRightUpRight1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 2.</summary>
-    WaveDownRightUpRight2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 3.</summary>
-    WaveDownRightUpRight3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 4.</summary>
-    WaveDownRightUpRight4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 3, as <see cref="WaveDownRightUpRight3"/> does.</summary>
-    WaveDownRightUpRight3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 2, as <see cref="WaveDownRightUpRight2"/> does.</summary>
-    WaveDownRightUpRight2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right 1, as <see cref="WaveDownRightUpRight1"/> does.</summary>
-    WaveDownRightUpRight1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, centre, as <see cref="WaveDownRightCentre"/> does.</summary>
-    WaveDownRightCentreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 1.</summary>
-    WaveDownRightDownLeft1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 2.</summary>
-    WaveDownRightDownLeft2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 3.</summary>
-    WaveDownRightDownLeft3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 4.</summary>
-    WaveDownRightDownLeft4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 3, as <see cref="WaveDownRightDownLeft3"/> does.</summary>
-    WaveDownRightDownLeft3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 2, as <see cref="WaveDownRightDownLeft2"/> does.</summary>
-    WaveDownRightDownLeft2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left 1, as <see cref="WaveDownRightDownLeft1"/> does.</summary>
-    WaveDownRightDownLeft1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, phase 1.</summary>
-    IceUpFacingRightPhase1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, phase 2.</summary>
-    IceUpFacingRightPhase2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, phase 3.</summary>
-    IceUpFacingRightPhase3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, phase 4.</summary>
-    IceUpFacingRightPhase4,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right, its lobe near the centre.</summary>
+    WaveDownRightUpRightNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right, its lobe midway out.</summary>
+    WaveDownRightUpRightMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right, its lobe far out.</summary>
+    WaveDownRightUpRightFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right, its lobe at its peak.</summary>
+    WaveDownRightUpRightPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, up right, its lobe near the centre, as <see cref="WaveDownRightUpRightNear"/> does, with a narrower hitbox.</summary>
+    WaveDownRightUpRightNearNarrowHitbox,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, centre, as <see cref="WaveDownRightCentre"/> does, with a narrower hitbox.</summary>
+    WaveDownRightCentreNarrowHitbox,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left, its lobe near the centre.</summary>
+    WaveDownRightDownLeftNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left, its lobe midway out.</summary>
+    WaveDownRightDownLeftMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left, its lobe far out.</summary>
+    WaveDownRightDownLeftFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left, its lobe at its peak.</summary>
+    WaveDownRightDownLeftPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.WaveDownRight"/> showing the Wave picture, down right, down left, its lobe near the centre, as <see cref="WaveDownRightDownLeftNear"/> does, with a wider hitbox.</summary>
+    WaveDownRightDownLeftNearWideHitbox,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, a star.</summary>
+    IceUpFacingRightStar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, a cross.</summary>
+    IceUpFacingRightCrossed,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, a narrow star.</summary>
+    IceUpFacingRightNarrowStar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.IceUpFacingRight"/> showing the Ice picture, a mirrored cross.</summary>
+    IceUpFacingRightCrossedMirrored,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpFacingRight"/> showing the Spazer picture, up, seed.</summary>
     SpazerUpFacingRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpFacingRight"/> showing the Spazer picture, up, spread 2.</summary>
-    SpazerUpFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpFacingRightLoop"/> showing the Spazer picture, up, spread 5.</summary>
-    SpazerUpFacingRightSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpFacingRight"/> showing the Spazer picture, up, its lanes parting.</summary>
+    SpazerUpFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpFacingRightLoop"/> showing the Spazer picture, up, its lanes fully spread.</summary>
+    SpazerUpFacingRightSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpRight"/> showing the Spazer picture, up right, seed.</summary>
     SpazerUpRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpRight"/> showing the Spazer picture, up right, spread 2.</summary>
-    SpazerUpRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpRightLoop"/> showing the Spazer picture, up right, spread 5.</summary>
-    SpazerUpRightSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpRight"/> showing the Spazer picture, up right, its lanes parting.</summary>
+    SpazerUpRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpRightLoop"/> showing the Spazer picture, up right, its lanes fully spread.</summary>
+    SpazerUpRightSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerRight"/> showing the Spazer picture, right, seed.</summary>
     SpazerRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerRight"/> showing the Spazer picture, right, spread 2.</summary>
-    SpazerRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerRightLoop"/> showing the Spazer picture, right, spread 5.</summary>
-    SpazerRightSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerRight"/> showing the Spazer picture, right, its lanes parting.</summary>
+    SpazerRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerRightLoop"/> showing the Spazer picture, right, its lanes fully spread.</summary>
+    SpazerRightSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownRight"/> showing the Spazer picture, down right, seed.</summary>
     SpazerDownRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownRight"/> showing the Spazer picture, down right, spread 2.</summary>
-    SpazerDownRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownRightLoop"/> showing the Spazer picture, down right, spread 5.</summary>
-    SpazerDownRightSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownRight"/> showing the Spazer picture, down right, its lanes parting.</summary>
+    SpazerDownRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownRightLoop"/> showing the Spazer picture, down right, its lanes fully spread.</summary>
+    SpazerDownRightSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownFacingRight"/> showing the Spazer picture, down, seed.</summary>
     SpazerDownFacingRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownFacingRight"/> showing the Spazer picture, down, spread 2.</summary>
-    SpazerDownFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownFacingRightLoop"/> showing the Spazer picture, down, spread 5.</summary>
-    SpazerDownFacingRightSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownFacingRight"/> showing the Spazer picture, down, its lanes parting.</summary>
+    SpazerDownFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownFacingRightLoop"/> showing the Spazer picture, down, its lanes fully spread.</summary>
+    SpazerDownFacingRightSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownLeft"/> showing the Spazer picture, down left, seed.</summary>
     SpazerDownLeftSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownLeft"/> showing the Spazer picture, down left, spread 1.</summary>
-    SpazerDownLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownLeftLoop"/> showing the Spazer picture, down left, spread 4.</summary>
-    SpazerDownLeftSpread4,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownLeft"/> showing the Spazer picture, down left, its lanes parting.</summary>
+    SpazerDownLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerDownLeftLoop"/> showing the Spazer picture, down left, its lanes fully spread.</summary>
+    SpazerDownLeftSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerLeft"/> showing the Spazer picture, left, seed.</summary>
     SpazerLeftSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerLeft"/> showing the Spazer picture, left, spread 2.</summary>
-    SpazerLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerLeftLoop"/> showing the Spazer picture, left, spread 5.</summary>
-    SpazerLeftSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerLeft"/> showing the Spazer picture, left, its lanes parting.</summary>
+    SpazerLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerLeftLoop"/> showing the Spazer picture, left, its lanes fully spread.</summary>
+    SpazerLeftSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpLeft"/> showing the Spazer picture, up left, seed.</summary>
     SpazerUpLeftSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpLeft"/> showing the Spazer picture, up left, spread 2.</summary>
-    SpazerUpLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpLeftLoop"/> showing the Spazer picture, up left, spread 5.</summary>
-    SpazerUpLeftSpread5,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpLeft"/> showing the Spazer picture, up left, its lanes parting.</summary>
+    SpazerUpLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerUpLeftLoop"/> showing the Spazer picture, up left, its lanes fully spread.</summary>
+    SpazerUpLeftSpread,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, seed.</summary>
     SpazerWaveUpFacingRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 1.</summary>
-    SpazerWaveUpFacingRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 2.</summary>
-    SpazerWaveUpFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 3.</summary>
-    SpazerWaveUpFacingRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 4.</summary>
-    SpazerWaveUpFacingRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 5.</summary>
-    SpazerWaveUpFacingRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 4, as <see cref="SpazerWaveUpFacingRightSpread4"/> does.</summary>
-    SpazerWaveUpFacingRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 3, as <see cref="SpazerWaveUpFacingRightSpread3"/> does.</summary>
-    SpazerWaveUpFacingRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 2, as <see cref="SpazerWaveUpFacingRightSpread2"/> does.</summary>
-    SpazerWaveUpFacingRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, spread 1, as <see cref="SpazerWaveUpFacingRightSpread1"/> does.</summary>
-    SpazerWaveUpFacingRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes splitting.</summary>
+    SpazerWaveUpFacingRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes parting.</summary>
+    SpazerWaveUpFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes spreading.</summary>
+    SpazerWaveUpFacingRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes nearly spread.</summary>
+    SpazerWaveUpFacingRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes fully spread.</summary>
+    SpazerWaveUpFacingRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes parting, as <see cref="SpazerWaveUpFacingRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveUpFacingRightPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpFacingRight"/> showing the Spazer picture, up, its lanes splitting, as <see cref="SpazerWaveUpFacingRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveUpFacingRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, seed.</summary>
     SpazerWaveUpRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 1.</summary>
-    SpazerWaveUpRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 2.</summary>
-    SpazerWaveUpRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 3.</summary>
-    SpazerWaveUpRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 4.</summary>
-    SpazerWaveUpRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 5.</summary>
-    SpazerWaveUpRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 4, as <see cref="SpazerWaveUpRightSpread4"/> does.</summary>
-    SpazerWaveUpRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 3, as <see cref="SpazerWaveUpRightSpread3"/> does.</summary>
-    SpazerWaveUpRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 2, as <see cref="SpazerWaveUpRightSpread2"/> does.</summary>
-    SpazerWaveUpRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, spread 1, as <see cref="SpazerWaveUpRightSpread1"/> does.</summary>
-    SpazerWaveUpRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes splitting.</summary>
+    SpazerWaveUpRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes parting.</summary>
+    SpazerWaveUpRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes spreading.</summary>
+    SpazerWaveUpRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes nearly spread.</summary>
+    SpazerWaveUpRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes fully spread.</summary>
+    SpazerWaveUpRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes parting, as <see cref="SpazerWaveUpRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveUpRightPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpRight"/> showing the Spazer picture, up right, its lanes splitting, as <see cref="SpazerWaveUpRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveUpRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, seed.</summary>
     SpazerWaveRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 1.</summary>
-    SpazerWaveRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 2.</summary>
-    SpazerWaveRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 3.</summary>
-    SpazerWaveRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 4.</summary>
-    SpazerWaveRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 5.</summary>
-    SpazerWaveRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 4, as <see cref="SpazerWaveRightSpread4"/> does.</summary>
-    SpazerWaveRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 3, as <see cref="SpazerWaveRightSpread3"/> does.</summary>
-    SpazerWaveRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 2, as <see cref="SpazerWaveRightSpread2"/> does.</summary>
-    SpazerWaveRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, spread 1, as <see cref="SpazerWaveRightSpread1"/> does.</summary>
-    SpazerWaveRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes splitting.</summary>
+    SpazerWaveRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes parting.</summary>
+    SpazerWaveRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes spreading.</summary>
+    SpazerWaveRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes nearly spread.</summary>
+    SpazerWaveRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes fully spread.</summary>
+    SpazerWaveRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes parting, as <see cref="SpazerWaveRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveRightPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveRight"/> showing the Spazer picture, right, its lanes splitting, as <see cref="SpazerWaveRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, seed.</summary>
     SpazerWaveDownRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 1.</summary>
-    SpazerWaveDownRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 2.</summary>
-    SpazerWaveDownRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 3.</summary>
-    SpazerWaveDownRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 4.</summary>
-    SpazerWaveDownRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 5.</summary>
-    SpazerWaveDownRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 4, as <see cref="SpazerWaveDownRightSpread4"/> does.</summary>
-    SpazerWaveDownRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 3, as <see cref="SpazerWaveDownRightSpread3"/> does.</summary>
-    SpazerWaveDownRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 2, as <see cref="SpazerWaveDownRightSpread2"/> does.</summary>
-    SpazerWaveDownRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, spread 1, as <see cref="SpazerWaveDownRightSpread1"/> does.</summary>
-    SpazerWaveDownRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes splitting.</summary>
+    SpazerWaveDownRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes parting.</summary>
+    SpazerWaveDownRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes spreading.</summary>
+    SpazerWaveDownRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes nearly spread.</summary>
+    SpazerWaveDownRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes fully spread.</summary>
+    SpazerWaveDownRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes parting, as <see cref="SpazerWaveDownRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveDownRightPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownRight"/> showing the Spazer picture, down right, its lanes splitting, as <see cref="SpazerWaveDownRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveDownRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, seed.</summary>
     SpazerWaveDownFacingRightSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 1.</summary>
-    SpazerWaveDownFacingRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 2.</summary>
-    SpazerWaveDownFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 3.</summary>
-    SpazerWaveDownFacingRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 4.</summary>
-    SpazerWaveDownFacingRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 5.</summary>
-    SpazerWaveDownFacingRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 4, as <see cref="SpazerWaveDownFacingRightSpread4"/> does.</summary>
-    SpazerWaveDownFacingRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 3, as <see cref="SpazerWaveDownFacingRightSpread3"/> does.</summary>
-    SpazerWaveDownFacingRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 2, as <see cref="SpazerWaveDownFacingRightSpread2"/> does.</summary>
-    SpazerWaveDownFacingRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, spread 1, as <see cref="SpazerWaveDownFacingRightSpread1"/> does.</summary>
-    SpazerWaveDownFacingRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes splitting.</summary>
+    SpazerWaveDownFacingRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes parting.</summary>
+    SpazerWaveDownFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes spreading.</summary>
+    SpazerWaveDownFacingRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes nearly spread.</summary>
+    SpazerWaveDownFacingRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes fully spread.</summary>
+    SpazerWaveDownFacingRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes parting, as <see cref="SpazerWaveDownFacingRightParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveDownFacingRightPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownFacingRight"/> showing the Spazer picture, down, its lanes splitting, as <see cref="SpazerWaveDownFacingRightSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveDownFacingRightSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, seed.</summary>
     SpazerWaveDownLeftSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 1.</summary>
-    SpazerWaveDownLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 2.</summary>
-    SpazerWaveDownLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 3.</summary>
-    SpazerWaveDownLeftSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 4.</summary>
-    SpazerWaveDownLeftSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 4, as <see cref="SpazerWaveDownLeftSpread4"/> does.</summary>
-    SpazerWaveDownLeftSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 4, as <see cref="SpazerWaveDownLeftSpread4"/> does.</summary>
-    SpazerWaveDownLeftSpread4TwinB,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 3, as <see cref="SpazerWaveDownLeftSpread3"/> does.</summary>
-    SpazerWaveDownLeftSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 2, as <see cref="SpazerWaveDownLeftSpread2"/> does.</summary>
-    SpazerWaveDownLeftSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, spread 1, as <see cref="SpazerWaveDownLeftSpread1"/> does.</summary>
-    SpazerWaveDownLeftSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes parting.</summary>
+    SpazerWaveDownLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes spreading.</summary>
+    SpazerWaveDownLeftSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes nearly spread.</summary>
+    SpazerWaveDownLeftNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes fully spread.</summary>
+    SpazerWaveDownLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes fully spread, as <see cref="SpazerWaveDownLeftSpread"/> does, with its trail placed elsewhere by <see cref="ProjectileTrailPlacementList.UnchargedWaveIceSpazerUpRight"/>, <see cref="ProjectileTrailPlacementList.UnchargedWaveIceSpazerDownRight"/>, <see cref="ProjectileTrailPlacementList.UnchargedWaveIceSpazerUpLeft"/>.</summary>
+    SpazerWaveDownLeftSpreadShiftedTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes spreading, as <see cref="SpazerWaveDownLeftSpreading"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveDownLeftSpreadingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveDownLeft"/> showing the Spazer picture, down left, its lanes parting, as <see cref="SpazerWaveDownLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveDownLeftPartingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, seed.</summary>
     SpazerWaveLeftSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 1.</summary>
-    SpazerWaveLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 2.</summary>
-    SpazerWaveLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 3.</summary>
-    SpazerWaveLeftSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 4.</summary>
-    SpazerWaveLeftSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 5.</summary>
-    SpazerWaveLeftSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 4, as <see cref="SpazerWaveLeftSpread4"/> does.</summary>
-    SpazerWaveLeftSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 3, as <see cref="SpazerWaveLeftSpread3"/> does.</summary>
-    SpazerWaveLeftSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 2, as <see cref="SpazerWaveLeftSpread2"/> does.</summary>
-    SpazerWaveLeftSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, spread 1, as <see cref="SpazerWaveLeftSpread1"/> does.</summary>
-    SpazerWaveLeftSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes splitting.</summary>
+    SpazerWaveLeftSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes parting.</summary>
+    SpazerWaveLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes spreading.</summary>
+    SpazerWaveLeftSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes nearly spread.</summary>
+    SpazerWaveLeftNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes fully spread.</summary>
+    SpazerWaveLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes parting, as <see cref="SpazerWaveLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveLeftPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveLeft"/> showing the Spazer picture, left, its lanes splitting, as <see cref="SpazerWaveLeftSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveLeftSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, seed.</summary>
     SpazerWaveUpLeftSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 1.</summary>
-    SpazerWaveUpLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 2.</summary>
-    SpazerWaveUpLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 3.</summary>
-    SpazerWaveUpLeftSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 4.</summary>
-    SpazerWaveUpLeftSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 5.</summary>
-    SpazerWaveUpLeftSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 4, as <see cref="SpazerWaveUpLeftSpread4"/> does.</summary>
-    SpazerWaveUpLeftSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 3, as <see cref="SpazerWaveUpLeftSpread3"/> does.</summary>
-    SpazerWaveUpLeftSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 2, as <see cref="SpazerWaveUpLeftSpread2"/> does.</summary>
-    SpazerWaveUpLeftSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, spread 1, as <see cref="SpazerWaveUpLeftSpread1"/> does.</summary>
-    SpazerWaveUpLeftSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes splitting.</summary>
+    SpazerWaveUpLeftSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes parting.</summary>
+    SpazerWaveUpLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes spreading.</summary>
+    SpazerWaveUpLeftSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes nearly spread.</summary>
+    SpazerWaveUpLeftNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes fully spread.</summary>
+    SpazerWaveUpLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes parting, as <see cref="SpazerWaveUpLeftParting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveUpLeftPartingWithoutDefaultTrail,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerWaveUpLeft"/> showing the Spazer picture, up left, its lanes splitting, as <see cref="SpazerWaveUpLeftSplitting"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    SpazerWaveUpLeftSplittingWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaUpFacingRight"/> showing the Plasma Startup picture, up, core.</summary>
     PlasmaUpFacingRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaUpFacingRightLoop"/> showing the Plasma picture, up.</summary>
@@ -390,74 +314,58 @@ internal enum SamusProjectileFrameId
     PlasmaIceWaveUpFacingRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, core.</summary>
     PlasmaWaveUpFacingRightShortCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 1.</summary>
-    PlasmaWaveUpFacingRightShortSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 2.</summary>
-    PlasmaWaveUpFacingRightShortSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 3.</summary>
-    PlasmaWaveUpFacingRightShortSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 4.</summary>
-    PlasmaWaveUpFacingRightShortSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 3, as <see cref="PlasmaWaveUpFacingRightShortSpread3"/> does.</summary>
-    PlasmaWaveUpFacingRightShortSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 2, as <see cref="PlasmaWaveUpFacingRightShortSpread2"/> does.</summary>
-    PlasmaWaveUpFacingRightShortSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, spread 1, as <see cref="PlasmaWaveUpFacingRightShortSpread1"/> does.</summary>
-    PlasmaWaveUpFacingRightShortSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, its lobes near the centre.</summary>
+    PlasmaWaveUpFacingRightShortLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, its lobes midway out.</summary>
+    PlasmaWaveUpFacingRightShortLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, its lobes far out.</summary>
+    PlasmaWaveUpFacingRightShortLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, its lobes at their peak.</summary>
+    PlasmaWaveUpFacingRightShortLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpFacingRight"/> showing the Plasma Wave picture, up short, its lobes near the centre, as <see cref="PlasmaWaveUpFacingRightShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    PlasmaWaveUpFacingRightShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaIceWaveUpRight"/> showing the Plasma Startup picture, up right, core.</summary>
     PlasmaIceWaveUpRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, core.</summary>
     PlasmaWaveUpRightShortCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 1.</summary>
-    PlasmaWaveUpRightShortSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 2.</summary>
-    PlasmaWaveUpRightShortSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 3.</summary>
-    PlasmaWaveUpRightShortSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 4.</summary>
-    PlasmaWaveUpRightShortSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 3, as <see cref="PlasmaWaveUpRightShortSpread3"/> does.</summary>
-    PlasmaWaveUpRightShortSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 2, as <see cref="PlasmaWaveUpRightShortSpread2"/> does.</summary>
-    PlasmaWaveUpRightShortSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, spread 1, as <see cref="PlasmaWaveUpRightShortSpread1"/> does.</summary>
-    PlasmaWaveUpRightShortSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, its lobes near the centre.</summary>
+    PlasmaWaveUpRightShortLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, its lobes midway out.</summary>
+    PlasmaWaveUpRightShortLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, its lobes far out.</summary>
+    PlasmaWaveUpRightShortLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, its lobes at their peak.</summary>
+    PlasmaWaveUpRightShortLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveUpRight"/> showing the Plasma Wave picture, up right short, its lobes near the centre, as <see cref="PlasmaWaveUpRightShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    PlasmaWaveUpRightShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRight"/> showing the Plasma Startup picture, right, core.</summary>
     PlasmaWaveRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, core.</summary>
     PlasmaWaveRightShortCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 1.</summary>
-    PlasmaWaveRightShortSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 2.</summary>
-    PlasmaWaveRightShortSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 3.</summary>
-    PlasmaWaveRightShortSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 4.</summary>
-    PlasmaWaveRightShortSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 3, as <see cref="PlasmaWaveRightShortSpread3"/> does.</summary>
-    PlasmaWaveRightShortSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 2, as <see cref="PlasmaWaveRightShortSpread2"/> does.</summary>
-    PlasmaWaveRightShortSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, spread 1, as <see cref="PlasmaWaveRightShortSpread1"/> does.</summary>
-    PlasmaWaveRightShortSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, its lobes near the centre.</summary>
+    PlasmaWaveRightShortLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, its lobes midway out.</summary>
+    PlasmaWaveRightShortLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, its lobes far out.</summary>
+    PlasmaWaveRightShortLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, its lobes at their peak.</summary>
+    PlasmaWaveRightShortLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveRightLoop"/> showing the Plasma Wave picture, right short, its lobes near the centre, as <see cref="PlasmaWaveRightShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    PlasmaWaveRightShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaIceWaveDownRight"/> showing the Plasma Startup picture, down right, core.</summary>
     PlasmaIceWaveDownRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, core.</summary>
     PlasmaWaveDownRightShortCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 1.</summary>
-    PlasmaWaveDownRightShortSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 2.</summary>
-    PlasmaWaveDownRightShortSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 3.</summary>
-    PlasmaWaveDownRightShortSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 4.</summary>
-    PlasmaWaveDownRightShortSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 3, as <see cref="PlasmaWaveDownRightShortSpread3"/> does.</summary>
-    PlasmaWaveDownRightShortSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 2, as <see cref="PlasmaWaveDownRightShortSpread2"/> does.</summary>
-    PlasmaWaveDownRightShortSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, spread 1, as <see cref="PlasmaWaveDownRightShortSpread1"/> does.</summary>
-    PlasmaWaveDownRightShortSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, its lobes near the centre.</summary>
+    PlasmaWaveDownRightShortLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, its lobes midway out.</summary>
+    PlasmaWaveDownRightShortLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, its lobes far out.</summary>
+    PlasmaWaveDownRightShortLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, its lobes at their peak.</summary>
+    PlasmaWaveDownRightShortLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaWaveDownRight"/> showing the Plasma Wave picture, down right short, its lobes near the centre, as <see cref="PlasmaWaveDownRightShortLobesNear"/> does, leaving no trail where <see cref="ProjectileTrailPlacementList.UnchargedDefault"/> places one from it.</summary>
+    PlasmaWaveDownRightShortLobesNearWithoutDefaultTrail,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPowerUpFacingRight"/> showing the Charged Power picture, up.</summary>
     ChargedPowerUpFacingRight,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPowerUpFacingRight"/> showing the Charged Power picture, up alternate.</summary>
@@ -496,732 +404,540 @@ internal enum SamusProjectileFrameId
     ChargedWaveDownFacingRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, core alternate.</summary>
     ChargedWaveDownFacingRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 1.</summary>
-    ChargedWaveDownFacingRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 1 alternate.</summary>
-    ChargedWaveDownFacingRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 2.</summary>
-    ChargedWaveDownFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 2 alternate.</summary>
-    ChargedWaveDownFacingRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 3.</summary>
-    ChargedWaveDownFacingRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 3 alternate.</summary>
-    ChargedWaveDownFacingRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 4.</summary>
-    ChargedWaveDownFacingRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 4 alternate.</summary>
-    ChargedWaveDownFacingRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 3, as <see cref="ChargedWaveDownFacingRightSpread3"/> does.</summary>
-    ChargedWaveDownFacingRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 3 alternate, as <see cref="ChargedWaveDownFacingRightSpread3Alternate"/> does.</summary>
-    ChargedWaveDownFacingRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 2, as <see cref="ChargedWaveDownFacingRightSpread2"/> does.</summary>
-    ChargedWaveDownFacingRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 2 alternate, as <see cref="ChargedWaveDownFacingRightSpread2Alternate"/> does.</summary>
-    ChargedWaveDownFacingRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 1 alternate, as <see cref="ChargedWaveDownFacingRightSpread1Alternate"/> does.</summary>
-    ChargedWaveDownFacingRightSpread1AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, spread 1, as <see cref="ChargedWaveDownFacingRightSpread1"/> does.</summary>
-    ChargedWaveDownFacingRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes near the centre.</summary>
+    ChargedWaveDownFacingRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes near the centre (alternate).</summary>
+    ChargedWaveDownFacingRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes midway out.</summary>
+    ChargedWaveDownFacingRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes midway out (alternate).</summary>
+    ChargedWaveDownFacingRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes far out.</summary>
+    ChargedWaveDownFacingRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes far out (alternate).</summary>
+    ChargedWaveDownFacingRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes at their peak.</summary>
+    ChargedWaveDownFacingRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownFacingRight"/> showing the Charged Wave picture, down, its lobes at their peak (alternate).</summary>
+    ChargedWaveDownFacingRightLobesPeakAlternate,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, core.</summary>
     ChargedWaveUpRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, core alternate.</summary>
     ChargedWaveUpRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 1.</summary>
-    ChargedWaveUpRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 1 alternate.</summary>
-    ChargedWaveUpRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 2.</summary>
-    ChargedWaveUpRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 2 alternate.</summary>
-    ChargedWaveUpRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 3.</summary>
-    ChargedWaveUpRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 3 alternate.</summary>
-    ChargedWaveUpRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 4.</summary>
-    ChargedWaveUpRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 4 alternate.</summary>
-    ChargedWaveUpRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 3, as <see cref="ChargedWaveUpRightSpread3"/> does.</summary>
-    ChargedWaveUpRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 3 alternate, as <see cref="ChargedWaveUpRightSpread3Alternate"/> does.</summary>
-    ChargedWaveUpRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 2, as <see cref="ChargedWaveUpRightSpread2"/> does.</summary>
-    ChargedWaveUpRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 2 alternate, as <see cref="ChargedWaveUpRightSpread2Alternate"/> does.</summary>
-    ChargedWaveUpRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 1, as <see cref="ChargedWaveUpRightSpread1"/> does.</summary>
-    ChargedWaveUpRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, spread 1 alternate, as <see cref="ChargedWaveUpRightSpread1Alternate"/> does.</summary>
-    ChargedWaveUpRightSpread1AlternateTwin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes near the centre.</summary>
+    ChargedWaveUpRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes near the centre (alternate).</summary>
+    ChargedWaveUpRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes midway out.</summary>
+    ChargedWaveUpRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes midway out (alternate).</summary>
+    ChargedWaveUpRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes far out.</summary>
+    ChargedWaveUpRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes far out (alternate).</summary>
+    ChargedWaveUpRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes at their peak.</summary>
+    ChargedWaveUpRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveUpRight"/> showing the Charged Wave picture, up right, its lobes at their peak (alternate).</summary>
+    ChargedWaveUpRightLobesPeakAlternate,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, core.</summary>
     ChargedWaveRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, core alternate.</summary>
     ChargedWaveRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 1.</summary>
-    ChargedWaveRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 1 alternate.</summary>
-    ChargedWaveRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 2.</summary>
-    ChargedWaveRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 2 alternate.</summary>
-    ChargedWaveRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 3.</summary>
-    ChargedWaveRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 3 alternate.</summary>
-    ChargedWaveRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 4.</summary>
-    ChargedWaveRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 4 alternate.</summary>
-    ChargedWaveRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 3, as <see cref="ChargedWaveRightSpread3"/> does.</summary>
-    ChargedWaveRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 3 alternate, as <see cref="ChargedWaveRightSpread3Alternate"/> does.</summary>
-    ChargedWaveRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 2, as <see cref="ChargedWaveRightSpread2"/> does.</summary>
-    ChargedWaveRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 2 alternate, as <see cref="ChargedWaveRightSpread2Alternate"/> does.</summary>
-    ChargedWaveRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 1 alternate, as <see cref="ChargedWaveRightSpread1Alternate"/> does.</summary>
-    ChargedWaveRightSpread1AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, spread 1, as <see cref="ChargedWaveRightSpread1"/> does.</summary>
-    ChargedWaveRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes near the centre.</summary>
+    ChargedWaveRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes near the centre (alternate).</summary>
+    ChargedWaveRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes midway out.</summary>
+    ChargedWaveRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes midway out (alternate).</summary>
+    ChargedWaveRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes far out.</summary>
+    ChargedWaveRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes far out (alternate).</summary>
+    ChargedWaveRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes at their peak.</summary>
+    ChargedWaveRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveRight"/> showing the Charged Wave picture, right, its lobes at their peak (alternate).</summary>
+    ChargedWaveRightLobesPeakAlternate,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, core.</summary>
     ChargedWaveDownRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, core alternate.</summary>
     ChargedWaveDownRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 1.</summary>
-    ChargedWaveDownRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 1 alternate.</summary>
-    ChargedWaveDownRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 2.</summary>
-    ChargedWaveDownRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 2 alternate.</summary>
-    ChargedWaveDownRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 3.</summary>
-    ChargedWaveDownRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 3 alternate.</summary>
-    ChargedWaveDownRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 4.</summary>
-    ChargedWaveDownRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 4 alternate.</summary>
-    ChargedWaveDownRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 3, as <see cref="ChargedWaveDownRightSpread3"/> does.</summary>
-    ChargedWaveDownRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 3 alternate, as <see cref="ChargedWaveDownRightSpread3Alternate"/> does.</summary>
-    ChargedWaveDownRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 2, as <see cref="ChargedWaveDownRightSpread2"/> does.</summary>
-    ChargedWaveDownRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 2 alternate, as <see cref="ChargedWaveDownRightSpread2Alternate"/> does.</summary>
-    ChargedWaveDownRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 1, as <see cref="ChargedWaveDownRightSpread1"/> does.</summary>
-    ChargedWaveDownRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, spread 1 alternate, as <see cref="ChargedWaveDownRightSpread1Alternate"/> does.</summary>
-    ChargedWaveDownRightSpread1AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, phase 1.</summary>
-    ChargedIceUpFacingRightPhase1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, phase 2.</summary>
-    ChargedIceUpFacingRightPhase2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, phase 3.</summary>
-    ChargedIceUpFacingRightPhase3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, phase 4.</summary>
-    ChargedIceUpFacingRightPhase4,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes near the centre.</summary>
+    ChargedWaveDownRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes near the centre (alternate).</summary>
+    ChargedWaveDownRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes midway out.</summary>
+    ChargedWaveDownRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes midway out (alternate).</summary>
+    ChargedWaveDownRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes far out.</summary>
+    ChargedWaveDownRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes far out (alternate).</summary>
+    ChargedWaveDownRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes at their peak.</summary>
+    ChargedWaveDownRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedWaveDownRight"/> showing the Charged Wave picture, down right, its lobes at their peak (alternate).</summary>
+    ChargedWaveDownRightLobesPeakAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a cross.</summary>
+    ChargedIceUpFacingRightCrossed,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a star.</summary>
+    ChargedIceUpFacingRightStar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a cross, drawn by the second of its two identical cross compositions.</summary>
+    ChargedIceUpFacingRightCrossedCopy,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a star, drawn by the second of its two identical star compositions.</summary>
+    ChargedIceUpFacingRightStarCopy,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpFacingRight"/> showing nothing.</summary>
     ChargedIceWaveUpFacingRightHidden,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, core.</summary>
     ChargedIceWaveDownFacingRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, core alternate.</summary>
     ChargedIceWaveDownFacingRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 1.</summary>
-    ChargedIceWaveDownFacingRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 1 alternate.</summary>
-    ChargedIceWaveDownFacingRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 2.</summary>
-    ChargedIceWaveDownFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 2 alternate.</summary>
-    ChargedIceWaveDownFacingRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 3.</summary>
-    ChargedIceWaveDownFacingRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 3 alternate.</summary>
-    ChargedIceWaveDownFacingRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 4.</summary>
-    ChargedIceWaveDownFacingRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 4 alternate.</summary>
-    ChargedIceWaveDownFacingRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 3, as <see cref="ChargedIceWaveDownFacingRightSpread3"/> does.</summary>
-    ChargedIceWaveDownFacingRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 3 alternate, as <see cref="ChargedIceWaveDownFacingRightSpread3Alternate"/> does.</summary>
-    ChargedIceWaveDownFacingRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 2, as <see cref="ChargedIceWaveDownFacingRightSpread2"/> does.</summary>
-    ChargedIceWaveDownFacingRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 2 alternate, as <see cref="ChargedIceWaveDownFacingRightSpread2Alternate"/> does.</summary>
-    ChargedIceWaveDownFacingRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 1 alternate, as <see cref="ChargedIceWaveDownFacingRightSpread1Alternate"/> does.</summary>
-    ChargedIceWaveDownFacingRightSpread1AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, spread 1, as <see cref="ChargedIceWaveDownFacingRightSpread1"/> does.</summary>
-    ChargedIceWaveDownFacingRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes near the centre.</summary>
+    ChargedIceWaveDownFacingRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes near the centre (alternate).</summary>
+    ChargedIceWaveDownFacingRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes midway out.</summary>
+    ChargedIceWaveDownFacingRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes midway out (alternate).</summary>
+    ChargedIceWaveDownFacingRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes far out.</summary>
+    ChargedIceWaveDownFacingRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes far out (alternate).</summary>
+    ChargedIceWaveDownFacingRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes at their peak.</summary>
+    ChargedIceWaveDownFacingRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, down, its lobes at their peak (alternate).</summary>
+    ChargedIceWaveDownFacingRightLobesPeakAlternate,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, core.</summary>
     ChargedIceWaveUpRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, core alternate.</summary>
     ChargedIceWaveUpRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 1.</summary>
-    ChargedIceWaveUpRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 1 alternate.</summary>
-    ChargedIceWaveUpRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 2.</summary>
-    ChargedIceWaveUpRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 2 alternate.</summary>
-    ChargedIceWaveUpRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 3.</summary>
-    ChargedIceWaveUpRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 3 alternate.</summary>
-    ChargedIceWaveUpRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 4.</summary>
-    ChargedIceWaveUpRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 4 alternate.</summary>
-    ChargedIceWaveUpRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 3, as <see cref="ChargedIceWaveUpRightSpread3"/> does.</summary>
-    ChargedIceWaveUpRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 3 alternate, as <see cref="ChargedIceWaveUpRightSpread3Alternate"/> does.</summary>
-    ChargedIceWaveUpRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 2, as <see cref="ChargedIceWaveUpRightSpread2"/> does.</summary>
-    ChargedIceWaveUpRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 2 alternate, as <see cref="ChargedIceWaveUpRightSpread2Alternate"/> does.</summary>
-    ChargedIceWaveUpRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 1, as <see cref="ChargedIceWaveUpRightSpread1"/> does.</summary>
-    ChargedIceWaveUpRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, spread 1 alternate, as <see cref="ChargedIceWaveUpRightSpread1Alternate"/> does.</summary>
-    ChargedIceWaveUpRightSpread1AlternateTwin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes near the centre.</summary>
+    ChargedIceWaveUpRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes near the centre (alternate).</summary>
+    ChargedIceWaveUpRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes midway out.</summary>
+    ChargedIceWaveUpRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes midway out (alternate).</summary>
+    ChargedIceWaveUpRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes far out.</summary>
+    ChargedIceWaveUpRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes far out (alternate).</summary>
+    ChargedIceWaveUpRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes at their peak.</summary>
+    ChargedIceWaveUpRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpRight"/> showing the Charged Ice Wave picture, up right, its lobes at their peak (alternate).</summary>
+    ChargedIceWaveUpRightLobesPeakAlternate,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, core.</summary>
     ChargedIceWaveRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, core alternate.</summary>
     ChargedIceWaveRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 1.</summary>
-    ChargedIceWaveRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 1 alternate.</summary>
-    ChargedIceWaveRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 2.</summary>
-    ChargedIceWaveRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 2 alternate.</summary>
-    ChargedIceWaveRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 3.</summary>
-    ChargedIceWaveRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 3 alternate.</summary>
-    ChargedIceWaveRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 4.</summary>
-    ChargedIceWaveRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 4 alternate.</summary>
-    ChargedIceWaveRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 3, as <see cref="ChargedIceWaveRightSpread3"/> does.</summary>
-    ChargedIceWaveRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 3 alternate, as <see cref="ChargedIceWaveRightSpread3Alternate"/> does.</summary>
-    ChargedIceWaveRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 2, as <see cref="ChargedIceWaveRightSpread2"/> does.</summary>
-    ChargedIceWaveRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 2 alternate, as <see cref="ChargedIceWaveRightSpread2Alternate"/> does.</summary>
-    ChargedIceWaveRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 1 alternate, as <see cref="ChargedIceWaveRightSpread1Alternate"/> does.</summary>
-    ChargedIceWaveRightSpread1AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, spread 1, as <see cref="ChargedIceWaveRightSpread1"/> does.</summary>
-    ChargedIceWaveRightSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes near the centre.</summary>
+    ChargedIceWaveRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes near the centre (alternate).</summary>
+    ChargedIceWaveRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes midway out.</summary>
+    ChargedIceWaveRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes midway out (alternate).</summary>
+    ChargedIceWaveRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes far out.</summary>
+    ChargedIceWaveRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes far out (alternate).</summary>
+    ChargedIceWaveRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes at their peak.</summary>
+    ChargedIceWaveRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveRight"/> showing the Charged Ice Wave picture, right, its lobes at their peak (alternate).</summary>
+    ChargedIceWaveRightLobesPeakAlternate,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, core.</summary>
     ChargedIceWaveDownRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, core alternate.</summary>
     ChargedIceWaveDownRightCoreAlternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 1.</summary>
-    ChargedIceWaveDownRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 1 alternate.</summary>
-    ChargedIceWaveDownRightSpread1Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 2.</summary>
-    ChargedIceWaveDownRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 2 alternate.</summary>
-    ChargedIceWaveDownRightSpread2Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 3.</summary>
-    ChargedIceWaveDownRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 3 alternate.</summary>
-    ChargedIceWaveDownRightSpread3Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 4.</summary>
-    ChargedIceWaveDownRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 4 alternate.</summary>
-    ChargedIceWaveDownRightSpread4Alternate,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 3, as <see cref="ChargedIceWaveDownRightSpread3"/> does.</summary>
-    ChargedIceWaveDownRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 3 alternate, as <see cref="ChargedIceWaveDownRightSpread3Alternate"/> does.</summary>
-    ChargedIceWaveDownRightSpread3AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 2, as <see cref="ChargedIceWaveDownRightSpread2"/> does.</summary>
-    ChargedIceWaveDownRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 2 alternate, as <see cref="ChargedIceWaveDownRightSpread2Alternate"/> does.</summary>
-    ChargedIceWaveDownRightSpread2AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 1, as <see cref="ChargedIceWaveDownRightSpread1"/> does.</summary>
-    ChargedIceWaveDownRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, spread 1 alternate, as <see cref="ChargedIceWaveDownRightSpread1Alternate"/> does.</summary>
-    ChargedIceWaveDownRightSpread1AlternateTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, up, stage 1.</summary>
-    ChargedSpazerUpFacingRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, stage 1.</summary>
-    ChargedSpazerUpFacingRightVerticalAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, up, stage 2.</summary>
-    ChargedSpazerUpFacingRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, stage 2.</summary>
-    ChargedSpazerUpFacingRightVerticalAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes near the centre.</summary>
+    ChargedIceWaveDownRightLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes near the centre (alternate).</summary>
+    ChargedIceWaveDownRightLobesNearAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes midway out.</summary>
+    ChargedIceWaveDownRightLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes midway out (alternate).</summary>
+    ChargedIceWaveDownRightLobesMidwayAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes far out.</summary>
+    ChargedIceWaveDownRightLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes far out (alternate).</summary>
+    ChargedIceWaveDownRightLobesFarAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes at their peak.</summary>
+    ChargedIceWaveDownRightLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownRight"/> showing the Charged Ice Wave picture, down right, its lobes at their peak (alternate).</summary>
+    ChargedIceWaveDownRightLobesPeakAlternate,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, up, a short startup strip.</summary>
+    ChargedSpazerUpFacingRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, a short startup strip.</summary>
+    ChargedSpazerUpFacingRightVerticalAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, up, a long startup strip.</summary>
+    ChargedSpazerUpFacingRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, a long startup strip.</summary>
+    ChargedSpazerUpFacingRightVerticalAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Charged Spazer picture, up, seed.</summary>
     ChargedSpazerUpFacingRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Charged Spazer picture, vertical alternate, seed.</summary>
     ChargedSpazerUpFacingRightVerticalAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Charged Spazer picture, up, spread 2.</summary>
-    ChargedSpazerUpFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Charged Spazer picture, vertical alternate, spread 2.</summary>
-    ChargedSpazerUpFacingRightVerticalAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 5.</summary>
-    ChargedSpazerUpFacingRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 5.</summary>
-    ChargedSpazerUpFacingRightVerticalAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right, stage 1.</summary>
-    ChargedSpazerUpRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right alternate, stage 1.</summary>
-    ChargedSpazerUpRightAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right, stage 2.</summary>
-    ChargedSpazerUpRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right alternate, stage 2.</summary>
-    ChargedSpazerUpRightAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Charged Spazer picture, up, its lanes parting.</summary>
+    ChargedSpazerUpFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRight"/> showing the Charged Spazer picture, vertical alternate, its lanes parting.</summary>
+    ChargedSpazerUpFacingRightVerticalAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes fully spread.</summary>
+    ChargedSpazerUpFacingRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes fully spread.</summary>
+    ChargedSpazerUpFacingRightVerticalAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right, a short startup strip.</summary>
+    ChargedSpazerUpRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right alternate, a short startup strip.</summary>
+    ChargedSpazerUpRightAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right, a long startup strip.</summary>
+    ChargedSpazerUpRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Spazer Startup picture, up right alternate, a long startup strip.</summary>
+    ChargedSpazerUpRightAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Charged Spazer picture, up right, seed.</summary>
     ChargedSpazerUpRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Charged Spazer picture, up right alternate, seed.</summary>
     ChargedSpazerUpRightAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Charged Spazer picture, up right, spread 2.</summary>
-    ChargedSpazerUpRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Charged Spazer picture, up right alternate, spread 2.</summary>
-    ChargedSpazerUpRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRightLoop"/> showing the Charged Spazer picture, up right, spread 5.</summary>
-    ChargedSpazerUpRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 5.</summary>
-    ChargedSpazerUpRightAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, right, stage 1.</summary>
-    ChargedSpazerRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, horizontal alternate, stage 1.</summary>
-    ChargedSpazerRightHorizontalAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, right, stage 2.</summary>
-    ChargedSpazerRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, horizontal alternate, stage 2.</summary>
-    ChargedSpazerRightHorizontalAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Charged Spazer picture, up right, its lanes parting.</summary>
+    ChargedSpazerUpRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRight"/> showing the Charged Spazer picture, up right alternate, its lanes parting.</summary>
+    ChargedSpazerUpRightAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes fully spread.</summary>
+    ChargedSpazerUpRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes fully spread.</summary>
+    ChargedSpazerUpRightAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, right, a short startup strip.</summary>
+    ChargedSpazerRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, horizontal alternate, a short startup strip.</summary>
+    ChargedSpazerRightHorizontalAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, right, a long startup strip.</summary>
+    ChargedSpazerRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Spazer Startup picture, horizontal alternate, a long startup strip.</summary>
+    ChargedSpazerRightHorizontalAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Charged Spazer picture, left, seed.</summary>
     ChargedSpazerRightLeftSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Charged Spazer picture, horizontal alternate, seed.</summary>
     ChargedSpazerRightHorizontalAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Charged Spazer picture, left, spread 2.</summary>
-    ChargedSpazerRightLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Charged Spazer picture, horizontal alternate, spread 2.</summary>
-    ChargedSpazerRightHorizontalAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRightLoop"/> showing the Charged Spazer picture, left, spread 5.</summary>
-    ChargedSpazerRightLeftSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 5.</summary>
-    ChargedSpazerRightHorizontalAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right, stage 1.</summary>
-    ChargedSpazerDownRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right alternate, stage 1.</summary>
-    ChargedSpazerDownRightAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right, stage 2.</summary>
-    ChargedSpazerDownRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right alternate, stage 2.</summary>
-    ChargedSpazerDownRightAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Charged Spazer picture, left, its lanes parting.</summary>
+    ChargedSpazerRightLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRight"/> showing the Charged Spazer picture, horizontal alternate, its lanes parting.</summary>
+    ChargedSpazerRightHorizontalAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRightLoop"/> showing the Charged Spazer picture, left, its lanes fully spread.</summary>
+    ChargedSpazerRightLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes fully spread.</summary>
+    ChargedSpazerRightHorizontalAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right, a short startup strip.</summary>
+    ChargedSpazerDownRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right alternate, a short startup strip.</summary>
+    ChargedSpazerDownRightAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right, a long startup strip.</summary>
+    ChargedSpazerDownRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Spazer Startup picture, down right alternate, a long startup strip.</summary>
+    ChargedSpazerDownRightAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Charged Spazer picture, down right, seed.</summary>
     ChargedSpazerDownRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Charged Spazer picture, down right alternate, seed.</summary>
     ChargedSpazerDownRightAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Charged Spazer picture, down right, spread 2.</summary>
-    ChargedSpazerDownRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Charged Spazer picture, down right alternate, spread 2.</summary>
-    ChargedSpazerDownRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRightLoop"/> showing the Charged Spazer picture, down right, spread 5.</summary>
-    ChargedSpazerDownRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 5.</summary>
-    ChargedSpazerDownRightAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, up, stage 1.</summary>
-    ChargedSpazerWaveUpFacingRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, stage 1.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, up, stage 2.</summary>
-    ChargedSpazerWaveUpFacingRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, stage 2.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Charged Spazer picture, down right, its lanes parting.</summary>
+    ChargedSpazerDownRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRight"/> showing the Charged Spazer picture, down right alternate, its lanes parting.</summary>
+    ChargedSpazerDownRightAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes fully spread.</summary>
+    ChargedSpazerDownRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes fully spread.</summary>
+    ChargedSpazerDownRightAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, up, a short startup strip.</summary>
+    ChargedSpazerWaveUpFacingRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, a short startup strip.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, up, a long startup strip.</summary>
+    ChargedSpazerWaveUpFacingRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRight"/> showing the Spazer Startup picture, vertical alternate, a long startup strip.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, seed.</summary>
     ChargedSpazerWaveUpFacingRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, seed.</summary>
     ChargedSpazerWaveUpFacingRightVerticalAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 1.</summary>
-    ChargedSpazerWaveUpFacingRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 1.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 2.</summary>
-    ChargedSpazerWaveUpFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 2.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 3.</summary>
-    ChargedSpazerWaveUpFacingRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 3.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 4.</summary>
-    ChargedSpazerWaveUpFacingRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 4.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 5.</summary>
-    ChargedSpazerWaveUpFacingRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 5.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 4, as <see cref="ChargedSpazerWaveUpFacingRightSpread4"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 4, as <see cref="ChargedSpazerWaveUpFacingRightVerticalAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 3, as <see cref="ChargedSpazerWaveUpFacingRightSpread3"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 3, as <see cref="ChargedSpazerWaveUpFacingRightVerticalAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 2, as <see cref="ChargedSpazerWaveUpFacingRightSpread2"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 2, as <see cref="ChargedSpazerWaveUpFacingRightVerticalAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, spread 1, as <see cref="ChargedSpazerWaveUpFacingRightSpread1"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 1, as <see cref="ChargedSpazerWaveUpFacingRightVerticalAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right, stage 1.</summary>
-    ChargedSpazerWaveUpRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right alternate, stage 1.</summary>
-    ChargedSpazerWaveUpRightAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right, stage 2.</summary>
-    ChargedSpazerWaveUpRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right alternate, stage 2.</summary>
-    ChargedSpazerWaveUpRightAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes splitting.</summary>
+    ChargedSpazerWaveUpFacingRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes parting.</summary>
+    ChargedSpazerWaveUpFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes parting.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes spreading.</summary>
+    ChargedSpazerWaveUpFacingRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes nearly spread.</summary>
+    ChargedSpazerWaveUpFacingRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes fully spread.</summary>
+    ChargedSpazerWaveUpFacingRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, up, its lanes splitting, as <see cref="ChargedSpazerWaveUpFacingRightSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveUpFacingRightSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes splitting, as <see cref="ChargedSpazerWaveUpFacingRightVerticalAlternateSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveUpFacingRightVerticalAlternateSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right, a short startup strip.</summary>
+    ChargedSpazerWaveUpRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right alternate, a short startup strip.</summary>
+    ChargedSpazerWaveUpRightAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right, a long startup strip.</summary>
+    ChargedSpazerWaveUpRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRight"/> showing the Spazer Startup picture, up right alternate, a long startup strip.</summary>
+    ChargedSpazerWaveUpRightAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, seed.</summary>
     ChargedSpazerWaveUpRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, seed.</summary>
     ChargedSpazerWaveUpRightAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 1.</summary>
-    ChargedSpazerWaveUpRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 1.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 2.</summary>
-    ChargedSpazerWaveUpRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 2.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 3.</summary>
-    ChargedSpazerWaveUpRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 3.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 4.</summary>
-    ChargedSpazerWaveUpRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 4.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 5.</summary>
-    ChargedSpazerWaveUpRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 5.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 4, as <see cref="ChargedSpazerWaveUpRightSpread4"/> does.</summary>
-    ChargedSpazerWaveUpRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 4, as <see cref="ChargedSpazerWaveUpRightAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 3, as <see cref="ChargedSpazerWaveUpRightSpread3"/> does.</summary>
-    ChargedSpazerWaveUpRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 3, as <see cref="ChargedSpazerWaveUpRightAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 2, as <see cref="ChargedSpazerWaveUpRightSpread2"/> does.</summary>
-    ChargedSpazerWaveUpRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 2, as <see cref="ChargedSpazerWaveUpRightAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, spread 1, as <see cref="ChargedSpazerWaveUpRightSpread1"/> does.</summary>
-    ChargedSpazerWaveUpRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, spread 1, as <see cref="ChargedSpazerWaveUpRightAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveUpRightAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, right, stage 1.</summary>
-    ChargedSpazerWaveRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, horizontal alternate, stage 1.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, right, stage 2.</summary>
-    ChargedSpazerWaveRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, horizontal alternate, stage 2.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes splitting.</summary>
+    ChargedSpazerWaveUpRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveUpRightAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes parting.</summary>
+    ChargedSpazerWaveUpRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes parting.</summary>
+    ChargedSpazerWaveUpRightAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes spreading.</summary>
+    ChargedSpazerWaveUpRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveUpRightAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes nearly spread.</summary>
+    ChargedSpazerWaveUpRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveUpRightAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes fully spread.</summary>
+    ChargedSpazerWaveUpRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveUpRightAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right, its lanes splitting, as <see cref="ChargedSpazerWaveUpRightSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveUpRightSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpRightLoop"/> showing the Charged Spazer picture, up right alternate, its lanes splitting, as <see cref="ChargedSpazerWaveUpRightAlternateSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveUpRightAlternateSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, right, a short startup strip.</summary>
+    ChargedSpazerWaveRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, horizontal alternate, a short startup strip.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, right, a long startup strip.</summary>
+    ChargedSpazerWaveRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRight"/> showing the Spazer Startup picture, horizontal alternate, a long startup strip.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, seed.</summary>
     ChargedSpazerWaveRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, seed.</summary>
     ChargedSpazerWaveRightHorizontalAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 1.</summary>
-    ChargedSpazerWaveRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 1.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 2.</summary>
-    ChargedSpazerWaveRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 2.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 3.</summary>
-    ChargedSpazerWaveRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 3.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 4.</summary>
-    ChargedSpazerWaveRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 4.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 5.</summary>
-    ChargedSpazerWaveRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 5.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 4, as <see cref="ChargedSpazerWaveRightSpread4"/> does.</summary>
-    ChargedSpazerWaveRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 4, as <see cref="ChargedSpazerWaveRightHorizontalAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 3, as <see cref="ChargedSpazerWaveRightSpread3"/> does.</summary>
-    ChargedSpazerWaveRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 3, as <see cref="ChargedSpazerWaveRightHorizontalAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 2, as <see cref="ChargedSpazerWaveRightSpread2"/> does.</summary>
-    ChargedSpazerWaveRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 2, as <see cref="ChargedSpazerWaveRightHorizontalAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, spread 1, as <see cref="ChargedSpazerWaveRightSpread1"/> does.</summary>
-    ChargedSpazerWaveRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 1, as <see cref="ChargedSpazerWaveRightHorizontalAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveRightHorizontalAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right, stage 1.</summary>
-    ChargedSpazerWaveDownRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right alternate, stage 1.</summary>
-    ChargedSpazerWaveDownRightAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right, stage 2.</summary>
-    ChargedSpazerWaveDownRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right alternate, stage 2.</summary>
-    ChargedSpazerWaveDownRightAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, its lanes splitting.</summary>
+    ChargedSpazerWaveRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, its lanes parting.</summary>
+    ChargedSpazerWaveRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes parting.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, its lanes spreading.</summary>
+    ChargedSpazerWaveRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, its lanes nearly spread.</summary>
+    ChargedSpazerWaveRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, its lanes fully spread.</summary>
+    ChargedSpazerWaveRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, right, its lanes splitting, as <see cref="ChargedSpazerWaveRightSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveRightSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveRightLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes splitting, as <see cref="ChargedSpazerWaveRightHorizontalAlternateSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveRightHorizontalAlternateSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right, a short startup strip.</summary>
+    ChargedSpazerWaveDownRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right alternate, a short startup strip.</summary>
+    ChargedSpazerWaveDownRightAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right, a long startup strip.</summary>
+    ChargedSpazerWaveDownRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRight"/> showing the Spazer Startup picture, down right alternate, a long startup strip.</summary>
+    ChargedSpazerWaveDownRightAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, seed.</summary>
     ChargedSpazerWaveDownRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, seed.</summary>
     ChargedSpazerWaveDownRightAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 1.</summary>
-    ChargedSpazerWaveDownRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 1.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 2.</summary>
-    ChargedSpazerWaveDownRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 2.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 3.</summary>
-    ChargedSpazerWaveDownRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 3.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 4.</summary>
-    ChargedSpazerWaveDownRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 4.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 5.</summary>
-    ChargedSpazerWaveDownRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 5.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 4, as <see cref="ChargedSpazerWaveDownRightSpread4"/> does.</summary>
-    ChargedSpazerWaveDownRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 4, as <see cref="ChargedSpazerWaveDownRightAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 3, as <see cref="ChargedSpazerWaveDownRightSpread3"/> does.</summary>
-    ChargedSpazerWaveDownRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 3, as <see cref="ChargedSpazerWaveDownRightAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 2, as <see cref="ChargedSpazerWaveDownRightSpread2"/> does.</summary>
-    ChargedSpazerWaveDownRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 2, as <see cref="ChargedSpazerWaveDownRightAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, spread 1, as <see cref="ChargedSpazerWaveDownRightSpread1"/> does.</summary>
-    ChargedSpazerWaveDownRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, spread 1, as <see cref="ChargedSpazerWaveDownRightAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveDownRightAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, down, stage 1.</summary>
-    ChargedSpazerWaveDownFacingRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, vertical alternate, stage 1.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, down, stage 2.</summary>
-    ChargedSpazerWaveDownFacingRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, vertical alternate, stage 2.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes splitting.</summary>
+    ChargedSpazerWaveDownRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveDownRightAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes parting.</summary>
+    ChargedSpazerWaveDownRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes parting.</summary>
+    ChargedSpazerWaveDownRightAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes spreading.</summary>
+    ChargedSpazerWaveDownRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveDownRightAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes nearly spread.</summary>
+    ChargedSpazerWaveDownRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveDownRightAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes fully spread.</summary>
+    ChargedSpazerWaveDownRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveDownRightAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right, its lanes splitting, as <see cref="ChargedSpazerWaveDownRightSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveDownRightSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownRightLoop"/> showing the Charged Spazer picture, down right alternate, its lanes splitting, as <see cref="ChargedSpazerWaveDownRightAlternateSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveDownRightAlternateSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, down, a short startup strip.</summary>
+    ChargedSpazerWaveDownFacingRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, vertical alternate, a short startup strip.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, down, a long startup strip.</summary>
+    ChargedSpazerWaveDownFacingRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRight"/> showing the Spazer Startup picture, vertical alternate, a long startup strip.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, seed.</summary>
     ChargedSpazerWaveDownFacingRightSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, seed.</summary>
     ChargedSpazerWaveDownFacingRightVerticalAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 1.</summary>
-    ChargedSpazerWaveDownFacingRightSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 1.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 2.</summary>
-    ChargedSpazerWaveDownFacingRightSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 2.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 3.</summary>
-    ChargedSpazerWaveDownFacingRightSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 3.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 4.</summary>
-    ChargedSpazerWaveDownFacingRightSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 4.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 5.</summary>
-    ChargedSpazerWaveDownFacingRightSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 5.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 4, as <see cref="ChargedSpazerWaveDownFacingRightSpread4"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 4, as <see cref="ChargedSpazerWaveDownFacingRightVerticalAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 3, as <see cref="ChargedSpazerWaveDownFacingRightSpread3"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 3, as <see cref="ChargedSpazerWaveDownFacingRightVerticalAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 2, as <see cref="ChargedSpazerWaveDownFacingRightSpread2"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 2, as <see cref="ChargedSpazerWaveDownFacingRightVerticalAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, spread 1, as <see cref="ChargedSpazerWaveDownFacingRightSpread1"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, spread 1, as <see cref="ChargedSpazerWaveDownFacingRightVerticalAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right, stage 1.</summary>
-    ChargedSpazerWaveDownLeftUpRightStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right alternate, stage 1.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right, stage 2.</summary>
-    ChargedSpazerWaveDownLeftUpRightStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right alternate, stage 2.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, its lanes splitting.</summary>
+    ChargedSpazerWaveDownFacingRightSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, its lanes parting.</summary>
+    ChargedSpazerWaveDownFacingRightParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes parting.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, its lanes spreading.</summary>
+    ChargedSpazerWaveDownFacingRightSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, its lanes nearly spread.</summary>
+    ChargedSpazerWaveDownFacingRightNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, its lanes fully spread.</summary>
+    ChargedSpazerWaveDownFacingRightSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, down, its lanes splitting, as <see cref="ChargedSpazerWaveDownFacingRightSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveDownFacingRightSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownFacingRightLoop"/> showing the Charged Spazer picture, vertical alternate, its lanes splitting, as <see cref="ChargedSpazerWaveDownFacingRightVerticalAlternateSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveDownFacingRightVerticalAlternateSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right, a short startup strip.</summary>
+    ChargedSpazerWaveDownLeftUpRightStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right alternate, a short startup strip.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right, a long startup strip.</summary>
+    ChargedSpazerWaveDownLeftUpRightStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeft"/> showing the Spazer Startup picture, up right alternate, a long startup strip.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, seed.</summary>
     ChargedSpazerWaveDownLeftSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, seed.</summary>
     ChargedSpazerWaveDownLeftUpRightAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 1.</summary>
-    ChargedSpazerWaveDownLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 1.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 2.</summary>
-    ChargedSpazerWaveDownLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 2.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 3.</summary>
-    ChargedSpazerWaveDownLeftSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 3.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 4.</summary>
-    ChargedSpazerWaveDownLeftSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 4.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 5.</summary>
-    ChargedSpazerWaveDownLeftSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 5.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 4, as <see cref="ChargedSpazerWaveDownLeftSpread4"/> does.</summary>
-    ChargedSpazerWaveDownLeftSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 4, as <see cref="ChargedSpazerWaveDownLeftUpRightAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 3, as <see cref="ChargedSpazerWaveDownLeftSpread3"/> does.</summary>
-    ChargedSpazerWaveDownLeftSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 3, as <see cref="ChargedSpazerWaveDownLeftUpRightAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 2, as <see cref="ChargedSpazerWaveDownLeftSpread2"/> does.</summary>
-    ChargedSpazerWaveDownLeftSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 2, as <see cref="ChargedSpazerWaveDownLeftUpRightAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, spread 1, as <see cref="ChargedSpazerWaveDownLeftSpread1"/> does.</summary>
-    ChargedSpazerWaveDownLeftSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, spread 1, as <see cref="ChargedSpazerWaveDownLeftUpRightAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveDownLeftUpRightAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, left, stage 1.</summary>
-    ChargedSpazerWaveLeftStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, horizontal alternate, stage 1.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, left, stage 2.</summary>
-    ChargedSpazerWaveLeftStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, horizontal alternate, stage 2.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, its lanes splitting.</summary>
+    ChargedSpazerWaveDownLeftSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, its lanes parting.</summary>
+    ChargedSpazerWaveDownLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, its lanes parting.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, its lanes spreading.</summary>
+    ChargedSpazerWaveDownLeftSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, its lanes nearly spread.</summary>
+    ChargedSpazerWaveDownLeftNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, its lanes fully spread.</summary>
+    ChargedSpazerWaveDownLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, down left, its lanes splitting, as <see cref="ChargedSpazerWaveDownLeftSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveDownLeftSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveDownLeftLoop"/> showing the Charged Spazer picture, up right alternate, its lanes splitting, as <see cref="ChargedSpazerWaveDownLeftUpRightAlternateSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveDownLeftUpRightAlternateSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, left, a short startup strip.</summary>
+    ChargedSpazerWaveLeftStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, horizontal alternate, a short startup strip.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, left, a long startup strip.</summary>
+    ChargedSpazerWaveLeftStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeft"/> showing the Spazer Startup picture, horizontal alternate, a long startup strip.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, seed.</summary>
     ChargedSpazerWaveLeftSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, seed.</summary>
     ChargedSpazerWaveLeftHorizontalAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 1.</summary>
-    ChargedSpazerWaveLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 1.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 2.</summary>
-    ChargedSpazerWaveLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 2.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 3.</summary>
-    ChargedSpazerWaveLeftSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 3.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 4.</summary>
-    ChargedSpazerWaveLeftSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 4.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 5.</summary>
-    ChargedSpazerWaveLeftSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 5.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 4, as <see cref="ChargedSpazerWaveLeftSpread4"/> does.</summary>
-    ChargedSpazerWaveLeftSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 4, as <see cref="ChargedSpazerWaveLeftHorizontalAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 3, as <see cref="ChargedSpazerWaveLeftSpread3"/> does.</summary>
-    ChargedSpazerWaveLeftSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 3, as <see cref="ChargedSpazerWaveLeftHorizontalAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 2, as <see cref="ChargedSpazerWaveLeftSpread2"/> does.</summary>
-    ChargedSpazerWaveLeftSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 2, as <see cref="ChargedSpazerWaveLeftHorizontalAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, spread 1, as <see cref="ChargedSpazerWaveLeftSpread1"/> does.</summary>
-    ChargedSpazerWaveLeftSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, spread 1, as <see cref="ChargedSpazerWaveLeftHorizontalAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveLeftHorizontalAlternateSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, up left, stage 1.</summary>
-    ChargedSpazerWaveUpLeftStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, down right alternate, stage 1.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, up left, stage 2.</summary>
-    ChargedSpazerWaveUpLeftStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, down right alternate, stage 2.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateStage2,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, its lanes splitting.</summary>
+    ChargedSpazerWaveLeftSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, its lanes parting.</summary>
+    ChargedSpazerWaveLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes parting.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, its lanes spreading.</summary>
+    ChargedSpazerWaveLeftSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, its lanes nearly spread.</summary>
+    ChargedSpazerWaveLeftNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, its lanes fully spread.</summary>
+    ChargedSpazerWaveLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, left, its lanes splitting, as <see cref="ChargedSpazerWaveLeftSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveLeftSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveLeftLoop"/> showing the Charged Spazer picture, horizontal alternate, its lanes splitting, as <see cref="ChargedSpazerWaveLeftHorizontalAlternateSplitting"/> does, with a narrower hitbox and leaving no trail.</summary>
+    ChargedSpazerWaveLeftHorizontalAlternateSplittingNarrowHitboxTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, up left, a short startup strip.</summary>
+    ChargedSpazerWaveUpLeftStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, down right alternate, a short startup strip.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateStartupShort,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, up left, a long startup strip.</summary>
+    ChargedSpazerWaveUpLeftStartupLong,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeft"/> showing the Spazer Startup picture, down right alternate, a long startup strip.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateStartupLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, seed.</summary>
     ChargedSpazerWaveUpLeftSeed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, seed.</summary>
     ChargedSpazerWaveUpLeftDownRightAlternateSeed,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 1.</summary>
-    ChargedSpazerWaveUpLeftSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 1.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 2.</summary>
-    ChargedSpazerWaveUpLeftSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 2.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 3.</summary>
-    ChargedSpazerWaveUpLeftSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 3.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 4.</summary>
-    ChargedSpazerWaveUpLeftSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 4.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 5.</summary>
-    ChargedSpazerWaveUpLeftSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 5.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 4, as <see cref="ChargedSpazerWaveUpLeftSpread4"/> does.</summary>
-    ChargedSpazerWaveUpLeftSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 4, as <see cref="ChargedSpazerWaveUpLeftDownRightAlternateSpread4"/> does.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread4Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 3, as <see cref="ChargedSpazerWaveUpLeftSpread3"/> does.</summary>
-    ChargedSpazerWaveUpLeftSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 3, as <see cref="ChargedSpazerWaveUpLeftDownRightAlternateSpread3"/> does.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 2, as <see cref="ChargedSpazerWaveUpLeftSpread2"/> does.</summary>
-    ChargedSpazerWaveUpLeftSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 2, as <see cref="ChargedSpazerWaveUpLeftDownRightAlternateSpread2"/> does.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, spread 1, as <see cref="ChargedSpazerWaveUpLeftSpread1"/> does.</summary>
-    ChargedSpazerWaveUpLeftSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, spread 1, as <see cref="ChargedSpazerWaveUpLeftDownRightAlternateSpread1"/> does.</summary>
-    ChargedSpazerWaveUpLeftDownRightAlternateSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, its lanes splitting.</summary>
+    ChargedSpazerWaveUpLeftSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, its lanes splitting.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateSplitting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, its lanes parting.</summary>
+    ChargedSpazerWaveUpLeftParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, its lanes parting.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateParting,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, its lanes spreading.</summary>
+    ChargedSpazerWaveUpLeftSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, its lanes spreading.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateSpreading,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, its lanes nearly spread.</summary>
+    ChargedSpazerWaveUpLeftNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, its lanes nearly spread.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateNearlySpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, its lanes fully spread.</summary>
+    ChargedSpazerWaveUpLeftSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, its lanes fully spread.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateSpread,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, up left, its lanes splitting, as <see cref="ChargedSpazerWaveUpLeftSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveUpLeftSplittingTrailless,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedSpazerWaveUpLeftLoop"/> showing the Charged Spazer picture, down right alternate, its lanes splitting, as <see cref="ChargedSpazerWaveUpLeftDownRightAlternateSplitting"/> does, leaving no trail.</summary>
+    ChargedSpazerWaveUpLeftDownRightAlternateSplittingTrailless,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaUpFacingRight"/> showing the Plasma Startup picture, up, core.</summary>
     ChargedPlasmaUpFacingRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaUpFacingRight"/> showing the Plasma Startup picture, up alternate, core.</summary>
@@ -1300,36 +1016,24 @@ internal enum SamusProjectileFrameId
     ChargedPlasmaWaveUpFacingRightAlternateLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, core.</summary>
     ChargedPlasmaWaveUpFacingRightLongCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, core, as <see cref="ChargedPlasmaWaveUpFacingRightAlternateCore"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateCoreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 1.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 1.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 2.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 2.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 3.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 3.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 4.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 4.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 3, as <see cref="ChargedPlasmaWaveUpFacingRightLongSpread3"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 3, as <see cref="ChargedPlasmaWaveUpFacingRightAlternateSpread3"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 2, as <see cref="ChargedPlasmaWaveUpFacingRightLongSpread2"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 2, as <see cref="ChargedPlasmaWaveUpFacingRightAlternateSpread2"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, spread 1, as <see cref="ChargedPlasmaWaveUpFacingRightLongSpread1"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightLongSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, spread 1, as <see cref="ChargedPlasmaWaveUpFacingRightAlternateSpread1"/> does.</summary>
-    ChargedPlasmaWaveUpFacingRightAlternateSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, core: the alternate of the long core it shows with, with its hitbox and trail placements.</summary>
+    ChargedPlasmaWaveUpFacingRightAlternateLongCore,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, its lobes near the centre.</summary>
+    ChargedPlasmaWaveUpFacingRightLongLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, its lobes near the centre.</summary>
+    ChargedPlasmaWaveUpFacingRightAlternateLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, its lobes midway out.</summary>
+    ChargedPlasmaWaveUpFacingRightLongLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, its lobes midway out.</summary>
+    ChargedPlasmaWaveUpFacingRightAlternateLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, its lobes far out.</summary>
+    ChargedPlasmaWaveUpFacingRightLongLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, its lobes far out.</summary>
+    ChargedPlasmaWaveUpFacingRightAlternateLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up long, its lobes at their peak.</summary>
+    ChargedPlasmaWaveUpFacingRightLongLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpFacingRightLoop"/> showing the Plasma Wave picture, up alternate, its lobes at their peak.</summary>
+    ChargedPlasmaWaveUpFacingRightAlternateLobesPeak,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRight"/> showing the Plasma Startup picture, up right, core.</summary>
     ChargedPlasmaWaveUpRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRight"/> showing the Plasma Startup picture, up right alternate, core.</summary>
@@ -1344,36 +1048,24 @@ internal enum SamusProjectileFrameId
     ChargedPlasmaWaveUpRightAlternateLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, core.</summary>
     ChargedPlasmaWaveUpRightLongCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, core, as <see cref="ChargedPlasmaWaveUpRightAlternateCore"/> does.</summary>
-    ChargedPlasmaWaveUpRightAlternateCoreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 1.</summary>
-    ChargedPlasmaWaveUpRightLongSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 1.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 2.</summary>
-    ChargedPlasmaWaveUpRightLongSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 2.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 3.</summary>
-    ChargedPlasmaWaveUpRightLongSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 3.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 4.</summary>
-    ChargedPlasmaWaveUpRightLongSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 4.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 3, as <see cref="ChargedPlasmaWaveUpRightLongSpread3"/> does.</summary>
-    ChargedPlasmaWaveUpRightLongSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 3, as <see cref="ChargedPlasmaWaveUpRightAlternateSpread3"/> does.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 2, as <see cref="ChargedPlasmaWaveUpRightLongSpread2"/> does.</summary>
-    ChargedPlasmaWaveUpRightLongSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 2, as <see cref="ChargedPlasmaWaveUpRightAlternateSpread2"/> does.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, spread 1, as <see cref="ChargedPlasmaWaveUpRightLongSpread1"/> does.</summary>
-    ChargedPlasmaWaveUpRightLongSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, spread 1, as <see cref="ChargedPlasmaWaveUpRightAlternateSpread1"/> does.</summary>
-    ChargedPlasmaWaveUpRightAlternateSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, core: the alternate of the long core it shows with, with its hitbox and trail placements.</summary>
+    ChargedPlasmaWaveUpRightAlternateLongCore,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, its lobes near the centre.</summary>
+    ChargedPlasmaWaveUpRightLongLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, its lobes near the centre.</summary>
+    ChargedPlasmaWaveUpRightAlternateLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, its lobes midway out.</summary>
+    ChargedPlasmaWaveUpRightLongLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, its lobes midway out.</summary>
+    ChargedPlasmaWaveUpRightAlternateLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, its lobes far out.</summary>
+    ChargedPlasmaWaveUpRightLongLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, its lobes far out.</summary>
+    ChargedPlasmaWaveUpRightAlternateLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right long, its lobes at their peak.</summary>
+    ChargedPlasmaWaveUpRightLongLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveUpRightLoop"/> showing the Plasma Wave picture, up right alternate, its lobes at their peak.</summary>
+    ChargedPlasmaWaveUpRightAlternateLobesPeak,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRight"/> showing the Plasma Startup picture, right, core.</summary>
     ChargedPlasmaWaveRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRight"/> showing the Plasma Startup picture, right alternate, core.</summary>
@@ -1388,36 +1080,24 @@ internal enum SamusProjectileFrameId
     ChargedPlasmaWaveRightAlternateLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, core.</summary>
     ChargedPlasmaWaveRightLongCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, core, as <see cref="ChargedPlasmaWaveRightAlternateCore"/> does.</summary>
-    ChargedPlasmaWaveRightAlternateCoreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 1.</summary>
-    ChargedPlasmaWaveRightLongSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 1.</summary>
-    ChargedPlasmaWaveRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 2.</summary>
-    ChargedPlasmaWaveRightLongSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 2.</summary>
-    ChargedPlasmaWaveRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 3.</summary>
-    ChargedPlasmaWaveRightLongSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 3.</summary>
-    ChargedPlasmaWaveRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 4.</summary>
-    ChargedPlasmaWaveRightLongSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 4.</summary>
-    ChargedPlasmaWaveRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 3, as <see cref="ChargedPlasmaWaveRightLongSpread3"/> does.</summary>
-    ChargedPlasmaWaveRightLongSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 3, as <see cref="ChargedPlasmaWaveRightAlternateSpread3"/> does.</summary>
-    ChargedPlasmaWaveRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 2, as <see cref="ChargedPlasmaWaveRightLongSpread2"/> does.</summary>
-    ChargedPlasmaWaveRightLongSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 2, as <see cref="ChargedPlasmaWaveRightAlternateSpread2"/> does.</summary>
-    ChargedPlasmaWaveRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, spread 1, as <see cref="ChargedPlasmaWaveRightLongSpread1"/> does.</summary>
-    ChargedPlasmaWaveRightLongSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, spread 1, as <see cref="ChargedPlasmaWaveRightAlternateSpread1"/> does.</summary>
-    ChargedPlasmaWaveRightAlternateSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, core: the alternate of the long core it shows with, with its hitbox and trail placements.</summary>
+    ChargedPlasmaWaveRightAlternateLongCore,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, its lobes near the centre.</summary>
+    ChargedPlasmaWaveRightLongLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, its lobes near the centre.</summary>
+    ChargedPlasmaWaveRightAlternateLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, its lobes midway out.</summary>
+    ChargedPlasmaWaveRightLongLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, its lobes midway out.</summary>
+    ChargedPlasmaWaveRightAlternateLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, its lobes far out.</summary>
+    ChargedPlasmaWaveRightLongLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, its lobes far out.</summary>
+    ChargedPlasmaWaveRightAlternateLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right long, its lobes at their peak.</summary>
+    ChargedPlasmaWaveRightLongLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveRightLoop"/> showing the Plasma Wave picture, right alternate, its lobes at their peak.</summary>
+    ChargedPlasmaWaveRightAlternateLobesPeak,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRight"/> showing the Plasma Startup picture, down right, core.</summary>
     ChargedPlasmaWaveDownRightCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRight"/> showing the Plasma Startup picture, down right alternate, core.</summary>
@@ -1432,36 +1112,24 @@ internal enum SamusProjectileFrameId
     ChargedPlasmaWaveDownRightAlternateLong,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, core.</summary>
     ChargedPlasmaWaveDownRightLongCore,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, core, as <see cref="ChargedPlasmaWaveDownRightAlternateCore"/> does.</summary>
-    ChargedPlasmaWaveDownRightAlternateCoreTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 1.</summary>
-    ChargedPlasmaWaveDownRightLongSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 1.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 2.</summary>
-    ChargedPlasmaWaveDownRightLongSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 2.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 3.</summary>
-    ChargedPlasmaWaveDownRightLongSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 3.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 4.</summary>
-    ChargedPlasmaWaveDownRightLongSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 4.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 3, as <see cref="ChargedPlasmaWaveDownRightLongSpread3"/> does.</summary>
-    ChargedPlasmaWaveDownRightLongSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 3, as <see cref="ChargedPlasmaWaveDownRightAlternateSpread3"/> does.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread3Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 2, as <see cref="ChargedPlasmaWaveDownRightLongSpread2"/> does.</summary>
-    ChargedPlasmaWaveDownRightLongSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 2, as <see cref="ChargedPlasmaWaveDownRightAlternateSpread2"/> does.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread2Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, spread 1, as <see cref="ChargedPlasmaWaveDownRightLongSpread1"/> does.</summary>
-    ChargedPlasmaWaveDownRightLongSpread1Twin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, spread 1, as <see cref="ChargedPlasmaWaveDownRightAlternateSpread1"/> does.</summary>
-    ChargedPlasmaWaveDownRightAlternateSpread1Twin,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, core: the alternate of the long core it shows with, with its hitbox and trail placements.</summary>
+    ChargedPlasmaWaveDownRightAlternateLongCore,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, its lobes near the centre.</summary>
+    ChargedPlasmaWaveDownRightLongLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, its lobes near the centre.</summary>
+    ChargedPlasmaWaveDownRightAlternateLobesNear,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, its lobes midway out.</summary>
+    ChargedPlasmaWaveDownRightLongLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, its lobes midway out.</summary>
+    ChargedPlasmaWaveDownRightAlternateLobesMidway,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, its lobes far out.</summary>
+    ChargedPlasmaWaveDownRightLongLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, its lobes far out.</summary>
+    ChargedPlasmaWaveDownRightAlternateLobesFar,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right long, its lobes at their peak.</summary>
+    ChargedPlasmaWaveDownRightLongLobesPeak,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedPlasmaWaveDownRightLoop"/> showing the Plasma Wave picture, down right alternate, its lobes at their peak.</summary>
+    ChargedPlasmaWaveDownRightAlternateLobesPeak,
     /// <summary>A frame of <see cref="SamusProjectileSegment.MissileUpFacingRight"/> showing the Missile picture, up.</summary>
     MissileUpFacingRight,
     /// <summary>A frame of <see cref="SamusProjectileSegment.MissileUpRight"/> showing the Missile picture, up right.</summary>
@@ -1496,104 +1164,98 @@ internal enum SamusProjectileFrameId
     SuperMissileUpLeft,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileLink"/> showing nothing.</summary>
     SuperMissileLinkHidden,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PowerBomb"/> showing the Power Bomb picture, phase 1.</summary>
-    PowerBombPhase1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PowerBomb"/> showing the Power Bomb picture, phase 2.</summary>
-    PowerBombPhase2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PowerBomb"/> showing the Power Bomb picture, phase 3.</summary>
-    PowerBombPhase3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastPowerBomb"/> showing the Power Bomb picture, phase 1.</summary>
-    FastPowerBombPhase1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastPowerBomb"/> showing the Power Bomb picture, phase 2.</summary>
-    FastPowerBombPhase2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastPowerBomb"/> showing the Power Bomb picture, phase 3.</summary>
-    FastPowerBombPhase3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, phase 1.</summary>
-    BombPhase1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, phase 2.</summary>
-    BombPhase2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, phase 3.</summary>
-    BombPhase3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, phase 4.</summary>
-    BombPhase4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, phase 1.</summary>
-    FastBombPhase1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, phase 2.</summary>
-    FastBombPhase2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, phase 3.</summary>
-    FastBombPhase3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, phase 4.</summary>
-    FastBombPhase4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, stage 1.</summary>
-    BeamExplosionStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, stage 2.</summary>
-    BeamExplosionStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, stage 3.</summary>
-    BeamExplosionStage3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, stage 4.</summary>
-    BeamExplosionStage4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, stage 5.</summary>
-    BeamExplosionStage5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, stage 6.</summary>
-    BeamExplosionStage6,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, stage 1.</summary>
-    MissileExplosionStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, stage 2.</summary>
-    MissileExplosionStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, stage 3.</summary>
-    MissileExplosionStage3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, stage 4.</summary>
-    MissileExplosionStage4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, stage 5.</summary>
-    MissileExplosionStage5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, stage 6.</summary>
-    MissileExplosionStage6,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, stage 1.</summary>
-    BombExplosionStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, stage 2.</summary>
-    BombExplosionStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, stage 3.</summary>
-    BombExplosionStage3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, stage 4.</summary>
-    BombExplosionStage4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, stage 5.</summary>
-    BombExplosionStage5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, stage 1.</summary>
-    PlasmaSpecialAttackStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, stage 2.</summary>
-    PlasmaSpecialAttackStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, stage 3.</summary>
-    PlasmaSpecialAttackStage3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, stage 4.</summary>
-    PlasmaSpecialAttackStage4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, stage 5.</summary>
-    PlasmaSpecialAttackStage5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, stage 1.</summary>
-    SuperMissileExplosionStage1,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, stage 2.</summary>
-    SuperMissileExplosionStage2,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, stage 3.</summary>
-    SuperMissileExplosionStage3,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, stage 4.</summary>
-    SuperMissileExplosionStage4,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, stage 5.</summary>
-    SuperMissileExplosionStage5,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, stage 6.</summary>
-    SuperMissileExplosionStage6,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PowerBomb"/> showing the Power Bomb picture, bright.</summary>
+    PowerBombBright,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PowerBomb"/> showing the Power Bomb picture, dimming.</summary>
+    PowerBombDimming,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PowerBomb"/> showing the Power Bomb picture, dark.</summary>
+    PowerBombDark,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastPowerBomb"/> showing the Power Bomb picture, bright.</summary>
+    FastPowerBombBright,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastPowerBomb"/> showing the Power Bomb picture, dimming.</summary>
+    FastPowerBombDimming,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastPowerBomb"/> showing the Power Bomb picture, dark.</summary>
+    FastPowerBombDark,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, dark.</summary>
+    BombDark,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, smouldering.</summary>
+    BombSmouldering,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, glowing.</summary>
+    BombGlowing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.Bomb"/> showing the Bomb picture, flashing.</summary>
+    BombFlashing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, dark.</summary>
+    FastBombDark,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, smouldering.</summary>
+    FastBombSmouldering,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, glowing.</summary>
+    FastBombGlowing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.FastBomb"/> showing the Bomb picture, flashing.</summary>
+    FastBombFlashing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, a speck.</summary>
+    BeamExplosionSpeck,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, a glint.</summary>
+    BeamExplosionGlint,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, a flash.</summary>
+    BeamExplosionFlash,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, a flash inside a ring.</summary>
+    BeamExplosionRingedFlash,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, a ring.</summary>
+    BeamExplosionRing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BeamExplosion"/> showing the Beam Explosion picture, a fading ring.</summary>
+    BeamExplosionFadingRing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, a spark.</summary>
+    MissileExplosionSpark,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, a ball.</summary>
+    MissileExplosionBall,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, a blast.</summary>
+    MissileExplosionBlast,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, a flare.</summary>
+    MissileExplosionFlare,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, a burst.</summary>
+    MissileExplosionBurst,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.MissileExplosion"/> showing the Missile Explosion picture, embers.</summary>
+    MissileExplosionEmbers,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, an orb.</summary>
+    BombExplosionOrb,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, a sparkling orb.</summary>
+    BombExplosionSparklingOrb,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, a burst.</summary>
+    BombExplosionBurst,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, a wide burst.</summary>
+    BombExplosionWideBurst,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.BombExplosion"/> showing the Bomb Explosion picture, a ring.</summary>
+    BombExplosionRing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, an orb.</summary>
+    PlasmaSpecialAttackOrb,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, a sparkling orb.</summary>
+    PlasmaSpecialAttackSparklingOrb,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, a burst.</summary>
+    PlasmaSpecialAttackBurst,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, a wide burst.</summary>
+    PlasmaSpecialAttackWideBurst,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.PlasmaSpecialAttack"/> showing the Bomb Explosion picture, a ring.</summary>
+    PlasmaSpecialAttackRing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, a ball.</summary>
+    SuperMissileExplosionBall,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, a blast.</summary>
+    SuperMissileExplosionBlast,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, a flare.</summary>
+    SuperMissileExplosionFlare,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, a ball inside a ring.</summary>
+    SuperMissileExplosionRingedBall,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, a ring.</summary>
+    SuperMissileExplosionRing,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SuperMissileExplosion"/> showing the Super Missile Explosion picture, a fading ring.</summary>
+    SuperMissileExplosionFadingRing,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ShinesparkEchoUpFacingRight"/> showing nothing.</summary>
     ShinesparkEchoUpFacingRightHidden,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ShinesparkEchoUpFacingRight"/> showing nothing, as <see cref="ShinesparkEchoUpFacingRightHidden"/> does.</summary>
-    ShinesparkEchoUpFacingRightHiddenTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ShinesparkEchoUpFacingRight"/> showing nothing, as <see cref="ShinesparkEchoUpFacingRightHidden"/> does.</summary>
-    ShinesparkEchoUpFacingRightHiddenTwinB,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ShinesparkEchoUpFacingRight"/> showing nothing, as <see cref="ShinesparkEchoUpFacingRightHidden"/> does.</summary>
-    ShinesparkEchoUpFacingRightHiddenTwinC,
     /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRight"/> showing nothing.</summary>
     SpazerSpecialAttackTrailUpFacingRightHidden,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRight"/> showing nothing, as <see cref="SpazerSpecialAttackTrailUpFacingRightHidden"/> does.</summary>
-    SpazerSpecialAttackTrailUpFacingRightHiddenTwin,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRightLoop"/> showing nothing, as <see cref="SpazerSpecialAttackTrailUpFacingRightHidden"/> does.</summary>
-    SpazerSpecialAttackTrailUpFacingRightHiddenTwinB,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRight"/> showing nothing, as <see cref="SpazerSpecialAttackTrailUpFacingRightHidden"/> does, with a wider hitbox and its trail's sparkles placed further apart.</summary>
+    SpazerSpecialAttackTrailUpFacingRightHiddenWide,
+    /// <summary>A frame of <see cref="SamusProjectileSegment.SpazerSpecialAttackTrailUpFacingRight"/> showing nothing, as <see cref="SpazerSpecialAttackTrailUpFacingRightHidden"/> does, with the widest hitbox and its trail's sparkles placed furthest apart.</summary>
+    SpazerSpecialAttackTrailUpFacingRightHiddenWidest,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveSpecialAttack"/> showing the Charged Wave picture, core.</summary>
     WaveSpecialAttackCore,
     /// <summary>A frame of <see cref="SamusProjectileSegment.WaveSpecialAttack"/> showing the Charged Wave picture, core alternate.</summary>

@@ -223,7 +223,7 @@ public sealed class SamusBombProjectileSystem
     /// every HUD producer and before the shots (<see cref="SamusProjectileSystem.HandleShots"/>).
     /// </summary>
     /// <returns>The bomb jump direction published, or none when <paramref name="overlap"/> defers it.</returns>
-    internal SamusBombJumpDirection HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap = BombJumpOverlapPublication.Immediate)
+    internal SamusBombJumpDirection HandleBombs(SamusTerrain terrain, SamusState samus, BombJumpOverlapPublication overlap)
     {
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);

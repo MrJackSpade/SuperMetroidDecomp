@@ -56,7 +56,7 @@ internal static class SamusCueValuePlaceReadsVerification
         };
         SamusPresentation.InitializeAnimation(samus);
         write(samus);
-        AssertEqual(0, samus.AnimationFrameBuffer, $"{pose} at the {writer} animates without a liquid's delay buffer");
+        AssertEqual(0, samus.ExtraAnimationDelay, $"{pose} at the {writer} animates without a liquid's delay buffer");
         AssertTrue(samus.PendingTransitionalPose is null, $"{pose} at the {writer} has no transition pending");
 
         // The tick that runs out the written frame's one-tick timer moves to the next frame; each delay byte read after it

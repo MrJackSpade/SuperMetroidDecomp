@@ -39,7 +39,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
         // The X-ray's setup queues its start; releasing Run after the warm-up and the widening tears it down, queueing its end.
         SamusState scoping = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
         AssertTrue(scoping.Xray.TryBeginAndActivate(scoping, previousMovementType: SamusMovementType.Standing,
-                conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+                conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),
             "the X-ray's setup is accepted");
         AssertTurnedAway(audio, requests, SamusSound.XrayStart, "the X-ray's start");
         for (int update = 0; update < 8 + 1 + 27; update++)

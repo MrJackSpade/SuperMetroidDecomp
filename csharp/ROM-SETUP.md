@@ -968,9 +968,9 @@ picture store to change what a projectile shows. Damage, collision radii, trail 
 are not artwork.
 
 `game/projectiles/projectile-frame-bindings.json` selects which existing
-composition (named by family and pose, such as `Wave.Right.Up1`) each of the 795 beam,
+composition (named by family and pose, such as `Wave.Right.Up1`) each of the 626 beam,
 missile, Super Missile and bomb frames draws, keyed by the frame's name (such as
-`WaveRightUp1`). Keep every frame entry and select only compositions the stock file
+`WaveRightUpNear`); a frame an animation shows again is one entry. Keep every frame entry and select only compositions the stock file
 names; duration, trail placement and cadence, collision radii, damage and animation
 flow remain compiled gameplay data. Edits are included
 in recorded content identity.

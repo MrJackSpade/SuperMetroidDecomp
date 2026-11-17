@@ -14,17 +14,17 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class ChargeFlarePictures
 {
     /// <summary>
-    /// The composition <paramref name="component"/> shows at place <paramref name="place"/> of its animation facing left
+    /// The composition <paramref name="component"/> shows at <paramref name="place"/> among its pictures facing left
     /// or right.
     /// </summary>
     /// <param name="component">The component.</param>
     /// <param name="facingLeft">Whether Samus faces left.</param>
-    /// <param name="place">The place of one of the component's pictures in its animation.</param>
+    /// <param name="place">The place of one of the component's pictures.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="place"/> shows none of the component's pictures.</exception>
-    public static ProjectileSpriteId Of(ChargeFlareComponent component, bool facingLeft, int place) =>
+    public static ProjectileSpriteId Of(ChargeFlareComponent component, bool facingLeft, ChargeFlarePlace place) =>
         ChargeFlareAnimations.PictureAt(component, place) is { } picture
             ? Of(component, facingLeft, picture)
-            : throw new ArgumentOutOfRangeException(nameof(place), place, $"Charge-flare {component} shows no picture at place {place}.");
+            : throw new ArgumentOutOfRangeException(nameof(place), place, $"Charge-flare {component} shows no picture at {place}.");
 
     /// <summary>The composition <paramref name="component"/> shows for <paramref name="picture"/> facing left or right.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is not one of the component's pictures.</exception>

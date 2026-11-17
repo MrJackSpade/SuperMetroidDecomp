@@ -56,7 +56,7 @@ internal static class DraygonGrabVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MovingLeftNormalPose;
-        samus.XSpeedDivisor = 1;
+        samus.SlowdownLevel = 1;
         samus.PendingTransitionalPose = pendingPose;
         DraygonEnemyState draygon = runtime.Enemies.Draygon
             ?? throw new InvalidOperationException("Draygon's room loads the Draygon encounter.");

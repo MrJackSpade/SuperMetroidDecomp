@@ -68,7 +68,7 @@ internal static class DraygonTurretCadenceVerification
             "goop horizontal speed is speed two");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
-        // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.
+        // its ID and Samus's SlowdownLevel clears, but the routine still moves the slot.
         runtime.System.SetRandomNumber(0x1234);
         runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, HorizontalDirection.Left);
         EnemyProjectile bombed = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
@@ -76,13 +76,13 @@ internal static class DraygonTurretCadenceVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
         PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.ExplosionRadius), PowerBombRadius.FromWholePixels(32));
-        runtime.Player.IntroducedSamus.XSpeedDivisor = 3;
+        runtime.Player.IntroducedSamus.SlowdownLevel = 3;
         ushort bombedX = bombed.Position.X.Whole;
         runtime.Enemies.AdvanceEnemyProjectileAnimations(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), runtime.Enemies.NextStandaloneProjectileFrame(),
             samusBombs: runtime.BombProjectiles, frameCounter: runtime.Enemies.FrameContext.RandomEnemyCounter);
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
-        AssertEqual(0, runtime.Player.IntroducedSamus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
+        AssertEqual(0, runtime.Player.IntroducedSamus.SlowdownLevel, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");
 
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"

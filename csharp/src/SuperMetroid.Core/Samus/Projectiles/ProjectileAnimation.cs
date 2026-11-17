@@ -91,7 +91,7 @@ internal sealed class ProjectileAnimation
             return;
         // Only the Hyper Beam's count runs a component past its first picture, and the ordinary flare never plays again
         // once Samus has the Hyper Beam.
-        int picture = flare.Picture
+        ChargeFlarePlace picture = flare.Picture
             ?? throw new InvalidOperationException($"Charge-flare {component} has run past its first picture and plays no further.");
         flare.Show(ChargeFlareAnimations.Next(component, picture));
     }

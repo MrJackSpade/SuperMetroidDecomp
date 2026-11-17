@@ -187,9 +187,9 @@ internal static class NativeSnapshotImport
             ?? throw new InvalidDataException("The native Ridley checkpoint names no top body picture.");
         PrivateState.Set(samus.Presentation, nameof(SamusPresentation.DrawnFrame), new SamusBodyFrame(drawnTop.Pose, SamusAnimationNumbers.Frame(drawnTop.Pose, drawnTop.AnimationFrame)));
         PrivateState.Set(samus.Presentation, nameof(SamusPresentation.DrawOrigin), Offset16<ScreenPixels>.Wrapped(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
-        samus.ArmCannon.Frame = SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame));
-        samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
-        samus.ArmCannon.DrawOrder = SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode));
+        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.Frame), SamusArmCannonCoverNativeCodec.FromNative(W(NativeSnapshotMemory.CannonFrame)));
+        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.StableSelectionUpdates), (int)W(NativeSnapshotMemory.CannonToggle));
+        PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.DrawOrder), SuperMetroid.AssetExtraction.Samus.SamusArmCannonDrawOrderCodec.FromDrawingMode(W(NativeSnapshotMemory.CannonDrawingMode)));
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.IsOpen), memory[NativeSnapshotMemory.CannonFlags] != 0);
         PrivateState.Set(samus.ArmCannon, nameof(SamusArmCannonState.IsTransitioning), memory[NativeSnapshotMemory.CannonFlags + 1] != 0);
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
@@ -262,7 +262,7 @@ internal static class NativeSnapshotImport
         if (!SamusSnapshotWords.AlignsToSlopes(W(NativeSnapshotMemory.SlopeCollisionEnable)))
             throw new InvalidDataException(
                 $"Native slope-alignment word ${W(NativeSnapshotMemory.SlopeCollisionEnable):X4} disables the alignment, which no retail state does.");
-        samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
+        samus.HorizontalSpeed.SlowdownLevel = W(NativeSnapshotMemory.SpeedDivisor);
         samus.HorizontalSpeed.BodyAttack = SamusMovementNativeWords.ContactDamage.Decode(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus body attack");
         samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
@@ -301,7 +301,7 @@ internal static class NativeSnapshotImport
                 W(NativeSnapshotMemory.AtmosphericTimer + place * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + place * 2), W(NativeSnapshotMemory.AtmosphericY + place * 2)));
         }
-        samus.AnimationFrameBuffer = W(NativeSnapshotMemory.AnimationFrameBuffer);
+        samus.ExtraAnimationDelay = W(NativeSnapshotMemory.AnimationFrameBuffer);
         PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.LiquidPhysicsType), SamusLiquidMediumCodec.FromNative(W(NativeSnapshotMemory.LiquidPhysicsType)));
         PrivateState.Set(samus.PeriodicDamage, nameof(SamusPeriodicDamage.Pending), new SuperMetroid.Core.Spatial.UnsignedSixteenSixteen(W(NativeSnapshotMemory.PeriodicDamage), W(NativeSnapshotMemory.PeriodicSubDamage)));
 

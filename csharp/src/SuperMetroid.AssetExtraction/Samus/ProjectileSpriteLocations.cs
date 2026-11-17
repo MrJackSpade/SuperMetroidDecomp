@@ -13,13 +13,27 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class ProjectileSpriteLocations
 {
 
-    /// <summary>The bank-$93 address of the composition each timed projectile record draws, by record.</summary>
+    /// <summary>
+    /// The bank-$93 address of the composition each frame draws, by frame: every timed record that shows a frame stores the
+    /// same composition (#2274).
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two records that show one frame store different compositions.</exception>
     internal static Dictionary<SamusProjectileFrameId, ushort> RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
-        return SamusProjectileFrameOrder.Frames.ToDictionary(record => record, record => RomDataReader.ReadWordFixedBank(cartridge,
-            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(lists.RecordPosition(record) + 2))));
+        int SpriteAt(int record) => RomDataReader.ReadWordFixedBank(cartridge,
+            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+        return SamusProjectileFrameOrder.Frames.ToDictionary(frame => frame, frame =>
+        {
+            int sprite = SpriteAt(lists.RecordPosition(frame));
+            foreach (int record in lists.RecordPositions(frame))
+            {
+                if (SpriteAt(record) != sprite)
+                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions ${sprite:X4} and ${SpriteAt(record):X4}.");
+            }
+            return checked((ushort)sprite);
+        });
     }
 
     /// <summary>The bank-$93 address of each projectile composition.</summary>

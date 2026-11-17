@@ -174,7 +174,7 @@ internal static class SpikeDamageBoostVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, samus.AnimationFrameNumbered(2), 1);
-        samus.LiquidPhysics.ConfigureWater(8);
+        samus.LiquidPhysics.ConfigureWater(8, ignoresSurface: false, type: SuperMetroid.Core.Fx.RoomFxType.Water);
         samus.Position = samus.Position.WithWholeX(99);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);
         samus.Position = samus.Position.WithWholeY(237);

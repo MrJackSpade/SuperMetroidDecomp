@@ -11,27 +11,6 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>Swinging from a grapple point: the pendulum's angle, rope length and gravity, Samus's position and launch, and swing collision.</summary>
 public static class SamusGrappleSwing
 {
-    /// <summary>The angle steps in a quarter turn, the lead a motionless release's horizontal speed angle takes on the rope.</summary>
-    private const int QuarterTurnSteps = RotationAngle.StepsPerTurn / 4;
-
-    /// <summary>The angle steps the release's horizontal speed angle loses of its quarter-turn lead per whole angle step of swing speed.</summary>
-    private const int ReleaseLeadStepsPerSwingStep = 3;
-
-    /// <summary>The share of gravity and of the velocity correction the swing takes above the anchor's level: a quarter.</summary>
-    private const int UpperQuadrantShare = 4;
-
-    /// <summary>The share of gravity a submerged swing takes: a half.</summary>
-    private const int SubmergedGravityShare = 2;
-
-    /// <summary>
-    /// How far into its block a block anchor sits on an axis whose rope component is not negative: the rope leaves the
-    /// block's middle.
-    /// </summary>
-    private const int AnchorBiasTowardPositive = 8;
-
-    /// <summary>How far into its block a block anchor sits on an axis whose rope component is negative: one pixel short of its middle.</summary>
-    private const int AnchorBiasTowardNegative = AnchorBiasTowardPositive - 1;
-
     /// <summary>Places Samus at the pendulum body position and updates rope art, flare, and slow-scroll state.</summary>
     internal static void PositionSamusFromPendulum(
         SamusState samus,
@@ -84,7 +63,7 @@ public static class SamusGrappleSwing
         samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
 
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-        int phaseOffset = QuarterTurnSteps - ReleaseLeadStepsPerSwingStep * swingSpeed.WholeSteps;
+        int phaseOffset = GrappleBeamDefinitions.Physics.ReleaseLeadSteps - GrappleBeamDefinitions.Physics.ReleaseLeadStepsPerSwingStep * swingSpeed.WholeSteps;
         UnitComponent horizontal = UnitComponent.SineOf(grapple.Angle.TurnedBySteps(-phaseOffset).ToTrigonometryAngle());
         samus.HorizontalSpeed.BaseSpeed = horizontal.SizeTimes(releaseSpeed);
     }
@@ -150,7 +129,7 @@ public static class SamusGrappleSwing
 
     /// <summary>How hard a held direction pushes the swing toward increasing angles: half as hard under water.</summary>
     private static AngularSpeed DirectionInputPush(SamusGrappleState grapple) => grapple.Submerged
-        ? GrappleBeamDefinitions.Physics.DirectionInputMagnitude.DividedBy(2)
+        ? GrappleBeamDefinitions.Physics.DirectionInputMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
         : GrappleBeamDefinitions.Physics.DirectionInputMagnitude;
 
 
@@ -234,13 +213,13 @@ public static class SamusGrappleSwing
         // dropped before the quarter is taken.
         RotationAngle angle = grapple.Angle;
         AngularSpeed gravity = grapple.Submerged
-            ? GrappleBeamDefinitions.Physics.GravityMagnitude.DividedBy(SubmergedGravityShare)
+            ? GrappleBeamDefinitions.Physics.GravityMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
             : GrappleBeamDefinitions.Physics.GravityMagnitude;
         AngularSpeed correction = GrappleBeamDefinitions.Physics.VelocityCorrectionMagnitude;
         if (angle >= RotationAngle.ThreeQuarterTurn)
         {
-            grapple.VelocityCorrection = -correction.DividedBy(UpperQuadrantShare);
-            grapple.GravityAcceleration = -gravity.DividedBy(UpperQuadrantShare);
+            grapple.VelocityCorrection = -correction.DividedBy(GrappleBeamDefinitions.Physics.UpperQuadrantShare);
+            grapple.GravityAcceleration = -gravity.DividedBy(GrappleBeamDefinitions.Physics.UpperQuadrantShare);
         }
         else if (angle >= RotationAngle.HalfTurn)
         {
@@ -265,8 +244,8 @@ public static class SamusGrappleSwing
         }
         else
         {
-            grapple.VelocityCorrection = correction.DividedBy(UpperQuadrantShare);
-            grapple.GravityAcceleration = gravity.DividedBy(UpperQuadrantShare);
+            grapple.VelocityCorrection = correction.DividedBy(GrappleBeamDefinitions.Physics.UpperQuadrantShare);
+            grapple.GravityAcceleration = gravity.DividedBy(GrappleBeamDefinitions.Physics.UpperQuadrantShare);
         }
     }
 
@@ -300,7 +279,7 @@ public static class SamusGrappleSwing
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
             AngularSpeed impulse = grapple.Submerged
-                ? GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.DividedBy(2)
+                ? GrappleBeamDefinitions.Physics.JumpImpulseMagnitude.DividedBy(GrappleBeamDefinitions.Physics.SubmergedShare)
                 : GrappleBeamDefinitions.Physics.JumpImpulseMagnitude;
             grapple.JumpImpulse = grapple.AngularVelocity == AngularSpeed.Zero ? AngularSpeed.Zero
                 : grapple.AngularVelocity.IsNegative ? -impulse
@@ -452,11 +431,11 @@ public static class SamusGrappleSwing
 
     /// <summary>
     /// The anchor's coordinate on one axis moved within its block to where the rope leaves it: the block's start plus
-    /// <see cref="AnchorBiasTowardPositive"/> for a <paramref name="ropeComponent"/> that is not negative, or
-    /// <see cref="AnchorBiasTowardNegative"/> for a negative one.
+    /// <see cref="GrappleBeamDefinitions.Swing.AnchorBiasTowardPositive"/> for a <paramref name="ropeComponent"/> that is not
+    /// negative, or <see cref="GrappleBeamDefinitions.Swing.AnchorBiasTowardNegative"/> for a negative one.
     /// </summary>
     private static int BiasedWithinBlock(int anchor, UnitComponent ropeComponent) =>
-        RoomGridConversions.BlockStart(anchor) + (ropeComponent.IsNegative ? AnchorBiasTowardNegative : AnchorBiasTowardPositive);
+        RoomGridConversions.BlockStart(anchor) + (ropeComponent.IsNegative ? GrappleBeamDefinitions.Swing.AnchorBiasTowardNegative : GrappleBeamDefinitions.Swing.AnchorBiasTowardPositive);
 
 
     /// <summary>Resolves grapple swing collision through block extensions, including damaging spike reactions.</summary>

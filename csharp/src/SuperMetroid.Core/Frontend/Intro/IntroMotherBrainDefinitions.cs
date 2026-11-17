@@ -18,6 +18,9 @@ internal static class IntroMotherBrainDefinitions
     /// <summary>The Missile hits that make Mother Brain explode.</summary>
     public const int MissileHitsToExplode = 4;
 
+    /// <summary>The room pixel a missile flying left strikes the brain on passing: left of it, it hits (#2280).</summary>
+    public const int MissileImpactLine = 84;
+
     /// <summary>The updates each Missile hit flashes her.</summary>
     public const int HurtFlashUpdates = 8;
 

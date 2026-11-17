@@ -3,9 +3,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>The low-energy check and its persistent critical-energy latch.</summary>
 public sealed class SamusHealthWarningState
 {
-    /// <summary>Energy at or above this is healthy; below it the critical-energy warning sounds.</summary>
-    private const int HealthyThreshold = 31;
-
     /// <summary>The request priority of the warning's start and stop sounds.</summary>
     private static readonly SoundRequestPriority WarningSoundPriority = SoundRequestPriority.Normal;
 
@@ -25,7 +22,7 @@ public sealed class SamusHealthWarningState
     internal void Update(int health, GameplayAudioRequests audio)
     {
         Ensure.NotNull(audio);
-        bool critical = health < HealthyThreshold;
+        bool critical = health < SamusEnergyDefinitions.HealthyEnergy;
         if (critical == IsActive) return;
 
         // The latch changes regardless of queue admission. In particular an exploding

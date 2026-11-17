@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 internal static class SamusHorizontalSpeedDefinitions
 {
+    /// <summary>The most times a speed divisor halves the total speed, however large the divisor (#2280).</summary>
+    internal const int LargestSpeedHalvings = 4;
+
+    /// <summary>The most whole pixels Samus's speed moves her in one update, either way (#2280).</summary>
+    internal const int LargestWholeDisplacement = 15;
+
     /// <summary>Deceleration of every movement in air, half a pixel per update per update.</summary>
     private static SignedSixteenSixteen AirDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Deceleration of every movement in water, a thirty-second of a pixel per update per update.</summary>

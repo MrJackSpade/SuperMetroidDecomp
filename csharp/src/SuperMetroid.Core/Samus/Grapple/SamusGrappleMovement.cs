@@ -32,7 +32,7 @@ public static class SamusGrappleMovement
     /// before its phase returns. The current pose supplies all direction/origin
     /// policy; no separate aiming vector is accepted.
     /// </summary>
-    public static void BeginFiring(SamusState samus, GameplayAction controllerInput = GameplayAction.None)
+    public static void BeginFiring(SamusState samus, GameplayAction controllerInput)
     {
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
@@ -849,45 +849,9 @@ public static class SamusGrappleMovement
                 ? GrappleConnectionPolicy.Crouching
                 : GrappleConnectionPolicy.Default;
         var connection = GrappleConnections.ResolveConnection(policy, grapple.FireDirection);
-        GrappleConnectionKind nextKind = connection.Kind;
-        GrappleConnectionPose connectionPose = connection.Pose;
-
-        // Each connection pose installs one prospective grappling pose and then continues
-        // to either the swinging or the stuck connection. Keep the connection poses distinct:
-        // pose alone is insufficient to distinguish malformed fallback data from data.
-        (SamusPoseId pose, bool swinging) = connectionPose switch
-        {
-            GrappleConnectionPose.SwingClockwise =>
-                new GrappleConnectedPose(SamusPoseId.GrappleSwingRightPose, true),
-            GrappleConnectionPose.SwingAnticlockwise =>
-                new GrappleConnectedPose(SamusPoseId.GrappleSwingLeftPose, true),
-            GrappleConnectionPose.StandingUpRight =>
-                new GrappleConnectedPose(SamusPoseId.GrappleStandingRightPose, false),
-            GrappleConnectionPose.StandingRight =>
-                new GrappleConnectedPose(SamusPoseId.GrappleStandingDownRightPose, false),
-            GrappleConnectionPose.StandingDown =>
-                new GrappleConnectedPose(SamusPoseId.GrappleStandingDownLeftPose, false),
-            GrappleConnectionPose.StandingUpLeft =>
-                new GrappleConnectedPose(SamusPoseId.GrappleStandingLeftPose, false),
-            GrappleConnectionPose.CrouchingUpRight =>
-                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingRightPose, false),
-            GrappleConnectionPose.CrouchingRight =>
-                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingDownRightPose, false),
-            GrappleConnectionPose.CrouchingDownLeft =>
-                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingDownLeftPose, false),
-            GrappleConnectionPose.CrouchingUpLeft =>
-                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingLeftPose, false),
-            _ => throw new InvalidOperationException($"Undefined GrappleConnectionPose {connectionPose}."),
-        };
-        GrappleConnectionKind expectedKind = swinging
-            ? GrappleConnectionKind.Swinging
-            : GrappleConnectionKind.LockedInPlace;
-        if (nextKind != expectedKind)
-        {
-            throw new InvalidDataException(
-                $"Grapple connection pose {connectionPose} requires connection {expectedKind}, " +
-                $"but the connection names {nextKind}.");
-        }
+        // The connection names the pose it installs; it swings exactly when its kind does.
+        SamusPoseId pose = connection.Pose;
+        bool swinging = connection.Kind == GrappleConnectionKind.Swinging;
 
         // Both the connection and the fired beam derive the angle from the body position that fired the beam,
         // before the connection pose is installed and snaps Samus to the rope. The angle is stored

@@ -86,7 +86,7 @@ internal sealed class BeamChargeState
         HyperBeamFlare = true;
         foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
         {
-            Flare(component).Show(new(ChargeFlareAnimations.LastPicture(component),
+            Flare(component).Show(new(ChargeFlareAnimations.LastPlace(component),
                 WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates)));
         }
     }

@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionKind;
-using static SuperMetroid.Core.Samus.Grapple.GrappleConnectionPose;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection;
 using SuperMetroid.Core.Samus.Poses;
@@ -12,54 +11,54 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleConnectionDefinitions
 {
     /// <summary>
-    /// The connection each policy installs for each of the ten firing directions. Every direction has its own row in
-    /// every policy: firing admits only these ten directions, so no connection reads another policy's rows. Moving
-    /// vertically always swings, clockwise for the five directions from up (facing right) to down (facing right) and
-    /// anticlockwise for the other five. Standing and crouching swing from the upward diagonals and verticals and lock
-    /// Samus in place otherwise; crouching locks in its own crouching poses except when aiming down, where both
-    /// policies use the standing down pose.
+    /// The connection each policy installs for each of the ten firing directions, and the pose it puts Samus in (#2286).
+    /// Every direction has its own row in every policy: firing admits only these ten directions, so no connection reads
+    /// another policy's rows. Moving vertically always swings, in the right-swinging pose for the five directions from up
+    /// (facing right) to down (facing right) and the left-swinging pose for the other five. Standing and crouching swing
+    /// from the upward diagonals and verticals and lock Samus in place otherwise; crouching locks in its own crouching
+    /// poses except when aiming straight down, where both policies use the standing down-left pose.
     /// </summary>
     internal static readonly FrozenDictionary<GrappleConnectionPolicy, FrozenDictionary<SamusProjectileDirection, GrappleConnection>> Directional =
         new Dictionary<GrappleConnectionPolicy, FrozenDictionary<SamusProjectileDirection, GrappleConnection>>
         {
             [GrappleConnectionPolicy.Default] = new Dictionary<SamusProjectileDirection, GrappleConnection>
             {
-                [UpFacingRight] = new(Swinging, SwingClockwise),
-                [UpRight] = new(Swinging, SwingClockwise),
-                [Right] = new(LockedInPlace, StandingUpRight),
-                [DownRight] = new(LockedInPlace, StandingRight),
-                [DownFacingRight] = new(LockedInPlace, StandingDown),
-                [DownFacingLeft] = new(LockedInPlace, StandingDown),
-                [DownLeft] = new(LockedInPlace, StandingDown),
-                [Left] = new(LockedInPlace, StandingUpLeft),
-                [UpLeft] = new(Swinging, SwingAnticlockwise),
-                [UpFacingLeft] = new(Swinging, SwingAnticlockwise),
+                [UpFacingRight] = new(Swinging, GrappleSwingRightPose),
+                [UpRight] = new(Swinging, GrappleSwingRightPose),
+                [Right] = new(LockedInPlace, GrappleStandingRightPose),
+                [DownRight] = new(LockedInPlace, GrappleStandingDownRightPose),
+                [DownFacingRight] = new(LockedInPlace, GrappleStandingDownLeftPose),
+                [DownFacingLeft] = new(LockedInPlace, GrappleStandingDownLeftPose),
+                [DownLeft] = new(LockedInPlace, GrappleStandingDownLeftPose),
+                [Left] = new(LockedInPlace, GrappleStandingLeftPose),
+                [UpLeft] = new(Swinging, GrappleSwingLeftPose),
+                [UpFacingLeft] = new(Swinging, GrappleSwingLeftPose),
             }.ToFrozenDictionary(),
             [GrappleConnectionPolicy.MovingVertically] = new Dictionary<SamusProjectileDirection, GrappleConnection>
             {
-                [UpFacingRight] = new(Swinging, SwingClockwise),
-                [UpRight] = new(Swinging, SwingClockwise),
-                [Right] = new(Swinging, SwingClockwise),
-                [DownRight] = new(Swinging, SwingClockwise),
-                [DownFacingRight] = new(Swinging, SwingClockwise),
-                [DownFacingLeft] = new(Swinging, SwingAnticlockwise),
-                [DownLeft] = new(Swinging, SwingAnticlockwise),
-                [Left] = new(Swinging, SwingAnticlockwise),
-                [UpLeft] = new(Swinging, SwingAnticlockwise),
-                [UpFacingLeft] = new(Swinging, SwingAnticlockwise),
+                [UpFacingRight] = new(Swinging, GrappleSwingRightPose),
+                [UpRight] = new(Swinging, GrappleSwingRightPose),
+                [Right] = new(Swinging, GrappleSwingRightPose),
+                [DownRight] = new(Swinging, GrappleSwingRightPose),
+                [DownFacingRight] = new(Swinging, GrappleSwingRightPose),
+                [DownFacingLeft] = new(Swinging, GrappleSwingLeftPose),
+                [DownLeft] = new(Swinging, GrappleSwingLeftPose),
+                [Left] = new(Swinging, GrappleSwingLeftPose),
+                [UpLeft] = new(Swinging, GrappleSwingLeftPose),
+                [UpFacingLeft] = new(Swinging, GrappleSwingLeftPose),
             }.ToFrozenDictionary(),
             [GrappleConnectionPolicy.Crouching] = new Dictionary<SamusProjectileDirection, GrappleConnection>
             {
-                [UpFacingRight] = new(Swinging, SwingClockwise),
-                [UpRight] = new(Swinging, SwingClockwise),
-                [Right] = new(LockedInPlace, CrouchingUpRight),
-                [DownRight] = new(LockedInPlace, CrouchingRight),
-                [DownFacingRight] = new(LockedInPlace, StandingDown),
-                [DownFacingLeft] = new(LockedInPlace, StandingDown),
-                [DownLeft] = new(LockedInPlace, CrouchingDownLeft),
-                [Left] = new(LockedInPlace, CrouchingUpLeft),
-                [UpLeft] = new(Swinging, SwingAnticlockwise),
-                [UpFacingLeft] = new(Swinging, SwingAnticlockwise),
+                [UpFacingRight] = new(Swinging, GrappleSwingRightPose),
+                [UpRight] = new(Swinging, GrappleSwingRightPose),
+                [Right] = new(LockedInPlace, GrappleCrouchingRightPose),
+                [DownRight] = new(LockedInPlace, GrappleCrouchingDownRightPose),
+                [DownFacingRight] = new(LockedInPlace, GrappleStandingDownLeftPose),
+                [DownFacingLeft] = new(LockedInPlace, GrappleStandingDownLeftPose),
+                [DownLeft] = new(LockedInPlace, GrappleCrouchingDownLeftPose),
+                [Left] = new(LockedInPlace, GrappleCrouchingLeftPose),
+                [UpLeft] = new(Swinging, GrappleSwingLeftPose),
+                [UpFacingLeft] = new(Swinging, GrappleSwingLeftPose),
             }.ToFrozenDictionary(),
         }.ToFrozenDictionary();
 

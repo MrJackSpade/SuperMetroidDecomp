@@ -441,23 +441,23 @@ public sealed class SamusProjectileSystem
                 if (hold.IsZeroOrNegative)
                 {
                     WrappingCountdown nextHold = WrappingCountdown.Start(ChargeFlareAnimationDefinitions.HyperBeamPictureUpdates);
-                    if (flare.Picture is not { } picture || picture == ChargeFlareAnimations.FirstPlace)
+                    if (flare.Picture is not { } picture || ChargeFlareAnimations.Previous(component, picture) is not { } previous)
                     {
                         // A component already at its first picture when its spent wait runs out again steps back past
                         // it, where it shows nothing and its count goes on (#2114).
                         flare.RunPastFirstPicture(nextHold);
                     }
-                    else if (picture == ChargeFlareAnimations.FirstPlace + 1)
+                    else if (previous == ChargeFlareAnimations.FirstPlace(component))
                     {
                         // The component reaches its first picture and stops counting: its wait is left spent. The fast
                         // sparks reaching theirs end the whole flare.
-                        flare.Show(new(ChargeFlareAnimations.FirstPlace, hold.Remaining));
+                        flare.Show(new(previous, hold.Remaining));
                         if (component == ChargeFlareComponent.FastSparks)
                             Charge.ClearCount();
                     }
                     else
                     {
-                        flare.Show(new(picture - 1, nextHold));
+                        flare.Show(new(previous, nextHold));
                     }
                 }
             }

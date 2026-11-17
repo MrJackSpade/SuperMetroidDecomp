@@ -16,8 +16,7 @@ internal sealed class ChargeFlareComponentState(ChargeFlareComponent component)
     /// The place in the component's animation of the picture it shows, or none once the Hyper Beam's count has run it
     /// past its first picture.
     /// </summary>
-    [IntegerQuantity("beats into the component's animation")]
-    internal int? Picture { get; private set; } = ChargeFlareAnimations.FirstPlace;
+    internal ChargeFlarePlace? Picture { get; private set; } = ChargeFlareAnimations.FirstPlace(component);
 
     /// <summary>The wait the component holds its picture for: the picture shows for it and one update more.</summary>
     internal WrappingCountdown Hold { get; private set; }
@@ -26,9 +25,9 @@ internal sealed class ChargeFlareComponentState(ChargeFlareComponent component)
     /// <exception cref="ArgumentOutOfRangeException">The step's place is none of the component's pictures.</exception>
     internal void Show(ChargeFlareStep step)
     {
-        Picture = ChargeFlareAnimations.IsPicture(Component, step.Phase)
-            ? step.Phase
-            : throw new ArgumentOutOfRangeException(nameof(step), step, $"Charge-flare {Component} has no picture at place {step.Phase}.");
+        Picture = ChargeFlareAnimations.IsPicture(Component, step.Place)
+            ? step.Place
+            : throw new ArgumentOutOfRangeException(nameof(step), step, $"Charge-flare {Component} has no picture at {step.Place}.");
         Hold = step.Hold;
     }
 
@@ -53,7 +52,7 @@ internal sealed class ChargeFlareComponentState(ChargeFlareComponent component)
     /// <summary>Returns the component to its first picture with no wait.</summary>
     internal void Clear()
     {
-        Picture = ChargeFlareAnimations.FirstPlace;
+        Picture = ChargeFlareAnimations.FirstPlace(Component);
         Hold = default;
     }
 }

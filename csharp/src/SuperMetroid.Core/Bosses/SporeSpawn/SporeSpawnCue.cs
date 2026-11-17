@@ -12,8 +12,8 @@ internal abstract record SporeSpawnCue
     /// Shows a step of his death fade over his body and his room: each step of his hardening, and the last as a defeated
     /// room loads him, which the door's fade then brings in.
     /// </summary>
-    /// <param name="DeathShadeStep">The death-sequence fade step a death-shade cue shows, zero through six.</param>
-    internal sealed record ShowDeathShade(int DeathShadeStep) : SporeSpawnCue;
+    /// <param name="DeathShadeStep">The step of his death fade the cue shows.</param>
+    internal sealed record ShowDeathShade(SporeSpawnDeathFadeStep DeathShadeStep) : SporeSpawnCue;
 
     /// <summary>Requests a sound.</summary>
     /// <param name="Sound">The sound a <see cref="QueueSound"/> cue queues.</param>

@@ -258,11 +258,8 @@ internal static class MotherBrainSheetShades
         }
         shades.Add(Flash(MotherBrainShades.FinalRoom, colour => room.finalRoom.Colour(colour)));
         shades.Add(Lights(MotherBrainShades.LightsOut, _ => RgbColor.Black));
-        for (int frame = 0; frame < MotherBrainRoomColorDefinitions.RecoveryLightsFrames; frame++)
-        {
-            int shown = frame;
-            shades.Add(Lights(MotherBrainShades.RecoveryLights(MotherBrainRecoveryLights.All[shown]), colour => room.recoveryLights.Colour(shown, colour)));
-        }
+        foreach (MotherBrainFadeImage lights in MotherBrainFadeDefinitions.RecoveryLights.Images)
+            shades.Add(Lights(MotherBrainShades.Fade(lights), colour => room.recoveryLights.Colour(lights.Step, colour)));
         return shades;
     }
 

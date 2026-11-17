@@ -17,11 +17,11 @@ public static class RidleyShades
     /// <summary>Ridley's own colours cleared to black as Ceres Ridley's initialization loads them.</summary>
     public static PictureShade CeresHidden { get; } = new("ridley-ceres-hidden", 0);
 
-    /// <summary>Ceres Ridley's eyes at fade shade <paramref name="shade"/>, zero through fifteen.</summary>
-    public static PictureShade EyeFade(int shade) => new("ridley-eye-fade", shade);
-
-    /// <summary>Ceres Ridley's body at fade shade <paramref name="shade"/>, zero through fifteen.</summary>
-    public static PictureShade BodyFade(int shade) => new("ridley-body-fade", shade);
+    /// <summary>
+    /// The colours <paramref name="image"/> of one of the encounters' authored runs shows (#2316): his eyes' or his
+    /// body's fade in, his arena's reveal, the self-destruct alarm or the getaway floor's zoom.
+    /// </summary>
+    public static PictureShade Fade(RidleyFadeImage image) => new(Ensure.NotNull(image.Fade).Key, image.Step);
 
     /// <summary>Ridley's own colours in health colouring <paramref name="shade"/> (#2242), which both encounters show.</summary>
     public static PictureShade Health(RidleyHealthShade shade) => new($"ridley-health-{Ensure.NotNull(shade).Key}", 0);
@@ -35,18 +35,10 @@ public static class RidleyShades
     /// <summary>The Baby's and its container's <paramref name="shade"/>.</summary>
     public static PictureShade Baby(CeresBabyShade shade) => new($"ridley-baby-{shade}", 0);
 
-    /// <summary>The warning's EMERGENCY title at self-destruct alarm step <paramref name="step"/>, zero through fifteen.</summary>
-    public static PictureShade Alarm(int step) => new("ridley-alarm", step);
-
-    /// <summary>The getaway floor at zoom step <paramref name="step"/>, zero through eight.</summary>
-    public static PictureShade FloorZoom(int step) => new("ridley-floor-zoom", step);
 
     /// <summary>The colours Norfair Ridley's initialization loads.</summary>
     public static PictureShade NorfairStart { get; } = new("ridley-norfair-start", 0);
 
     /// <summary>Norfair Ridley's body and tail cleared to black as he arrives.</summary>
     public static PictureShade NorfairHidden { get; } = new("ridley-norfair-hidden", 0);
-
-    /// <summary>His arena at reveal step <paramref name="step"/>.</summary>
-    public static PictureShade NorfairReveal(int step) => new("ridley-norfair-reveal", step);
 }

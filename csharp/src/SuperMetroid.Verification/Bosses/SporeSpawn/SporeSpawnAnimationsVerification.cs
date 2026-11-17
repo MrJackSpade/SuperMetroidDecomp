@@ -92,7 +92,7 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]), queueSound.Sound, $"{at}: library-two sound");
                 break;
             case SporeSpawnCue.ShowDeathShade showDeathShade:
-                AssertEqual(operands[0], checked((ushort)(showDeathShade.DeathShadeStep * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
+                AssertEqual(operands[0], checked((ushort)(showDeathShade.DeathShadeStep.Step * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
                 break;
             case SporeSpawnCue.Signal:
                 break;

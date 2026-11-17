@@ -27,8 +27,7 @@ internal static class SporeSpawnAnimations
     private const int DeathBurstWait = 8;
     /// <summary>Each death-colour fade step's dwell.</summary>
     private const int FadeStepDuration = 16;
-    /// <summary>The death colours' fade steps; the husk's colours are the last.</summary>
-    internal const int DeathShadeSteps = 7;
+
     /// <summary>The sway's maximum X radius as the fight starts.</summary>
     private const int FirstMaximumXRadius = 64;
 
@@ -48,7 +47,7 @@ internal static class SporeSpawnAnimations
     {
         [P.InitialDead] =
         [
-            Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: DeathShadeSteps - 1)),
+            Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: SporeSpawnDeathFadeStep.Husk)),
             SelectMovement(SporeSpawnMovement.Idle),
             Show(F.SporeSpawnHusk, 1),
         ],
@@ -116,7 +115,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.DeathFade] =
         [
-            .. Enumerable.Range(0, DeathShadeSteps).SelectMany(step => new[]
+            .. SporeSpawnDeathFadeStep.All.SelectMany(step => new[]
             {
                 Cue(new SporeSpawnCue.ShowDeathShade(DeathShadeStep: step)),
                 Cue(new SporeSpawnCue.Signal(K.SpawnHardeningDust)),

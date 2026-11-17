@@ -93,7 +93,7 @@ internal sealed class NorfairRidleyCombat
         if (reveal.Step > NorfairRidleyRevealDefinitions.RevealStepCount)
             throw new InvalidDataException($"Norfair Ridley reveal step {reveal.Step} is past the reveal's end.");
         if (reveal.ShowsStep)
-            state.Colours.ShowArenaReveal(reveal.Step);
+            state.Colours.ShowArenaReveal(RidleyFadeDefinitions.ArenaReveal.Images[reveal.Step]);
         state.ArenaReveal = reveal.Next();
         if (reveal.ShowsStep)
             return false;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="AmbientCrySoundQueued">Whether the Baby cries its remorse cry.</param>
 /// <param name="DeathExplosion">The explosion around the dying Baby, if one bursts.</param>
 /// <param name="BabyFadeImage">The image of the Baby's fade to black shown, if one is.</param>
-/// <param name="RecoveryLightsFrame">The room lights' recovery step shown, if one is.</param>
+/// <param name="RecoveryLightsImage">The image of the room lights' recovery shown, if one is (#2316).</param>
 /// <param name="StartedAnimation">The animation the Baby starts on this step, if it starts one (#2319).</param>
 [IndependentFlag("independent requests one cutscene step makes")]
 public readonly record struct BabyMetroidCutsceneStepResult(
@@ -19,7 +19,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool AmbientCrySoundQueued,
     DustExplosionRequest? DeathExplosion,
     MotherBrainFadeImage? BabyFadeImage,
-    int? RecoveryLightsFrame,
+    MotherBrainFadeImage? RecoveryLightsImage,
     MotherBrainBabySegment? StartedAnimation)
 {
     /// <summary>The one-update fatal-impact edge, before the ongoing shake phase.</summary>

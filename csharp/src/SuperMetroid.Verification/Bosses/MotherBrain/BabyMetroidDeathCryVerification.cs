@@ -56,7 +56,7 @@ internal static class BabyMetroidDeathCryVerification
         for (int frame = 0; frame < 7; frame++)
         {
             var recovery = baby.Step(samus, sequence, HeadOf(sequence), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-            AssertEqual(frame, (recovery.RecoveryLightsFrame ?? throw new InvalidOperationException("Verification requires recovery.RecoveryLightsFrame.")), "Recovery publishes each native light row");
+            AssertEqual<MotherBrainFadeImage?>(MotherBrainFadeDefinitions.RecoveryLights.Images[frame], recovery.RecoveryLightsImage, "Recovery publishes each native light row");
             apply(recovery);
             ushort[] cgram = Shown();
             for (int index = 0; index < 256; index++)

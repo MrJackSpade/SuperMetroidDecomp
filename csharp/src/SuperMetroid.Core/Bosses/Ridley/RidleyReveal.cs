@@ -102,8 +102,8 @@ internal sealed class RidleyReveal
         }
 
         // Each of the fade's first updates shows its next, lighter shade; its hold keeps the last, his own eye colours.
-        if (ridley.EyeFade.NextShade is { } shade)
-            ridley.Colours.ShowEyeFade(shade);
+        if (ridley.EyeFade.NextImage is { } image)
+            ridley.Colours.ShowEyeFade(image);
         ridley.EyeFade = ridley.EyeFade.Next();
     }
 
@@ -123,7 +123,7 @@ internal sealed class RidleyReveal
         // Each step of the body fade shows the next shade, from black to the full body colours.
         if (ridley.BodyFade.IsComplete)
             throw new InvalidOperationException($"Ridley body-fade shade {ridley.BodyFade.Shade} is outside the installed shades.");
-        ridley.Colours.ShowBodyFade(ridley.BodyFade.Shade);
+        ridley.Colours.ShowBodyFade(RidleyFadeDefinitions.BodyFade.Images[ridley.BodyFade.Shade]);
         ridley.BodyFade = ridley.BodyFade.Next();
         if (!ridley.BodyFade.IsComplete)
             return;

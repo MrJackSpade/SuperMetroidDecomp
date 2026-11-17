@@ -15,11 +15,11 @@ public static class SporeSpawnShades
     public static PictureShade Health(SporeSpawnHealthBand band) => new($"spore-spawn-health-{Ensure.NotNull(band).Key}", 0);
 
     /// <summary>His body at step <paramref name="step"/> of his death fade.</summary>
-    public static PictureShade DeathSprite(int step) => new("spore-spawn-death-sprite", step);
+    public static PictureShade DeathSprite(SporeSpawnDeathFadeStep step) => new("spore-spawn-death-sprite", step.Step);
 
     /// <summary>The room's level at step <paramref name="step"/> of his death fade.</summary>
-    public static PictureShade DeathLevel(int step) => new("spore-spawn-death-level", step);
+    public static PictureShade DeathLevel(SporeSpawnDeathFadeStep step) => new("spore-spawn-death-level", step.Step);
 
     /// <summary>The room's background at step <paramref name="step"/> of his death fade.</summary>
-    public static PictureShade DeathBackground(int step) => new("spore-spawn-death-background", step);
+    public static PictureShade DeathBackground(SporeSpawnDeathFadeStep step) => new("spore-spawn-death-background", step.Step);
 }

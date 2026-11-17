@@ -212,14 +212,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.BabyFadeImage is { } image)
             ShowBabyMetroidFade(colours, image);
 
-        if (step.RecoveryLightsFrame is int lightsFrame)
-            LoadMotherBrainRecoveryLights(colours, lightsFrame);
+        if (step.RecoveryLightsImage is { } lights)
+            colours.ShowLightsRecovering(lights);
     }
-
-    /// <summary>Shows room-light recovery frame <paramref name="frame"/> (0..6) from the installed room colours.</summary>
-    /// <exception cref="InvalidDataException">The frame is not one of the seven authored images.</exception>
-    internal static void LoadMotherBrainRecoveryLights(MotherBrainColours colours, int frame) =>
-        Ensure.NotNull(colours).ShowLightsRecovering(MotherBrainRecoveryLights.At(frame));
 
     /// <summary>Shows <paramref name="image"/> of the Baby's fade to black from its installed colours.</summary>
     /// <exception cref="ArgumentException">The image is not one of the Baby's fade's.</exception>

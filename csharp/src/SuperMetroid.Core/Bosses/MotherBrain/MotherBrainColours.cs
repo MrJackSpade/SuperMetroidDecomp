@@ -147,8 +147,10 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Shows her room's lights gone out as the Baby dies.</summary>
     internal void ShowLightsOut() => roomLights = MotherBrainShades.LightsOut;
 
-    /// <summary>Shows image <paramref name="lights"/> of her room's lights recovering.</summary>
-    internal void ShowLightsRecovering(MotherBrainRecoveryLights lights) => roomLights = MotherBrainShades.RecoveryLights(lights);
+    /// <summary>Shows image <paramref name="image"/> of her room's lights recovering.</summary>
+    /// <exception cref="ArgumentException">The image is not one of the lights' recovery's.</exception>
+    internal void ShowLightsRecovering(MotherBrainFadeImage image) =>
+        roomLights = MotherBrainShades.Fade(image.Of(MotherBrainFadeDefinitions.RecoveryLights));
 
     /// <summary>Shows the Baby in the colours it arrives in.</summary>
     internal void ShowBabyArrived() => babyArrived = true;

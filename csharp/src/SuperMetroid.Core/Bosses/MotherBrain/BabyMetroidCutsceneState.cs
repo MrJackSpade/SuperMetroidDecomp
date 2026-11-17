@@ -115,8 +115,8 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public int AttacksAgainReadyingElapsed { get; private set; }
 
-    /// <summary>The step the phase-three room lights' restoration has reached, 0 through 8.</summary>
-    public int RoomLightsTransitionCounter { get; private set; }
+    /// <summary>How far the room lights' recovery has come (#2316): each update of the final cutscene shows its next image.</summary>
+    public MotherBrainFadeProgress RecoveryLights { get; } = new();
 
     /// <summary>
     /// The part of a rainbow colour frame accumulated toward slowing Samus's rainbow: each update adds to it, and every
@@ -159,7 +159,7 @@ public sealed class BabyMetroidCutsceneState
         DeathExplosionTimer.Count = 0;
         DeathExplosionPatternIndex = 0;
         AttacksAgainReadyingElapsed = 0;
-        RoomLightsTransitionCounter = 0;
+        RecoveryLights.Restart();
         SamusRainbowFraction = RainbowFramePart.None;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
         Position = BabyMetroidArrivalFractions.StartingPosition(BabyMetroidCutsceneFlightDefinitions.ArrivalPoint, leftInPlace);
@@ -203,7 +203,7 @@ public sealed class BabyMetroidCutsceneState
         bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
-        int? recoveryLightsFrame = null;
+        MotherBrainFadeImage? recoveryLightsImage = null;
         MotherBrainBabySegment? startedAnimation = null;
 
         // Enemy collision handling runs touch AI before main AI, against the Baby's
@@ -623,20 +623,18 @@ public sealed class BabyMetroidCutsceneState
                 if (PhaseTimer.StepRunsOut())
                 {
                     Phase = BabyMetroidCutscenePhase.FinalCutscene;
-                    RoomLightsTransitionCounter = 0;
+                    RecoveryLights.Restart();
                     goto case BabyMetroidCutscenePhase.FinalCutscene;
                 }
                 break;
 
             case BabyMetroidCutscenePhase.FinalCutscene:
             {
-                // Each update shows the next of the room lights' seven recovery steps; the call after the last ends
-                // the cutscene.
-                int lightsStep = RoomLightsTransitionCounter;
-                RoomLightsTransitionCounter++;
-                if (lightsStep < 7)
+                // Each update shows the next image of the room lights' recovery; the update after the last ends the
+                // cutscene.
+                if (MotherBrainFadeDefinitions.RecoveryLights.ImageAt(RecoveryLights.TakeStep()) is { } lights)
                 {
-                    recoveryLightsFrame = lightsStep;
+                    recoveryLightsImage = lights;
                     break;
                 }
 
@@ -678,7 +676,7 @@ public sealed class BabyMetroidCutsceneState
             ambientCrySoundQueued,
             deathExplosion,
             babyFadeImage,
-            recoveryLightsFrame,
+            recoveryLightsImage,
             startedAnimation);
     }
 

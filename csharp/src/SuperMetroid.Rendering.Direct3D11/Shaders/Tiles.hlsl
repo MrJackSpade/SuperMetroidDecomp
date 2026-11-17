@@ -97,6 +97,18 @@ static const uint FloorBlendsNot = 0, FloorSubtractsSprites = 1, FloorAddsOwnCol
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> SpriteLayer : register(u1);
 
+// Where `v` lands within a span that repeats every `period` pixels, for any `v`; only unsigned remainders are taken, as
+// HLSL leaves a negative remainder undefined.
+uint RepeatedPlace(int v, uint period)
+{
+    return v >= 0 ? (uint)v % period : period - 1u - ((uint)(-(v + 1)) % period);
+}
+// The sixteen bits of a signed scrolled position, against which the pictures that do not repeat are placed: each such
+// picture's corner is a sixteen-bit half that wraps as the position does.
+uint2 SixteenBits(int2 position)
+{
+    return uint2(position) & 65535;
+}
 // What a room plane shows at a scrolled position; false outside the room: part `part` of its block's picture (#1392,
 // #1634), mirrored by the block's flips, with `within` the picture pixel. Each packed block is its definition with its
 // horizontal and vertical mirroring in bits sixteen and seventeen (#1403, #1538).
@@ -131,11 +143,12 @@ void BackgroundImagePicture(uint image, uint2 pixel, uint part, out uint2 within
     within = own ? (pixel & 15) : pixel;
 }
 // What the scrolling sky (SkyPictures, #1403, #1514) shows: part `part` of its image or of a rebound cell's picture as
-// `picture`, with `within` its pixel, repeating every 2048 pixels down and 256 across; every band of it shows one of its
-// pages (#1611). Its image's record is a library background's.
-void SkyPicture(uint2 scrolled, uint part, out uint2 within, out uint picture)
+// `picture`, with `within` its pixel, at a signed scrolled position (#2305), repeating every 2048 pixels down and 256
+// across; every band of it shows one of its pages (#1611). Its image's record is a library background's.
+static const uint SkyWidth = 256, SkyHeight = 2048;
+void SkyPicture(int2 scrolled, uint part, out uint2 within, out uint picture)
 {
-    uint2 position = uint2(scrolled.x & 255, scrolled.y & 2047);
+    uint2 position = uint2(RepeatedPlace(scrolled.x, SkyWidth), RepeatedPlace(scrolled.y, SkyHeight));
     // The sky's one rectangle is its whole image at the area's corner, so the image pixel is the position.
     BackgroundImagePicture(RoomLevels[RoomSkyImageWord], position, part, within, picture);
 }
@@ -297,15 +310,16 @@ bool RevealPicture(uint2 scrolled, uint part, out uint picture, out uint2 within
     // A block copied from beyond the room has no picture and shows nothing.
     return picture != 0;
 }
-// Part `part` of the picture a room's library background shows at a position of the background, and its pixel (#1392,
-// #1555, #1634): the image's area (#1514), x below y, repeats beyond its edges, and the rectangle lying at the position
-// shows the image pixel that far from its corner's; a rebound cell's picture, or the image. False where no rectangle lies.
-bool LibraryBackgroundPicture(uint2 scrolled, uint part, out uint picture, out uint2 within)
+// Part `part` of the picture a room's library background shows at a signed position of the background, and its pixel
+// (#1392, #1555, #1634, #2305): the image's area (#1514), x below y, repeats by its own size beyond its edges on every
+// side, and the rectangle lying at the position shows the image pixel that far from its corner's; a rebound cell's
+// picture, or the image. False where no rectangle lies.
+bool LibraryBackgroundPicture(int2 scrolled, uint part, out uint picture, out uint2 within)
 {
     uint image = RoomLevels[RoomLibraryBackgroundWord];
     uint area = RoomLevels[image + ImageAreaWord];
     uint2 extent = uint2(area & 65535, area >> 16);
-    uint2 position = (scrolled & 65535) % extent;
+    uint2 position = uint2(RepeatedPlace(scrolled.x, extent.x), RepeatedPlace(scrolled.y, extent.y));
     uint pieces = RoomLevels[image + ImagePieceCountWord];
     picture = 0;
     within = uint2(0, 0);
@@ -322,13 +336,14 @@ bool LibraryBackgroundPicture(uint2 scrolled, uint part, out uint picture, out u
 }
 // Part `part` of the background from the room's background plane or the sky's rows, or of the foreground as
 // RoomBackgrounds resolves it: a door's source screen, then words written over the foreground, then the level plane. A
-// written picture covers the plane where it lies, in both parts (#1634).
-bool RoomTile(uint source, uint2 scrolled, uint part, out uint entry, out uint2 within, out uint picture)
+// written picture covers the plane where it lies, in both parts (#1634). The sky repeats from the signed position; the
+// planes and written pictures, which do not repeat, lie against its sixteen bits.
+bool RoomTile(uint source, int2 position, uint part, out uint entry, out uint2 within, out uint picture)
 {
     entry = 0;
     picture = 0;
     within = uint2(0, 0);
-    scrolled &= 65535;
+    uint2 scrolled = SixteenBits(position);
     uint slot = source == SourceBackground ? 1 : 0;
     bool overlaid = false;
     if (source != SourceBackground && source != SourceSky)
@@ -344,7 +359,7 @@ bool RoomTile(uint source, uint2 scrolled, uint part, out uint entry, out uint2 
     bool shown = overlaid;
     if (source == SourceSky)
     {
-        SkyPicture(scrolled, part, within, picture);
+        SkyPicture(position, part, within, picture);
         shown = true;
     }
     else if (!overlaid)
@@ -353,12 +368,6 @@ bool RoomTile(uint source, uint2 scrolled, uint part, out uint entry, out uint2 
 }
 uint Pack(uint3 c, uint alpha) { return c.r | (c.g << 8) | (c.b << 16) | (alpha << 24); }
 
-// Where `v` lands within a span that repeats every `period` pixels, for any `v`; only unsigned remainders are taken, as
-// HLSL leaves a negative remainder undefined.
-uint RepeatedPlace(int v, uint period)
-{
-    return v >= 0 ? (uint)v % period : period - 1u - ((uint)(-(v + 1)) % period);
-}
 uint3 Unpack(uint c) { return uint3(c & 255, (c >> 8) & 255, (c >> 16) & 255); }
 // The colour shown where nothing is drawn.
 uint Backdrop() { return Colours[0]; }
@@ -459,7 +468,8 @@ uint LineScrollData(uint slot, uint index)
 {
     return LineScrolls[LineScrollSlots + slot * LineScrollDataRows + index / 4][index & 3];
 }
-// The scroll slot `slot` gives screen line `screenY`, a sixteen-bit scroll.
+// The scroll slot `slot` gives screen line `screenY`, a signed scroll (#2305): the base scroll, each band's scroll and a
+// stretch's move above its band are signed halves.
 // Bands (ScrollBands): the line takes the scroll of the last band beginning on or above it, or the base above the
 // first; each band's data word holds its scroll, then its first line in the high half, and w counts them.
 // A wave (ScrollWave): each line of its band moves by its amplitude (1/256ths of a pixel) times the sine at the line's
@@ -470,10 +480,11 @@ uint LineScrollData(uint slot, uint index)
 // A sampled wave (SampledScrollWave): each line of its band moves by its sample times its amplitude (1/256ths of a
 // pixel), rounded down; line y reads sample (phase + y) mod period, the phase in w's low half and the period in its
 // high half, the samples signed bytes four to a data word from the low byte up.
-uint LineScroll(uint slot, uint screenY)
+int LineScroll(uint slot, uint screenY)
 {
     uint4 shape = LineScrolls[slot];
-    uint kind = shape.x & 255, scroll = shape.x >> 16;
+    uint kind = shape.x & 255;
+    int scroll = SignedHalves(shape.x).y;
     uint bandFirst = shape.y & 65535, bandEnd = shape.y >> 16;
     bool inBand = screenY >= bandFirst && screenY < bandEnd;
     int moved = 0;
@@ -483,7 +494,7 @@ uint LineScroll(uint slot, uint screenY)
         {
             uint word = LineScrollData(slot, band);
             if ((word >> 16) > screenY) break;
-            scroll = word & 65535;
+            scroll = SignedHalves(word).x;
         }
     }
     else if (kind == ScrollWaveKind)
@@ -500,7 +511,7 @@ uint LineScroll(uint slot, uint screenY)
     }
     else if (kind == ScrollStretchKind)
     {
-        if (screenY < bandFirst) moved = (int)shape.w;
+        if (screenY < bandFirst) moved = SignedHalves(shape.w).x;
         else if (inBand) moved = -(int)(((screenY - bandFirst) * shape.z) >> 16);
     }
     else if (kind == ScrollSampledKind)
@@ -512,12 +523,12 @@ uint LineScroll(uint slot, uint screenY)
             moved = (sample * (int)shape.z) >> 8;
         }
     }
-    return (uint)((int)scroll + moved) & 65535;
+    return scroll + moved;
 }
-// A plane's scroll on screen line `screenY` from its two slots, horizontal then vertical.
-uint2 LineScrollPair(uint horizontal, uint vertical, uint screenY)
+// A plane's signed scroll on screen line `screenY` from its two slots, horizontal then vertical.
+int2 LineScrollPair(uint horizontal, uint vertical, uint screenY)
 {
-    return uint2(LineScroll(horizontal, screenY), LineScroll(vertical, screenY));
+    return int2(LineScroll(horizontal, screenY), LineScroll(vertical, screenY));
 }
 
 #include "SpriteLayer.hlsli"
@@ -550,14 +561,16 @@ bool GlowCovers(uint2 screen)
 
 // Part `part` of the picture a layer pass's source (RoomSource) shows at a pixel, as `picture`, with `within` its pixel
 // there (#1634): false where the source shows no picture of that part. `sampleScreen` is the screen pixel the pass samples
-// (the mosaic's), `scroll` its scroll and `screen` the pixel drawn. A word written over the background shows its picture
-// over whatever the background shows there (#1403).
-bool SourcePicture(uint part, uint2 sampleScreen, uint2 scroll, uint2 screen, out uint2 within, out uint picture)
+// (the mosaic's), `scroll` its signed scroll (#2305) and `screen` the pixel drawn. A word written over the background
+// shows its picture over whatever the background shows there (#1403). A repeating background picture is shown from the
+// signed scrolled position; every other source lies against its sixteen bits.
+bool SourcePicture(uint part, uint2 sampleScreen, int2 scroll, uint2 screen, out uint2 within, out uint picture)
 {
     uint entry = 0;
     picture = 0;
     within = uint2(0, 0);
-    uint2 scrolled = (sampleScreen + scroll) & 65535;
+    int2 position = int2(sampleScreen) + scroll;
+    uint2 scrolled = SixteenBits(position);
     uint source = RoomSource & 255;
     bool shown = false;
     if ((RoomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, part, picture, within))
@@ -572,17 +585,17 @@ bool SourcePicture(uint part, uint2 sampleScreen, uint2 scroll, uint2 screen, ou
     else if (source == SourceXrayReveal)
         shown = RevealPicture(scrolled, part, picture, within);
     else if (source == SourceLibraryBackground)
-        shown = LibraryBackgroundPicture(scrolled, part, picture, within);
+        shown = LibraryBackgroundPicture(position, part, picture, within);
     // The HUD's, a pictured plane's and a picture grid's pictures are whole, drawn in one pass (#1634): they have no
     // in-front part, and show their one picture as the part behind.
     else if (source == SourceHud)
         shown = part == PartBehind && HudPicture(screen, within, picture);
     else if (source == SourcePicturedPlane)
-        shown = part == PartBehind && PlanePicture(TableWord, PlanePosition(sampleScreen, scroll), within, picture);
+        shown = part == PartBehind && PlanePicture(TableWord, PlanePosition(sampleScreen, uint2(scroll)), within, picture);
     else if (source == SourcePictureGrid)
-        shown = part == PartBehind && GridPicture(TableWord, PlanePosition(sampleScreen, scroll), within, picture);
+        shown = part == PartBehind && GridPicture(TableWord, PlanePosition(sampleScreen, uint2(scroll)), within, picture);
     else
-        shown = RoomTile(source, scrolled, part, entry, within, picture);
+        shown = RoomTile(source, position, part, entry, within, picture);
     // Every background draws from pictures (#1403); a position without one shows nothing.
     return shown && picture != 0;
 }
@@ -591,7 +604,7 @@ bool SourcePicture(uint part, uint2 sampleScreen, uint2 scroll, uint2 screen, ou
 // parts it draws (DrawnDepth, #1634); false where none of them has a picture there. A pass drawing both parts shows the
 // in-front part's opaque pixel over the behind part's pixel; where neither part is opaque the two show alike, as a part
 // keeps the picture's clear pixels (RoomTileCanvas.SplitSheet), and the behind part's shows.
-bool LayerPixel(uint2 sampleScreen, uint2 scroll, uint2 screen, out uint colour, out uint index)
+bool LayerPixel(uint2 sampleScreen, int2 scroll, uint2 screen, out uint colour, out uint index)
 {
     colour = 0;
     index = 0;
@@ -748,7 +761,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     }
     bool backgroundMath = Operation == OpAddLayer || Operation == OpSubtractLayer;
     // Background math and passes that mark Reserved3 take each line's scroll from their described line scrolls (#1468).
-    uint2 scroll = (backgroundMath || Reserved3 != 0) ? LineScrollPair(SlotHorizontal, SlotVertical, id.y) : uint2(HorizontalScroll, VerticalScroll);
+    // Any other pass's scroll is its two header words, sixteen bits each, which its source reads as it places its pictures.
+    int2 scroll = (backgroundMath || Reserved3 != 0) ? LineScrollPair(SlotHorizontal, SlotVertical, id.y) : int2(uint2(HorizontalScroll, VerticalScroll));
     // The mosaic groups screen pixels before the line's own scroll.
     uint2 sampleScreen = id.xy;
     if (Operation == OpLayer && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;

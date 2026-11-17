@@ -42,7 +42,7 @@ internal static class OrdinarySmokeTests
             var flags = (mask & 1) != 0 ? ScreenLayers.Foreground : 0;
             if ((mask & 2) != 0) flags |= ScreenLayers.Background;
             if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511), flags);
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511), flags);
             var layer = new GameplaySceneLayer(registers,
                 hdma % 2 == 0 || geometry is { First: 64, Second: 64 } && hdma == 3 ? rooms : hdma == 1 ? sky : loaded, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
@@ -69,7 +69,7 @@ internal static class OrdinarySmokeTests
             var flags = (mask & 1) != 0 ? ScreenLayers.Foreground : 0;
             if ((mask & 2) != 0) flags |= ScreenLayers.Background;
             if ((mask & 4) != 0) flags |= ScreenLayers.Sprites;
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511), flags);
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511), flags);
             var layer = new GameplaySceneLayer(registers, pictured, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
@@ -81,7 +81,7 @@ internal static class OrdinarySmokeTests
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64), new OrdinarySmokeRunCase(32, 32) })
         for (int hdma = 0; hdma < 4; hdma += 3)
         {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, background, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
@@ -98,7 +98,7 @@ internal static class OrdinarySmokeTests
         };
         for (int hdma = 0; hdma < 4; hdma++)
         {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, boss, new BackgroundLineScrolls { Horizontal = (hdma & 1) != 0 ? x : null, Vertical = (hdma & 2) != 0 ? y : null });
             count++;
@@ -110,7 +110,7 @@ internal static class OrdinarySmokeTests
         var typed = pictured with { BackgroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         foreach (var geometry in new[] { new OrdinarySmokeRunCase(64, 32), new OrdinarySmokeRunCase(32, 64) })
         {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, typed, default);
             count++;
@@ -122,7 +122,7 @@ internal static class OrdinarySmokeTests
         // characters.
         var warned = pictured with { ForegroundText = RoomBackgroundsFixtures.SeededPicturedOverlay(random, colors) };
         {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             var layer = new GameplaySceneLayer(registers, warned, default);
             count++;
@@ -147,7 +147,7 @@ internal static class OrdinarySmokeTests
             ("hiding every pixel", first with { Hidden = every }, first with { Picture = WithPixelsCleared(first.Picture, every) }),
         })
         {
-            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Position16<BackgroundPixels>(65535, 511),
+            var registers = new GameplaySceneView(new Position16<RoomPixels>(511, 255), new Offset16<BackgroundPixels>(-1, 511),
                 ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites);
             DisplayPacket Frame(ShownBossBodyPart part) => new(0, new LayeredScene(memory, new DisplayLayer[]
             {

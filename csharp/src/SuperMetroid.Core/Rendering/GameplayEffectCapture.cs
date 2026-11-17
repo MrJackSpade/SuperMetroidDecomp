@@ -35,7 +35,7 @@ public static class GameplayEffectCapture
     /// </summary>
     public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
         RoomFxOverlayRenderSnapshot fx,
-        Position16<BackgroundPixels> backgroundScroll)
+        Offset16<BackgroundPixels> backgroundScroll)
     {
         if (fx.Type != RoomFxType.Water || fx.Liquid is not RoomWater { BackgroundWave: true } ||
             fx.WaterSurfaceScreenY is not int surfaceLine)
@@ -52,7 +52,7 @@ public static class GameplayEffectCapture
     /// </summary>
     public static SampledScrollWave? BuildLavaAcidBackgroundHorizontalScrolls(
         RoomFxOverlayRenderSnapshot fx,
-        Position16<BackgroundPixels> backgroundScroll)
+        Offset16<BackgroundPixels> backgroundScroll)
     {
         if (fx.Liquid is not RoomLavaOrAcid { Haze: HeatHazeDirection.Horizontal })
             return null;

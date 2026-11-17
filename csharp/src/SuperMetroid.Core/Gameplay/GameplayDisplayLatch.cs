@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Phantoon">Phantoon's body wave, visibility and pixelation as the frame shows them, when Phantoon exists.</param>
 /// <param name="TourianStatueVerticalOffset">
 /// How far the Tourian statues move the background vertically, in pixels, up or down: the background shows the foreground
-/// camera's top row plus this offset, wrapping as room positions do.
+/// camera's top row plus this offset, a signed row above the background's origin where the sum is negative (#2305).
 /// </param>
 /// <param name="Scene">The room effect's blending, the scrolling sky, and the room and boss the X-ray's blending reads.</param>
 /// <param name="Bosses">The body a boss shows as the background, where it is placed and whether it shows (#2031).</param>

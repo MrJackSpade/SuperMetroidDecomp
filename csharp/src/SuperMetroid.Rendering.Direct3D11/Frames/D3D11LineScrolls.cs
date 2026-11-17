@@ -108,8 +108,10 @@ internal static class D3D11LineScrolls
         : throw new NotSupportedException($"A line-scroll scale of {scale} is larger than the shader evaluates.");
 
     /// <summary>
-    /// A slot's kind word: the kind in the low byte, the base scroll in the high half. The shader reads scrolls as sixteen
-    /// bits, which every plane's length divides, so a scroll wrapped to sixteen bits shows the same lines.
+    /// A slot's kind word: the kind in the low byte, the base scroll in the high half. The shader reads each scroll as a
+    /// signed sixteen-bit half (#2305), so a scroll given wrapped to sixteen bits reads back as its signed value: a background
+    /// picture repeats by its own size from a scroll left of or above its origin, and a picture that does not repeat is
+    /// placed against the scroll's sixteen bits.
     /// </summary>
     private static uint Kind(D3D11LineScrollKind kind, int baseScroll) => (uint)kind | (uint)unchecked((ushort)baseScroll) << HighHalf;
 

@@ -64,9 +64,9 @@ internal static class PhantoonPositionVerification
         {
             PhantoonEnemyState phantoon = loaded;
             Position16<RoomPixels> placementBefore = phantoon.Body.Position.Whole;
-            Position16<BackgroundPixels> shown = BossBodyPlacement.Shown(placementBefore, runtime.Room.LoadedCamera.PixelPosition);
-            ushort displayedX = shown.X;
-            ushort displayedY = shown.Y;
+            Offset16<BackgroundPixels> shown = BossBodyPlacement.Shown(placementBefore, runtime.Room.LoadedCamera.PixelPosition);
+            int displayedX = shown.X;
+            int displayedY = shown.Y;
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
@@ -74,9 +74,9 @@ internal static class PhantoonPositionVerification
                 $"the accepted frame publishes his body placed where Phantoon lay, frame {frame}");
             if (frame == 0) continue;
             var layer = (GameplaySceneLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
-            AssertEqual(displayedX, layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");
+            AssertEqual(displayedX, (int)layer.View.BackgroundScroll.X, "Phantoon captured horizontal register follows accepted NMI");
             // The view shows the background row below his placement at the screen's top (#1514).
-            AssertEqual(GameplaySceneView.LayerRowAtScreenTop(displayedY), layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
+            AssertEqual(displayedY + ScreenGeometry.LayerRowsHiddenAboveScreen, (int)layer.View.BackgroundScroll.Y, "Phantoon captured vertical register follows accepted NMI");
             // His body is placed at the body, each installed frame lying against it (#2031). Assert the rendered placement
             // against the physical body, not merely two copied fields.
             AssertEqual(displayedBodyX, unchecked((ushort)-layer.View.BackgroundScroll.X),

@@ -60,34 +60,36 @@ uint2 XrayOverlay(uint2 position)
 }
 // The colour part `part` (#1634) of a room layer (RoomTile), boss body, reveal or library background draws at a position;
 // a position the room does not cover is transparent. Pictures written over the background cover it when roomSource carries
-// SourceWrittenOverBackground.
-uint XrayBackgroundPart(uint roomSource, uint2 position, uint part)
+// SourceWrittenOverBackground. A repeating background picture is shown from the signed position (#2305); every other
+// source lies against its sixteen bits.
+uint XrayBackgroundPart(uint roomSource, int2 position, uint part)
 {
     uint entry = 0;
     uint picture = 0;
     uint2 within = uint2(0, 0);
     bool shown = true;
     uint source = roomSource & 255;
-    bool overlaid = (roomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(position & 65535, part, picture, within);
+    uint2 scrolled = SixteenBits(position);
+    bool overlaid = (roomSource & SourceWrittenOverBackground) != 0 && WrittenOverBackgroundPicture(scrolled, part, picture, within);
     if (!overlaid)
     {
         if (source == SourceBossBody)
         {
-            BossBodyPicture(position, part, within, picture);
+            BossBodyPicture(scrolled, part, within, picture);
             shown = picture != 0;
         }
         else if (source == SourceXrayReveal)
-            shown = RevealPicture(position & 65535, part, picture, within);
+            shown = RevealPicture(scrolled, part, picture, within);
         else if (source == SourceLibraryBackground)
-            shown = LibraryBackgroundPicture(position & 65535, part, picture, within);
+            shown = LibraryBackgroundPicture(position, part, picture, within);
         else
             shown = RoomTile(source, position, part, entry, within, picture);
     }
     return XraySample(shown, picture, within);
 }
-// The colour a room layer, boss body, reveal or library background draws at a position, with whether it comes from the
-// pictures drawn in front (#1634): the in-front part's opaque pixel, otherwise the behind part's.
-uint2 XrayBackground(uint roomSource, uint2 position)
+// The colour a room layer, boss body, reveal or library background draws at a signed position, with whether it comes from
+// the pictures drawn in front (#1634): the in-front part's opaque pixel, otherwise the behind part's.
+uint2 XrayBackground(uint roomSource, int2 position)
 {
     uint inFront = XrayBackgroundPart(roomSource, position, PartInFront);
     if ((inFront >> 24) != 0) return uint2(inFront, 1);
@@ -120,7 +122,7 @@ uint XrayGameplay(uint2 screen)
     uint2 backgroundScreen = screen;
     if (Reserved27 > 1) backgroundScreen -= backgroundScreen % Reserved27;
     // The background's line scroll, from its described line scrolls (#1468).
-    uint2 backgroundScroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
+    int2 backgroundScroll = LineScrollPair(SlotHorizontal, SlotVertical, screen.y);
     // Inside the window the room shows unblended.
     bool inside = InWindow(screen);
     uint source = BlendsBackdrop;
@@ -128,13 +130,13 @@ uint XrayGameplay(uint2 screen)
     // The reveal's blocks, on the background, show only inside the window; the foreground shows only outside it.
     if ((TransparentZero == 0 || inside) && (shownLayers & ShowsBackground) != 0)
     {
-        uint2 background = XrayBackground(RoomSource, backgroundScreen + backgroundScroll);
+        uint2 background = XrayBackground(RoomSource, int2(backgroundScreen) + backgroundScroll);
         XrayInsert(background, background.y != 0 ? RankBackgroundFrontParts : RankBackgroundBackParts, BlendsBackground,
             winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (shownLayers & ShowsForeground) != 0)
     {
-        uint2 foreground = XrayBackground(SourceForeground, screen + uint2(HorizontalScroll, VerticalScroll));
+        uint2 foreground = XrayBackground(SourceForeground, int2(screen + uint2(HorizontalScroll, VerticalScroll)));
         XrayInsert(foreground, foreground.y != 0 ? RankForegroundFrontParts : RankForegroundBackParts, BlendsForeground,
             winner, rank, source);
     }
@@ -150,10 +152,10 @@ uint XrayGameplay(uint2 screen)
         // overlay's in-front pictures over the background and its behind pictures under it (#1634).
         uint behind = 0;
         if (OffsetX != 0 && (Reserved3 == BehindBackground || Reserved3 == BehindBackgroundAndOverlay))
-            behind = XrayBackground(RoomSource, backgroundScreen + backgroundScroll).x;
+            behind = XrayBackground(RoomSource, int2(backgroundScreen) + backgroundScroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindOverlay || Reserved3 == BehindBackgroundAndOverlay) && screen.y >= (uint)CenterY)
         {
-            uint2 overlay = XrayOverlay(screen + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y));
+            uint2 overlay = XrayOverlay(uint2(int2(screen) + LineScrollPair(SlotBlendHorizontal, SlotBlendVertical, screen.y)));
             if ((overlay.x >> 24) != 0 && (overlay.y != 0 || (behind >> 24) == 0)) behind = overlay.x;
         }
         // Where nothing lies behind, the blend combines with its colour, unhalved where layers lie behind.

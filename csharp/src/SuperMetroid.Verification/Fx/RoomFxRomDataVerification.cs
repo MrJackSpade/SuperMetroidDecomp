@@ -278,7 +278,7 @@ internal static class RoomFxRomDataVerification
             ushort[] backgroundScroll = ScrollShapeLines.GameplayScrolls(type == RoomFxType.Water
                 ? GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(
                     snapshot,
-                    backgroundScroll: new Position16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
+                    backgroundScroll: new Offset16<BackgroundPixels>(0x0200, 0)) ?? throw new InvalidDataException(
                         "Wavy water did not publish a BG2 HDMA scroll table.")
                 : GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(
                     snapshot,

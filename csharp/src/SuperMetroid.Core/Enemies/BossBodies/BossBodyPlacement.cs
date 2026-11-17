@@ -9,8 +9,9 @@ public static class BossBodyPlacement
 {
     /// <summary>
     /// The pixel of a body, reckoned from its <paramref name="placement"/>, that <paramref name="camera"/> shows at the
-    /// screen's top-left.
+    /// screen's top-left, as the background's signed scroll (#2305): the camera's signed distance from the placement, negative
+    /// while the body lies right of or below the camera's corner.
     /// </summary>
-    public static Position16<BackgroundPixels> Shown(Position16<RoomPixels> placement, Position16<RoomPixels> camera) =>
-        new(CoordinateAxis.Wrap(camera.X - placement.X), CoordinateAxis.Wrap(camera.Y - placement.Y));
+    public static Offset16<BackgroundPixels> Shown(Position16<RoomPixels> placement, Position16<RoomPixels> camera) =>
+        new(CoordinateAxis.Difference(camera.X, placement.X), CoordinateAxis.Difference(camera.Y, placement.Y));
 }

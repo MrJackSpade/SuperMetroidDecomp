@@ -35,11 +35,13 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewOumNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+        RoomEnemyPlace nativePlace = compiled.Places.InUpdateOrder[1];
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
         var boundDefinition = default(RoomEnemyDefinition);
         nativePlace.Bind(nativePlace.DefinitionId, boundDefinition);
         compiledPlace.Bind(compiledPlace.DefinitionId, boundDefinition);
+        // The native place is an Oum too: its frame's word is read in its header's bank (#2327).
+        nativePlace.Bind(EnemyDefinitionId.Oum, nativePlace.Definition);
         compiledPlace.Bind(EnemyDefinitionId.Oum, compiledPlace.Definition);
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");

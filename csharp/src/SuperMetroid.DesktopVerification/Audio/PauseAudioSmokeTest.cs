@@ -168,7 +168,7 @@ public static class PauseAudioSmokeTest
         var saves = new SaveSlotStore(SaveMapPresentationFixture.Create());
         saves.SaveSlot(
             SaveSlot.A,
-            SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship }));
+            SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship)));
         return saves;
     }
 }

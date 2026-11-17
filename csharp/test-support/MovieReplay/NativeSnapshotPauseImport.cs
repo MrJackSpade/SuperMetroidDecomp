@@ -6,6 +6,7 @@ using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
 using SuperMetroid.Core.Progression;
@@ -40,9 +41,14 @@ internal static class NativeSnapshotPauseImport
         game.Session.Show(menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 
-        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInputTimer), WrappingCountdown.Start(W(PauseMemory.TimedHeldTimer)));
-        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInputTimerReset), (int)W(PauseMemory.TimedHeldReset));
-        PrivateState.Set(runtime.System, nameof(SharedGameState.TimedHeldInput),
-            ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input"));
+        // The native countdown starts at the reset on a change and is pinned to zero once the repeat fires; the port counts
+        // the unchanged updates instead, one past the delay once repeating.
+        int delay = W(PauseMemory.TimedHeldReset);
+        VerificationAssertions.AssertEqual(PauseCadenceDefinitions.HeldInputRepeatDelay, delay, "native pause held-input reset");
+        ControllerButton repeating = ControllerWordCodec.FromJoypadWord(W(PauseMemory.TimedHeldInput), "native timed held input");
+        int countdown = Ensure.BetweenInclusive(0, delay, W(PauseMemory.TimedHeldTimer));
+        PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.UnchangedUpdates),
+            repeating == ControllerButton.None ? delay - countdown : delay + 1);
+        PrivateState.Set(runtime.PauseHeldButtonRepeat, nameof(HeldButtonRepeat.Repeating), repeating);
     }
 }

@@ -859,9 +859,9 @@ public static class SamusBlockCollision
         }
         else
         {
-            // The first scanned row is remainingRows==totalRows; intermediate rows always
-            // test the selected quadrant. The top-body bit supplies the exception on
-            // that first row before the opposite vertical quadrant is consulted.
+            // Every row after the first tests the selected quadrant. On the first row, Samus's
+            // top lying in a block's lower half is the exception, before the opposite vertical
+            // quadrant is tested.
             if (remainingRows != totalRows || !RoomGridConversions.InSecondHalfOfBlock(state.Position.Y.Whole - state.Radius.Y))
             {
                 if (selectedSolid)

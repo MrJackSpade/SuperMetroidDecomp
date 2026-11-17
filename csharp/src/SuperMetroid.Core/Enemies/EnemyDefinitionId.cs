@@ -279,12 +279,8 @@ public enum EnemyDefinitionId
     BabyMetroid,
     /// <summary>Bomb Torizo, the Chozo statue that wakes in Crateria.</summary>
     BombTorizo,
-    /// <summary>A Chozo orb Bomb Torizo throws.</summary>
-    BombTorizoOrb,
     /// <summary>Golden Torizo, the Chozo statue that wakes in Lower Norfair.</summary>
     GoldenTorizo,
-    /// <summary>A Chozo orb Golden Torizo throws.</summary>
-    GoldenTorizoOrb,
     /// <summary>The boss statues before Tourian's entrance.</summary>
     TourianStatue,
     /// <summary>Shaktool, the chain of segments that digs through Maridia's sand.</summary>

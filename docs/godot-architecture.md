@@ -97,7 +97,7 @@ For Samus, the current runtime prepares terrain interaction, performs alpha work
 runs enemies, then proceeds into beta. Moving platforms can contribute displacement
 between preparation and movement. An entity can encapsulate its part of each
 operation while the dispatcher preserves that interleaving. See
-[`PrepareEnemyFrame` and `RunEnemyMainPhase`](../csharp/src/SuperMetroid.Core/Enemies/EnemyFramePhase.cs).
+[`PrepareEnemyFrame` and `RunEnemyUpdatePhase`](../csharp/src/SuperMetroid.Core/Enemies/EnemyFramePhase.cs).
 
 When ordering is nested, prefer nested dispatchers or explicit nested schedules.
 The following is only a partial ordinary-gameplay example; conditional branches

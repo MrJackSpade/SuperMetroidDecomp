@@ -234,8 +234,8 @@ internal static class TorizoProjectileAnimationsVerification
                 AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), setRadius.Radius, $"{at}: radius");
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.SpawnOrbDrops }:
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizoOrb), Word(0), $"{at}: Bomb Torizo orb header");
-                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.GoldenTorizoOrb), Word(2), $"{at}: Golden Torizo orb header");
+                AssertEqual(TorizoDeathDropsVerification.BombTorizoOrbHeader, (int)Word(0), $"{at}: Bomb Torizo orb header");
+                AssertEqual(TorizoDeathDropsVerification.GoldenTorizoOrbHeader, (int)Word(2), $"{at}: Golden Torizo orb header");
                 return;
             case TorizoProjectileCue.Scatter scatter:
                 // Each range field reads exactly the bits of its native mask operand.

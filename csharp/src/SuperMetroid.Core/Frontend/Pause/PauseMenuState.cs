@@ -162,7 +162,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// Runs the pause menu's input once the update's input is latched and the
     /// delayed-held filter applied. Returns true when Start requests unpausing.
     /// </summary>
-    /// <param name="delayedHeldInput">The held buttons after the delayed-held filter, which the page chrome reads.</param>
+    /// <param name="delayedHeldInput">The held buttons that repeat on this update, which the page chrome reads.</param>
     /// <param name="newlyPressedInput">The buttons newly pressed this update, which the equipment page reads.</param>
     /// <param name="heldInput">The ordinary held buttons, which the map's scroll arrows read.</param>
     /// <param name="frameCycle">The runtime's short frame counter, the colour animation's phase.</param>
@@ -517,10 +517,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
         }
 
-        // The handler is chosen before movement: the handler of the category selected before the cursor moved toggles the item
-        // the cursor has just moved onto.
-        // A press handled from the boots column onto Plasma therefore bypasses the beam column's Spazer/Plasma
-        // exclusion. Do not add a category guard that corrects this: the game has none. The page
+        // The press belongs to the category selected before the cursor moved, which toggles the item the cursor has just
+        // moved onto. A press from the boots column onto Plasma therefore skips the beam column's Spazer and Plasma
+        // exclusion, as the game does. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
         PauseEquipmentBit mask = target.Upgrade;

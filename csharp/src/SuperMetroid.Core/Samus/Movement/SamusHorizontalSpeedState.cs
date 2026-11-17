@@ -530,7 +530,7 @@ public sealed class SamusHorizontalSpeedState
         }
 
         // This block is intentionally outside the momentum test. Every movement can
-        // enter echo-departure mode even when the momentum flag was already clear. Repeated calls while
+        // enter echo-departure mode even when the momentum flag was already clear. Later updates while
         // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {

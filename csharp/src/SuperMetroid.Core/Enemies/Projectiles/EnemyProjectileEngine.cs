@@ -639,15 +639,15 @@ internal sealed class EnemyProjectileEngine
         DustExplosionAnimation animation)
     {
         // The animation is chosen before a place is taken, so an undefined one fails without taking a place.
-        var playing = new MiscDustProjectileAnimation(animation);
+        var playing = new DustExplosionProjectileAnimation(animation);
         EnemyProjectile? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
 
         InitializeEnemyProjectileFromDefinition(
             projectile,
-            RoomEnemyProjectileKind.MiscDustExplosion,
-            MiscDustProjectileBehavior.Instance,
+            RoomEnemyProjectileKind.DustOrExplosion,
+            DustExplosionProjectileBehavior.Instance,
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
 

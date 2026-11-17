@@ -75,7 +75,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             unresolved.AddRange(outcome.Unresolved);
         }
 
-        AssertEqual(152, definitions.Length,
+        AssertEqual(150, definitions.Length,
             "owner audit enumerates every named retail enemy definition a room places or code spawns, the five Ceres doors and walls included");
         AssertTrue(translated.Count > 100,
             "owner audit recognizes the translated retail initializer surface");
@@ -91,10 +91,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "every translated instruction-processing enemy runs a typed animation; actual=" +
             string.Join(", ", unresolved.Distinct()));
 
-        // A definition the cartridge holds but never places in a slot has no species (#2010): the Torizo orbs' headers hold
-        // the chances a broken orb's drop rolls, which the orbs name themselves (#2332).
-        AssertEqual("BombTorizoOrb, GoldenTorizoOrb", string.Join(", ", withoutSpecies),
-            "only the definitions the game never places have no species");
+        // Every definition the game names is one it places, and a species owns it (#2010); the Torizo orbs' headers, which
+        // hold the chances a broken orb's drop rolls, are named by the orbs' own chances instead (#2332, #2364).
+        AssertEqual("", string.Join(", ", withoutSpecies),
+            "every definition the game names has a species");
 
         var unknownEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace unknown = unknownEnemies.Places.InUpdateOrder[0];
@@ -227,10 +227,11 @@ internal static class EnemyInstructionOwnerCoverageVerification
     /// The bank-$A0 headers no room places and no code spawns: Bang, the spinning turtle eye, the horizontal shutter, the
     /// second Sbug, the green and red wall pirates, the grey, green, red and magenta ninja pirates, and the four whose
     /// artwork only graphics sets load, Stoke, the Reflec, the dead Sidehopper's second record and the Tourian statue ghost
-    /// (#1686), and Spore Spawn's stalk, whose drop table the port holds as the spores' own chances (#2244).
+    /// (#1686), Spore Spawn's stalk, whose drop table the port holds as the spores' own chances (#2244), and the two Torizo
+    /// orbs, which the Torizos throw as projectiles and whose drop tables the orbs name as their own chances (#2332, #2364).
     /// </summary>
     private static readonly HashSet<ushort> UnplacedEnemyHeaders =
-        [0xceff, 0xd57f, 0xd8bf, 0xdb3f, 0xdbff, 0xdf7f, 0xedbf, 0xf03f, 0xf153, 0xf393, 0xf3d3, 0xf4d3, 0xf513, 0xf553, 0xf5d3];
+        [0xceff, 0xd57f, 0xd8bf, 0xdb3f, 0xdbff, 0xdf7f, 0xedbf, 0xef3f, 0xefbf, 0xf03f, 0xf153, 0xf393, 0xf3d3, 0xf4d3, 0xf513, 0xf553, 0xf5d3];
 
     /// <summary>
     /// Extracts the species of the distinct bank-$A0 enemy headers named in the pinned symbol inventory, and of the header

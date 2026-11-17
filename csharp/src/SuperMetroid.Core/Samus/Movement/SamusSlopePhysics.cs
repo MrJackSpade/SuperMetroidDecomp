@@ -58,8 +58,8 @@ public static class SamusSlopePhysics
     /// </summary>
     /// <remarks>
     /// This alignment does not perform the preceding horizontal collision scan. It consumes
-    /// the position that scan accepted and adjusts only whole-pixel Y, exactly like the
-    /// game's call immediately after a move without solid-enemy collision.
+    /// the position that scan accepted and adjusts only whole-pixel Y, as the game does
+    /// straight after a move without solid-enemy collision.
     /// </remarks>
     public static SlopeAlignmentResult AlignYPosition(
         RoomLevelData level,

@@ -141,11 +141,11 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// within a four-update cycle is read, which a wider counter preserves exactly.
     /// </summary>
     private int cinematicFrameCounter;
-    /// <summary>Calls elapsed for the staggered and repeating Ceres explosion spawner.</summary>
+    /// <summary>The updates the staggered and repeating Ceres explosion spawner has run.</summary>
     private int explosionSpawnerFrame;
     /// <summary>The place in <see cref="CeresExplosionDefinitions.RepeatingBlasts"/> the next repeating blast appears at.</summary>
     private int nextRepeatingBlast;
-    /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
+    /// <summary>The countdown to the next repeating explosion, carried between updates; it fires on reaching zero or below.</summary>
     private int explosionRepeatCountdown;
     /// <summary>Selects the turning floor or the planet-reveal page.</summary>
     private bool usesFloor = true;
@@ -215,8 +215,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     public void Step()
     {
         // The cinematic first waits nine updates with the screen black; each wait is one update
-        // that continues it. After the last it sets up the scene and returns to the cinematic
-        // phase, whose object handling and frame-counter tail then run once.
+        // that continues it. After the last it sets up the scene and goes on with the cinematic
+        // phase, whose objects and update count then advance once.
         if (initialFrameWaits < CeresDestructionSceneDefinitions.InitialFrameWaits)
         {
             initialFrameWaits++;
@@ -543,7 +543,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
 
-    /// <summary>Spawns authored blast waves and advances live Ceres actors in descending place order.</summary>
+    /// <summary>Spawns authored blast waves and advances the live Ceres actors, from the last in the list to the first.</summary>
     private void StepCeresActors()
     {
         explosionSpawnerFrame++;
@@ -667,9 +667,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 actor.Position = actor.Position.WithY(actor.Position.Y - slideSpeed.ToSixteenSixteenDelta());
                 if (actor.ScreenPlace.Y < CeresDestructionSceneDefinitions.Sprites.RevealActorExitY)
                 {
-                    // Each reveal object deletes itself before its screen Y,
-                    // 0 through 255, can wrap below the screen. Only the lower-right stars
-                    // additionally hand the cinematic back to game load.
+                    // Each reveal object leaves before it slides off the top of the screen. Only the
+                    // lower-right stars also hand the cinematic back to game load.
                     if (definition.CompletesScene)
                     {
                         Phase = CeresDestructionPhase.Finished;
@@ -687,8 +686,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             actor.Step(HandleZebesCue);
             if (!actor.IsActive)
                 actors.RemoveAt(index);
-            // A subtitle the title has just spawned takes the next free object place, which the cinematic's object handling
-            // reaches after the title's on the same update: it runs once now and shows its first pose.
+            // A subtitle the title has just spawned comes after the title in the cinematic's list of objects, so it runs on
+            // the same update and shows its first pose.
             if (spawnedSubtitle is { } subtitle)
             {
                 spawnedSubtitle = null;

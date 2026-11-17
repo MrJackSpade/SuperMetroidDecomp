@@ -13,12 +13,6 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>No displacement.</summary>
     public static FixedVector<TSpace> Zero => default;
 
-    /// <summary>Assembles both axes from whole and fraction parts, each 0 through 65535.</summary>
-    [SpatialComponents("Codec: the four stored words of one displacement.")]
-    public static FixedVector<TSpace> FromStoredParts(int xWhole, int xFraction, int yWhole, int yFraction) =>
-        new(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
-            SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
-
     /// <summary>A whole-pixel displacement with zero fractions.</summary>
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>
         new(SignedSixteenSixteen.FromParts(offset.X, 0), SignedSixteenSixteen.FromParts(offset.Y, 0));

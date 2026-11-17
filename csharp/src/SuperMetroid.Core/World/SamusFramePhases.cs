@@ -370,7 +370,7 @@ internal sealed class SamusFramePhases
     /// Re-samples what the enemy pass can change before the movement phase runs: a cancelled prospective pose, the
     /// stationary-script lock, updated beam hits and the body attack the movement phase clears.
     /// </summary>
-    internal void RunPostEnemyMainResample(SamusControlFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
+    internal void RunPostEnemyUpdateResample(SamusControlFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
     {
         if (!frame.MovementEnabled)
             return;

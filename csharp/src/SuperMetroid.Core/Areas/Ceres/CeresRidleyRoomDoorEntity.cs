@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CeresRidleyRoomDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IDrawnByCeresRidleyScene
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IDrawnByCeresRidleyScene
 {
     /// <inheritdoc/>
     public void Initialize()

@@ -182,8 +182,6 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Concat(capabilities.Keys)
             .Concat(privateReactions.Keys)
             .Where(definition => definition != EnemyDefinitionId.None)
-            // The Torizo orbs are enemy projectiles, whose drops roll their own named chances, so no species binds them.
-            .Where(definition => definition is not (EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb))
             .Distinct();
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),

@@ -113,8 +113,7 @@ public static class GameSaveJsonCodec
             slot.PowerBombs,
             slot.MaxPowerBombs,
             slot.ReserveEnergy,
-            slot.MaxReserveEnergy,
-            slot.ReserveMissiles),
+            slot.MaxReserveEnergy),
         Inventory = new SaveInventoryJsonDocument(
             slot.CollectedItems,
             slot.EquippedItems,
@@ -192,7 +191,6 @@ public static class GameSaveJsonCodec
             HudItem = slot.HudItem,
             MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
             ReserveEnergy = slot.Resources.ReserveEnergy,
-            ReserveMissiles = slot.Resources.ReserveMissiles,
             GameTimeFrames = slot.GameTime.Frames,
             GameTimeSeconds = slot.GameTime.Seconds,
             GameTimeMinutes = slot.GameTime.Minutes,
@@ -266,7 +264,6 @@ public static class GameSaveJsonCodec
                      new SaveFieldCheck(resources.SuperMissiles, "superMissiles"), new SaveFieldCheck(resources.MaxSuperMissiles, "maxSuperMissiles"),
                      new SaveFieldCheck(resources.PowerBombs, "powerBombs"), new SaveFieldCheck(resources.MaxPowerBombs, "maxPowerBombs"),
                      new SaveFieldCheck(resources.ReserveEnergy, "reserveEnergy"), new SaveFieldCheck(resources.MaxReserveEnergy, "maxReserveEnergy"),
-                     new SaveFieldCheck(resources.ReserveMissiles, "reserveMissiles"),
                  })
             RequireRange(value, CountsRunBelowZero.MinimumValue, CountsRunBelowZero.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// <param name="place">The place the wing occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DragonWingEntity(DragonBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public void Initialize() => species.InitializeDragonWing(Place);

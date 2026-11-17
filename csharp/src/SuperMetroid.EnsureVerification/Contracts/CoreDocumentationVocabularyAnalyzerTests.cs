@@ -1417,5 +1417,76 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // another, a branch alone and a hardware owner are English.
         Expect("class P { /// <summary>One branch of a room's state choice; the branches of the projectile; an afterburn branch; the swing, which branches to its release; a branch.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the wall branch stores the speed; it takes the retreating branch.</summary>\n[CompatibilityService(\"branch\")] class Branch { }");
+        // Updates counted as the original's calls in frontend, escape, effect and animation prose, outside hardware owners and
+        // markup (#2362): calls elapsed or made, later, remaining, gameplay or audio calls, a run-on list of calls, a thing's
+        // call, calls a thing lasts or is reloaded in, a call that does something, the calls a thing moves for, a call of the
+        // same update or owner, the call that consumed something and a call that saves where it resumes.
+        Expect("class P { /// <summary>Calls elapsed for the explosion spawner.</summary>\nint F => 0; }", "('Calls elapsed')");
+        Expect("class P { /// <summary>Cinematic calls made so far.</summary>\nint F => 0; }", "('calls made')");
+        Expect("class P { /// <summary>The fade steps on its fourth, eighth and later calls.</summary>\nint F => 0; }", "('later calls')");
+        Expect("class P { /// <summary>Remaining calls until the next character.</summary>\nint F => 0; }", "('Remaining calls')");
+        Expect("class P { void Run() { // A door hit changes the game state during the gameplay call.\n } }", "('gameplay call')");
+        Expect("class P { /// <summary>Alternates typewriter audio calls while letters appear.</summary>\nint F => 0; }", "('audio calls')");
+        Expect("class P { void Run() { // Both halves step on the fourth, eighth, ... calls.\n } }", "('... calls')");
+        Expect("class P { /// <summary>False until the final character's call.</summary>\nint F => 0; }", "('character's call')");
+        Expect("class P { /// <summary>Each frame lasting <paramref name=\"period\"/> calls.</summary>\nint F => 0; }", "('lasting   calls')");
+        Expect("class P { /// <summary>The countdown reload in <see cref=\"Step\"/> calls.</summary>\nint F => 0; }", "('in   calls')");
+        Expect("class P { /// <summary>Includes the separate call that completes the fade.</summary>\nint F => 0; }",
+            "('the separate call that completes')");
+        Expect("class P { /// <summary>The calls the text moves down the screen for.</summary>\nint F => 0; }", "('The calls the')");
+        Expect("class P { /// <summary>The fade-in state calls the same update before fading in.</summary>\nint F => 0; }",
+            "('calls the same update')");
+        Expect("class P { /// <summary>The statue's steps call the same earthquake sound owner.</summary>\nint F => 0; }",
+            "('call the same earthquake sound owner')");
+        Expect("class P { /// <summary>True while held: the call consumed one frame of the hold.</summary>\nint F => 0; }", "('the call consumed')");
+        Expect("class P { /// <summary>Where the play stands, as an animation's call saves where it resumes.</summary>\nint F => 0; }",
+            "('animation's call')");
+        Expect("class P { /// <summary>The place a call saves to return to.</summary>\nint F => 0; }", "('call saves')");
+        // A call to something, a call that returns to its caller, calls of a thing, and the verb after a subject (the producer
+        // first calls the setup, only the spawn calls it) are English, and a hardware owner may say it.
+        Expect("class P { /// <summary>A later call to the queue; a call that returns; the calls of the menu; the producer first calls the setup; only the spawn calls it.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the second call that completes the warm-up.</summary>\n[CompatibilityService(\"call\")] class Calls { }");
+        // The machine's storage told for a value in frontend, enemy and progression prose, outside hardware owners and markup
+        // (#2362): a screen value's 0 through 255 wrap, the game's byte or wrapping counter, a count that would have wrapped,
+        // object handling and free object places, initialization parameters, a descending actor order, an actor being
+        // processed, a named storage bit, the saved order and a projectile-backed or parameter-selected thing.
+        Expect("class P { void Run() { // its screen Y, 0 through 255, can wrap below the screen\n } }", "('0 through 255, can wrap')");
+        Expect("class P { /// <summary>A growing count reproduces the game's wrapping counter.</summary>\nint F => 0; }",
+            "('the game's wrapping counter')");
+        Expect("class P { /// <summary>Never near the 256 at which the game's byte wraps.</summary>\nint F => 0; }", "('the game's byte')");
+        Expect("class P { /// <summary>The count never reaches the point where it would have wrapped.</summary>\nint F => 0; }",
+            "('would have wrapped')");
+        Expect("class P { void Run() { // the cinematic's object handling reaches it next\n } }", "('object handling')");
+        Expect("class P { void Run() { // the subtitle takes the next free object place\n } }", "('free object place')");
+        Expect("class P { void Run() { // Four init parameters select four arcs.\n } }", "('init parameters')");
+        Expect("class P { void Run() { // The baby follows the egg in the descending actor order.\n } }", "('descending actor order')");
+        Expect("class P { void Run() { // allocated while the first actor is already being processed\n } }", "('being processed')");
+        Expect("class P { void Run() { // the enemy still receives the process-off-screen bit\n } }", "('process-off-screen bit')");
+        Expect("class P { /// <summary>Members keep the saved order.</summary>\nint F => 0; }", "('saved order')");
+        Expect("class P { /// <summary>The copy runs in the save memory's order.</summary>\nint F => 0; }", "('save memory's order')");
+        Expect("class P { /// <summary>The Maw's projectile-backed body.</summary>\nint F => 0; }", "('projectile-backed')");
+        Expect("class P { /// <summary>A parameter-selected dust cloud.</summary>\nint F => 0; }", "('parameter-selected')");
+        // A range alone, a room object's place, a bit more, a three-word flag and a hardware owner are English.
+        Expect("class P { /// <summary>A column 0 through 255; the room object's place; a bit more of the way; the order a save lists the items.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the quarter-turn bits wrap at 0 through 255.</summary>\n[CompatibilityService(\"bits\")] class Bits { }");
+        // The original program and its host in frontend, input and save prose, outside hardware owners and markup (#2362): a
+        // coroutine, a chosen handler and the handler of something, a backward scan (a numbered entry list is read already), a
+        // checksum, an
+        // emulator, what the original reads, a match with the game's table and engine definitions.
+        Expect("class P { void Run() { // The escape calls the complete main-gameplay coroutine.\n } }", "('calls the complete main-gameplay coroutine')");
+        Expect("class P { /// <summary>The save-pod coroutine's handshake.</summary>\nint F => 0; }", "('coroutine')");
+        Expect("class P { void Run() { // The handler is chosen before movement.\n } }", "('handler is chosen')");
+        Expect("class P { void Run() { // the handler of the category selected toggles the item\n } }", "('handler of the')");
+        Expect("class P { /// <summary>The menu's nine-entry list.</summary>\nint F => 0; }", "('nine-entry')");
+        Expect("class P { /// <summary>The options menu scans this list backward.</summary>\nint F => 0; }", "('scans this list backward')");
+        Expect("class P { /// <summary>A valid save checksum proves only that the slot was written.</summary>\nint F => 0; }", "('checksum')");
+        Expect("class P { /// <summary>Extension replacing the emulator-oriented host file.</summary>\nint F => 0; }", "('emulator')");
+        Expect("class P { /// <summary>Frozen in a Norfair room, as the original reads the current area.</summary>\nint F => 0; }",
+            "('the original reads')");
+        Expect("class P { /// <summary>All 256 values match the game's table exactly.</summary>\nint F => 0; }", "('match the game's table')");
+        Expect("class P { /// <summary>These are engine definitions, never art data.</summary>\nint F => 0; }", "('engine definitions')");
+        // A handler alone, scanning a room, an original picture and a hardware owner are English.
+        Expect("class P { /// <summary>A handler; Samus scans the room; the original picture is kept.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the original reads the coroutine's checksum.</summary>\n[CompatibilityService(\"original\")] class Original { }");
     }
 }

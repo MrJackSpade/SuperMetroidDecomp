@@ -117,7 +117,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The moonwalk option, toggled by the special page's Moonwalk row.</summary>
     public bool MoonwalkEnabled { get; private set; }
 
-    /// <summary>Gets the current options-menu coroutine phase.</summary>
+    /// <summary>Gets the options menu's current phase.</summary>
     public GameOptionsPhase Phase { get; private set; }
 
     /// <summary>Gets whether the completed start-game fade requested the opening sequence.</summary>

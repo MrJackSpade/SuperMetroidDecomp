@@ -58,7 +58,7 @@ public sealed class PhantoonBodyWaveEffect
     /// A fatal hit flattens the wave: every line shows his body where it is placed, a wave of
     /// zero amplitude, without advancing setup or changing the latched display.
     /// </summary>
-    public void InitializeDeathScroll() => _built = new(_built.Phase, 0);
+    public void InitializeDeathScroll() => _built = new(_built.Phase, default);
 
     /// <summary>Requests a new wave; its setup runs at the next update.</summary>
     /// <param name="length">The new wave's length. A new request replaces any pending length.</param>
@@ -91,7 +91,7 @@ public sealed class PhantoonBodyWaveEffect
         Phase += boss.Wave.PhaseStep;
         if (boss.Wave.Length != _setupLength)
             throw new InvalidOperationException($"Phantoon's wave length {boss.Wave.Length} changed from its setup length {_setupLength}.");
-        _built = new(Phase, boss.Wave.Amplitude.InTwoFiftySixths);
+        _built = new(Phase, boss.Wave.Amplitude.Magnitude());
     }
 
     /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>

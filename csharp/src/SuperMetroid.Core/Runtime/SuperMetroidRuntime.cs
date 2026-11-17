@@ -339,6 +339,9 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public ControllerInputState PlayerButtons { get; } = new();
 
+    /// <summary>The pause screen's held-button repeat, which keeps its count between pauses for the runtime's lifetime.</summary>
+    public HeldButtonRepeat PauseHeldButtonRepeat { get; } = new();
+
     /// <summary>Escape timer state machine.</summary>
     public EscapeTimer EscapeTimer { get; } = new();
 
@@ -432,7 +435,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
     /// <param name="playerInput">The host's controller buttons, read as gameplay actions through the bindings when the frame boundary latches player input; attract playback publishes its independent scripted actions later.</param>
-    /// <param name="request">The state policy, audio calls and the host's work after the frame boundary.</param>
+    /// <param name="request">The state policy, the update's audio steps and the host's work after the frame boundary.</param>
     public void StepFrame(ControllerButton playerInput, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
@@ -478,10 +481,10 @@ internal sealed class SuperMetroidRuntime
         PrepareEnemyProcessingList();
         RunColourEffects();
         BeginSpriteFrame();
-        PrepareEnemiesAndHoistedEnemyMain(context);
+        PrepareEnemiesAndEarlyEnemyUpdate(context);
         if (Player.Samus is not null && Room.Camera is not null)
         {
-            RunSamusAndEnemyMain(context, Player.Samus, Room.Camera, frameRequest.Audio);
+            RunSamusAndEnemyUpdate(context, Player.Samus, Room.Camera, frameRequest.Audio);
             bool deathOwnsSamus = context.Samus.Mode.Movement == SamusMovementMode.Fatal;
             if (!deathOwnsSamus)
                 DoorTransition.RunEnemyProjectiles(Room.LoadedScope.BombProjectiles, Room.LoadedScope);
@@ -648,7 +651,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>Prepares the enemy frame and runs the enemy phase before Samus when the frame has no movement to wait for.</summary>
-    private void PrepareEnemiesAndHoistedEnemyMain(GameplayFrameContext context)
+    private void PrepareEnemiesAndEarlyEnemyUpdate(GameplayFrameContext context)
     {
         EnemyPhase.PrepareEnemyFrame(Room.LoadedScope);
         // Host-disabled Samus movement has no input phase to wait for. Otherwise
@@ -660,21 +663,21 @@ internal sealed class SuperMetroidRuntime
         // the locked input mode has already run, so it still sees the lock below.
         if (frame.EnemyUpdateRanFirst)
         {
-            bool lockedBeforeEnemyMain = Player.Samus?.Control.InputLocked == true;
-            EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared,
+            bool lockedBeforeEnemyUpdate = Player.Samus?.Control.InputLocked == true;
+            EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared,
                 Room.Camera?.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, Room.LoadedScope);
-            frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyMain && Player.Samus?.Control.InputLocked == false);
+            frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyUpdate && Player.Samus?.Control.InputLocked == false);
         }
     }
 
     /// <summary>Runs the input phase, the enemy phase, the resample after it and the movement phase, in the game's order.</summary>
-    private void RunSamusAndEnemyMain(GameplayFrameContext context, SamusState samus, ScrollBoundaryCamera camera, RuntimeFrameAudio audio)
+    private void RunSamusAndEnemyUpdate(GameplayFrameContext context, SamusState samus, ScrollBoundaryCamera camera, RuntimeFrameAudio audio)
     {
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
         if (frame.MovementEnabled && !frame.EnemyUpdateRanFirst)
-            EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);
-        SamusPhases.RunPostEnemyMainResample(frame, samus, Room.LoadedScope.BombProjectiles, Room.LoadedScope.Projectiles, Room.LoadedScope);
+            EnemyPhase.RunEnemyUpdatePhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);
+        SamusPhases.RunPostEnemyUpdateResample(frame, samus, Room.LoadedScope.BombProjectiles, Room.LoadedScope.Projectiles, Room.LoadedScope);
         SamusPhases.RunMovementPhase(frame, samus, camera, audio, Room.LoadedScope);
     }
 
@@ -955,11 +958,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Invokes the pause-menu held-input filter with the controller sample latched by the most recent frame boundary.
+    /// Updates the pause screen's held-button repeat from the buttons the most recent frame boundary latched.
     /// </summary>
-    /// <param name="repeatDelay">The updates, less one, a held button must stay unchanged before it repeats.</param>
-    public void UpdatePauseHeldInput(int repeatDelay) =>
-        System.UpdateHeldInput(repeatDelay, PlayerButtons.Current, PlayerButtons.NewlyPressed);
+    /// <param name="repeatDelay">The unchanged updates a held button waits through before it repeats.</param>
+    public void UpdatePauseHeldButtonRepeat(int repeatDelay) =>
+        PauseHeldButtonRepeat.Update(repeatDelay, PlayerButtons.Current, PlayerButtons.NewlyPressed);
 
     /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
     internal void ApplyEndOfUpdateAssists(

@@ -226,7 +226,7 @@ internal sealed class DraygonGrab
         // The normal route does own one, so invoke the release only in that case.
         if (samus.DraygonGrabbed.IsActive)
         {
-            ReleaseSamusDuringEnemyMain(samus);
+            ReleaseSamusDuringEnemyUpdate(samus);
             // ReleaseSamusFromDraygon publishes the owner-release flag, and the release immediately clears
             // all of Samus's grapple flags. Consume that release signal here so
             // a later encounter cannot observe a stale owner-release request.
@@ -286,7 +286,7 @@ internal sealed class DraygonGrab
     /// Releases Samus (<see cref="ReleaseSamusFromDraygon"/>) from Draygon's AI and publishes it so the
     /// runtime clears the prospective poses the input phase already chose, as the grab does.
     /// </summary>
-    internal void ReleaseSamusDuringEnemyMain(SamusState samus)
+    internal void ReleaseSamusDuringEnemyUpdate(SamusState samus)
     {
         samus.DraygonGrabbed.Release(samus);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;

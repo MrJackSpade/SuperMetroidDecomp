@@ -28,7 +28,7 @@ internal static class BossResetOnLoadVerification
         AssertInvalidGameConfiguration("[Game]\nResetBossesOnLoad=true\nresetbossesonload=false", "duplicate");
 
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var snapshot = new SuperMetroidSaveSnapshot
+        var snapshot = SaveSnapshotFixtures.NewGame with
         {
             Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave, Health = 77, MaxHealth = 199,
             Missiles = 12, MaxMissiles = 25,

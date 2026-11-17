@@ -265,7 +265,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing MotherBrainDust =
         new(ComposedEncounter.MotherBrain, [EncounterLook.LoadedName])
         {
-            Projectiles = [.. MiscDustProjectileAnimations.Segments.Frames],
+            Projectiles = [.. DustExplosionProjectileAnimations.Segments.Frames],
         };
 
     /// <summary>Every entry, by encounter.</summary>

@@ -82,7 +82,7 @@ internal static class AttractDemoSceneVerification
         saveRam.CompleteGame();
         if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.OrdinaryPlaylist)
             throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked the completion set.");
-        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot());
+        saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saveRam.CompleteGame();
         if (new SuperMetroidGame(saveRam).Session.DemoPlaylist != StockAttractDemoScenes.CompletedGamePlaylist)
             throw new InvalidDataException("Valid completed-game save did not unlock the completion demo set.");

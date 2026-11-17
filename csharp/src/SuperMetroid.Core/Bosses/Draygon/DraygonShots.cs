@@ -34,7 +34,7 @@ internal sealed class DraygonShots
     /// shared dust's small explosion, the animation its definition names.
     /// </summary>
     internal EnemyProjectileBehavior WallTurretShot => field ??= new DraygonShotBehavior(_deathsAndDrops, initial: null,
-        shot: () => new MiscDustProjectileAnimation(DustExplosionAnimation.SmallExplosion));
+        shot: () => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion));
 
     /// <summary>
     /// A goop or turret shot: the goop's flight and its hold on Samus, the turret shot's flight, and their cues. The power

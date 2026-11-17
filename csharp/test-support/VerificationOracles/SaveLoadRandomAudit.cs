@@ -17,7 +17,7 @@ internal static class SaveLoadRandomAudit
     {
         foreach (int wait in new[] { 0, 1, 2 })
         {
-            var save = new SuperMetroidSaveSnapshot
+            var save = SaveSnapshotFixtures.NewGame with
             {
                 Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.MotherBrainSave,
                 Health = 399, MaxHealth = 399,

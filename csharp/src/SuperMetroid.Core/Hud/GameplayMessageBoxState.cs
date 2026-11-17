@@ -337,7 +337,7 @@ public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInp
         _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
     };
 
-    /// <summary>Whether the ordinary message coroutine shows <paramref name="messageId"/>.</summary>
+    /// <summary>Whether <paramref name="messageId"/> is an ordinary message box.</summary>
     internal static bool IsOrdinary(GameplayMessageId messageId) =>
         messageId != GameplayMessageId.None && Enum.IsDefined(messageId);
 }

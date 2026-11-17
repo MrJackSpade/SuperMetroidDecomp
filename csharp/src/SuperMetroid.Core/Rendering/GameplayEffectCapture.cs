@@ -24,8 +24,6 @@ public static class GameplayEffectCapture
     private const int Height = ScreenGeometry.ScreenHeightPixels;
     /// <summary>The lines the HUD fills at the top of the screen.</summary>
     private const int HudHeight = ScreenGeometry.GameplayHudHeightPixels;
-    /// <summary>The liquids' and the heat haze's amplitude: a sample of one moves a line one whole pixel, in 1/256 pixel.</summary>
-    private static readonly int OnePixelPerSample = EightEight.FromWhole(1);
 
     /// <summary>
     /// Describes water's optional background wave (#1468): below the surface, background's horizontal scroll follows
@@ -41,7 +39,7 @@ public static class GameplayEffectCapture
             fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
         int belowSurface = surfaceLine + 1;
-        return new SampledScrollWave(backgroundScroll.X, WaterWaveDefinitions.Waveform, OnePixelPerSample,
+        return new SampledScrollWave(backgroundScroll.X, WaterWaveDefinitions.Waveform,
             SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, WaterWaveDefinitions.Waveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
@@ -87,7 +85,7 @@ public static class GameplayEffectCapture
     /// phase.
     /// </summary>
     private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
-        new(baseScroll, waveform, OnePixelPerSample,
+        new(baseScroll, waveform,
             SampledScrollWave.PhaseWhere(PhaseInBackgroundBlock(backgroundVerticalScroll) + wavePhase, HudHeight, waveform.Length),
             HudHeight, Height);
 
@@ -174,7 +172,7 @@ public static class GameplayEffectCapture
         // below the surface and drawn back by the wave's phase (#1468).
         int belowSurface = placedLine + 1;
         LineScroll horizontal = RoomFxTypes.UsesWater(fx.Type)
-            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform, OnePixelPerSample,
+            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform,
                 SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, WaterWaveDefinitions.Waveform.Length),
                 Math.Clamp(belowSurface, HudHeight, Height), Height)
             : ScrollBands.Uniform(fx.Scroll.X);

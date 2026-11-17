@@ -147,7 +147,7 @@ internal static class FxOverlayPlacementIdentityVerification
         LiquidArtwork liquid = FxOverlayFixtures.ArtworkFromVram(RoomFxType.Water, vram.Bytes, cgram.Colors,
             liquidCut: new LiquidTransferRows(BodyFirstRow: 5, BodyRows: 4)).Shown as LiquidArtwork
             ?? throw new InvalidOperationException("Water's artwork is a liquid.");
-        var across = new SampledScrollWave(77, [.. Enumerable.Range(0, 16).Select(sample => sample - 8)], 256, 3, 120, 224);
+        var across = new SampledScrollWave(77, [.. Enumerable.Range(0, 16).Select(sample => sample - 8)], 3, 120, 224);
         RgbaPixel[] backdrop = DisplayRendering.Render(new LayeredScene(memory, [], 15));
         int drawn = 0;
         var wrong = new List<string>();
@@ -299,7 +299,7 @@ internal static class FxOverlayPlacementIdentityVerification
             return null;
         int belowSurface = surfaceLine + 1;
         return RoomFxTypes.UsesWater(fx.Type)
-            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform, EightEight.FromWhole(1),
+            ? new SampledScrollWave(fx.Scroll.X, WaterWaveDefinitions.Waveform,
                 SampledScrollWave.PhaseWhere(-fx.WaterOverlayWavePhase, belowSurface, WaterWaveDefinitions.Waveform.Length),
                 Math.Clamp(belowSurface, FirstLine, ScreenGeometry.ScreenHeightPixels), ScreenGeometry.ScreenHeightPixels)
             : ScrollBands.Uniform(fx.Scroll.X);

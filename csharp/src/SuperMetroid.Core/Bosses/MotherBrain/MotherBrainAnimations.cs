@@ -228,7 +228,7 @@ internal static class MotherBrainAnimations
             Show(EnemyFrameId.MotherBrainHeadJawDropped, 33),
             Show(EnemyFrameId.MotherBrainHeadJawDropping, 5),
         ],
-        [H.StretchingPhase2Loop] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
+        [H.StretchingPhase2Held] = [Held(EnemyFrameId.MotherBrainHeadEyeGlaring)],
         [H.StretchingPhase3] =
         [
             Cue(MotherBrainHeadCueKind.ShakeBrain),
@@ -246,7 +246,7 @@ internal static class MotherBrainAnimations
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 33),
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
         ],
-        [H.StretchingPhase3Loop] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
+        [H.StretchingPhase3Held] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
         [H.HyperBeamRecoil] =
         [
             Cue(MotherBrainHeadCueKind.ShakeBrain),
@@ -257,10 +257,10 @@ internal static class MotherBrainAnimations
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropped, 67),
             Show(EnemyFrameId.MotherBrainDarkHeadJawDropping, 5),
         ],
-        [H.HyperBeamRecoilLoop] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
+        [H.HyperBeamRecoilHeld] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeGlaring)],
         [H.Initial] = [Held(EnemyFrameId.MotherBrainHeadEyeShut)],
         [H.Decapitated] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 9), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 5)],
-        [H.DecapitatedLoop] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeShut)],
+        [H.DecapitatedHeld] = [Held(EnemyFrameId.MotherBrainDarkHeadEyeShut)],
         [H.DyingDrool] =
         [
             Cue(MotherBrainHeadCueKind.ShakeBrain),
@@ -301,7 +301,7 @@ internal static class MotherBrainAnimations
             Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 5),
         ],
         [H.Corpse] = [Show(EnemyFrameId.MotherBrainDarkHeadEyeShut, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeOpen, 3), Show(EnemyFrameId.MotherBrainDarkHeadEyeGlaring, 65), Show(EnemyFrameId.MotherBrainHeadCorpseSlumping, 65)],
-        [H.CorpseLoop] = [Held(EnemyFrameId.MotherBrainHeadCorpseSlumped)],
+        [H.CorpseHeld] = [Held(EnemyFrameId.MotherBrainHeadCorpseSlumped)],
         [H.FourOnionRingsPhase2] =
         [
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
@@ -406,11 +406,11 @@ internal static class MotherBrainAnimations
     /// </summary>
     internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
-        [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Loop),
-        [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Loop),
-        [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilLoop),
+        [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Held),
+        [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Held),
+        [H.HyperBeamRecoil] = Resting(H.HyperBeamRecoil, H.HyperBeamRecoilHeld),
         [H.Initial] = Resting(H.Initial),
-        [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedLoop),
+        [H.Decapitated] = Resting(H.Decapitated, H.DecapitatedHeld),
         [H.DyingDrool] = Looping(2, H.DyingDrool, H.DyingDroolBurst, H.DyingDroolLoop),
         [H.DyingDroolBurst] = Looping(1, H.DyingDroolBurst, H.DyingDroolLoop),
         [H.FiringRainbowBeam] = Resting(H.FiringRainbowBeam),
@@ -418,7 +418,7 @@ internal static class MotherBrainAnimations
         [H.NeutralPhase2Hold] = Looping(0, H.NeutralPhase2Hold, H.NeutralPhase2),
         [H.NeutralPhase3] = Looping(0, H.NeutralPhase3, H.NeutralPhase3Hold),
         [H.NeutralPhase3Hold] = Looping(0, H.NeutralPhase3Hold, H.NeutralPhase3),
-        [H.Corpse] = Resting(H.Corpse, H.CorpseLoop),
+        [H.Corpse] = Resting(H.Corpse, H.CorpseHeld),
         [H.FourOnionRingsPhase2] = Looping(1, H.FourOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.TwoOnionRingsPhase2] = Looping(1, H.TwoOnionRingsPhase2, H.NeutralPhase2, H.NeutralPhase2Hold),
         [H.AttackingBabyMetroid] = Looping(2, H.AttackingBabyMetroid, H.FourOnionRingsPhase3, H.NeutralPhase3, H.NeutralPhase3Hold),

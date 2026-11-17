@@ -55,7 +55,7 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// Runs the producer-owned collision call made before a new beam receives its speed.
+    /// Tests a new beam against the terrain before it receives its speed.
     /// </summary>
     internal bool RunInitialBeamCollision(
         RoomLevelData level,

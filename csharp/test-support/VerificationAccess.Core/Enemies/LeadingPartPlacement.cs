@@ -1,6 +1,9 @@
 using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Evir;
+using SuperMetroid.Core.Enemies.Hibashi;
+using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Powamp;
 
@@ -8,7 +11,8 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Gives a check's place the placement settings a room would give the leading part of <c>definition</c> before it binds,
-/// so a definition whose species builds a part's own entity from its placement (#2146, #2163, #2164, #2175) binds as that part.
+/// so a definition whose species builds a part's own entity from its placement (#2146, #2163, #2164, #2175, #2283, #2342)
+/// binds as that part.
 /// </summary>
 internal static class LeadingPartPlacement
 {
@@ -38,5 +42,14 @@ internal static class LeadingPartPlacement
         // A Dragon placement names whether it is the body or the wing (#2175); the body carries the species' members.
         if (definition == EnemyDefinitionId.Dragon)
             place.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
+        // A Dachora placement names the runner or one of its speed-boost echoes (#2283); the runner carries the species' members.
+        if (definition == EnemyDefinitionId.Dachora)
+            place.SetSpawnSettings(new DachoraSpawnSettings(HorizontalDirection.Right, DachoraRole.Runner));
+        // A Hibashi placement names the flame or its collision part (#2342); the flame carries the species' members.
+        if (definition == EnemyDefinitionId.Hibashi)
+            place.SetSpawnSettings(new HibashiSpawnSettings(InactiveTime: 0, HibashiPart.Flame));
+        // A Magdollite placement names its head, rising body or tracking overlay; the head carries the species' members.
+        if (definition == EnemyDefinitionId.Magdollite)
+            place.SetSpawnSettings(new MagdolliteSpawnSettings(MagdollitePart.Head, new MagdolliteHeadRise(SignedSixteenSixteen.Zero, Range: 0)));
     }
 }

@@ -161,7 +161,7 @@ public sealed class AudioQueues
 
     /// <summary>
     /// Queues only the change to a different room data set. Saved-game loading
-    /// shares this operation but lets the appearance coroutine schedule its own tracks.
+    /// shares this operation but lets the loading screen's appearance schedule its own tracks.
     /// </summary>
     /// <param name="dataSet">The room's data set, or null to keep the loaded one.</param>
     /// <returns>Whether the data set change was queued.</returns>

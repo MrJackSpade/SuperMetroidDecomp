@@ -120,7 +120,7 @@ internal sealed class EnemyLifecycle : IEnemyLifecycle
         // A place awaiting its enemy's respawn has no behaviour; the enemy pass still counts its update.
         if (place.AwaitsRespawn)
             return;
-        if (place.Entity is not IEnemyMainAi entity)
+        if (place.Entity is not IEnemyAi entity)
             throw new InvalidDataException($"Enemy {place.DefinitionId} has no main behaviour.");
         entity.RunMainAi(frame);
     }

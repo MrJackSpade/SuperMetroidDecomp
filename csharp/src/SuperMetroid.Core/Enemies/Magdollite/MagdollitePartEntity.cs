@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="place">The place the part occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal abstract class MagdollitePartEntity(MagdolliteBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
+    : CommonParticipationEnemyEntity(place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <summary>The Magdollite species owner.</summary>
     private protected MagdolliteBehavior Species => species;

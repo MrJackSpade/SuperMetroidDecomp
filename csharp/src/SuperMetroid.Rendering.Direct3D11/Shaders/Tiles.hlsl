@@ -477,9 +477,9 @@ uint LineScrollData(uint slot, uint index)
 // rounded toward zero.
 // A stretch (ScrollStretch): each line of its band falls behind by its slope (1/65536ths of a row) for each line below
 // the band's first, and the lines above its band move by w.
-// A sampled wave (SampledScrollWave): each line of its band moves by its sample times its amplitude (1/256ths of a
-// pixel), rounded down; line y reads sample (phase + y) mod period, the phase in w's low half and the period in its
-// high half, the samples signed bytes four to a data word from the low byte up.
+// A sampled wave (SampledScrollWave): each line of its band moves by its sample's whole pixels; line y reads sample
+// (phase + y) mod period, the phase in w's low half and the period in its high half, the samples signed bytes four to a
+// data word from the low byte up.
 int LineScroll(uint slot, uint screenY)
 {
     uint4 shape = LineScrolls[slot];
@@ -519,8 +519,7 @@ int LineScroll(uint slot, uint screenY)
         if (inBand)
         {
             uint index = ((shape.w & 65535) + screenY) % (shape.w >> 16);
-            int sample = ((int)(LineScrollData(slot, index / 4) << (24 - (index & 3) * 8))) >> 24;
-            moved = (sample * (int)shape.z) >> 8;
+            moved = ((int)(LineScrollData(slot, index / 4) << (24 - (index & 3) * 8))) >> 24;
         }
     }
     return scroll + moved;

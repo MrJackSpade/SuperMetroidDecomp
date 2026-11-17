@@ -108,8 +108,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Takes one step of the death fade. Each step moves the display one step of six further toward black, including its
-    /// initial step that changes nothing and the separate call that completes the fade once its last step reaches black.
+    /// Takes one step of the death fade. Each step moves the display one step of six further toward black, counting its
+    /// first step, which changes nothing, and the update after its last step reaches black, which completes the fade.
     /// </summary>
     /// <returns>Whether the fade completed on this update.</returns>
     private bool StepDeathFade()

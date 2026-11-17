@@ -152,8 +152,8 @@ internal sealed class IntroBabyDiscoveryState
         }
         egg.Step(HandleEggCue);
 
-        // The baby follows the egg in the descending actor order, so
-        // it observes the egg's freshly advanced animation position in this same frame.
+        // The baby updates after the egg, so it sees the egg's animation as this
+        // update has already advanced it.
         StepConfusedBaby(crossfadeFinishing);
         confusedBaby.Step();
 
@@ -303,8 +303,8 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Spawns slime at the authored row and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
     {
-        // Equality is intentional: the hatched baby tests for equality, and the actor's subpixel integration
-        // reaches this row once. Four init parameters select four distinct arcs.
+        // The hatched baby sheds its slime only on the update it stands exactly on this row, which its
+        // motion reaches once. Each of the four drops flies its own arc.
         if (confusedBaby.ScreenPlace.Y == IntroEggMotionDefinitions.SlimeShedRow && slimeDrops.Count == 0)
         {
             foreach (IntroEggSlimeLaunch launch in IntroEggMotionDefinitions.SlimeLaunches)

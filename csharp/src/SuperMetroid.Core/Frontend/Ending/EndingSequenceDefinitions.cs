@@ -32,7 +32,7 @@ public static class EndingSequenceDefinitions
     /// <summary>Authored reveal, colour-fade and panel-hold durations, in cinematic updates.</summary>
     public static class Timing
     {
-        /// <summary>The reward reveal pauses after its counter runs from 127 to 63; the remaining 64 updates follow later.</summary>
+        /// <summary>Each half of the reward reveal: it pauses after its first 64 updates, and the other 64 follow later.</summary>
         public const int RewardRevealHalfFrames = 64;
 
         /// <summary>The copyright panel's hold.</summary>
@@ -44,7 +44,7 @@ public static class EndingSequenceDefinitions
         /// <summary>The complete result panel's hold before the waiting Samus.</summary>
         public const int ResultPanelHoldFrames = 180;
 
-        /// <summary>The calls the item-percentage text moves down the screen for.</summary>
+        /// <summary>The updates the item-percentage text moves down the screen for.</summary>
         public const int ItemPercentageDropUpdates = 40;
 
         /// <summary>The explosion's whiteout holds this long, waiting for the planet escape's music, before the flyaway.</summary>

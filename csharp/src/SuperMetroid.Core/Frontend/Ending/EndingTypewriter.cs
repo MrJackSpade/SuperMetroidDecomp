@@ -27,7 +27,7 @@ internal sealed class EndingTypewriter
         Characters = Ensure.NotNull(setup.Text).Compile(sequence).ToArray();
     }
 
-    /// <summary>Remaining calls until the next character or hold transition.</summary>
+    /// <summary>The updates left until the next character or the end of a hold.</summary>
     internal int FrameHold { get; private set; } = 1;
     /// <summary>The number of characters typed so far.</summary>
     internal int TypedCount { get; private set; }

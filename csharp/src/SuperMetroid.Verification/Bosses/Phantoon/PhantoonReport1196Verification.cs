@@ -61,7 +61,7 @@ internal static class PhantoonReport1196Verification
         wave.Begin(PhantoonWaveDefinitions.IntroLength);
         wave.Step(boss);
         wave.Step(boss);
-        AssertTrue(wave.CurrentWave is { Amplitude: 3072 }, "fixture retains a used introductory wave");
+        AssertTrue(wave.CurrentWave?.Amplitude == new UnsignedSixteenSixteen(12, 0), "fixture retains a used introductory wave");
         boss.Wave.Length = null;
         wave.Step(boss);
         boss.Body.Health = 0;
@@ -73,11 +73,11 @@ internal static class PhantoonReport1196Verification
 
         // Any stale amplitude would split the body: the displayed wave is flat at BG2's own X on every line.
         PhantoonWave displayed = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
-        AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
+        AssertTrue(displayed.Amplitude.IsZero, "every first-frame death scroll equals native BG2 X");
         boss.Wave.Amplitude = PhantoonWaveDefinitions.IntroAmplitude;
         wave.Step(boss);
         AssertEqual(RotationAngle.FromHalfSteps(14), wave.Phase, "following HDMA pass resumes native phase advancement");
-        AssertTrue(wave.CurrentWave is { Amplitude: 3072, Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Phase == new TrigonometryAngle(7),
+        AssertTrue(wave.CurrentWave is { Period: PhantoonWaveDefinitions.LongPeriod } rebuilt && rebuilt.Amplitude == new UnsignedSixteenSixteen(12, 0) && rebuilt.Phase == new TrigonometryAngle(7),
             "following pass rebuilds the animated death wave from the resumed phase");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; every displayed line aligns before wave advancement.");
     }

@@ -21,7 +21,7 @@ internal static class FileMenuSnapshotTestsVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
+        saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         int comparisons = 0;
 
         // Use private in-memory saves. Copy/clear validation must never edit player saves.

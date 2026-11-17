@@ -95,7 +95,7 @@ internal static class EnemyProjectileNativeWords
         [0xb743] = RoomEnemyProjectileKind.EyeDoorProjectile,
         [0xb751] = RoomEnemyProjectileKind.EyeDoorSweat,
         [0xe517] = RoomEnemyProjectileKind.EyeDoorSmoke,
-        [0xe509] = RoomEnemyProjectileKind.MiscDustExplosion,
+        [0xe509] = RoomEnemyProjectileKind.DustOrExplosion,
         [0xf337] = RoomEnemyProjectileKind.EnemyDeathPickup,
         [0xf345] = RoomEnemyProjectileKind.EnemyDeathExplosion,
         [0xd02e] = RoomEnemyProjectileKind.KagoBug,

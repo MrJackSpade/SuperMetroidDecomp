@@ -19,7 +19,7 @@ internal static class D3D11LineScrolls
     internal const int BlendPlaneHorizontal = 2;
     /// <summary>The slot of the vertical scroll of the plane an X-ray pass blends with.</summary>
     internal const int BlendPlaneVertical = 3;
-    /// <summary>The slots, each a row: its kind with its base scroll in the high half; its band's first line with the line after its last in the high half; its scale; its shape word.</summary>
+    /// <summary>The slots, each a row: its kind with its base scroll in the high half; its band's first line with the line after its last in the high half; its scale, which a waveform of samples does not have; its shape word.</summary>
     private const int Slots = 4;
     /// <summary>Words in a constant row.</summary>
     private const int RowWords = 4;
@@ -35,7 +35,7 @@ internal static class D3D11LineScrolls
     private const int HighHalf = 16;
     /// <summary>
     /// The largest scale (a wave's amplitude, a stretch's slope) the shader evaluates without overflowing its 32-bit
-    /// products: a sine of 256, a sample of 128 or a band of 224 lines times it stays inside a word.
+    /// products: a sine of 256 or a band of 224 lines times it stays inside a word.
     /// </summary>
     private const int LargestScale = (1 << 24) - 1;
     /// <summary>The longest period a slot's shape word holds in its high half.</summary>
@@ -80,7 +80,6 @@ internal static class D3D11LineScrolls
                     throw new NotSupportedException($"A waveform of {sampled.Period} samples is longer than a line-scroll slot holds.");
                 record[0] = Kind(D3D11LineScrollKind.Sampled, sampled.BaseScroll);
                 record[1] = Band(sampled.FirstLine, sampled.EndLine);
-                record[2] = Scale(sampled.Amplitude);
                 record[3] = D3D11ConstantPacking.Halves(checked((ushort)sampled.Phase), checked((ushort)sampled.Period));
                 for (int index = 0; index < sampled.Period; index++)
                     words[index / SamplesPerWord] |= (uint)unchecked((byte)checked((sbyte)sampled.Samples[index]))

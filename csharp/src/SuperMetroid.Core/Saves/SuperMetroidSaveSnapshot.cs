@@ -8,88 +8,85 @@ namespace SuperMetroid.Core.Saves;
 public sealed record SuperMetroidSaveSnapshot
 {
     /// <summary>The seven configurable actions as a validated permutation of controller button masks.</summary>
-    public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
+    public required ControllerBindings ControllerBindings { get; init; }
 
     /// <summary>Whether the options menu's moonwalk behavior is enabled.</summary>
-    public bool MoonwalkEnabled { get; init; }
+    public required bool MoonwalkEnabled { get; init; }
 
     /// <summary>Whether door transitions automatically clear the selected HUD item.</summary>
-    public bool IconCancelEnabled { get; init; }
-
-    /// <summary>The persistent excess-missile count.</summary>
-    public int ReserveMissiles { get; init; }
+    public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
-    public bool JapaneseText { get; init; }
+    public required bool JapaneseText { get; init; }
 
     /// <summary>Bit mask of collected items currently enabled on Samus.</summary>
-    public SamusEquipmentFlags EquippedItems { get; init; }
+    public required SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Bit mask of item upgrades Samus has collected, including unequipped upgrades.</summary>
-    public SamusEquipmentFlags CollectedItems { get; init; }
+    public required SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Bit mask of collected beam upgrades currently enabled on Samus.</summary>
-    public SamusBeamFlags EquippedBeams { get; init; }
+    public required SamusBeamFlags EquippedBeams { get; init; }
 
     /// <summary>Bit mask of all beam upgrades Samus has collected.</summary>
-    public SamusBeamFlags CollectedBeams { get; init; }
+    public required SamusBeamFlags CollectedBeams { get; init; }
 
     /// <summary>The reserve tanks' mode: none, auto or manual.</summary>
-    public ReserveTankMode ReserveMode { get; init; }
+    public required ReserveTankMode ReserveMode { get; init; }
 
     /// <summary>Samus's current energy in energy-point units.</summary>
-    public int Health { get; init; } = 99;
+    public required int Health { get; init; }
 
     /// <summary>Samus's energy capacity in energy-point units.</summary>
-    public int MaxHealth { get; init; } = 99;
+    public required int MaxHealth { get; init; }
 
     /// <summary>The current ordinary missile count.</summary>
-    public int Missiles { get; init; }
+    public required int Missiles { get; init; }
 
     /// <summary>The acquired ordinary missile capacity.</summary>
-    public int MaxMissiles { get; init; }
+    public required int MaxMissiles { get; init; }
 
     /// <summary>The current super missile count.</summary>
-    public int SuperMissiles { get; init; }
+    public required int SuperMissiles { get; init; }
 
     /// <summary>The acquired super missile capacity.</summary>
-    public int MaxSuperMissiles { get; init; }
+    public required int MaxSuperMissiles { get; init; }
 
     /// <summary>The current power bomb count.</summary>
-    public int PowerBombs { get; init; }
+    public required int PowerBombs { get; init; }
 
     /// <summary>The acquired power bomb capacity.</summary>
-    public int MaxPowerBombs { get; init; }
+    public required int MaxPowerBombs { get; init; }
 
     /// <summary>The HUD selection: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
-    public HudItem HudItem { get; init; }
+    public required HudItem HudItem { get; init; }
 
     /// <summary>The acquired reserve-tank capacity in energy-point units.</summary>
-    public int MaxReserveEnergy { get; init; }
+    public required int MaxReserveEnergy { get; init; }
 
     /// <summary>The energy-point total currently stored in reserve tanks.</summary>
-    public int ReserveEnergy { get; init; }
+    public required int ReserveEnergy { get; init; }
 
     /// <summary>The sub-second gameplay counter, normally in the inclusive range 0 through 59.</summary>
-    public int GameTimeFrames { get; init; }
+    public required int GameTimeFrames { get; init; }
 
     /// <summary>The gameplay clock's seconds component, normally in the inclusive range 0 through 59.</summary>
-    public int GameTimeSeconds { get; init; }
+    public required int GameTimeSeconds { get; init; }
 
     /// <summary>The gameplay clock's minutes component, normally in the inclusive range 0 through 59.</summary>
-    public int GameTimeMinutes { get; init; }
+    public required int GameTimeMinutes { get; init; }
 
     /// <summary>The gameplay clock's hours component, saturated by gameplay at 99.</summary>
-    public int GameTimeHours { get; init; }
+    public required int GameTimeHours { get; init; }
 
     /// <summary>The startup route the save resumes by.</summary>
-    public SaveLoadingGameState StartupRoute { get; init; } = SaveLoadingGameState.MainGame;
+    public required SaveLoadingGameState StartupRoute { get; init; }
 
     /// <summary>The load station the save resumes at.</summary>
-    public LoadStation Checkpoint { get; init; } = LoadStationDefinitions.Gunship;
+    public required LoadStation Checkpoint { get; init; }
 
     /// <summary>The persistent progress to save; the snapshot owns this copy.</summary>
-    public PersistentProgress Progress { get; init; } = new();
+    public required PersistentProgress Progress { get; init; }
 
     /// <summary>Captures the gameplay owners into a detached snapshot.</summary>
     /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
@@ -103,8 +100,7 @@ public sealed record SuperMetroidSaveSnapshot
         Ensure.NotNull(system);
         return new SuperMetroidSaveSnapshot
         {
-            ControllerBindings = (context.ControllerBindings ?? ControllerBindings.Default)
-                .RequireUniquePermutation(),
+            ControllerBindings = context.ControllerBindings.RequireUniquePermutation(),
             MoonwalkEnabled = context.MoonwalkEnabled,
             IconCancelEnabled = context.IconCancelEnabled,
             EquippedItems = samus.EquippedItems,
@@ -123,12 +119,11 @@ public sealed record SuperMetroidSaveSnapshot
             HudItem = samus.SelectedHudItem,
             MaxReserveEnergy = samus.MaxReserveEnergy,
             ReserveEnergy = samus.ReserveEnergy,
-            ReserveMissiles = samus.ReserveMissiles,
             JapaneseText = context.JapaneseText,
-            GameTimeFrames = context.GameTime?.Frames ?? 0,
-            GameTimeSeconds = context.GameTime?.Seconds ?? 0,
-            GameTimeMinutes = context.GameTime?.Minutes ?? 0,
-            GameTimeHours = context.GameTime?.Hours ?? 0,
+            GameTimeFrames = context.GameTime.Frames,
+            GameTimeSeconds = context.GameTime.Seconds,
+            GameTimeMinutes = context.GameTime.Minutes,
+            GameTimeHours = context.GameTime.Hours,
             StartupRoute = system.SavedStartupRoute,
             Checkpoint = Ensure.NotNull(context.Checkpoint),
             Progress = system.Progress.Copy(),

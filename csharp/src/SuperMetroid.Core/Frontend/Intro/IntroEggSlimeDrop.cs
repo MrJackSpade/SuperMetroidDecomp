@@ -13,8 +13,7 @@ internal sealed class IntroEggSlimeDrop
     private readonly IntroEggSlimeLaunch launch;
     /// <summary>
     /// The frames the drop has fallen: its place along its fall. A plain count (#1781): every drop reaches
-    /// the puddle height within its curve, whose next step throws, so the count never approaches the 256 at which the
-    /// game's byte would have wrapped.
+    /// the puddle height within its curve, whose next step throws.
     /// </summary>
     private int framesFallen;
     /// <summary>Stops velocity integration when the drop reaches the puddle-animation height.</summary>

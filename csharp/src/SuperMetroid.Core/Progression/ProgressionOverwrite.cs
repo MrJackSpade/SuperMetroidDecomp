@@ -3,14 +3,12 @@ namespace SuperMetroid.Core.Progression;
 /// <summary>
 /// What the Spacetime Beam's runaway colour copy does to saved progress (#1318, #1330, #1474, #1475): which story events, the
 /// Zebetite count (#1527), which area bosses, item locations, doors, used stations and acquired area maps it turns on or off, and the loading
-/// state it leaves the game to resume in. The copy runs through progress in a fixed order (events, bosses, orbs, items,
-/// doors, stations, maps, loading state), so it decides everything before the point where it stops and nothing after.
+/// state it leaves the game to resume in. The copy decides progress in this order: story events, bosses, items, doors,
+/// stations, maps and the loading state, so it decides everything before the point where it stops and nothing after.
 /// </summary>
 /// <remarks>
 /// <see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/> yields it and <see cref="SharedGameState"/> applies
-/// it. Evidence: the recorded Pit Room probe's two input phases leave the corrupted loading state this overwrite gives,
-/// and the game's copy, run over the game's data in every situation, leaves every event, boss, orb, item, door, station
-/// and map as this overwrite does; only the progress part of the overwrite is kept (#1318).
+/// it; only the progress part of the overwrite is kept (#1318).
 /// </remarks>
 /// <param name="Events">The story events the copy decides.</param>
 /// <param name="ZebetitesDestroyed">The Zebetite count the copy leaves, or null when it stops before deciding it.</param>

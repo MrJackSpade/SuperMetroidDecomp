@@ -23,13 +23,13 @@ public sealed class EscapeTypewriterState
     /// character and advanced right by a glyph's width for both written glyphs and spaces (#1406, #1514, #1601).
     /// </summary>
     public Position16<PlanePixels> Corner { get; private set; }
-    /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-update character delay once the message starts.</summary>
+    /// <summary>The updates the delay is reloaded with: zero, then the two-update character delay once the message starts.</summary>
     public int Delay { get; private set; }
-    /// <summary>Calls still to skip before typing another character; a call that decrements it to zero still performs no character work.</summary>
+    /// <summary>The updates still to wait before typing another character; the update that counts it down to zero still types nothing.</summary>
     public int DelayTimer { get; private set; }
     /// <summary>Total non-space glyphs typed; spaces advance the typing position but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
-    /// <summary>True after an eligible typing call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
+    /// <summary>True once an update ready to type passes the end of all lines; later updates report completion without typing or requesting a sound.</summary>
     public bool Completed { get; private set; }
     /// <summary>One-update sound request raised after every second non-space glyph, cleared at the start of every <see cref="Step"/>; the Ceres or Zebes escape picks which click sound plays.</summary>
     public bool ClickRequested { get; private set; }
@@ -55,9 +55,9 @@ public sealed class EscapeTypewriterState
 
     /// <summary>Advances the warning by one gameplay update, typing at most one glyph or consuming one space when the delay has expired.</summary>
     /// <param name="glyph">Receives the glyph typed this update, for the owner to write over its background; null otherwise.</param>
-    /// <returns>True once all lines have been consumed; false during countdowns and character processing, including the final character's call.</returns>
+    /// <returns>True once all lines have been typed; false while counting down and while typing, including the update that types the final character.</returns>
     /// <remarks>The timer reload uses the previous delay before first-start initialization, so the first two character updates are consecutive; later characters skip two intervening updates.</remarks>
-    /// <exception cref="InvalidOperationException">An eligible call requires text, but no installed message is bound.</exception>
+    /// <exception cref="InvalidOperationException">An update ready to type needs text, but no installed message is bound.</exception>
     public bool Step(out EscapeTypewriterGlyph? glyph)
     {
         ClickRequested = false;

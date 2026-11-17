@@ -341,11 +341,11 @@ internal sealed class EnemySheetShades
                 foreach (ShadeColours step in GhostFadeSteps())
                     shades.Add(SheetShade.Run(step.Shade, first, step.Colours));
                 break;
-            case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.BombTorizoOrb or EnemyDefinitionId.GoldenTorizoOrb:
+            case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo:
                 // The Torizos' colourings over their own rows (#1512).
                 shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours"),
                     (inputs.Maps ?? throw Missing("Torizo belly glow colours")).RoomPaletteFx,
-                    enemy is EnemyDefinitionId.GoldenTorizo or EnemyDefinitionId.GoldenTorizoOrb ? ColourEffectId.GoldenTorizoBelly : ColourEffectId.BombTorizoBelly));
+                    enemy is EnemyDefinitionId.GoldenTorizo ? ColourEffectId.GoldenTorizoBelly : ColourEffectId.BombTorizoBelly));
                 break;
             case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
                 or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle

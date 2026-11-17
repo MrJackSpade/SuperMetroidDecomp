@@ -180,7 +180,7 @@ using static SuperMetroid.Verification.Frontend.GameConfigurationVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverRomDataVerification;
 using static SuperMetroid.Verification.Saves.GameSaveJsonVerification;
 using static SuperMetroid.Verification.Progression.GameTimeVerification;
-using static SuperMetroid.Verification.Frontend.ControllerRepeatDelayVerification;
+using static SuperMetroid.Verification.Input.HeldButtonRepeatVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplaySnapshotTestsVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.GateBeamCollisionVerification;
@@ -581,7 +581,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyPhantoonPosition), () => VerifyPhantoonPosition()),
         new(nameof(VerifyPausePaletteSound), () => VerifyPausePaletteSound()),
         new(nameof(VerifyKnownRandomSequence), () => VerifyKnownRandomSequence()),
-        new(nameof(VerifyTimedHeldInputTimeline), () => VerifyTimedHeldInputTimeline()),
         new(nameof(VerifyEventBitfield), () => VerifyEventBitfield()),
         new(nameof(VerifyBossBitfield), () => VerifyBossBitfield()),
         new(nameof(VerifyMultiplicationExhaustively), () => VerifyMultiplicationExhaustively()),
@@ -680,7 +679,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyEndingCreditsState), () => VerifyEndingCreditsState()),
         new(nameof(SuperMetroid.Verification.Frontend.Ending.EndingSceneColoursVerification.VerifyEndingSceneColours),
             SuperMetroid.Verification.Frontend.Ending.EndingSceneColoursVerification.VerifyEndingSceneColours),
-        new(nameof(VerifyRepeatAndHeldInputDelays), () => VerifyRepeatAndHeldInputDelays()),
+        new(nameof(VerifyHeldButtonRepeat), () => VerifyHeldButtonRepeat()),
         new(nameof(VerifyDemoInputObject), () => VerifyDemoInputObject()),
         new(nameof(VerifyAttractDemoScene), () => VerifyAttractDemoScene()),
         new(nameof(VerifyAttractDemoControllerOverride), () => VerifyAttractDemoControllerOverride()),

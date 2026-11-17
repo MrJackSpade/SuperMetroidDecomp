@@ -162,7 +162,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// Runs the pause menu's input once the update's input is latched and the
     /// delayed-held filter applied. Returns true when Start requests unpausing.
     /// </summary>
-    /// <param name="delayedHeldInput">The held buttons after the delayed-held filter, which the page chrome reads.</param>
+    /// <param name="delayedHeldInput">The held buttons that repeat on this update, which the page chrome reads.</param>
     /// <param name="newlyPressedInput">The buttons newly pressed this update, which the equipment page reads.</param>
     /// <param name="heldInput">The ordinary held buttons, which the map's scroll arrows read.</param>
     /// <param name="frameCycle">The runtime's short frame counter, the colour animation's phase.</param>

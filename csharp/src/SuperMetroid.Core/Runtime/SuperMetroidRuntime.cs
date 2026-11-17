@@ -339,6 +339,9 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public ControllerInputState PlayerButtons { get; } = new();
 
+    /// <summary>The pause screen's held-button repeat, which keeps its count between pauses for the runtime's lifetime.</summary>
+    public HeldButtonRepeat PauseHeldButtonRepeat { get; } = new();
+
     /// <summary>Escape timer state machine.</summary>
     public EscapeTimer EscapeTimer { get; } = new();
 
@@ -955,11 +958,11 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Invokes the pause-menu held-input filter with the controller sample latched by the most recent frame boundary.
+    /// Updates the pause screen's held-button repeat from the buttons the most recent frame boundary latched.
     /// </summary>
-    /// <param name="repeatDelay">The updates, less one, a held button must stay unchanged before it repeats.</param>
-    public void UpdatePauseHeldInput(int repeatDelay) =>
-        System.UpdateHeldInput(repeatDelay, PlayerButtons.Current, PlayerButtons.NewlyPressed);
+    /// <param name="repeatDelay">The unchanged updates a held button waits through before it repeats.</param>
+    public void UpdatePauseHeldButtonRepeat(int repeatDelay) =>
+        PauseHeldButtonRepeat.Update(repeatDelay, PlayerButtons.Current, PlayerButtons.NewlyPressed);
 
     /// <summary>Applies the assists' end-of-update floors and returns the ammunition the update borrowed.</summary>
     internal void ApplyEndOfUpdateAssists(

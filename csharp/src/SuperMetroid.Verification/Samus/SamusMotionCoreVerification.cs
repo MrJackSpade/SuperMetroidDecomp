@@ -333,16 +333,16 @@ internal static void VerifySamusHorizontalSpeed()
     // by `$90:87BD`; capture itself deliberately contains no interpolation.
     AssertTrue(!booster.CaptureSpeedEchoPosition(3, new(100, 80)), "speed echo skips non-fourth frame");
     AssertTrue(booster.CaptureSpeedEchoPosition(4, new(101, 81)), "speed echo captures the first echo");
-    AssertEqual(SpeedEchoCursor.SecondEcho, booster.SpeedEchoCursor, "speed echo advances to the second echo");
+    AssertEqual(SpeedEchoPhase.CapturingSecond, booster.SpeedEchoPhase, "speed echo advances to the second echo");
     AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures the second echo");
-    AssertEqual(SpeedEchoCursor.FirstEcho, booster.SpeedEchoCursor, "speed echo alternation wraps after the second echo");
+    AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase, "speed echo alternation wraps after the second echo");
     AssertEqual(101, booster.FirstSpeedEchoPosition!.Value.X, "first speed echo X snapshot");
     AssertEqual(105, booster.SecondSpeedEchoPosition!.Value.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(booster.SuitShadeRestoreRequested,
         "CancelSpeedBoost publishes normal-suit palette restoration");
-    AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
+    AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "right-facing cancellation enters high-bit echo departure");
     AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
         "right-facing first departure speed is positive eight");
@@ -365,7 +365,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(83, booster.FirstSpeedEchoPosition!.Value.Y,
         "right departure the first echo approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
+    AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "departure index survives while either echo remains");
 
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
@@ -380,12 +380,12 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
         "right departure the first echo remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual(SpeedEchoCursor.Departing, booster.SpeedEchoCursor,
+    AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "one surviving departure keeps high-bit index");
     AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
         "right departure the first echo eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
-    AssertEqual(SpeedEchoCursor.FirstEcho, booster.SpeedEchoCursor,
+    AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase,
         "last crossed departure restores ordinary echo index");
 
     // Mirror the same signed-word comparison for a left-facing cancellation, with both echoes
@@ -413,7 +413,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
         "left departure the first echo clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
-    AssertEqual(SpeedEchoCursor.FirstEcho, leftDeparture.SpeedEchoCursor,
+    AssertEqual(SpeedEchoPhase.CapturingFirst, leftDeparture.SpeedEchoPhase,
         "left departure clears shared index after both slots cross");
 
     AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster }),

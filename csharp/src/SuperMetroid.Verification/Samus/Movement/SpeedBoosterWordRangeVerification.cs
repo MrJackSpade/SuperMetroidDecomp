@@ -68,14 +68,14 @@ internal static class SpeedBoosterWordRangeVerification
         AssertTrue(!boosted.SpeedEchoesDeparting, "a Samus who has not boosted is not departing");
         AssertTrue(boosted.CaptureSpeedEchoPosition(0, new(40, 50)), "a full boost captures on a fourth frame");
         AssertEqual(new Position16<RoomPixels>(40, 50), boosted.FirstSpeedEchoPosition, "the first capture fills the first slot");
-        AssertEqual(SpeedEchoCursor.SecondEcho, boosted.SpeedEchoCursor, "the first capture moves the cursor to the second slot");
+        AssertEqual(SpeedEchoPhase.CapturingSecond, boosted.SpeedEchoPhase, "the first capture moves the cursor to the second slot");
         AssertTrue(boosted.CaptureSpeedEchoPosition(4, new(44, 50)), "the next fourth frame captures again");
         AssertEqual(new Position16<RoomPixels>(44, 50), boosted.SecondSpeedEchoPosition, "the second capture fills the second slot");
-        AssertEqual(SpeedEchoCursor.FirstEcho, boosted.SpeedEchoCursor, "stepping past the second slot returns the cursor to the first");
+        AssertEqual(SpeedEchoPhase.CapturingFirst, boosted.SpeedEchoPhase, "stepping past the second slot returns the cursor to the first");
 
         // Cancellation publishes the departure index, which stops capture.
         boosted.CancelRunningMomentum(SamusFacingDirection.Right);
-        AssertEqual(SpeedEchoCursor.Departing, boosted.SpeedEchoCursor, "cancellation sends the echoes departing");
+        AssertEqual(SpeedEchoPhase.Departing, boosted.SpeedEchoPhase, "cancellation sends the echoes departing");
         AssertTrue(boosted.SpeedEchoesDeparting, "the departing cursor is the departure state");
         AssertTrue(!boosted.CaptureSpeedEchoPosition(4, new(60, 70)), "departing echoes are not recaptured");
     }

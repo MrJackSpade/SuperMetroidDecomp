@@ -78,7 +78,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Run, 10)),
             "running foot-contact frame past table");
         AssertThrows<InvalidDataException>(
-            () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.Unreached, 2)),
+            () => SamusAtmosphericEffects.IsRunningFootContact(new SamusAnimationTarget(SamusAnimationSegmentName.SlowStride, 2)),
             "running foot-contact frame off the stride");
         AssertEqual<CrateriaAtmosphericEffect?>(null,
             SamusAtmosphericEffects.ForCrateriaRoom(RoomDefinitions.GreenPiratesShaft),

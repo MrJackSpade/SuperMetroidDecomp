@@ -21,10 +21,10 @@ internal static class RunningCadenceVerification
     internal static void VerifyRunningCadence(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
-        AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.OrdinaryDelays, "ordinary running delays");
-        IReadOnlyList<IReadOnlyList<int>> stages = SamusRunningCadenceDefinitions.BoostStageDelays;
-        for (int stage = 0; stage < stages.Count; stage++)
-            AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage), stages[stage], $"boost stage {stage} delays");
+        AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.Timings[SamusRunningCadence.Ordinary].Delays, "ordinary running delays");
+        for (int stage = 0; stage < SamusSpeedBoostCounter.AuthoredStages; stage++)
+            AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage),
+                SamusRunningCadenceDefinitions.Timings[SamusRunningCadences.SpeedBoostCadence(stage)].Delays, $"boost stage {stage} delays");
         for (int selection = 0; selection <= SamusRunningCadenceCodec.UnauthoredSelection; selection++)
             AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(CadenceOfSelection(selection)),
                 $"restart countdown after selection {selection}");
@@ -59,7 +59,7 @@ internal static class RunningCadenceVerification
         {
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, 0);
             for (int frame = 0; frame < SamusRunningCadenceCodec.FrameCount; frame++)
-                AssertEqual(stages[stage][frame], speed.SpeedBoosterDelay(residue, frame), "the counter's stage selects its cadence");
+                AssertEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage)[frame], speed.SpeedBoosterDelay(residue, frame), "the counter's stage selects its cadence");
         }
 
         if (definitionsOnly) return;

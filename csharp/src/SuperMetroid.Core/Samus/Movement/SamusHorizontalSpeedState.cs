@@ -91,13 +91,13 @@ public sealed class SamusHorizontalSpeedState
     public bool SuitShadeRestoreRequested { get; private set; }
 
     /// <summary>
-    /// The speed echo cursor. Ordinary active Speed Booster captures alternate between the first and second echoes;
-    /// cancellation sends them departing while the two stored bodies travel back toward Samus.
+    /// What the speed echoes are doing. Ordinary active Speed Booster captures alternate between the first and second
+    /// echoes; cancellation sends them departing while the two stored bodies travel back toward Samus.
     /// </summary>
-    public SpeedEchoCursor SpeedEchoCursor { get; private set; }
+    public SpeedEchoPhase SpeedEchoPhase { get; private set; }
 
     /// <summary>Whether the echoes are departing toward Samus, which only cancellation starts.</summary>
-    public bool SpeedEchoesDeparting => SpeedEchoCursor.IsDeparting;
+    public bool SpeedEchoesDeparting => SpeedEchoPhase == SpeedEchoPhase.Departing;
 
     /// <summary>Where the first Speed Booster echo stands, or none while there is no first echo.</summary>
     public Position16<RoomPixels>? FirstSpeedEchoPosition { get; private set; }
@@ -457,7 +457,7 @@ public sealed class SamusHorizontalSpeedState
     /// The gameplay clock, not the frame counter, selects the four-frame sampling phase.
     /// </summary>
     /// <param name="gameTimeFrames">The gameplay clock's frames within its second, zero or more; only its four-frame phase is read and nothing stores it.</param>
-    /// <param name="position">Samus's whole-pixel room position sampled into the echo the cursor names.</param>
+    /// <param name="position">Samus's whole-pixel room position sampled into the echo the phase names.</param>
     public bool CaptureSpeedEchoPosition(
         int gameTimeFrames,
         Position16<RoomPixels> position)
@@ -470,12 +470,22 @@ public sealed class SamusHorizontalSpeedState
             return false;
         }
 
-        if (SpeedEchoCursor.CapturesFirstEcho)
-            FirstSpeedEchoPosition = position;
-        else
-            SecondSpeedEchoPosition = position;
+        switch (SpeedEchoPhase)
+        {
+            case SpeedEchoPhase.CapturingFirst:
+                FirstSpeedEchoPosition = position;
+                SpeedEchoPhase = SpeedEchoPhase.CapturingSecond;
+                break;
+            case SpeedEchoPhase.CapturingSecond:
+                SecondSpeedEchoPosition = position;
+                SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
+                break;
+            case SpeedEchoPhase.Departing:
+                throw new InvalidOperationException("Departing echoes are not captured.");
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SpeedEchoPhase)} {SpeedEchoPhase}.");
+        }
 
-        SpeedEchoCursor = SpeedEchoCursor.AfterCapture();
         return true;
     }
 
@@ -485,7 +495,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void ClearSpeedEchoes()
     {
-        SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
+        SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         FirstSpeedEchoHorizontalSpeed = 0;
         SecondSpeedEchoHorizontalSpeed = 0;
         FirstSpeedEchoPosition = null;
@@ -526,7 +536,7 @@ public sealed class SamusHorizontalSpeedState
         // the echoes are departing must *not* reset the velocities or restart the two bodies.
         if (!SpeedEchoesDeparting)
         {
-            SpeedEchoCursor = SpeedEchoCursor.Departing;
+            SpeedEchoPhase = SpeedEchoPhase.Departing;
             int speed = facing == SamusFacingDirection.Left ? -SamusMovementDefinitions.SpeedEchoDepartureSpeed : SamusMovementDefinitions.SpeedEchoDepartureSpeed;
             FirstSpeedEchoHorizontalSpeed = speed;
             SecondSpeedEchoHorizontalSpeed = speed;
@@ -556,7 +566,7 @@ public sealed class SamusHorizontalSpeedState
         CycleShadeTimer = 0;
         CycleShadeStep = 0;
         SpeedBoostCounter = default;
-        SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
+        SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         FirstSpeedEchoHorizontalSpeed = SecondSpeedEchoHorizontalSpeed = 0;
         FirstSpeedEchoPosition = SecondSpeedEchoPosition = null;
     }
@@ -664,7 +674,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Clears the departure state after both departing echoes have been considered.
-    /// Once neither echo remains, the cursor returns to the first echo.
+    /// Once neither echo remains, the next capture fills the first echo again.
     /// </summary>
     public void FinishDepartingSpeedEchoFrame()
     {
@@ -672,7 +682,7 @@ public sealed class SamusHorizontalSpeedState
             FirstSpeedEchoPosition is null &&
             SecondSpeedEchoPosition is null)
         {
-            SpeedEchoCursor = SpeedEchoCursor.FirstEcho;
+            SpeedEchoPhase = SpeedEchoPhase.CapturingFirst;
         }
     }
 

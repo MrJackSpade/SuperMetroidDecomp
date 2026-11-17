@@ -12,34 +12,15 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {
-    /// <summary>The delay, in ticks, of each frame of ordinary running.</summary>
-    internal static IReadOnlyList<int> OrdinaryDelays { get; } = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
-
-    /// <summary>
-    /// The delay, in ticks, of each frame of each authored boost stage; the index is the boost stage, zero through four.
-    /// </summary>
-    internal static IReadOnlyList<IReadOnlyList<int>> BoostStageDelays { get; } =
-    [
-        [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-        [2, 3, 2, 3, 2, 3, 2, 3, 2, 3],
-        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-        [1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    ];
-
-    /// <summary>
-    /// The cadence countdown the boost restarts with after advancing onto each authored stage: stages zero through
-    /// three restart at one, the boost's stage four at two.
-    /// </summary>
-    internal static IReadOnlyList<int> CountdownAfterAdvance { get; } = [1, 1, 1, 1, 2];
-
-    /// <summary>The cadence of each authored boost stage; the index is the boost stage, zero through four.</summary>
-    internal static IReadOnlyList<SamusRunningCadence> BoostStageCadences { get; } =
-    [
-        SamusRunningCadence.BoostStage0,
-        SamusRunningCadence.BoostStage1,
-        SamusRunningCadence.BoostStage2,
-        SamusRunningCadence.BoostStage3,
-        SamusRunningCadence.BoostStage4,
-    ];
+    /// <summary>Each authored cadence's timing: ordinary running's and each Speed Booster stage's (#2324).</summary>
+    internal static IReadOnlyDictionary<SamusRunningCadence, SamusRunningCadenceTiming> Timings { get; } =
+        new Dictionary<SamusRunningCadence, SamusRunningCadenceTiming>
+        {
+            [SamusRunningCadence.Ordinary] = new([2, 2, 2, 2, 2, 2, 2, 2, 2, 2], Boost: null),
+            [SamusRunningCadence.BoostStage0] = new([3, 3, 3, 3, 3, 3, 3, 3, 3, 3], new(Stage: 0, CountdownAfterAdvance: 1)),
+            [SamusRunningCadence.BoostStage1] = new([2, 3, 2, 3, 2, 3, 2, 3, 2, 3], new(Stage: 1, CountdownAfterAdvance: 1)),
+            [SamusRunningCadence.BoostStage2] = new([2, 2, 2, 2, 2, 2, 2, 2, 2, 2], new(Stage: 2, CountdownAfterAdvance: 1)),
+            [SamusRunningCadence.BoostStage3] = new([1, 2, 1, 2, 1, 2, 1, 2, 1, 2], new(Stage: 3, CountdownAfterAdvance: 1)),
+            [SamusRunningCadence.BoostStage4] = new([1, 1, 1, 1, 1, 1, 1, 1, 1, 1], new(Stage: 4, CountdownAfterAdvance: 2)),
+        };
 }

@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// The charge flare's animations (#1624, #1747, #2285): each run's pictures with the updates each shows for, and how each
 /// component's animation plays its runs. The main flare plays its opening once and then repeats its loop: the opening's
-/// first two pictures alternate for eight beats and its third and second for eight more, and the loop alternates its
-/// third and fourth for fourteen. Each spark ring plays its six pictures and restarts from its first.
+/// ember and glow alternate for eight beats and its white ball and glow for eight more, and the loop alternates the white
+/// ball and the starburst for fourteen. Each spark ring draws in from its widest to its narrowest and starts again.
 /// </summary>
 internal static class ChargeFlareAnimationDefinitions
 {
@@ -28,16 +28,16 @@ internal static class ChargeFlareAnimationDefinitions
     {
         [S.MainFlareOpening] =
         [
-            Show(P.MainFirst, 4), Show(P.MainSecond, 4), Show(P.MainFirst, 4), Show(P.MainSecond, 4), Show(P.MainFirst, 4), Show(P.MainSecond, 4), Show(P.MainFirst, 4), Show(P.MainSecond, 4),
-            Show(P.MainThird, 4), Show(P.MainSecond, 4), Show(P.MainThird, 4), Show(P.MainSecond, 4), Show(P.MainThird, 4), Show(P.MainSecond, 4), Show(P.MainThird, 4), Show(P.MainSecond, 4),
+            Show(P.Ember, 4), Show(P.Glow, 4), Show(P.Ember, 4), Show(P.Glow, 4), Show(P.Ember, 4), Show(P.Glow, 4), Show(P.Ember, 4), Show(P.Glow, 4),
+            Show(P.WhiteBall, 4), Show(P.Glow, 4), Show(P.WhiteBall, 4), Show(P.Glow, 4), Show(P.WhiteBall, 4), Show(P.Glow, 4), Show(P.WhiteBall, 4), Show(P.Glow, 4),
         ],
         [S.MainFlareLoop] =
         [
-            Show(P.MainThird, 4), Show(P.MainFourth, 4), Show(P.MainThird, 4), Show(P.MainFourth, 4), Show(P.MainThird, 4), Show(P.MainFourth, 4), Show(P.MainThird, 4), Show(P.MainFourth, 4),
-            Show(P.MainThird, 4), Show(P.MainFourth, 4), Show(P.MainThird, 4), Show(P.MainFourth, 4), Show(P.MainThird, 4), Show(P.MainFourth, 4),
+            Show(P.WhiteBall, 4), Show(P.Starburst, 4), Show(P.WhiteBall, 4), Show(P.Starburst, 4), Show(P.WhiteBall, 4), Show(P.Starburst, 4), Show(P.WhiteBall, 4), Show(P.Starburst, 4),
+            Show(P.WhiteBall, 4), Show(P.Starburst, 4), Show(P.WhiteBall, 4), Show(P.Starburst, 4), Show(P.WhiteBall, 4), Show(P.Starburst, 4),
         ],
-        [S.SlowSparks] = [Show(P.SparksFirst, 6), Show(P.SparksSecond, 5), Show(P.SparksThird, 4), Show(P.SparksFourth, 4), Show(P.SparksFifth, 4), Show(P.SparksSixth, 4)],
-        [S.FastSparks] = [Show(P.SparksFirst, 5), Show(P.SparksSecond, 4), Show(P.SparksThird, 3), Show(P.SparksFourth, 3), Show(P.SparksFifth, 3), Show(P.SparksSixth, 3)],
+        [S.SlowSparks] = [Show(P.SparksWidest, 6), Show(P.SparksWider, 5), Show(P.SparksWide, 4), Show(P.SparksNarrow, 4), Show(P.SparksNarrower, 4), Show(P.SparksNarrowest, 4)],
+        [S.FastSparks] = [Show(P.SparksWidest, 5), Show(P.SparksWider, 4), Show(P.SparksWide, 3), Show(P.SparksNarrow, 3), Show(P.SparksNarrower, 3), Show(P.SparksNarrowest, 3)],
     });
 
     /// <summary>Each component's runs, in the order its pictures stand: the main flare's opening and loop, each spark ring's cycle.</summary>

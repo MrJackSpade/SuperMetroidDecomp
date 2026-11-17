@@ -72,8 +72,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ButtonCounter = BeetomMotionDefinitions.MashCount;
         state.LastSeenPlayerActions = controllerInput;
 
-        // Every Beetom's initialization reseeds the game's random numbers, even when several Beetoms share a room.
-        _room.Random.Seed(BeetomRandomDefinitions.Seed);
+        _room.Random.Reseed(SpeciesRandomReseed.BeetomPlacement);
 
         // Samus's side picks the facing: a negative Samus-minus-enemy delta
         // selects the left-facing animation; nonnegative selects the right-facing animation.

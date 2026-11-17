@@ -17,10 +17,16 @@ public sealed class MagdolliteOverlayState : MagdollitePartState
     public MagdolliteOverlayAction Action { get; internal set; }
 
     /// <summary>
-    /// The cooldown before the head may attack again, counted down each overlay update: the throw animation restarts it
-    /// at 256, and the head, which polls it, attacks once it has run past zero.
+    /// The overlay updates before the head may attack again, the one after which it may included, counted down each
+    /// overlay update to none: the throw animation restarts it at
+    /// <see cref="MagdolliteMotionDefinitions.AttackCooldown"/>, and the head, which polls it, may attack once none are
+    /// left, restarting it at <see cref="MagdolliteMotionDefinitions.AttackPollWait"/> as it does.
     /// </summary>
-    public WrappingCountdown AttackTimer { get; internal set; }
+    public int AttackCooldown
+    {
+        get;
+        internal set => field = Ensure.AtLeastZero(value);
+    }
 
     /// <summary>The way the hand throws its lava: toward Samus's side at the apex (#2338).</summary>
     public HorizontalDirection ThrowDirection { get; internal set; }

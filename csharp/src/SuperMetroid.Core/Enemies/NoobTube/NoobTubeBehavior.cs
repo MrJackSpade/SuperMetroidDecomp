@@ -213,7 +213,7 @@ internal sealed class NoobTubeBehavior : IEnemyEntityFactory
                     int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
                     projectile.Position = projectile.Position.WithWholeX(atOwnColumn
                         ? column
-                        : CoordinateAxis.Wrap(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
+                        : NoobTubeDebrisDefinitions.ShardMirrorSpan - column);
                     ShardAnimation(projectile).ShowsMirroredFrame = !atOwnColumn;
                     break;
                 case NoobTubeProjectileCueKind.FlickerHidden:

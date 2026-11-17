@@ -16,8 +16,8 @@ internal sealed class KagoBugState(RoomEnemyPlace source) : EnemyProjectileState
         set => field = Ensure.AtLeastZero(value);
     }
 
-    /// <summary>Updates the bug waits on the ground before its next hop; it hops on the update after this reaches zero.</summary>
-    internal int IdleFrames
+    /// <summary>Updates the bug waits on the ground, the one it hops on included.</summary>
+    internal int GroundWait
     {
         get;
         set => field = Ensure.AtLeastZero(value);

@@ -79,8 +79,10 @@ internal static class GunshipLandingVerification
                 : (ushort)0;
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(openRoom) with { Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
-            observedEngineSound |= enemies.Audio.SoundRequests.Contains(
-                new SoundRequest(EnemySound.GunshipHover, Priority: SoundRequestPriority.Normal));
+            bool hummed = enemies.Audio.SoundRequests.Contains(new SoundRequest(EnemySound.GunshipHover, Priority: SoundRequestPriority.Normal));
+            if (frames == 1)
+                AssertTrue(hummed, "the ship descending after Ceres hums on its first update (#2373)");
+            observedEngineSound |= hummed;
 
             if (GunshipState.Of(top).Phase == GunshipPhase.DescendAfterCeres)
             {

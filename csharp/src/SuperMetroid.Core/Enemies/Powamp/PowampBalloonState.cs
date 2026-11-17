@@ -17,8 +17,8 @@ public sealed class PowampBalloonState
     public Position16<RoomPixels> Spawn { get; internal set; }
 
     /// <summary>
-    /// The balloon's grappled rise in room pixels, copied from its spawn settings and subtracted from the balloon's spawn
-    /// Y, wrapping at the room's top edge, to obtain the grappled body's target.
+    /// The balloon's grappled rise in room pixels, copied from its spawn settings: the grappled body rises until it reaches
+    /// the balloon's spawn Y less this distance.
     /// </summary>
     public int GrappleTravelDistance { get; internal set; }
 

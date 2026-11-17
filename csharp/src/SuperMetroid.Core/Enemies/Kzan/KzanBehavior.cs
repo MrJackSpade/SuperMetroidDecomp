@@ -129,7 +129,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = KzanAction.Falling;
     }
 
-    /// <summary>Moves the Kzan down at its speed, landing it at its falling target (<see cref="CoordinateAxis.Precedes"/>), carries Samus, and speeds the fall up.</summary>
+    /// <summary>Applies the downward speed, stops at the target, carries Samus, and accelerates the fall.</summary>
     private void RunKzanFalling(
         RoomEnemyPlace place,
         KzanEnemyState state,
@@ -190,7 +190,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyCollision.IsSamusStandingOn(place, samus, KzanMotionDefinitions.SamusStandingBias))
             return;
 
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.Difference(place.Position.Y.Whole, state.PreviousY));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, place.Position.Y.Whole - state.PreviousY);
     }
 
     /// <summary>Advances Kzan's typed animation.</summary>

@@ -51,8 +51,8 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Reads the current random number without drawing a new one.</summary>
     public int Read() => system.RandomNumber;
 
-    /// <summary>Installs an enemy-supplied seed into the shared system RNG.</summary>
-    public void Seed(int value) => system.SetRandomNumber(value);
+    /// <summary>Overwrites the shared random numbers with a species' seed.</summary>
+    public void Reseed(SpeciesRandomReseed reseed) => system.Random.Reseed(reseed);
 
     /// <inheritdoc/>
     RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => room.LoadedCamera.Scrolls.ReadScreen(screen);

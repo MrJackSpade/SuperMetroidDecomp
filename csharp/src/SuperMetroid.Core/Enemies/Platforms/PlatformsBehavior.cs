@@ -51,7 +51,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticalArt = null;
-        state.RestingY = CoordinateAxis.Wrap(place.Position.Y.Whole + 1);
+        state.RestingY = place.Position.Y.Whole + 1;
         state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
         state.MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(settings.VerticalAccelerationUpdates);
     }

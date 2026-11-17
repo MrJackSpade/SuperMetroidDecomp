@@ -13,35 +13,32 @@ public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffl
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
 
-    /// <summary>The most whole steps a sweep angle counts: far past any sweep, which stays within its second turn.</summary>
-    private const int MostSteps = ushort.MaxValue;
-
     /// <summary>The angle <paramref name="fractionsOfStep"/> 256ths of a step on from zero.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero or past the sweep angle's range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero.</exception>
     private NuclearWaffleSweepAngle(int fractionsOfStep) =>
-        FractionsOfStep = Ensure.BetweenInclusive(0, (MostSteps + 1) * FractionsPerStep - 1, fractionsOfStep);
+        FractionsOfStep = Ensure.AtLeastZero(fractionsOfStep);
 
     /// <summary>The angle in 256ths of a step from zero, counted on past each full turn.</summary>
     [IntegerQuantity("sweep angle in 256ths of a step, counted on past each full turn")]
     public int FractionsOfStep { get; }
 
     /// <summary>The angle <paramref name="steps"/> whole steps on from zero, counted on past each full turn, with no fraction.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero or past the sweep angle's range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero.</exception>
     public static NuclearWaffleSweepAngle FromSteps(int steps) =>
-        new(Ensure.BetweenInclusive(0, MostSteps, steps) * FractionsPerStep);
+        new(Ensure.AtLeastZero(steps) * FractionsPerStep);
 
     /// <summary>The whole step the angle lies in: the angle with its fraction dropped, as the head's place is read.</summary>
     public NuclearWaffleSweepAngle WholeStep => new(FractionsOfStep - FractionsOfStep % FractionsPerStep);
 
     /// <summary>The angle turned by <paramref name="steps"/> whole steps, back when negative, keeping its fraction.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero or past the sweep angle's range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero.</exception>
     public NuclearWaffleSweepAngle TurnedBySteps(int steps) => new(FractionsOfStep + steps * FractionsPerStep);
 
     /// <summary>The direction the angle points within one turn, its fraction kept: the rotation angle the orbit is placed at.</summary>
     public RotationAngle ToRotationAngle() => RotationAngle.NormalizeRaw(FractionsOfStep);
 
     /// <summary>The angle turned one update's worth at <paramref name="speed"/>, its fraction carrying into its whole steps.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero or past the sweep angle's range.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero.</exception>
     public static NuclearWaffleSweepAngle operator +(NuclearWaffleSweepAngle angle, AngularSpeed speed) =>
         new(angle.FractionsOfStep + speed.FractionsOfStep);
 

@@ -50,7 +50,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BrinstarPipeBugState(BrinstarPipeBugAction.WaitUntilOnScreen);
         place.SetSpeciesState(state);
         state.SpawnPosition = place.Position.Whole;
-        state.EmergenceTopY = CoordinateAxis.Wrap(state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight);
+        state.EmergenceTopY = state.SpawnPosition.Y - PipeBugDefinitions.BrinstarEmergenceHeight;
         state.RespawnDelay = PipeBugDefinitions.BrinstarRespawnWait;
         state.Playback = new AnimationPlayback<PipeBugSegment>(PipeBugAnimations.StartingWith(
             PipeBugAnimationChoices.Rising(IsStrong(place), HorizontalDirection.Left)), AnimationPlace.StartOfAnimation);
@@ -247,6 +247,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         BrinstarPipeBugState state,
         int cameraX)
     {
+        // The flight runs until the bug leaves the screen sideways. Flying left with the camera at the room's left edge, it
+        // crosses the edge and continues from the far end of the room's coordinates, which the despawn test reads as
+        // left of the room, so this room wrap is the flight's end (#2373).
         place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole +
             (state.Flight == HorizontalDirection.Left ? -PipeBugDefinitions.BrinstarFlightStep : PipeBugDefinitions.BrinstarFlightStep));
         // The despawn tests only the horizontal screen extent.
@@ -351,7 +354,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             place,
             axis: Axis.Vertical,
             signedOffset < 0 ? -PipeBugDefinitions.NorfairRiseSpeed : PipeBugDefinitions.NorfairRiseSpeed);
-        int targetY = CoordinateAxis.Wrap(state.RiseEndY + signedOffset);
+        int targetY = state.RiseEndY + signedOffset;
         int distancePastTarget = CoordinateAxis.Difference(place.Position.Y.Whole, targetY);
         bool reached = signedOffset < 0
             ? distancePastTarget < 0
@@ -571,7 +574,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = axis == Axis.Horizontal ? place.Position.AdvanceX(velocity) : place.Position.AdvanceY(velocity);
     }
 
-    /// <summary>Adds a wrapped signed 1/65536-pixel displacement to one position axis.</summary>
+    /// <summary>Adds a signed 1/65536-pixel displacement to one position axis.</summary>
     private static void AddPipeBugDisplacement(
         RoomEnemyPlace place,
         Axis axis,

@@ -24,8 +24,17 @@ internal static class MagdolliteMotionDefinitions
     /// <summary>How far below the throwing overlay its lava starts, in pixels.</summary>
     internal const int LavaDrop = 2;
 
-    /// <summary>How long the head waits after a throw before it may attack again, in updates.</summary>
-    internal const int AttackCooldown = 256;
+    /// <summary>
+    /// How long the head waits after a throw before it may attack again, in overlay updates: 257, the head polling after
+    /// the last of them.
+    /// </summary>
+    internal const int AttackCooldown = 257;
+
+    /// <summary>
+    /// The overlay updates a placed head, or one that has just polled an expired cooldown, waits before its next poll may
+    /// attack: one.
+    /// </summary>
+    internal const int AttackPollWait = 1;
 
     /// <summary>How fast thrown lava flies sideways, three pixels an update, toward the side it is thrown.</summary>
     internal static SignedEightEight LavaThrowSpeed { get; } = SignedEightEight.FromParts(3, 0);

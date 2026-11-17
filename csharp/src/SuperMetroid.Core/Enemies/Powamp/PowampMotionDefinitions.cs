@@ -87,6 +87,9 @@ internal static class PowampMotionDefinitions
     /// <summary>How long the body and balloon hold each sideways wiggle offset, in updates.</summary>
     internal const int WiggleStepDuration = 5;
 
+    /// <summary>The updates a placed body waits for its first wiggle step: one, so its first wiggle update steps.</summary>
+    internal const int FirstWiggleStepWait = 1;
+
     /// <summary>The speed the body rises at once its balloon has inflated: half a pixel an update, upward.</summary>
     internal static SignedSixteenSixteen RiseVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-8);
 

@@ -85,12 +85,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Action = SbugAction.ZigZag;
                 return;
             case SbugAction.ActivateRandomUntilCollision:
-                SetSbugRandomSeed();
+                _room.Random.Reseed(SpeciesRandomReseed.SbugRandomWanderActivation);
                 state.Action = SbugAction.ChooseRandomDirectionUntilCollision;
                 return;
             case SbugAction.ActivateRandomAndReverseWhenFar:
                 state.StraightMovementTimer = WrappingCountdown.Start(SbugMovementDefinitions.LongWanderDuration);
-                SetSbugRandomSeed();
+                _room.Random.Reseed(SpeciesRandomReseed.SbugRandomWanderActivation);
                 state.Action = SbugAction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
             case SbugAction.ActivateMoveForwardThenWait:
@@ -335,12 +335,6 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         CompassDirection facing) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, SbugAnimations.StartingWith(SbugMovement.FacingAnimation(facing)));
-
-    /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>
-    private void SetSbugRandomSeed()
-    {
-        _room.Random.Seed(SbugMovementDefinitions.RandomSeed);
-    }
 
     /// <summary>Advances Sbug's typed animation.</summary>
     internal static void AdvanceSbugTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>

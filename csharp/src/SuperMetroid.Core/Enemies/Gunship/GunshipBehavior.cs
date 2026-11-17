@@ -123,7 +123,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // Post-Ceres initialization attaches the top hull seventeen pixels above Samus and
             // enters the high-altitude descent used only after Ceres.
             place.Position = place.Position.WithWrappedWholeY(samus.Position.Y.Whole - GunshipMotionDefinitions.TopHullAboveSamus);
-            ship = new GunshipState(GunshipPhase.DescendAfterCeres);
+            ship = new GunshipState(GunshipPhase.DescendAfterCeres) { EngineSoundTimer = GunshipHoverSoundDefinitions.FirstDelayAfterCeres };
         }
         else
         {
@@ -175,8 +175,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         SamusState samus,
         GameplayAction newlyPressedControllerInput)
     {
-        // The hover sound plays once every interval of updates, in every phase.
-        if (--State(top).EngineSoundTimer <= 0)
+        // The engine sound plays on the update its timer runs out, which restarts it, in every phase of the ship.
+        if (--State(top).EngineSoundTimer == 0)
         {
             _audio.QueueEnemySound(EnemySound.GunshipHover, priority: SoundRequestPriority.Normal);
             State(top).EngineSoundTimer = GunshipHoverSoundDefinitions.Interval;
@@ -310,7 +310,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         State(top).BaseY = top.Position.Y.Whole;
         State(top).BobTimer = 1;
         State(top).Bob = GunshipIdleBob.First;
-        samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + GunshipMotionDefinitions.LandedSamusRightOfShip);
+        samus.Position = samus.Position.WithWholeX(top.Position.X.Whole + GunshipMotionDefinitions.LandedSamusRightOfShip);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipAnimation(pad, GunshipSegment.EntrancePadOpening);
         State(top).PhaseTimer = GunshipBoardingDefinitions.PadMovementDuration;

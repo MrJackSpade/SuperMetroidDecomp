@@ -58,10 +58,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeHopper(RoomEnemyPlace place)
     {
         HopperKind kind = HopperAnimationChoices.KindOf(place.DefinitionId);
-        // The setup overwrites the global RNG seed and consumes one generated value
-        // even though it never reads that value. This changes later enemy randomness and is
-        // therefore observable whenever a hopper appears earlier in population order.
-        _room.Random.Seed(HopperDecisions.SpawnRandomSeed);
+        // The placement's reseed is followed by a draw it never reads, which later consumers observe.
+        _room.Random.Reseed(SpeciesRandomReseed.HopperPlacement);
         _room.Random.Generate();
 
         var state = new HopperEnemyState(HopperAction.ChooseHopSize)

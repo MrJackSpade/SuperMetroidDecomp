@@ -587,7 +587,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (carryingSamus)
         {
-            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, CoordinateAxis.Difference(baby.Position.Y.Whole, previousY));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, baby.Position.Y.Whole - previousY);
         }
     }
 

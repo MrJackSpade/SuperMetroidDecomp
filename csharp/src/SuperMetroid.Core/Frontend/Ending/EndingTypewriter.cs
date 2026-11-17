@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -113,11 +115,11 @@ internal sealed class EndingTypewriter
     /// <summary>Counts collected expansions and items, clamped to 100.</summary>
     private int ItemPercentage()
     {
-        int count = inventory.MaxHealth / 100
-                  + inventory.MaxReserveEnergy / 100
-                  + inventory.MaxMissiles / 5
-                  + inventory.MaxSuperMissiles / 5
-                  + inventory.MaxPowerBombs / 5;
+        int count = inventory.MaxHealth / SamusEnergyDefinitions.EnergyPerTank
+                  + inventory.MaxReserveEnergy / SamusEnergyDefinitions.EnergyPerTank
+                  + inventory.MaxMissiles / CollectibleCapacityDefinitions.MissileTankMissiles
+                  + inventory.MaxSuperMissiles / CollectibleCapacityDefinitions.SuperMissileTankSuperMissiles
+                  + inventory.MaxPowerBombs / CollectibleCapacityDefinitions.PowerBombTankPowerBombs;
         count += (inventory.CollectedItems & EndingResultTextLayout.CollectibleItemMask).Count();
         count += (inventory.CollectedBeams & EndingResultTextLayout.CollectibleBeamMask).Count();
         return Math.Clamp(count, 0, 100);

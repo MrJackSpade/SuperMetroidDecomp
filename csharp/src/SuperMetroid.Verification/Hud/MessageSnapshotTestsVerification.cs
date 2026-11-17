@@ -32,7 +32,6 @@ internal static class MessageSnapshotTestsVerification
         int samples = 0;
         foreach (GameplayMessageId id in Enum.GetValues<GameplayMessageId>())
         {
-            if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
             AssertTrue(MessageBoxLayer.Capture(state, messages) is null, "inactive message has no overlay");
             state.Begin(id, 0, SuperMetroid.Core.Input.ControllerBindings.Default);

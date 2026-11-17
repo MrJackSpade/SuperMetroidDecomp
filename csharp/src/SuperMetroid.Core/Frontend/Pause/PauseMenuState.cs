@@ -723,8 +723,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if (samus.MaxReserveEnergy == 0) return;
         int tank = 0;
-        int full = samus.ReserveEnergy / PauseReserveEnergyDefinitions.EnergyPerTank;
-        int remainder = samus.ReserveEnergy % PauseReserveEnergyDefinitions.EnergyPerTank;
+        int full = samus.ReserveEnergy / SamusEnergyDefinitions.EnergyPerTank;
+        int remainder = samus.ReserveEnergy % SamusEnergyDefinitions.EnergyPerTank;
         for (; tank < full; tank++) Draw(PauseReserveTankVisual.Full, tank);
         if (remainder != 0)
         {
@@ -736,7 +736,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 steps++;
             Draw(PauseReserveTankParts.FillLevel(steps), tank++);
         }
-        for (; tank < samus.MaxReserveEnergy / PauseReserveEnergyDefinitions.EnergyPerTank; tank++)
+        for (; tank < samus.MaxReserveEnergy / SamusEnergyDefinitions.EnergyPerTank; tank++)
             Draw(PauseReserveTankVisual.Empty, tank);
         Draw(PauseReserveTankVisual.EndCap, tank);
 

@@ -61,7 +61,6 @@ public static class GameplayMessageBoxDefinitions
             [GameplayMessageId.Bombs] = GameplayMessagePanelButtonBinding.Shoot,
             [GameplayMessageId.XrayScope] = GameplayMessagePanelButtonBinding.Run,
             [GameplayMessageId.SpeedBooster] = GameplayMessagePanelButtonBinding.Run,
-            [GameplayMessageId.None] = GameplayMessagePanelButtonBinding.None,
             [GameplayMessageId.EnergyTank] = GameplayMessagePanelButtonBinding.None,
             [GameplayMessageId.VariaSuit] = GameplayMessagePanelButtonBinding.None,
             [GameplayMessageId.SpringBall] = GameplayMessagePanelButtonBinding.None,

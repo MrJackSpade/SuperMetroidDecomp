@@ -16,15 +16,13 @@ public sealed class EscapeTypewriterPresentation
     }
 
     /// <summary>Returns the installed warning text and placement for one escape scenario.</summary>
-    /// <param name="id">Ceres or Zebes message identity; None does not denote an installed message.</param>
+    /// <param name="id">Ceres or Zebes message identity.</param>
     /// <returns>The retained message with its read-only ordered line sequence and source identity.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is None or another undefined message value.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is no message.</exception>
     public EscapeTypewriterMessage Get(EscapeTypewriterMessageId id) => id switch
     {
         EscapeTypewriterMessageId.Ceres => ceres,
         EscapeTypewriterMessageId.Zebes => zebes,
-        EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id,
-            "No escape warning of this kind is installed."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id,
             "No escape warning of this kind is installed."),
     };

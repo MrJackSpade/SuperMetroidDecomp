@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public enum GameplayMessageId
 {
-    /// <summary>No gameplay message.</summary>
-    None,
     /// <summary>The Energy Tank acquisition text and title graphics.</summary>
     EnergyTank,
     /// <summary>The Missile Tank acquisition text and title graphics.</summary>

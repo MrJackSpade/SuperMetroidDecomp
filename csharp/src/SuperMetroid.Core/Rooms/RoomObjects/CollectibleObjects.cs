@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -238,11 +239,12 @@ internal sealed class CollectibleObjects
         switch (kind)
         {
             case InWorldCollectibleKind.EnergyTank:
-                samus.MaxHealth += CollectibleCapacityDefinitions.EnergyTankEnergy;
+                // An energy tank adds its energy to her maximum and fills her health.
+                samus.MaxHealth += SamusEnergyDefinitions.EnergyPerTank;
                 samus.Health = samus.MaxHealth;
                 return;
             case InWorldCollectibleKind.ReserveTank:
-                samus.MaxReserveEnergy += CollectibleCapacityDefinitions.ReserveTankEnergy;
+                samus.MaxReserveEnergy += SamusEnergyDefinitions.EnergyPerTank;
                 if (samus.ReserveTankMode == ReserveTankMode.None)
                     samus.ReserveTankMode = ReserveTankMode.Auto;
                 return;

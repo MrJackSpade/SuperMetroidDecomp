@@ -590,5 +590,5 @@ public static class StockAttractDemoScenes
 
     /// <summary>Samus's energy capacity with <paramref name="tanks"/> energy tanks: her starting energy and each tank's.</summary>
     private static int HealthForEnergyTanks(int tanks) =>
-        SamusEnergyDefinitions.StartingEnergy + tanks * CollectibleCapacityDefinitions.EnergyTankEnergy;
+        SamusEnergyDefinitions.StartingEnergy + tanks * SamusEnergyDefinitions.EnergyPerTank;
 }

@@ -13,10 +13,10 @@ public static class GameplayMessageButtonGlyphs
         GameplayMessageTilemapDefinitions.Glyphs[GameplayMessageButtons.Shown(binding)];
 
     /// <summary>The byte offset in <paramref name="messageId"/>'s panel where the button glyph goes; zero for a message without one.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is no message, or a message the glyph table does not list.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="messageId"/> is no message, or the gunship's save confirmation, whose panel the glyph table does not list.</exception>
     public static int SpecialGlyphByteOffset(GameplayMessageId messageId)
     {
-        if (!Enum.IsDefined(messageId) || messageId is GameplayMessageId.None or GameplayMessageId.GunshipSaveConfirmation)
+        if (!Enum.IsDefined(messageId) || messageId is GameplayMessageId.GunshipSaveConfirmation)
             throw new ArgumentOutOfRangeException(nameof(messageId));
         return GameplayMessageTilemapDefinitions.GlyphByteOffsets.TryGetValue(messageId, out int offset) ? offset : 0;
     }

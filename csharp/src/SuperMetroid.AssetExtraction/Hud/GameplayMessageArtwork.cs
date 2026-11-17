@@ -85,5 +85,5 @@ public sealed class GameplayMessageArtwork(
 
     /// <summary>The messages the ordinary message coroutine shows.</summary>
     private static IEnumerable<GameplayMessageId> OrdinaryMessages =>
-        Enum.GetValues<GameplayMessageId>().Where(GameplayMessageBoxState.IsOrdinary);
+        Enum.GetValues<GameplayMessageId>();
 }

@@ -465,8 +465,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
     internal EnemyRoomBinding Room { get; }
 
     /// <summary>
-    /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host installs
-    /// it (as when a saved game state is restored).
+    /// Rebinds the room's active escape typewriters to the host's current escape-warning text, after the host binds new
+    /// presentation content.
     /// </summary>
     /// <param name="value">The installed escape-warning text.</param>
     internal void RebindEscapeTypewriters(EscapeTypewriterPresentation value)

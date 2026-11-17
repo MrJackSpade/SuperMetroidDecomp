@@ -17,7 +17,6 @@ internal static class EscapeTypewriterGlyphTiles
     {
         EscapeTypewriterMessageId.Ceres => EscapeTypewriterTileDefinitions.CeresTileBase,
         EscapeTypewriterMessageId.Zebes => EscapeTypewriterTileDefinitions.ZebesTileBase,
-        EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(program), program, "No escape typewriter types this program."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "No escape typewriter types this program."),
     };
 

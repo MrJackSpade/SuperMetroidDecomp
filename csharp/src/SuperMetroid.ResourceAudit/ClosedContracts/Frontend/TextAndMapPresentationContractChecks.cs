@@ -39,7 +39,7 @@ internal static class TextAndMapPresentationContractChecks
                     ScreenSprites objects, System.Span<BackgroundTile> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterMessageId.Ceres);
                     escape.Get(EscapeTypewriterMessageId.Zebes);
-                    escape.Get(EscapeTypewriterMessageId.None);
+                    escape.Get((EscapeTypewriterMessageId)(-1));
                     escape.Get((EscapeTypewriterMessageId)99);
                     intro.GetLines(IntroNarrationPageId.Page1);
                     intro.Compile(IntroNarrationPageId.Page6);
@@ -80,7 +80,7 @@ internal static class TextAndMapPresentationContractChecks
         Require(before.UnresolvedCount == 18, "all eighteen calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
         // Ten calls name a member of their provider's domain: two escape messages, a narration page's lines and its
         // compiled page, the ending's two panels, the last credits row, the world title and two scroll directions. The eight
-        // others name no member: None and 99 for the escape messages and arrows, a value no narration page holds, credits rows past
+        // others name no member: -1 and 99 for the escape messages, None and 99 for the arrows, a value no narration page holds, credits rows past
         // either end and map sprite zero. The map screens' three LoadTo calls, all classified, left the fixture with their
         // contract, and the ending's sequence compile (one classified, one unresolved) left production for verification
         // (#1467), taking it from 14/9/0/23 to 10/8/0/18.

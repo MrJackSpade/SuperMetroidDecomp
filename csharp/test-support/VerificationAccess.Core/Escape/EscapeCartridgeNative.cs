@@ -16,7 +16,6 @@ internal static class EscapeCartridgeNative
         {
             EscapeTypewriterMessageId.Ceres => 0xa6c450,
             EscapeTypewriterMessageId.Zebes => 0xa6c49c,
-            EscapeTypewriterMessageId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         };
     }

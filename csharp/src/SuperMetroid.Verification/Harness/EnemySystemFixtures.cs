@@ -51,6 +51,7 @@ internal static class EnemySystemFixtures
             BreakableTerrain = breakableTerrain ?? new EnemyBreakableTerrainObjects(new RoomObjectPlaceList(new RoomObjectPlaces())),
             DoorPassage = doorPassage ?? new DoorPassage(),
             RoomFx = roomFx ?? new RoomFxOverlayState(),
+            Earthquake = new RoomEarthquake(),
         });
         system.BossArtwork = installedBosses;
         return system;

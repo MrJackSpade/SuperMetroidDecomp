@@ -30,9 +30,8 @@ internal static class SuperMissileEnemyHitQuakeVerification
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
             SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
         };
-        SamusProjectileSystem projectiles = CreateProjectileFixture();
         var earthquake = new RoomEarthquake();
-        projectiles.Earthquakes.BindRoomEarthquake(earthquake);
+        SamusProjectileSystem projectiles = InstalledFixtures.CreateProjectileSystem(earthquake);
         SamusBombProjectileSystem bombs = CreateBombFixture();
         projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Shots[0].Type.Family, "X fires a Super Missile");

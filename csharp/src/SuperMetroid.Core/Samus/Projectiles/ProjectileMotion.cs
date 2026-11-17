@@ -175,21 +175,18 @@ internal sealed class ProjectileMotion
         }
 
         SamusProjectileDirection direction = shot.Direction;
-        SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(direction);
-
-        // The missile's flight first applies the same small directional
-        // acceleration as beams. On the ignition frame the missile's ignition below replaces velocity,
-        // so this addition is intentionally overwritten; subsequent frames retain it.
-        Accelerate(shot, accelerations.Beam);
-
-        if (shot.MissileIgnition != SamusMissileIgnition.Ignited)
+        MissileShotState missile = shot.KindStateAs<MissileShotState>();
+        if (missile.Ignition != SamusMissileIgnition.Ignited)
         {
             // A missile ignites on its first input phase: its velocity is rebuilt from its
             // ignition speed plus Samus's inherited motion.
-            IgniteMissile(samus, shot);
+            IgniteMissile(samus, shot, missile);
         }
         else
         {
+            // An ignited missile takes a beam's small directional acceleration and then its own.
+            SamusDirectionAccelerations accelerations = SamusProjectileAccelerations.For(direction);
+            Accelerate(shot, accelerations.Beam);
             Accelerate(shot, accelerations.Missile);
         }
 
@@ -243,12 +240,13 @@ internal sealed class ProjectileMotion
         }
 
         SamusProjectileDirection direction = shot.Direction;
-        if (shot.MissileIgnition != SamusMissileIgnition.Ignited)
+        SuperMissileShotState superMissile = shot.KindStateAs<SuperMissileShotState>();
+        if (superMissile.Ignition != SamusMissileIgnition.Ignited)
         {
             // A Super Missile ignites as a missile does on its first input phase, and then
             // immediately allocates its invisible collision link.
-            IgniteMissile(samus, shot);
-            SpawnSuperMissileLink(samus, shot);
+            IgniteMissile(samus, shot, superMissile);
+            SpawnSuperMissileLink(samus, shot, superMissile);
         }
         else
         {
@@ -262,7 +260,7 @@ internal sealed class ProjectileMotion
             if (collided)
                 _terrainCollision.KillMissile(shot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, shot, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
+                level, shot, superMissile, axis: Axis.Horizontal, sharedProjectiles, roomObjects);
         }
         if (!collided && MovesVertically(direction))
         {
@@ -270,7 +268,7 @@ internal sealed class ProjectileMotion
             if (collided)
                 _terrainCollision.KillMissile(shot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, shot, axis: Axis.Vertical, sharedProjectiles, roomObjects);
+                level, shot, superMissile, axis: Axis.Vertical, sharedProjectiles, roomObjects);
         }
 
         if (DeleteIfOutsideMovementWindow(shot, cameraPosition))
@@ -308,16 +306,13 @@ internal sealed class ProjectileMotion
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition)
     {
-        const int MinimumVisibleCoordinate = -64;
-        const int MaximumVisibleCoordinateExclusive = 320;
-
         int screenX = CoordinateAxis.Difference(shot.Position.X.Whole, cameraPosition.X);
         int screenY = CoordinateAxis.Difference(shot.Position.Y.Whole, cameraPosition.Y);
         bool outside =
-            screenX < MinimumVisibleCoordinate ||
-            screenX >= MaximumVisibleCoordinateExclusive ||
-            screenY < MinimumVisibleCoordinate ||
-            screenY >= MaximumVisibleCoordinateExclusive;
+            screenX < -SamusProjectileMotionDefinitions.MovementWindowApron ||
+            screenX >= SamusProjectileMotionDefinitions.MovementWindowFarEdge ||
+            screenY < -SamusProjectileMotionDefinitions.MovementWindowApron ||
+            screenY >= SamusProjectileMotionDefinitions.MovementWindowFarEdge;
         if (!outside)
             return false;
 
@@ -329,12 +324,12 @@ internal sealed class ProjectileMotion
     /// Ignites a missile: its velocity is rebuilt from its ignition speed, one pixel per update, or more after a
     /// reflection's head start, combined with Samus's inherited motion.
     /// </summary>
-    private static void IgniteMissile(SamusState samus, SamusProjectile shot)
+    private static void IgniteMissile(SamusState samus, SamusProjectile shot, MissileShotState missile)
     {
-        SignedEightEight ignitionSpeed = shot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
+        SignedEightEight ignitionSpeed = missile.Ignition == SamusMissileIgnition.PendingAfterReflection
             ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
             : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
-        shot.MissileIgnition = SamusMissileIgnition.Ignited;
+        missile.Ignition = SamusMissileIgnition.Ignited;
         BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, shot, ignitionSpeed);
     }
 
@@ -344,7 +339,8 @@ internal sealed class ProjectileMotion
     /// </summary>
     internal void SpawnSuperMissileLink(
         SamusState samus,
-        SamusProjectile owner)
+        SamusProjectile owner,
+        SuperMissileShotState ownerState)
     {
         if (_pool.FindFreePlace() is not { } place)
             return;
@@ -364,10 +360,10 @@ internal sealed class ProjectileMotion
         link.Damage = SamusProjectileDamage.Read(kind);
         link.Playback = SamusProjectilePlayback.Start(SamusProjectileKinds.SoleAnimation(kind));
         link.FrameHold = WrappingCountdown.Start(1);
-        link.Behavior = SamusShotBehaviors.SuperMissileLink;
-        link.SuperMissileLinkPlace = UnlinkedSuperMissileLink.Place;
+        link.Install(SamusShotBehaviors.SuperMissileLink,
+            new SuperMissileShotState(SamusMissileIgnition.Pending, UnlinkedSuperMissileLink.Place));
 
-        owner.SuperMissileLinkPlace = link.Place;
+        ownerState.LinkPlace = link.Place;
         _pool.ShotCount.CountShot();
     }
 
@@ -386,11 +382,12 @@ internal sealed class ProjectileMotion
     private void UpdateSuperMissileLinkAxis(
         RoomLevelData level,
         SamusProjectile owner,
+        SuperMissileShotState ownerState,
         Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomObjects roomObjects)
     {
-        if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkPlace is not { } linkPlace)
+        if (ownerState.Ignition != SamusMissileIgnition.Ignited || ownerState.LinkPlace is not { } linkPlace)
             return;
         SamusProjectile link = _pool.Shots[linkPlace];
         if (!link.IsActive)
@@ -487,13 +484,10 @@ internal sealed class ProjectileMotion
     {
         int blockX = RoomGridConversions.PixelToBlock(shot.Position.X.Whole);
         int blockY = RoomGridConversions.PixelToBlock(shot.Position.Y.Whole);
-        if ((uint)blockX >= level.Size.X ||
-            (uint)blockY >= level.Size.Y)
-        {
+        if (blockX >= level.Size.X || blockY >= level.Size.Y)
             return false;
-        }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
 
         // Extension blocks end the step with a repeat result, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour

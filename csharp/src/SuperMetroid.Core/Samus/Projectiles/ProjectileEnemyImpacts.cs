@@ -52,13 +52,6 @@ internal sealed class ProjectileEnemyImpacts
     }
 
     /// <summary>
-    /// The name for impacts whose geometry is specifically an extended
-    /// frame hitbox. The behavior is the same projectile prelude, not a separate fix.
-    /// </summary>
-    public void ApplyFrameHitboxCollisionPrelude(SamusProjectile projectile, bool markCollisionState) =>
-        ApplyEnemyCollisionPrelude(projectile, markCollisionState);
-
-    /// <summary>
     /// Reflects the projectile after an enemy reaction has replaced
     /// the projectile direction. Reflection preserves the projectile family/type and world
     /// position, but reconstructs its damage, direction-specific animation, radii,
@@ -77,7 +70,8 @@ internal sealed class ProjectileEnemyImpacts
             // Reflection deletes the projectile in the place the Super Missile names as its link
             // (UnlinkedSuperMissileLink) before repurposing the owner; it does not broadly delete
             // unrelated Super Missiles.
-            if (shot.SuperMissileLinkPlace is { } linkPlace && linkPlace != shot.Place && _pool.Shots[linkPlace].IsActive)
+            if (shot.KindStateAs<SuperMissileShotState>().LinkPlace is { } linkPlace && linkPlace != shot.Place &&
+                _pool.Shots[linkPlace].IsActive)
                 _animation.ClearProjectile(_pool.Shots[linkPlace]);
         }
 
@@ -116,22 +110,17 @@ internal sealed class ProjectileEnemyImpacts
         shot.FrameHold = WrappingCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)
-        {
-            shot.Behavior = SamusShotBehaviors.Missile;
-            shot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
-            shot.SuperMissileLinkPlace = null;
-        }
+            shot.Install(SamusShotBehaviors.Missile, new MissileShotState(SamusMissileIgnition.PendingAfterReflection));
         else if (family == SamusProjectileFamily.SuperMissile)
         {
-            shot.Behavior = SamusShotBehaviors.SuperMissile;
-            shot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
-            shot.SuperMissileLinkPlace = null;
+            shot.Install(SamusShotBehaviors.SuperMissile,
+                new SuperMissileShotState(SamusMissileIgnition.PendingAfterReflection, linkPlace: null));
         }
         else
         {
-            shot.Behavior = !shot.Type.BeamCombination.HasWave
+            shot.Install(!shot.Type.BeamCombination.HasWave
                 ? SamusShotBehaviors.Beam
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail;
+                : SamusShotBehaviors.WaveBeamFourUpdateTrail, kindState: null);
         }
     }
 

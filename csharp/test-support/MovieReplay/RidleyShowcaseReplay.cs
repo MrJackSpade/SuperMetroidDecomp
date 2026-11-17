@@ -794,10 +794,12 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                 if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
                     ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
-                    if (projectile.MissileIgnition != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileIgnition(recordedVariable) ||
+                    MissileShotState missile = projectile.KindStateAs<MissileShotState>();
+                    int? linkPlace = (missile as SuperMissileShotState)?.LinkPlace;
+                    if (missile.Ignition != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileIgnition(recordedVariable) ||
                         (projectile.Type.Family == SamusProjectileFamily.SuperMissile &&
-                        projectile.SuperMissileLinkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
-                        mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkPlace}");
+                        linkPlace != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable)))
+                        mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={missile.Ignition}/{linkPlace}");
                 }
                 // A Super Missile's link never sets or reads its trail timer, on the cartridge or here; the cartridge's word is
                 // whatever the place's previous projectile left, which a fresh link does not inherit (#1590).

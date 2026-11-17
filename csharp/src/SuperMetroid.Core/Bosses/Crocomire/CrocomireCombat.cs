@@ -189,7 +189,7 @@ internal sealed class CrocomireCombat
                 return false;
             if (!c.UsesFrameHitboxes)
                 throw new InvalidDataException("Crocomire's parts require collision by their frames' hitboxes.");
-            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             ResolveCrocomireHitboxShot(CrocomireEntity.EncounterOf(c.Enemy), c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShot, c.Camera);
             return true;
         },

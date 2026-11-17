@@ -204,13 +204,13 @@ internal static class SamusPaletteNative
         /// <summary>Whether a native suit offset and charge byte offset name one of the six steps of a suit's list.</summary>
         private static bool IsNativeChargePhase(ushort suitOffset, ushort phaseOffset) =>
             suitOffset <= 4 && (suitOffset & 1) == 0 && (phaseOffset & 1) == 0 &&
-            SamusChargeShades.IsChargeStep(phaseOffset / sizeof(ushort));
+            phaseOffset / sizeof(ushort) < SamusChargeShadeDefinitions.ChargeSteps;
 
         /// <summary>$91:D829: the Hyper-shot glow palette pointer, frames nine down to zero.</summary>
         internal static bool TryHyperShot(ushort tableOffset, out ushort pointer)
         {
             // The native table offset is the glow step in words.
-            if ((tableOffset & 1) != 0 || !SamusChargeShades.IsCompiledHyperShot(tableOffset / sizeof(ushort)))
+            if ((tableOffset & 1) != 0 || tableOffset / sizeof(ushort) is < 1 or > SamusChargeShadeDefinitions.HyperShotSteps)
             {
                 pointer = 0;
                 return false;

@@ -59,7 +59,7 @@ public static class SamusBombJumpMovement
             UnsignedSixteenSixteen baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusHorizontalSpeedDefinitions.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == SamusBombJumpDirection.Left, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.
@@ -120,7 +120,7 @@ public static class SamusBombJumpMovement
         SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             -oldSpeed.AsDisplacement());
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         if (result.Collided)
         {
             state.YSpeed = default;

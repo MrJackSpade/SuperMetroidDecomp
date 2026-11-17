@@ -483,7 +483,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // Frame-hitbox collision marks the projectile before calling the
                 // no-op. It does not run normal shot AI, create an impact, play the shot sound,
                 // or consult vulnerability for this protected shell component.
-                c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+                c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
                 return true;
             }
             if (c.HitboxShot != MaridiaLargeSnailReactions.Shot)

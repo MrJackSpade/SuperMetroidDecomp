@@ -733,7 +733,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-    }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
+    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(spreadSamus);
     var spreadBombs = CreateBombFixture();
     spreadBombs.StepFrame(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, spreadSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
@@ -775,7 +775,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-    }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
+    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(selectedPowerBombSpreadSamus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
     selectedPowerBombSpreadBombs.StepFrame(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, selectedPowerBombSpreadSamus, GameplayAction.Shoot, 0);
@@ -834,7 +834,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
         BombSpreadChargeTimeoutCounter = 0x00bf,
-    }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
+    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     SamusPoseMetadata.RefreshCollisionRadii(timeoutSamus);
     var timeoutBombs = CreateBombFixture();
     timeoutBombs.StepFrame(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, timeoutSamus, (GameplayAction.Shoot | GameplayAction.Down), 0);
@@ -853,7 +853,7 @@ empty, spring, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObject
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-    }.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
+    }.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
     var cancelledSpreadBombs = CreateBombFixture();
     AssertTrue(cancelledSpreadBombs.StepFrameConsumingCharge(new SamusTerrain { Level = empty, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, cancelledSpreadSamus, 0, 0),
         "released Shoot publishes carried-charge cancellation");

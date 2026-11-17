@@ -469,7 +469,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // selected reaction runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared path. The plasma-blocking enemy property also
             // forces the mark.
-            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {

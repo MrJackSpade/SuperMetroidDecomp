@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Colours;
@@ -16,9 +17,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class HyperBeamColourEffectState
 {
-    /// <summary>The colours the Hyper Beam's colour animation names, which the effect checks the animation against.</summary>
-    private const ColourEffectColours AnimationColours = ColourEffectColours.HyperBeam;
-
     /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
     internal AnimationPlace Place { get; private set; }
 
@@ -31,8 +29,8 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>The shade of the beams' cycle last shown, by its place in the cycle, or none before the first update.</summary>
-    public int? ShownCycleShade { get; private set; }
+    /// <summary>The shade of the beams' cycle last shown, or none before the first update.</summary>
+    private PictureShade? _shownCycleShade;
 
     /// <summary>
     /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
@@ -45,7 +43,7 @@ public sealed class HyperBeamColourEffectState
         // reusable fields to clear, but preserves every observable field and delay.
         IsActive = true;
         FrameHold = 1;
-        ShownCycleShade = null;
+        _shownCycleShade = null;
         Place = AnimationPlace.StartOfAnimation;
     }
 
@@ -59,15 +57,6 @@ public sealed class HyperBeamColourEffectState
             return;
         }
 
-        ColourEffectDefinition definition = HyperBeamDefinition();
-        if (definition.Start != SamusShadeDefinitions.HyperBeamFx.Start ||
-            definition.Colours != AnimationColours)
-        {
-            throw new InvalidDataException(
-                $"Compiled Hyper Beam colour effect definition is inconsistent: start " +
-                $"{definition.Start}, colours {definition.Colours}.");
-        }
-
         // The effect decrements before testing. A timer of two therefore displays a frame
         // on the starting update and one following update, then advances on the third update.
         FrameHold--;
@@ -77,25 +66,16 @@ public sealed class HyperBeamColourEffectState
         }
 
         AnimationPlace place = Place;
-        AnimationShown<ColourEffectId, int> next = ColourEffectAnimations.Steps.PlayToNextFrame(
-            definition.Animation, ref place,
-            cue => throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform."));
+        AnimationShown<SamusGlowSegment, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
+            SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.HyperBeamCycle], ref place, static _ => { });
         Place = place;
-        if (next is not AnimationShown<ColourEffectId, int>.Frame shown)
-            throw new InvalidDataException($"The Hyper Beam's colour animation reached {next}; its cycle only shows frames.");
-        // The cycle's frames are the beams' cycle colourings in order.
-        if (shown.Segment != ColourEffectId.HyperBeam)
-            throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
-        int frameIndex = shown.Shown;
+        if (next is not AnimationShown<SamusGlowSegment, PictureShade>.Frame shown)
+            throw new InvalidOperationException($"The Hyper Beam's colour cycle reached {next}; it only shows shades.");
 
-        colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
+        colours.LayOverBeams(shown.Shown);
 
         FrameHold = shown.Duration;
-        ShownCycleShade = frameIndex;
+        _shownCycleShade = shown.Shown;
     }
-
-    /// <summary>The colour effect definition the Hyper Beam spawns.</summary>
-    private static ColourEffectDefinition HyperBeamDefinition() =>
-        ColourEffectAnimations.Definition(ColourEffectId.HyperBeam);
 
 }

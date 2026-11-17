@@ -45,10 +45,6 @@ public sealed class SamusState
         {
             field = value;
             InitializedPose = value;
-            // Block collision reads the global pose directly while resolving special
-            // elevator doors. Mirror every pose write into the collision snapshot so the
-            // low-level step can reproduce that test without owning Samus state.
-            Kinematics.CollisionPose = value;
         }
     } = SamusPoseId.FacingRightNormalPose;
 
@@ -597,9 +593,6 @@ public sealed class SamusState
         Presentation = new SamusPresentation(artwork);
         LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests, PeriodicDamage);
         Kinematics = new SamusKinematicsState();
-        // The backing field supplies the standing-right default without invoking
-        // the setter before property initializers have constructed Kinematics.
-        Kinematics.CollisionPose = Pose;
     }
 
     /// <summary>
@@ -748,7 +741,7 @@ public sealed class SamusState
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
-                probe, probe.InteractiveEnemies, direction, CoordinateAxis.Wrap(distance), 0);
+                probe, probe.InteractiveEnemies, direction, distance, 0);
             Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;
         }
@@ -779,7 +772,7 @@ public sealed class SamusState
         ISamusRoomObjects roomObjects)
     {
         int wholePixels = displacement.WholePixels;
-        if (Math.Abs(wholePixels) >= 8)
+        if (Math.Abs(wholePixels) >= SamusPoseCollisionDefinitions.IntermediateProbeExpansion)
         {
             // The intermediate probe is the centre of the block step the displacement lies in, rounded toward lower
             // values rather than by magnitude: negative probes deliberately produce -8 for the known pose radii.
@@ -793,9 +786,8 @@ public sealed class SamusState
         BlockMoveResult Probe(SignedSixteenSixteen amount)
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
-            probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-                level, probe, this, amount, scanLeftToRight, roomObjects);
+                level, probe, this, targetPose, amount, scanLeftToRight, roomObjects);
             // Submerging sand clears speed/gravity even during an observation.
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;

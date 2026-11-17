@@ -107,7 +107,7 @@ internal static class ChargeFlareProductionVerification
 
         static SamusProjectileSystem Create()
         {
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             system.Charge.FlareCounter = 30;
             foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
                 system.Charge.Flare(component).Show(new(ChargeFlareAnimations.PlaceAt(component, 3), WrappingCountdown.Start(3)));

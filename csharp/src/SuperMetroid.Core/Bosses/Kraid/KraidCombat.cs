@@ -62,7 +62,7 @@ internal sealed class KraidCombat
             if (!c.UsesFrameHitboxes || (c.HitboxShot != EnemyReaction.Ignore && c.HitboxShot != KraidReactions.ArmShot))
                 throw new InvalidDataException($"Kraid's arm selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
-            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             if (c.HitboxShot == KraidReactions.ArmShot)
                 SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
             return true;
@@ -77,7 +77,7 @@ internal sealed class KraidCombat
             if (!c.UsesFrameHitboxes || c.HitboxShot != EnemyReaction.Ignore)
                 throw new InvalidDataException($"Kraid's foot selected shot AI {c.HitboxShot?.ToString() ?? "(unnamed)"}.");
 
-            c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
+            c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile, c.MarksCollision);
             return true;
         },
     };

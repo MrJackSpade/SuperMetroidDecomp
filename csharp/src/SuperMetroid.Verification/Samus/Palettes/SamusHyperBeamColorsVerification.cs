@@ -79,14 +79,13 @@ internal static class SamusHyperBeamColorsVerification
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
         var shotSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { HyperBeamEnabled = true };
-        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Charge.ChargedShotGlow = ChargedShotGlow.HyperBeamGlow;
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
-            var step = projectiles.UpdateBeamChargeGlow(shotColours, shotSamus);
-            AssertEqual((call & 1) == 0 ? SamusBeamChargeGlowAction.HyperShade : SamusBeamChargeGlowAction.HyperHold,
-                step.Action, "Original Hyper-shot alternating paint/hold cadence");
+            AssertTrue(!projectiles.UpdateBeamChargeGlow(shotColours, shotSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady),
+                "the Hyper-shot glow restores no suit before it ends");
             ushort pointer = ReadVerificationWord(rom, 0x91d83d - 2 * (call / 2));
             for (int color = 0; color < 16; color++)
                 AssertEqual(ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), shotColours.ShownSuit(shotSources)[color],

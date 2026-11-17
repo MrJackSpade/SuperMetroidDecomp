@@ -79,7 +79,7 @@ internal static class SporeSpawnCameraFloorVerification
     private static EnemyBombContext KillingBomb(RoomEnemyPlace body)
     {
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork());
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0)
         {
             Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),

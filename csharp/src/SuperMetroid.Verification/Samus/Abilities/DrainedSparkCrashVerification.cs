@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
@@ -48,8 +49,8 @@ internal static class DrainedSparkCrashVerification
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "the finished crash stands Samus up");
         AssertEqual(DrainedSamusPhase.Inactive, samus.Drained.Phase, "normal movement replaces the drained pose's handler");
         // $90:D482 indexes its angle table with the drained pose, reading $90:D506/$D507.
-        AssertEqual(new TrigonometryAngle(0xb6), runtime.Projectiles.Shots[3].EchoAngle, "the first echo takes the overread angle $B6");
-        AssertEqual(new TrigonometryAngle(0x0a), runtime.Projectiles.Shots[4].EchoAngle, "the second echo takes the overread angle $0A");
+        AssertEqual(new TrigonometryAngle(0xb6), runtime.Projectiles.Shots[3].KindStateAs<ShinesparkEchoShotState>().Angle, "the first echo takes the overread angle $B6");
+        AssertEqual(new TrigonometryAngle(0x0a), runtime.Projectiles.Shots[4].KindStateAs<ShinesparkEchoShotState>().Angle, "the second echo takes the overread angle $0A");
         Console.WriteLine("  Drained spark crash: the crash keeps its handler through the drain and stands Samus up.");
     }
 

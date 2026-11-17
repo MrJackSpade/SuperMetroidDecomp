@@ -889,8 +889,10 @@ internal sealed class RoomLoader
         loadingSamus.Shinespark.ResetProjectileEchoStorage();
         var bombs = new SamusBombProjectileSystem(_audioRequests, _artwork.ScreenContent.PowerBombGlowColors, _artwork.SamusArtwork);
         // Each room's shot places start keeping nothing; TakeOverFrom then hands them what the outgoing room's kept.
+        // The room's earthquake is composed with the room: Super Missile impacts and the room's enemies start it.
+        var earthquake = new RoomEarthquake();
         var projectiles = new SamusProjectileSystem(_audioRequests, _beamCharge, _samusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork);
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), _artwork.SamusArtwork, earthquake);
         projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
@@ -984,13 +986,13 @@ internal sealed class RoomLoader
             BreakableTerrain = roomObjects.BreakableTerrain,
             RoomFx = roomFxOverlay,
             DoorPassage = _doorTransition.Passage,
+            Earthquake = earthquake,
         });
         enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
         // A wall jump's waiting shake and Samus's solid-enemy contacts name enemies of the room being replaced, which
         // leave with it.
         loadingSamus.Kinematics.ForgetUnloadedRoomEnemies();
-        projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(
             room.State.EnemyPopulation,
             scope.Appearance)

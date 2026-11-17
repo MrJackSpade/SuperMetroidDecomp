@@ -1,10 +1,13 @@
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
 /// Beam charge state: the charge count and the Hyper Beam's flare, the charge sampled before the charge input, the
-/// charged-shot glow, the charge glow step and each flare component's animation.
+/// charged-shot glow, the charge pulse and each flare component's animation.
 /// </summary>
 internal sealed class BeamChargeState
 {
@@ -53,14 +56,30 @@ internal sealed class BeamChargeState
     public ChargedShotGlow ChargedShotGlow { get; internal set; }
 
     /// <summary>
-    /// The charge colour cycle's next step, 0 through 5: each update of the charge glow shows it and advances it, and
-    /// the sixth wraps it to zero.
+    /// Where the charge pulse stands (#2351): just past the shade it showed last, or its start. Every pulse runs its six
+    /// shades alike (<see cref="SamusGlowAnimationDefinitions.ChargePulses"/>), so a change of suit or of charge kind goes
+    /// on from the same place in the other pulse.
     /// </summary>
-    public int ChargeGlowStep
+    internal AnimationPlace ChargePulse { get; private set; } = AnimationPlace.StartOfAnimation;
+
+    /// <summary>
+    /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and returns the
+    /// shade it shows; after its last shade it starts again.
+    /// </summary>
+    internal PictureShade PlayChargePulse(SamusChargeKind kind, SamusSuit suit)
     {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, SamusChargeShadeDefinitions.ChargeSteps - 1, value);
+        SamusGlowSegment pulse = SamusGlowAnimationDefinitions.ChargePulses[kind][suit];
+        AnimationPlace place = ChargePulse;
+        AnimationShown<SamusGlowSegment, PictureShade> shown = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
+            SamusGlowAnimationDefinitions.Animations[pulse], ref place, static _ => { });
+        ChargePulse = place;
+        return shown is AnimationShown<SamusGlowSegment, PictureShade>.Frame frame
+            ? frame.Shown
+            : throw new InvalidOperationException($"The {pulse} pulse reached {shown}; a pulse only shows shades.");
     }
+
+    /// <summary>Restarts the charge pulse, so its next update shows its first shade.</summary>
+    internal void RestartChargePulse() => ChargePulse = AnimationPlace.StartOfAnimation;
 
     /// <summary>Each flare component's animation: the picture it shows and the wait it holds it for.</summary>
     private readonly Dictionary<ChargeFlareComponent, ChargeFlareComponentState> _flare =

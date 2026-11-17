@@ -65,12 +65,12 @@ internal static class TourianElevatorDoorsVerification
                 [new RoomDoorBlock(size.CellAtRowMajorIndex(target), DoorDefinitions.Resolve(list, bts))]);
             var state = new SamusKinematicsState
             {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7), CollisionPose = pose,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7),
             };
             var bus = NewDoorNoReadAddressSpace();
             BlockMoveResult result = horizontal
-                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, state, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) })
-                : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, state, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, state, null, pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4) })
+                : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, state, null, pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
             AssertEqual(elevator && SamusPoseNumbers.Number(pose) < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
             if (elevator)

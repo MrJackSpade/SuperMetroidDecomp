@@ -58,7 +58,7 @@ internal static class CrocomireMouthShotHoldVerification
         var state = new CrocomireEnemyState(body) { Phase = CrocomirePhase.SteppingForward };
         body.SetSpeciesState(state);
         var ordinaryProjectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
-            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bomb = new SamusBomb(0)
         {
             Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),

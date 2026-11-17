@@ -29,4 +29,10 @@ public static class BullMovementDefinitions
     /// </summary>
     internal static readonly SamusProjectileDirectionMap<TrigonometryAngle> ShotAngles = new(
         new(192), new(224), new(0), new(32), new(64), new(64), new(96), new(128), new(160), new(192));
+
+    /// <summary>
+    /// The compass angle a bomb that leaves the Bull unhurt kicks it at: straight up, as a shot fired straight up does,
+    /// whichever side of the Bull the bomb burns on.
+    /// </summary>
+    internal static readonly TrigonometryAngle BombKickAngle = new(192);
 }

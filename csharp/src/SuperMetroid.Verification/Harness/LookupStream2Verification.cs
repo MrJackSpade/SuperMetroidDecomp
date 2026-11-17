@@ -963,7 +963,7 @@ internal static class LookupStream2Verification
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
-            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             // The native interpreter's own trail, run beside the port's.
             var nativeTrail = new SamusProjectileTrail(SamusBeamCombination.Power);
             SamusProjectileTrail authoredTrail = authoredSystem.AddTrail();
@@ -1057,7 +1057,7 @@ internal static class LookupStream2Verification
         foreach (SamusProjectileType trailingType in trailing)
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
-            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var projectile = new SamusProjectile(0)
             {
                 Type = trailingType,
@@ -1467,7 +1467,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
@@ -1491,7 +1491,7 @@ internal static class LookupStream2Verification
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
-            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
+            var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             _ = system.Animation.AdvanceProjectileAnimation(shot);
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;

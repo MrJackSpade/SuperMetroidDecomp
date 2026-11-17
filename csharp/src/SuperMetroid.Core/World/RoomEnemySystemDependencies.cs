@@ -50,4 +50,7 @@ internal sealed record RoomEnemySystemDependencies
     /// opening wait hold still.
     /// </summary>
     public required DoorPassage DoorPassage { get; init; }
+
+    /// <summary>The room's earthquake, composed with the room: its enemies and Samus's Super Missile impacts start it.</summary>
+    public required RoomEarthquake Earthquake { get; init; }
 }

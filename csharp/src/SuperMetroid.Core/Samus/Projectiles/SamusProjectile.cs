@@ -83,70 +83,37 @@ public sealed class SamusProjectile
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public WrappingCountdown TrailTimer { get; internal set; }
 
-    /// <summary>A missile or Super Missile's ignition.</summary>
-    public SamusMissileIgnition MissileIgnition { get; internal set; }
-
-    /// <summary>
-    /// The place whose projectile an ignited Super Missile moves as its invisible collision link, or null when it names
-    /// none. A Super Missile, its link among them, names <see cref="UnlinkedSuperMissileLink.Place"/> from the update it
-    /// is created until it ignites with a link of its own; a reflection leaves it naming none until it re-ignites.
-    /// </summary>
-    public int? SuperMissileLinkPlace { get; internal set; }
-
-    /// <summary>The orbit angle of an Ice, Plasma or Spazer special-attack particle.</summary>
-    public TrigonometryAngle ComboAngle { get; internal set; }
-
-    /// <summary>The homing vertical speed of a Wave special-attack particle.</summary>
-    public SignedEightEight WaveComboVerticalSpeed { get; internal set; }
-
-    /// <summary>
-    /// The orbit radius, in pixels, of an outward Ice, a Plasma or a Spazer special-attack particle: the distance from
-    /// Samus its angle places it at.
-    /// </summary>
-    public int ComboOrbitRadius { get; internal set => field = Ensure.AtLeastZero(value); }
-
-    /// <summary>
-    /// The updates an inward Ice or a Wave special-attack particle has left: 600 when the attack starts, counted down
-    /// each update until the Ice particle turns outward or the Wave particle ends.
-    /// </summary>
-    public int ComboLifetime { get; internal set => field = Ensure.AtLeastZero(value); }
-
-    /// <summary>The phase of a Plasma special-attack ring.</summary>
-    public PlasmaRingPhase PlasmaPhase { get; internal set; }
-
-    /// <summary>
-    /// The turn a Spazer special-attack particle makes round its circle each update: its steps on when it turns
-    /// clockwise, a full circle less them when it turns counterclockwise.
-    /// </summary>
-    public TrigonometryAngle SpazerTurnPerUpdate { get; internal set; }
-
-    /// <summary>The phase of a Spazer special-attack particle, set when the attack starts.</summary>
-    public SpazerComboPhase SpazerPhase { get; internal set; }
-
-    /// <summary>The part a special-attack particle plays, set when the attack starts (#1683); null for any other projectile.</summary>
-    internal SpecialAttackParticle? AttackParticle { get; set; }
-
-    /// <summary>
-    /// The Spazer special-attack particle this one is paired with, set when the attack starts (#1683): a beam particle
-    /// and the trailing particle that turns the same way. A spent particle ends its partner's place with itself
-    /// (<see cref="SamusShotPool.HolderOfPlaceOf"/>).
-    /// </summary>
-    internal SamusProjectile? SpazerPartner { get; set; }
-
-    /// <summary>The expanding radius, in pixels, of a Shinespark crash echo.</summary>
-    public int EchoRadius { get; internal set => field = Ensure.AtLeastZero(value); }
-
-    /// <summary>The departure angle of a Shinespark crash echo, in whole steps.</summary>
-    public TrigonometryAngle EchoAngle { get; internal set; }
-
-    /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot, from zero.</summary>
-    public WrappingCountdown ChainsawPowerBombFuse { get; internal set; }
-
     /// <summary>
     /// What the projectile does on its update (#1923), installed when it is fired, released or changed; null for an
     /// explosion, which only plays its animation, and before the projectile is set up.
     /// </summary>
     internal SamusShotBehavior? Behavior { get; set; }
+
+    /// <summary>
+    /// What the projectile's kind keeps beyond what every projectile keeps (#2346), created when the kind's behaviour is
+    /// installed (<see cref="Install"/>) and kept through its later behaviours and its explosion; null for a beam, the
+    /// Hyper Beam, and before the projectile is set up.
+    /// </summary>
+    internal SamusShotKindState? KindState { get; private set; }
+
+    /// <summary>
+    /// Gives the projectile its kind's behaviour with the state the kind starts with: firing, a special attack, an
+    /// echo's release, a Super Missile's link and a reflection install one. A particle moving on to its next behaviour
+    /// keeps its state and changes only <see cref="Behavior"/>.
+    /// </summary>
+    /// <param name="behavior">The behaviour the projectile runs from its next update.</param>
+    /// <param name="kindState">The state the kind keeps, new for this installation, or null for a kind that keeps none.</param>
+    internal void Install(SamusShotBehavior behavior, SamusShotKindState? kindState)
+    {
+        Behavior = Ensure.NotNull(behavior);
+        KindState = kindState;
+    }
+
+    /// <summary>The state the projectile's kind keeps, which must be a <typeparamref name="TState"/>.</summary>
+    /// <exception cref="InvalidOperationException">The projectile keeps no such state.</exception>
+    internal TState KindStateAs<TState>() where TState : SamusShotKindState =>
+        KindState as TState ?? throw new InvalidOperationException(
+            $"The projectile in place {Place} keeps no {typeof(TState).Name}; it keeps {KindState?.GetType().Name ?? "nothing"}.");
 
     /// <summary>A live projectile animation marks the projectile drawable and updated.</summary>
     public bool IsActive => Playback is not null;
@@ -176,20 +143,7 @@ public sealed class SamusProjectile
         FrameHold = WrappingCountdown.Start(0);
         Sprite = null;
         TrailTimer = WrappingCountdown.Start(0);
-        MissileIgnition = SamusMissileIgnition.Pending;
-        SuperMissileLinkPlace = null;
-        ComboAngle = default;
-        WaveComboVerticalSpeed = default;
-        ComboOrbitRadius = 0;
-        ComboLifetime = 0;
-        PlasmaPhase = PlasmaRingPhase.Expanding;
-        SpazerTurnPerUpdate = TrigonometryAngle.Zero;
-        SpazerPhase = SpazerComboPhase.Circling;
-        AttackParticle = null;
-        SpazerPartner = null;
-        EchoRadius = 0;
-        EchoAngle = default;
-        ChainsawPowerBombFuse = WrappingCountdown.Start(0);
         Behavior = null;
+        KindState = null;
     }
 }

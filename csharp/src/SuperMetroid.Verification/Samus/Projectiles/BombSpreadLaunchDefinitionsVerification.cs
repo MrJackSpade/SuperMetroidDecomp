@@ -25,7 +25,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         for(int hold=0;hold<=MorphBallBombDefinitions.DownChargeTimeoutUpdates;hold++)
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
-            samus.BeamCharge.FlareCounter = MorphBallBombDefinitions.RequiredChargeFrames;
+            samus.BeamCharge.FlareCounter = BeamChargeDefinitions.FullyChargedCounter;
             samus.Position = samus.Position.WithWhole(new((ushort)hold, unchecked((ushort)~hold)));
             spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)

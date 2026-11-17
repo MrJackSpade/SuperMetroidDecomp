@@ -55,6 +55,8 @@ internal static class SuperMetroidRuntimeAccess
                 BreakableTerrain = self.Room.LoadedScope.RoomObjects.BreakableTerrain,
                 RoomFx = self.Room.LoadedScope.FxOverlay,
                 DoorPassage = self.DoorTransition.Passage,
+                // The room's earthquake is the room's, which its shots also start.
+                Earthquake = self.Room.LoadedScope.Enemies.Earthquake,
             });
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies, Looks = looks });
@@ -85,6 +87,8 @@ internal static class SuperMetroidRuntimeAccess
                 BreakableTerrain = scope.RoomObjects.BreakableTerrain,
                 RoomFx = scope.FxOverlay,
                 DoorPassage = self.DoorTransition.Passage,
+                // The room's earthquake is the room's, which its shots also start.
+                Earthquake = loaded.Earthquake,
             });
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies, Looks = looks });

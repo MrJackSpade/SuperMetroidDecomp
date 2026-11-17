@@ -26,12 +26,6 @@ public sealed class SamusBomb
     /// </summary>
     public bool IsSpent { get; internal set; }
 
-    /// <summary>
-    /// The direction the shared projectile reactions read for a bomb. Bombs are placed without an aim, so they read as
-    /// fired upward facing right.
-    /// </summary>
-    public static SamusProjectileDirection Direction => SamusProjectileDirection.UpFacingRight;
-
     /// <summary>What the bomb is; <see cref="SamusProjectileType.None"/> before it is placed and once it ends.</summary>
     public SamusProjectileType Type { get; internal set; }
 

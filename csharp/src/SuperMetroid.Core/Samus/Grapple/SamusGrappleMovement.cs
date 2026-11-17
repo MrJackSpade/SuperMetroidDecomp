@@ -485,7 +485,7 @@ public static class SamusGrappleMovement
         // A bomb block the probe breaks starts its reaction through the room's objects, as any other contact does (#1582).
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
             terrain.Level,
-            samus.Kinematics, samus,
+            samus.Kinematics, samus, samus.Pose,
             signedProbe,
             terrain.RoomObjects);
         bool jumpNew = (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None;

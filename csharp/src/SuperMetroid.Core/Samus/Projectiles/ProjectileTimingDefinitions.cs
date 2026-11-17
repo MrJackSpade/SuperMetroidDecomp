@@ -11,6 +11,9 @@ internal static class ProjectileTimingDefinitions
     /// </summary>
     internal const int TrailInterval = 4;
 
+    /// <summary>The updates between an uncharged Wave or Ice and Wave shot's trails after its first.</summary>
+    internal const int UnchargedWaveTrailInterval = 3;
+
     /// <summary>The updates between a Super Missile's trails after its first: twice as often as a missile's.</summary>
     internal const int SuperMissileTrailInterval = 2;
 

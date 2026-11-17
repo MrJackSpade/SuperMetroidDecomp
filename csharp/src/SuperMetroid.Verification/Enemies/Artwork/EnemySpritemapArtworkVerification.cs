@@ -104,7 +104,7 @@ internal static class EnemySpritemapArtworkVerification
             "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
-        BullBehavior.ResolveBullImmuneShot(bull, state, SamusProjectileDirection.Right);
+        BullBehavior.ResolveBullImmuneShot(bull, state, BullMotion.ShotAngle(SamusProjectileDirection.Right));
         for (int frame = 0; frame < 61; frame++)
             EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullSegment.Normal).First(), bull.SpritemapPointer,

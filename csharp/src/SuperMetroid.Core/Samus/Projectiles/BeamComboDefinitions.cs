@@ -37,6 +37,11 @@ public static class BeamComboDefinitions
     /// (#2280).
     /// </summary>
     public const int SpazerFallScreenLine = 16;
+    /// <summary>
+    /// The pixels a Spazer special beam attack particle steps sideways as it starts to fall: the beam pair to the right,
+    /// the trailing pair to the left.
+    /// </summary>
+    public const int SpazerFallSideStep = 16;
     /// <summary>The pixels a falling Spazer special beam attack particle drops each update.</summary>
     public const int SpazerFallSpeed = 8;
     /// <summary>The pixels below the camera's top edge at which a falling Spazer special beam attack particle ends.</summary>

@@ -23,6 +23,12 @@ internal static class SamusPoseCollisionDefinitions
     /// </summary>
     internal const int ForwardFacingSetupLift = 3;
 
+    /// <summary>
+    /// The whole pixels a changed pose must move Samus's centre by for its collision probe to test the intermediate
+    /// block-step boundary before the full move.
+    /// </summary>
+    internal const int IntermediateProbeExpansion = 8;
+
     /// <summary>The pixels a jump started from a crouch raises Samus before the jump begins.</summary>
     internal const int CrouchJumpLift = 10;
 

@@ -50,7 +50,6 @@ public sealed class SamusKinematicsState
     internal SamusKinematicsState CreateCollisionProbe()
     {
         var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
-        probe.CollisionPose = CollisionPose;
         probe.Position = Position;
         probe.Radius = Radius;
         probe.YSpeed = YSpeed;
@@ -62,16 +61,6 @@ public sealed class SamusKinematicsState
         probe.InteractiveEnemies = InteractiveEnemies;
         return probe;
     }
-
-    /// <summary>
-    /// Current pose sampled by collision. Door collision is mostly geometric,
-    /// but the elevator pseudo-door reactions admit only the forward-facing and standing poses
-    /// before publishing the elevator flags. Keeping that pose beside the geometry lets every shared block
-    /// mover preserve the test without guessing which higher-level movement
-    /// happened to reach it.
-    /// </summary>
-    /// <remarks>Null until a pose is sampled, which no pose-gated reaction admits.</remarks>
-    public SamusPoseId? CollisionPose { get; internal set; }
 
     /// <summary>
     /// Current snapshot, in the game's order, of the interactive enemies and the collision

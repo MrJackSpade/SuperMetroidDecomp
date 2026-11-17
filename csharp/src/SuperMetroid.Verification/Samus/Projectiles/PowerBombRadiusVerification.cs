@@ -103,7 +103,10 @@ internal static class PowerBombRadiusVerification
         AssertEqual(original.Phase, explosion.Blast.Phase, $"{context}: phase");
         AssertEqual(Length(original.FlashRadius), explosion.Blast.PreExplosionRadius, $"{context}: flash radius");
         AssertEqual(Length(original.BlastRadius), explosion.Blast.ExplosionRadius, $"{context}: blast radius");
-        AssertEqual(Length(original.Speed), explosion.Blast.RadiusSpeed, $"{context}: radius speed");
+        // A finished blast keeps no speed: the original's word stays until the next start sets it, and nothing reads it
+        // in between (#2350).
+        if (explosion.Blast.Phase != PowerBombExplosionPhase.Inactive)
+            AssertEqual(Length(original.Speed), explosion.Blast.RadiusSpeed, $"{context}: radius speed");
     }
 
     /// <summary>The length a radius or speed word stands for: its high byte whole pixels and its low byte 256ths.</summary>

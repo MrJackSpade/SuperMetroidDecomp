@@ -164,7 +164,7 @@ internal static class EnemyProjectileMotionWords
     /// <summary>
     /// The one routine address of <paramref name="motion"/>; holding still, and the one motion of the kinds that move
     /// one way, stand for several routines and have no single word: a family that keeps its way in its state names its
-    /// routines by that way (<see cref="PirateLaserFlights"/>, <see cref="PirateClawThrows"/>, <see cref="EnemyProjectileMotionWordsConstants2.KiHunterAcidLaunches"/>).
+    /// routines by that way (<see cref="PirateLaserFlights"/>, <see cref="PirateClawThrows"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="motion"/> has no single routine address.</exception>
     internal static ushort Word(Enum? motion)

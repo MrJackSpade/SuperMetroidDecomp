@@ -66,7 +66,7 @@ internal static class BossBodyLayeredPartsVerification
         CrocomireMelting melting = enemies.CrocomireBehavior.Melting;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            if (pass == CrocomireMeltingIllustration.First)
+            if (pass == CrocomireMeltingIllustration.Flesh)
                 melting.ShowFirstCrocomireMeltImage(state);
             else
                 melting.ShowSecondCrocomireMeltImage(state);

@@ -26,7 +26,7 @@ internal static class CrocomireMeltFrameSelectionVerification
         int updates = 0;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
-            int bands = pass == CrocomireMeltingIllustration.First
+            int bands = pass == CrocomireMeltingIllustration.Flesh
                 ? CrocomireMeltingDefinitions.FirstPassBandCount : CrocomireMeltingDefinitions.SecondPassBandCount;
             fixture.InitializeMap(pass);
             fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));

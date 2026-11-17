@@ -44,22 +44,22 @@ public enum CrocomireBodySegment
     NearSpikeWallChargeSteps,
     /// <summary>Backing off from the spike wall.</summary>
     BackOffFromSpikeWall,
-    /// <summary>The first melting pass, its top row.</summary>
-    MeltingOneTopRow,
-    /// <summary>The first melting pass, its top two rows.</summary>
-    MeltingOneTopTwoRows,
-    /// <summary>The first melting pass, its top three rows.</summary>
-    MeltingOneTopThreeRows,
-    /// <summary>The first melting pass, its top four rows.</summary>
-    MeltingOneTopFourRows,
-    /// <summary>The second melting pass, its top row.</summary>
-    MeltingTwoTopRow,
-    /// <summary>The second melting pass, its top two rows.</summary>
-    MeltingTwoTopTwoRows,
-    /// <summary>The second melting pass, its top three rows.</summary>
-    MeltingTwoTopThreeRows,
-    /// <summary>The second melting pass, its top four rows.</summary>
-    MeltingTwoTopFourRows,
+    /// <summary>His flesh melting off his skull, its top row above the acid.</summary>
+    MeltingFleshTopRow,
+    /// <summary>His flesh melting off his skull, its top two rows above the acid.</summary>
+    MeltingFleshTopTwoRows,
+    /// <summary>His flesh melting off his skull, its top three rows above the acid.</summary>
+    MeltingFleshTopThreeRows,
+    /// <summary>His flesh melting off his skull, its top four rows above the acid.</summary>
+    MeltingFleshTopFourRows,
+    /// <summary>His bared skull over the rest of him melting, its top row above the acid.</summary>
+    MeltingBareSkullTopRow,
+    /// <summary>His bared skull over the rest of him melting, its top two rows above the acid.</summary>
+    MeltingBareSkullTopTwoRows,
+    /// <summary>His bared skull over the rest of him melting, its top three rows above the acid.</summary>
+    MeltingBareSkullTopThreeRows,
+    /// <summary>His bared skull over the rest of him melting, its top four rows above the acid.</summary>
+    MeltingBareSkullTopFourRows,
     /// <summary>Sinking after the bridge collapses under him.</summary>
     BridgeCollapsed,
     /// <summary>His skeleton falling.</summary>

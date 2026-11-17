@@ -60,7 +60,7 @@ internal static class CrocomireMeltingDefinitionsVerification
 
     /// <summary>The melt table offset of <paramref name="pass"/>'s header.</summary>
     private static int HeaderAddress(CrocomireMeltingIllustration pass) =>
-        MeltTableAddress + (pass == CrocomireMeltingIllustration.First ? 0 : SecondHeaderOffset);
+        MeltTableAddress + (pass == CrocomireMeltingIllustration.Flesh ? 0 : SecondHeaderOffset);
 
     /// <summary>The cartridge address of <paramref name="pass"/>'s upload list.</summary>
     private static int UploadListAddress(CrocomireMeltingIllustration pass) =>
@@ -81,7 +81,7 @@ internal static class CrocomireMeltingDefinitionsVerification
                 $"Crocomire {pass} melt graphics bank");
         }
         AssertEqual(MeltTableAddress + SecondHeaderOffset,
-            UploadListAddress(CrocomireMeltingIllustration.First) + 8 * CrocomireMeltingDefinitions.FirstPassBandCount + 2,
+            UploadListAddress(CrocomireMeltingIllustration.Flesh) + 8 * CrocomireMeltingDefinitions.FirstPassBandCount + 2,
             "the second pass's header follows the first pass's upload terminator");
     }
 
@@ -179,8 +179,8 @@ internal static class CrocomireMeltingDefinitionsVerification
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         Action<CrocomireEnemyState> initialize = source switch
         {
-            CrocomireMeltingIllustration.First => enemies.CrocomireBehavior.Melting.ShowFirstCrocomireMeltImage,
-            CrocomireMeltingIllustration.Second => enemies.CrocomireBehavior.Melting.ShowSecondCrocomireMeltImage,
+            CrocomireMeltingIllustration.Flesh => enemies.CrocomireBehavior.Melting.ShowFirstCrocomireMeltImage,
+            CrocomireMeltingIllustration.BareSkull => enemies.CrocomireBehavior.Melting.ShowSecondCrocomireMeltImage,
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
 

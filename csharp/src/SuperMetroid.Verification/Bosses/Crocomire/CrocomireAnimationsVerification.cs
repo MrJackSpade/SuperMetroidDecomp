@@ -268,7 +268,7 @@ internal static class CrocomireAnimationsVerification
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
 
         (RoomEnemySystem mouthSystem, CrocomireEnemyState mouthState) = NewCrocomire();
-        mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, shot: 1);
+        mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile mouth = mouthSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         CompareProjectile(cartridge, mouthSystem, mouth, RoomEnemyProjectileKind.CrocomireProjectile, shot: false, "mouth");
@@ -288,7 +288,7 @@ internal static class CrocomireAnimationsVerification
             CompareProjectile(cartridge, spikeSystem, spike, RoomEnemyProjectileKind.CrocomireSpikeWallPieces, shot: false, "spike");
 
         (RoomEnemySystem shotSystem, CrocomireEnemyState shotState) = NewCrocomire();
-        shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, shot: 1);
+        shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));

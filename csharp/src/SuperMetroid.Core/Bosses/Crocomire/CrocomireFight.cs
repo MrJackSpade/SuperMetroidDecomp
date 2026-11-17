@@ -368,8 +368,9 @@ internal sealed class CrocomireFight
                 }
                 if (state.ShotsSpat < CrocomireProjectileDefinitions.VolleyShotCount)
                 {
+                    int gradient = CrocomireVolley.GradientOf(state.ShotsSpat, _access.TenthShotGradient);
                     state.ShotsSpat++;
-                    SpawnCrocomireProjectile(state.Body, state.ShotsSpat);
+                    SpawnCrocomireProjectile(state.Body, gradient);
                     _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);
                     return null;
                 }
@@ -465,8 +466,8 @@ internal sealed class CrocomireFight
         _access.SpawnCrocomireDust(state, offset);
     }
 
-    /// <summary>Spawns one of Crocomire's fight projectiles, the volley's <paramref name="shot"/>.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int shot)
+    /// <summary>Spawns one of Crocomire's fight projectiles, fired along <paramref name="gradient"/>.</summary>
+    internal void SpawnCrocomireProjectile(RoomEnemyPlace body, int gradient)
     {
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -483,6 +484,6 @@ internal sealed class CrocomireFight
             CoordinateAxis.Wrap(body.Position.X.Whole + CrocomireFightDefinitions.SpitOffset.X),
             CoordinateAxis.Wrap(body.Position.Y.Whole + CrocomireFightDefinitions.SpitOffset.Y)));
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.State = new CrocomireProjectileState(shot);
+        projectile.State = new CrocomireProjectileState(gradient);
     }
 }

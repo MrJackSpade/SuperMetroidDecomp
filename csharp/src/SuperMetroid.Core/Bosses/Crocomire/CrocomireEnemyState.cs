@@ -52,7 +52,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// rests on after. The death waits on this before it lays his dead skeleton down.
     /// </summary>
     internal bool SkeletonHasCollapsed =>
-        BodyFrame is EnemyFrameId.CrocomireBodySkeletonCollapsing120By68 or EnemyFrameId.CrocomireBodySkeletonStable;
+        BodyFrame is EnemyFrameId.CrocomireBodySkeletonCollapseStage18 or EnemyFrameId.CrocomireBodySkeletonStable;
 
     /// <summary>The tongue's playing animation and where it stands; before the first start, the fight loop.</summary>
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =

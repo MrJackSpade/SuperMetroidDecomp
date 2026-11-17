@@ -319,8 +319,8 @@ internal static class CrocomireStateQuantitiesVerification
     private static void VerifyMeltShakeCounterWraps()
     {
         var fixture = new EnemyEffectsFixtureVerification.CrocomireEffectFixture(EnemyEffectsFixtureVerification.MeltEffectArtwork());
-        fixture.InitializeMap(CrocomireMeltingIllustration.First);
-        fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First));
+        fixture.InitializeMap(CrocomireMeltingIllustration.Flesh);
+        fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh));
         for (int band = 0; band <= CrocomireMeltingDefinitions.FirstPassBandCount; band++)
             fixture.Call(_ => CrocomireMelting.ShowNextCrocomireMeltBand);
         fixture.Call(_ => CrocomireMelting.BeginCrocomireMelting);

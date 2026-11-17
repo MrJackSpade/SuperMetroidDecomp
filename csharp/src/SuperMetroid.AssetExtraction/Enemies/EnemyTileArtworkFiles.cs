@@ -121,15 +121,15 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException($"Expected {EnemyTileArtworkFormat.RetailEntryCount} retail enemy sheets; found {entries.Count}.");
         ValidateDefinitionIds(entries.Keys);
         byte[] firstMelt = ExtractCrocomireMelt(bus,
-            CrocomireMeltingIllustration.First,
+            CrocomireMeltingIllustration.Flesh,
             CrocomireMeltingArtworkFormat.FirstByteCount);
         byte[] secondMelt = ExtractCrocomireMelt(bus,
-            CrocomireMeltingIllustration.Second,
+            CrocomireMeltingIllustration.BareSkull,
             CrocomireMeltingArtworkFormat.SecondByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.First));
+            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Flesh));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
-            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Second));
+            CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.BareSkull));
         File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
         File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
         // The melt layouts, like Kraid's, only compose the boss body sheets, whose pictures the installation holds (#1638).

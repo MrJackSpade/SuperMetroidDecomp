@@ -24,19 +24,17 @@ internal static class CrocomireTenthShotGradientVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         CrocomireTenthShotGradient installed = InstalledFixtures.BossAndIntroOverreads.CrocomireTenthShotGradient;
-        for (int shot = 1; shot <= CrocomireProjectileDefinitions.VolleyShotCount; shot++)
+        for (int shotsSpat = 0; shotsSpat < CrocomireProjectileDefinitions.VolleyShotCount; shotsSpat++)
         {
-            int parameter = shot * 2;
+            int parameter = (shotsSpat + 1) * 2;
             int expected = unchecked((short)cartridge.ReadCartridgeWord(VolleyGradients + (parameter >> 1) * 2));
-            int actual = CrocomireVolley.IsLastShot(shot) ? installed.Gradient : CrocomireVolley.AuthoredGradient(shot);
-            AssertEqual(expected, actual, $"Crocomire volley gradient for shot {shot} (spawn parameter {parameter})");
+            AssertEqual(expected, CrocomireVolley.GradientOf(shotsSpat, installed), $"Crocomire volley gradient after {shotsSpat} shots (spawn parameter {parameter})");
         }
-        AssertTrue(CrocomireVolley.IsLastShot(CrocomireProjectileDefinitions.VolleyShotCount), "the volley's last shot reads the gradient past the authored ones");
-        AssertThrows<InvalidDataException>(() => CrocomireVolley.AuthoredGradient(CrocomireProjectileDefinitions.VolleyShotCount),
-            "the last shot's gradient is not authored");
-        AssertThrows<InvalidDataException>(() => CrocomireVolley.AuthoredGradient(CrocomireProjectileDefinitions.VolleyShotCount + 1),
+        AssertEqual(installed.Gradient, CrocomireVolley.GradientOf(CrocomireProjectileDefinitions.VolleyShotCount - 1, installed),
+            "the volley's last shot is fired along the installed gradient");
+        AssertThrows<InvalidDataException>(() => CrocomireVolley.GradientOf(CrocomireProjectileDefinitions.VolleyShotCount, installed),
             "a shot past the volley is rejected");
-        AssertThrows<InvalidDataException>(() => CrocomireVolley.AuthoredGradient(0), "the volley has no shot before its first");
+        AssertThrows<InvalidDataException>(() => CrocomireVolley.GradientOf(-1, installed), "the volley has no shot before its first");
         Console.WriteLine("Crocomire tenth shot gradient: every shot's gradient matches the cartridge.");
     }
 

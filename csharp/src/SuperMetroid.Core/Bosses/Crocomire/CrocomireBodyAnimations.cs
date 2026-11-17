@@ -392,37 +392,37 @@ internal static class CrocomireBodyAnimations
             Step(CrocomireStepDefinitions.BackOff),
             Cue(K.FightAi),
         ],
-        [P.MeltingOneTopRow] =
+        [P.MeltingFleshTopRow] =
         [
-            Show(F.CrocomireBodyMeltingOneTopRow, LoopingMeltFrameDuration),
+            Show(F.CrocomireBodyMeltingFleshTopRow, LoopingMeltFrameDuration),
         ],
-        [P.MeltingOneTopTwoRows] =
+        [P.MeltingFleshTopTwoRows] =
         [
-            Hold(F.CrocomireBodyMeltingOneTopTwoRows),
+            Hold(F.CrocomireBodyMeltingFleshTopTwoRows),
         ],
-        [P.MeltingOneTopThreeRows] =
+        [P.MeltingFleshTopThreeRows] =
         [
-            Hold(F.CrocomireBodyMeltingOneTopThreeRows),
+            Hold(F.CrocomireBodyMeltingFleshTopThreeRows),
         ],
-        [P.MeltingOneTopFourRows] =
+        [P.MeltingFleshTopFourRows] =
         [
-            Hold(F.CrocomireBodyMeltingOneTopFourRows),
+            Hold(F.CrocomireBodyMeltingFleshTopFourRows),
         ],
-        [P.MeltingTwoTopRow] =
+        [P.MeltingBareSkullTopRow] =
         [
-            Show(F.CrocomireBodyMeltingTwoTopRow, LoopingMeltFrameDuration),
+            Show(F.CrocomireBodyMeltingBareSkullTopRow, LoopingMeltFrameDuration),
         ],
-        [P.MeltingTwoTopTwoRows] =
+        [P.MeltingBareSkullTopTwoRows] =
         [
-            Hold(F.CrocomireBodyMeltingTwoTopTwoRows),
+            Hold(F.CrocomireBodyMeltingBareSkullTopTwoRows),
         ],
-        [P.MeltingTwoTopThreeRows] =
+        [P.MeltingBareSkullTopThreeRows] =
         [
-            Hold(F.CrocomireBodyMeltingTwoTopThreeRows),
+            Hold(F.CrocomireBodyMeltingBareSkullTopThreeRows),
         ],
-        [P.MeltingTwoTopFourRows] =
+        [P.MeltingBareSkullTopFourRows] =
         [
-            Hold(F.CrocomireBodyMeltingTwoTopFourRows),
+            Hold(F.CrocomireBodyMeltingBareSkullTopFourRows),
         ],
         [P.BridgeCollapsed] =
         [
@@ -440,41 +440,41 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonFallsApart] =
         [
-            Show(F.CrocomireBodySkeletonCollapsing158By134, 10),
+            Show(F.CrocomireBodySkeletonCollapseStage1, 10),
             Dust(-32),
-            Show(F.CrocomireBodySkeletonCollapsing141By132, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage2, 5),
             Dust(0),
-            Show(F.CrocomireBodySkeletonCollapsing141By132, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage2, 5),
             Dust(-16),
-            Show(F.CrocomireBodySkeletonCollapsing142By127, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage3, 5),
             Dust(16),
-            Show(F.CrocomireBodySkeletonCollapsing142By127, 5),
-            Show(F.CrocomireBodySkeletonCollapsing143By130, 10),
-            Show(F.CrocomireBodySkeletonCollapsing143By131, 32),
-            Show(F.CrocomireBodySkeletonCollapsing160By130, 16),
+            Show(F.CrocomireBodySkeletonCollapseStage3, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage4, 10),
+            Show(F.CrocomireBodySkeletonCollapseStage5, 32),
+            Show(F.CrocomireBodySkeletonCollapseStage6, 16),
             Cue(K.SkeletonCollapseSound),
-            Show(F.CrocomireBodySkeletonCollapsing159By122, 10),
-            Show(F.CrocomireBodySkeletonCollapsing158By118, 9),
-            Show(F.CrocomireBodySkeletonCollapsing158By108, 9),
+            Show(F.CrocomireBodySkeletonCollapseStage7, 10),
+            Show(F.CrocomireBodySkeletonCollapseStage8, 9),
+            Show(F.CrocomireBodySkeletonCollapseStage9, 9),
             Dust(0),
-            Show(F.CrocomireBodySkeletonCollapsing158By109, 8),
+            Show(F.CrocomireBodySkeletonCollapseStage10, 8),
             Dust(8),
-            Show(F.CrocomireBodySkeletonCollapsing177By87, 8),
+            Show(F.CrocomireBodySkeletonCollapseStage11, 8),
             Dust(16),
-            Show(F.CrocomireBodySkeletonCollapsing174By82, 7),
+            Show(F.CrocomireBodySkeletonCollapseStage12, 7),
             Dust(24),
-            Show(F.CrocomireBodySkeletonCollapsing185By79, 7),
+            Show(F.CrocomireBodySkeletonCollapseStage13, 7),
             Dust(32),
-            Show(F.CrocomireBodySkeletonCollapsing189By77, 6),
+            Show(F.CrocomireBodySkeletonCollapseStage14, 6),
             Dust(40),
-            Show(F.CrocomireBodySkeletonCollapsing173By77, 6),
+            Show(F.CrocomireBodySkeletonCollapseStage15, 6),
             Dust(48),
-            Show(F.CrocomireBodySkeletonCollapsing153By84, 6),
+            Show(F.CrocomireBodySkeletonCollapseStage16, 6),
             Dust(56),
-            Show(F.CrocomireBodySkeletonCollapsing120By71, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage17, 5),
             Dust(64),
             Cue(K.BigExplosionSound),
-            Show(F.CrocomireBodySkeletonCollapsing120By68, 5),
+            Show(F.CrocomireBodySkeletonCollapseStage18, 5),
         ],
         [P.SkeletonStable] =
         [
@@ -486,16 +486,16 @@ internal static class CrocomireBodyAnimations
         ],
         [P.SkeletonFlowingDownRiver] =
         [
-            Show(F.CrocomireBubbles6By7Risen0, 4),
-            Show(F.CrocomireBubbles12By12Risen6, 4),
-            Show(F.CrocomireBubbles14By13Risen8, 4),
-            Show(F.CrocomireBubbles12By14Risen11, 4),
-            Show(F.CrocomireBubbles12By14Risen14, 4),
-            Show(F.CrocomireBubbles10By13Risen15, 4),
-            Show(F.CrocomireBubbles10By12Risen16, 4),
-            Show(F.CrocomireBubbles8By10Risen16, 4),
-            Show(F.CrocomireBubbles4By6Risen14, 4),
-            Show(F.CrocomireBubbles4By6Adrift, 20),
+            Show(F.CrocomireBubblesRisingStage1, 4),
+            Show(F.CrocomireBubblesRisingStage2, 4),
+            Show(F.CrocomireBubblesRisingStage3, 4),
+            Show(F.CrocomireBubblesRisingStage4, 4),
+            Show(F.CrocomireBubblesRisingStage5, 4),
+            Show(F.CrocomireBubblesRisingStage6, 4),
+            Show(F.CrocomireBubblesRisingStage7, 4),
+            Show(F.CrocomireBubblesRisingStage8, 4),
+            Show(F.CrocomireBubblesRisingStage9, 4),
+            Show(F.CrocomireBubblesAdrift, 20),
         ],
     });
 
@@ -522,14 +522,14 @@ internal static class CrocomireBodyAnimations
         [P.PowerBombReactionMouthNotOpen] = new([Whole(P.PowerBombReactionMouthNotOpen), Whole(P.PowerBombReactionCharge)], AnimationEnd.LoopsFrom(1)),
         [P.NearSpikeWallCharge] = new([Whole(P.NearSpikeWallCharge), Whole(P.NearSpikeWallChargeSteps)], AnimationEnd.LoopsFrom(1)),
         [P.BackOffFromSpikeWall] = new([Whole(P.BackOffFromSpikeWall)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingOneTopRow] = new([Whole(P.MeltingOneTopRow)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingOneTopTwoRows] = new([Whole(P.MeltingOneTopTwoRows)], AnimationEnd.Holds),
-        [P.MeltingOneTopThreeRows] = new([Whole(P.MeltingOneTopThreeRows)], AnimationEnd.Holds),
-        [P.MeltingOneTopFourRows] = new([Whole(P.MeltingOneTopFourRows)], AnimationEnd.Holds),
-        [P.MeltingTwoTopRow] = new([Whole(P.MeltingTwoTopRow)], AnimationEnd.LoopsFrom(0)),
-        [P.MeltingTwoTopTwoRows] = new([Whole(P.MeltingTwoTopTwoRows)], AnimationEnd.Holds),
-        [P.MeltingTwoTopThreeRows] = new([Whole(P.MeltingTwoTopThreeRows)], AnimationEnd.Holds),
-        [P.MeltingTwoTopFourRows] = new([Whole(P.MeltingTwoTopFourRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopRow] = new([Whole(P.MeltingFleshTopRow)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingFleshTopTwoRows] = new([Whole(P.MeltingFleshTopTwoRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopThreeRows] = new([Whole(P.MeltingFleshTopThreeRows)], AnimationEnd.Holds),
+        [P.MeltingFleshTopFourRows] = new([Whole(P.MeltingFleshTopFourRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopRow] = new([Whole(P.MeltingBareSkullTopRow)], AnimationEnd.LoopsFrom(0)),
+        [P.MeltingBareSkullTopTwoRows] = new([Whole(P.MeltingBareSkullTopTwoRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopThreeRows] = new([Whole(P.MeltingBareSkullTopThreeRows)], AnimationEnd.Holds),
+        [P.MeltingBareSkullTopFourRows] = new([Whole(P.MeltingBareSkullTopFourRows)], AnimationEnd.Holds),
         [P.BridgeCollapsed] = new([Whole(P.BridgeCollapsed)], AnimationEnd.Holds),
         [P.SkeletonFalling] = new([Whole(P.SkeletonFalling)], AnimationEnd.Holds),
         [P.SkeletonFallsApart] = new([Whole(P.SkeletonFallsApart), Whole(P.SkeletonStable)], AnimationEnd.Holds),

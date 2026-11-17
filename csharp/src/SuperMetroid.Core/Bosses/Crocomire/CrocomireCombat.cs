@@ -118,19 +118,15 @@ internal sealed class CrocomireCombat
         }
 
         /// <summary>Runs the one-frame vector setup.</summary>
-        private void StartCrocomireProjectileFlight(
+        private static void StartCrocomireProjectileFlight(
             EnemyProjectile projectile,
             RoomLevelData level)
         {
             // The setup performs one horizontal collision move and deliberately ignores whether it hit terrain.
             EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
 
-            // The last shot reads the gradient after the authored ones, which the installed service holds; do not clamp
-            // it to the last authored gradient. The angle starts at up, not right: Y uses negative cosine.
-            int shot = projectile.StateOf<CrocomireProjectileState>().Shot;
-            int gradient = CrocomireVolley.IsLastShot(shot)
-                ? access.TenthShotGradient.Gradient
-                : CrocomireVolley.AuthoredGradient(shot);
+            // The shot keeps the gradient its volley fires it along. The angle starts at up, not right: Y uses negative cosine.
+            int gradient = projectile.StateOf<CrocomireProjectileState>().Gradient;
             projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(new(-64, gradient)));
             projectile.StartMotion(CrocomireProjectileMotion.ShotFlying);
         }

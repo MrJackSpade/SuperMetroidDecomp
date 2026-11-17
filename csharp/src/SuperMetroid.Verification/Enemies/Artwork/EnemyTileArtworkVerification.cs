@@ -66,7 +66,7 @@ internal static class EnemyTileArtworkVerification
     /// </summary>
     private static byte[] ReadNativeCrocomireMeltingPassImage(ISnesAddressSpace rom, CrocomireMeltingIllustration pass)
     {
-        bool first = pass == CrocomireMeltingIllustration.First;
+        bool first = pass == CrocomireMeltingIllustration.Flesh;
         var expected = new byte[first ? CrocomireMeltingArtworkFormat.FirstByteCount : CrocomireMeltingArtworkFormat.SecondByteCount];
         int firstChunk = first ? 0xa4a07d : 0xa4ac7d;
         for (int band = 0; band < (first ? 6 : 7); band++)
@@ -209,11 +209,11 @@ internal static class EnemyTileArtworkVerification
             AssertEqual(EnemyTileArtworkFormat.RetailEntryCount, files.Length,
                 "one indexed page per distinct retail enemy graphics definition and per artwork a set loads for no enemy");
             _ = VerifyInstalledCrocomireMeltingTilemap(
-                bus, stock, CrocomireMeltingIllustration.First,
-                CrocomireBodySegment.MeltingOneTopRow);
+                bus, stock, CrocomireMeltingIllustration.Flesh,
+                CrocomireBodySegment.MeltingFleshTopRow);
             _ = VerifyInstalledCrocomireMeltingTilemap(
-                bus, stock, CrocomireMeltingIllustration.Second,
-                CrocomireBodySegment.MeltingTwoTopRow);
+                bus, stock, CrocomireMeltingIllustration.BareSkull,
+                CrocomireBodySegment.MeltingBareSkullTopRow);
             foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
             {
                 byte[] actual = VerifyInstalledCrocomireMeltingPass(stock, pass);

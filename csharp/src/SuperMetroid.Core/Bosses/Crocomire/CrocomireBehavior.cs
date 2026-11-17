@@ -142,7 +142,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.ShowFirstCrocomireMeltImage(state);
                 return;
             case CrocomireDeathPhase.BeginFirstMeltPass:
-                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.First);
+                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Flesh);
                 return;
             case CrocomireDeathPhase.ShowFirstMeltBands:
                 CrocomireMelting.ShowNextCrocomireMeltBand(state);
@@ -185,7 +185,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 Melting.ShowSecondCrocomireMeltImage(state);
                 return;
             case CrocomireDeathPhase.BeginSecondMeltPass:
-                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.Second);
+                Melting.BeginCrocomireMeltPass(state, CrocomireMeltingIllustration.BareSkull);
                 return;
             case CrocomireDeathPhase.ShowSecondMeltBands:
                 CrocomireMelting.ShowNextCrocomireMeltBand(state);
@@ -194,7 +194,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.DeathPhase = state.DeathPhase.Next();
                 return;
             case CrocomireDeathPhase.SixthHopRise:
-                CrocomireBridgeCollapse.SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.Second);
+                CrocomireBridgeCollapse.SelectCrocomireMeltAnimation(state, CrocomireMeltingIllustration.BareSkull);
                 BodyLayer.SpawnCrocomireAcidSmoke(state);
                 CrocomireBridgeCollapse.RunCrocomireRise(state);
                 return;

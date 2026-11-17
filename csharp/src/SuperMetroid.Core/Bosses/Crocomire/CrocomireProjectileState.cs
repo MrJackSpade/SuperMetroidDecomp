@@ -2,13 +2,10 @@ using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>What one of Crocomire's spit projectiles keeps: its place in the volley, which sets the slope it is fired along.</summary>
-/// <param name="shot">The shot's place in the volley, 1 through <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.</param>
-internal sealed class CrocomireProjectileState(int shot) : EnemyProjectileState
+/// <summary>What one of Crocomire's spit projectiles keeps: the gradient its volley fires it along (#2303).</summary>
+/// <param name="gradient">The gradient the shot is fired along (<see cref="CrocomireVolley.GradientOf"/>).</param>
+internal sealed class CrocomireProjectileState(int gradient) : EnemyProjectileState
 {
-    /// <summary>
-    /// The shot's place in the volley, 1 through <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>; it selects
-    /// the slope it is fired along.
-    /// </summary>
-    internal int Shot { get; } = Ensure.AtLeastZero(shot);
+    /// <summary>The gradient the shot is fired along, which its aim reads as its flight starts.</summary>
+    internal int Gradient { get; } = gradient;
 }

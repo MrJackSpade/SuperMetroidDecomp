@@ -3,7 +3,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
-using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;

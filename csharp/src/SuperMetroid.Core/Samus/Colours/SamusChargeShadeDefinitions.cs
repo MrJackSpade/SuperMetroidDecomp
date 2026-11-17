@@ -6,8 +6,6 @@
 /// </remarks>
 public static class SamusChargeShadeDefinitions
 {
-    /// <summary>The steps of the charge and pseudo-Screw colour cycles; the cycle wraps to its first step after the last.</summary>
-    public const int ChargeSteps = 6;
     /// <summary>The Hyper-shot glow's steps that show a frame of the Hyper Beam's full-body glow, one per frame.</summary>
     public const int HyperShotSteps = 10;
 }

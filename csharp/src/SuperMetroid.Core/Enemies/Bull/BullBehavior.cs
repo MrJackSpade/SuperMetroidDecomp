@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 

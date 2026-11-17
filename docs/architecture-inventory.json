@@ -61679,6 +61679,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.CyclingSequence\u003CT\u003E",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/CyclingSequence.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Earthquakes.EarthquakeDirection",
       "kind": "enum",
       "scope": "product",
@@ -68260,19 +68273,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/CommonEnemyEmptyFrameDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -68289,7 +68289,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitions)",
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrameDefinitionsConstants.extension(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrames)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -79214,6 +79214,32 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameNameDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrameNameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameSheetKeys",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileFrameSheetKeys.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameStep",
@@ -97633,19 +97659,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectAnimations.HeatShimmer",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectAnimations.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectColours",
       "kind": "enum",
       "scope": "product",
@@ -97891,6 +97904,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/ColourEffects/ColourEffectSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Fx.ColourEffects.ColourEffectShades",
@@ -100817,6 +100843,58 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Fx.FirefleaDarkness",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/FirefleaDarkness.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.FirefleaFlashAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/FirefleaFlashAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.FirefleaFlashSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/FirefleaFlashSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Fx.FirefleaFlashShade",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/FirefleaFlashShade.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.FirefleaFxDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -100841,19 +100919,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.FirefleaShades",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/FirefleaShades.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.FxNativeWords",
@@ -100988,6 +101053,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Fx.IntervalClock",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Fx/IntervalClock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Fx.LatchedScrollingSky",
       "kind": "record struct",
       "scope": "product",
@@ -101012,19 +101090,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Fx.LiquidEffects",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Fx/LiquidEffects.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Fx.LiquidTide",
@@ -105567,6 +105632,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.SamusEnergyDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/SamusEnergyDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Progression.SamusEquipmentFlagExtensions",
@@ -126301,38 +126379,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectStateAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/HyperBeamColourEffectStateAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectStateAccess.extension(SuperMetroid.Core.Samus.Projectiles.HyperBeamColourEffectState)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/HyperBeamColourEffectStateAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.HyperBeamFlight",
       "kind": "class",
       "scope": "product",
@@ -128729,19 +128775,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Samus/SamusDraygonHoldDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.SamusEnergyDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/SamusEnergyDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -153879,6 +153912,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Bosses.Ridley.CeresSelfDestructWarningVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Bosses/Ridley/CeresSelfDestructWarningVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Bosses.Ridley.NewRidleyResult",
       "kind": "record struct",
       "scope": "test",
@@ -161726,6 +161772,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Projectiles/EnemyProjectileDefinitionsVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileFrameSheetKeysVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/Projectiles/EnemyProjectileFrameSheetKeysVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

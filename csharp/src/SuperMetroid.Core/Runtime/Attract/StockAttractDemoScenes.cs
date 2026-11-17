@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;

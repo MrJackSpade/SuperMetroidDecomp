@@ -1,5 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Enemies;
+﻿using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Enemies.EffectActors;

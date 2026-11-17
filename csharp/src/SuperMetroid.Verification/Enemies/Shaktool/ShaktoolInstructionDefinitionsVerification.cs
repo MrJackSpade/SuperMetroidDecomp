@@ -4,6 +4,8 @@ using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Enemies.Shaktool.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -18,12 +20,14 @@ internal static class ShaktoolInstructionDefinitionsVerification
     internal static void VerifyShaktoolInstructionDefinitions(CartridgeImportAddressSpace rom)
     {
 
-        // The cartridge keys the head's lists by bucket, the bearing of the direction it aims.
+        // The cartridge keys the head's lists by bucket, the bearing of the direction it aims; each shows the picture the
+        // head's orientation chooses (#2284).
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadd15 + (bucket >> 5) * 2)),
-                NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
-                $"Shaktool orientation list {bucket:X2}");
+            CompassDirection aim = new Bearing(bucket).DirectionOfEighth();
+            AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
+                ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
+                $"Shaktool orientation picture {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
         {
@@ -48,9 +52,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
             orient(center, centerState);
             AssertEqual(new Bearing(bucket).DirectionOfEighth(), centerState.Orientation,
                 $"Shaktool production orientation bucket {bucket:X2}");
-            AssertEqual(new AnimationPlayback<ShaktoolSegment>(ShaktoolAnimations.StartingWith(ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())), AnimationPlace.StartOfAnimation),
-                centerState.Playback,
-                $"Shaktool production orientation list {bucket:X2}");
+            AssertEqual<EnemyFrameId?>(ShaktoolHeadPictures.Aiming(new Bearing(bucket).DirectionOfEighth()), centerState.AimedPicture,
+                $"Shaktool production orientation picture {bucket:X2}");
         }
 
         RoomEnemyPlace tail = enemies.Places.InUpdateOrder[6];
@@ -84,13 +87,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             ShaktoolSegment.SawHandPrimaryPiece,
             ShaktoolSegment.ArmPieceNormal,
             ShaktoolSegment.HeadAimingLeft,
-            ShaktoolSegment.HeadAimingUpLeft,
-            ShaktoolSegment.HeadAimingUp,
-            ShaktoolSegment.HeadAimingUpRight,
-            ShaktoolSegment.HeadAimingRight,
-            ShaktoolSegment.HeadAimingDownRight,
             ShaktoolSegment.HeadAimingDown,
-            ShaktoolSegment.HeadAimingDownLeft,
         ];
         for (int index = 0; index < steadyPrograms.Length; index++)
         {

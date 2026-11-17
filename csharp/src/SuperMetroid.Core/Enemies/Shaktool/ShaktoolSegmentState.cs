@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The state of one of Shaktool's seven linked segments.</summary>
@@ -6,6 +7,13 @@ public sealed class ShaktoolSegmentState
 {
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<ShaktoolSegment> Playback { get; set; }
+
+    /// <summary>
+    /// The picture the centre segment's head shows while its chain orients it (#2284): the one its orientation chose on
+    /// its last update, shown for good in place of <see cref="Playback"/>. Null while the segment plays its animation: its
+    /// first pose, its head bob, and every other segment's.
+    /// </summary>
+    internal EnemyFrameId? AimedPicture { get; set; }
     /// <summary>The chain's target heading, also advanced during straightening and used by attack movement cues.</summary>
     public RotationAngle TargetAngle { get; internal set; }
     /// <summary>The angle around the immediately preceding segment; its whole step selects the orbit displacement.</summary>
@@ -17,7 +25,7 @@ public sealed class ShaktoolSegmentState
     public RotationAngle AngularVelocity { get; internal set; }
     /// <summary>
     /// The compass direction the centre segment's head aims: selected from the midpoint of its neighbours' angles, it
-    /// chooses its head animation and the direction its attack cues move the segments along.
+    /// chooses its head's picture and the direction its attack cues move the segments along.
     /// </summary>
     public CompassDirection Orientation { get; internal set; }
     /// <summary>Whether the chain runs reversed, so the centre segment's midpoint flips a half turn; an endpoint swap toggles it.</summary>

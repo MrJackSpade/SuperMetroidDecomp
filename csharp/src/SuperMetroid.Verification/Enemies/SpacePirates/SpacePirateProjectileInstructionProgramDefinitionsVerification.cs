@@ -188,7 +188,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
     /// </summary>
     private static void VerifyNinjaPirateClawFlightSpeed()
     {
-        var claw = new NinjaPirateClawState(SignedEightEight.FromPixels(8), HorizontalDirection.Left);
+        var claw = new NinjaPirateClawState(ReturningClawSpeed.FromPixels(8), HorizontalDirection.Left);
         int nativeWord = 2048;
         bool nativeOutbound = true;
         bool wrapped = false;

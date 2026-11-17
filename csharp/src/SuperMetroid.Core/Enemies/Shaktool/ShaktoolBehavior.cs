@@ -158,8 +158,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, restarting
-    /// the animation for that facing.
+    /// Orbits the chain's centre segment and turns it to face halfway between the segments either side of it, choosing the
+    /// head's picture for that facing, which its animation pass shows (#2284).
     /// </summary>
     internal void AdvanceAndOrientShaktoolCenter(
         RoomEnemyPlace place,
@@ -176,8 +176,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             midpoint += RotationAngle.HalfTurn;
 
         state.Orientation = ShaktoolOrbitDefinitions.Orientations.At(midpoint);
-        state.Playback = new(ShaktoolAnimations.StartingWith(
-            ShaktoolAnimationChoices.ForOrientation(state.Orientation)), AnimationPlace.StartOfAnimation);
+        state.AimedPicture = ShaktoolHeadPictures.Aiming(state.Orientation);
         place.AnimationClock.StepOnNextUpdate();
     }
 
@@ -283,6 +282,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment.Place);
             CalculateShaktoolAngularVelocity(segmentState);
             segmentState.Motion = ShaktoolSegmentMotion.Idle;
+            segmentState.AimedPicture = null;
             segmentState.Playback = new(ShaktoolAnimations.StartingWith(
                 segment.Definition.CollisionAnimation), AnimationPlace.StartOfAnimation);
             segment.Place.AnimationClock.StepOnNextUpdate();
@@ -480,6 +480,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!place.AnimationClock.Expire())
             return;
         var state = RequireShaktoolState(place);
+        if (state.AimedPicture is { } aimed)
+        {
+            // The head shows the picture its orientation chose for good, until the chain orients it again (#2284).
+            place.Frame = aimed;
+            place.AnimationClock.ShowForGood();
+            return;
+        }
         AnimationPlayback<ShaktoolSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, ShaktoolAnimations.Segments, ref playback,
             cue =>

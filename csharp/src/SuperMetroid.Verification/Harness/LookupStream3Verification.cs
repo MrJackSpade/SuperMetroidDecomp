@@ -873,13 +873,14 @@ internal static class LookupStream3Verification
                 "stream 3 native Spark list selector");
             AssertEqual(action, definition.Action, "stream 3 native Spark function selector");
         }
-        // The cartridge keys the head's lists by bucket, the bearing of the direction it aims.
+        // The cartridge keys the head's lists by bucket, the bearing of the direction it aims; each shows the picture the
+        // head's orientation chooses (#2284).
         for (int bucket = 0; bucket <= 224; bucket += 32)
         {
-            int address = 0xaadd15 + 2 * (bucket >> 5);
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(expected, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolAnimationChoices.ForOrientation(new Bearing(bucket).DirectionOfEighth())),
-                "stream 3 native Shaktool orientation");
+            CompassDirection aim = new Bearing(bucket).DirectionOfEighth();
+            AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
+                SuperMetroid.Core.Enemies.Shaktool.Artwork.ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
+                "stream 3 native Shaktool orientation picture");
         }
         for (int segment = 0; segment < 7; segment++)
         {

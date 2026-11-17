@@ -29,8 +29,8 @@ internal static class SporeSpawnAnimations
     private const int FadeStepDuration = 16;
     /// <summary>The death colours' fade steps; the husk's colours are the last.</summary>
     internal const int DeathShadeSteps = 7;
-    /// <summary>The sway's maximum X radius as the fight starts.</summary>
-    private const int FirstMaximumXRadius = 64;
+    /// <summary>How wide he sways as the fight starts.</summary>
+    private static readonly SporeSpawnSwayRadius FightSwayRadius = new(64);
 
     /// <summary>The opening poses, closed through fully open; the death shows the second-to-last.</summary>
     private static readonly EnemyFrameId[] OpeningFrames =
@@ -60,7 +60,7 @@ internal static class SporeSpawnAnimations
         ],
         [P.FightStarted] =
         [
-            Cue(new SporeSpawnCue.SetMaxXRadiusAndAngleDelta(MaximumXRadius: FirstMaximumXRadius, AngleDelta: 1)),
+            Cue(new SporeSpawnCue.SetSway(Radius: FightSwayRadius, Step: SporeSpawnArenaDefinitions.SwayStep)),
             SelectMovement(SporeSpawnMovement.Moving),
             Show(F.SporeSpawnShut, FirstSway),
         ],

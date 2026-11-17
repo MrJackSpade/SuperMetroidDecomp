@@ -40,7 +40,7 @@ internal static class SporeSpawnNativeListAddresses
     {
         [0xe75f] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.IncreaseMaxXRadius)), 0),
         [0xe771] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.ClearDamagedFlag)), 0),
-        [0xe82d] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetMaxXRadiusAndAngleDelta>(""), 2),
+        [0xe82d] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetSway>(""), 2),
         [0xe872] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.SetSporeGeneration>(""), 1),
         [0xe87c] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.Harden)), 0),
         [0xe895] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Of<SporeSpawnCue.QueueSound>(""), 1),

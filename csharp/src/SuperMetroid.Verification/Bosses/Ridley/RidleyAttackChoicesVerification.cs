@@ -66,18 +66,15 @@ internal static class RidleyAttackChoicesVerification
             new RidleyAttackChoicesCase(14400, standing, 2), new RidleyAttackChoicesCase(18000, low, 3),
             new RidleyAttackChoicesCase(18000, spinning, 4),
         ];
-        // The selector draws its choice through the attack field, which reads exactly the native table's index, the sample
-        // modulo 8, on every one of the 65536 samples.
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-            AssertEqual(raw & 7, RidleyRandomDefinitions.AttackChoice.Of(raw), "The attack field reads the native choice index");
-        // The selection frame reads its sample only through these fields: the attack choice, and the wall sweep's time limit
+        // The selection frame reads its sample only through these fields: the attack chances', and the wall sweep's time limit
         // and fireball chance, which the spin-jumping situation's same-frame setup reads; every other chosen setup reads none.
         // Two samples that agree on the fields' bits therefore select and set up alike, so every combination of those bits
         // covers every sample, and each combination of the bits no field reads, paired with a different combination of the
         // read bits, confirms that they change nothing.
         int readBits = new[]
         {
-            RidleyRandomDefinitions.AttackChoice,
+            RidleyRandomDefinitions.OrdinaryAttackPogos.Field,
+            RidleyRandomDefinitions.DamageBoostingAttackLunges.Field,
             RidleyRandomDefinitions.WallSweepTimer,
             RidleyRandomDefinitions.WallSweepFireballs.Field,
         }.Aggregate(0, (bits, field) => bits | (field.Outcomes - 1) << field.Shift);
@@ -106,7 +103,7 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(expected.Flight.Velocity.Y.RawValue, state.Flight.Velocity.Y.RawValue, "Same-frame selected Y motion");
             AssertEqual(expected.ZeroHealthLungeCount, state.ZeroHealthLungeCount, "Only a zero-health selection counts a lunge; spin takes priority");
         }
-        Console.WriteLine($"Ridley choices: the 40 reachable native pointers, the attack field on all 65536 samples and {cases.Length * samples.Length} actual selections " +
+        Console.WriteLine($"Ridley choices: the 40 reachable native pointers and {cases.Length * samples.Length} actual selections " +
             $"over every combination of the selection frame's read bits pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 

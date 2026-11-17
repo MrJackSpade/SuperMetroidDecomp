@@ -359,8 +359,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
             situation = RidleyAttackSituation.Ordinary;
         }
 
-        int choice = _room.Random.Next(RidleyRandomDefinitions.AttackChoice);
-        state.Phase = RidleyAttackChoices.Resolve(situation, choice);
+        state.Phase = RidleyAttackChoices.Resolve(situation, _room.Random.Generate());
 
         // The choice runs the chosen phase at once. Retain that same-frame setup
         // so timers, animation changes, and velocity all begin on the selected frame.

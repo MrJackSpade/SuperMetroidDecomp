@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// releases spores.
 /// </summary>
 /// <param name="sporeSpawn">The fight that set the emitter up, which holds it shut while he suppresses his spores.</param>
-internal sealed class SporeSpawnEmitterState(SporeSpawnEnemyState sporeSpawn) : EnemyProjectileState
+/// <param name="drift">The way the spores the emitter releases first drift.</param>
+internal sealed class SporeSpawnEmitterState(SporeSpawnEnemyState sporeSpawn, HorizontalDirection drift) : EnemyProjectileState
 {
+    /// <summary>The way the spores the emitter releases first drift (<see cref="SporeSpawnEmitter.Drift"/>).</summary>
+    internal HorizontalDirection Drift { get; } = drift;
+
     /// <summary>
     /// The fight that set the emitter up (#2231): it stays shut while he suppresses his spores, and its spores take his
     /// body's colours. His death deletes it.

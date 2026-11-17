@@ -1587,7 +1587,7 @@ internal static class LookupStream4Verification
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + 2 * index)), CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y), "stream4 original stalk segment spacing");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].X, "stream4 original ceiling emitter spacing");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + 2 * index)), SporeSpawnProjectileDefinitions.Emitters[index].Place.X, "stream4 original ceiling emitter spacing");
         }
     }
 

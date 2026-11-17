@@ -98,7 +98,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // Preserve that distinction so all room actors use the same scan.
         _frameContext.RequestFullSweep();
         _cameraFloor.Hold(SporeSpawnArenaDefinitions.LowestCameraY);
-        foreach (Position16<RoomPixels> emitter in SporeSpawnProjectileDefinitions.Emitters)
+        foreach (SporeSpawnEmitter emitter in SporeSpawnProjectileDefinitions.Emitters)
             SpawnSporeSpawnSpawner(body, state, emitter);
         UpdateSporeSpawnStalks(body, state);
     }
@@ -146,8 +146,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             body.AnimationClock.StepOnNextUpdate();
         }
 
-        state.MaximumXRadius = SporeSpawnArenaDefinitions.DescentSwayRadius;
-        state.AngleDelta = 1;
+        state.SwayRadius = SporeSpawnArenaDefinitions.DescentSwayRadius;
+        state.SwayStep = SporeSpawnArenaDefinitions.SwayStep;
         state.Angle = RotationAngle.ThreeQuarterTurn;
     }
 
@@ -157,7 +157,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(body, state);
         body.Position = body.Position.WithWholeX(
             state.MovementCenter.X +
-            EnemyMath.CircleCosinePixels(state.Angle.ToTrigonometryAngle(), state.MaximumXRadius));
+            EnemyMath.CircleCosinePixels(state.Angle.ToTrigonometryAngle(), state.SwayRadius.Reach.X));
         // The vertical sway turns twice as fast as the horizontal, from a quarter turn behind it, sixteen pixels
         // narrower. Spore Spawn only moves once the fight has started, which sets the radius to 48 or 64 first; the only
         // other way into movement is a hit on the exposed core, which only the open frames after that start carry. The
@@ -167,10 +167,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             state.MovementCenter.Y +
             EnemyMath.CircleNegativeSinePixels(
                 swayBehind.TurnedBy(swayBehind),
-                state.MaximumXRadius - SporeSpawnArenaDefinitions.VerticalSwayNarrowing));
+                state.SwayRadius.Reach.Y));
 
-        // The phase advances by the signed delta and wraps around the turn.
-        state.Angle = state.Angle.TurnedBySteps(state.AngleDelta);
+        // The phase turns by his sway's step and wraps around the turn.
+        state.Angle = state.SwayStep.Turn(state.Angle);
     }
 
     /// <summary>Aims Spore Spawn's death drift at the arena's centre: each axis's share of one pixel per update, signed toward it.</summary>
@@ -337,7 +337,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 case SporeSpawnProjectileCue.SpawnSpore:
                     // Only a ceiling spawner's release spawns a spore, which takes the colours of the Spore Spawn that set the spawner up.
-                    SpawnSporeSpawnSpore(projectile.Position.Whole, projectile.StateOf<SporeSpawnEmitterState>().SporeSpawn);
+                    SporeSpawnEmitterState emitter = projectile.StateOf<SporeSpawnEmitterState>();
+                    SpawnSporeSpawnSpore(projectile.Position.Whole, emitter.Drift, emitter.SporeSpawn);
                     return;
                 case SporeSpawnProjectileCue.SetImpactProperties:
                     SetSporeSpawnImpactProperties(projectile);
@@ -360,7 +361,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         /// Spawns one spore projectile and runs its initializer. The spore shares <paramref name="sporeSpawn"/>'s body's
         /// colours as they show now (#1512).
         /// </summary>
-        internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, SporeSpawnEnemyState sporeSpawn)
+        internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
         {
             EnemyProjectile? spore = projectiles.AllocateEnemyProjectile();
             if (spore is null)
@@ -374,9 +375,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.Spore));
             spore.Position = spore.Position.WithWhole(position);
 
-            // A spore from the right half of a screen drifts mirrored, so emitters at X 32/160 move one way and 96/224
-            // the other.
-            spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
+            spore.State = new SporeSpawnSporeState(drift);
         }
 
         /// <summary>Releases spores from a ceiling spawner on its random cadence while Spore Spawn lets it.</summary>
@@ -496,14 +495,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             // Low on health, a hit doubles his angle step while keeping its direction.
             if (SporeSpawnHealthBands.SwingsFast(body.Health))
             {
-                state.AngleDelta = state.AngleDelta < 0 ? -SporeSpawnArenaDefinitions.FastSwingStep : SporeSpawnArenaDefinitions.FastSwingStep;
+                state.SwayStep = state.SwayStep.By(SporeSpawnArenaDefinitions.FastSwayStep);
             }
 
             // Only the first damaging hit during an open phase reverses direction and
             // closes the head. The open-phase step clears this guard when the animation permits it.
             if (!state.Damaged)
             {
-                state.AngleDelta = -state.AngleDelta;
+                state.SwayStep = state.SwayStep.Reversed();
                 state.Damaged = true;
                 state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.CloseAndMove), AnimationPlace.StartOfAnimation);
                 body.AnimationClock.StepOnNextUpdate();
@@ -560,15 +559,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue)
         {
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
-                if (state.MaximumXRadius < SporeSpawnArenaDefinitions.WidenedSwayLimit)
-                    state.MaximumXRadius += SporeSpawnArenaDefinitions.SwayWidening;
+                state.SwayRadius = state.SwayRadius.Widened();
                 return;
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ClearDamagedFlag }:
                 state.Damaged = false;
                 return;
-            case SporeSpawnCue.SetMaxXRadiusAndAngleDelta setMaxXRadiusAndAngleDelta:
-                state.MaximumXRadius = setMaxXRadiusAndAngleDelta.MaximumXRadius;
-                state.AngleDelta = setMaxXRadiusAndAngleDelta.AngleDelta;
+            case SporeSpawnCue.SetSway setSway:
+                state.SwayRadius = setSway.Radius;
+                state.SwayStep = setSway.Step;
                 return;
             case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
                 state.SporeGenerationSuppressed = setSporeGeneration.SporeGenerationSuppressed;
@@ -668,7 +666,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its initializer.</summary>
-    internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, Position16<RoomPixels> emitter)
+    internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
         EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();
         if (spawner is null)
@@ -680,8 +678,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             Spawner,
             SpriteGraphics.SpawnedBy(body));
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileSegment.SpawnerClosed));
-        spawner.Position = spawner.Position.WithWhole(emitter);
-        spawner.State = new SporeSpawnEmitterState(state);
+        spawner.Position = spawner.Position.WithWhole(emitter.Place);
+        spawner.State = new SporeSpawnEmitterState(state, emitter.Drift);
     }
 
     /// <summary>Drifts a spore one step along its path, deleting it once it falls below the room.</summary>
@@ -690,7 +688,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
         Offset16<RoomPixels> movement = SporeSpawnProjectiles.DriftAt(drift.PathStep);
         int xDelta = movement.X;
-        if (drift.Mirrored)
+        if (drift.Drift == HorizontalDirection.Left)
             xDelta = -xDelta;
         spore.Position = spore.Position.WithWholeX(spore.Position.X.Whole + xDelta);
 

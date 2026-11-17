@@ -81,9 +81,12 @@ internal static class SporeSpawnAnimationsVerification
             case SporeSpawnCue.SetMovement setMovement:
                 AssertEqual(operands[0], SporeSpawnNativeWords.SporeSpawnMovements.Word(setMovement.Movement), $"{at}: the cartridge's routine word names the cue's function");
                 break;
-            case SporeSpawnCue.SetMaxXRadiusAndAngleDelta sway:
-                AssertEqual(operands[0], sway.MaximumXRadius, $"{at}: maximum X radius in pixels");
-                AssertEqual(unchecked((short)operands[1]), sway.AngleDelta, $"{at}: signed angle delta");
+            case SporeSpawnCue.SetSway sway:
+                AssertEqual(operands[0], sway.Radius.Pixels, $"{at}: maximum X radius in pixels");
+                // The cartridge's step is a signed count of steps a movement update, positive toward increasing angles.
+                short step = unchecked((short)operands[1]);
+                AssertEqual(RotationAngle.FromSteps(Math.Abs(step)), sway.Step.PerUpdate, $"{at}: angle step");
+                AssertEqual(step < 0 ? RotationDirection.Clockwise : RotationDirection.Counterclockwise, sway.Step.Direction, $"{at}: angle step's way");
                 break;
             case SporeSpawnCue.SetSporeGeneration setSporeGeneration:
                 AssertEqual(operands[0] != 0, setSporeGeneration.SporeGenerationSuppressed, $"{at}: spore generation stopped");
@@ -131,7 +134,7 @@ internal static class SporeSpawnAnimationsVerification
             RoomEnemySystem enemies = NewProjectileSystem();
             // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
             var sporeSpawn = new SporeSpawnEnemyState();
-            enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 256), sporeSpawn);
+            enemies.SporeSpawnBehavior.Spore.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
                 started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),
@@ -140,7 +143,7 @@ internal static class SporeSpawnAnimationsVerification
             if (program is SporeSpawnProjectileSegment.SpawnerClosed or SporeSpawnProjectileSegment.SpawnerRelease)
             {
                 projectile.Delete();
-                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(128, 256));
+                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
                 projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
             }
             projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
@@ -204,8 +207,8 @@ internal static class SporeSpawnAnimationsVerification
         {
             Movement = SporeSpawnMovement.Idle,
             MovementCenter = body.Position.Whole,
-            MaximumXRadius = 48,
-            AngleDelta = 1,
+            SwayRadius = new(48),
+            SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise),
             BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
         };
         enemies.VerificationServices().NextRandom = () => 4660;

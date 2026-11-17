@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 

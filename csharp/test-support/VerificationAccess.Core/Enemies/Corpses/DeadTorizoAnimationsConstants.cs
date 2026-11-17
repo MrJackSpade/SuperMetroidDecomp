@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Corpses;

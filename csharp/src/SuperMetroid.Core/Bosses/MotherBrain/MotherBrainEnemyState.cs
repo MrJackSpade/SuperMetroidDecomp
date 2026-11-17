@@ -40,7 +40,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>Her head, the brain, which her room lists right after her body: her body's setup begins the encounter with it (#2298).</summary>
     public RoomEnemyPlace Head { get; }
 
-    /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>
+    /// <summary>The encounter stage that shot, bomb and footstep handling depend on; the glass phase at room entry.</summary>
     public MotherBrainForm Form { get; internal set; }
 
     /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
@@ -336,7 +336,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// Set by the small breath's
-    /// initializer and cleared by its last animation step, so at most one
+    /// setup and cleared by its last animation step, so at most one
     /// small breath is alive.
     /// </summary>
     public bool SmallPurpleBreathActive { get; internal set; }
@@ -372,7 +372,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public int BombCounter { get; internal set; }
 
-    /// <summary>Counts a bomb the shared bomb initializer has just spawned.</summary>
+    /// <summary>Counts a bomb the shared bomb setup has just spawned.</summary>
     internal void RecordBombSpawned() => BombCounter++;
 
     /// <summary>

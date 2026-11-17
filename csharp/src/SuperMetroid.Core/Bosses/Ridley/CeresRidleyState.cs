@@ -34,7 +34,7 @@ public sealed class CeresRidleyState : RidleyEncounterState
     /// <summary>
     /// Gets the number of shots Ridley has taken, used for health-colour progression and the hundred-hit fake-retreat
     /// trigger. It only counts up, one per accepted shot, and shots stop landing once the retreat publishes the escape
-    /// handoff, so it stays far below the range where the game's counter would wrap.
+    /// handoff.
     /// </summary>
     public int HitCounter { get; internal set; }
 

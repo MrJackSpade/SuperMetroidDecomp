@@ -98,7 +98,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public void InterruptFinalBeamForBabyDrain()
     {
         Encounter.DrainedPhase = MotherBrainDrainedPhase.TakenAback;
-        State.RainbowBeamSoundPlaying = true; // The Baby's drain writes the shared SFX flag.
+        State.RainbowBeamSoundPlaying = true; // The Baby's drain counts as her beam's sound playing.
     }
 
     /// <summary>
@@ -147,16 +147,14 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void ApplyPhase2Or3ShotReaction(MotherBrainProjectileType projectileType)
     {
-        // The shot reaction knows only the eight projectile types it reacts to. Validate the
-        // projectile type so nothing can accidentally smuggle a larger
-        // value past that domain.
+        // Her reaction to each of the six kinds of shot depends on her form and her third phase's walk credit.
         MotherBrainShotReactionResult reaction =
             MotherBrainShotReaction.Resolve(Encounter.Form, projectileType, ThirdPhaseFight.Phase3WalkCounter);
         ThirdPhaseFight.Phase3WalkCounter = reaction.WalkCredit;
         if (reaction.HyperBeamRecoil)
         {
-            // The neck phase itself runs on Mother Brain's next ordinary phase-three
-            // main call; any wait her body is in runs out on its next step.
+            // Her neck's recoil starts on her next third-phase update; any wait her body is in runs out on its next
+            // step.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
             Encounter.PhaseTimer.LastFor(1);
         }

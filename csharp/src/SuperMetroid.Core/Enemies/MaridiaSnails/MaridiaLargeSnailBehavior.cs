@@ -197,8 +197,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BouncePhase)
         {
             case MaridiaLargeSnailBouncePhase.Falling:
-                // The place stays within 3712 256ths of a mark below the start through mark 64, so the game's
-                // signed comparisons are ordinary comparisons.
+                // The place stays within 3712 256ths of a mark below the start through mark 64.
                 state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
                     state.YSpeedCurvePlace + MaridiaLargeSnailMotionDefinitions.BounceAcceleration,
                     MaridiaLargeSnailMotionDefinitions.FastestFallPlace);

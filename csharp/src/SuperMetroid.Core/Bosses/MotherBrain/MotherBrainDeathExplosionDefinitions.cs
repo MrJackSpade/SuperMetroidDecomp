@@ -13,7 +13,7 @@ internal static class MotherBrainDeathExplosionDefinitions
 
     /// <summary>
     /// The groups of four body-relative explosion positions her death explosions burst at, in the order they burst
-    /// (#2315), read before the random number that selects each explosion's type. The explosion's initializer adds these
+    /// (#2315), read before the random number that selects each explosion's type. The explosion's setup adds these
     /// offsets to the moving body without velocity integration; the explosion projectile has zero hitbox radii and cannot
     /// damage Samus.
     /// </summary>

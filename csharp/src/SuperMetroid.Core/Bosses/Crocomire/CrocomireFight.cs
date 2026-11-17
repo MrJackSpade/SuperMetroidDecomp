@@ -97,7 +97,7 @@ internal sealed class CrocomireFight
         foreach (Position16<RoomScreens> screen in CrocomireCameraDefinitions.BehindWallScreens)
             _room.Services.RoomScroll.Write(screen, RoomScrollState.Closed);
 
-        // The wall's and the projectiles' colours his initializer loads are the import's shades of them, which his wall,
+        // The wall's and the projectiles' colours his setup loads are the import's shades of them, which his wall,
         // the bridge's fragments and his projectiles draw in (#1512).
     }
 

@@ -12,10 +12,10 @@ internal enum RidleyBodyCueKind
     /// faces; Lower Norfair Ridley plays on.
     /// </summary>
     MayCutFireballingShort,
-    /// <summary>Raises the roaring flag and queues the roar.</summary>
+    /// <summary>Starts his roar and queues its sound; while he roars he sweeps the wall with no fireballs.</summary>
     Roar,
-    /// <summary>Clears the roaring flag.</summary>
-    ClearRoaringFlag,
+    /// <summary>Ends his roar.</summary>
+    StopRoaring,
     /// <summary>Faces forward while turning.</summary>
     FaceForward,
     /// <summary>Aims the next fireball at Samus.</summary>

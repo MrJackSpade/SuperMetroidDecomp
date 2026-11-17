@@ -300,7 +300,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs the hand beam's charging initializer. The body—not the articulated
+    /// Runs the hand beam's charging setup. The body—not the articulated
     /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
@@ -346,15 +346,14 @@ internal sealed class MotherBrainBody
     {
         _earthquake.Start(MotherBrainFightDefinitions.FootstepShake, MotherBrainFightDefinitions.FootstepShakeUpdates);
 
-        // Form three additionally makes the footstep sound. Phase two normally never
-        // reaches that branch, but retaining it here makes the shared gait cue complete.
+        // Only while the Baby drains her does a footstep also make its sound.
         if (state.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.RequestCueSound(RoomSound.MotherBrainFootstep);
     }
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first turret takes
+    /// the body's setup requests. Allocation scans the pool from its highest place down, so the first turret takes
     /// the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)
@@ -380,8 +379,7 @@ internal sealed class MotherBrainBody
         turret.State = new MotherBrainTurretState(state, definition);
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(definition.InitialDirection)));
 
-        // The initializer draws the RNG twice, once for each of the turret's waits, and clamps each wait's remainder modulo
-        // 256 upward.
+        // A new turret draws a random number for each of its two waits, its turning wait first.
         _projectileAttacks.Projectile.ResetMotherBrainTurretRotationTimer(turret);
         _projectileAttacks.Projectile.ResetMotherBrainTurretCooldown(turret);
     }

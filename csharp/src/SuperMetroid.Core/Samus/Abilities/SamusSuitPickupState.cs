@@ -312,8 +312,7 @@ public sealed class SamusSuitPickupState
         else
             AdvanceColorTowardOrange();
 
-        // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
-        // stays far inside the range where the game's signed comparison is this ordinary one.
+        // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128.
         _lightBeamLines += _lightBeamSpeed.WholePixels;
         // The final curved column is wiped by this many rows from the top. The game's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.

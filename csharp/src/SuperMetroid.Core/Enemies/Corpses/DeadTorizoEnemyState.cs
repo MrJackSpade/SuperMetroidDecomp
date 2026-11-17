@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// One dead Torizo's corpse state: its pose, phase and velocity, rot schedule, its own rows as the rot has left them,
-/// contact delay and the rot calls its sand heap forms by.
+/// contact delay and the rot updates its sand heap forms by.
 /// </summary>
 public sealed class DeadTorizoEnemyState
 {
@@ -21,7 +21,7 @@ public sealed class DeadTorizoEnemyState
     /// <summary>The corpse's own rot schedule: the fall of each of its ninety-six pixel rows.</summary>
     internal CorpseRotSchedule Rot { get; }
 
-    /// <summary>The corpse's body rows as its rot calls have left them, which its body frame is drawn whole through (#1539).</summary>
+    /// <summary>The corpse's body rows as its rot has left them, which its body frame is drawn whole through (#1539).</summary>
     internal RottingCorpseRows Rows { get; } = new(DeadTorizoCorpseDefinitions.RowCount);
     /// <summary>Contact-delay updates counted before rotting, 0..16: the sixteenth enters rotting and the corpse never returns to the delay. Direct shot or touch triggering bypasses it.</summary>
     public int PreRotDelayCounter { get; internal set; }

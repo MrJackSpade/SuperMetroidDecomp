@@ -87,7 +87,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.CollidesByFrameHitboxes = true;
         place.AnimationClock.Restart();
-        // The initializer selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
+        // The setup selects the enemy projectiles' colours, which the import colours the steam's sheets in (#1512).
 
         // Each vent waits a random 1 to 32 updates before its first plume, counted down by its animation's wait, so the
         // vents puff out of step.

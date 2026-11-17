@@ -48,7 +48,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         _projectiles = dependencies.Projectiles;
     }
 
-    /// <summary>Places the Baby in the first free place of the room's enemies, runs its initializer, and leaves it undrawn until its first scheduled turn.</summary>
+    /// <summary>Places the Baby in the first free place of the room's enemies, runs its setup, and leaves it undrawn until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
         if (state.BabyMetroidPlace is not null)
@@ -76,7 +76,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         babyPlace.SetSpeciesState(state);
         _lifecycle.RunInitializationAi(babyPlace, EnemySpawnSurroundings.None);
 
-        // Spawning leaves the Baby undrawn after its initializer when its hide-drawing property is set.
+        // Spawning leaves the Baby undrawn after its setup when its hide-drawing property is set.
         // Its animation is still live and shows its first visible frame on its first
         // scheduled turn; this update's list of running enemies was fixed before the Baby was placed.
         babyPlace.Frame = babyPlace.Processing.HasAny(EnemyProcessing.Animates)

@@ -35,7 +35,7 @@ internal static class SamusPosturePoseTransitions
         if (!rightRoute && !leftRoute)
         {
             // This entry point is the exact crouching-to-normal-standing direct-exit route.
-            // Animated stand-ups and cross-facing changes have separate initializers.
+            // Animated stand-ups and cross-facing changes have separate setups.
             throw new InvalidOperationException(
                 $"Direct crouch exit {samus.Pose} -> {targetPose} is not one of its input transitions.");
         }
@@ -270,7 +270,7 @@ internal static class SamusPosturePoseTransitions
         Ensure.NotNull(level);
 
         // Does not require the crouching movement type. Falling straight-down
-        // and spin-jump input transitions can select the same morphing-transition initializer. The literal
+        // and spin-jump input transitions can select the same morphing-transition setup. The literal
         // previous-movement-type test below even has a dedicated spin-jumping side effect.
         // Validate only the facing-preserving relationship guaranteed by the input transitions.
         SamusFacingDirection sourceFacing = SamusPoseMetadata.ReadFacingDirection(samus);
@@ -302,7 +302,7 @@ internal static class SamusPosturePoseTransitions
 
         if (startsMorphing)
         {
-            // The morphing-transition initializer restores PreviousPose and
+            // The morphing-transition setup restores PreviousPose and
             // rejects the morph when Samus lacks the Morph Ball. No radius, animation, or position
             // write from the rejected prospective pose survives that frame.
             if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.MorphBall))
@@ -390,7 +390,7 @@ internal static class SamusPosturePoseTransitions
     /// reaches its normal crouch endpoint. Up, aim, and Fire input can therefore
     /// interrupt the transition with an ordinary <see cref="SamusMovementType.Falling"/> pose. This is
     /// not a fresh jump or an animation-completion shortcut: it enters the shared
-    /// changed-pose initializer, makes room for the target body's potentially larger radius,
+    /// changed-pose setup, makes room for the target body's potentially larger radius,
     /// and preserves the existing horizontal and vertical speeds that describe Samus's current fall.
     /// </remarks>
     public static bool TryApplyUnmorphToFallingTransition(
@@ -411,7 +411,7 @@ internal static class SamusPosturePoseTransitions
         {
             // Expose only the falling family matching the active
             // unmorph body's direction. Rejecting every other pairing keeps this step
-            // from silently becoming a catch-all for unrelated movement initializers.
+            // from silently becoming a catch-all for unrelated movement setups.
             throw new InvalidOperationException(
                 $"Unmorph-to-falling transition {sourcePose} -> {targetPose} is not a same-facing route.");
         }
@@ -446,7 +446,7 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Installs a stable ordinary Morph-Ball pose while preserving the shared eight-frame
-    /// rolling animation exactly as the morph-ball pose initializer requests.
+    /// rolling animation exactly as the morph-ball pose setup requests.
     /// </summary>
     public static void ApplyMorphBallPoseChange(SamusState samus, SamusPoseId targetPose)
     {
@@ -543,7 +543,7 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Resolves the Spring Ball bounce. Holding Jump immediately calls the same
-    /// jump initializer as a grounded Spring Ball press; otherwise the
+    /// jump setup as a grounded Spring Ball press; otherwise the
     /// bounce advances through the Spring Ball family's two rebounds.
     /// </summary>
     public static bool ApplySpringBallLanding(SamusState samus, GameplayAction controllerInput)
@@ -597,7 +597,7 @@ internal static class SamusPosturePoseTransitions
     /// <summary>
     /// Applies the Spring Ball jump when grounded Spring Ball changes to the Spring Ball jump.
     /// Moving-ground poses first pass through the same input-selected target, but the
-    /// initializer only launches when the previous movement type was exactly grounded Spring Ball.
+    /// setup only launches when the previous movement type was exactly grounded Spring Ball.
     /// </summary>
     public static void ApplySpringBallJump(SamusState samus, SamusPoseId targetPose)
     {
@@ -613,7 +613,7 @@ internal static class SamusPosturePoseTransitions
 
     /// <summary>
     /// Applies the walk-off transition after a bomb-jump frame moved down without a floor. Only the pose
-    /// changes: the airborne ball's initializer leaves vertical speed for the next
+    /// changes: the airborne ball's setup leaves vertical speed for the next
     /// bomb-jump frame, whose passing-zero test turns the jump downward. Movement types whose
     /// falling entry is "no change" keep their pose.
     /// </summary>

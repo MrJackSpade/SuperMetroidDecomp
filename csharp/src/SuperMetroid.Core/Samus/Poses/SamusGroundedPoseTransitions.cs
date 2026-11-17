@@ -13,7 +13,7 @@ internal static class SamusGroundedPoseTransitions
     /// Installs the lookup-failure pose of an aimed crouching turn when every input is
     /// released. The definition's fallback is left-facing crouching for all six poses,
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
-    /// Because the pose changes, the prospective pose's step skips the stop; only the pose initializer runs.
+    /// Because the pose changes, the prospective pose's step skips the stop; only the pose setup runs.
     /// </summary>
     public static void ApplyAimedCrouchingTurnInputFallback(SamusState samus, SamusPoseId targetPose)
     {
@@ -41,7 +41,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Folds the extra run speed into the base speed and starts the turn, for the grounded, aerial and spin-turn
-    /// initializers. Both speeds stay a few pixels an update, so their sum is a plain add, its fraction carrying into the
+    /// setups. Both speeds stay a few pixels an update, so their sum is a plain add, its fraction carrying into the
     /// whole pixels.
     /// </summary>
     internal static void FoldExtraRunSpeedIntoBaseAndStartTurn(SamusState samus)
@@ -101,7 +101,7 @@ internal static class SamusGroundedPoseTransitions
             (SamusPoseMetadata.IsLeftFacingRunningPose(sourcePose) && SamusPoseMetadata.IsLeftFacingRunningPose(targetPose));
         if (!preservesRunningAnimation)
         {
-            // This is the pose initializer's ordinary target installation. Replacing Pose
+            // This is the pose setup's ordinary target installation. Replacing Pose
             // directly would omit the radius refresh and the new animation's start.
             ApplySimpleGroundedPoseChange(samus, sourcePose, targetPose, "Grounded arm");
             return;
@@ -206,7 +206,7 @@ internal static class SamusGroundedPoseTransitions
             (SamusPoseMetadata.IsLeftFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseId.StandingAimUpLeftPose);
         if (!rightRoute && !leftRoute)
         {
-            // Only block-backed ran-into-wall poses call this exact initializer. Treat a
+            // Only block-backed ran-into-wall poses call this exact setup. Treat a
             // different source/target pair as misuse of the specialized operation.
             throw new InvalidOperationException(
                 $"Ran-into-wall pose change {samus.Pose} -> {targetPose} is not a block-backed route.");
@@ -234,7 +234,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the moonwalk option gate and stable-pose changes surrounding
-    /// the moonwalking pose initializer.
+    /// the moonwalking pose setup.
     /// </summary>
     /// <remarks>
     /// Standing input transitions always publish a moonwalk candidate when Shoot and the
@@ -264,7 +264,7 @@ internal static class SamusGroundedPoseTransitions
         {
             // Normal landing points at the same grounded input transitions as
             // ordinary standing. Consequently a backward direction can nominate the
-            // corresponding Moonwalk pose before the option gate runs. The initializer
+            // corresponding Moonwalk pose before the option gate runs. The setup
             // does not special-case the old landing movement type: with Moonwalk off it
             // substitutes the same ordinary standing turn used from normal standing.
             // Tests the way the candidate pose faces: the right-facing moonwalk poses travel left and become the
@@ -312,7 +312,7 @@ internal static class SamusGroundedPoseTransitions
             ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose;
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTransitionTarget)
         {
-            // Input requests the un-aimed turn; the pose initializer then substitutes
+            // Input requests the un-aimed turn; the pose setup then substitutes
             // the old muzzle's aimed turn, which is as valid a request.
             throw new InvalidOperationException(
                 $"Moonwalk turn/jump {samus.Pose} -> {targetPose} is not one of the game's routes.");
@@ -347,7 +347,7 @@ internal static class SamusGroundedPoseTransitions
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
 
-        // The pose initializer resets animation frame zero and loads MovingRightNormalPose's first
+        // The pose setup resets animation frame zero and loads MovingRightNormalPose's first
         // delay after the pose refresh updates direction/movement metadata.
         SamusPresentation.InitializeAnimation(samus);
     }
@@ -419,7 +419,7 @@ internal static class SamusGroundedPoseTransitions
 
     /// <summary>
     /// Applies the grounded turn initialization. Input transitions
-    /// first publish the generic standing turn; the initializer reads the previous pose's aim
+    /// first publish the generic standing turn; the setup reads the previous pose's aim
     /// (<see cref="SamusAimedPoseChoiceDefinitions.StandingTurns"/>) and may replace it with an aimed standing turn.
     /// </summary>
     public static void ApplyGroundedTurn(SamusState samus, SamusPoseId targetPose, GameplayAction controllerInput = GameplayAction.None)
@@ -432,7 +432,7 @@ internal static class SamusGroundedPoseTransitions
         bool wasForwardFacing = SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
 
         // Crouching input transitions publish the crouching turn directly, whereas every admitted
-        // standing, running and landing pose's transitions publish the standing turn. The initializer still uses
+        // standing, running and landing pose's transitions publish the standing turn. The setup still uses
         // the previous SamusMovementType.Crouching to choose the crouched turn that keeps her aim.
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         bool wasCrouching = sourceMovementType == SamusMovementType.Crouching;
@@ -471,7 +471,7 @@ internal static class SamusGroundedPoseTransitions
 
         // The turn's jump check reads held Jump, not a fresh press. Releasing Shoot from a buffered
         // Moonwalk selects a generic turn in the input transitions, then reaches this same
-        // turn/jump initializer without a new Jump edge.
+        // turn/jump setup without a new Jump edge.
         if (wasMoonwalking && (controllerInput & GameplayAction.Jump) != GameplayAction.None)
         {
             ApplyMoonwalkTurnJump(samus, turnsLeft
@@ -552,7 +552,7 @@ internal static class SamusGroundedPoseTransitions
     }
 
     /// <summary>
-    /// Installs one already-validated grounded pose and runs the common pose initializer's
+    /// Installs one already-validated grounded pose and runs the common pose setup's
     /// metadata/radius work, initializing frame zero only for a changed pose.
     /// </summary>
     internal static void ApplySimpleGroundedPoseChange(

@@ -210,7 +210,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>
     /// Allocates a pickup projectile using an ordinary enemy definition. The
     /// search for a free place, failure at the first place, random selection, and no-drop tail follow
-    /// the enemy-projectile spawn and then the pickup's initializer.
+    /// the enemy-projectile spawn and then the pickup's setup.
     /// </summary>
     internal EnemyProjectile? SpawnEnemyDropFromDefinition(
         Position16<RoomPixels> position,

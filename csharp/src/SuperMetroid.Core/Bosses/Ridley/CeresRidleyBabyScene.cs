@@ -43,9 +43,8 @@ internal sealed class CeresRidleyBabyScene
         switch (baby.Action)
         {
             case CeresBabyAction.CarriedInArms:
-                // Before the fake retreat, the Baby remains at Ridley's original left-hand
-                // anchor. This phase is also why the retrieval target begins coherent
-                // even though the Baby is not a separate RoomEnemyPlace.
+                // Until the fake retreat, Ridley carries the Baby at his left-hand anchor, so it is where he holds it
+                // when he lets it fall.
                 baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyArmsAnchor);
                 return;
 

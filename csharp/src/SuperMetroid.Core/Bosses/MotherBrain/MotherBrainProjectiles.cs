@@ -409,7 +409,7 @@ internal sealed class MotherBrainProjectiles
                 SpawnMotherBrainGlassSparkle(shard);
         }
 
-        /// <summary>Runs the sparkle initializer using the spawning shard as parameter.</summary>
+        /// <summary>Runs the sparkle setup using the spawning shard as parameter.</summary>
         private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
             EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile();
@@ -431,7 +431,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>
-        /// Runs the fired child's initializer. Each child first advances the
+        /// Runs the fired child's setup. Each child first advances the
         /// shared aimed start position, then receives a randomized secondary displacement used only for
         /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
         /// children turn into the game's large impact dust and earthquake.
@@ -713,9 +713,8 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Consumes one request emitted by the glass room object's shard step. The request retains the
-    /// glass's block origin because the shard initializer calls
-    /// for the room object's block coordinates after the shared projectile allocator runs.
+    /// Spawns one shard the breaking glass asked for. The request keeps the glass's block, from which the shard takes
+    /// its starting position once it has its own place among the enemy projectiles.
     /// </summary>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request)
     {
@@ -860,8 +859,7 @@ internal sealed class MotherBrainProjectiles
         EnemyProjectile bullet,
         RoomLevelData level)
     {
-        // The vulnerability bit is toggled before the projectile-vs-projectile pass every frame,
-        // reproducing the bullet's alternating vulnerability rather than a visual alpha hack.
+        // The bullet blocks Samus's shots on every other update, switching before her shots meet it.
         bullet.BlocksSamusProjectiles = !bullet.BlocksSamusProjectiles;
         bullet.Position = bullet.Position.Advance(bullet.Velocity.ToSixteenSixteen());
 

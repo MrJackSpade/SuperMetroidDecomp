@@ -89,8 +89,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>
-    /// Seeds the private frame hold used by the sprite's next update
-    /// call. Cinematic actor setups write this hold directly when several actors
+    /// Seeds the private frame hold the sprite's next update uses. Cinematic actor setups write this hold directly when several actors
     /// share one animation but must begin on staggered frames.
     /// </summary>
     public void DelayFirstStep(int frames)

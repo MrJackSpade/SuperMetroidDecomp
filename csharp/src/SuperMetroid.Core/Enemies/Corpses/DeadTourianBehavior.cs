@@ -109,7 +109,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs one rot update, moving the corpse's own rows as the call moves them (#1539), entering inert AI when it completes.
+    /// Runs one rot update, moving the corpse's own rows as the update moves them (#1539), entering inert AI when it completes.
     /// </summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemyPlace place,
@@ -122,7 +122,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Phase = DeadTourianCorpsePhase.Finished;
     }
 
-    /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot calls have left them (#1539).</summary>
+    /// <summary>The rows <paramref name="place"/>'s frames show: its corpse's own, as its rot has left them (#1539).</summary>
     internal static CorpseRotRows ShownDeadTourianRows(RoomEnemyPlace place) => place.RequireSpeciesState<DeadTourianCorpseEnemyState>().Rows.Shown;
 
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>

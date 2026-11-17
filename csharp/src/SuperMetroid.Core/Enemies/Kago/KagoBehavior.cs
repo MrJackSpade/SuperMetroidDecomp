@@ -49,7 +49,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new KagoEnemyState();
         place.SetSpeciesState(state);
 
-        // Kago's placement already authors its other processing properties. The initializer
+        // Kago's placement already authors its other processing properties. The setup
         // sets only the animating property so the shared enemy animation animates the shell.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));

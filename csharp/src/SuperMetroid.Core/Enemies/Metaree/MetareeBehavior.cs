@@ -42,7 +42,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The initializer starts the idle animation directly, leaving the frame timer as the spawn set it.
+        // The setup starts the idle animation directly, leaving the frame timer as the spawn set it.
         state.Playback = new(SkreeMetareeAnimations.StartingWith(SkreeMetareeSegment.MetareeIdling), AnimationPlace.StartOfAnimation);
     }
 

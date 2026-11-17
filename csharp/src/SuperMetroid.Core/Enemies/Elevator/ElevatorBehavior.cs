@@ -97,7 +97,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
 
     /// <summary>
     /// Establishes the globals carried through an elevator door load. The destination
-    /// elevator's initializer recognizes the beginning of an arrival and starts at its arrival height.
+    /// elevator's setup recognizes the beginning of an arrival and starts at its arrival height.
     /// </summary>
     public void PrepareElevatorArrival()
     {

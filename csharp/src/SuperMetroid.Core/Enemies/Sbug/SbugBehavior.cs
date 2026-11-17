@@ -77,8 +77,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunSbugWait(place, state, samus);
                 return;
 
-            // Activation actions deliberately consume a frame merely replacing
-            // their own AI action. Movement begins on the following main AI call.
+            // An activation only changes the bug's action, which takes its update; it moves from the next update.
             case SbugAction.ActivateMoveForward:
                 state.Action = SbugAction.MoveForward;
                 return;

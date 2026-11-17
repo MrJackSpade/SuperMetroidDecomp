@@ -32,7 +32,7 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     public SignedEightEight BrainFallSpeed { get; internal set; }
 
-    /// <summary>Rainbow-beam SFX-playing flag.</summary>
+    /// <summary>Whether her rainbow beam's sound is playing.</summary>
     public bool RainbowBeamSoundPlaying { get; internal set; }
 
     /// <summary>

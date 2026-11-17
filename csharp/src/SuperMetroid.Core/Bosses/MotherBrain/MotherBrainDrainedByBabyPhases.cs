@@ -56,10 +56,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
         throw new InvalidOperationException("Mother Brain's stagger walked on after its last stage.");
 
     /// <summary>
-    /// Runs the second phase drained by baby taken aback body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Recoils from the Baby latching onto her: her form changes, her neck rises and the wait to regain her balance
+    /// starts. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyTakenAback()
+    internal bool RecoilFromBaby()
     {
         // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
         // actor turn, changes form/neck geometry, starts the regain-balance wait, and falls through so
@@ -74,10 +74,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby regain balance body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Steps her rainbow colours until her balance returns, then starts her painful walk. True when her next phase runs
+    /// on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyRegainBalance(MotherBrainRainbowBeamStepRequests requests)
+    internal bool RegainBalance(MotherBrainRainbowBeamStepRequests requests)
     {
         requests.RainbowColours = true;
         if (Encounter.PhaseTimer.StepRunsOut())
@@ -94,10 +94,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby firing rainbow beam body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Staggers her through her painful walk while her beam fires, until the beam runs out. True when her next phase
+    /// runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyFiringRainbowBeam(MotherBrainRainbowBeamStepRequests requests)
+    internal bool StaggerWhileFiringBeam(MotherBrainRainbowBeamStepRequests requests)
     {
         // The rainbow step refreshes the shake timer only if another subsystem has cleared it.
         // The head animation owns any decrement; retaining the write gate avoids
@@ -125,10 +125,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby rainbow beam run out body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Finishes her painful walk once the beam has run out, then raises her neck and starts her drooling. True when her
+    /// next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyRainbowBeamRunOut()
+    internal bool FinishStaggering()
     {
         StepPainfulWalking();
         if (PainfulWalkingStage is null)
@@ -144,10 +144,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby move to back of room body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Walks her back really slowly to the back of the room. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyMoveToBackOfRoom()
+    internal bool RetreatToBackOfRoom()
     {
         // The walk back is the really-slow backward walk, the painful walk's last animation.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackward(MotherBrainFightDefinitions.BackOfRoomX, MotherBrainWalkSpeed.ReallySlow);
@@ -161,10 +160,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby go into low power mode body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Once her neck has finished rising, stops her drool and, when she stands, crouches her and starts the wait before
+    /// she greys. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyGoIntoLowPowerMode()
+    internal bool SlumpOnceNeckIsRaised()
     {
         // The brain enemy advances the one-way neck raises on its own. The body
         // clears drool once both indices reach zero, before waiting for its pose.
@@ -182,10 +181,9 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby prepare transition to grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// When the wait runs out, starts her greying. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyPrepareTransitionToGrey()
+    internal bool StartGreying()
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -198,10 +196,10 @@ internal sealed class MotherBrainDrainedByBabyPhases
     }
 
     /// <summary>
-    /// Runs the second phase drained by baby transition to grey body phase. True when it moves to the next body phase and the game runs
-    /// on into it in the same update.
+    /// Greys her one step each time the wait runs out; the step after the last leaves her a grey corpse with her third
+    /// phase's health. True when her next phase runs on in this same update.
     /// </summary>
-    internal bool RunSecondPhaseDrainedByBabyTransitionToGrey(MotherBrainRainbowBeamStepRequests requests)
+    internal bool GreyOut(MotherBrainRainbowBeamStepRequests requests)
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
@@ -229,14 +227,14 @@ internal sealed class MotherBrainDrainedByBabyPhases
     /// </summary>
     internal bool Run(MotherBrainRainbowBeamStepRequests requests) => Encounter.DrainedPhase switch
     {
-        MotherBrainDrainedPhase.TakenAback => RunSecondPhaseDrainedByBabyTakenAback(),
-        MotherBrainDrainedPhase.RegainBalance => RunSecondPhaseDrainedByBabyRegainBalance(requests),
-        MotherBrainDrainedPhase.FiringRainbowBeam => RunSecondPhaseDrainedByBabyFiringRainbowBeam(requests),
-        MotherBrainDrainedPhase.RainbowBeamRunOut => RunSecondPhaseDrainedByBabyRainbowBeamRunOut(),
-        MotherBrainDrainedPhase.MoveToBackOfRoom => RunSecondPhaseDrainedByBabyMoveToBackOfRoom(),
-        MotherBrainDrainedPhase.GoIntoLowPowerMode => RunSecondPhaseDrainedByBabyGoIntoLowPowerMode(),
-        MotherBrainDrainedPhase.PrepareTransitionToGrey => RunSecondPhaseDrainedByBabyPrepareTransitionToGrey(),
-        MotherBrainDrainedPhase.TransitionToGrey => RunSecondPhaseDrainedByBabyTransitionToGrey(requests),
+        MotherBrainDrainedPhase.TakenAback => RecoilFromBaby(),
+        MotherBrainDrainedPhase.RegainBalance => RegainBalance(requests),
+        MotherBrainDrainedPhase.FiringRainbowBeam => StaggerWhileFiringBeam(requests),
+        MotherBrainDrainedPhase.RainbowBeamRunOut => FinishStaggering(),
+        MotherBrainDrainedPhase.MoveToBackOfRoom => RetreatToBackOfRoom(),
+        MotherBrainDrainedPhase.GoIntoLowPowerMode => SlumpOnceNeckIsRaised(),
+        MotherBrainDrainedPhase.PrepareTransitionToGrey => StartGreying(),
+        MotherBrainDrainedPhase.TransitionToGrey => GreyOut(requests),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainDrainedPhase)} {Encounter.DrainedPhase}."),
     };
 }

@@ -126,8 +126,8 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
     /// <summary>
     /// Executes one update of the pre-flash, flashing or suit-explosion game state. Samus's suit and suitless steps are her shades, and the whiteout is
-    /// the <see cref="Whiteout"/> colour the display shows (#1512), on the same calls the game wrote them. The explosion
-    /// is shown by selecting its frame (<see cref="ExplosionFrame"/>) on the call the game drew it; the five
+    /// the <see cref="Whiteout"/> colour the display shows (#1512), on the same updates the game shows them. The explosion
+    /// is shown by selecting its frame (<see cref="ExplosionFrame"/>) on the update the game draws it; the five
     /// artwork loads that precede it in the game have no counterpart, because each frame is a pre-coloured picture.
     /// </summary>
     public SamusDeathSequenceStepResult Step(

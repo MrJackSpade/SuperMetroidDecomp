@@ -46,7 +46,7 @@ internal static class RidleyNativeListAddresses
     internal static readonly Dictionary<ushort, BodyInstruction> BodyInstructions = new()
     {
         [0xe4be] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.Roar)), 0),
-        [0xe4ca] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.ClearRoaringFlag)), 0),
+        [0xe4ca] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.StopRoaring)), 0),
         [0xe4d2] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Exactly(new RidleyBodyCue.Signal(RidleyBodyCueKind.MayCutFireballingShort)), 1),
         [0xe501] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.SetClawHeight>(""), 1),
         [0xe51f] = new BodyInstruction(NativeCueShape<RidleyBodyCue>.Of<RidleyBodyCue.Move>(""), 2),

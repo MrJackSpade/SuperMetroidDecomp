@@ -94,8 +94,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(SporeSpawnBodySegment.InitialAlive), AnimationPlace.StartOfAnimation);
         body.Position = body.Position.WithWholeY(body.Position.Y.Whole - SporeSpawnArenaDefinitions.FightStartRise);
 
-        // A full sweep is a global activity override, not an enemy property.
-        // Preserve that distinction so all room actors use the same scan.
+        // His fight runs every enemy in the room each update, wherever the camera is.
         _frameContext.RequestFullSweep();
         _cameraFloor.Hold(SporeSpawnArenaDefinitions.LowestCameraY);
         foreach (SporeSpawnEmitter emitter in SporeSpawnProjectileDefinitions.Emitters)
@@ -358,7 +357,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         /// <summary>
-        /// Spawns one spore projectile and runs its initializer. The spore shares <paramref name="sporeSpawn"/>'s body's
+        /// Spawns one spore projectile and runs its setup. The spore shares <paramref name="sporeSpawn"/>'s body's
         /// colours as they show now (#1512).
         /// </summary>
         internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position, HorizontalDirection drift, SporeSpawnEnemyState sporeSpawn)
@@ -477,8 +476,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>
     /// Whether the vulnerable core accepts the projectile: a charged beam, or any family but an
-    /// uncharged beam and a missile explosion. Of the projectile families, only those two leave the tested part of the
-    /// family clear.
+    /// uncharged beam and a missile explosion.
     /// </summary>
     private static bool SporeSpawnAcceptsProjectile(SamusProjectileType projectileType) =>
         !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||
@@ -561,7 +559,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.IncreaseMaxXRadius }:
                 state.SwayRadius = state.SwayRadius.Widened();
                 return;
-            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ClearDamagedFlag }:
+            case SporeSpawnCue.Signal { Kind: SporeSpawnCueKind.ReopenToHits }:
                 state.Damaged = false;
                 return;
             case SporeSpawnCue.SetSway setSway:
@@ -665,7 +663,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         return stalk;
     }
 
-    /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its initializer.</summary>
+    /// <summary>Spawns the ceiling spore emitter at <paramref name="emitter"/> for <paramref name="state"/>'s fight and runs its setup.</summary>
     internal void SpawnSporeSpawnSpawner(RoomEnemyPlace body, SporeSpawnEnemyState state, SporeSpawnEmitter emitter)
     {
         EnemyProjectile? spawner = _projectiles.AllocateEnemyProjectile();

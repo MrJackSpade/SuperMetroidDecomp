@@ -336,8 +336,8 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Copies the definition a projectile spawn installs.
-    /// Family initializers may then replace fields exactly as their
-    /// authored initializer does; centralizing the copy prevents each projectile kind
+    /// Family setups may then replace fields exactly as their
+    /// authored setup does; centralizing the copy prevents each projectile kind
     /// from inventing subtly different radius/property semantics.
     /// </summary>
     /// <param name="projectile">The freshly spawned projectile.</param>

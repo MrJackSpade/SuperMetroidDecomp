@@ -47,7 +47,7 @@ internal sealed class FallingSparksBehavior
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
         projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource), source.Position.Y.Fraction));
 
-        // The initializer zeros both ordinary velocities, then takes a random number. The
+        // The setup zeros both ordinary velocities, then takes a random number. The
         // authored launches are one short of the eight selections; the last selection drifts by
         // FallingSparkUnauthoredLaunch.
         projectile.Velocity = new(SignedEightEight.Zero, SignedEightEight.Zero);

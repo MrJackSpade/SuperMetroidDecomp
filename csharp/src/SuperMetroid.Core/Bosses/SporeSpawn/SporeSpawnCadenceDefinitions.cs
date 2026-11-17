@@ -5,7 +5,7 @@ internal static class SporeSpawnCadenceDefinitions
 {
     /// <summary>
     /// The updates on which the settled Spore Spawn raises a dust cloud at a random spot: every sixteenth update of the
-    /// frame counter of 0 through 65535, on its first place. Each one draws a random number.
+    /// frame counter, on the first of each sixteen. Each one draws a random number.
     /// </summary>
     internal static readonly UpdateCadence IdleDustEverySixteenthUpdate = new(16, 0);
 }

@@ -48,7 +48,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Readies either half of a Powamp to animate: the initializer forces animation processing for both halves and clears
+    /// Readies either half of a Powamp to animate: the setup forces animation processing for both halves and clears
     /// the animation's clock before the half starts its own animation.
     /// </summary>
     private static void PrepareToAnimate(RoomEnemyPlace place)

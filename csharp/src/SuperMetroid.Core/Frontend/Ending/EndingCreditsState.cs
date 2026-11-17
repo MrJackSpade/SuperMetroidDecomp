@@ -421,7 +421,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     }
 
     /// <summary>
-    /// Rotates the turning floor every other cinematic call while widening its zoom by <paramref name="zoomStep"/>.
+    /// Rotates the turning floor every other cinematic update while widening its zoom by <paramref name="zoomStep"/>.
     /// </summary>
     private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {

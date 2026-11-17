@@ -59,7 +59,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         SetSparkActionTimer(state, additionalTime: 0);
 
         place.AnimationClock.StepOnNextUpdate();
-        // Spark keeps its population properties: the initializer's extra property change before Phantoon's
+        // Spark keeps its population properties: the setup's extra property change before Phantoon's
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 

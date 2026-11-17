@@ -20,7 +20,7 @@ public sealed class NuclearWaffleEnemyState
 
     /// <summary>
     /// The AI updates left in the wait, the one the sweep starts on included. It starts at <see cref="WaitingTimerReset"/>, and
-    /// the call that takes it to zero starts the sweep and reloads it (#2281).
+    /// the update that takes it to zero starts the sweep and reloads it (#2281).
     /// </summary>
     public int WaitingTimer { get; internal set; }
 

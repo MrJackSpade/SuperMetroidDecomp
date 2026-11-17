@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Norfair Ridley's facing, which selects his arena targets, claw offsets and turning pose.
+/// Ridley's facing in both encounters, which selects his arena targets, claw offsets and turning pose.
 /// </summary>
 public enum RidleyFacing
 {

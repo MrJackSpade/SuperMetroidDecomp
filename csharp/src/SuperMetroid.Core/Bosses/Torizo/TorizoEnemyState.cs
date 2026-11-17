@@ -4,9 +4,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Torizo's state beyond what every enemy has, kept in named fields rather than in
-/// shared boss values, so no common enemy field takes on a second meaning. The Torizo's entity owns it as its species
-/// state (#2030).
+/// Torizo's state beyond what every enemy has. The Torizo's entity owns it as its species state (#2030).
 /// </summary>
 public sealed class TorizoEnemyState
 {

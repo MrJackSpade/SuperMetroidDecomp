@@ -71,10 +71,10 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
     public virtual void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
         _ = Body.Contact.ResolveSamusContact(Place, samus, pseudoScrew);
 
-    /// <summary>Ridley's AI publishes the common writer's shading: its body, wings and tail share one latched phase (#1512).</summary>
+    /// <summary>Ridley's AI publishes the shading the common enemy drawing draws him in: his body, wings and tail share one latched phase (#1512).</summary>
     public PictureShading? CommonDrawShading() => Encounter.CommonDrawShading;
 
-    /// <summary>Both Ridley mains draw the tail and wings before the common writer emits the body.</summary>
+    /// <summary>Both Ridleys draw the tail and wings before the common enemy drawing draws the body.</summary>
     /// <param name="sprites">The frame's sprites.</param>
     /// <param name="camera">The camera.</param>
     public virtual void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera) =>

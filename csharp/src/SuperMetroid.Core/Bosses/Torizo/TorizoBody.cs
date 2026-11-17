@@ -39,7 +39,7 @@ internal sealed class TorizoBody
         }
     }
 
-    /// <summary>Requests the awakening drool variant whose position and speed use wrap-sensitive jitter.</summary>
+    /// <summary>Requests the drool he drips as he wakes, its position and fall speed jittered at random.</summary>
     internal void SpawnInitialDrool(RoomEnemyPlace torizo) =>
         _attacks.SpawnDrool(torizo, RoomEnemyProjectileKind.TorizoInitialDrool);
 

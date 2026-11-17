@@ -71,7 +71,7 @@ internal sealed class KraidRise
         {
             // The defeated room shows its dead-room background colours before every part of Kraid is hidden, deleted
             // and untouchable. Its two updates
-            // immediately before that initializer are not cosmetic bookkeeping: they
+            // immediately before that setup are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
             _access.Backdrop.ShowKraidColours();
@@ -79,7 +79,7 @@ internal sealed class KraidRise
             ShowKraidRoomBackdrop();
             _frameResults.KraidObjects.AddRange(KraidObjectDefinitions.DefeatedRoom);
             // The body owns the sinking: a defeated room's body starts at hiding his body and the death's wait
-            // before the fade-in. Kraid's other seven parts take their own dead initializer and remain deleted.
+            // before the fade-in. Kraid's other seven parts take their own dead setup and remain deleted.
             state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
             return;
         }

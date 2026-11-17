@@ -63,7 +63,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
+    /// <summary>Guards the setup's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
     /// <summary>Initializes the Alcoon, including its floor search.</summary>
@@ -78,7 +78,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = new(AlcoonAnimations.StartingWith(AlcoonSegment.WalkingLeft), AnimationPlace.StartOfAnimation);
         SetupAlcoonJumpMovement(state);
 
-        // The initializer really executes every half-pixel-accelerated ascent
+        // The setup really executes every half-pixel-accelerated ascent
         // step, then every collision-aware descent step. It ultimately restores only the
         // whole Y coordinate; the collision-produced subposition deliberately survives.
         int iterations = 0;
@@ -298,7 +298,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.AdvanceY(state.VerticalVelocity);
     }
 
-    /// <summary>Rejects an initializer that cannot find a landing floor within the simulation bound.</summary>
+    /// <summary>Rejects a setup that cannot find a landing floor within the simulation bound.</summary>
     private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemyPlace place)
     {
         if (iterations > AlcoonJumpSimulationLimit)
@@ -397,7 +397,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool movingLeft = FacesLeft(state);
 
         // Spawning copies the fireball's complete authored
-        // definition before its initializer touches position, subposition, and velocity.
+        // definition before its setup touches position, subposition, and velocity.
         // Keeping that division exact makes radii, damage, persistence, shot blocking,
         // animation, and frame behaviour owned by the definition instead of duplicating them here.
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

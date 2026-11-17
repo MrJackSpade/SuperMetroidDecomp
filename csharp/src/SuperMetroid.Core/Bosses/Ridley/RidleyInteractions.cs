@@ -58,8 +58,8 @@ internal static class RidleyInteractions
             if (!c.UsesFrameHitboxes || c.HitboxShot != RidleyReactions.Shot)
             {
                 throw new InvalidDataException(
-                    $"Lower Norfair Ridley requires extended shot AI " +
-                    $"{RidleyReactions.Shot}; extended={c.UsesFrameHitboxes}, " +
+                    $"Lower Norfair Ridley reacts to shots only through his frames' hit areas and his own reaction " +
+                    $"{RidleyReactions.Shot}; frame hit areas={c.UsesFrameHitboxes}, " +
                     $"selected={c.HitboxShot?.ToString() ?? "(unnamed)"}, frame={c.Enemy.Frame}.");
             }
             return false;

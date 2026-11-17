@@ -159,7 +159,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             center.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter));
         }
         center.Position = center.Position.WithWhole(position);
-        // The afterburn centre's steps explicitly stop the center; allocation retains prior velocities.
+        // The afterburn's centre starts at rest; a new projectile otherwise keeps the velocity its place last held.
         center.Velocity = EightEightVector<RoomPixels>.Zero;
         center.State = new RidleyAfterburnChainState(remaining);
     }
@@ -213,7 +213,7 @@ internal sealed class RidleyProjectiles : EnemyProjectileMotionBehavior<RidleyFi
             source.Velocity);
     }
 
-    /// <summary>Switches a collided branch to its final five-frame animation without clearing its velocity or damage fields.</summary>
+    /// <summary>Switches an afterburn branch that struck something to its final five-frame animation; it keeps moving and still hurts Samus.</summary>
     internal static void BeginAfterburnFinalAnimation(EnemyProjectile projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.AfterburnFinal));

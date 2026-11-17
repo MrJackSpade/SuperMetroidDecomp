@@ -261,7 +261,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>
-    /// Returns the extra animation delay the pose initializer gives a changed pose (#2286): the liquid's delay, or the
+    /// Returns the extra animation delay the pose setup gives a changed pose (#2286): the liquid's delay, or the
     /// slowdown level on dry ground. That step samples <c>Y + radius - 1</c>, not the normal bottom boundary.
     /// </summary>
     public int DeterminePoseChangeExtraAnimationDelay(SamusState samus)

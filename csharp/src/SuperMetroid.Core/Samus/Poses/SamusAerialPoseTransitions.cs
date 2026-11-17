@@ -13,7 +13,7 @@ internal static class SamusAerialPoseTransitions
 {
     /// <summary>
     /// Shared momentum initialization of the normal-jump and falling pose
-    /// initializers. Base velocity survives; extra dash momentum
+    /// setups. Base velocity survives; extra dash momentum
     /// alone selects <see cref="SamusAccelerationMode.Decelerating"/> instead of ordinary acceleration.
     /// </summary>
     internal static void InitializeOrdinaryAerialAcceleration(SamusState samus)
@@ -28,11 +28,11 @@ internal static class SamusAerialPoseTransitions
     /// Applies a normal-jump body selected when aim or Fire cancels a spin, Space Jump,
     /// Screw Attack, or wall-jump pose. This is the shared
     /// spin, Space Jump, Screw Attack and wall-jump to normal-jumping route through
-    /// the spin-jump, wall-jump and crouch-adjustment initializers.
+    /// the spin-jump, wall-jump and crouch-adjustment setups.
     /// </summary>
     /// <remarks>
     /// The transition does not start a new jump: the gun-extended normal-jump poses are deliberately
-    /// excluded by the crouch-adjustment initializer, so the live vertical velocity survives. Spin bodies are
+    /// excluded by the crouch-adjustment setup, so the live vertical velocity survives. Spin bodies are
     /// shorter than the resulting normal-jump body, however, so the shared changed-pose
     /// collision pass must still be allowed to reject the expansion under a low ceiling.
     /// The wall jumps' input transitions use this very same route for their diagonal-aim
@@ -58,7 +58,7 @@ internal static class SamusAerialPoseTransitions
         {
             // The spin, Space Jump, Screw Attack and wall-jump input transitions emit only same-facing
             // normal-jump poses when aim or Shoot cancels rotation. A different movement
-            // family is owned by the spin-direction or landing initializers instead.
+            // family is owned by the spin-direction or landing setups instead.
             throw new InvalidOperationException(
                 $"Compact-jump-to-normal-jump transition {sourcePose} -> " +
                 $"{targetPose} is not a same-facing route.");
@@ -88,7 +88,7 @@ internal static class SamusAerialPoseTransitions
         samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
-        // branch of the common normal-jump initializer before ordinary acceleration.
+        // branch of the common normal-jump setup before ordinary acceleration.
         bool beganShinespark = TryBeginShinesparkWindup(samus,
             targetPose, SamusPoseMetadata.IsWallJumpPose(sourcePose)
                 ? SamusMovementType.WallJumping : SamusMovementType.SpinJumping);
@@ -181,7 +181,7 @@ internal static class SamusAerialPoseTransitions
         }
 
         // The changed-pose collision resolves expansion before the pose change runs the final movement type.
-        // A crouch substitution never reaches the aerial-turn momentum initializer.
+        // A crouch substitution never reaches the aerial-turn momentum setup.
         SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         samus.Pose = selectedTurnPose;
         // The changed-pose step preserves the source radius until the next input phase.
@@ -191,7 +191,7 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Applies the spin-jump initializer when spin/wall-jump input selects the opposite spin pose. A true
+    /// Applies the spin-jump setup when spin/wall-jump input selects the opposite spin pose. A true
     /// direction reversal folds extra speed into base speed and selects <see cref="SamusAccelerationMode.Turning"/>, preserving
     /// old-world direction while the newly facing pose decelerates.
     /// </summary>
@@ -210,7 +210,7 @@ internal static class SamusAerialPoseTransitions
         {
             SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
 
-            // Unlike the grounded and aerial turn initializers, the spin-jump initializer cancels the speed boost right
+            // Unlike the grounded and aerial turn setups, the spin-jump setup cancels the speed boost right
             // after folding the extra speed in. Waiting for another movement frame would leave the running-momentum flag
             // observably stale.
             samus.HorizontalSpeed.CancelRunningMomentum(oldDirection);
@@ -219,7 +219,7 @@ internal static class SamusAerialPoseTransitions
         // Ordinary and wall-jump definition fallbacks publish the generic spin jump, whereas
         // the dedicated Screw Attack and Space Jump input transitions can publish their already-
         // specialized opposite-facing pose directly. Reduce either form back to the
-        // generic direction before applying the spin-jump initializer's live equipment priority. This is
+        // generic direction before applying the spin-jump setup's live equipment priority. This is
         // observable when both items are equipped: an authored right-to-left Screw Attack pose must remain
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
@@ -247,7 +247,7 @@ internal static class SamusAerialPoseTransitions
         ISamusRoomObjects roomObjects)
     {
         // Only the spin-jumping mover reaches the wall-jump check. The cached movement type, not the
-        // live pose, gates it: a drained pose stored without the pose initializer keeps
+        // live pose, gates it: a drained pose stored without the pose setup keeps
         // spinning and still wall-jumps.
         if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
             throw new InvalidOperationException(
@@ -407,7 +407,7 @@ internal static class SamusAerialPoseTransitions
     /// <remarks>
     /// Tests only for the Screw Attack poses. It runs for whatever pose holds the
     /// cached spin-jump movement type, including a drained pose stored without
-    /// the pose initializer.
+    /// the pose setup.
     /// </remarks>
     public static void ApplyWallContactAnimationRewind(SamusState samus)
     {
@@ -422,7 +422,7 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Applies the spin-jump initializer's equipment, liquid and start-sound selection
+    /// Applies the spin-jump setup's equipment, liquid and start-sound selection
     /// to a generic spin-jump input-transition target.
     /// </summary>
     internal static SamusPoseId SelectEquippedSpinPose(SamusState samus, SamusPoseId genericPose, SpinPoseStart start = SpinPoseStart.FirstFrame)
@@ -459,7 +459,7 @@ internal static class SamusAerialPoseTransitions
     }
 
     /// <summary>
-    /// Applies the normal-jump pose initializer after a normal-jump
+    /// Applies the normal-jump pose setup after a normal-jump
     /// transition has selected one of the six launch bodies.
     /// </summary>
     /// <remarks>
@@ -551,16 +551,16 @@ internal static class SamusAerialPoseTransitions
                 SamusPoseId.RunningAimDiagonalUpLeftPose or SamusPoseId.RunningAimDiagonalDownLeftPose,
              SamusPoseId.SpinJumpLeftPose) or
             // Turning-on-ground uses its own pose input, but a Jump
-            // transition still enters the ordinary spin-jump initializer. The turn pose has
-            // already folded run momentum in the moonwalk turn; the spin-jump initializer now owns the same jump
+            // transition still enters the ordinary spin-jump setup. The turn pose has
+            // already folded run momentum in the moonwalk turn; the spin-jump setup now owns the same jump
             // speed, radius, equipment substitution, and frame-zero setup as a run jump.
             // Keeps consulting the turning pose's live input transitions. A fresh
             // Jump with no horizontal direction selects the neutral jump transition;
             // holding the completed facing selects the spin jump. Both pairs enter the
-            // same jump initializer and differ only in their authored body.
+            // same jump setup and differ only in their authored body.
             // Can leave the moonwalk turn art early while the backward
             // direction remains held, or select the neutral jump transition on a fresh Jump edge. Both
-            // routes call the same dry-air jump initializer after changing pose.
+            // routes call the same dry-air jump setup after changing pose.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
              SamusPoseId.SpinJumpLeftPose or SamusPoseId.NeutralJumpTransitionLeftPose) or
@@ -578,10 +578,10 @@ internal static class SamusAerialPoseTransitions
         if (!verified)
         {
             // The pairs above exhaust the active input transitions that invoke
-            // the ordinary jump initializer. Movement-specific launches (damage boost,
+            // the ordinary jump setup. Movement-specific launches (damage boost,
             // grapple, bomb jump, wall jump, and Shinespark) own separate entry points.
             throw new InvalidOperationException(
-                $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active route for this initializer.");
+                $"Ordinary jump transition {samus.Pose} -> {targetPose} is not an active route for this setup.");
         }
 
         samus.Pose = targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
@@ -595,9 +595,9 @@ internal static class SamusAerialPoseTransitions
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & GameplayAction.Shoot) != GameplayAction.None)
         {
-            // Runs only in the normal-jumping initializer. It reads the
+            // Runs only in the normal-jumping setup. It reads the
             // newly installed pose's direction and hands it to the weapon firing; spin-jump's separate
-            // initializer never publishes this bridge even when Shoot and Jump share a frame.
+            // setup never publishes this bridge even when Shoot and Jump share a frame.
             samus.PendingTransitionShot = SamusTransitionShot.FromPose(samus);
         }
     }
@@ -610,12 +610,12 @@ internal static class SamusAerialPoseTransitions
     public static void DropPendingTransitionShot(SamusState samus) => samus.PendingTransitionShot = null;
 
     /// <summary>
-    /// The normal-jumping pose initializer for a normal-jump pose already
-    /// installed by a transition that reaches the ordinary initializer. Stored shine
+    /// The normal-jumping pose setup for a normal-jump pose already
+    /// installed by a transition that reaches the ordinary setup. Stored shine
     /// diverts the six shinespark-capable poses into a windup; otherwise retained extra run
     /// speed selects deceleration and a fresh Shoot press arms the transition shot.
     /// </summary>
-    /// <returns>True when the initializer began a shinespark windup instead.</returns>
+    /// <returns>True when the setup began a shinespark windup instead.</returns>
     internal static bool InitializeInstalledNormalJumpPose(
         SamusState samus,
         SamusMovementType previousMovementType,
@@ -677,11 +677,11 @@ internal static class SamusAerialPoseTransitions
             throw new InvalidDataException(
                 $"Aerial pose {targetPose} unexpectedly changes radius {oldRadius} -> {samus.Kinematics.Radius.Y} inside an equal-radius transition family.");
         }
-        // Both normal-jump and falling targets run their movement initializer.
+        // Both normal-jump and falling targets run their movement setup.
         // Preserve base velocity, but derive acceleration mode from extra dash speed.
         if (sourcePose != samus.Pose)
         {
-            // The normal-jump initializer also consumes stored shine on eligible poses.
+            // The normal-jump setup also consumes stored shine on eligible poses.
             // This includes releasing forward midair, not just the initial ground jump.
             if (TryBeginShinesparkWindup(samus, targetPose, previousMovementType))
                 return;
@@ -746,7 +746,7 @@ internal static class SamusAerialPoseTransitions
         {
             // Pose collision uses prospective geometry; the live radius belongs to
             // the current frame's input phase and changes only at the next input phase.
-            // Successful expansion still runs the normal-jump initializer. A stored
+            // Successful expansion still runs the normal-jump setup. A stored
             // shine may replace the requested aim pose; collision rejection above must
             // not consume the charge or apply the windup's one-pixel adjustment.
             if (TryBeginShinesparkWindup(samus, targetPose,

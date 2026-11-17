@@ -5,18 +5,18 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// What one Mother Brain active-rainbow body-phase call asks of the room, gathered while the call runs through its
-/// phases and reported as one <see cref="MotherBrainRainbowBeamAttackStepResult"/>.
+/// What one update of Mother Brain's late fight asks of the room, gathered while the update runs through her phases and
+/// reported as one <see cref="MotherBrainRainbowBeamAttackStepResult"/>.
 /// </summary>
 internal sealed class MotherBrainRainbowBeamStepRequests
 {
-    /// <summary>The forced Samus movement the call applied, if any.</summary>
+    /// <summary>The forced Samus movement the update applied, if any.</summary>
     internal MotherBrainForcedSamusMovementResult? Movement { get; set; }
 
     /// <summary>Whether the beam's sound was queued.</summary>
     internal bool SoundQueued { get; set; }
 
-    /// <summary>Whether the call ran her rainbow colours' handler, which steps them on its phase of the body's update count.</summary>
+    /// <summary>Whether the update stepped her rainbow colours, which change only on their phase of the body's update count.</summary>
     internal bool RainbowColours { get; set; }
 
     /// <summary>Whether the beam narrowed below its narrowest and let Samus go, so her colours return and the drain's sound stops.</summary>
@@ -25,10 +25,10 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the drained beam ran out at the painful walk's sixth step, leaving her colours on the drained frame.</summary>
     internal bool DrainedBeamRanOut { get; set; }
 
-    /// <summary>The image of her greying as the Baby drains her that the call shows, if it shows one.</summary>
+    /// <summary>The image of her greying as the Baby drains her that the update shows, if it shows one.</summary>
     internal MotherBrainFadeImage? DrainColourImage { get; set; }
 
-    /// <summary>The image of her revival's colours that the call shows, if it shows one.</summary>
+    /// <summary>The image of her revival's colours that the update shows, if it shows one.</summary>
     internal MotherBrainFadeImage? RevivalColourImage { get; set; }
 
     /// <summary>Whether disabling her brain's effects detached her brain, which keeps the colours it shows.</summary>
@@ -37,10 +37,10 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether her body's fade ran, which flickers her body with the background on every update.</summary>
     internal bool BodyFlickers { get; set; }
 
-    /// <summary>The image of her body's fade to black that the call shows, if it shows one.</summary>
+    /// <summary>The image of her body's fade to black that the update shows, if it shows one.</summary>
     internal MotherBrainFadeImage? DeathFadeImage { get; set; }
 
-    /// <summary>The image of her corpse's fade to grey that the call shows, if it shows one.</summary>
+    /// <summary>The image of her corpse's fade to grey that the update shows, if it shows one.</summary>
     internal MotherBrainFadeImage? CorpseFadeImage { get; set; }
 
     /// <summary>The beam explosion requested, if any.</summary>
@@ -103,10 +103,10 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>The escape door's room object requested, if any.</summary>
     internal RoomObjectSpawnRequest<MotherBrainRoomMutation>? EscapeDoorObject { get; set; }
 
-    /// <summary>The shared projectile cooldown, in updates, the call gave Samus, if it gave her one.</summary>
+    /// <summary>The shared projectile cooldown, in updates, the update gave Samus, if it gave her one.</summary>
     internal int? SamusProjectileCooldown { get; set; }
 
-    /// <summary>What the call last asked of the room's earthquake, if anything.</summary>
+    /// <summary>What the update last asked of the room's earthquake, if anything.</summary>
     internal MotherBrainEarthquakeRequest? Earthquake { get; private set; }
 
     /// <summary>Starts the room's earthquake with <paramref name="shake"/> for <paramref name="frames"/> frames.</summary>
@@ -127,7 +127,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Stops the room's earthquake, keeping any shake this update started for a later run.</summary>
     internal void StopEarthquake() => RunEarthquakeOn(0);
 
-    /// <summary>The call's result.</summary>
+    /// <summary>The update's result.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult() =>
         new(Movement, SoundQueued, RainbowColours, BeamEnded, DrainedBeamRanOut, DrainColourImage, RevivalColourImage,
             BrainDetached, BodyFlickers, DeathFadeImage, CorpseFadeImage, Explosion, ChargeSoundQueued,

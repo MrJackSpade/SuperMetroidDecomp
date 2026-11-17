@@ -244,8 +244,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.HandleGunshipLandingSave();
         if (RouteOutOfHealth())
         {
-            // The death trigger publishes the next outer state at the end of this already-
-            // completed gameplay call. Nothing else may replace it on the trigger
+            // The death trigger publishes the next outer state at the end of this update's completed gameplay.
+            // Nothing else may replace it on the trigger
             // frame—not pause, an elevator handoff, or a pending ordinary door.
         }
         else if (timeUp)

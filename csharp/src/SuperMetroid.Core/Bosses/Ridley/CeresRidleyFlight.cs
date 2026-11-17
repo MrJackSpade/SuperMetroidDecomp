@@ -40,11 +40,11 @@ internal sealed class CeresRidleyFlight
     /// </summary>
     internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
     {
-        // Ceres Ridley's initialization clears the boss's working state, which the fresh encounter below holds, and
-        // disables the minimap, which the room loader does once the enemies are loaded; Ceres has no arena to mark explored.
+        // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
+        // the enemies are loaded; Ceres has no arena to mark explored.
         place.CollidesByFrameHitboxes = true;
 
-        // The initializer sets both of Ridley's contact properties: he stops the Plasma Beam and ignores Samus.
+        // He starts with both of his contact properties: he stops the Plasma Beam and ignores Samus.
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(CeresRidleyArenaDefinitions.Spawn);
@@ -68,9 +68,8 @@ internal sealed class CeresRidleyFlight
     internal static void LiftOff(CeresRidleyState state) => Ensure.NotNull(state).Phase = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
-    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: he stores eight in his phase timer, cutting
-    /// the fireball hover short, and continues in the fireballing's end for the way he faces, which nothing in the
-    /// fireballing turns.
+    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: his hover lasts eight more updates, and he
+    /// continues in the fireballing's end for the way he faces, which nothing in the fireballing turns.
     /// </summary>
     /// <param name="state">Ridley's state.</param>
     /// <param name="samus">Samus, whose energy decides the cut.</param>

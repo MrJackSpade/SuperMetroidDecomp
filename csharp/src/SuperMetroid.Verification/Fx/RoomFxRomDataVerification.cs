@@ -309,8 +309,8 @@ internal static class RoomFxRomDataVerification
                         $"{type} heat wave retains phase before frame four");
                 }
                 state.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false });
-                AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBackgroundWavePhase,
-                    $"{type} heat wave rotates backward on frame four");
+                AssertEqual(1, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBackgroundWavePhase,
+                    $"{type} heat wave moves on to its next phase on frame four");
             }
         }
         byte wrongBlend = type switch

@@ -13,9 +13,9 @@ internal static class LookupHorizontalHeatWaveVerification
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));
         for (int index = 0; index < 16; index++)
-            AssertEqual(Original(index), LavaAcidWaveDefinitions.HorizontalHazeWaveform[index],
+            AssertEqual(Original(index), LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Horizontal][index],
                 "Original horizontal heat wave including unequal zero gaps");
-        AssertEqual(16, LavaAcidWaveDefinitions.HorizontalHazeWaveform.Length, "Horizontal wave retains original span");
+        AssertEqual(16, LavaAcidWaveDefinitions.HazeWaveforms[HeatHazeDirection.Horizontal].Length, "Horizontal wave retains original span");
 
         for (int phase = 0; phase < 16; phase++)
         for (int cameraPhase = 0; cameraPhase < 16; cameraPhase++)
@@ -29,8 +29,8 @@ internal static class LookupHorizontalHeatWaveVerification
             ushort[] scrolls = ScrollShapeLines.GameplayScrolls(GameplayEffectCapture.BuildLavaAcidBackgroundHorizontalScrolls(fx,
                 Offset16<BackgroundPixels>.Wrapped(baseScroll, cameraPhase)) ?? throw new InvalidOperationException("Verification requires GameplayEffectCapture.BuildLavaAcidBg2HorizontalScrolls(fx, new Position16<Bg2Pixel...."));
             for (int line = 0; line < scrolls.Length; line++)
-                AssertEqual(unchecked((ushort)(baseScroll + Original((phase + cameraPhase + line) & 15))),
-                    scrolls[line], "Production horizontal wave phase, camera nibble, signed addition and wrap");
+                AssertEqual(unchecked((ushort)(baseScroll + Original((cameraPhase + line - phase) & 15))),
+                    scrolls[line], "Production horizontal wave phase drawn back, camera nibble, signed addition and wrap");
         }
     }
 }

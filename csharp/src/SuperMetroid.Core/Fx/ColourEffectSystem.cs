@@ -360,7 +360,6 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
     }
 
     /// <summary>Carries out a step of <paramref name="effect"/>'s animation that reaches beyond it: a heat phase or a sound.</summary>
-    /// <exception cref="InvalidDataException">A sound step names no sound.</exception>
     /// <exception cref="InvalidOperationException">The step is of no defined kind.</exception>
     private void CarryOut(RoomColourEffect effect, ColourEffectCue cue)
     {
@@ -370,10 +369,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
                 _session.PublishedHeatPhase = publishHeatPhase.Phase;
                 return;
             case ColourEffectCue.QueueSound queueSound:
-                AudioRequests.QueueSound(
-                    queueSound.Sound ?? throw new InvalidDataException(
-                        $"Colour effect {effect.Effect} queued a sound step without a sound."),
-                    ColourEffectSoundPriorities.CueSound);
+                AudioRequests.QueueSound(queueSound.Sound, ColourEffectSoundPriorities.CueSound);
                 return;
             default:
                 throw new InvalidOperationException($"Colour effect {effect.Effect} raised undefined step {cue}.");

@@ -1,71 +1,87 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The Fireflea room effect's state: the flash clock its setup starts and its per-frame behaviour steps, the darkness step
-/// the dying Firefleas advance, and the shade it publishes (<see cref="Tint"/>). A Fireflea room's effect creates it as the
-/// room loads, from its first flash and an undarkened room, and it lives as long as that room (#2053).
+/// The Fireflea room effect's state: where its flash stands (<see cref="FirefleaFlashAnimations"/>), which its per-frame
+/// behaviour plays on, the darkness the dying Firefleas bring, and the shade it publishes (<see cref="Tint"/>). A Fireflea
+/// room's effect creates it as the room loads, showing its flash's first look in an undarkened room, and it lives as long
+/// as that room (#2053, #2367).
 /// </summary>
 [RoomLifetime]
 public sealed class FirefleaFxState
 {
-    /// <summary>
-    /// Frames until the next flash phase, held while time is frozen: a step that reaches zero starts the next phase and
-    /// restarts the count from <see cref="FirefleaFxDefinitions.FlashDuration"/>.
-    /// </summary>
-    public int FramesUntilNextFlash { get; private set; } = FirefleaFxDefinitions.FlashDuration;
+    /// <summary>Where the flash's animation resumes: past the look it shows.</summary>
+    private AnimationPlace place = AnimationPlace.StartOfAnimation;
 
-    /// <summary>
-    /// The room's place in its flash cycle, 0 through 11: the shade brightens over the first six phases and dims over
-    /// the last six (<see cref="FirefleaShades.FlashingShade"/>).
-    /// </summary>
-    public int FlashPhase { get; private set; }
-
-    /// <summary>
-    /// The darkness step published from the enemies' death count: one step per Fireflea killed, from none through
-    /// the sixth step (<see cref="FirefleaFxDefinitions.DarknessLevels"/>).
-    /// </summary>
-    public int DarknessStep { get; private set; }
-
-    /// <summary>
-    /// The shade Fireflea darkness subtracts from the room, grey on the game's fade scale: the flashing shade plus the
-    /// darkness step's level, as the last unfrozen step chose it. A frozen step keeps it.
-    /// </summary>
-    public RgbColor Tint { get; private set; } = Shade(0, 0);
-
-    /// <summary>
-    /// Samples the enemies' darkness step, and unless frozen advances the flash clock and chooses the room's
-    /// <see cref="Tint"/> from the flashing shade and the darkness step's level.
-    /// </summary>
-    internal void Step(bool frozen, int darknessStep)
+    /// <summary>Starts the flash on its first look, held for its updates, in a room no Fireflea death has darkened.</summary>
+    public FirefleaFxState()
     {
-        DarknessStep = darknessStep;
-        if (frozen) return;
-        int phase = FlashPhase;
-        if (--FramesUntilNextFlash == 0)
-        {
-            FramesUntilNextFlash = FirefleaFxDefinitions.FlashDuration;
-            if (darknessStep < FirefleaFxDefinitions.SteadyDarknessStep)
-            {
-                phase++;
-                if (phase >= FirefleaFxDefinitions.FlashCount) phase = 0;
-            }
-            else phase = FirefleaFxDefinitions.SteadyFlashPhase;
-            FlashPhase = phase;
-        }
-
-        Tint = Shade(phase, darknessStep);
+        ShowNextFlash();
+        Tint = Shade(Flash, Darkness);
     }
 
     /// <summary>
-    /// The grey of the flashing shade at flash phase <paramref name="phase"/> deepened by darkness step <paramref name="darknessStep"/>:
-    /// the two fade levels add, and their sum never passes the scale's full level.
+    /// Updates until the flash shows its next look, held while time is frozen: a step that reaches zero shows the next look
+    /// for its updates.
     /// </summary>
-    private static RgbColor Shade(int phase, int darknessStep)
+    public int UpdatesUntilNextFlash { get; private set; }
+
+    /// <summary>The flash's look the room shows: it brightens over its first six looks and dims over the last six.</summary>
+    public FirefleaFlashShade Flash { get; private set; }
+
+    /// <summary>The darkness published from the enemies' count of Firefleas killed.</summary>
+    public FirefleaDarkness Darkness { get; private set; }
+
+    /// <summary>
+    /// The shade Fireflea darkness subtracts from the room, grey on the game's fade scale: the flash's look plus the
+    /// darkness's level, as the last unfrozen step chose it. A frozen step keeps it.
+    /// </summary>
+    public RgbColor Tint { get; private set; }
+
+    /// <summary>
+    /// Samples the enemies' darkness, and unless frozen plays the flash on and chooses the room's <see cref="Tint"/> from the
+    /// flash's look and the darkness's level. When the flash's next look is due once the darkness holds the flash, the room
+    /// shows its brightest look, from which a flash that resumes plays on.
+    /// </summary>
+    internal void Step(bool frozen, FirefleaDarkness darkness)
     {
-        int level = FirefleaShades.FlashingShade(phase) + FirefleaShades.DarknessShade(darknessStep);
+        Darkness = darkness;
+        if (frozen) return;
+        if (--UpdatesUntilNextFlash == 0)
+        {
+            if (darkness.HoldsFlash)
+            {
+                place = FirefleaFlashAnimations.Segments.PlaceOfFrame(FirefleaFlashAnimations.Flashing, FirefleaFlashSegment.Flashing,
+                    FirefleaFlashShade.Brightest);
+            }
+            ShowNextFlash();
+        }
+
+        Tint = Shade(Flash, darkness);
+    }
+
+    /// <summary>Plays the flash on to its next look, which it shows for that look's updates.</summary>
+    /// <exception cref="InvalidOperationException">The flash reached something other than a look, which its loop never does.</exception>
+    private void ShowNextFlash()
+    {
+        AnimationShown<FirefleaFlashSegment, FirefleaFlashShade> shown =
+            FirefleaFlashAnimations.Segments.PlayToNextFrame(FirefleaFlashAnimations.Flashing, ref place, static _ => { });
+        if (shown is not AnimationShown<FirefleaFlashSegment, FirefleaFlashShade>.Frame look)
+            throw new InvalidOperationException($"The Fireflea flash reached {shown}; it only shows looks.");
+        Flash = look.Shown;
+        UpdatesUntilNextFlash = look.Duration;
+    }
+
+    /// <summary>
+    /// The grey of <paramref name="flash"/> deepened by <paramref name="darkness"/>: the two fade levels add, and their sum
+    /// never passes the scale's full level.
+    /// </summary>
+    private static RgbColor Shade(FirefleaFlashShade flash, FirefleaDarkness darkness)
+    {
+        int level = flash.Level + darkness.Level;
         return new FadeLevelColour(level, level, level).ToColour();
     }
 }

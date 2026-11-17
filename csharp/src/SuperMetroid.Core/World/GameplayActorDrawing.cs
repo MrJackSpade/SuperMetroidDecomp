@@ -91,8 +91,8 @@ internal sealed class GameplayActorDrawing
             // reads the colours directly, so show the suit colours immediately
             // before the matching draw phase. This covers dry-room Speed Booster stage four
             // and the normal-suit restoration requested by cancellation.
-            // The drained or rainbow colouring is the first branch of the colour update and returns
-            // immediately after it. Its one-shot suit restore also stands for the suit shade
+            // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
+            // Its one-shot suit restore also stands for the suit shade
             // shown at once when the drained Samus falls and when her rainbow stops.
             // Cancellation/pose initialization copies the normal suit during
             // movement, before this colour step. Show that pending shade first so charge
@@ -147,9 +147,8 @@ internal sealed class GameplayActorDrawing
                     _player.Samus.EquippedItems);
             }
             // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid
-            // holding Samus takes the alternating boost/normal branch and returns before the
-            // ordinary hurt flash, just as the drained or rainbow colouring took the earlier
-            // branch.
+            // holding Samus makes her alternate between the boost glow and the normal suit, and the ordinary hurt
+            // flash does not run, just as it does not under the drained or rainbow colouring.
             bool metroidOwnsSamusColours = !deathOwnsSamus &&
                 !drainedOwnsSamusColours &&
                 SamusMetroidAttachmentFlash.Update(_player.Colours, _player.Samus);
@@ -258,7 +257,7 @@ internal sealed class GameplayActorDrawing
                         new ChargeFlareArtwork
                         {
                             Placement = _artwork.ChargeFlarePlacement,
-                            Objects = ProjectileArtwork,
+                            Sheets = ProjectileArtwork,
                         });
                 }
 

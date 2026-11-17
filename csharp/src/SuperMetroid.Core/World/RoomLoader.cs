@@ -304,7 +304,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Executes the game-data loading's special branch for arriving on Zebes after Ceres:
+    /// Loads the game's arrival on Zebes after Ceres:
     /// Crateria, the Zebes arrival, with the airborne Landing Site gunship.
     /// </summary>
     public InitialViewportResult InitializePostCeresZebesRoom()
@@ -349,7 +349,7 @@ internal sealed class RoomLoader
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new FixedCoordinate(station.Placement.SamusPosition.X, 0)).WithY(new FixedCoordinate(station.Placement.SamusPosition.Y, 0));
         samus.Control.LockOutPlayer();
 
-        // The landing branch moves the game to Crateria and loads the live explored map from
+        // The arrival moves the game to Crateria and loads the live explored map from
         // Crateria's stored one before the room loads.
         _system.StoredExploredMaps.LoadLiveMap(AreaId.Crateria);
 
@@ -412,7 +412,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// The axis the door alignment aligns, perpendicular to travel: right/left converge camera Y,
-    /// while down/up converge camera X. This literal branch matters because aligning the
+    /// while down/up converge camera X. This matters because aligning the
     /// travel axis instead moves a horizontal door frame by a row while its room
     /// scroll is being placed.
     /// </summary>

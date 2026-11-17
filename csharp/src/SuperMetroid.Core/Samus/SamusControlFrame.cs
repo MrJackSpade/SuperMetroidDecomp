@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
@@ -63,13 +63,13 @@ internal sealed class SamusControlFrame
     internal bool MovementEnabled { get; private set; }
 
     /// <summary>Whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>
-    internal bool EnemyMainAlreadyRan { get; private set; }
+    internal bool EnemyUpdateRanFirst { get; private set; }
 
     /// <summary>
-    /// Whether that hoisted enemy update restored the normal modes (the gunship). The locked input mode has
+    /// Whether that early enemy update restored the normal modes (the gunship). The locked input mode has
     /// already been installed for this frame, so only the input phase's checks still see the lock.
     /// </summary>
-    internal bool EnemyMainReleasedInputLock { get; private set; }
+    internal bool EnemyUpdateReleasedInputLock { get; private set; }
 
     /// <summary>Whether X-ray owns pose input this frame.</summary>
     internal bool XrayOwnsPoseInput { get; private set; }
@@ -160,14 +160,14 @@ internal sealed class SamusControlFrame
     internal void SampleMovementPose(SamusPoseId pose) => PoseAtMovement = pose;
 
     /// <summary>Records whether the enemy update ran before Samus because this frame has no movement to wait for.</summary>
-    internal void RecordHoistedEnemyMain(bool hoisted) => EnemyMainAlreadyRan = hoisted;
+    internal void RecordEnemyUpdateRanFirst(bool ranFirst) => EnemyUpdateRanFirst = ranFirst;
 
-    /// <summary>Records whether that hoisted enemy update restored the normal modes.</summary>
-    internal void RecordEnemyMainReleasedInputLock(bool released) => EnemyMainReleasedInputLock = released;
+    /// <summary>Records whether that early enemy update restored the normal modes.</summary>
+    internal void RecordEnemyUpdateReleasedInputLock(bool released) => EnemyUpdateReleasedInputLock = released;
 
     /// <summary>
     /// Whether this frame's input mode is the locked one installed at its start. Read live at each check: X-ray
     /// admission can change the lock between them.
     /// </summary>
-    internal bool InputHandlingLocked(SamusState samus) => samus.Control.InputLocked || EnemyMainReleasedInputLock;
+    internal bool InputHandlingLocked(SamusState samus) => samus.Control.InputLocked || EnemyUpdateReleasedInputLock;
 }

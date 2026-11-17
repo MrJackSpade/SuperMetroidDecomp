@@ -123,7 +123,7 @@ internal sealed class CrocomireBridgeCollapse
 
     /// <summary>Raises a big dust cloud on the bridge at <paramref name="x"/>.</summary>
     private void RaiseBridgeDust(int x) =>
-        _projectiles.SpawnDustOrExplosion(new(x, CrocomireBridgeCollapseDefinitions.DustY), MiscDustAnimation.BigDustCloud);
+        _projectiles.SpawnDustOrExplosion(new(x, CrocomireBridgeCollapseDefinitions.DustY), DustExplosionAnimation.BigDustCloud);
 
     /// <summary>
     /// Clears every bridge block, left to right, and bursts dust as the bridge collapses: the clears are published in that
@@ -136,7 +136,7 @@ internal sealed class CrocomireBridgeCollapse
                 CrocomireArenaDefinitions.BridgeFirstBlock + new Offset16<RoomBlocks>(block, 0), CrocomireArenaMutation.ClearBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBridgeCollapseDefinitions.CollapseDustCount; puff++)
-            _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
+            _projectiles.SpawnDustOrExplosion(CrocomireBridgeDustPosition(puff), DustExplosionAnimation.BigDustCloud);
 
         _access.PublishCrocomireObject(CrocomireArenaDefinitions.BridgeWallBlock, CrocomireArenaMutation.CreateInvisibleWall);
     }

@@ -159,7 +159,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.YappingMawBody => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment.FacingDown),
         RoomEnemyProjectileKind.EyeDoorProjectile => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Initial),
         RoomEnemyProjectileKind.EyeDoorSweat => new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling),
-        RoomEnemyProjectileKind.EyeDoorSmoke => new MiscDustProjectileAnimation(MiscDustAnimation.SmallExplosion),
+        RoomEnemyProjectileKind.EyeDoorSmoke => new MiscDustProjectileAnimation(DustExplosionAnimation.SmallExplosion),
         RoomEnemyProjectileKind.SaveStationElectricity => new SaveStationElectricityAnimation(),
         RoomEnemyProjectileKind.DownwardGateMoving => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Moving),
         RoomEnemyProjectileKind.DownwardGateClosed => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Closed),
@@ -167,7 +167,7 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.NoobTubeShard => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
         RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.ReleasedAirBubble)),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
-            new MiscDustProjectileAnimation(MiscDustAnimation.MotherBrainRainbowBeamExplosion),
+            new MiscDustProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
         RoomEnemyProjectileKind.MotherBrainTopRightTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),
         RoomEnemyProjectileKind.MotherBrainTopLeftTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopLeft),
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleLeft),

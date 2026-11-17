@@ -15,7 +15,7 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>The blast's stages, radii and glow (#2000).</summary>
     public PowerBombBlastTimeline Blast { get; }
 
-    /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
+    /// <summary>The blast's centre in the room: where the Power Bomb lay when its fuse ran out.</summary>
     public Position16<RoomPixels> Position { get; private set; }
 
     /// <summary>
@@ -34,7 +34,7 @@ public sealed class SamusPowerBombExplosionState
     public bool IsActive => Blast.IsRunning;
 
     /// <summary>
-    /// Implements the morph ball's early power-bomb lock before a Power Bomb takes its place.
+    /// Locks out a second Power Bomb as the Morph Ball places one, before the Power Bomb takes its place.
     /// </summary>
     public void Arm()
     {
@@ -42,7 +42,7 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Implements the explosion's spawn after the fuse has copied the projectile's world position.
+    /// Starts the explosion at <paramref name="position"/>, where the Power Bomb lay when its fuse ran out.
     /// </summary>
     public void Spawn(Position16<RoomPixels> position)
     {
@@ -51,14 +51,12 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Implements Crystal Flash's explosion request and both setup calls after
-    /// Crystal Flash completes its ten-step rise.
+    /// Starts Crystal Flash's blast at <paramref name="position"/> once Crystal Flash completes its ten-step rise.
     /// </summary>
     public void BeginCrystalFlash(Position16<RoomPixels> position)
     {
-        // Crystal Flash releases the one-at-a-time Power Bomb lock before starting its two
-        // explosion effects. Their animation still shares the Power Bomb's status,
-        // position, radius, speed, glow colour, and window.
+        // Crystal Flash releases the one-at-a-time Power Bomb lock and starts its own blast, which is the Power Bomb's:
+        // its centre, radii, speed, glow colour and window.
         IsArmed = false;
         Position = position;
         Blast.BeginCrystalFlash();
@@ -72,8 +70,7 @@ public sealed class SamusPowerBombExplosionState
     {
         bool crystalFlashEnding = Blast.Phase == PowerBombExplosionPhase.CrystalFlashAfterglow;
         bool cleanedUp = Blast.StepFrame();
-        // Crystal Flash's cleanup releases the lock as well. Crystal Flash's start already released it, but assigning it
-        // again mirrors the cleanup and makes the reset atomic.
+        // Crystal Flash's end releases the lock, as its start did.
         if (cleanedUp && crystalFlashEnding)
             IsArmed = false;
         return cleanedUp;

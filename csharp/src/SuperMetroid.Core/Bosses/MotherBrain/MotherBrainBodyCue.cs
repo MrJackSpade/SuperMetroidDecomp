@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -25,7 +26,7 @@ internal abstract record MotherBrainBodyCue
     /// <summary>Spawns a charge particle at the hand.</summary>
     /// <param name="Offset">Where the particle spawns, from the body.</param>
     /// <param name="Dust">The particle spawned.</param>
-    internal sealed record SpawnHandDust(Offset16<RoomPixels> Offset, MiscDustAnimation Dust) : MotherBrainBodyCue;
+    internal sealed record SpawnHandDust(Offset16<RoomPixels> Offset, DustExplosionAnimation Dust) : MotherBrainBodyCue;
 
     /// <summary>A cue that signals what it does and carries nothing else.</summary>
     /// <param name="Kind">What the cue does.</param>

@@ -69,7 +69,7 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// </summary>
     public int PhaseTimer { get; internal set => field = Ensure.AtLeastZero(value); }
 
-    /// <summary>Whether the eye-close animation's pattern choice takes the flame-rain branch.</summary>
+    /// <summary>Whether the eye-close animation's pattern choice picks the flame rain.</summary>
     public bool FlameRainRequested { get; internal set; }
 
     /// <summary>The flames that circle the room before he appears.</summary>

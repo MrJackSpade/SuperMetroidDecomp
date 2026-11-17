@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// A projectile behaviour that carries out the cues of type <typeparamref name="TCue"/> its kinds' typed animations
 /// publish, where a cue may continue the play elsewhere (#1760, #1788): in another animation from its start, as a
-/// conditional branch does, or at the start of the run of steps the cue is in, as a conditional replay does.
+/// conditional change of animation does, or at the start of the run of steps the cue is in, as a conditional replay does.
 /// </summary>
 /// <typeparam name="TSegment">The animation family's identity.</typeparam>
 /// <typeparam name="TCue">The cues of the animation family.</typeparam>

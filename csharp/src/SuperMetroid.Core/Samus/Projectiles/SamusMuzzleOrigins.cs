@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusMuzzleOrigins
 {
     /// <summary>
-    /// The muzzle offsets of <paramref name="direction"/> in the running or ordinary origin table. A projectile's aim is
-    /// always one of the ten directions: the reads past the tables an aim beyond them would make are unreachable (#1506).
+    /// Where the arm cannon's muzzle lies from Samus for a shot fired in <paramref name="direction"/>, one of the ten
+    /// firing directions, as she runs or otherwise (#1506).
     /// </summary>
     internal static Offset16<RoomPixels> Read(bool running, SamusProjectileDirection direction) =>
         (running ? SamusMuzzleOriginDefinitions.Running : SamusMuzzleOriginDefinitions.Standing).For(direction);

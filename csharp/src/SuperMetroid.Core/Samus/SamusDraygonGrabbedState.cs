@@ -48,10 +48,10 @@ public sealed class SamusDraygonGrabbedState
     internal SamusDraygonGrabbedState(SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses) => this.escapePresses = Ensure.NotNull(escapePresses);
 
     /// <summary>
-    /// The directions input of Draygon's escape. The game stores the entire set of newly pressed directions
-    /// directions, not merely one, so a different diagonal chord is also a new input.
+    /// The directions newly pressed at the last counted press of Draygon's escape. The whole set of directions counts, not
+    /// one of them, so a different diagonal is a new press too.
     /// </summary>
-    public GameplayAction PreviousDpadInput { get; private set; }
+    public GameplayAction PreviousDirectionsPressed { get; private set; }
 
     /// <summary>
     /// Set by the release, the signal Draygon reads when Samus breaks free. The next time
@@ -78,12 +78,12 @@ public sealed class SamusDraygonGrabbedState
         // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
         SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
-        PreviousDpadInput = GameplayAction.None;
+        PreviousDirectionsPressed = GameplayAction.None;
         ReleasePublishedToOwner = false;
         // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();
-        // Clears every prospective pose. The super-special one is Samus's;
-        // the runtime clears the others after the enemy update (EnemyRoomStatus publishes the grab).
+        // Clears every pending pose. The pose the animation left pending is Samus's to clear; the runtime clears the
+        // others after the enemy update, which publishes the grab.
         samus.PendingTransitionalPose = null;
     }
 
@@ -142,11 +142,11 @@ public sealed class SamusDraygonGrabbedState
         EnsureActiveGrabbedPose();
 
         GameplayAction newlyPressed = newlyPressedInput;
-        GameplayAction dpad = newlyPressed & GameplayActions.Directions;
+        GameplayAction directions = newlyPressed & GameplayActions.Directions;
         bool counted = false;
-        if (dpad != GameplayAction.None && dpad != PreviousDpadInput)
+        if (directions != GameplayAction.None && directions != PreviousDirectionsPressed)
         {
-            PreviousDpadInput = dpad;
+            PreviousDirectionsPressed = directions;
             escapePresses.CountEscapePress();
             counted = true;
         }

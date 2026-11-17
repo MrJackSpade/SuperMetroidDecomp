@@ -21,6 +21,6 @@ internal static class ChargeFlareDrawAccess
             ChargeFlarePlacements placement, TurningFloorTransform? turningFloor = null) =>
             SpriteFrameBuffer.DrawnOam(frame => system.DrawChargeFlare(frame, samus, cameraPosition,
                 system.AdvanceChargeFlare(samus), turningFloor,
-                new ChargeFlareArtwork { Placement = placement, Objects = InstalledFixtures.ProjectileArtwork() }));
+                new ChargeFlareArtwork { Placement = placement, Sheets = InstalledFixtures.ProjectileArtwork() }));
     }
 }

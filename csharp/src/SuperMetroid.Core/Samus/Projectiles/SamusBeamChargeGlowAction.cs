@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Named outcomes of the nonzero charged-shot glow branches.</summary>
+/// <summary>What one update of the charge glow showed on Samus's suit.</summary>
 public enum SamusBeamChargeGlowAction
 {
     /// <summary>No charge glow effect is active.</summary>

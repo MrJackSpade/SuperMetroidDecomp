@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -32,11 +33,11 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// The shared misc-dust animation each of Mother Brain's death explosions shows: the small explosion, smoke and the big
     /// explosion.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, MiscDustAnimation> Animations =
-        new Dictionary<MotherBrainDeathExplosionAnimation, MiscDustAnimation>
+    internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, DustExplosionAnimation> Animations =
+        new Dictionary<MotherBrainDeathExplosionAnimation, DustExplosionAnimation>
         {
-            [MotherBrainDeathExplosionAnimation.SmallExplosion] = MiscDustAnimation.SmallExplosion,
-            [MotherBrainDeathExplosionAnimation.Smoke] = MiscDustAnimation.Smoke,
-            [MotherBrainDeathExplosionAnimation.BigExplosion] = MiscDustAnimation.BigExplosion,
+            [MotherBrainDeathExplosionAnimation.SmallExplosion] = DustExplosionAnimation.SmallExplosion,
+            [MotherBrainDeathExplosionAnimation.Smoke] = DustExplosionAnimation.Smoke,
+            [MotherBrainDeathExplosionAnimation.BigExplosion] = DustExplosionAnimation.BigExplosion,
         };
 }

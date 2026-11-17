@@ -2,6 +2,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Drawing;
@@ -70,6 +71,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
 
         // An ordinary producer's sound is turned away the same way.
         SamusState landing = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
+        landing.Room = RoomDefinitions.LandingSite;
         landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));
         AssertTurnedAway(audio, requests, RoomSound.HardLanding, "a landing's sound");

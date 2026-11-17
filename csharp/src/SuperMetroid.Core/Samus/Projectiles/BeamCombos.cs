@@ -35,9 +35,8 @@ internal sealed class BeamCombos
     public TrigonometryAngle OrbitTurnPerUpdate { get; internal set; }
 
     /// <summary>
-    /// Fires the special beam attack: debit the selected beam cost before attempting its family.
-    /// This is the allocation boundary; the normal producer must call it only after
-    /// charge/input eligibility, and particles run their own behaviours.
+    /// Fires the special beam attack of the selected weapon, taking its ammunition first. Firing asks for it once the
+    /// charge and the input allow it; its particles then run on their own.
     /// </summary>
     internal bool TryActivateCombo(SamusState samus,
         SamusBombProjectileSystem shared, out SoundEffectId? sound)
@@ -402,7 +401,9 @@ internal sealed class BeamCombos
             InitializeComboShot(shot, BeamComboShotKind.Echo);
         }
     }
-    /// <summary>Runs the Wave combo's homing oscillator, preserving 1/256-pixel acceleration and 1/65536-pixel position overflow.</summary>
+    /// <summary>
+    /// Runs one update of a Wave special attack particle, which swings back and forth through Samus as it homes on her.
+    /// </summary>
     internal SoundEffectId? StepWaveCombo(SamusState samus,
         SamusProjectile shot, SamusBombProjectileSystem shared)
     {
@@ -440,8 +441,8 @@ internal sealed class BeamCombos
     }
 
     /// <summary>
-    /// Moves one Wave velocity component toward Samus, respecting the acceleration and signed speed bound. The speed
-    /// stays within one acceleration of the bound either way, far inside the 1/256-pixel range.
+    /// Moves one Wave velocity component toward Samus, respecting the acceleration and the speed bound either way. The
+    /// speed stays within one acceleration of the bound.
     /// </summary>
     private static SignedEightEight AccelerateWaveAxis(SignedEightEight speed, int targetDelta)
     {

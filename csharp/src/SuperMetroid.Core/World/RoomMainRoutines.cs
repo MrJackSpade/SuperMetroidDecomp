@@ -32,7 +32,7 @@ internal sealed class RoomMainRoutines
         _room = dependencies.Room;
         _system = dependencies.System;
     }
-    /// <summary>The hidden-wall branch of Crocomire's room shaking.</summary>
+    /// <summary>Crocomire's room shaking while his comeback hides the wall.</summary>
     internal void RunCrocomireComebackRoomMain(RoomScope room)
     {
         if (room.Enemies.RoomMainHooks.Crocomire is not { } boss ||

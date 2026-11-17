@@ -8,6 +8,6 @@ public enum GunshipLoadScenario
 {
     /// <summary>Ordinary room loading initializes the Landing Site gunship in its normal parked scenario.</summary>
     Ordinary,
-    /// <summary>The Ceres-escape loader branch initializes the gunship descent, landing, and Samus-ejection sequence.</summary>
+    /// <summary>Arriving from the Ceres escape: the gunship descends, lands and lets Samus out.</summary>
     EscapingCeres,
 }

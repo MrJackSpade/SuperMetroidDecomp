@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -263,7 +264,7 @@ internal sealed class NorfairRidleyCombat
             return;
 
         RidleyTailLink tip = state.Tail.Tip;
-        _ridleyProjectiles.SpawnRidleyDust(tip.Position + NorfairRidleyArenaDefinitions.PogoDustBelowTip, MiscDustAnimation.SmallDustCloud);
+        _ridleyProjectiles.SpawnRidleyDust(tip.Position + NorfairRidleyArenaDefinitions.PogoDustBelowTip, DustExplosionAnimation.SmallDustCloud);
         _audio.QueueEnemySound(EnemySound.Quake, priority: SoundRequestPriority.Normal);
         _earthquake.Start(NorfairRidleyArenaDefinitions.PogoBounceQuake, NorfairRidleyArenaDefinitions.PogoBounceQuakeUpdates);
         SetRidleyPogoHorizontalDirection(place, state, samus);
@@ -555,7 +556,7 @@ internal sealed class NorfairRidleyCombat
         state.Tail.WhipRequested = true;
     }
 
-    /// <summary>Runs the power-bomb branch of missed-lunge recovery.</summary>
+    /// <summary>Recovers from a missed lunge with a Power Bomb out.</summary>
     /// <param name="place">Ridley's body.</param>
     /// <param name="state">Ridley's state.</param>
     /// <param name="bomb">The power bomb explosion of the pass's bombs, which Ridley dodges while it is armed.</param>

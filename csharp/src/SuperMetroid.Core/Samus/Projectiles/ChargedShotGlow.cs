@@ -46,7 +46,7 @@ public readonly record struct ChargedShotGlow
     public ChargedShotGlowKind Kind { get; }
 
     /// <summary>The steps the glow has left; see <see cref="Of"/> for each kind's range.</summary>
-    [IntegerQuantity("charge colour calls the glow has left")]
+    [IntegerQuantity("updates of the charge colour the glow has left")]
     public int RemainingSteps { get; }
 
     /// <summary>The glow one step on; the step count stays within the kind's range, and the glow ends at zero.</summary>

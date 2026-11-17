@@ -169,7 +169,7 @@ internal sealed class CrocomireCombat
             projectile.Delete();
             if (crumbles)
                 access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
-            projectiles.SpawnDustOrExplosion(impact, MiscDustAnimation.BigDustCloud);
+            projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.BigDustCloud);
             access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         }
     }
@@ -319,9 +319,9 @@ internal sealed class CrocomireCombat
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile)
     {
-        MiscDustAnimation dust = projectileType.Family != SamusProjectileFamily.SuperMissile
-            ? MiscDustAnimation.DudShotTinyExplosion
-            : MiscDustAnimation.BigExplosion;
+        DustExplosionAnimation dust = projectileType.Family != SamusProjectileFamily.SuperMissile
+            ? DustExplosionAnimation.DudShotTinyExplosion
+            : DustExplosionAnimation.BigExplosion;
         _projectiles.SpawnDustOrExplosion(projectile, dust);
     }
 

@@ -25,10 +25,7 @@ internal static class SamusProjectileDamage
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined projectile kind."),
     };
 
-    /// <summary>
-    /// The charge state and beams of an uncharged or charged beam shot's kind. The charged kinds swap the Wave/Plasma and
-    /// Plasma-Wave/Plasma-Ice order.
-    /// </summary>
+    /// <summary>Whether a beam shot's kind is charged, and the beams it fires.</summary>
     internal static SamusBeamIdentity BeamIdentity(SamusProjectileKind kind) => new(
         kind is SamusProjectileKind.ChargedPower or SamusProjectileKind.ChargedSpazer or SamusProjectileKind.ChargedSpazerIce or SamusProjectileKind.ChargedSpazerIceWave or
         SamusProjectileKind.ChargedPlasmaIceWave or SamusProjectileKind.ChargedIce or SamusProjectileKind.ChargedPlasma or SamusProjectileKind.ChargedWave or

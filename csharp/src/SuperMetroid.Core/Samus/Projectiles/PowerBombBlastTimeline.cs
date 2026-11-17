@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="SamusPowerBombExplosionState"/>), and the blast that destroys Ceres station centres it on the screen.
 /// </summary>
 /// <remarks>
-/// The game ran the blast's stages and its glowing window as two cooperating effects, the second with no lifetime of its
-/// own; one owner keeps the meaningful state. Every phase transition and every radius update below follows
+/// One timeline runs the blast's stages and its glowing window. Every phase transition and every radius update below follows
 /// the game's explosion stages exactly: the radii and their speed are plain lengths
 /// (<see cref="PowerBombRadius"/>), and the oval stages' growth holds short of 256 pixels
 /// (<see cref="PowerBombGrowthHold"/>). Crystal Flash's smaller blast burns through the same radii, speed and glow.
@@ -110,9 +109,8 @@ public sealed class PowerBombBlastTimeline
     {
         IsRunning = true;
 
-        // The blast starts after this update's effect pass. The NEXT pass runs its
-        // setup and starts the radius step; that step cannot run until the pass after
-        // setup. Executing setup here would skip one update.
+        // The blast takes its first step on the next update, which sets up the pre-explosion; its radius first grows on
+        // the update after.
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
         _ovalStageUpdates = 0;
@@ -356,22 +354,17 @@ public sealed class PowerBombBlastTimeline
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
-    /// <summary>
-    /// Fades the glow colour's three components one step every update and ends the blast after the last step. The delay
-    /// the game keeps between steps never holds one back: the afterglow starts it at zero, so it runs past zero on the
-    /// first update, and each step's reload of its count leaves it run past zero.
-    /// </summary>
+    /// <summary>Fades the glow colour's three components one step every update and ends the blast after the last step.</summary>
     private bool StepAfterglow()
     {
-        // A count reaching one advances the animation without one final color decrement.
+        // The step that leaves none ends the blast without fading the colour again.
         ConsumeAfterglowStep();
         if (_afterglowStepsRemaining == 0)
         {
             IsRunning = false;
             PreExplosionRadius = PowerBombRadius.Zero;
             ExplosionRadius = PowerBombRadius.Zero;
-            // Cleanup does not clear the shared radius growth speed. Retain it
-            // until the next pre-explosion setup, as on the game.
+            // The blast's end keeps the radius's growth speed until the next pre-explosion sets it up.
             _ovalStageUpdates = 0;
             RenderedOvalRadius = null;
             Phase = PowerBombExplosionPhase.Inactive;
@@ -420,7 +413,7 @@ public sealed class PowerBombBlastTimeline
             return false;
         }
 
-        // The awakened effect immediately ends the blast and clears every shared blast value, its speed included.
+        // The update after the afterglow's last fade ends the blast and clears every blast value, its speed included.
         IsRunning = false;
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
@@ -431,8 +424,7 @@ public sealed class PowerBombBlastTimeline
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        // Replacement colors may be brighter than the stock lifetime count. Once
-        // the window is released, do not retain their unused display remainder.
+        // The blast's end turns its glow off, however bright the installed colours left it.
         GlowColor = RgbColor.Black;
         return true;
     }

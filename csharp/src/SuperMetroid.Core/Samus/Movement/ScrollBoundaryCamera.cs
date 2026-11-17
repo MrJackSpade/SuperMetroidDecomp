@@ -216,7 +216,7 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
-    /// The fast-swing branch of the camera's scrolling: the camera
+    /// The camera's scrolling during a fast grapple swing: the camera
     /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
     /// The camera's scroll speeds are not recalculated. A negative Samus X skips both axes.
     /// </summary>
@@ -508,9 +508,8 @@ public sealed class ScrollBoundaryCamera
         bool blockedBelow = false;
         if (!beyondRoomBottom)
         {
-            // Preserve the game's branch order: if the physical room maximum was already
-            // exceeded, the boundary check branches before reading the screen below. This also prevents
-            // a legitimate bottom-row/right-edge camera from reading below the scroll grid.
+            // A camera already past the room's bottom is not blocked by the screen below, which is not read, so a camera
+            // on the bottom row or right edge never reads below the room's screens.
             blockedBelow = Scrolls.ReadCameraState(Below(current)) == RoomScrollState.Closed;
             if (blockedBelow)
             {

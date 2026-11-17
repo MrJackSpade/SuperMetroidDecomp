@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodySegment;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment;
@@ -186,10 +187,10 @@ internal static class MotherBrainAnimations
     ];
 
     /// <summary>The hand beam's charge particle, at her elbow.</summary>
-    private static MotherBrainBodyCue ChargeParticle => new MotherBrainBodyCue.SpawnHandDust(new(36, -40), MiscDustAnimation.MotherBrainElbowChargeParticle);
+    private static MotherBrainBodyCue ChargeParticle => new MotherBrainBodyCue.SpawnHandDust(new(36, -40), DustExplosionAnimation.MotherBrainElbowChargeParticle);
 
     /// <summary>The hand beam's charge energy spark, at her elbow.</summary>
-    private static MotherBrainBodyCue ChargeEnergy => new MotherBrainBodyCue.SpawnHandDust(new(34, -42), MiscDustAnimation.MotherBrainElbowChargeEnergy);
+    private static MotherBrainBodyCue ChargeEnergy => new MotherBrainBodyCue.SpawnHandDust(new(34, -42), DustExplosionAnimation.MotherBrainElbowChargeEnergy);
 
     /// <summary>Shows a body frame.</summary>
     private static AnimationBeat<EnemyFrameId, MotherBrainBodyCue> BodyShow(EnemyFrameId frame, int duration) =>

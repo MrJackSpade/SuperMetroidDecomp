@@ -617,7 +617,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         head.Position = head.Position.WithWholeY(BotwoonFightDefinitions.FloorY);
         state.Phase = BotwoonPhase.WaitForBody;
-        _projectiles.SpawnDustOrExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
+        _projectiles.SpawnDustOrExplosion(head.Position.Whole, DustExplosionAnimation.BigExplosion);
         RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
         head.Contact = head.Contact.With(EnemyContact.IgnoresSamus);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
@@ -924,7 +924,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         projectile.Position = projectile.Position.WithWholeY(BotwoonFightDefinitions.FloorY);
         segment.Phase = BotwoonBodyPhase.Landed;
         // The landed segment plays the shared big-explosion animation.
-        projectile.StartAnimation(new MiscDustProjectileAnimation(MiscDustAnimation.BigExplosion));
+        projectile.StartAnimation(new MiscDustProjectileAnimation(DustExplosionAnimation.BigExplosion));
         projectile.Graphics = SpriteGraphics.SharedIn(EnemyShades.InProjectileLook);
         projectile.CanDamageSamus = false;
         projectile.CollisionOption = EnemyProjectileCollisionOption.NoCollision;

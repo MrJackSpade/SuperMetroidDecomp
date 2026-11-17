@@ -344,7 +344,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Frontend language choice read by room actors whose script differs
-    /// between English and Japanese. The enemy owner retains the actual language branch.
+    /// between English and Japanese. Each enemy chooses its own script by it.
     /// </summary>
     public bool JapaneseText
     {
@@ -655,16 +655,16 @@ internal sealed class SuperMetroidRuntime
         // Host-disabled Samus movement has no input phase to wait for. Otherwise
         // defer actors until projectile production/update, immediately before the movement phase.
         SamusControlFrame frame = context.Samus;
-        frame.RecordHoistedEnemyMain(Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled);
+        frame.RecordEnemyUpdateRanFirst(Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled);
         // The enemy phase follows Samus's input mode. An actor that restores the
         // normal modes there (the gunship) affects this frame's movement phase only:
         // the locked input mode has already run, so it still sees the lock below.
-        if (frame.EnemyMainAlreadyRan)
+        if (frame.EnemyUpdateRanFirst)
         {
             bool lockedBeforeEnemyMain = Player.Samus?.Control.InputLocked == true;
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared,
                 Room.Camera?.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, Room.LoadedScope);
-            frame.RecordEnemyMainReleasedInputLock(lockedBeforeEnemyMain && Player.Samus?.Control.InputLocked == false);
+            frame.RecordEnemyUpdateReleasedInputLock(lockedBeforeEnemyMain && Player.Samus?.Control.InputLocked == false);
         }
     }
 
@@ -673,7 +673,7 @@ internal sealed class SuperMetroidRuntime
     {
         SamusControlFrame frame = context.Samus;
         SamusPhases.RunInputPhase(frame, RunningGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
-        if (frame.MovementEnabled && !frame.EnemyMainAlreadyRan)
+        if (frame.MovementEnabled && !frame.EnemyUpdateRanFirst)
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);
         SamusPhases.RunPostEnemyMainResample(frame, samus, Room.LoadedScope.BombProjectiles, Room.LoadedScope.Projectiles, Room.LoadedScope);
         SamusPhases.RunMovementPhase(frame, samus, camera, audio, Room.LoadedScope);
@@ -816,8 +816,8 @@ internal sealed class SuperMetroidRuntime
             // Samus down several screens while her ordinary movement owner is absent.
             if (samus.Grapple.SlowScrolling)
             {
-                // A fast grapple swing takes the slow camera branch, which leaves
-                // the camera speeds from the last normal frame in place.
+                // A fast grapple swing scrolls the camera slowly, leaving the camera speeds from the last normal frame
+                // in place.
                 camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole, Freeze.TimeIsFrozen);
             }
             else

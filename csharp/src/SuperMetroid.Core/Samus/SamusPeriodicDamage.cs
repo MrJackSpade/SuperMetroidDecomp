@@ -18,10 +18,8 @@ public sealed class SamusPeriodicDamage
     /// Adds one fractional periodic-damage contribution.
     /// </summary>
     /// <remarks>
-    /// Liquid, block and enemy damage all accumulate here as one amount in 1/65536ths of a unit, so no producer drops a fraction that
-    /// passes a whole point of energy: it moves the whole damage by one. The fractional damage is 0 through 65535
-    /// 65536ths of energy and the whole damage zero or more; one update's contributions stay far below the largest damage
-    /// <see cref="Apply"/> applies.
+    /// Liquid, block and enemy damage all add to one amount, so fractions that together pass a whole energy add one to
+    /// the whole damage. The fractional damage is less than one energy, in 65536ths, and the whole damage zero or more.
     /// </remarks>
     public void Accumulate(int subDamage, int wholeDamage) =>
         Pending += new UnsignedSixteenSixteen(wholeDamage, subDamage);

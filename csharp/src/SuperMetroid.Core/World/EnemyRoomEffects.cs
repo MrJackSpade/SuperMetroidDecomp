@@ -106,8 +106,8 @@ internal sealed class EnemyRoomEffects
 
         if (mutation == BotwoonWallMutation.Clear)
         {
-            // The already-defeated branch clears the wall directly with one store
-            // during setup; unlike the live crumble room object, it does not wait for its
+            // With Botwoon already defeated the wall is cleared at once during setup; unlike the live crumble room
+            // object, it does not wait for its
             // clearing step during the first room-object step.
             foreach (Position16<RoomScreens> cell in BotwoonWallMutationDefinitions.OpenedScrollCells)
                 _room.Camera.Scrolls.SetLogicalState(cell, RoomScrollState.OpenAlignedToTop);

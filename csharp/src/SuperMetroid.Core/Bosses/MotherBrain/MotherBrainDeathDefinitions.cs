@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -42,7 +43,7 @@ public static class MotherBrainDeathDefinitions
     public const int DoorDustYOffset = 4;
 
     /// <summary>The dust an expiring door fragment leaves.</summary>
-    public const MiscDustAnimation DoorDustParameter = MiscDustAnimation.SmallDustCloud;
+    public const DustExplosionAnimation DoorDustParameter = DustExplosionAnimation.SmallDustCloud;
 
     /// <summary>The screen position of the escape subtitle.</summary>
     public const int SubtitleX = 128, SubtitleY = 192;

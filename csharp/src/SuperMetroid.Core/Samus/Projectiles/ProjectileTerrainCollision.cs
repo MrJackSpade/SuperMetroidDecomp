@@ -63,10 +63,9 @@ internal sealed class ProjectileTerrainCollision
         ISamusRoomObjects roomObjects,
         bool waveBeam)
     {
-        // The producer explicitly sets both 1/256-pixel speeds to zero. Firing left is
-        // the sole exception: its firing setup writes -1 before the horizontal scan so the
-        // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
-        // including the game's counterintuitive right-edge initial horizontal probe.
+        // A new beam's first scan starts with no speed, so it tests the edge a rightward shot leads with. A shot fired
+        // straight left starts with the smallest leftward speed instead, so its first scan tests its left edge; a shot
+        // fired diagonally left still tests its right edge first.
         shot.Velocity = new(shot.Direction == SamusProjectileDirection.Left ? LeftScanVelocity : default, default);
 
         SamusProjectileDirection direction = shot.Direction;
@@ -85,10 +84,8 @@ internal sealed class ProjectileTerrainCollision
             else
                 horizontalReaction = MoveHorizontally(level, shot, roomObjects);
 
-            // The Wave-beam scan deliberately reports no collision after publishing a block
-            // reaction. Preserve that contract here instead of allowing our shared scanner's
-            // Boolean return to suppress the diagonal vertical probe. Ordinary beams retain
-            // the reaction result because their producer aborts immediately on a collision.
+            // A Wave shot's scan reports no collision even after a block reacts, so a diagonal Wave shot still tests the
+            // vertical edge. An ordinary beam's collision ends its firing at once.
             collided = !waveBeam && horizontalReaction;
         }
 
@@ -138,7 +135,10 @@ internal sealed class ProjectileTerrainCollision
         return ScanVerticalShotReactions(level, shot, roomObjects);
     }
 
-    /// <summary>Checks every block along the projectile's vertical span and reports collision only when the scan's solid counter completes.</summary>
+    /// <summary>
+    /// Checks every block along the projectile's vertical span and reports a collision only when every block in the span
+    /// stops the shot, or one ends the span.
+    /// </summary>
     internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectile shot,
@@ -158,15 +158,14 @@ internal sealed class ProjectileTerrainCollision
             return false;
         }
 
-        // The span scan decrements its target counter only for reactions that stop the shot. A tall
-        // projectile grazing air beside one solid block therefore keeps moving; every
-        // touched block still gets its side effect before that aggregate result is tested.
+        // The span stops the shot only when every block in it does. A tall shot grazing air beside one solid block
+        // therefore keeps moving; every block it touches still reacts first.
         bool everyBlockSolid = true;
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
-            var context = new ShotSpan(span, bottomBlock - blockY, targetX);
+            ShotSpan context = ShotSpan.At(blockY - topBlock, span, targetX);
             if (!RunShotReaction(level, shot, block, roomObjects, context, out bool endSpan))
                 everyBlockSolid = false;
             if (endSpan) return true;
@@ -199,7 +198,7 @@ internal sealed class ProjectileTerrainCollision
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
-            var context = new ShotSpan(span, rightBlock - blockX, targetY);
+            ShotSpan context = ShotSpan.At(blockX - leftBlock, span, targetY);
             if (!RunShotReaction(level, shot, block, roomObjects, context, out bool endSpan, axis: Axis.Vertical))
                 everyBlockSolid = false;
             if (endSpan) return true;
@@ -208,10 +207,37 @@ internal sealed class ProjectileTerrainCollision
     }
 
     /// <summary>
-    /// A block span's scan state: the blocks spanned minus one, the blocks still to check
-    /// minus one (the first, top or left, block has both equal) and the target boundary.
+    /// The block a shot's scan is checking: its place in the span of blocks the shot's edge covers, and the edge's
+    /// coordinate along the shot's motion.
     /// </summary>
-    private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
+    /// <param name="Place">Where the block lies in the span: the only block, or its first (top or left), a middle or its last.</param>
+    /// <param name="TargetBoundary">The coordinate of the shot's leading edge, in room pixels.</param>
+    private readonly record struct ShotSpan(SpanPlace Place, int TargetBoundary)
+    {
+        /// <summary>
+        /// The block <paramref name="index"/> blocks into a span whose last block is <paramref name="lastIndex"/> blocks
+        /// in, with the shot's leading edge at <paramref name="targetBoundary"/>.
+        /// </summary>
+        internal static ShotSpan At(int index, int lastIndex, int targetBoundary) => new(
+            lastIndex == 0 ? SpanPlace.Only
+            : index == 0 ? SpanPlace.First
+            : index == lastIndex ? SpanPlace.Last
+            : SpanPlace.Middle,
+            targetBoundary);
+    }
+
+    /// <summary>Where a block lies in the span of blocks a shot's edge covers.</summary>
+    private enum SpanPlace
+    {
+        /// <summary>The span is this one block.</summary>
+        Only,
+        /// <summary>The span's first block: its top, or its left.</summary>
+        First,
+        /// <summary>A block between the span's first and last.</summary>
+        Middle,
+        /// <summary>The span's last block: its bottom, or its right.</summary>
+        Last,
+    }
 
     /// <summary>
     /// Square-slope collision for a beam, horizontal or vertical: the quarter cells of a
@@ -239,26 +265,28 @@ internal sealed class ProjectileTerrainCollision
             SquareSlopeQuadrant cell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)), SquareSlopeRowHalf.Top);
             bool topEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole - shot.Radius.Y);
             bool bottomEdgeInBottomHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.Y.Whole + shot.Radius.Y - 1);
-            if (span.Span == 0)
-                return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell.OtherRow));
-            if (span.Remaining == 0)
-                return bottomEdgeInBottomHalf ? Solid(cell) || Solid(cell.OtherRow) : Solid(cell);
-            if (span.Remaining == span.Span && topEdgeInBottomHalf)
-                return Solid(cell.OtherRow);
-            return Solid(cell) || Solid(cell.OtherRow);
+            return span.Place switch
+            {
+                SpanPlace.Only => (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell.OtherRow)),
+                SpanPlace.Last => bottomEdgeInBottomHalf ? Solid(cell) || Solid(cell.OtherRow) : Solid(cell),
+                SpanPlace.First when topEdgeInBottomHalf => Solid(cell.OtherRow),
+                SpanPlace.First or SpanPlace.Middle => Solid(cell) || Solid(cell.OtherRow),
+                _ => throw new InvalidOperationException($"Undefined {nameof(SpanPlace)} {span.Place}."),
+            };
         }
 
         // The leading edge picks the row half; the scan then tests left/right columns.
         SquareSlopeQuadrant rowCell = SquareSlopeQuadrant.Showing(block.Behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(span.TargetBoundary)));
         bool leftEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole - shot.Radius.X);
         bool rightEdgeInRightHalf = RoomGridConversions.InSecondHalfOfBlock(shot.Position.X.Whole + shot.Radius.X - 1);
-        if (span.Span == 0)
-            return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell.OtherColumn));
-        if (span.Remaining == 0)
-            return rightEdgeInRightHalf ? Solid(rowCell) || Solid(rowCell.OtherColumn) : Solid(rowCell);
-        if (span.Remaining == span.Span && leftEdgeInRightHalf)
-            return Solid(rowCell.OtherColumn);
-        return Solid(rowCell) || Solid(rowCell.OtherColumn);
+        return span.Place switch
+        {
+            SpanPlace.Only => (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell.OtherColumn)),
+            SpanPlace.Last => rightEdgeInRightHalf ? Solid(rowCell) || Solid(rowCell.OtherColumn) : Solid(rowCell),
+            SpanPlace.First when leftEdgeInRightHalf => Solid(rowCell.OtherColumn),
+            SpanPlace.First or SpanPlace.Middle => Solid(rowCell) || Solid(rowCell.OtherColumn),
+            _ => throw new InvalidOperationException($"Undefined {nameof(SpanPlace)} {span.Place}."),
+        };
     }
 
     /// <summary>Resolves an extension and applies its slope, room-object, shootable, or ordinary solid reaction to one scanned block.</summary>
@@ -272,11 +300,9 @@ internal sealed class ProjectileTerrainCollision
         Axis axis = Axis.Horizontal)
     {
         endSpan = false;
-        // The extension-block resolution is shared by shot, bomb, grapple, collision, and inside
-        // reaction. Door caps deliberately put the shootable origin at one end and vertical
-        // extension blocks across the other three cells. Resolve those signed behaviour
-        // links before selecting a reaction; otherwise a centered horizontal beam merely
-        // explodes against the middle extension and can never reach the blue-door behaviours.
+        // A shot reacts to the block an extension block leads to, as bombs, the grapple beam and Samus's body do. A door
+        // cap is a shootable block at one end with extension blocks across its other three, so a beam striking the cap's
+        // middle reaches the blue door's reaction through them.
         RoomCollisionBlock? resolvedBlock = ResolveShotReactionExtension(level, block);
         if (resolvedBlock is null)
             return false;
@@ -294,8 +320,8 @@ internal sealed class ProjectileTerrainCollision
             int x = RoomGridConversions.OffsetWithinBlock(shot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
             int y = RoomGridConversions.OffsetWithinBlock(shot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
             bool hit = block.Behavior.Slope.Shape.HeightAt(x) <= y;
-            // A surface hit clears both scan counters. This overrides
-            // earlier air rows and ends the span; Wave still discards whether the hit stops it.
+            // A hit on the slope's surface stops the shot whatever the span's earlier blocks were, and ends the span; a
+            // Wave shot still goes on.
             endSpan = hit;
             return hit;
         }
@@ -310,9 +336,8 @@ internal sealed class ProjectileTerrainCollision
             return true;
         }
 
-        // Both the solid and the shootable resident-object trigger collision routes allocate the generic shot trigger,
-        // which publishes the live projectile type to the resident room object at this block.
-        // A solid block's route reads its behaviour as the shot block's reaction.
+        // A solid or shootable block holding a resident room object's trigger tells that room object the shot's type. A
+        // solid block's behaviour is read as a shot block's reaction.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {
@@ -324,8 +349,8 @@ internal sealed class ProjectileTerrainCollision
         {
             if (block.Behavior.Shootable == ShootableReaction.CollisionProbe)
             {
-                // Gate setup ends the shot's span and forces its collision counter.
-                // A full room-object pool skips setup entirely, so it must not end the scan.
+                // Setting up the probe's room object ends the span. With every room-object place taken nothing is set
+                // up, and the span goes on.
                 endSpan = roomObjects.BlockReactions.TrySpawnProjectileShotBlock(
                     level, block.At, block.Behavior, shot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock);
@@ -520,8 +545,7 @@ internal sealed class ProjectileTerrainCollision
             return;
         }
 
-        // Missile point collisions already supply the impact coordinate. Only the beam
-        // branch of the step applies a leading-edge radius adjustment.
+        // A missile explodes where its centre struck; only a beam's explosion moves to its leading edge.
 
         // Impact audio is separate from launch audio and can also originate in enemy
         // collision before the projectile movement owner executes.
@@ -564,9 +588,8 @@ internal sealed class ProjectileTerrainCollision
         int span = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(bottom - RoomGridConversions.BlockStart(top)));
         int targetX = CoordinateAxis.Wrap(shot.Velocity.X.IsNegative
             ? shot.Position.X.Whole - shot.Radius.X : shot.Position.X.Whole + shot.Radius.X - 1);
-        // The game's check reads whether the whole coordinate is negative, not whether its pixel offset within the
-        // screen is 128 or more. Testing the latter disables Wave reactions throughout
-        // the lower half of every screen, including ordinary blue-door caps.
+        // A shot whose centre lies above the room's top edge reacts to no block, nor one whose span is too tall or whose
+        // centre or leading edge lies past the room's last screen.
         if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach || CoordinateAxis.AsSigned(shot.Position.Y.Whole) < 0 ||
             RoomGridConversions.PixelToScreen(shot.Position.Y.Whole) >= RoomGridConversions.ScreensCovering(level.Size.Y) ||
             RoomGridConversions.PixelToScreen(targetX) >= RoomGridConversions.ScreensCovering(level.Size.X))
@@ -589,7 +612,7 @@ internal sealed class ProjectileTerrainCollision
                 // still use the block the read starts in, as aligned reads do.
                 block = block with { Terrain = straddledTerrain.Straddling(block.Terrain, next) };
             }
-            RunShotReaction(level, shot, block, roomObjects, new ShotSpan(span, span - step, targetX), out bool endSpan);
+            RunShotReaction(level, shot, block, roomObjects, ShotSpan.At(step, span, targetX), out bool endSpan);
             // Wave discards whether a block stops it, but still honors room-object scan termination.
             if (endSpan) return;
         }
@@ -625,7 +648,7 @@ internal sealed class ProjectileTerrainCollision
             if (level.Size.Contains(block))
             {
                 RunShotReaction(level, shot, level.GetCollisionBlock(block), roomObjects,
-                    new ShotSpan(span, span - step, targetY), out bool endSpan, axis: Axis.Vertical);
+                    ShotSpan.At(step, span, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }
         }

@@ -6,6 +6,6 @@ public readonly record struct ChargeFlareArtwork
     /// <summary>The installed offsets of the flare from Samus, by her movement and aim.</summary>
     public required SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements Placement { get; init; }
 
-    /// <summary>The projectile sheet the flare's frames are drawn from.</summary>
-    public required ProjectileDrawArtwork Objects { get; init; }
+    /// <summary>The projectile sheets the flare's frames are drawn from, one for each beam combination.</summary>
+    public required ProjectileDrawArtwork Sheets { get; init; }
 }

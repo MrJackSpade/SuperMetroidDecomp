@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -90,9 +91,9 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         Position16<RoomPixels> explosion = Place.Position.Whole + offsets[state.LastExplosionPlace];
 
         // The shared random sequence advances exactly once per explosion; its explosion chance selects the animation.
-        MiscDustAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())
-            ? MiscDustAnimation.Smoke
-            : MiscDustAnimation.SmallExplosion;
+        DustExplosionAnimation animation = CeresDoorQuakeDefinitions.RumbleExplosion.IsTakenBy(doors.Room.Random.Generate())
+            ? DustExplosionAnimation.Smoke
+            : DustExplosionAnimation.SmallExplosion;
         doors.Projectiles.SpawnDustOrExplosion(explosion, animation);
 
         // The explosion sound is requested even when the finite enemy-projectile pool was full and

@@ -951,8 +951,8 @@ public sealed class RoomEnemySystem : IEnemyFrameResults, IEnemyDisplaySources
                         continue;
 
                     // Test the clock before decrementing: reaching zero retains frozen
-                    // AI for this update. Ice removal instead takes the thaw branch
-                    // immediately. That branch leaves the freeze clock at the remainder
+                    // AI for this update. Removing the ice instead thaws the enemy
+                    // immediately, leaving the freeze clock at the remainder
                     // ThawedFreezeLeftover names rather than zero, which matters when hurt
                     // and frozen AI coexist.
                     place.FlashTimer = 0;

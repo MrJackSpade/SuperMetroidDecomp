@@ -590,7 +590,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Completes the non-missile branch of Yard shot AI. Collision/beam impact
+    /// Completes Yard's reaction to a shot that is not a missile. Collision/beam impact
     /// disposal has already happened in the shared projectile pass; this method owns only
     /// the actor's launch and observable sound event.
     /// </summary>

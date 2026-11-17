@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -8,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 public readonly record struct BabyMetroidReleaseDustRequest(
     Position16<RoomPixels> Position,
-    MiscDustAnimation Animation);
+    DustExplosionAnimation Animation);

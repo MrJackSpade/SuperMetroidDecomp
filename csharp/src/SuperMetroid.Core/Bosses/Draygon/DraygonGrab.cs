@@ -33,9 +33,8 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Chases Samus and tries to grab her. The speed-divisor
-    /// test is the real communication channel from goop; no invented encounter
-    /// flag or proximity shortcut is used to start this branch.
+    /// Chases Samus and tries to grab her. Draygon chases her once goop has slowed her (her speed divisor), and nothing
+    /// else, neither an encounter flag nor her nearness, starts the chase.
     /// </summary>
     internal void ChaseAndTryToGrabSamus(
         DraygonEnemyState state,

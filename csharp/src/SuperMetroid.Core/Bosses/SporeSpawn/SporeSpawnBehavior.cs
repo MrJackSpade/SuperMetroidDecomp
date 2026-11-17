@@ -620,7 +620,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int random = _room.Random.Generate();
         _projectiles.SpawnDustOrExplosion(
             new(body.Position.X.Whole + SporeSpawnRandomDefinitions.HardeningDustX.Of(random) - SporeSpawnArenaDefinitions.HardeningDustCentring.X, body.Position.Y.Whole + SporeSpawnRandomDefinitions.HardeningDustY.Of(random) - SporeSpawnArenaDefinitions.HardeningDustCentring.Y),
-            MiscDustAnimation.BigDustCloud);
+            DustExplosionAnimation.BigDustCloud);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.HardeningDust);
     }
 

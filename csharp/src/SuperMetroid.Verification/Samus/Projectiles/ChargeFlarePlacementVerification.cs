@@ -79,7 +79,7 @@ internal static class ChargeFlarePlacementVerification
             bool onScreen = LittleEndianBytes.HighByteInPlace(y) == 0;
             DrawImportedFlareSpritemap(bus, native, selector, new(x, onScreen ? y : (byte)y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
-                new ChargeFlareArtwork { Placement = stock, Objects = objects },
+                new ChargeFlareArtwork { Placement = stock, Sheets = objects },
                 new ChargeFlarePose { Aim = aim, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
             // The draw depth replaces each part's priority tier (#1514); everything else must match the cartridge.
             AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement publishes every native part");
@@ -114,7 +114,7 @@ internal static class ChargeFlarePlacementVerification
             var native = new OamBuffer();
             DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
             OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, component, null,
-                new ChargeFlareArtwork { Placement = stock, Objects = objects }));
+                new ChargeFlareArtwork { Placement = stock, Sheets = objects }));
             AssertTrue(actual.LastFinalizedSpriteCount > 0, $"charged {pose} draws flare component {component}");
             AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.ImagesEqualApartFromPriority(native, actual), $"charged {pose} draws flare component {component} at its turn row's cartridge placement apart from the priority tier the draw depth replaces (#1514) ({native.FirstDifference(actual)})");
         }
@@ -136,7 +136,7 @@ internal static class ChargeFlarePlacementVerification
         var subject = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         byte[] beforeSamus = GraphDigest(subject, InstalledFixtures.BoundContent), beforeSystem = GraphDigest(system, InstalledFixtures.BoundContent);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, ChargeFlareComponent.MainFlare, null,
-            new ChargeFlareArtwork { Placement = stock, Objects = objects }));
+            new ChargeFlareArtwork { Placement = stock, Sheets = objects }));
         AssertTrue(original.LastFinalizedSpriteCount > 0, "Flare placement fixture draws visible sprites");
         // A pose with a negative graphics Y offset (the drained poses' -4) lowers the flare by it, as it lowers the body:
         // the flare drawn at that offset is the one drawn with no offset four pixels lower. The game's unsigned read
@@ -145,7 +145,7 @@ internal static class ChargeFlarePlacementVerification
         {
             var drawn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, samusY)) };
             return SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, drawn, Position16<RoomPixels>.Zero,
-                ChargeFlareComponent.MainFlare, null, new ChargeFlareArtwork { Placement = stock, Objects = objects },
+                ChargeFlareComponent.MainFlare, null, new ChargeFlareArtwork { Placement = stock, Sheets = objects },
                 new ChargeFlarePose { Aim = SamusFlareRows.AimAtRow(0), Running = false, PoseYOffset = poseYOffset, FacingLeft = false }));
         }
         OamBuffer negativeOffset = DrawnAtOffset(100, -4), noOffsetLower = DrawnAtOffset(104, 0);
@@ -162,7 +162,7 @@ internal static class ChargeFlarePlacementVerification
             subject.HyperBeamEnabled = hyper;
             original = SpriteFrameBuffer.DrawnOam(frame => hyperSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 hyperSystem.AdvanceChargeFlare(subject), null,
-                new ChargeFlareArtwork { Placement = stock, Objects = objects }));
+                new ChargeFlareArtwork { Placement = stock, Sheets = objects }));
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
         }
         var document = RequiredJson.Parse(json);

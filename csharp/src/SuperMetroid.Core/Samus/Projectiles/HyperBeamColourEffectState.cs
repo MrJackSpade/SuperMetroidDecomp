@@ -10,9 +10,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// started when Samus receives the Hyper Beam.
 /// </summary>
 /// <remarks>
-/// The state retains the animation position and timer. Fixed animation control is
-/// compiled separately from the live colours so presentation replacement cannot
-/// silently change engine cadence or route restored state into adjacent game data.
+/// The effect keeps its place in the beams' colour animation and the hold of the shade it shows; the installed colours
+/// change only what each shade looks like, never when it shows.
 /// </remarks>
 public sealed class HyperBeamColourEffectState
 {
@@ -22,7 +21,7 @@ public sealed class HyperBeamColourEffectState
     /// <summary>Where the Hyper Beam's colour animation resumes between updates.</summary>
     internal AnimationPlace Place { get; private set; }
 
-    /// <summary>True after equipping the Hyper Beam has spawned the object.</summary>
+    /// <summary>True once equipping the Hyper Beam has started the effect.</summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
@@ -40,9 +39,7 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public void Spawn()
     {
-        // Allocation clears the effect's colour step and auxiliary timer, installs timer
-        // one, then calls the object's no-op setup. This specialized state has no
-        // reusable fields to clear, but preserves every observable field and delay.
+        // The effect starts at its animation's first shade with a hold of one update, and shows nothing yet.
         IsActive = true;
         FrameHold = 1;
         ShownCycleShade = null;

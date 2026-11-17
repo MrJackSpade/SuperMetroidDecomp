@@ -711,9 +711,8 @@ public sealed class SamusShinesparkState
             collisionMagnitude = SignedSixteenSixteen.FromParts(ShinesparkDefinitions.MostRiseCollisionStep, collisionMagnitude.Fraction);
             upwardDisplacement = -collisionMagnitude;
         }
-        // Shinespark's solid-enemy branch sets collision and returns without
-        // adding the clipped distance to Y. The ordinary upward mover instead advances
-        // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
+        // A spark striking a solid enemy collides without moving up the distance to it, unlike an ordinary upward move,
+        // which reaches the enemy's edge; where the spark crashes and recovers depends on it.
         UnsignedSixteenSixteen enemyProbeDistance = UnsignedSixteenSixteen.FromDisplacement(collisionMagnitude);
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,

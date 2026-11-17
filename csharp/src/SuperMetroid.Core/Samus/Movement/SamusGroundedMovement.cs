@@ -180,8 +180,8 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>
-    /// Runs the grounded branches of turning around on the ground
-    /// and of turning around while jumping.
+    /// Moves Samus as she turns around on the ground
+    /// and as she turns around while jumping.
     /// The latter is misleading for the aimed crouching turns: crouched entry leaves no vertical
     /// direction, so the game runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>

@@ -155,7 +155,7 @@ public enum EnemyDefinitionId
     /// <remarks>Ceres Ridley, which shares Ridley's implementation.</remarks>
     RidleyCeres,
     /// <summary>Ridley, the boss of Lower Norfair.</summary>
-    /// <remarks>Selects the Lower Norfair boss branches of Ridley's shared implementation.</remarks>
+    /// <remarks>Ridley as the Lower Norfair boss, where Ceres Ridley's behaviour differs.</remarks>
     Ridley,
     /// <summary>One piece of Ridley's body as it breaks apart at his death.</summary>
     RidleyBreakupPiece,

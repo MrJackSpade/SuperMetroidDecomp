@@ -61,7 +61,7 @@ internal sealed class CeresFallingTiles
         {
             Position16<RoomPixels> impact = projectile.Position.Whole;
             projectile.Delete();
-            _projectiles.SpawnDustOrExplosion(impact, MiscDustAnimation.SmallDustCloud);
+            _projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.SmallDustCloud);
             _audio.QueueEnemySound(EnemySound.CeresTileFall, priority: SoundRequestPriority.Normal);
         }
     }

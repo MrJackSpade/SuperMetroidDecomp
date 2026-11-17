@@ -1,14 +1,14 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// Where a puff of smoke lands around the point it is spawned at (#2044): a point, or a box centred on it that one
 /// random sample scatters the puff across, one part of the sample across the box and another down it.
 /// </summary>
-internal static class MiscDustSmokePlacements
+internal static class SmokePuffPlacements
 {
     /// <summary>The puff appears at the point itself: its fields read no bits, so each has one outcome, zero.</summary>
-    internal static MiscDustPlacementDefinition Point { get; } = new(new(0, 0), new(8, 0), default);
+    internal static DustExplosionPlacement Point { get; } = new(new(0, 0), new(8, 0), default);
 
     /// <summary>The puff lands anywhere in a centred box 16 pixels wide and 32 tall.</summary>
-    internal static MiscDustPlacementDefinition CentredSixteenByThirtyTwoBox { get; } = new(new(0, 4), new(8, 5), new(-8, -16));
+    internal static DustExplosionPlacement CentredSixteenByThirtyTwoBox { get; } = new(new(0, 4), new(8, 5), new(-8, -16));
 }

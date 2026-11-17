@@ -1,7 +1,8 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Identities and tables owned by the Morph-Ball bomb producer.
+/// The Morph Ball's bombs: how many she can place, their fuses and the waits after them, and the charge and held Down a
+/// bomb spread takes.
 /// </summary>
 public static class MorphBallBombDefinitions
 {

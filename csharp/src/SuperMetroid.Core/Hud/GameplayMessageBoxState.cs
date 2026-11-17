@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Hud;
 /// button its panel names and the highlighted save choice, whose installed image the backend draws.
 /// </para>
 /// <para>
-/// This type handles the ordinary messages and the gunship's save confirmation. On YES the gunship branch keeps gameplay
+/// This type handles the ordinary messages and the gunship's save confirmation. On YES the gunship's save keeps gameplay
 /// paused through the saving sound and the completion notice.
 /// </para>
 /// </remarks>

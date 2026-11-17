@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -188,7 +188,7 @@ internal sealed class MotherBrainAscent
     {
         Position16<RoomPixels> position = state.Bursts.NextOf(MotherBrainAscentDustDefinitions.DustPositions);
         int random = _room.Random.Read();
-        MiscDustAnimation animation = MotherBrainRandomDefinitions.AscentDustBig.IsSetIn(random) ? MiscDustAnimation.ShortBigDustCloud : MiscDustAnimation.SmallDustCloud;
+        DustExplosionAnimation animation = MotherBrainRandomDefinitions.AscentDustBig.IsSetIn(random) ? DustExplosionAnimation.ShortBigDustCloud : DustExplosionAnimation.SmallDustCloud;
         _projectiles.SpawnDustOrExplosion(position, animation);
         _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.AscentDust);
     }

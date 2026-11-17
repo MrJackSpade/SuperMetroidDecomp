@@ -497,6 +497,18 @@ room's edge, what a reaction depends on, which way a distance lies, the roar end
 object, collection, field, property, array, static or module initializer), a projectile's branch and setup stay
 English.
 
+#2352 widens SME6454, outside hardware owners, to the machine's storage and the original's code told in projectile and
+Samus prose: a position, velocity, speed or fraction overflow (`1/65536-pixel position overflow`); a range named by its
+1/N-pixel storage (`far inside the 1/256-pixel range`); a scan's, target, collision or solid counter (`clears both scan
+counters`); state that lies below what a clear reaches; an allocation that clears or installs and routes that allocate
+(`Allocation clears the step`, `the collision routes allocate the trigger`); a check that runs to confirm a value (`the
+radius check runs every update ... to confirm it`); and the original's code branches: this, that, both or every branch,
+a branch of a step or calculation, a branch taken, entered, selected or run (`takes the dud branch`), a branch that
+returns, writes, restores or moves something, a branch order and branching straight to something. Core says what the
+game does in that case: a hit with no damage is a dud, the camera scrolls slowly, a block stops the shot, the effect
+starts at its first shade. A room's state choice's branches, a projectile's or an afterburn's branches, an animation that
+branches to another, a sum that overflows and a range in pixels stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

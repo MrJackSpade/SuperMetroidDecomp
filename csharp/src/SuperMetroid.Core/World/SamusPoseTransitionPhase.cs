@@ -185,7 +185,7 @@ internal sealed class SamusPoseTransitionPhase
         // spike reactions only publish their damage request; this common interruption
         // converts that request into the same hurt pose and knockback movement owner
         // used by every damage producer. The animation's pending transition pose retains
-        // its higher pose-update priority and therefore suppresses this branch.
+        // its higher pose-update priority and therefore suppresses this interruption.
         if (!animationTransitionApplied &&
             SamusKnockbackMovement.TryStartPendingHitInterruption(
                 samus,
@@ -302,8 +302,9 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // The wall-stop check runs inside the pose update after movement/animation and
-        // only when no animation or interruption transition has already won. Its first
-        // branch reads whether this update's running movement stopped her speed against a wall. This creates a wall-stop pose even with no input match.
+        // only when no animation or interruption transition has already won. It first
+        // reads whether this update's running movement stopped her speed against a wall. This creates a wall-stop pose
+        // even with no input match.
         // An unobstructed upward platform carry leaves the prospective input
         // pose intact too, so the one-pixel run check runs while a Kamer carries Samus upward.
         // A special movement owner can also retain a standing/running pose
@@ -360,7 +361,7 @@ internal sealed class SamusPoseTransitionPhase
         // Morph landing has its own prospective-pose and collision tables. A hard
         // impact retains the falling morph ball poses and launches the first bounce; the next collision
         // launches the second bounce; only a gentle or second-bounce collision installs
-        // the grounded morph ball poses. Treat every branch as a consumed transition so input
+        // the grounded morph ball poses. Every one of these outcomes consumes the transition, so input
         // selected before collision cannot override the game's bounce result.
         // The collision table ignores the ground family's SamusMovementType.MorphBallGround, even if hurt
         // movement left that pose with nonzero Y speed. Do not infer an airborne

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -127,9 +128,9 @@ internal sealed class MotherBrainThirdPhaseDeath
 
         // The escape-door dust advances the one shared RNG exactly once per emitted projectile.
         // Its smoke chance selects the smoke animation; every other sample retains the preloaded small explosion.
-        MiscDustAnimation animation = MotherBrainRandomDefinitions.EscapeDoorDustSmokes.IsTakenBy(nextRandomNumber())
-            ? MiscDustAnimation.Smoke
-            : MiscDustAnimation.SmallExplosion;
+        DustExplosionAnimation animation = MotherBrainRandomDefinitions.EscapeDoorDustSmokes.IsTakenBy(nextRandomNumber())
+            ? DustExplosionAnimation.Smoke
+            : DustExplosionAnimation.SmallExplosion;
         return new DustExplosionRequest(
             Position: position,
             Animation: animation,

@@ -1,10 +1,10 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The fourteen misc-dust and explosion animations a spawner of the dust-cloud-or-explosion enemy projectile asks for.
+/// The fourteen dust clouds, explosions, smoke puffs and particles a spawner of a dust cloud or explosion asks for.
 /// Their values are arbitrary; they are declared in the order the animations are authored.
 /// </summary>
-public enum MiscDustAnimation
+public enum DustExplosionAnimation
 {
     /// <summary>Mother Brain's elbow charge particle.</summary>
     MotherBrainElbowChargeParticle,

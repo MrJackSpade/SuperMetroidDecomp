@@ -39,9 +39,7 @@ internal sealed class ProjectileMotion
             return;
         }
 
-        // The trail beam's update allocates a persistent trail before applying acceleration or movement.
-        // Thus the detached 8x8 sprite records the beam's old world position and visibly falls
-        // behind it. Failure to preserve this order makes the trail sit inside the projectile.
+        // A beam leaves its trail where it is before it accelerates and moves, so the trail falls behind it.
         shot.TrailTimer = shot.TrailTimer.Decrement().Remaining;
         if (shot.TrailTimer.IsZero)
         {
@@ -356,9 +354,8 @@ internal sealed class ProjectileMotion
         link.IsSpent = owner.IsSpent;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
-        // The Super Missile link deliberately calls the ordinary muzzle setup again after copying
-        // the owner's coordinates. At ignition both positions are equivalent; retaining the
-        // call matters for moving/transition poses whose origin tables can change.
+        // The link then takes the muzzle's position for Samus's pose as it is now, over the owner's coordinates; the two
+        // differ when her pose's muzzle has moved since the owner was placed.
         BeamFiring.InitializePosition(samus, link);
         const SamusProjectileKind kind = SamusProjectileKind.SuperMissileLink;
         link.Damage = SamusProjectileDamage.Read(kind);
@@ -495,10 +492,7 @@ internal sealed class ProjectileMotion
 
         RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
 
-        // Extension blocks end the step with a repeat result, causing the same
-        // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour
-        // extension is transparent. Reuse the level resolver so missiles
-        // and the broad Samus body scans cannot disagree about chained extensions.
+        // An extension block reacts as the block it leads to, as it does for Samus's body; one that leads nowhere is air.
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
@@ -517,12 +511,8 @@ internal sealed class ProjectileMotion
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // Bombable reactions always index the bomb-block room-object table for nonnegative behaviour.
-            // A missile or Super Missile still spawns the room object, but the bomb-block setup
-            // immediately clears the new room object because its family is neither a bomb
-            // nor a power bomb; no terrain write, timer, sound, or persistent room object survives that update.
-            // Whether the block stops the missile is independent of setup: bombable air passes through,
-            // while bombable solid destroys the missile.
+            // A bombable block answers only bombs and Power Bombs, so a missile leaves it as it was: bombable air lets the
+            // missile pass and a bombable block stops it.
             return block.CollisionType == RoomCollisionType.BombableBlock;
         }
         return block.CollisionType switch
@@ -540,8 +530,8 @@ internal sealed class ProjectileMotion
             RoomCollisionType.SpecialBlock or
             RoomCollisionType.GrappleBlock => true,
 
-            // Missile slope collision divides slope behaviour values into the five square definitions and
-            // the remaining 27 pixel-height definitions. Both paths use the missile center.
+            // A slope stops a missile by where its centre lies: in a square slope's solid quarter, or below another
+            // slope's surface.
             RoomCollisionType.Slope =>
                 MissileSlopePointReaction(block, shot),
 
@@ -560,7 +550,7 @@ internal sealed class ProjectileMotion
         };
     }
 
-    /// <summary>Tests the missile center against mirrored height tables or the selected square-slope quadrant.</summary>
+    /// <summary>Tests the missile's centre against a slope's mirrored surface, or the square slope's quarter it lies in.</summary>
     internal static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
         SamusProjectile shot)
@@ -568,10 +558,9 @@ internal sealed class ProjectileMotion
         SlopeShape slopeShape = block.Behavior.Slope.Shape;
         if (!slopeShape.IsSquare)
         {
-            // Non-square slope collision mirrors the projectile's within-block coordinate before indexing
-            // the game table: the behaviour's flips mirror X and Y. A table height at or
-            // above the mirrored Y point (`height - y <= 0`, signed) is
-            // solid. Values can reach 20 for overhanging shapes, so do not reduce them modulo 16.
+            // The block's flips mirror the centre's place within the block, and the missile stops when that place lies at
+            // or below the slope's surface. An overhanging shape's surface can lie below the block, where the centre never
+            // reaches it.
             int xInBlock = RoomGridConversions.OffsetWithinBlock(shot.Position.X.Whole, mirrored: block.Behavior.Slope.FlipsHorizontally);
             int yInBlock = RoomGridConversions.OffsetWithinBlock(shot.Position.Y.Whole, mirrored: block.Behavior.Slope.FlipsVertically);
 

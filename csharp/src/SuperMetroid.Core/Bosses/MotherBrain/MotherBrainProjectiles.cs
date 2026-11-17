@@ -308,7 +308,7 @@ internal sealed class MotherBrainProjectiles
 
                 Position16<RoomPixels> position = bomb.Position.Whole;
                 DeleteMotherBrainBomb(bomb, state);
-                dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallDustCloud);
+                dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallDustCloud);
                 dependencies.DeathsAndDrops.SpawnEnemyDropFromDefinition(
                     position,
                     state.Head.DefinitionId,
@@ -336,7 +336,7 @@ internal sealed class MotherBrainProjectiles
                 Axis.Horizontal,
                 impact,
                 afterburnCount);
-            dependencies.Projectiles.SpawnDustOrExplosion(impact, MiscDustAnimation.SmallExplosion);
+            dependencies.Projectiles.SpawnDustOrExplosion(impact, DustExplosionAnimation.SmallExplosion);
             dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
         }
 
@@ -371,7 +371,7 @@ internal sealed class MotherBrainProjectiles
             {
                 dependencies.Projectiles.SpawnDustOrExplosion(
                     new(projectile.Position.X.Whole, projectile.Position.Y.Whole + MotherBrainTubeCollapseDefinitions.CeilingTubeDustBelow),
-                    MiscDustAnimation.SmallDustCloud);
+                    DustExplosionAnimation.SmallDustCloud);
                 tube.DustPending = false;
             }
 
@@ -383,7 +383,7 @@ internal sealed class MotherBrainProjectiles
 
             Position16<RoomPixels> position = projectile.Position.Whole;
             projectile.Delete();
-            dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.Smoke);
+            dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.Smoke);
         }
 
         /// <summary>Moves the glass shard.</summary>
@@ -469,7 +469,7 @@ internal sealed class MotherBrainProjectiles
                 beam.Delete();
                 dependencies.Projectiles.SpawnDustOrExplosion(
                     impact,
-                    MiscDustAnimation.BigExplosion);
+                    DustExplosionAnimation.BigExplosion);
                 dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
                 dependencies.Earthquake.Start(MotherBrainFightDefinitions.ProjectileExplosionShake, MotherBrainFightDefinitions.ProjectileExplosionShakeUpdates);
                 return;
@@ -572,7 +572,7 @@ internal sealed class MotherBrainProjectiles
             // allocator reuses this place in the projectile pool, the outer projectile pass will advance
             // the newborn dust animation during the same pass.
             ring.Delete();
-            dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallExplosion);
+            dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallExplosion);
             dependencies.Encounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
         }
 
@@ -597,7 +597,7 @@ internal sealed class MotherBrainProjectiles
             {
                 Position16<RoomPixels> position = turret.Position.Whole;
                 turret.Delete();
-                dependencies.Projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.Smoke);
+                dependencies.Projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.Smoke);
                 return;
             }
 

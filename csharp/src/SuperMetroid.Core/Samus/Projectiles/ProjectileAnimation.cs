@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>The projectile animation player and drawing: ending shots, live projectile and charge-flare sprites, flare animation state and the suit shade the flare restores.</summary>
 internal sealed class ProjectileAnimation
 {
-    /// <summary>Owns charge-flare frame and countdown arrays advanced by the animation.</summary>
+    /// <summary>The charge flare, whose components' pictures and waits the animation steps.</summary>
     private readonly BeamChargeState _charge;
     /// <summary>Owns the shot count reduced when a delete cue ends a projectile.</summary>
     private readonly SamusShotPool _pool;
@@ -35,7 +35,7 @@ internal sealed class ProjectileAnimation
         if (!shot.FrameHold.IsZero)
             return false;
         AnimationPlayback<SamusProjectileSegment> playback = shot.Playback
-            ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
+            ?? throw new InvalidOperationException("An ended projectile has no animation to play.");
         if (SamusProjectilePlayback.PlayToNextFrame(ref playback, out int duration) is not { } frame)
         {
             ClearProjectile(shot);
@@ -56,7 +56,7 @@ internal sealed class ProjectileAnimation
         _pool.ShotCount.CountDeletion();
     }
 
-    /// <summary>Publishes an installed projectile composition when its screen origin passes horizontal and vertical clipping.</summary>
+    /// <summary>Draws a shot's picture where it lies; the display clips it to the view.</summary>
     internal static void DrawShot(
         SpriteFrameBuffer sprites,
         SpriteSource source,
@@ -113,10 +113,8 @@ internal sealed class ProjectileAnimation
     {
         Offset16<RoomPixels> visualOffset = artwork.Placement.Resolve(pose.Running, pose.Aim);
 
-        // The flare draw applies Ceres's rotation whenever the body renderer does, under the same
-        // Ceres status. Only Samus's center is transformed; the pose-selected muzzle
-        // offsets are added afterward. The game then restores Samus's world point, so this path
-        // must never write the public physics coordinates merely to reuse the arithmetic.
+        // The flare turns with Ceres's turning floor whenever Samus's body does. Only Samus's centre turns; the muzzle
+        // offsets her pose selects are added after, and her position itself is unchanged.
         var samusPosition = samus.Position.Whole;
         Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(samusPosition)
@@ -131,7 +129,7 @@ internal sealed class ProjectileAnimation
             return;
         ProjectileSpriteId picture = ChargeFlarePictures.Of(component, pose.FacingLeft, shownPlace);
         // The flare is Samus's own charge, so it shows the sheet of the beams she has equipped (#1586).
-        SpriteSheetFrame image = artwork.Objects.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
+        SpriteSheetFrame image = artwork.Sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(picture));
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare), image,
             place, SpriteMirror.None));
     }
@@ -142,7 +140,7 @@ internal sealed class ProjectileAnimation
         _charge.ClearFlare();
     }
 
-    /// <summary>Restores sixteen suit colors from installed artwork.</summary>
+    /// <summary>Shows the shade of the suit Samus has equipped again.</summary>
     internal static void ShowSuitShade(
         SamusColours colours,
         SamusState samus) =>

@@ -190,8 +190,7 @@ public sealed class SamusBombProjectileSystem
 
         // The cooldown runs before the movement type's own HUD step. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
-        // The forward-facing branch skips this update as well
-        // as the HUD producer, but must still run the bombs already out below.
+        // A forward-facing pose skips the cooldown and the placing of bombs, but the bombs already out still run below.
         // The stationary lock's input mode runs the projectile update directly, skipping the HUD
         // step that owns cooldown and new bomb placement.
         if (samus.Control.Mode.Movement != SamusMovementMode.ScriptLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
@@ -298,19 +297,15 @@ public sealed class SamusBombProjectileSystem
 
         foreach (SamusBomb bomb in InUpdateOrder)
         {
-            // Power bombs and normal bombs both use the same projectile
-            // timed-frame animation. The large power-bomb flash itself is a glowing
-            // window and is composed separately from the sprites.
+            // Bombs and Power Bombs show their animations' pictures; a Power Bomb's large flash is its blast's glowing
+            // window, drawn apart from them.
             SamusProjectileFamily family = bomb.Type.Family;
             if (bomb.Playback is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
-            // The projectile draw suppresses power bombs as soon as their shared
-            // projectile value reaches zero. The fuse publishes that zero on
-            // the detonation frame, so the small placed-bomb sprite must disappear exactly
-            // when the large explosion effect begins. Normal bomb explosions keep
-            // drawing their frames with a zero BombTimer and are unaffected.
+            // A Power Bomb's own picture disappears on the update its fuse runs out, as its blast begins; a bomb's
+            // explosion goes on showing its pictures after its fuse has run out.
             if (family == SamusProjectileFamily.PowerBomb && bomb.BombTimer.IsZero)
                 continue;
 
@@ -464,8 +459,8 @@ public sealed class SamusBombProjectileSystem
         if (!shootHeld)
         {
             // The Morph Ball step cancels a charge before it reads the HUD selection: releasing Shoot cancels it even
-            // with Power Bombs selected, and only held Shoot reaches their branch. The Morph Ball update applies the
-            // cancelled charge's shade and sound.
+            // with Power Bombs selected, and only with Shoot held do the Power Bombs come into it. The Morph Ball update
+            // applies the cancelled charge's shade and sound.
             return samus.BeamCharge.IsCharging
                 ? BombSpreadAdmission.ChargeCancelled
                 : BombSpreadAdmission.NotApplicable;
@@ -640,8 +635,7 @@ public sealed class SamusBombProjectileSystem
             }
             else if (bomb.BombTimer.IsZero)
             {
-                // The explosion reads the animation embedded in the bomb-explosion data
-                // record and resets the animation timer to one.
+                // The fuse running out starts the bomb's explosion animation, which shows its first picture next.
                 bomb.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BombExplosion);
                 bomb.FrameHold = WrappingCountdown.Start(1);
                 explosionStarted = true;
@@ -858,17 +852,13 @@ public sealed class SamusBombProjectileSystem
         int y = bombedBlock.Y;
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
 
-        // The block reactions do not react to an extension block directly. A nonzero signed
-        // behaviour redirects the current block horizontally (a horizontal extension) or by whole room rows
-        // (a vertical extension), then the reaction restarts so the resolved parent
-        // reacts again. A zero-behaviour extension is simply air for this reaction.
+        // A bombed extension block reacts as the block it leads to, across or by whole rows; one that leads nowhere is air.
         RoomCollisionBlock block = visitedBlock;
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
 
-        // The item-trigger collision behaviour routes to the already-loaded item object rather than
-        // indexing the ordinary bomb/special-block tables. Visible special-block frames need no
-        // additional response; concealed shootable/orb frames publish the generic trigger.
+        // A bombed item block, special or shootable, tells the item room object at it of the hit, and no other reaction
+        // runs.
         if (block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior.Special == SpecialBlockReaction.CollectibleTrigger ||
             block.CollisionType == RoomCollisionType.ShootableBlock && block.Behavior.Shootable == ShootableReaction.CollectibleTrigger)
         {
@@ -876,10 +866,9 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // The shot reaction selects the temporary generic trigger room object for both solid-block collision and
-        // shootable collision with the resident-object trigger behaviour. Its setup deletes that temporary
-        // object, finds the resident actor at the same block, and publishes this projectile. The n00b tube begins as a solid block but its intact draw changes the live origin
-        // to a shootable block, so narrowing this seam to colored doors strands the progression room object.
+        // A bombed solid or shootable block holding a resident room object's trigger tells that room object the
+        // projectile's type. Coloured doors are such blocks, and so is the intact n00b tube, a solid block its intact
+        // picture makes shootable.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
             block.Behavior.Shootable == ShootableReaction.ResidentObjectTrigger)
         {

@@ -161,8 +161,7 @@ public sealed class SamusState
     public int ExtraAnimationDelay { get; internal set => field = Ensure.BetweenInclusive(0, SamusHorizontalSpeedState.LargestSlowdownLevel, value); }
 
     /// <summary>
-    /// Exact fixed-point horizontal speeds used by ordinary grounded
-    /// right-running movement.
+    /// Her horizontal speed: her running and momentum speeds, the Speed Booster's boost and how slowed she is.
     /// </summary>
     public SamusHorizontalSpeedState HorizontalSpeed { get; }
 
@@ -177,10 +176,14 @@ public sealed class SamusState
     public SamusPeriodicDamage PeriodicDamage { get; } = new();
 
     /// <summary>
-    /// The room Samus is in, which her footstep and landing effects read by area and room. Every room load sets it;
-    /// until the first does, it is Landing Site, the room the game's cleared area and room state name.
+    /// The room Samus is in, which her footstep and landing effects read by area and room; null until the first room loads.
+    /// Every room load sets it.
     /// </summary>
-    public RoomDefinition Room { get; set; } = RoomDefinitions.LandingSite;
+    public RoomDefinition? Room { get; set; }
+
+    /// <summary>The room Samus is in, read by her footstep and landing effects once a room has loaded.</summary>
+    /// <exception cref="InvalidOperationException">No room has loaded yet.</exception>
+    internal RoomDefinition LoadedRoom => Room ?? throw new InvalidOperationException("Samus's room is read before any room has loaded.");
 
     /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
@@ -342,13 +345,13 @@ public sealed class SamusState
     public HudItem AutoCancelledItem { get; set; }
 
     /// <summary>
-    /// Equipped beam bitfield. Equipping the Hyper Beam in the drain replaces
-    /// this with the exact charge/wave/plasma plus hyper-beam configuration.
+    /// The beams she has equipped. Equipping the Hyper Beam in the drain replaces them with Charge, Wave and Plasma and
+    /// the Hyper Beam.
     /// </summary>
     public SamusBeamFlags EquippedBeams { get; set; }
 
     /// <summary>
-    /// Collected-beam bitfield. Unlike
+    /// The beams she has collected. Unlike
     /// <see cref="EquippedBeams"/>, this retains beams disabled from the pause equipment
     /// screen and is therefore the authoritative ownership record the save file keeps.
     /// </summary>
@@ -397,7 +400,7 @@ public sealed class SamusState
     public SamusEquipmentFlags EquippedItems { get; set; }
 
     /// <summary>
-    /// Collected-item bitfield. This normally contains
+    /// The items she has collected. This normally contains
     /// every equipped item, but equipment-menu toggles can make the two sets differ. Enemy
     /// logic such as the morph-ball eye tests ownership through this set specifically.
     /// </summary>
@@ -475,8 +478,7 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// The grapple-beam state. Keeping this as a named child object makes the grapple
-    /// values individually watchable without polluting ordinary Samus kinematics.
+    /// Her grapple beam: its phase, its anchor and her swing on it.
     /// </summary>
     public SamusGrappleState Grapple { get; }
 
@@ -663,8 +665,7 @@ public sealed class SamusState
             enemyAdjustment = above ? opposite.Distance : -opposite.Distance;
         }
 
-        // The probes run against independent copies. The game stores both available-distance
-        // results before choosing a branch, so neither probe may move the live body early.
+        // Both probes test the room from where her body stands now, on copies of it; neither moves her.
         BlockMoveResult upward = ProbeChangedPoseVertical(
             level,
             displacement: SignedSixteenSixteen.FromWholePixels(-radiusDifference),
@@ -679,9 +680,7 @@ public sealed class SamusState
         if (upward.Collided && downward.Collided)
         {
             centerAdjustment = 0;
-            // Compares the OLD live radius with eight. Radius seven means
-            // Morph Ball, and that branch restores PreviousPose instead of trying to fit
-            // stable crouch. Every non-morph compact/standing body still uses crouch.
+            // A body shorter than an upright one, the Morph Ball's, keeps its previous pose; any other body crouches.
             return Kinematics.Radius.Y < SamusPoseCollisionDefinitions.SmallestUprightYRadius
                 ? LargerPoseCollisionOutcome.RetainSource
                 : LargerPoseCollisionOutcome.CrouchFallback;
@@ -690,14 +689,13 @@ public sealed class SamusState
         centerAdjustment = 0;
         if (downward.Collided)
         {
-            // Move away from the floor by
-            // the radius difference less the space to move down, preserving the old bottom boundary.
+            // She moves up, away from the floor, by the radius difference less the room she has below, so her feet stay
+            // where they were.
             int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement.WholePixels);
             centerAdjustment = -(radiusDifference - freeWholePixels);
 
-            // Checks the proposed upward correction against the opposite side.
-            // A collision here takes the collision exit and restores PreviousPose; it does not use
-            // the crouch selector because the initial flags were not both set.
+            // The move up is tested against the ceiling. A hit keeps her previous pose; she does not crouch, since only one
+            // side blocked her at first.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
                 level,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
@@ -710,12 +708,11 @@ public sealed class SamusState
         }
         else if (upward.Collided)
         {
-            // Is the mirror: move down only as far as necessary to clear the
-            // ceiling while admitting the enlarged body.
+            // She moves down, away from the ceiling, only as far as her larger body needs.
             int freeWholePixels = Math.Max(0, -upward.AcceptedDisplacement.WholePixels);
             centerAdjustment = radiusDifference - freeWholePixels;
 
-            // Is the downward mirror of the opposite-side check above.
+            // The move down is tested against the floor, as the move up is against the ceiling.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
                 level,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
@@ -733,9 +730,8 @@ public sealed class SamusState
             centerAdjustment = enemyAdjustment;
         }
 
-        // The game's successful correction branches publish current AND previous Y.
-        // A zero correction in a collision branch still performs that write;
-        // the no-collision branch does not replace the scrolling checkpoint.
+        // When any probe hit, the correction also sets her previous vertical position, even a correction of zero; when
+        // none hit, her previous vertical position is left as it was.
         if (upward.Collided || downward.Collided || enemyUp.Collided || enemyDown.Collided)
             WritePreviousYPosition(CoordinateAxis.Wrap(Kinematics.Position.Y.Whole + centerAdjustment));
         return LargerPoseCollisionOutcome.Allowed;
@@ -913,9 +909,8 @@ public sealed class SamusState
     public SamusHealthWarningState HealthWarning => field ??= new();
 
     /// <summary>
-    /// Copies the inventory and energy, which lie below the Samus
-    /// state that Samus's initialization clears. A Samus created
-    /// fresh and given these values is the initialization's result for the same player.
+    /// Copies the inventory and energy from <paramref name="source"/>: what Samus keeps when she is set up again. A Samus
+    /// created fresh and given these values is the same player set up again.
     /// </summary>
     internal void CopyInventoryFrom(SamusState source)
     {

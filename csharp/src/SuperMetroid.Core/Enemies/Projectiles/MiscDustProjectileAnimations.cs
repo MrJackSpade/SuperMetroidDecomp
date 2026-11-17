@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Animation;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
-using P = SuperMetroid.Core.Samus.Projectiles.MiscDustAnimation;
-using SuperMetroid.Core.Samus.Projectiles;
+using P = SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -12,8 +11,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 internal static class MiscDustProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MiscDustAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<MiscDustAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<DustExplosionAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.MotherBrainElbowChargeParticle] =
         [
@@ -164,7 +163,7 @@ internal static class MiscDustProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MiscDustAnimation, Animation<MiscDustAnimation>> StartingAt { get; } = new Dictionary<MiscDustAnimation, Animation<MiscDustAnimation>>
+    internal static IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new Dictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>>
     {
         [P.MotherBrainElbowChargeParticle] = new([new(P.MotherBrainElbowChargeParticle, 0, 7, 1)], AnimationEnd.Holds),
         [P.MotherBrainElbowChargeEnergy] = new([new(P.MotherBrainElbowChargeEnergy, 0, 8, 1)], AnimationEnd.Holds),
@@ -184,8 +183,8 @@ internal static class MiscDustProjectileAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is not one of the fourteen animations.</exception>
-    internal static Animation<MiscDustAnimation> StartingWith(MiscDustAnimation segment) =>
-        StartingAt.TryGetValue(segment, out Animation<MiscDustAnimation>? animation)
+    internal static Animation<DustExplosionAnimation> StartingWith(DustExplosionAnimation segment) =>
+        StartingAt.TryGetValue(segment, out Animation<DustExplosionAnimation>? animation)
             ? animation
             : throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined misc-dust animation.");
 

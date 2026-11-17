@@ -429,8 +429,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The speed slows toward the terminal speed and then holds it; neither step leaves the 1/256-pixel range, as the speed
-        // starts at the launch speed and only moves toward the terminal speed.
+        // The speed slows toward the terminal speed and then holds it, starting at the launch speed and only moving toward
+        // the terminal speed.
         SignedEightEight velocity = projectile.Velocity.X;
         if (velocity.IsNegative)
         {

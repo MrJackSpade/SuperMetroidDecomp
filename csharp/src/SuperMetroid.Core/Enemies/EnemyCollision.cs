@@ -385,7 +385,7 @@ internal sealed class EnemyCollision
     /// <summary>
     /// Runs common normal-shot damage (#2255), the shared step of every shot reaction that deals ordinary damage, the
     /// ordinary pass's and the bosses' own: the enemy's vulnerability to <paramref name="projectileType"/> freezes it
-    /// outright, or takes the dud branch when the damage is zero, or hurts it. A hurt enemy flashes, is hurt, cries unless
+    /// outright, or makes the shot a dud when the damage is zero, or hurts it. A hurt enemy flashes, is hurt, cries unless
     /// frozen, takes Plasma's invincibility, and loses the damage, a lethal Ice-bearing beam freezing it instead where its
     /// vulnerability allows. The death and the hit burst that follow are the reaction's.
     /// </summary>
@@ -414,8 +414,7 @@ internal sealed class EnemyCollision
         int damage = shotVulnerability.DamageFrom(projectileDamage);
         if (damage == 0)
         {
-            // A zero-damage hit enters the dud branch even for Plasma: immunity removes
-            // the projectile instead of letting its ordinary piercing rule win.
+            // A zero-damage hit is a dud even for Plasma: the immune enemy removes the shot, which does not pierce it.
             _projectiles.CreateEnemyProjectileDudShot(projectile);
             return NormalShotHit.Dud;
         }
@@ -809,7 +808,7 @@ internal sealed class EnemyCollision
                 PreventsLethalFreeze: beam.PreventsLethalFreeze);
         }
 
-        // A charged shot takes the charged-beam multiplier instead; zero takes the dud-shot branch.
+        // A charged shot takes the charged-beam multiplier instead; zero makes the shot a dud.
         int multiplier = projectileType.IsChargedBeam ? vulnerabilities.ChargedBeam.Multiplier : beam.Multiplier;
         return new NormalShotVulnerability(
             multiplier,
@@ -1017,7 +1016,7 @@ internal sealed class EnemyCollision
 
         // Touch damage shows the hurt flash alone, unlike projectile and
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
-        // explicitly cleared because this branch represents Samus attacking the enemy.
+        // cleared, because Samus touching it this way is Samus attacking the enemy.
         enemy.FlashTimer = enemy.HurtFlashFrames;
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.InvincibilityTimer = WrappingCountdown.Start(0);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.EyeDoor;
@@ -33,14 +34,14 @@ internal static class EyeDoorEffectDefinitions
     internal static readonly Offset16<RoomPixels> SmokeCentre = new(8, 8);
 
     /// <summary>The dust animation of the opening's scattered smoke puffs.</summary>
-    internal const MiscDustAnimation ScatteredSmokeAnimation = MiscDustAnimation.CorpseDustCloud;
+    internal const DustExplosionAnimation ScatteredSmokeAnimation = DustExplosionAnimation.CorpseDustCloud;
 
     /// <summary>The scattered puffs land anywhere in a centred box 16 pixels wide and 32 tall.</summary>
-    internal static MiscDustPlacementDefinition ScatteredSmokePlacement => MiscDustSmokePlacements.CentredSixteenByThirtyTwoBox;
+    internal static DustExplosionPlacement ScatteredSmokePlacement => SmokePuffPlacements.CentredSixteenByThirtyTwoBox;
 
     /// <summary>The dust animation of the smoke puff centred on the eye.</summary>
-    internal const MiscDustAnimation CenteredSmokeAnimation = MiscDustAnimation.EyeDoorSmokePuff;
+    internal const DustExplosionAnimation CenteredSmokeAnimation = DustExplosionAnimation.EyeDoorSmokePuff;
 
     /// <summary>The centred puff appears at a single point.</summary>
-    internal static MiscDustPlacementDefinition CenteredSmokePlacement => MiscDustSmokePlacements.Point;
+    internal static DustExplosionPlacement CenteredSmokePlacement => SmokePuffPlacements.Point;
 }

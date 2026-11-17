@@ -139,10 +139,8 @@ internal sealed class ProjectileEnemyImpacts
     /// Applies intro Mother Brain's external projectile test.
     /// </summary>
     /// <remarks>
-    /// The cinematic scans the shots from the highest place down for the first ordinary missile
-    /// and only kills it once its signed X coordinate
-    /// is below 84. This is not terrain collision, so the actor owns the predicate while
-    /// the projectile system owns the exact impact conversion.
+    /// The first missile in update order explodes once it crosses <paramref name="impactLine"/>, flying left; the
+    /// cinematic sets the line and the projectile system explodes the missile as a wall does.
     /// </remarks>
     public bool TryImpactIntroMotherBrainMissile(
         SamusBombProjectileSystem sharedProjectiles,

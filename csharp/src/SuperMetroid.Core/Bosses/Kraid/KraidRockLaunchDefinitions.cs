@@ -20,8 +20,8 @@ public static class KraidRockLaunchDefinitions
     /// </summary>
     /// <remarks>
     /// The rock spit selects a launch category from the sample divided by 2, modulo 8, not a motion
-    /// sample or chronological random-number generator. Preserve the game's
-    /// branch assignment even though each speed has the same one-quarter weight.
+    /// sample or chronological random-number generator. Each speed keeps the two choices the game gives it, though
+    /// every speed has the same one-quarter weight.
     /// </remarks>
     public static SignedEightEight FromRandom(int random) => Speeds[LaunchChoice.Of(random)];
 

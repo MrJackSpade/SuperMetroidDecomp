@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -31,7 +32,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
             LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
-            DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
+            DeathExplosion: new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
             BabyFadeImage: null, RecoveryLightsImage: null, StartedAnimation: null, Visibility: BabyMetroidVisibilityRequest.Unchanged);
 
         runtime.Enemies.Audio.BeginFrame();
@@ -46,8 +47,8 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         {
             DeathExplosions = [],
             EscapeColourEffectRequests = [], EscapeDoorParticleSpawns = [],
-            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: EnemySound.LiquidDamage)],
-            EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, EnemySound.SmallExplosion),
+            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), DustExplosionAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: EnemySound.LiquidDamage)],
+            EscapeDoorExplosion = new DustExplosionRequest(new(0x0080, 0x0080), DustExplosionAnimation.SmallExplosion, EnemySound.SmallExplosion),
         };
         runtime.Enemies.Audio.BeginFrame();
         runtime.Enemies.MotherBrainBehavior.RainbowAndDeath.ApplyLiveMotherBrainDeath(state, death);

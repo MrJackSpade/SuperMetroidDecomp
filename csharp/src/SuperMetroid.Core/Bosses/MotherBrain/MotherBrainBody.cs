@@ -126,7 +126,7 @@ internal sealed class MotherBrainBody
                 // two identical fixed room objects. Requests remain ordered because the room-object
                 // allocator searches the same descending pool for each request.
                 foreach (Position16<RoomPixels> dust in MotherBrainFightDefinitions.SealedWallDust)
-                    _projectiles.SpawnDustOrExplosion(dust, MiscDustAnimation.SmallDustCloud);
+                    _projectiles.SpawnDustOrExplosion(dust, DustExplosionAnimation.SmallDustCloud);
                 foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> wall in MotherBrainFightDefinitions.SealedWall)
                     _access.RequestMotherBrainObject(wall.Block, wall.RoomObject);
                 state.DescentPhase = MotherBrainDescentPhase.InitialPause;

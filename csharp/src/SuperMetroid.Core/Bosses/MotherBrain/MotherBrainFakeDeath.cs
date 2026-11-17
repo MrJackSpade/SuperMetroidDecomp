@@ -96,9 +96,9 @@ internal sealed class MotherBrainFakeDeath
 
         // The tube dust reads the current random number and never draws a new one. Drawing a new
         // number here would desynchronize every later Rinka and phase-two attack decision.
-        MiscDustAnimation animation = MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(_room.Random.Read())
-            ? MiscDustAnimation.Smoke
-            : MiscDustAnimation.SmallExplosion;
+        DustExplosionAnimation animation = MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(_room.Random.Read())
+            ? DustExplosionAnimation.Smoke
+            : DustExplosionAnimation.SmallExplosion;
         _projectiles.SpawnDustOrExplosion(explosion, animation);
         _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
@@ -365,7 +365,7 @@ internal sealed class MotherBrainFakeDeath
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
         _projectiles.SpawnDustOrExplosion(
             new(tube.Position.X.Whole + MotherBrainTubeCollapseDefinitions.SmokeXOffsets[tubeState.SmokePositionIndex], MotherBrainTubeCollapseDefinitions.SmokeY),
-            MiscDustAnimation.SmallDustCloud);
+            DustExplosionAnimation.SmallDustCloud);
     }
 
     /// <summary>Finishes a falling tube with its explosion and block update.</summary>
@@ -373,7 +373,7 @@ internal sealed class MotherBrainFakeDeath
     {
         Position16<RoomPixels> position = tube.Position.Whole;
         tube.Presence = tube.Presence.With(EnemyPresence.Deleted);
-        _projectiles.SpawnDustOrExplosion(position, MiscDustAnimation.SmallExplosion);
+        _projectiles.SpawnDustOrExplosion(position, DustExplosionAnimation.SmallExplosion);
         _motherBrainEncounter.RequestBodySound(EnemySound.SmallExplosion);
     }
 

@@ -75,7 +75,7 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the elevator's visual frames.</summary>
     internal static int PreElevatorFrameCount => FramesBefore(EnemyFrameId.ElevatorPadUnlit);
     /// <summary>Frames the document lists before the Kamer platform frames.</summary>
-    internal static int PreKamerFrameCount => FramesBefore(EnemyFrameId.KamerLightDark);
+    internal static int PreKamerFrameCount => FramesBefore(EnemyFrameId.PlatformLightDark);
     /// <summary>Frames the document lists before the Fune and Namihe frames.</summary>
     internal static int PreFuneNamiheFrameCount => FramesBefore(EnemyFrameId.FuneFacingLeftMouthClosed);
     /// <summary>Frames the document lists before the Sbug frames.</summary>

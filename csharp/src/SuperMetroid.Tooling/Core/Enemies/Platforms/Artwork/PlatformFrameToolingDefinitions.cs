@@ -8,6 +8,6 @@ internal static class PlatformFrameToolingDefinitions
 {
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa3;
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(EnemyFrameId frame) => EnemyFrameCartridgeLookupTooling.Word(frame);
+    /// <summary>The spritemap <paramref name="frame"/> shows: its record in this bank (#2307).</summary>
+    internal static ushort Spritemap(EnemyFrameId frame) => EnemyFrameCartridgeLookupTooling.WordIn(Bank, frame);
 }

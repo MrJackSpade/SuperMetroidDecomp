@@ -220,9 +220,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreShaktoolFrameCount + 15,
             EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount,
             "Shaktool's saw, arm, and head programs select fifteen OAM frames");
-        AssertEqual(EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount + 16,
+        AssertEqual(EnemySpritemapDefinitionsConstants.PreTripperKamerFrameCount + 12,
             EnemySpritemapDefinitionsConstants.PreDragonFrameCount,
-            "Tripper/Kamer add fourteen animated and two frozen OAM frames");
+            "the Tripper adds ten animated and two frozen OAM frames; the suspensor platform shows the Kamer's lights (#2307)");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreDragonFrameCount + 12,
             EnemySpritemapDefinitionsConstants.PreMultiviolaFrameCount,
             "Dragon adds twelve distinct body and wing OAM frames");
@@ -237,7 +237,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(EnemySpritemapDefinitionsConstants.PreChozoStatueFrameCount +
                 ChozoStatueVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreViolaFrameCount,
-            "Lower Norfair and Wrecked Ship Chozo share twenty-six OAM frames");
+            "Lower Norfair and Wrecked Ship Chozo share twenty-four pictures (#2307)");
         AssertEqual(EnemySpritemapDefinitionsConstants.PreViolaFrameCount +
                 ViolaVisualDefinitions.FrameCount,
             EnemySpritemapDefinitionsConstants.PreRinkaFrameCount,
@@ -367,7 +367,7 @@ internal static class EnemySpritemapArtworkVerification
             "the Shaktool's programs and its head's aimed pictures (#2284) show exactly its installed frames");
         HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
-        AssertEqual(16, platformFramePointers.Count,
+        AssertEqual(12, platformFramePointers.Count,
             "Tripper/Kamer visual frame identities are distinct");
         HashSet<ushort> shownPlatformFrames = PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet();
         AssertEqual(14, shownPlatformFrames.Count, "platform programs show fourteen distinct animated compositions");
@@ -402,7 +402,7 @@ internal static class EnemySpritemapArtworkVerification
         HashSet<ushort> chozoFrames = ChozoStatueVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ChozoStatueVisualDefinitions.FrameCount, chozoFrames.Count,
-            "the two Chozo sequences select twenty-six distinct installed frames");
+            "the two Chozo sequences select twenty-four distinct installed pictures");
         AssertTrue(ChozoStatueAnimationsConstants.Spritemaps(Enum.GetValues<ChozoStatueSegment>()).ToHashSet().SetEquals(chozoFrames),
             "every installed Chozo composition is shown by a typed program");
         HashSet<ushort> violaFrames = ViolaVisualDefinitions.Frames()

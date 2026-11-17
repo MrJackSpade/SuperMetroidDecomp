@@ -11,10 +11,13 @@ internal static class ChozoStatueVisualDefinitions
 {
     /// <summary>Native shared Chozo statue spritemap bank $AA.</summary>
     internal const byte Bank = 0xaa;
-    /// <summary>Distinct OAM compositions reached by the Lower Norfair and Wrecked Ship Chozo lists.</summary>
-    internal const int FrameCount = 26;
+    /// <summary>
+    /// Distinct pictures the Lower Norfair and Wrecked Ship Chozo lists show; the records the opening hand shows store the
+    /// open hand's picture again (#2307).
+    /// </summary>
+    internal const int FrameCount = 24;
 
-    /// <summary>Deduplicates the frames the statues' programs show, in program order, and requires the complete 26-frame set.</summary>
+    /// <summary>Deduplicates the frames the statues' programs show, in program order, and requires the complete 24-frame set.</summary>
     internal static NativeEnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

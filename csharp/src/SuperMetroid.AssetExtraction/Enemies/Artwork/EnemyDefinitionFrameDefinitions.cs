@@ -1064,7 +1064,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChozoStatueLowerNorfairHandsCupped,
         EnemyFrameId.ChozoStatueLowerNorfairHandReaching,
         EnemyFrameId.ChozoStatueLowerNorfairHandOutstretched,
-        EnemyFrameId.ChozoStatueLowerNorfairHandOpening,
         EnemyFrameId.ChozoStatueLowerNorfairHandOpen,
         EnemyFrameId.ChozoStatueLowerNorfairHandOpenEyeGlowing,
         EnemyFrameId.ChozoStatueLowerNorfairFingersCurling,
@@ -1073,7 +1072,6 @@ internal static class EnemyDefinitionFrameDefinitions
         EnemyFrameId.ChozoStatueWreckedShipHandsCupped,
         EnemyFrameId.ChozoStatueWreckedShipHandReaching,
         EnemyFrameId.ChozoStatueWreckedShipHandOutstretched,
-        EnemyFrameId.ChozoStatueWreckedShipHandOpening,
         EnemyFrameId.ChozoStatueWreckedShipHandOpen,
         EnemyFrameId.ChozoStatueWreckedShipHandOpenEyeGlowing,
         EnemyFrameId.ChozoStatueWreckedShipFingersCurling,
@@ -1776,10 +1774,10 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>SuspensorPlatform</c>.</summary>
     private static readonly EnemyFrameId[] SuspensorPlatformFrames =
     [
-        EnemyFrameId.SuspensorPlatformLightDark,
-        EnemyFrameId.SuspensorPlatformLightDim,
-        EnemyFrameId.SuspensorPlatformLightLit,
-        EnemyFrameId.SuspensorPlatformLightBright,
+        EnemyFrameId.PlatformLightDark,
+        EnemyFrameId.PlatformLightDim,
+        EnemyFrameId.PlatformLightLit,
+        EnemyFrameId.PlatformLightBright,
     ];
 
     /// <summary>The frames <c>Enemies/Platforms/PlatformsBehavior.cs</c> shows for <c>Tripper</c>.</summary>
@@ -1959,10 +1957,10 @@ internal static class EnemyDefinitionFrameDefinitions
     /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>Kamer</c>.</summary>
     private static readonly EnemyFrameId[] KamerFrames =
     [
-        EnemyFrameId.KamerLightDark,
-        EnemyFrameId.KamerLightDim,
-        EnemyFrameId.KamerLightLit,
-        EnemyFrameId.KamerLightBright,
+        EnemyFrameId.PlatformLightDark,
+        EnemyFrameId.PlatformLightDim,
+        EnemyFrameId.PlatformLightLit,
+        EnemyFrameId.PlatformLightBright,
     ];
 
     /// <summary>The frames <c>Enemies/Shutters/ShuttersBehavior.cs</c> shows for <c>ShutterDestroyable</c>, <c>ShutterShootable</c>.</summary>

@@ -882,14 +882,14 @@ public enum EnemyFrameId
     NamiheFacingRightMouthWide,
     /// <summary>Namihe: facing right, mouth stretched widest.</summary>
     NamiheFacingRightMouthWidest,
-    /// <summary>Kamer: its light dark.</summary>
-    KamerLightDark,
-    /// <summary>Kamer: its light dim.</summary>
-    KamerLightDim,
-    /// <summary>Kamer: its light lit.</summary>
-    KamerLightLit,
-    /// <summary>Kamer: its light bright.</summary>
-    KamerLightBright,
+    /// <summary>A platform, the Kamer or the suspensor platform: its light dark.</summary>
+    PlatformLightDark,
+    /// <summary>A platform, the Kamer or the suspensor platform: its light dim.</summary>
+    PlatformLightDim,
+    /// <summary>A platform, the Kamer or the suspensor platform: its light lit.</summary>
+    PlatformLightLit,
+    /// <summary>A platform, the Kamer or the suspensor platform: its light bright.</summary>
+    PlatformLightBright,
     /// <summary>The elevator: its pad unlit.</summary>
     ElevatorPadUnlit,
     /// <summary>The elevator: its pad lit.</summary>
@@ -1520,14 +1520,6 @@ public enum EnemyFrameId
     TripperFrozenFacingLeft,
     /// <summary>Tripper: frozen facing right.</summary>
     TripperFrozenFacingRight,
-    /// <summary>Its light dark.</summary>
-    SuspensorPlatformLightDark,
-    /// <summary>Its light dim.</summary>
-    SuspensorPlatformLightDim,
-    /// <summary>Its light lit.</summary>
-    SuspensorPlatformLightLit,
-    /// <summary>Its light bright.</summary>
-    SuspensorPlatformLightBright,
     /// <summary>Dragon: its body facing left.</summary>
     DragonBodyFacingLeft,
     /// <summary>Dragon: its wing facing left, raised.</summary>
@@ -1594,8 +1586,6 @@ public enum EnemyFrameId
     ChozoStatueLowerNorfairHandReaching,
     /// <summary>The Chozo statue: a hand stretched out flat.</summary>
     ChozoStatueLowerNorfairHandOutstretched,
-    /// <summary>The Chozo statue: its outstretched hand opening.</summary>
-    ChozoStatueLowerNorfairHandOpening,
     /// <summary>The Chozo statue: its outstretched hand open.</summary>
     ChozoStatueLowerNorfairHandOpen,
     /// <summary>The Chozo statue: its outstretched hand open, its eye starting to glow.</summary>
@@ -1612,8 +1602,6 @@ public enum EnemyFrameId
     ChozoStatueWreckedShipHandReaching,
     /// <summary>The Chozo statue: a hand stretched out flat.</summary>
     ChozoStatueWreckedShipHandOutstretched,
-    /// <summary>The Chozo statue: its outstretched hand opening.</summary>
-    ChozoStatueWreckedShipHandOpening,
     /// <summary>The Chozo statue: its outstretched hand open.</summary>
     ChozoStatueWreckedShipHandOpen,
     /// <summary>The Chozo statue: its outstretched hand open, its eye starting to glow.</summary>

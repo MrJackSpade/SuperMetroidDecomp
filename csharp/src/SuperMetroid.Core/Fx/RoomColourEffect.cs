@@ -11,12 +11,15 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal sealed class RoomColourEffect
 {
-    /// <summary>Starts <paramref name="effect"/> playing <paramref name="animation"/>, due on its first turn.</summary>
+    /// <summary>
+    /// Starts <paramref name="effect"/> playing the animation of <paramref name="framesOf"/> in that effect's frames, due on
+    /// its first turn.
+    /// </summary>
     /// <param name="effect">What the effect shows.</param>
-    /// <param name="animation">The animation it plays: its definition's, or the heat shimmer of the suit its start chose.</param>
+    /// <param name="framesOf">The effect whose frames it shows and whose animation it plays: its own, or the pulse of the suit the heat shimmer's start chose.</param>
     /// <param name="litTorizo">The Torizo whose belly the effect lights, or null for an effect that lights none.</param>
     /// <param name="glowingEnemy">The enemy whose placement started the effect and which shows its frames, or null.</param>
-    internal RoomColourEffect(ColourEffectId effect, Animation<ColourEffectId> animation, ILitTorizo? litTorizo, IGlowingEnemy? glowingEnemy)
+    internal RoomColourEffect(ColourEffectId effect, ColourEffectId framesOf, ILitTorizo? litTorizo, IGlowingEnemy? glowingEnemy)
     {
         Effect = effect;
         ColourEffectDefinition definition = ColourEffectAnimations.Definition(effect);
@@ -24,13 +27,20 @@ internal sealed class RoomColourEffect
         Condition = definition.Condition;
         LitTorizo = litTorizo;
         GlowingEnemy = glowingEnemy;
-        Animation = Ensure.NotNull(animation);
+        FramesOf = framesOf;
+        Animation = ColourEffectAnimations.Definition(framesOf).Animation;
         Place = AnimationPlace.StartOfAnimation;
         UpdatesUntilNextStep = 1;
     }
 
     /// <summary>What the effect shows.</summary>
     internal ColourEffectId Effect { get; }
+
+    /// <summary>
+    /// The effect whose frames the effect shows (#2366): its own, or, for Samus's heat shimmer, the pulse of the suit she
+    /// wears, which it plays.
+    /// </summary>
+    internal ColourEffectId FramesOf { get; private set; }
 
     /// <summary>
     /// The Torizo whose belly the effect lights (#1700), which <see cref="ColourEffectCondition.EndsWhenTorizoDies"/>
@@ -59,8 +69,8 @@ internal sealed class RoomColourEffect
     /// <summary>Whether the effect animates its colours now: it is running and has shown its first frame in them.</summary>
     internal bool AnimatesColours => !Ended && Frame is not null;
 
-    /// <summary>The animation the effect plays.</summary>
-    internal Animation<ColourEffectId> Animation { get; private set; }
+    /// <summary>The animation the effect plays: that of the effect whose frames it shows.</summary>
+    internal Animation<ColourEffectSegment> Animation { get; private set; }
 
     /// <summary>Where the effect stands in its animation: the phase, and the phase's next beat.</summary>
     internal AnimationPlace Place { get; set; }
@@ -90,10 +100,14 @@ internal sealed class RoomColourEffect
     /// <summary>Ends the effect: it takes no further part in this update or any later one, and shows nothing.</summary>
     internal void End() => Ended = true;
 
-    /// <summary>Restarts the effect playing <paramref name="animation"/> from <paramref name="place"/>, due on this turn.</summary>
-    internal void Restart(Animation<ColourEffectId> animation, AnimationPlace place)
+    /// <summary>
+    /// Restarts the effect showing the frames of <paramref name="framesOf"/>, playing its animation from
+    /// <paramref name="place"/>, due on this turn.
+    /// </summary>
+    internal void Restart(ColourEffectId framesOf, AnimationPlace place)
     {
-        Animation = Ensure.NotNull(animation);
+        FramesOf = framesOf;
+        Animation = ColourEffectAnimations.Definition(framesOf).Animation;
         Place = place;
         UpdatesUntilNextStep = 1;
     }
@@ -118,15 +132,15 @@ internal sealed class RoomColourEffect
     {
         Ensure.NotNull(carryOut);
         AnimationPlace place = Place;
-        AnimationShown<ColourEffectId, int> shown = ColourEffectAnimations.Steps.PlayToNextFrame(Animation, ref place, carryOut);
+        AnimationShown<ColourEffectSegment, int> shown = ColourEffectAnimations.Segments.PlayToNextFrame(Animation, ref place, carryOut);
         Place = place;
         switch (shown)
         {
-            case AnimationShown<ColourEffectId, int>.Frame frame:
+            case AnimationShown<ColourEffectSegment, int>.Frame frame:
                 UpdatesUntilNextStep = frame.Duration;
-                Frame = new ColourEffectFrame(frame.Segment, frame.Shown);
+                Frame = new ColourEffectFrame(FramesOf, frame.Shown);
                 return Frame;
-            case AnimationShown<ColourEffectId, int>.Ended:
+            case AnimationShown<ColourEffectSegment, int>.Ended:
                 End();
                 Settled = true;
                 return null;

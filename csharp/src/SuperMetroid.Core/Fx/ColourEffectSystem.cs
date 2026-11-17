@@ -112,7 +112,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             throw new InvalidOperationException($"Colour effect {effect} starts by {definition.Start}, which no frontend screen has.");
         if (definition.Condition is { } condition)
             throw new InvalidOperationException($"Colour effect {effect} watches {condition}, which no frontend screen has.");
-        effects.Add(new RoomColourEffect(effect, definition.Animation, litTorizo: null, glowingEnemy: null));
+        effects.Add(new RoomColourEffect(effect, framesOf: effect, litTorizo: null, glowingEnemy: null));
     }
 
     /// <summary>
@@ -261,26 +261,26 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
             throw new InvalidOperationException(glowingEnemy is null
                 ? $"Colour effect {effect} shows on an enemy, which its start must hand it."
                 : $"Colour effect {effect} shows on no enemy, but its start handed it one.");
-        SuperMetroid.Core.Animation.Animation<ColourEffectId> animation;
+        ColourEffectId framesOf;
         switch (definition.Start)
         {
             case ColourEffectStart.Plain:
-                animation = definition.Animation;
+                framesOf = effect;
                 break;
             case ColourEffectStart.ChoosesHeatAnimationForSuit:
-                // The heat shimmer chooses its whole animation from the same live suit Samus wears; Gravity before Varia.
-                animation = ColourEffectHeatAnimations.Shimmer(ColourEffectHeatAnimations.SuitFor(equippedItems));
+                // The heat shimmer plays the pulse of the same live suit Samus wears, in its frames; Gravity before Varia.
+                framesOf = ColourEffectHeatAnimations.Pulse(ColourEffectHeatAnimations.SuitFor(equippedItems));
                 break;
             case ColourEffectStart.SkippedOnceAreaMiniBossIsDead:
                 if (areaMiniBossDefeated)
                     return false;
-                animation = definition.Animation;
+                framesOf = effect;
                 break;
             default:
                 throw new InvalidOperationException($"Colour effect {effect} has undefined start {definition.Start}.");
         }
 
-        effects.Add(new RoomColourEffect(effect, animation, litTorizo, glowingEnemy));
+        effects.Add(new RoomColourEffect(effect, framesOf, litTorizo, glowingEnemy));
         return true;
     }
 
@@ -356,7 +356,7 @@ public sealed class ColourEffectSystem : IGameplayShadingSource
 
         _session.ShimmerHeatPhase = _session.PublishedHeatPhase;
         ColourEffectHeatSuit suit = ColourEffectHeatAnimations.SuitFor(equippedItems);
-        effect.Restart(ColourEffectHeatAnimations.Shimmer(suit), ColourEffectHeatAnimations.Phase(suit, _session.PublishedHeatPhase));
+        effect.Restart(ColourEffectHeatAnimations.Pulse(suit), ColourEffectHeatAnimations.Phase(suit, _session.PublishedHeatPhase));
     }
 
     /// <summary>Carries out a step of <paramref name="effect"/>'s animation that reaches beyond it: a heat phase or a sound.</summary>

@@ -16,13 +16,9 @@ namespace SuperMetroid.AssetExtraction.Fx;
 internal static class PaletteFxRecordShades
 {
     /// <summary>
-    /// Every colour group and frame <paramref name="animations"/> can show, each once, ordered by group, then by effect and
+    /// Every colour group and frame <paramref name="objects"/> can show, each once, ordered by group, then by effect and
     /// frame, the order of the cartridge's records (<see cref="ColourEffectShownFrames"/>).
     /// </summary>
-    internal static ShownColourEffectFrame[] Shown(IEnumerable<SuperMetroid.Core.Animation.Animation<ColourEffectId>> animations) =>
-        ColourEffectShownFrames.From(animations);
-
-    /// <summary>The frames the animations of <paramref name="objects"/> can show, as <see cref="Shown"/> gives them.</summary>
     internal static ShownColourEffectFrame[] ShownBy(IEnumerable<ColourEffectId> objects) => ColourEffectShownFrames.ShownBy(objects);
 
     /// <summary>

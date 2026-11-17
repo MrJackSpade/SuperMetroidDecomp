@@ -34,15 +34,19 @@ internal enum PaletteFxNativeControlKind
 /// <param name="Count">The timer it sets, where it sets one.</param>
 internal sealed record PaletteFxNativeControl(PaletteFxNativeControlKind Kind, int AfterBeat, ushort Address, ushort? Target, int? Count);
 
-/// <summary>Where a live object resumes (#1600, #1739, #1982): the animation it plays, and its place in it.</summary>
+/// <summary>
+/// Where a live object resumes (#1600, #1739, #1982, #2366): the effect whose frames it shows, the animation it plays, and
+/// its place in it.
+/// </summary>
+/// <param name="FramesOf">The effect whose frames it shows and whose animation it plays.</param>
 /// <param name="Animation">The animation it plays.</param>
 /// <param name="Place">Its place in that animation.</param>
 internal readonly record struct PaletteFxImportedPlace(
-    SuperMetroid.Core.Animation.Animation<ColourEffectId> Animation, SuperMetroid.Core.Animation.AnimationPlace Place);
+    ColourEffectId FramesOf, SuperMetroid.Core.Animation.Animation<ColourEffectSegment> Animation, SuperMetroid.Core.Animation.AnimationPlace Place);
 
 /// <summary>One animation a colour effect can play and the native list it starts at (#1982).</summary>
-/// <param name="Effect">The effect, whose steps the animation plays.</param>
+/// <param name="Effect">The effect, whose steps the animation plays in its frames.</param>
 /// <param name="Animation">The animation.</param>
 /// <param name="Start">The entry of the native list the animation starts at: its set-up list, where it has one.</param>
 internal sealed record PaletteFxTypedAnimation(
-    ColourEffectId Effect, SuperMetroid.Core.Animation.Animation<ColourEffectId> Animation, ushort Start);
+    ColourEffectId Effect, SuperMetroid.Core.Animation.Animation<ColourEffectSegment> Animation, ushort Start);

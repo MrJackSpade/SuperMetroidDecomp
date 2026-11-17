@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;

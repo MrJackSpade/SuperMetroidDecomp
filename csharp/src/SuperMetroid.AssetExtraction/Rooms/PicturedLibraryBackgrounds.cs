@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.World.RoomStates;
 

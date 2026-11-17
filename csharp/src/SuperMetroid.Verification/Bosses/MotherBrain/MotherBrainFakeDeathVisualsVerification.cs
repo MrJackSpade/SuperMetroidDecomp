@@ -10,8 +10,8 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Checks Mother Brain's installed fake-death artwork and her native collision and draw state.</summary>

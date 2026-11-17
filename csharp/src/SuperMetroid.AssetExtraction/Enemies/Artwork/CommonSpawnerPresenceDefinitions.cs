@@ -16,7 +16,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.SaveStation;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
 

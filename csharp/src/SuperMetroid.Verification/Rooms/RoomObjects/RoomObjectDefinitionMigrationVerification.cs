@@ -25,12 +25,12 @@ internal static class RoomObjectDefinitionMigrationVerification
         AssertEqual(RoomObjectKind.EyeDoorFacingRight, RoomObjectNativeWords.Header(0xdb4c), "eye door header decodes");
 
         // Door and item identification by member equals the former range and stride arithmetic.
-        AssertTrue(DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.GreenDoorFacingUp, out ColoredDoorColor color, out ColoredDoorOrientation orientation)
+        AssertTrue(DoorObjectsConstants.TryIdentifyColoredDoor(RoomObjectKind.GreenDoorFacingUp, out ColoredDoorColor color, out ColoredDoorOrientation orientation)
             && color == ColoredDoorColor.Green && orientation == ColoredDoorOrientation.Up, "green door facing up");
-        AssertTrue(!DoorObjects.TryIdentifyColoredDoor(RoomObjectKind.MotherBrainEscapeRoomGate, out _, out _), "the escape gate is not a colored door");
-        AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectKind.BombTorizoGreyDoor, out ColoredDoorOrientation torizo)
+        AssertTrue(!DoorObjectsConstants.TryIdentifyColoredDoor(RoomObjectKind.MotherBrainEscapeRoomGate, out _, out _), "the escape gate is not a colored door");
+        AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.BombTorizoGreyDoor, out ColoredDoorOrientation torizo)
             && torizo == ColoredDoorOrientation.Right, "Bomb Torizo grey door faces right");
-        AssertTrue(GreyDoorObjects.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
+        AssertTrue(GreyDoorObjectsConstants.TryIdentifyGreyDoor(RoomObjectKind.GreyDoorFacingDown, out ColoredDoorOrientation down)
             && down == ColoredDoorOrientation.Down, "grey door facing down");
         AssertTrue(CollectibleObjects.TryIdentifyPermanentCollectible(RoomObjectKind.ChozoMorphBall, out InWorldCollectibleKind kind, out CollectiblePresentation presentation)
             && kind == InWorldCollectibleKind.MorphBall && presentation == CollectiblePresentation.ChozoOrb, "Chozo Morph Ball");

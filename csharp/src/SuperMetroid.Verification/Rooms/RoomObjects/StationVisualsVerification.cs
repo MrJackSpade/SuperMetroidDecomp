@@ -11,8 +11,8 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks station PLM art through immediate redraw and installation.</summary>
 internal static class StationVisualsVerification

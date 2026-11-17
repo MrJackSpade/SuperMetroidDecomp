@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// the velocity across zero makes the run's next step a unit larger, and a step taken while already
 /// moving toward the target is a unit larger when the distance to the target wraps around the
 /// coordinate space. A reversal starts fresh runs. The distance is the signed distance across the wrapping space, and
-/// the velocity stays within a few thousand units of rest (each call clamps it to its axis's limit and a step is at
+/// the velocity stays within a few thousand units of rest (each update clamps it to its axis's limit and a step is at
 /// most a room's width), so the clamps compare signed velocities.
 /// </summary>
 internal static class BabyMetroidGradualAcceleration

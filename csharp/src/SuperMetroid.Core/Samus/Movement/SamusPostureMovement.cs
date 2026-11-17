@@ -64,7 +64,7 @@ public static class SamusPostureMovement
         }
 
         // All four corresponding entries in the posture cleanup table do nothing. Unlike crouching movement,
-        // the wrapper does not clear stored base momentum after moving. That distinction is
+        // this movement does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
         return MoveWithZeroBaseSpeed(level, samus, frameCounter, roomObjects);
     }
@@ -81,7 +81,7 @@ public static class SamusPostureMovement
         // Sets exactly two values before going on to the ordinary horizontal
         // mover: it zeros the *base* displacement pair. It emphatically does
         // not require extra run speed to be zero. Horizontal movement subsequently
-        // adds the extra run speed to that zero base. This is the retail
+        // adds the extra run speed to that zero base. This is the game's
         // behavior that lets a stage-four run continue sliding during crouch transition
         // into a crouch; Samus's pose handling samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that route.

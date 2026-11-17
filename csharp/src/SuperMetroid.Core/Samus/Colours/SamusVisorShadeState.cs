@@ -50,8 +50,8 @@ public sealed class SamusVisorShadeState
             return;
         }
 
-        // Every other room resets the animation on every call. Besides disabling the animation,
-        // this changes the visor's colour at once on the first call after entering a backdrop-
+        // Every other room resets the animation on every update. Besides disabling the animation,
+        // this changes the visor's colour at once on the first update after entering a backdrop-
         // blending room: countdown one expires before the shade is consulted.
         if (roomVisorAnimation != RoomVisorAnimation.Animated)
         {
@@ -77,7 +77,7 @@ public sealed class SamusVisorShadeState
     }
 
     /// <summary>
-    /// One call's countdown step. The countdown is one or more on every call (see the remarks), so the step never
+    /// One update's countdown step. The countdown is one or more on every update (see the remarks), so the step never
     /// takes a shade off a zero countdown; a zero countdown is a broken invariant and fails.
     /// </summary>
     private static int DecrementTimer(int timer)

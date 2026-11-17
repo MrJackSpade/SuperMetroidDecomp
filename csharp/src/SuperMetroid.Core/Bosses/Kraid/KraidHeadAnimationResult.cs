@@ -9,6 +9,6 @@ internal enum KraidHeadAnimationResult
     /// <summary>The animation reached its next pose, which now shows for its duration.</summary>
     PoseShown,
 
-    /// <summary>The animation has ended; its cursor stays at the end and the shown pose stays.</summary>
+    /// <summary>The animation has ended; it stays on its last step and the shown pose stays.</summary>
     AnimationEnded,
 }

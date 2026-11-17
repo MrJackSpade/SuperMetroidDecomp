@@ -13,16 +13,16 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// Samus's miscellaneous colours.
 /// </summary>
 /// <remarks>
-/// Any nonzero super-special colouring flag runs first, just as the
+/// The drained or rainbow colouring runs first, just as the
 /// game's suit colouring does. Runtime satisfies that contract by allowing the drained or rainbow
 /// colouring to return before this step. All remaining special colourings run earlier and
 /// this step therefore has final priority over charge, Speed Booster, shinespark,
-/// Crystal Flash, and X-ray colors during its first six calls.
+/// Crystal Flash, and X-ray colors during its first six updates.
 /// </remarks>
 public static class SamusHurtFlash
 {
     /// <summary>
-    /// Advances one hurt-flash call, optionally showing the flash's or the restored suit's shade as the suit's colours
+    /// Advances one hurt-flash update, optionally showing the flash's or the restored suit's shade as the suit's colours
     /// (#1512) and publishing the exact recovery sound side effects.
     /// </summary>
     /// <param name="colours">Samus's colours, whose suit shade the flash may replace.</param>
@@ -46,7 +46,7 @@ public static class SamusHurtFlash
         // The hurt flash plays the impact sound exactly on call two. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its movement.
-        if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundCall &&
+        if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundUpdate &&
             samus.Presentation.Mode != SamusPresentationMode.Cinematic &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseId.KnockbackLeftPose))
@@ -57,7 +57,7 @@ public static class SamusHurtFlash
         // Only calls one through six write colors. Odd calls select the fixed hurt shade;
         // even calls restore either the intro shade or the equipment-selected suit. Once
         // counter seven is reached the existing colours deliberately remain untouched.
-        if (counterBefore <= SamusHurtFlashDefinitions.ColouredCalls)
+        if (counterBefore <= SamusHurtFlashDefinitions.ColouredUpdates)
         {
             if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
             {
@@ -80,7 +80,7 @@ public static class SamusHurtFlash
         if (counterAfter == SamusHurtFlashDefinitions.SoundRecoveryCount)
             RecoverInterruptedSound(samus, controllerInput);
 
-        if (counterAfter >= SamusHurtFlashDefinitions.EndingCall)
+        if (counterAfter >= SamusHurtFlashDefinitions.EndingUpdate)
         {
             samus.HurtFlash.Clear();
         }

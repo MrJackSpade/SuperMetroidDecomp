@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// Every reading of one behaviour a block can keep (#1722): what each collision kind that reads a behaviour makes of it.
 /// The kept behaviours are the catalog's (<see cref="RoomBlockReadingDefinitions"/>); a block holds one of them as its
 /// <see cref="RoomBlockBehavior"/>. A reacting kind's reading is null when the kind has no reaction for the behaviour: no
-/// retail block of that kind holds it, the import refuses one, and the kind's reaction rejects one a kind change brings
+/// block of that kind holds it, the import refuses one, and the kind's reaction rejects one a kind change brings
 /// (#1742). The special-block and special-air readings are both null in a behaviour whose meaning to those kinds the room's
 /// area gives, until a room's area resolves it (<see cref="AreaBlockReadings"/>, #1805).
 /// </summary>

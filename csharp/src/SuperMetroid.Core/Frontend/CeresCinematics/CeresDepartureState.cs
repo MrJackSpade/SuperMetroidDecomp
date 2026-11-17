@@ -24,7 +24,7 @@ public sealed class CeresDepartureState
     /// </summary>
     public int HoldFramesRemaining { get; private set; }
 
-    /// <summary>The blackout fade: fully lit until the fade, then one level darker on every call until black.</summary>
+    /// <summary>The blackout fade: fully lit until the fade, then one level darker on every update until black.</summary>
     private readonly ScreenFade fade = new(DisplayBrightness.Full);
 
     /// <summary>Master brightness during the blackout fade, from full down to black.</summary>
@@ -71,7 +71,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.FadingToBlack)
             throw new InvalidOperationException("Ceres departure fade is not active.");
 
-        // Room main explicitly makes the fade step on every call; the call that reaches black completes the departure.
+        // Room main explicitly makes the fade step on every update; the call that reaches black completes the departure.
         if (!fade.Darken())
             return false;
 

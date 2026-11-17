@@ -94,7 +94,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (explodingTimer >= IntroMotherBrainDefinitions.ExplodingUpdates)
         {
             // The exploding behaviour starts the page-two animation. The shared step below runs its page request and
-            // starts the cross-fade during this same cinematic-actor call.
+            // starts the cross-fade during this same cinematic-actor update.
             actor.Start(IntroMotherBrainAnimation.StartingPageTwo);
             pageTwoAnimationStarted = true;
         }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Block">The block it is placed on.</param>
 /// <param name="Argument">The decoded room argument, or null.</param>
 /// <param name="Cannon">The Draygon wall cannon a cannon placement controls; null for every other room object.</param>
-/// <param name="ScrollChange">The retail scroll change a scroll trigger runs; null for every other room object.</param>
+/// <param name="ScrollChange">The scroll change a scroll trigger runs; null for every other room object.</param>
 /// <param name="Site">Whether the block is one of the room's grid or of the terrain beyond the room.</param>
 internal readonly record struct RoomObjectPlacementDefinition(
     RoomObjectKind Kind, Position16<RoomBlocks> Block, RoomObjectRoomArgument? Argument, DraygonWallCannon? Cannon = null,

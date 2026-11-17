@@ -50,7 +50,7 @@ public sealed class RoomObjectPopulation
         if (compiledChange is not null)
         {
             if (placement.Kind != RoomObjectKind.ScrollTrigger)
-                throw new InvalidDataException("Only a scroll trigger may apply a retail scroll change.");
+                throw new InvalidDataException("Only a scroll trigger may apply a scroll change.");
         }
         else if (placement.Kind == RoomObjectKind.ScrollTrigger)
         {

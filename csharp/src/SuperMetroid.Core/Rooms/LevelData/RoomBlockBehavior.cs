@@ -208,9 +208,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and
     /// the room objects' writes hold such a behaviour unresolved, and a room's load resolves it.
     /// </summary>
-    /// <param name="area">The room's area, one of the retail areas.</param>
+    /// <param name="area">The room's area, one of the game's areas.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// The area is not a retail area, or the behaviour holds what another area makes of it.
+    /// The area is not one of the game's areas, or the behaviour holds what another area makes of it.
     /// </exception>
     public RoomBlockBehavior In(AreaId area)
     {

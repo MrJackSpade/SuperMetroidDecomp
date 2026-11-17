@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Progression;
 [Flags]
 public enum SamusEquipmentFlags
 {
-    /// <summary>No suit, mobility, explosive, or exploration item bits are enabled.</summary>
+    /// <summary>No suit, mobility, explosive, or exploration items are enabled.</summary>
     None = 0,
 
     /// <summary>Enables the Varia Suit's heat protection and first-tier damage reduction.</summary>

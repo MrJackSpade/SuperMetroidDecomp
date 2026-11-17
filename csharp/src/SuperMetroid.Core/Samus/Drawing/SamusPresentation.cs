@@ -101,32 +101,32 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Restarts the pose's animation after a scripted controller writes Pose and
+    /// Restarts the pose's animation after a scripted sequence writes Pose and
     /// literal animation values without calling ordinary pose initialization.
     /// </summary>
     /// <remarks>
     /// Standing drained Samus up and putting her back into the drained crouch do exactly that.
-    /// The game's animation pass resolves the animation from Pose every call, whereas
+    /// The game's animation pass resolves the animation from Pose every update, whereas
     /// this model caches it as a consistency check. This narrow method updates only that
     /// cache plus the controller's explicit writes; it intentionally does not recompute the
     /// liquid animation buffer or silently refresh collision radius.
     /// </remarks>
-    internal static void SetPoseAndAnimationFromScriptedController(SamusState samus,
+    internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
         SamusAnimationPlace frame,
         int timer) =>
-        SetPoseAndAnimationFromScriptedController(samus, pose, SamusAnimationDelays.Land(pose, frame, samus.FramesBeyondAnimation), timer);
+        SetPoseAndAnimationForScriptedSequence(samus, pose, SamusAnimationDelays.Land(pose, frame, samus.FramesBeyondAnimation), timer);
 
     /// <summary>
     /// Writes Pose and a frame of its own animation as
-    /// <see cref="SetPoseAndAnimationFromScriptedController(SamusState, SamusPoseId, SamusAnimationPlace, int)"/> does.
+    /// <see cref="SetPoseAndAnimationForScriptedSequence(SamusState, SamusPoseId, SamusAnimationPlace, int)"/> does.
     /// </summary>
-    internal static void SetPoseAndAnimationFromScriptedController(SamusState samus,
+    internal static void SetPoseAndAnimationForScriptedSequence(SamusState samus,
         SamusPoseId pose,
         SamusAnimationFrame frame,
         int timer)
     {
-        // Both drained controllers store only the pose; the prior movement and collision radii stay.
+        // Both drained sequences store only the pose; the prior movement and collision radii stay.
         samus.WritePoseWithoutInitialization(pose);
         samus.AnimatedPose = pose;
         samus.AnimationFrame = frame;
@@ -193,7 +193,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this call deliberately skips liquid-
+    /// Advances the animation-only core of the death animation's start. Unlike ordinary gameplay animation, this update deliberately skips liquid-
     /// FX delay buffering, neutral-jump hacks, and controller-dependent Dash interception.
     /// </summary>
     internal static void AnimateDeathFrame(SamusState samus)
@@ -498,7 +498,7 @@ internal sealed class SamusPresentation
         if (samus.HorizontalSpeed.SpeedEchoesDeparting)
         {
             // The echo update walks the second echo before the first. Movement is a drawing side
-            // effect in the retail game, so do not advance it earlier in StepFrame: frames
+            // effect in the game, so do not advance it earlier in StepFrame: frames
             // whose drawing of Samus is suppressed must also freeze these copies.
             if (samus.HorizontalSpeed.AdvanceDepartingSpeedEcho(
                     SpeedEcho.Second,

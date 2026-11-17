@@ -25,10 +25,10 @@ internal static class EndingPostShotDefinitions
     public static FloorZoom MinimumZoom { get; } = FloorZoom.FromTwoHundredFiftySixths(24);
     /// <summary>The shot's rotation turns eight angle units backwards each frame.</summary>
     public const int AngleStep = 8;
-    /// <summary>The post-shot step delays the Samus fade by sixteen calls.</summary>
+    /// <summary>The post-shot step delays the Samus fade by sixteen updates.</summary>
     public const int SamusFadeDelay = 16;
     /// <summary>The post-credits fades run thirty-two steps.</summary>
     public const int FadeFrames = 32;
-    /// <summary>The hold waits 180 calls before switching to the white-flash display.</summary>
+    /// <summary>The hold waits 180 updates before switching to the white-flash display.</summary>
     public const int HoldFrames = 180;
 }

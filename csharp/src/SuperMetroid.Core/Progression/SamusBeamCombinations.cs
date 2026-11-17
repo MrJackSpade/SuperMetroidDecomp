@@ -36,7 +36,7 @@ public static class SamusBeamCombinations
     public static SamusBeamCombination Of(SamusBeamFlags beams) =>
         CombinationOf[beams & (SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)];
 
-    /// <summary>Exposes the equipment-bit predicates for a beam combination.</summary>
+    /// <summary>Exposes the equipment predicates for a beam combination.</summary>
     extension(SamusBeamCombination combination)
     {
         /// <summary>The beam components.</summary>
@@ -54,7 +54,7 @@ public static class SamusBeamCombinations
         /// <summary>Whether Plasma is a component.</summary>
         public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != SamusBeamFlags.None;
 
-        /// <summary>Whether retail equipment can produce this combination: every one but those pairing Spazer with Plasma.</summary>
+        /// <summary>Whether equipment can produce this combination: every one but those pairing Spazer with Plasma.</summary>
         public bool IsRetail => combination switch
         {
             SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or

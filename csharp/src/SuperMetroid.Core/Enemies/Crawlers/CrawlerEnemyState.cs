@@ -49,7 +49,7 @@ public sealed class CrawlerEnemyState
     public SignedSixteenSixteen FallingYVelocity { get; internal set; }
 
     /// <summary>
-    /// One falling update's gravity: adds half a pixel per update while the whole pixels, compared as signed,
+    /// One falling update's gravity: adds half a pixel per update while the whole pixels, positive downward,
     /// are below four.
     /// </summary>
     internal void ApplyFallingGravity()

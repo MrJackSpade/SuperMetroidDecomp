@@ -244,7 +244,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
     internal void SpawnMotherBrainFallingTube(MotherBrainEnemyState state, MotherBrainTubePiece piece)
     {
-        // The bound source supplies the fixed cutscene placement; retail rooms resolve it from the loaded definitions.
+        // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
         {

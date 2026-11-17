@@ -13,6 +13,6 @@ internal enum ShaktoolMotionFlags
     ReversedOnce = 1,
     /// <summary>The chain is returning its angular offsets toward the straight configuration.</summary>
     Straightening = 2,
-    /// <summary>Orbital angle increments turn clockwise while this bit is set.</summary>
+    /// <summary>Orbital angle increments turn clockwise while this flag is set.</summary>
     Clockwise = 4,
 }

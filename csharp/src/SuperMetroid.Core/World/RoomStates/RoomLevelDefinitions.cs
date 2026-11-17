@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// The level of every retail room state: the room's initial blocks, block types and background blocks. Room states
+/// The level of every room state: the room's initial blocks, block types and background blocks. Room states
 /// that share a level (a room's event and boss states) name the same member. Each level is named for the room of the
 /// first state that uses it, in the room-state catalogs' order.
 /// </summary>

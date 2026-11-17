@@ -29,7 +29,7 @@ internal static class SamusRunningCadenceDefinitions
 
     /// <summary>
     /// The cadence countdown the boost restarts with after advancing onto each authored stage: stages zero through
-    /// three restart at one, stage four at two.
+    /// three restart at one, the boost's stage four at two.
     /// </summary>
     internal static IReadOnlyList<int> CountdownAfterAdvance { get; } = [1, 1, 1, 1, 2];
 

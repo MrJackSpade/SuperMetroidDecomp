@@ -13,7 +13,7 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>The corpse's visible pixel rows, each of which the rot schedule drops.</summary>
     public const int EntryCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
 
-    /// <summary>The corpse's own rot schedule, from before its first rot call.</summary>
+    /// <summary>The corpse's own rot schedule, from before its first rot update.</summary>
     internal CorpseRotSchedule Schedule { get; } = new(EntryCount);
 
     /// <summary>The corpse's rows as its rot calls have left them.</summary>
@@ -22,7 +22,7 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>The corpse's rows as its rot calls so far have left them (#1539).</summary>
     internal CorpseRotRows Shown => rows.Shown;
 
-    /// <summary>Runs one rot call of Mother Brain's corpse.</summary>
+    /// <summary>Runs one rot update of Mother Brain's corpse.</summary>
     public MotherBrainCorpseRottingStepResult Step(
         Position16<RoomPixels> brainPosition,
         MotherBrainRandomSample randomNumberSeed,

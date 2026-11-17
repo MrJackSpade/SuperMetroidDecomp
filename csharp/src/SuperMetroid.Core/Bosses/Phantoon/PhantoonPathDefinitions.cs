@@ -25,7 +25,7 @@ public static class PhantoonPathDefinitions
     public static Position16<RoomPixels> LeftAppearancePosition { get; } = new(48, AppearanceY);
 
     /// <summary>Lossless keypad notation for unit steps with screen Y increasing downward; source rows are formatting only.</summary>
-    /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. The movement cursor crosses string-row boundaries without resetting.</remarks>
+    /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. His place on the path crosses string-row boundaries without resetting.</remarks>
     internal const string Directions =
         "8686898686886868688686868686886868686868668686868668668668668666" +
         "6866666666663666626662662663636266262662626263333262626226226226" +

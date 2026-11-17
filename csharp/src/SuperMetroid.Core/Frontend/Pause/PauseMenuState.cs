@@ -428,7 +428,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         // The timer starts at zero, advances to frame one on the first draw, then
         // decrements after reloading. This order is intentionally not a conventional
-        // "draw frame zero for N ticks" animation helper.
+        // "draw frame zero for N ticks" animation.
         if (MapIndicatorAnimationTimer == 0)
         {
             MapIndicatorAnimationFrame = (MapIndicatorAnimationFrame + 1) % PauseMapIndicatorAnimation.Pulse.Count;
@@ -520,11 +520,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The handler is chosen before movement: the handler of the category selected before the cursor moved toggles the item
         // the cursor has just moved onto.
         // A press handled from the boots column onto Plasma therefore bypasses the beam column's Spazer/Plasma
-        // exclusion. Do not add a category guard that corrects this: the retail game has none. The page
+        // exclusion. Do not add a category guard that corrects this: the game has none. The page
         // shows each label in its item's state every frame (#1515), so nothing here writes a label.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
         PauseEquipmentBit mask = target.Upgrade;
-        // The bit belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
+        // The upgrade belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
         samus.EquippedBeams ^= mask.Beam;
         samus.EquippedItems ^= mask.Item;
 
@@ -798,7 +798,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 samus.Health += samus.ReserveEnergy;
         }
 
-        // Retail exhausts ALL reserves even when only a small top-up was needed.
+        // The refill drains every reserve even when only a small top-up was needed.
         // Preserve that behavior: the reserves empty and the selector returns to the reserve mode switch.
         samus.ReserveEnergy = 0;
         ReserveRefillSoundDelay = 0;

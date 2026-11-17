@@ -22,7 +22,7 @@ public static class KraidObjectDefinitions
     private static RoomObjectSpawnRequest<KraidRoomMutation> ClearSpikes => new(new(5, 27), KraidRoomMutation.ClearSpikes);
 
     /// <summary>
-    /// The nine calls of Kraid's ceiling crumble, indexed by how many ceiling rocks have fallen: the ceiling steps
+    /// The nine updates of Kraid's ceiling crumble, indexed by how many ceiling rocks have fallen: the ceiling steps
     /// it selects. Each block lies directly above its paired rock center on row 18; column 2 shows the left-edge
     /// background, and the other columns their odd or even column's.
     /// </summary>
@@ -40,7 +40,7 @@ public static class KraidObjectDefinitions
     }.AsReadOnly();
 
     /// <summary>
-    /// The fixed room objects spawned by defeated-room initialization, in call order.
+    /// The fixed room objects spawned by defeated-room initialization, in the order it spawns them.
     /// </summary>
     public static IReadOnlyList<RoomObjectSpawnRequest<KraidRoomMutation>> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 

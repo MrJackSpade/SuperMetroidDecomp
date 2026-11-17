@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// A retail scroll change, named for its room and what it does to the room's screens: the screens it closes to the
+/// A scroll change, named for its room and what it does to the room's screens: the screens it closes to the
 /// camera, opens, and opens with the camera aligned to the screen's top, each as its column and row in the room. Regenerate
 /// with tools/generate-room-object-population-definitions.ps1.
 /// </summary>

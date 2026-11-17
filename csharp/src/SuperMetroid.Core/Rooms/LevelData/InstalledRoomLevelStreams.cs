@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// The installed terrain of every retail room level (#1469): each level's grid of terrain blocks, behaviours and
+/// The installed terrain of every room level (#1469): each level's grid of terrain blocks, behaviours and
 /// background appearances, and the terrain past its grid, decoded once at installation, and where each room's door blocks
 /// in each level its states use lead (#2090). The catalog is stock-only: replaceable initial appearances are selected
 /// separately by <see cref="RoomLevelArtworks"/> and never change it.
@@ -14,9 +14,9 @@ public sealed class InstalledRoomLevelStreams
     /// <summary>Each room's door blocks in each level its states use.</summary>
     private readonly Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>> doorBlocks;
 
-    /// <summary>Copies a validated installation and requires exactly every retail room level.</summary>
+    /// <summary>Copies a validated installation and requires exactly every room level.</summary>
     /// <param name="levels">The installed levels keyed by their room level.</param>
-    /// <param name="requiredLevels">Every retail room level, each of which the installation must hold.</param>
+    /// <param name="requiredLevels">Every room level, each of which the installation must hold.</param>
     /// <param name="doorBlocks">
     /// Each room's door blocks in each level its states use, keyed by the room and the level; every block lies in the level's
     /// grid.

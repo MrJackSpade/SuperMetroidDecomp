@@ -235,7 +235,7 @@ public abstract class RoomSetupBehavior
         }
     }
 
-    /// <summary>Shaktool's room's setup, which spawns its controller.</summary>
+    /// <summary>Shaktool's room's setup, which spawns Shaktool's room controller.</summary>
     private sealed class ShaktoolControllerSetup() : RoomSetupBehavior(nameof(SpawnShaktoolController))
     {
         /// <inheritdoc/>

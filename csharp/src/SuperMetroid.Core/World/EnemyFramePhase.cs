@@ -63,8 +63,8 @@ internal sealed class EnemyFramePhase
             {
                 // The frame start clears all four external-displacement values before
                 // the enemy pass. Rideable enemies then accumulate accepted platform deltas and
-                // Samus's movement consumes those live values below. They
-                // are producer-owned values, so movement deliberately does not clear them.
+                // Samus's movement consumes those live values below; movement
+                // leaves them to the enemies that carry her.
                 _player.Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
             }
         }

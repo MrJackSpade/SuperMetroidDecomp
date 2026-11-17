@@ -58,7 +58,7 @@ internal sealed class EndingRewardJump
     public void Step()
     {
         // The head steps before the body, as it runs ahead of it.
-        // Both motions use the shared Samus velocity, so each call accelerates it.
+        // Both motions use the shared Samus velocity, so each update accelerates it.
         if (head is { IsActive: true })
         {
             if (headFlying)

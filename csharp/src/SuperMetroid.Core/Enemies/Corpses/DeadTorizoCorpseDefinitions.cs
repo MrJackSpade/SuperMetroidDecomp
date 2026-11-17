@@ -13,7 +13,7 @@ internal static class DeadTorizoCorpseDefinitions
     internal const int SandLines = 15;
 
     /// <summary>The rot calls between one line of sand falling and the next.</summary>
-    internal const int RotCallsPerSandLine = 15;
+    internal const int RotUpdatesPerSandLine = 15;
 
     /// <summary>The speed the corpse falls at when it starts to rot: eight 256ths of a pixel an update.</summary>
     internal static SignedEightEight StartingFallSpeed { get; } = SignedEightEight.FromParts(0, 8);

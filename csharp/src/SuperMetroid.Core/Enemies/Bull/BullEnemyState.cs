@@ -82,7 +82,7 @@ public sealed class BullEnemyState
     public int ActivationTimer { get; internal set; }
 
     /// <summary>
-    /// Shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded
+    /// Shared acceleration/deceleration interval countdown, decremented on eligible speed updates and reloaded
     /// from the current phase's reset value on exact-zero expiry.
     /// </summary>
     public int AccelerationIntervalTimer { get; internal set; }
@@ -102,10 +102,10 @@ public sealed class BullEnemyState
     /// </summary>
     public bool ShotReactionDisabled { get; internal set; }
 
-    /// <summary>Acceleration interval in eligible AI calls, 3 through 15, selected by the spawn's interval setting and also copied into the initial live interval timer.</summary>
+    /// <summary>Acceleration interval in eligible AI updates, 3 through 15, selected by the spawn's interval setting and also copied into the initial live interval timer.</summary>
     public int AccelerationIntervalTimerReset { get; internal set; }
 
-    /// <summary>Deceleration interval in eligible AI calls, 1 through 7, selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
+    /// <summary>Deceleration interval in eligible AI updates, 1 through 7, selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
     public int DecelerationIntervalTimerReset { get; internal set; }
 
     /// <summary>

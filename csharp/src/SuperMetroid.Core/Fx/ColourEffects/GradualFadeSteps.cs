@@ -58,7 +58,7 @@ internal sealed class GradualFadeSteps
     /// Takes one step: the first (counter zero) changes nothing, step denominator plus one reaches the far colour, and the
     /// call after it completes the fade and resets the shared counter.
     /// </summary>
-    /// <returns>Whether the fade completed on this call, taking no step.</returns>
+    /// <returns>Whether the fade completed on this update, taking no step.</returns>
     internal bool Step()
     {
         int step = counter.Step;

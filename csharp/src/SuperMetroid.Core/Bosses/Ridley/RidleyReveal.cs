@@ -89,7 +89,7 @@ internal sealed class RidleyReveal
     }
 
     /// <summary>
-    /// Advances Ridley's eye fade an update on each AI call: its sixteen shades, then its hold; once it has held, his body
+    /// Advances Ridley's eye fade an update on each AI update: its sixteen shades, then its hold; once it has held, his body
     /// fade starts.
     /// </summary>
     internal static void TickEyeFadeIn(RidleyEncounterState ridley)

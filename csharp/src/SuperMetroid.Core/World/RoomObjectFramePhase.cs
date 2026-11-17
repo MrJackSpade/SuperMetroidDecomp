@@ -63,7 +63,7 @@ internal sealed class RoomObjectFramePhase
     /// </summary>
     /// <remarks>
     /// The ordinary frame step intentionally suppresses room objects while the shared
-    /// door/elevator freeze flag is set. This call is the game's one exception: it
+    /// door/elevator freeze flag is set. This step is the game's one exception: it
     /// advances the freshly loaded room objects' sequences once before the destination fades in.
     /// </remarks>
     internal void RunRoomObjectsForDoor(RoomObjectSystem roomObjects, SamusBombProjectileSystem bombProjectiles, RoomScope room)
@@ -123,7 +123,7 @@ internal sealed class RoomObjectFramePhase
             // step. Apply their colour consequences at that same seam:
             // beam pickups show the newly equipped combination's colours, and
             // suit changes defer their visible colour reveal until stage
-            // three after the message. Resource tanks and other equipment bits are
+            // three after the message. Resource tanks and other equipment are
             // consumed directly by the HUD/movement owners.
             foreach (CollectiblePickupEvent pickup in roomObjects.CollectibleObjects.CollectiblePickupEvents)
             {

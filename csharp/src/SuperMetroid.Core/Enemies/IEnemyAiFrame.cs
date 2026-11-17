@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// What an enemy's main AI reads from the enemy frame (#633). <see cref="RoomEnemyFrame"/> is the
-/// superset the enemy pass owns; main AI and the common grapple wrapper accept only this contract.
+/// superset the enemy pass owns; main AI and the shared grapple step accept only this contract.
 /// </summary>
 internal interface IEnemyAiFrame
 {

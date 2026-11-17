@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>Compiled sound identity for Fune/Namihe.</summary>
+/// <summary>The sound Fune and Namihe make.</summary>
 internal static class FuneNamiheDefinitions
 {
     /// <summary>The spit sound, queued when either actor spits.</summary>

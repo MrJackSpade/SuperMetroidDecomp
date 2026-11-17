@@ -14,7 +14,7 @@ public enum SamusAccelerationMode
 
     /// <summary>
     /// Retained-momentum deceleration, selected by the jump and fall initializers when extra dash speed remains; the airborne
-    /// deceleration-disallowed path tests only the turning bit, so it keeps accelerating there.
+    /// deceleration-disallowed path tests only whether she is turning, so it keeps accelerating there.
     /// </summary>
     Decelerating,
 }

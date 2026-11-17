@@ -18,7 +18,7 @@ public sealed class EscapeTimer
     /// <summary>Updates since the start, counted through the two centre delays.</summary>
     private int _startupFrames;
 
-    /// <summary>Which step of the timer's sequence the next <see cref="Process"/> call runs.</summary>
+    /// <summary>Which step of the timer's sequence the timer's next update (<see cref="Process"/>) runs.</summary>
     public EscapeTimerPhase Phase { get; private set; }
 
     /// <summary>
@@ -48,10 +48,10 @@ public sealed class EscapeTimer
     /// <summary>The whole-pixel screen place the timer's label and digits are drawn from.</summary>
     public Offset16<ScreenPixels> ScreenPlace => Position.Whole;
 
-    /// <summary>Requests the one-minute Ceres countdown; the next <see cref="Process"/> call starts it.</summary>
+    /// <summary>Requests the one-minute Ceres countdown; the timer's next update (<see cref="Process"/>) starts it.</summary>
     public void RequestCeresStart() => RequestStart(CeresDuration);
 
-    /// <summary>Requests the three-minute Mother Brain countdown; the next <see cref="Process"/> call starts it.</summary>
+    /// <summary>Requests the three-minute Mother Brain countdown; the timer's next update (<see cref="Process"/>) starts it.</summary>
     public void RequestMotherBrainStart() => RequestStart(MotherBrainDuration);
 
     /// <summary>Runs one timer update and reports whether the countdown has reached zero.</summary>

@@ -189,8 +189,8 @@ public enum SamusPoseId
     SpaceJumpLeftPose,
 
     /// <summary>
-    /// This pose is the right-facing Screw Attack body. The Screw Attack bit has
-    /// priority over the Space Jump bit in the spin-pose selector.
+    /// This pose is the right-facing Screw Attack body. Screw Attack has
+    /// priority over Space Jump in the spin-pose selector.
     /// </summary>
     ScrewAttackRightPose,
 

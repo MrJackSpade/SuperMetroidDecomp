@@ -99,7 +99,7 @@ internal sealed class MotherBrainAttacks
             if (MotherBrainRandomDefinitions.AttacksAtFullStrength.IsTakenBy(random))
             {
                 // The attack setup installs the attack sequence and returns. It does not execute
-                // phase zero until the body's next enemy-AI call.
+                // phase zero until the body's next enemy-AI update.
                 state.Phase2FightPhase = MotherBrainPhase2FightPhase.TryAttack;
                 return;
             }
@@ -482,7 +482,7 @@ internal sealed class MotherBrainAttacks
 
     /// <summary>
     /// Goes straight on from the attack setup, at zero health, into the rainbow beam's setup. Setup happens on the
-    /// same body-AI call, but the freshly installed rainbow timer is not decremented until
+    /// same body-AI update, but the freshly installed rainbow timer is not decremented until
     /// Mother Brain's next enemy turn.
     /// </summary>
     internal static void StartLiveMotherBrainRainbowBeam(MotherBrainEnemyState state)

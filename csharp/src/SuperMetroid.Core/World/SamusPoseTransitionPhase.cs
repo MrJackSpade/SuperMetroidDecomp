@@ -728,7 +728,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>
-    /// Applies a jump, crouch, unmorph, landing, posture or Shinespark direction transition. Every active retail pair
+    /// Applies a jump, crouch, unmorph, landing, posture or Shinespark direction transition. Every active pair
     /// is owned by this or an earlier family; any other pair means the pose table or state is corrupt.
     /// </summary>
     private void ApplyJumpCrouchOrPostureTransition(SamusControlFrame frame, SamusState samus, SamusPoseId targetPose, ISamusRoomObjects roomObjects)

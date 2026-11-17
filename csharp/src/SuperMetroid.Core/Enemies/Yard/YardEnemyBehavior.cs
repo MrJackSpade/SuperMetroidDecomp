@@ -417,7 +417,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AirborneVelocity = state.AirborneVelocity.WithY(YardFallAcceleration.Accelerated(state.AirborneVelocity.Y));
     }
 
-    /// <summary>Stops Yard's fall, selects normal or aggressive crawling, and restores crawler velocity from its floor-facing bits.</summary>
+    /// <summary>Stops Yard's fall, selects normal or aggressive crawling, and restores crawler velocity from the way it faces the floor.</summary>
     private static void LandYard(RoomEnemyPlace place, YardEnemyState state, SamusState samus)
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;

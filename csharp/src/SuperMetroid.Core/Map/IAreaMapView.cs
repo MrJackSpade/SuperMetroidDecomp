@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Map;
 /// <summary>Map presentation together with separately owned exploration rules.</summary>
 public interface IAreaMapView
 {
-    /// <summary>Gets the retail area whose 64-by-32 map and exploration rules are represented.</summary>
+    /// <summary>Gets the area whose 64-by-32 map and exploration rules are represented.</summary>
     AreaId Area { get; }
     /// <summary>How the cell at logical map coordinates X 0..63 and Y 0..31 looks.</summary>
     MapCell Cell(Position16<MapTiles> cell);

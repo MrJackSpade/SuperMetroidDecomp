@@ -167,7 +167,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         rock.SpeedCurvePlace -= PolypLaunchDefinitions.RockFallStep;
         if (rock.SpeedCurvePlace.IsNegative)
         {
-            // Crossing below zero consumes an entire apex frame: retail installs falling
+            // Crossing below zero consumes an entire apex frame: it enters its falling
             // state and returns before either vertical or horizontal movement.
             rock.SpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             rock.Phase = PolypRockMovement.Falling;

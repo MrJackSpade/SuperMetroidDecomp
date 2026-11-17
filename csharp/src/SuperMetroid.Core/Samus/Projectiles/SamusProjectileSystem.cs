@@ -143,7 +143,7 @@ public sealed class SamusProjectileSystem
         ShowBeamShade(colours, SamusBeamCombinations.Of(equippedBeams));
 
     /// <summary>
-    /// Shows a beam combination's shade as the beams' colours: a retail combination's, the glitched Chainsaw beam's, which
+    /// Shows a beam combination's shade as the beams' colours: a combination's, the glitched Chainsaw beam's, which
     /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
@@ -220,7 +220,7 @@ public sealed class SamusProjectileSystem
             }
 
             // The charge glow resets the sequence whenever charge is below threshold or grapple
-            // beam is in use. This guarantees the next eligible call starts at
+            // beam is in use. This guarantees the next eligible update starts at
             // the first charge colour step rather than resuming a partially completed cycle.
             Charge.ChargeGlowStep = 0;
             samus.VisorShades.Update(
@@ -254,7 +254,7 @@ public sealed class SamusProjectileSystem
         }
 
         // The Hyper Beam's glow: odd steps are pure hold calls; even steps 20..2 show the Hyper Beam glow's
-        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two calls.
+        // frames for glow steps 10..1, frames 9..0. Each frame consequently remains visible for exactly two updates.
         if (glow.RemainingSteps % 2 == 1)
         {
             Charge.ChargedShotGlow = glow.Stepped();
@@ -265,8 +265,8 @@ public sealed class SamusProjectileSystem
         int glowStep = glow.RemainingSteps / 2;
         if (glowStep == 0)
         {
-            // The glow's final call, at step zero, ends it and reports it finished so the outer colour step performs the
-            // suit copy.
+            // The glow's final update, at step zero, ends it and reports it finished so the outer colour step performs the
+            // suit restore.
             Charge.ChargedShotGlow = ChargedShotGlow.None;
             ProjectileAnimation.ShowSuitShade(colours, samus);
             return new(

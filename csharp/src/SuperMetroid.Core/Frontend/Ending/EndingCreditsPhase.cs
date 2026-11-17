@@ -43,9 +43,9 @@ internal enum EndingCreditsPhase
     FadeOutToCredits,
     /// <summary>Scrolls the staff credits until the roll has scrolled past its end.</summary>
     Credits,
-    /// <summary>Holds the first post-credits backdrop blank for sixty calls.</summary>
+    /// <summary>Holds the first post-credits backdrop blank for sixty updates.</summary>
     PostCreditsBlank,
-    /// <summary>Reveals the waiting scene at the slower four-call brightness cadence.</summary>
+    /// <summary>Reveals the waiting scene at the slower four-update brightness cadence.</summary>
     PostCreditsFadeIn,
     /// <summary>Fades the shooting-star backdrop toward the waiting colours.</summary>
     PostCreditsShootingStars,

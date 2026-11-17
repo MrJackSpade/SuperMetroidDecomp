@@ -30,7 +30,7 @@ public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
     /// <summary>
     /// The speed in the direction <paramref name="sign"/> names, in 256ths of a pixel per frame, negative toward
     /// decreasing coordinates. Every mark's speed lies well within 128 pixels a frame, so this is exactly the game's
-    /// 1/256-pixel word read signed.
+    /// 1/256-pixel speed either way.
     /// </summary>
     internal int CoarseToward(EnemySpeedSign sign) => Toward(sign).InTwoFiftySixths;
 }

@@ -14,7 +14,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// <summary>Enemy sound queue used by the wall explosion's cue.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds room, projectile, and audio owners needed by the old Tourian fake-wall controller.</summary>
+    /// <summary>Binds room, projectile, and audio owners needed by the old Tourian fake wall.</summary>
     internal OldTourianEscapeShaftWallBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -22,8 +22,8 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
     /// <summary>
-    /// Spawns the fake-wall explosion for the wall's frame behaviour. Its initializer
-    /// ignores the spawn parameter and places the explosion on the middle of the
+    /// Spawns the fake-wall explosion for the wall's frame behaviour. It
+    /// places the explosion on the middle of the
     /// breaking wall.
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()

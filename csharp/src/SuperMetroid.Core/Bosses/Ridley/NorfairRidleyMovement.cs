@@ -32,7 +32,7 @@ internal static class NorfairRidleyMovement
     /// Accelerates one axis toward the target: while reversing, the reversal boost and then the reversal acceleration
     /// each start a fresh run of steps, the second continuing into two distance steps; otherwise one distance step.
     /// Within a run a step that crosses zero makes the next one a unit larger (<see cref="SeekingVelocityRun"/>). The
-    /// velocity stays within a few thousand units of rest (each call clamps it to five pixels and a step is at most the
+    /// velocity stays within a few thousand units of rest (each update clamps it to five pixels and a step is at most the
     /// arena's height), so the clamps compare signed velocities.
     /// </summary>
     /// <param name="axisVelocity">The axis velocity.</param>

@@ -3,11 +3,11 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileCooldownDefiniti
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>The cooldown each retail beam combination's shots set the shared shot timer to.</summary>
+/// <summary>The cooldown each beam combination's shots set the shared shot timer to.</summary>
 internal static class SamusProjectileCooldowns
 {
     /// <summary>
-    /// The cooldown a retail beam combination's <paramref name="shot"/> sets the shared shot timer to. Beam charge doubles
+    /// The cooldown a beam combination's <paramref name="shot"/> sets the shared shot timer to. Beam charge doubles
     /// the ordinary 15-update delay; uncharged Plasma and Ice has its own 12-update cadence; held fire repeats every 25
     /// updates. A Spazer and Plasma combination's cooldowns are read past the authored ones, which
     /// <see cref="SuperMetroid.Core.Compatibility.UnauthoredBeamFiring{TBeams}"/> reproduces (#1506).

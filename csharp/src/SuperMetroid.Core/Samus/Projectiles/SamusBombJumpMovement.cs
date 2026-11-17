@@ -80,7 +80,7 @@ public static class SamusBombJumpMovement
         }
         else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed.Whole == 0)
         {
-            // The rising helper restores input while speed is still fractional and
+            // The rise restores input while speed is still fractional and
             // positive, BEFORE the apex or a collision restores normal movement.
             // A next-frame table match can therefore cancel the remaining bomb rise.
             samus.BombJumpPoseInputLocked = false;

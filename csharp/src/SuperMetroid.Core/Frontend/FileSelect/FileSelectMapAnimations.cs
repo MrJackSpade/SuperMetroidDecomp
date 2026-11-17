@@ -58,7 +58,7 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>Arrows advance only when their boundary test allows them to be drawn.</summary>
     /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>
-    /// <remarks>One call consumes one menu tick for visible arrows; phase durations are menu-tick counts, with the loop terminator wrapping to phase zero.</remarks>
+    /// <remarks>One update consumes one menu tick for visible arrows; phase durations are menu-tick counts, with the loop terminator wrapping to phase zero.</remarks>
     public void StepArrows(Func<MapScrollDirection, bool> available)
     {
         foreach (MapScrollDirection direction in MapScrollControls.Directions)

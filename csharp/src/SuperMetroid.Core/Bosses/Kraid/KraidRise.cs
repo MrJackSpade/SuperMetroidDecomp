@@ -70,7 +70,7 @@ internal sealed class KraidRise
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             // The defeated room shows its dead-room background colours before every part of Kraid is hidden, deleted
-            // and untouchable. Its two calls
+            // and untouchable. Its two updates
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.

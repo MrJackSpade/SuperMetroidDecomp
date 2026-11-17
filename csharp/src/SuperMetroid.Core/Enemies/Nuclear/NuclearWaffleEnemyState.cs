@@ -19,7 +19,7 @@ public sealed class NuclearWaffleEnemyState
     public NuclearWaffleAction Action { get; internal set; }
 
     /// <summary>
-    /// The AI calls left in the wait, the one the sweep starts on included. It starts at <see cref="WaitingTimerReset"/>, and
+    /// The AI updates left in the wait, the one the sweep starts on included. It starts at <see cref="WaitingTimerReset"/>, and
     /// the call that takes it to zero starts the sweep and reloads it (#2281).
     /// </summary>
     public int WaitingTimer { get; internal set; }
@@ -63,7 +63,7 @@ public sealed class NuclearWaffleEnemyState
     public Position16<RoomPixels> Origin { get; internal set; }
     /// <summary>The link spawn position: head position after applying the initial angle and radius, used as the whole-pixel spawn position for the four projectile links.</summary>
     public Position16<RoomPixels> InitialHead { get; internal set; }
-    /// <summary>Signed same-pool link pitch in steps, -24 backward or +24 forward, subtracted successively from each link angle.</summary>
+    /// <summary>Signed same-pool link pitch in steps, 24 backward or 24 forward, subtracted successively from each link angle.</summary>
     public int SegmentSpacing { get; internal set; }
     /// <summary>Signed half-pitch in steps, -12 or +12, added before the projectile-link loop to stagger it against the effect-actor links.</summary>
     public int InterleavedSegmentOffset { get; internal set; }

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>
-/// The state of the Multiviola. Retail recomputes its velocity from the population angle and speed every active frame,
+/// The state of the Multiviola. The Multiviola recomputes its velocity from the population angle and speed every active frame,
 /// with two deliberately imperfect reflection negations.
 /// </summary>
 public sealed class MultiviolaEnemyState

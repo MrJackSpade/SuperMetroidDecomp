@@ -113,7 +113,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // the body functions the rainbow sequence runs\n }", "('functions')");
         Expect("class P { /* the record names the swinging function */ }", "('function')");
         // A mathematical function, C#'s own and writing one are English.
-        Expect("class P { /// <summary>A function of each colour; a pure function of the velocity; thresholds and functions are copied from retail arithmetic.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>A function of each colour; a pure function of the velocity; thresholds and functions are copied from the game's arithmetic.</summary>\nint F => 0; }");
         Expect("class P { // inventing a function for them would only re-encode the ordering; sine without platform math functions\n }");
         Expect("class P { /// <summary>Runs a local function, a lambda function and a function delegate; defining a function is the code's.</summary>\nint F => 0; }");
         // Storage and machine vocabulary #1558 left out (#1611).
@@ -246,7 +246,7 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { // fills the scanline table\n }", "('scanline table')");
         // Text characters, a type of text, people, markup, a per-line window or scroll and other memory are not the display's.
         Expect("class P { /// <summary>Types the warning one character at a time; the typed characters and the message's characters wait.</summary>\nint F => 0; }");
-        Expect("class P { // a two-call character delay, the character cadence and the next character\n }");
+        Expect("class P { // a two-update character delay, the character cadence and the next character\n }");
         Expect("class P { /// <summary>Width of one text character; the letters' characters and the narration characters.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>Shows <paramref name=\"character\"/> at its place.</summary>\nvoid Show(int character) { } }");
         Expect("class EndingTypewriter { /// <summary>The installed characters.</summary>\nint F => 0; }");
@@ -1094,8 +1094,8 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { void Run() { // Retail part init clears that write.\n } }", "('Retail part init')");
         Expect("class P { /// <summary>The kinds retail room-object populations place.</summary>\nint F => 0; }",
             "('retail room-object populations')");
-        // A retail cartridge alone, a population alone and a hardware owner are English.
-        Expect("class P { /// <summary>The retail game; the room's population; initializes the room.</summary>\nint F => 0; }");
+        // The game alone, a population alone and a hardware owner are English.
+        Expect("class P { /// <summary>The game; the room's population; initializes the room.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the retail population lists it.</summary>\n[CompatibilityService(\"population\")] class Population { }");
         // Fix history told inside a clause, in every type, hardware owners included (#2248, #2265).
         Expect("class P { void Run() { // leaving this assignment out produces a conspicuously silent attack\n } }",
@@ -1191,5 +1191,95 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // and a hardware owner are English.
         Expect("class P { /// <summary>The camera shifts left two pixels; the room clears when Samus leaves; physical contact; the halves of a picture; a value kept for an update.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the ring is cleared as the room's enemies load, in its physical order.</summary>\n[CompatibilityService(\"ring\")] class Ring { }");
+        // The original's routines told as wrappers, helpers and controllers, outside hardware owners and markup (#2292).
+        Expect("class P { void Run() { // The turning wrapper enters the shared mover.\n } }", "('wrapper')");
+        Expect("class P { void Run() { // The rising helper restores input while speed is fractional.\n } }", "('rising helper')");
+        Expect("class P { /// <summary>Unlike the bottom-boundary helper, this does not subtract one.</summary>\nint F => 0; }",
+            "('bottom-boundary helper')");
+        Expect("class P { void Run() { // This helper models one pose family.\n } }", "('This helper')");
+        Expect("class P { /// <summary>Restarts the animation after a scripted controller writes the pose.</summary>\nint F => 0; }",
+            "('scripted controller')");
+        Expect("class P { /// <summary>The four bodies Mother Brain's controllers install.</summary>\nint F => 0; }",
+            "('Brain's controllers')");
+        Expect("class P { void Run() { // only the selected tail controller moves it\n } }", "('tail controller')");
+        Expect("class P { /// <summary>Changes the drained Samus controller/pose.</summary>\nint F => 0; }", "('controller/pose')");
+        // A helper alone, the helper text, the player's controller and its input, Shaktool's room controller and a hardware
+        // owner are English.
+        Expect("class P { /// <summary>A helper; the helper text; the player's controller and its input; Shaktool's room controller; the flashback's scripted controller input.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the movement wrapper and the rising helper.</summary>\n[CompatibilityService(\"wrap\")] class Wrap { }");
+        // A merge path, equipment and state bits, outside hardware owners and markup (#2292).
+        Expect("class P { void Run() { // The merge path executes even for an unexpected pose.\n } }", "('merge path')");
+        Expect("class P { /// <summary>The item room object grants the equipment bit.</summary>\nint F => 0; }", "('equipment bit')");
+        Expect("class P { void Run() { // the first pose tests the other suit bit\n } }", "('suit bit')");
+        Expect("class P { /// <summary>The Screw Attack bit has priority.</summary>\nint F => 0; }", "('Attack bit')");
+        Expect("class P { void Run() { // a save with both bits equipped\n } }", "('both bits')");
+        Expect("class P { /// <summary>Grapple physics reads this bit during a phase.</summary>\nint F => 0; }", "('this bit')");
+        // A bit more, a bit of the way and a hardware owner are English.
+        Expect("class P { /// <summary>It rises a bit more, a bit of the way.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the equipment bit and the merge path.</summary>\n[CompatibilityService(\"bit\")] class Bit { }");
+        // A stage by number outside the Speed Booster's, outside hardware owners and markup (#2292).
+        Expect("class P { /// <summary>The Varia pickup: stage three equips the suit.</summary>\nint F => 0; }", "('stage three')");
+        Expect("class P { /// <summary>Stages three and four: the closing column.</summary>\nint F => 0; }", "('Stages three')");
+        Expect("class P { /// <summary>Stage-two initial edge pair.</summary>\nint F => 0; }", "('Stage-two')");
+        Expect("class P { /// <summary>Installs the suit at the third-stage handoff.</summary>\nint F => 0; }", "('third-stage')");
+        // The Speed Booster's stages, a stage that counts the noun after it and a hardware owner are English.
+        Expect("class P { /// <summary>Speed Booster stage one; boost stage four; a stage-four run slides; stage two frames long.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: stage three equips the suit.</summary>\n[CompatibilityService(\"stage\")] class Stage { }");
+        // Updates counted as calls in prose and declared names, outside hardware owners and markup (#2292).
+        Expect("class P { /// <summary>Sixteen calls precede the alternating flash.</summary>\nint F => 0; }", "('Sixteen calls')");
+        Expect("class P { /// <summary>How many calls the destruction lasts.</summary>\nint F => 0; }", "('How many calls')");
+        Expect("class P { /// <summary>Its count of nine lasts ten approach calls.</summary>\nint F => 0; }", "('ten approach calls')");
+        Expect("class P { /// <summary>The timer producing the nine-call cadence.</summary>\nint F => 0; }", "('nine-call')");
+        Expect("class P { /// <summary>Runs one call of the destruction.</summary>\nint F => 0; }", "('one call')");
+        Expect("class P { void Run() { // The first explosion bursts on the destruction's first call.\n } }", "('first call')");
+        Expect("class P { /// <summary>Calls left before the next explosion.</summary>\nint F => 0; }", "('Calls left')");
+        Expect("class P { /// <summary>The objects it spawns, in call order.</summary>\nint F => 0; }", "('call order')");
+        Expect("class P { int FlashCalls { get; set; } }", "('FlashCalls')");
+        Expect("class P { const int ImpactSoundCall = 2; }", "('ImpactSoundCall')");
+        Expect("class P { void CountPreRotDelayCall() { } }", "('CountPreRotDelayCall')");
+        Expect("class P { int _holdCalls; }", "('_holdCalls')");
+        Expect("class P { void M(int delayCalls) { } }", "('delayCalls')");
+        // A call into another owner, one call per room, one host call, calling, a callback, a caller-free name and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>A call to the queue; one call per room; one host call; calling it.</summary>\nint F => 0; }");
+        Expect("class P { string S = \"A per-call input, built for one call and never kept.\"; }");
+        Expect("class P { System.Action Callback = () => { }; bool Called; void Calling() { } }");
+        Expect(CompatibilityService + "/// <summary>Evidence: sixteen calls precede it.</summary>\n[CompatibilityService(\"calls\")] class Calls { int HoldCalls; }");
+        // The machine's arithmetic and the original's data told for a value, outside hardware owners and markup (#2292).
+        Expect("class P { /// <summary>Gravity applies while the whole pixels, compared as signed, stay below the cap.</summary>\nint F => 0; }",
+            "('compared as signed')");
+        Expect("class P { /// <summary>The smaller of two velocities, read signed.</summary>\nint F => 0; }", "('read signed')");
+        Expect("class P { void Run() { // Flush that deferred write first.\n } }", "('deferred write')");
+        Expect("class P { void Run() { // perform the suit colours copy immediately\n } }", "('suit colours copy')");
+        Expect("class P { void Run() { // Odd frames return immediately.\n } }", "('Odd frames return')");
+        Expect("class P { /// <summary>The hardcoded room objects enemy AI requested.</summary>\nint F => 0; }", "('hardcoded')");
+        Expect("class P { void Run() { // Up calculates the background from destination+31.\n } }", "('destination+31')");
+        Expect("class P { void Run() { // the room-wide conservative +31 allowance\n } }", "('+31 allowance')");
+        Expect("class P { void Run() { // top-aligned screens align at +0\n } }", "('at +0')");
+        Expect("class P { /// <summary>The first pixel of the following screen, wrapping at sixteen bits.</summary>\nint F => 0; }",
+            "('sixteen bits')");
+        Expect("class P { /// <summary>A foot dust puff with an additional three-bit jitter.</summary>\nint F => 0; }", "('three-bit')");
+        Expect("class P { /// <summary>The initial position and default movement-policy row.</summary>\nint F => 0; }",
+            "('movement-policy row')");
+        Expect("class P { /// <summary>The position records the movement search runs over, in search order.</summary>\nint F => 0; }",
+            "('position records')");
+        Expect("class P { /// <summary>Unlisted positions select the 352 row.</summary>\nint F => 0; }", "('the 352 row')");
+        Expect("class P { /// <summary>The lint hitbox's left edge (-24) minus two.</summary>\nint F => 0; }", "('(-24) minus')");
+        Expect("class P { /// <summary>The speed stays below 256 + 108 * 96 = 10624.</summary>\nint F => 0; }", "('256 + 108 * 96 = 10624')");
+        // A signed value, a sum written with spaces, a signed list of deltas and a hardware owner are English.
+        Expect("class P { /// <summary>A signed speed; a wait of n lasts n + 1 updates; +1 for frames 0..5, -1 after.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: compared as signed at destination+31, wrapping at sixteen bits.</summary>\n[CompatibilityService(\"sum\")] class Sum { }");
+        // The retail game and the original's cursors, outside hardware owners and markup (#2292).
+        Expect("class P { void Run() { // Retail emits a rock on the open mouth.\n } }", "('Retail')");
+        Expect("class P { /// <summary>Every retail door setup.</summary>\nint F => 0; }", "('retail')");
+        Expect("class P { /// <summary>Changes collision when its delayed history cursor crosses a hole.</summary>\nint F => 0; }",
+            "('history cursor')");
+        Expect("class P { /// <summary>The falling sequence advances the cursor.</summary>\nint F => 0; }", "('advances the cursor')");
+        Expect("class P { /// <summary>The animation has ended; its cursor stays at the end.</summary>\nint F => 0; }",
+            "('cursor stays at the end')");
+        Expect("class P { /// <summary>The game selects each rock by a cursor.</summary>\nint F => 0; }", "('by a cursor')");
+        // A menu's cursor, the step a cursor names and a hardware owner are English.
+        Expect("class P { /// <summary>The cursor stays on the transfer; the options page's cursor; the step the cursor names.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: retail Evirs bob; the movement cursor crosses rows.</summary>\n[CompatibilityService(\"retail\")] class Retail { }");
     }
 }

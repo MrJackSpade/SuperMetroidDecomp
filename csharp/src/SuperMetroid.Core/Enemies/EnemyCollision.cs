@@ -828,7 +828,7 @@ internal sealed class EnemyCollision
     {
         // The direct-freeze vulnerability refreshes the timer even on an already frozen
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
-        // reaches this helper only with an initially zero clock.
+        // reaches this step only with an initially zero clock.
         if (enemy.FrozenTimer == 0)
             _audio.QueueEnemySound(RoomSound.EnemyFrozen, priority: SoundRequestPriority.Low);
         enemy.FrozenTimer = roomArea == AreaId.Norfair

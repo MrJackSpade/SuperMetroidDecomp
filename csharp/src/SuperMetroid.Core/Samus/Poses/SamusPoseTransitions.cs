@@ -240,7 +240,7 @@ internal static class SamusPoseTransitions
         samus.Kinematics.YSpeed = default;
 
         // Reloads the normal suit shade whenever a pose change leaves spin or
-        // wall-jump movement while Screw Attack is equipped. The suit shade copy occurs
+        // wall-jump movement while Screw Attack is equipped. The suit shade shows
         // at the later shade phase, so publish that same deferred work here.
         if (leavingScrewAttack)
             samus.HorizontalSpeed.RequestSuitShadeRestore();
@@ -302,7 +302,7 @@ internal static class SamusPoseTransitions
     }
 
     /// <summary>
-    /// Installs the pose the current pose's animation names at its pose-transition cue: every pose a retail
+    /// Installs the pose the current pose's animation names at its pose-transition cue: every pose an
     /// animation's cue names.
     /// </summary>
     public static bool ApplyPendingVerifiedAnimationTransition(SamusState samus)
@@ -415,11 +415,11 @@ internal static class SamusPoseTransitions
             (SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingLeftPose, SamusPoseId.FacingLeftNormalPose);
         if (!verified)
         {
-            // The list above is every pose a retail animation's pose-transition cue names.
+            // The list above is every pose an animation's pose-transition cue names.
             // Anything else means the request named a target that was not read from the
             // current pose's animation.
             throw new InvalidOperationException(
-                $"Animation transition {samus.Pose} -> {targetPose} is no retail animation's pose-transition cue.");
+                $"Animation transition {samus.Pose} -> {targetPose} is no animation's pose-transition cue.");
         }
 
         bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&

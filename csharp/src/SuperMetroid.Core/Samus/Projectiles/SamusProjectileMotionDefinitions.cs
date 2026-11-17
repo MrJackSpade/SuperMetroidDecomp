@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileMotionDefinitions
 {
     /// <summary>
-    /// The horizontal and vertical speed every retail beam combination launches at, in 256ths of a pixel per update:
+    /// The horizontal and vertical speed every beam combination launches at, in 256ths of a pixel per update:
     /// four pixels.
     /// </summary>
     internal static readonly SignedEightEight CardinalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024);
 
     /// <summary>The most rows below its top row a Wave shot's leading edge may reach and still scan terrain: one reaching further scans none.</summary>
     internal const int WaveScanLongestReach = 15;
-    /// <summary>The diagonal speed every retail beam combination launches at, in 256ths of a pixel per update.</summary>
+    /// <summary>The diagonal speed every beam combination launches at, in 256ths of a pixel per update.</summary>
     internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
     /// <summary>The 1/256-pixel base speed a fired missile ignites at: one pixel per update.</summary>
     internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);

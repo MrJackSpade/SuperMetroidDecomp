@@ -347,7 +347,7 @@ public sealed class RoomLevelData
         Position16<RoomBlocks> block = doorBlock.At;
         DoorBlockExit entry = Exits[GridPlace(block)] ?? throw new InvalidDataException($"Door block {block} leads nowhere.");
         // The door reaction normally publishes either a real transition or the elevator-contact flag. The runtime
-        // collapses the outer transition states into one room-load call, however, so destination-side elevator return
+        // collapses the outer transition states into one room-load update, however, so destination-side elevator return
         // scans must inspect the same door block without republishing either side effect. Keep the door lookup and
         // solid/passable classification intact while gating only the writes.
         if (publishDoorSideEffects && entry.Door is { } door)

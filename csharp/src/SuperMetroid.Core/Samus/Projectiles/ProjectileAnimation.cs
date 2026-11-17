@@ -115,7 +115,7 @@ internal sealed class ProjectileAnimation
 
         // The flare draw applies Ceres's rotation whenever the body renderer does, under the same
         // Ceres status. Only Samus's center is transformed; the pose-selected muzzle
-        // offsets are added afterward. Retail then restores Samus's world point, so this path
+        // offsets are added afterward. The game then restores Samus's world point, so this path
         // must never write the public physics coordinates merely to reuse the arithmetic.
         var samusPosition = samus.Position.Whole;
         Position16<RoomPixels> renderPoint = turningFloor is { } transform

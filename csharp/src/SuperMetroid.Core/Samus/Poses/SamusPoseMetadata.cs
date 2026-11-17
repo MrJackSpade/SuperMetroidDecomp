@@ -74,7 +74,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Reads a prospective pose's movement type without mutating Samus.
-    /// Values beyond the retail pose list are corrupt pose metadata and
+    /// Values beyond the pose list are corrupt pose metadata and
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
     public static SamusMovementType ReadMovementType(SamusPoseId pose) =>
@@ -130,7 +130,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// Selects the suit's front-view pose as facing forward
-    /// and the Zebes start setup do. The Gravity and Varia suit bits
+    /// and the Zebes start setup do. The Gravity and Varia suits
     /// have equal precedence: either selects the shared suited pose <see cref="SamusPoseId.ForwardFacingSuitedPose"/>.
     /// </summary>
     private static void SelectForwardFacingPose(SamusState samus)
@@ -274,7 +274,7 @@ internal static class SamusPoseMetadata
         {
             // The left-facing table contains only the left-facing grabbed poses; the right-facing one only the right-facing.
             // Neither set of controller input transitions can cross facing families. Draygon's owner AI
-            // performs facing changes by re-entering its grabbed controller directly, so a
+            // performs facing changes by re-entering its grabbed movement directly, so a
             // cross-family request to this input transition is a broken contract,
             // not an omitted input transition.
             throw new InvalidOperationException(
@@ -449,7 +449,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for the six aimed crouched-turn poses moved by the turning-while-jumping movement type.
-    /// The unaimed crouching turns are intentionally absent because the retail pose definitions assign those
+    /// The unaimed crouching turns are intentionally absent because the pose definitions assign those
     /// otherwise similar-looking turns to the grounded turning movement type.
     /// </summary>
     public static bool IsAimedCrouchingTurnPose(SamusPoseId pose) => pose is
@@ -501,7 +501,7 @@ internal static class SamusPoseMetadata
     internal static IReadOnlyList<SamusPoseId> ReachablePoses { get; } =
         [.. Enum.GetValues<SamusPoseId>().Where(pose => !SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out _))];
 
-    /// <summary>True for the four drained crouching and standing bodies that Mother Brain's controllers install.</summary>
+    /// <summary>True for the four drained crouching and standing bodies that Mother Brain's attack puts her in.</summary>
     public static bool IsDrainedPose(SamusPoseId pose) => pose is
         SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
         SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose;
@@ -716,7 +716,7 @@ internal static class SamusPoseMetadata
                 return false;
 
             default:
-                // No retail pose has a movement type past the special one; this is corrupt metadata.
+                // No pose has a movement type past the special one; this is corrupt metadata.
                 throw new InvalidDataException(
                     $"Bomb-jump setup cannot run invalid movement type {movementType} for pose {samus.Pose}.");
         }

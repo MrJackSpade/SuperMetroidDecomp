@@ -23,5 +23,5 @@ public readonly record struct SamusTransitionShot
     /// <exception cref="InvalidOperationException">Her pose aims nowhere.</exception>
     internal static SamusTransitionShot FromPose(SamusState samus) =>
         new(SamusPoseMetadata.ReadAimDirection(samus) ?? throw new InvalidOperationException(
-            $"Pose {samus.Pose} names no aim; no retail transition hands a shot over from one."));
+            $"Pose {samus.Pose} names no aim; no transition hands a shot over from one."));
 }

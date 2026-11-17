@@ -22,7 +22,7 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomSampleField AscentDustBig = new(8, 1);
 
     /// <summary>
-    /// The phase-two neutral hold: the lowest fifteen of the sixteen values of the sample's top four bits, every sample
+    /// The phase-two neutral hold: the lowest fifteen of the sixteen values of the sample divided into sixteenths, every sample
     /// below 61440, hold the phase-two neutral pose again.
     /// </summary>
     internal static readonly RandomChance NeutralPhase2Holds = RandomChance.Lowest(15, new RandomSampleField(12, 4));

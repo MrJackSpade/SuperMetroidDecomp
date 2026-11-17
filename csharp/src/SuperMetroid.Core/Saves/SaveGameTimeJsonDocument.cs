@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>The gameplay-update-based clock persisted in each save slot.</summary>
 /// <remarks>
-/// Each component is a JSON number the codec accepts only inside the retail clock: hours 0 through 99, the others
+/// Each component is a JSON number the codec accepts only inside the game's clock: hours 0 through 99, the others
 /// 0 through 59.
 /// </remarks>
 /// <param name="Hours">Hours component, normally saturated at 99.</param>

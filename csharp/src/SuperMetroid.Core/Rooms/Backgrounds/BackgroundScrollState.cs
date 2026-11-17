@@ -55,7 +55,7 @@ public sealed class BackgroundScrollState
     /// <param name="destination">The foreground destination published to <see cref="ForegroundPosition"/>.</param>
     /// <param name="parallaxBasis">
     /// The foreground position the parallax calculation reads. An upward door calculates background from
-    /// destination+31 before the scroll's foreground endpoint becomes destination+32.
+    /// the destination plus 31 before the scroll's foreground endpoint becomes the destination plus 32.
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {

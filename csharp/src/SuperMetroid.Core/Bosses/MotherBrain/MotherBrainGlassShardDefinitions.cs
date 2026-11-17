@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The graphics and physical origins of Mother Brain's glass shards.</summary>
 internal static class MotherBrainGlassShardDefinitions
 {
-    /// <summary>The random sample's field a shard's launch angle is: its low eight bits, a whole turn of 256 steps.</summary>
+    /// <summary>The random sample's field a shard's launch angle is: a whole turn of 256 steps.</summary>
     internal static readonly RandomSampleField LaunchAngle = new(0, 8);
 
     /// <summary>

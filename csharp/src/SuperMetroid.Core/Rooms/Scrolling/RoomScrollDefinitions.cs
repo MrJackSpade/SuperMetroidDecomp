@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
-/// <summary>The scroll data retail room states select: 159 explicit tables and two implicit layouts.</summary>
+/// <summary>The scroll data room states select: 159 explicit tables and two implicit layouts.</summary>
 [NumberedIdentities("Each numbered member is the scroll layout of a distinct numbered room (Metroids1-4, TourianEscape1-4), named for that room.")]
 [ArchitectureReview("large", "Data only: every room state's fifty scroll cells as the camera reads them; splitting it by area would only scatter one table the room loader reads as a whole.")]
 public static class RoomScrollDefinitions
@@ -15,7 +15,7 @@ public static class RoomScrollDefinitions
     private const RoomScrollState Open = RoomScrollState.Open;
 
     /// <summary>
-    /// Retail explicit tables in their authored order, each the fifty cells its load writes: the room's own screens,
+    /// Explicit tables in their authored order, each the fifty cells its load writes: the room's own screens,
     /// then the cells after them, which past a short table hold the data stored after it read as cells.
     /// </summary>
     private static readonly RoomScrollDefinition[] Definitions =

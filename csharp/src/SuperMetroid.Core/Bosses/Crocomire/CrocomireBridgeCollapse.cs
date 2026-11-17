@@ -285,7 +285,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Starts, afresh on every call, <paramref name="illustration"/>'s melting animation for the rows of Crocomire's body
+    /// Starts, afresh on every update, <paramref name="illustration"/>'s melting animation for the rows of Crocomire's body
     /// still above the acid where he stands: his top row alone from <see cref="CrocomireMeltingDefinitions.TopRowAboveAcidY"/>
     /// down, his top two rows from <see cref="CrocomireMeltingDefinitions.TopTwoRowsAboveAcidY"/>, his top three from
     /// <see cref="CrocomireMeltingDefinitions.TopThreeRowsAboveAcidY"/>, and his top four above that.

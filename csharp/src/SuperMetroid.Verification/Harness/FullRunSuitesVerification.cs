@@ -52,6 +52,7 @@ using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerificati
 using static SuperMetroid.Verification.Assets.RgbColorDomainVerification;
 using static SuperMetroid.Verification.Hardware.FixedPointVocabularyVerification;
 using static SuperMetroid.Verification.Rooms.RoomScopeVerification;
+using static SuperMetroid.Verification.Rooms.DachoraShaftCameraVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ParallaxRateVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.BombBlockProgramsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombChargeRejectionVerification;
@@ -1047,6 +1048,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMainGameLoopCarry), () => VerifyMainGameLoopCarry()),
         new(nameof(VerifyFixedPointVocabulary), () => VerifyFixedPointVocabulary()),
         new(nameof(VerifyRoomScopeCarryOver), () => VerifyRoomScopeCarryOver()),
+        new(nameof(VerifyDachoraShaftCameraNudge), () => VerifyDachoraShaftCameraNudge()),
         new(nameof(VerifyBootDemoSetCount), () => VerifyBootDemoSetCount()),
         new(nameof(VerifyDoorEntryRoomFxSound), () => VerifyDoorEntryRoomFxSound()),
         new(nameof(VerifyDoorEntryShotBinding), () => VerifyDoorEntryShotBinding()),

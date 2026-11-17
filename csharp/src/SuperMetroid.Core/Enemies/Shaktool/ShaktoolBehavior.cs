@@ -60,7 +60,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Shaktool's chain starts in enemy place {place.Ordinal - definition.OwnerPlaceDistance}; its death deletes the first seven places, " +
-                "where both retail Shaktool room states place it.");
+                "where both Shaktool room states place it.");
         }
         // The chain's places hold its segments in chain order, leading saw first.
         RoomEnemyPlace[] chainPlaces = [owner, .. _places.ListedRunAfter(owner, ShaktoolSegmentDefinitions.SegmentCount - 1)];

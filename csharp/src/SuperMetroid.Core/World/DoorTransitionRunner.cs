@@ -143,7 +143,7 @@ internal sealed class DoorTransitionRunner
         }
 
         blockAnimations.StartDoorTreadmill(direction);
-        // Both spawn helpers report when the room is full, and
+        // Both spawns report when the room is full, and
         // the door setup deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the room-object allocator's false result here.
         _ = roomObjects.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(

@@ -12,7 +12,7 @@ public sealed record SaveSnapshotContext
     /// <summary>Optional gameplay clock; omitted values encode as zero.</summary>
     public GameTimeState? GameTime { get; init; } = null;
 
-    /// <summary>Optional seven-action permutation; omitted values use retail defaults.</summary>
+    /// <summary>Optional seven-action permutation; omitted values use defaults.</summary>
     public ControllerBindings? ControllerBindings { get; init; } = null;
 
     /// <summary>Whether to persist the moonwalk option.</summary>

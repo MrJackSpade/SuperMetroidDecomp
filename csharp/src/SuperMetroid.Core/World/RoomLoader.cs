@@ -236,9 +236,9 @@ internal sealed class RoomLoader
         // reopens its confirmation message.
         _room.LoadedScope.RoomObjects.Stations.LockSaveStationForCurrentRoomEntry();
 
-        // The Zebes start setup does not begin at its endpoint. It selects a front-facing pose,
-        // frame two/timer three, the suit's colours, and the 360-call
-        // appearance before restoring ordinary input.
+        // The Zebes start setup does not begin at its endpoint. It shows Samus facing forward
+        // in her suit's colours at the saved game's appearance (<see cref="SavedGameAppearanceDefinitions"/>)
+        // before restoring ordinary input.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(_player.Colours, _player.IntroducedSamus.EquippedItems);
         SamusPoseMetadata.ApplyZebesStartPoseSetup(_player.IntroducedSamus);
         SamusPresentation.SetAnimationFrameFromMovementOwner(_player.IntroducedSamus, SamusAnimationFrames.ZebesAppearance,
@@ -528,7 +528,7 @@ internal sealed class RoomLoader
         DoorOpeningSourceView sourceScroll = _pendingDoorOpeningSourceView
             ?? throw new InvalidOperationException(
                 "Door-opening scroll lost the source room's view.");
-        // The offsets derive from where the foreground stands before setup's first call.
+        // The offsets derive from where the foreground stands before setup's first update.
         Position16<RoomPixels> openingForeground = _doorOpeningScroll.CameraPosition +
             Ensure.Listed(DoorOpeningScrollDefinitions.OpeningForegroundOffsets, direction);
         _backgroundScroll.BeginDoorOpeningViews(openingForeground);
@@ -723,7 +723,7 @@ internal sealed class RoomLoader
 
         // The door transition promotes a departing elevator's global status from
         // ElevatorActorStatus.Departing to ElevatorActorStatus.BeginArrivalReturn after the destination room objects, door code, and door setup have been created. The
-        // room load initializes enemies in the same call, so publish that carried
+        // room load initializes enemies in the same update, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
         // must see the arrival and place itself at its arrival height instead of clearing the journey.
         bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
@@ -833,8 +833,8 @@ internal sealed class RoomLoader
             _backgroundScroll.CalculateScrolls();
         else
         {
-            // Up calculates background from destination+31 before changing the scroll's camera
-            // endpoint to destination+32. Keeping those adjacent positions distinct prevents
+            // Up calculates background from the destination plus 31 before changing the scroll's camera
+            // endpoint to the destination plus 32. Keeping those adjacent positions distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
             Position16<RoomPixels> parallaxBasis = door.Orientation.Direction == DoorDirection.Up
                 ? camera + DoorOpeningScrollDefinitions.UpwardParallaxBasis
@@ -928,7 +928,7 @@ internal sealed class RoomLoader
 
         // The door transition runs the door setup only after destination room objects
         // exist and before enemy initialization/initial viewport construction. Several of
-        // those setups rewrite the room scroll array, so postponing this call until the
+        // those setups rewrite the room scroll array, so postponing them until the
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         _doorTransition.RunDoorSetup(door, roomObjects, blockAnimations, scope.MaridiaElevatube);
@@ -1087,7 +1087,7 @@ internal sealed class RoomLoader
     {
         DoorDirection direction = door.Orientation.Direction;
 
-        // Setup's first directional call (none for down), then placing Samus for the destination's loading replaces
+        // Setup's first directional update (none for down), then placing Samus for the destination's loading replaces
         // both whole positions, then every remaining scroll update moves along the travel axis.
         FixedPosition<RoomPixels> samus = DoorOpeningScrollState.RebaseSamus(
             door, DoorOpeningScrollState.ApplySetupMovement(door, source));

@@ -16,10 +16,10 @@ public enum SamusBeamFlags
     /// <summary>Adds the Ice Beam's enemy-freezing behavior.</summary>
     Ice = 1 << 1,
 
-    /// <summary>Adds the Spazer's widened three-part projectile; mutually exclusive with Plasma in retail equipment UI.</summary>
+    /// <summary>Adds the Spazer's widened three-part projectile; mutually exclusive with Plasma on the equipment screen.</summary>
     Spazer = 1 << 2,
 
-    /// <summary>Adds the Plasma Beam's penetrating high-damage projectile; mutually exclusive with Spazer in retail equipment UI.</summary>
+    /// <summary>Adds the Plasma Beam's penetrating high-damage projectile; mutually exclusive with Spazer on the equipment screen.</summary>
     Plasma = 1 << 3,
 
     /// <summary>Allows the fire button to charge the equipped beam combination.</summary>

@@ -27,7 +27,7 @@ internal static class PuyoHopDefinitions
 
     /// <summary>
     /// The lowest bit of <see cref="HopRoll"/>: the part of the roll a choice between two outcomes reads, the same bit
-    /// whether the frame counter advances the whole roll or this bit alone.
+    /// whether the frame counter advances the whole roll or this part alone.
     /// </summary>
     private static readonly RandomSampleField HopRollParity = new(0, 1);
 

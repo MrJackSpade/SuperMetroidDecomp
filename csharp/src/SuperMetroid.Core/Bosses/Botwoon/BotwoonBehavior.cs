@@ -376,7 +376,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
     }
 
-    /// <summary>Changes a segment's collision mode when its delayed history cursor crosses a hole.</summary>
+    /// <summary>Changes a segment's collision mode when the point of its trail it follows crosses a hole.</summary>
     private static void ToggleBotwoonSegmentAtHole(
         BotwoonEnemyState state,
         BotwoonSegmentState segment,

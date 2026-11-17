@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Input;
 
 /// <summary>
 /// The player's controller buttons. Each button is one independent bit, and a set of held buttons is one flags value.
-/// The bit values are arbitrary: nothing reads a button's number, and stored forms convert through their own codec.
+/// The values are arbitrary: nothing reads a button's number, and stored forms convert through their own codec.
 /// </summary>
 [Flags]
 public enum ControllerButton

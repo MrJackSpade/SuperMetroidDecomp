@@ -165,7 +165,7 @@ internal static class NativeEnemyFamilyStateImport
         if (enemy.SpeciesState<CeresElevatorDoorState>() is { } elevatorDoorRecord)
         {
             elevatorDoorRecord.Phase = CeresNativeWords.ElevatorDoorPhases.Decode(words.A, "recorded Ceres elevator door phase");
-            elevatorDoorRecord.RumbleCallsLeft = TrueDuration(words.D);
+            elevatorDoorRecord.RumbleUpdatesLeft = TrueDuration(words.D);
             elevatorDoorRecord.ExplosionIntervalLeft = TrueDuration(words.E);
             elevatorDoorRecord.LastExplosionPlace = words.F;
         }

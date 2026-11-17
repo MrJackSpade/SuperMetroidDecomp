@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <summary>
 /// A powered robot's definition placed while the ship has no power, before Phantoon is defeated (#2179): it holds the
 /// unpowered pose its placement names and falls under gravity, rejects a bomb's damage, and returns before common shot
-/// AI. No retail room places it: the rooms place the powered definition only once Phantoon is defeated.
+/// AI. No room places it: the rooms place the powered definition only once Phantoon is defeated.
 /// </summary>
 /// <param name="species">The work robot species owner.</param>
 /// <param name="place">The place the robot occupies.</param>

@@ -34,7 +34,7 @@ internal sealed class EndingShootingStars
                 star.Timer = EndingShootingStarDefinitions.InitialTimer;
                 star.Delayed = false;
                 star.AnimationFrame = 0;
-                // Expiring delay skips motion, but joins the same call's drawing pass.
+                // Expiring delay skips motion, but joins the same update's drawing pass.
             }
             else
             {

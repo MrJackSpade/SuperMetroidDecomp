@@ -37,7 +37,7 @@ internal sealed class KraidBackground
     /// shared counter. When the fade completes is what gameplay sees: his growth and death wait on it, and a door's fade
     /// sharing the counter brings it sooner. The backdrop shows a typed fade of its colours (#2215).
     /// </summary>
-    /// <returns>Whether the fade completed on this call.</returns>
+    /// <returns>Whether the fade completed on this update.</returns>
     internal bool AdvanceKraidRoomBackgroundFade(
         KraidBackdropFade fade)
     {

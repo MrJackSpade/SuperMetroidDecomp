@@ -93,7 +93,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// The angle from the beam's centre to each of its edges, with its fraction of a step: zero at admission, grown by
-    /// <see cref="AngularWideningSpeed"/> on each widening call, and clamped to exactly
+    /// <see cref="AngularWideningSpeed"/> on each widening update, and clamped to exactly
     /// <see cref="XrayScopeDefinitions.Window.WidestHalfWidth"/> once it would reach a step beyond. The widening adds
     /// carry the fraction into whole steps exactly as the game does; the widening step is a whole number of 256ths of a
     /// step, so no finer fraction ever arises.
@@ -104,8 +104,8 @@ public sealed class SamusXrayState
     public TrigonometryAngle AngularWidth => AngularHalfWidth.ToTrigonometryAngle();
 
     /// <summary>
-    /// The widening speed, the turn the half-width grows by each call: zero at admission and raised by the fixed
-    /// widening step before each widening call adds it to <see cref="AngularHalfWidth"/>.
+    /// The widening speed, the turn the half-width grows by each update: zero at admission and raised by the fixed
+    /// widening step before each widening update adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
     public RotationAngle AngularWideningSpeed { get; private set; }
 
@@ -603,7 +603,7 @@ public sealed class SamusXrayState
     private void Finish(SamusState samus)
     {
         // The X-ray teardown intentionally classifies a grounded turn as standing. Releasing
-        // X-ray during a crouched turn therefore stands Samus up—the documented retail
+        // X-ray during a crouched turn therefore stands Samus up—the game's
         // X-ray stand-up glitch—and the radius difference moves her center upward.
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         bool crouching = movementType == SamusMovementType.Crouching;
@@ -684,7 +684,7 @@ public sealed class SamusXrayState
         Closing = XrayClosing.Started;
     }
 
-    /// <summary>Records the starting beam phase separately from whether this call removed the effect.</summary>
+    /// <summary>Records the starting beam phase separately from whether this update removed the effect.</summary>
     private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
         bool completed) => new(

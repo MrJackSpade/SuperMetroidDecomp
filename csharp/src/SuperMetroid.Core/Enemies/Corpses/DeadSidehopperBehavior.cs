@@ -182,8 +182,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAction.PreRotDelay:
-                state.CountPreRotDelayCall();
-                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayCalls)
+                state.CountPreRotDelayUpdate();
+                if (state.PreRotDelayCounter >= CorpseRotScheduleDefinitions.PreRotDelayUpdates)
                 {
                     state.Action = DeadSidehopperAction.Rotting;
                     place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
@@ -265,16 +265,16 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Counts one draining call and, once it has counted a stage's calls, steps the drain, which only the victim shows (#1512).</summary>
+    /// <summary>Counts one draining update and, once it has counted a stage's calls, steps the drain, which only the victim shows (#1512).</summary>
     private static void StepDeadSidehopperDrain(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state)
     {
-        state.DrainStepCalls++;
-        if (state.DrainStepCalls < DeadSidehopperVictimDefinitions.DrainCallsPerStage)
+        state.DrainStepUpdates++;
+        if (state.DrainStepUpdates < DeadSidehopperVictimDefinitions.DrainUpdatesPerStage)
             return;
 
-        state.DrainStepCalls = 0;
+        state.DrainStepUpdates = 0;
 
         // Only the victim drains: a corpse placed already dead never reaches its drain.
         state.DrainStage++;
@@ -358,7 +358,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Runs one rot call and its dust, moving the corpse's own rows as the call moves them (#1539).</summary>
+    /// <summary>Runs one rot update and its dust, moving the corpse's own rows as the call moves them (#1539).</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemyPlace place,
         DeadSidehopperEnemyState state)

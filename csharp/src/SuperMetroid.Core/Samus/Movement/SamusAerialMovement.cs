@@ -173,9 +173,9 @@ public static class SamusAerialMovement
         if (!fullySubmergedWithoutGravity)
             TryRestartSpaceJump(samus, controllerNewInput);
 
-        // Plays the underwater Space Jump sound only at the last tick of
-        // animation frames zero and eight. It is movement-owned, so publish it before the
-        // later animation call can advance the timer/frame pair.
+        // Plays the underwater Space Jump sound only at the last tick of the spin's
+        // start and middle frames. It is movement-owned, so publish it before the
+        // later animation step can advance the timer/frame pair.
         if (fullySubmergedWithoutGravity &&
             samus.AnimationFrameTimer.IsAt(1) &&
             (samus.AnimationIsOn(SamusAnimationFrames.SpaceJumpSpinStart) || samus.AnimationIsOn(SamusAnimationFrames.SpaceJumpSpinMiddle)))
@@ -274,9 +274,9 @@ public static class SamusAerialMovement
             !SamusPoseMetadata.IsWallJumpPose(samus.Pose))
             throw new InvalidOperationException($"Wall-jump movement requires a wall-jumping pose, not {samus.Pose}.");
 
-        // Frames 23+ are the somersault portion and always attack as the Screw Attack.
-        // Frames 3..22 attack as the pseudo Screw Attack only after the projectile flare counter
-        // reaches 60. Frames 0..2 deliberately remain harmless even when fully charged.
+        // From the Screw Attack spin's start the somersault always attacks as the Screw Attack.
+        // From the ordinary spin's start it attacks as the pseudo Screw Attack only after the projectile flare counter
+        // reaches 60. The jump's frames before the spin remain harmless even when fully charged.
         if (samus.AnimationHasReached(SamusAnimationFrames.WallJumpScrewAttackSpinStart))
             samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         else if (samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart) && samus.BeamCharge.HasCharged(BeamChargeDefinitions.FullyChargedCounter))
@@ -359,7 +359,7 @@ public static class SamusAerialMovement
             throw new InvalidOperationException($"Aerial-turn movement requires a jumping or falling turn pose, not {samus.Pose}.");
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-        // The turning wrapper enters the shared X mover, including its
+        // The turning movement enters the shared X mover, including its
         // extra-run-speed epilogue, before canceling boost later in this frame.
         // Turning cannot actively dash, but retained boost still publishes contact
         // damage for this final frame. Clearing the counter is not retroactive.
@@ -443,7 +443,7 @@ public static class SamusAerialMovement
         }
 
         AerialMovementResult result = FinishVerticalMovement(level, samus, frameCounter, roomObjects: roomObjects);
-        // The movement wrapper selects fast-fall art after physics, before Samus is animated.
+        // The movement selects fast-fall art after physics, before Samus is animated.
         // Aimed falling poses have their own animations and do not enter this branch.
         if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose or
             SamusPoseId.FallingGunExtendedRightPose or SamusPoseId.FallingGunExtendedLeftPose &&
@@ -742,7 +742,7 @@ public static class SamusAerialMovement
 
     /// <summary>
     /// The air/partially-submerged Space Jump gate of spin-jumping movement.
-    /// Screw Attack can use this physics when both item bits are
+    /// Screw Attack can use this physics when both items are
     /// equipped even though its visible pose is the Screw Attack pose.
     /// </summary>
     private static bool TryRestartSpaceJump(

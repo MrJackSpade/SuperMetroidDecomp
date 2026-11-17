@@ -40,11 +40,11 @@ internal static class SamusDrainedAnimationDefinitions
     internal static SamusAnimationPlace ReleaseCrouchingFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedReleaseCrouching, Held, 6);
     /// <summary>The drained breathing's restart, which the release moves a drained standing pose to.</summary>
     internal static SamusAnimationPlace ReleaseStandingFrame { get; } = SamusAnimationDelayDefinitions.DrainedStandingLeftAnimation.Place(SamusAnimationPlaceName.DrainedReleaseStanding, Breathe, 4);
-    /// <summary>The collapse's third frame, which the drained-fall controller initializes the drained crouch on.</summary>
+    /// <summary>The collapse's third frame, which the drained fall initializes the drained crouch on.</summary>
     internal static SamusAnimationPlace FallInitialFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedFallInitial, Collapse, 2);
-    /// <summary>The held crouch's first frame after its landing, which the crouching-or-falling controller writes the drained crouch on.</summary>
+    /// <summary>The held crouch's first frame after its landing, which the drained crouch or fall writes the drained crouch on.</summary>
     internal static SamusAnimationPlace PutCrouchingFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedPutCrouching, Held, 1);
-    /// <summary>How many ticks the crouching-or-falling controller holds its first frame.</summary>
+    /// <summary>How many ticks the drained crouch or fall holds its first frame.</summary>
     internal const int PutCrouchingTimer = 16;
     /// <summary>How many ticks standing drained Samus up holds the drained stand's first frame.</summary>
     internal const int PutStandingTimer = 16;

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The item room object grants the equipment bit and displays message first. Only after
+/// The item room object grants the suit and displays its message first. Only after
 /// that synchronous message returns does the suit pickup center and lock Samus,
 /// while the light beam advances this seven-stage sequence
 /// once per gameplay frame. This owner deliberately begins after the message rather than
@@ -24,7 +24,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// window shapes the backend draws (#1468).
 /// </para>
 /// <para>
-/// The pickup leaves its stage and its light beam's progress at its setup and after every stage call
+/// The pickup leaves its stage and its light beam's progress at its setup and after every stage update
 /// (<see cref="LeaveProgress"/>): both in the shinespark's upward acceleration (<see cref="SuitPickupSparkCarryover{TStage}"/>),
 /// and the stage on the count Crystal Flash's ammunition drain and Draygon's escape share
 /// (<see cref="SharedEscapeAndDrainCount{TStage}"/>).
@@ -71,7 +71,7 @@ public sealed class SamusSuitPickupState
     /// one pixel, accelerates during the curved widening, is halved at the reveal and decelerates to a one-pixel minimum
     /// while the beam shrinks. It stays positive and far below the sign of its 1/256-pixel form: the curved widening moves the
     /// left edge from column 108 by at least one pixel an update, so it accelerates for at most 108 updates and the speed
-    /// stays below 256 + 108 * 96 = 10624 256ths of a pixel.
+    /// stays below 10624 256ths of a pixel: one pixel plus 108 updates of acceleration.
     /// </summary>
     private SignedEightEight _lightBeamSpeed;
 
@@ -117,9 +117,9 @@ public sealed class SamusSuitPickupState
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.MorphBallBounceState = SamusBallBounceState.None;
 
-        // The first pose tests the OTHER suit bit. Acquiring Varia while Gravity is already
+        // The first pose tests whether the other suit is equipped. Acquiring Varia while Gravity is already
         // equipped (or vice versa) therefore starts in the suited front pose; an ordinary
-        // first suit starts in the power suit's front pose until stage three performs the reveal.
+        // first suit starts in the power suit's front pose until the reveal.
         bool otherSuitAlreadyEquipped = kind == SamusSuitPickupKind.Varia
             ? samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit);
@@ -273,7 +273,7 @@ public sealed class SamusSuitPickupState
         }
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
-        // Stage two widens this column by the authored curve on each row.
+        // The curved widening widens this column by the authored curve on each row.
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         _lightBeamSpeed += SuitPickupBeamDefinitions.WideningAcceleration;
@@ -286,7 +286,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
-    /// <summary>Installs the equipment bit, suited front pose, and shade at the third-stage handoff.</summary>
+    /// <summary>Equips the suit and shows the suited front pose and shade as the beam starts to close.</summary>
     private void RevealSuit(SamusState samus, SamusColours colours)
     {
         SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia

@@ -171,7 +171,7 @@ internal sealed class GateObjects
             DownwardGateTriggerBehavior.BlueLeft or DownwardGateTriggerBehavior.BlueRight => !plainPowerBomb,
             DownwardGateTriggerBehavior.YellowLeft => plainPowerBomb,
 
-            // The retail right-yellow gate triggers on everything but a power bomb, the opposite of the
+            // The right-yellow gate triggers on everything but a power bomb, the opposite of the
             // left one.
             DownwardGateTriggerBehavior.YellowRight => !plainPowerBomb,
             _ => throw new InvalidOperationException($"Undefined gate trigger {trigger}."),

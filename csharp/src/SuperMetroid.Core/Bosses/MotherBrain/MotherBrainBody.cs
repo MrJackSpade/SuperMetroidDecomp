@@ -123,7 +123,7 @@ internal sealed class MotherBrainBody
 
                 // Sealing the wall creates both dust puffs before its
                 // two identical fixed room objects. Requests remain ordered because the room-object
-                // allocator searches the same descending pool for each call.
+                // allocator searches the same descending pool for each request.
                 foreach (Position16<RoomPixels> dust in MotherBrainFightDefinitions.SealedWallDust)
                     _projectiles.SpawnDustOrExplosion(dust, MiscDustAnimation.SmallDustCloud);
                 foreach (RoomObjectSpawnRequest<MotherBrainRoomMutation> wall in MotherBrainFightDefinitions.SealedWall)

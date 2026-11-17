@@ -197,28 +197,28 @@ public sealed class SharedGameState
     public bool HasEvent(StoryEvent storyEvent) => Progress.HasEvent(storyEvent);
 
     /// <summary>Whether <paramref name="location"/>'s pickup has been collected, as the item room objects test it.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not a retail item location.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not an item location.</exception>
     public bool HasCollectedItem(ItemLocation location) => Progress.CollectedItems.Contains(location);
 
     /// <summary>
     /// Marks one physical pickup as collected, as an item room object does when Samus collects it. This set identifies
     /// locations; it is deliberately independent from Samus's equipment, where multiple tanks of one kind share one meaning.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not a retail item location.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="location"/> is not an item location.</exception>
     public void CollectItem(ItemLocation location) => Progress.CollectedItems.Add(location);
 
     /// <summary>
     /// Whether <paramref name="door"/> has been opened for good. Caps whose opening never persists are handled by their
     /// room object, which never asks.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not a retail door.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not one of the game's doors.</exception>
     public bool HasOpenedDoor(LockedDoor door) => Progress.OpenedDoors.Contains(door);
 
     /// <summary>
     /// Persists a coloured door after its final valid hit, matching the door cue. Re-entering
     /// the room then converts that coloured cap into its ordinary blue-door counterpart.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not a retail door.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="door"/> is not one of the game's doors.</exception>
     public void OpenDoor(LockedDoor door) => Progress.OpenedDoors.Add(door);
 
     /// <summary>Marks a cell of <paramref name="area"/>'s map as explored, as Samus's map-exploration update does.</summary>

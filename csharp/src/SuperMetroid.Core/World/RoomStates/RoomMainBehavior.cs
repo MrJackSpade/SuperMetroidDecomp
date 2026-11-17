@@ -34,8 +34,8 @@ public abstract class RoomMainBehavior
 
     /// <summary>
     /// No room-specific main behaviour runs: the state names no main, one that returns at once and leaves the working
-    /// value <see cref="RoomMainCarryover"/> holds untouched (#1787), or one whose only work the port does not reproduce:
-    /// the Dachora room's and Ridley's room's (#2287).
+    /// value <see cref="RoomMainCarryover"/> holds untouched (#1787), or Ridley's room's, whose only work the port does not
+    /// reproduce (#2287).
     /// </summary>
     public static RoomMainBehavior None { get; } = new NoRoomMain();
 
@@ -85,13 +85,16 @@ public abstract class RoomMainBehavior
     /// <summary>Applies the Crocomire room's encounter-dependent shaking.</summary>
     public static RoomMainBehavior CrocomireRoomShaking { get; } = new CrocomireRoomShakingRoomMain();
 
+    /// <summary>Moves the Dachora room's camera toward its shaft while the shaft stands open (#2293).</summary>
+    public static RoomMainBehavior DachoraShaftCamera { get; } = new DachoraShaftCameraRoomMain();
+
     /// <summary>Every room-main behaviour the room states author, <see cref="None"/> first.</summary>
     public static IReadOnlyList<RoomMainBehavior> All { get; } =
     [
         None, ScrollingSkyLand, ScrollingSkyOcean, ScrollingSkyLandWithEscapeExplosions, ShakeScreenWithRandomExplosions,
         MaridiaElevatube, CeresElevatorShaft, SpawnCeresPreElevatorHallFallingDebris, CeresRidleyGetaway,
         ShakeScreenLightHorizontalAndMediumDiagonal, RandomExplosionEveryFourthUpdate,
-        ShakeScreenMediumHorizontalAndStrongDiagonal, CrocomireRoomShaking,
+        ShakeScreenMediumHorizontalAndStrongDiagonal, CrocomireRoomShaking, DachoraShaftCamera,
     ];
 
     /// <summary>The main that runs nothing: the room composes no main.</summary>
@@ -169,5 +172,12 @@ public abstract class RoomMainBehavior
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeCrocomireRumbleMain();
+    }
+
+    /// <summary>The Dachora room's camera, moved toward its shaft while the shaft stands open.</summary>
+    private sealed class DachoraShaftCameraRoomMain() : RoomMainBehavior(nameof(DachoraShaftCamera))
+    {
+        /// <inheritdoc/>
+        internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeDachoraShaftCameraMain();
     }
 }

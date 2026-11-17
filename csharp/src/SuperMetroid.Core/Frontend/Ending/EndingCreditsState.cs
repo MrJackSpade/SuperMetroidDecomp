@@ -385,7 +385,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 PostCreditsTyping.Step();
                 if (PostCreditsTyping.RequestedItemPercentageScroll && PostCreditsTyping.Completed)
                 {
-                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.ItemPercentageDropCalls;
+                    Stage.PhaseTimer = EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates;
                     Stage.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
                 }
                 break;
@@ -393,7 +393,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.ItemPercentageScrollDown:
                 // The item-percentage scroll moves the shown text down two pixels an update, eighty in all, before the final
                 // message starts above it.
-                InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerCall;
+                InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
                 if (--Stage.PhaseTimer <= 0)
                 {
                     InstalledArtwork.PostCreditsText.StartFinalMessage(CreditsRoll.TypewriterSetup());

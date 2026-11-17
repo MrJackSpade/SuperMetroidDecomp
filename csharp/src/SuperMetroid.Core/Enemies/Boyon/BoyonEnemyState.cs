@@ -23,7 +23,7 @@ public sealed class BoyonEnemyState
     public UnsignedSixteenSixteen Speed { get; internal set; }
 
     /// <summary>
-    /// The height of the arc, from its spawn settings: 48 to 96 pixels for retail Boyons, compared plainly with the arc's
+    /// The height of the arc, from its spawn settings: 48 to 96 pixels for Boyons, compared plainly with the arc's
     /// distance (<see cref="HasReachedJumpHeight"/>, #2282).
     /// </summary>
     public SignedSixteenSixteen JumpHeight

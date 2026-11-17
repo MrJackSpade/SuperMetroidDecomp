@@ -71,7 +71,7 @@ internal enum SamusAnimationPlaceName
     /// <summary>The collapse's frame the drained fall starts the drained crouch on (<see cref="Abilities.SamusDrainedAnimationDefinitions.FallInitialFrame"/>).</summary>
     DrainedFallInitial,
 
-    /// <summary>The held crouch's frame the crouching-or-falling controller writes (<see cref="Abilities.SamusDrainedAnimationDefinitions.PutCrouchingFrame"/>).</summary>
+    /// <summary>The held crouch's frame the drained crouch or fall writes (<see cref="Abilities.SamusDrainedAnimationDefinitions.PutCrouchingFrame"/>).</summary>
     DrainedPutCrouching,
 
     /// <summary>The Screw Attack spin's frame wall contact rewinds to (<see cref="Movement.SamusWallContactAnimationDefinitions.ScrewAttackRewindFrame"/>).</summary>

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
-/// <summary>Authored definitions shared by the elevator actor and its room audit.</summary>
+/// <summary>Authored definitions of the elevator actor.</summary>
 public static class ElevatorActorDefinitions
 {
     /// <summary>Samus's center is 26 pixels above the platform.</summary>

@@ -191,7 +191,7 @@ public static class SamusKnockbackMovement
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.None;
 
         // Starts the hurt flash after cancelling bomb-jump/contact damage. This is an independent
-        // 60-call shade/audio lifetime, not the five-frame knockback timer established above.
+        // 60-update shade/audio lifetime, not the five-frame knockback timer established above.
         samus.HurtFlash.Start();
 
         // Hurt launch retains the bottom-edge and Gravity-Suit selection.
@@ -244,7 +244,7 @@ public static class SamusKnockbackMovement
 
         if (vertical.Collided)
         {
-            // Is reached only after the vertical helper, so horizontal wall
+            // Is reached only after the vertical step, so horizontal wall
             // contact alone does not clear these vertical values. Bottom alignment is already
             // represented by the block collision's accepted displacement against the current radius.
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -275,7 +275,7 @@ public static class SamusKnockbackMovement
         if (!valid)
         {
             throw new InvalidOperationException(
-                $"Damage boost {sourcePose} -> {targetPose} is not a retail transition.");
+                $"Damage boost {sourcePose} -> {targetPose} is not a transition.");
         }
 
         // Returns only her movement to her pose. The conditional jump
@@ -416,7 +416,7 @@ public static class SamusKnockbackMovement
         ISamusRoomObjects roomObjects)
     {
         // Gives nonzero external Y priority over its normal total-X-plus-one
-        // slope-following probe. This down-knockback path consumes the exact same helper.
+        // slope-following probe. This down-knockback path takes the exact same step.
         SignedSixteenSixteen requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);

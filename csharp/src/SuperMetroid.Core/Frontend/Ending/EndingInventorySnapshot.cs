@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Collected capacity and item bits captured for the ending's item-percentage calculation.</summary>
+/// <summary>Collected capacity and items captured for the ending's item-percentage calculation.</summary>
 internal readonly record struct EndingInventorySnapshot(
     int MaxHealth,
     int MaxReserveEnergy,

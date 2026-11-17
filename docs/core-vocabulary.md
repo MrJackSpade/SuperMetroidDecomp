@@ -454,6 +454,24 @@ frames in the order they are named, the places a random number chooses, the segm
 (`the camera shifts left two pixels`), a room that clears when Samus leaves, physical contact, the halves of a picture
 and a value kept for an update stay English.
 
+#2292 widens SME6454, outside hardware owners, to the original's routines and storage told in Samus, enemy, boss, World
+and Runtime prose: a wrapper (`the turning wrapper`), a helper after any word but an article (`the rising helper`, `this
+helper`), a scripted, drained, grabbed, tail, pogo, flight, fake-wall, formation or movement controller and an owner's
+controllers (`Mother Brain's controllers`); a merge path; an equipment, state, suit, item, beam, facing or liquid bit and
+an item's own bit (`the Screw Attack bit`, `both bits are equipped`, `this bit`); a stage by number outside the Speed
+Booster's (`stage three equips the suit`, `the third-stage handoff`); updates counted as calls (`sixteen calls`, `the
+nine-call cadence`, `one call of the destruction`, `calls left`, `call order`), in prose and in declared names
+(`FlashCalls`, `ImpactSoundCall`, `DelayCallsPerRow`); a value compared, read or treated as signed; a deferred write and a
+suit's colour copy; odd frames that return; hardcoded data; an offset written with a plus sign (`destination+31`, `the +31
+allowance`, `at +0`); a count of bits (`wrapping at sixteen bits`, `a three-bit jitter`); position, policy, launch and
+search rows, records and tables (`the 352 row`, `in search order`); arithmetic written as a summary (`the left edge (-24)
+minus two`, `256 + 108 * 96 = 10624`); the retail game in any use; and a cursor through the original's lists (`the history
+cursor`, `advances the cursor`). Core says what the game does: the step and what it does, the item equipped, the
+suit's reveal, the updates a wait lasts, which way a distance lies, the room's wrap, the destination Kraid walks to, the
+game itself. A helper alone, the helper text, the player's controller and its input, a scripted controller's input,
+Shaktool's room controller, a bit more, the Speed Booster's stages, a call to another owner, one call per room, an input
+built for one call, a signed value, a sum written with spaces, a signed list of deltas and a menu's cursor stay English.
+
 `Tilemap` is matched as the one word the cartridge's sources spell. A room layer named as the destination engine names
 it, `TileMap` or `TileMapLayer`, is the two words `Tile` and `Map` and stays the game's own, as does `MapTiles`; so does
 `SpriteSheet` beside `Spritemap`, and `Scan`, `Scanned` or `FirstLine` beside `Scanline` (#1694). Documentation prose is

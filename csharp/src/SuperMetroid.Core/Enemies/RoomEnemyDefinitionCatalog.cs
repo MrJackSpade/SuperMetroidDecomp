@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Grapple;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Typed, immutable enemy definitions referenced by all 323 retail room states.</summary>
+/// <summary>Typed, immutable enemy definitions referenced by all 323 room states.</summary>
 /// <remarks>
 /// Compiled once from the game's definitions, with no generator in the repository. The 147 definitions are
 /// enumerated from every room population and the enemies the game spawns (each Ceres door its own, #1989), not inferred from a contiguous range. These are
@@ -164,7 +164,7 @@ public static class RoomEnemyDefinitionCatalog
         new RoomEnemyDefinitionEntry(EnemyDefinitionId.PirateSilverWalking, new(500, 15, new(16, 32), 4, EnemySound.Yell, null, GrappleEnemyReaction.Cancel, EnemyHurtResponse.Inert, EnemyDeathExplosion.Big, null, null, null, EnemyHitboxScan.Scanned, EnemyHitboxScan.Scanned, new EnemyDropChances(0, 0, 0, 255, 0, 0), EnemyVulnerabilityDefinitions.DoubledByMissiles)),
     ];
 
-    /// <summary>Number of distinct retail enemy definitions reachable from room states.</summary>
+    /// <summary>Number of distinct enemy definitions reachable from room states.</summary>
     public const int Count = 147;
 
     /// <summary>

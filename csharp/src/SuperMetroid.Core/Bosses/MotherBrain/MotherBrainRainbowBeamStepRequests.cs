@@ -34,7 +34,7 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether disabling her brain's effects detached her brain, which keeps the colours it shows.</summary>
     internal bool BrainDetached { get; set; }
 
-    /// <summary>Whether her body's fade ran, which flickers her body with the background on every call.</summary>
+    /// <summary>Whether her body's fade ran, which flickers her body with the background on every update.</summary>
     internal bool BodyFlickers { get; set; }
 
     /// <summary>The image of her body's fade to black that the call shows, if it shows one.</summary>
@@ -116,15 +116,15 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal void StartIndefiniteEarthquake(EarthquakeShake shake) => Earthquake = new(shake, Frames: null);
 
     /// <summary>
-    /// Runs the room's earthquake on until a producer gives it a length, keeping any shake this call started or else the
+    /// Runs the room's earthquake on until a producer gives it a length, keeping any shake this update started or else the
     /// room's own.
     /// </summary>
     internal void KeepEarthquakeGoing() => Earthquake = new(Earthquake?.Shake, Frames: null);
 
-    /// <summary>Runs the room's earthquake on for <paramref name="frames"/> frames, keeping any shake this call started.</summary>
+    /// <summary>Runs the room's earthquake on for <paramref name="frames"/> frames, keeping any shake this update started.</summary>
     internal void RunEarthquakeOn(int frames) => Earthquake = new(Earthquake?.Shake, frames);
 
-    /// <summary>Stops the room's earthquake, keeping any shake this call started for a later run.</summary>
+    /// <summary>Stops the room's earthquake, keeping any shake this update started for a later run.</summary>
     internal void StopEarthquake() => RunEarthquakeOn(0);
 
     /// <summary>The call's result.</summary>

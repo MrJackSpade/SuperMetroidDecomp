@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Looks up the compiled retail enemy definitions by identity: the definitions room states reference, checked when their
+/// Looks up the compiled enemy definitions by identity: the definitions room states reference, checked when their
 /// catalog is indexed, and the auxiliary definitions runtime-created actors use.
 /// </summary>
 public static class RoomEnemyDefinitionLookup
@@ -24,13 +24,13 @@ public static class RoomEnemyDefinitionLookup
         return byId.ToFrozenDictionary();
     }
 
-    /// <summary>Gets an application-owned retail definition, rejecting an unreferenced identity.</summary>
+    /// <summary>Gets an application-owned definition, rejecting an unreferenced identity.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="definitionId"/> is not referenced by a room state.</exception>
     public static RoomEnemyDefinition Get(EnemyDefinitionId definitionId) =>
         RoomEnemyDefinitionCatalog.ById.TryGetValue(definitionId, out RoomEnemyDefinition definition)
             ? definition
             : throw new ArgumentOutOfRangeException(nameof(definitionId), definitionId,
-                "Not a referenced retail enemy definition.");
+                "Not a referenced enemy definition.");
 
     /// <summary>
     /// The compiled definition for <paramref name="definitionId"/>: an auxiliary definition the rooms' populations need

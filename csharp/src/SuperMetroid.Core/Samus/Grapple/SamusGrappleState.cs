@@ -12,9 +12,9 @@ public sealed class SamusGrappleState
 
     /// <summary>The installed artwork the flare's placement, the swing's pictures and the rope draw from.</summary>
     internal SuperMetroid.Core.Samus.Artwork.SamusArtworkBinding Artwork { get; }
-    /// <summary>Gets or sets the current grapple phase.</summary>
+    /// <summary>The current grapple phase.</summary>
     public GrapplePhase Phase { get; set; }
-    /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>
+    /// <summary>The grapple anchor (beam endpoint) in room pixels.</summary>
     public Position16<RoomPixels> Anchor { get; set; }
 
     /// <summary>
@@ -58,7 +58,7 @@ public sealed class SamusGrappleState
     public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
     /// <summary>The pose-change auto-fire timer; permits early pose-directed refiring.</summary>
     public int PoseChangeAutoFireTimer { get; set; }
-    /// <summary>Gets or sets the signed 1/256-pixel endpoint extension velocity.</summary>
+    /// <summary>The signed 1/256-pixel endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
@@ -67,15 +67,15 @@ public sealed class SamusGrappleState
     /// rather than a pure function of the speed.
     /// </summary>
     public FixedVector<RoomPixels> ExtensionSubstep { get; set; }
-    /// <summary>Gets or sets the physical hand-origin offset from Samus.</summary>
+    /// <summary>The hand's offset from Samus.</summary>
     public Offset16<RoomPixels> OriginOffset { get; set; }
-    /// <summary>Gets or sets the drawn flare's offset from Samus.</summary>
+    /// <summary>The drawn flare's offset from Samus.</summary>
     public Offset16<RoomPixels> FlareOffset { get; set; }
-    /// <summary>Gets or sets the endpoint's signed 1/65536-pixel offset from the rope origin.</summary>
+    /// <summary>The endpoint's signed 1/65536-pixel offset from the rope origin.</summary>
     public FixedVector<RoomPixels> EndpointOffset { get; set; }
-    /// <summary>Gets or sets the grapple angle.</summary>
+    /// <summary>The grapple angle.</summary>
     public RotationAngle Angle { get; set; }
-    /// <summary>Gets or sets the angle mirrored for the connected-swing calculations.</summary>
+    /// <summary>The angle mirrored for the connected-swing calculations.</summary>
     public RotationAngle MirroredAngle { get; set; }
     /// <summary>
     /// The signed angular velocity: the swing clamps every update's sum to the maximum either way before storing it,
@@ -120,9 +120,9 @@ public sealed class SamusGrappleState
         value >= -most && value <= most
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, $"The swing's angular terms turn no faster than {most} either way.");
-    /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
+    /// <summary>The countdown suppressing repeated swing-collision bounces.</summary>
     public int CollisionBounceTimer { get; set; }
-    /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>
+    /// <summary>Whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 
     /// <summary>
@@ -192,7 +192,7 @@ public sealed class SamusGrappleState
     /// <summary>The wait the grapple's flare holds its picture for: the picture shows for it and one update more.</summary>
     public WrappingCountdown FlareAnimationTimer { get; set; }
 
-    /// <summary>Gets or sets the grapple endpoint animation countdown.</summary>
+    /// <summary>The grapple endpoint animation countdown.</summary>
     public WrappingCountdown PointAnimationTimer { get; set; }
     /// <summary>
     /// Endpoint animation frame, one of the endpoint's <see cref="GrapplePointAnimationDefinitions.FrameCount"/> frames (#1627):

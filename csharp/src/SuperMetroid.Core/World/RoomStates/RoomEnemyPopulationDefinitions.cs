@@ -2,9 +2,9 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>Application-owned ordered enemy placements selected by all retail room states, grouped by the area of the rooms that load them.</summary>
+/// <summary>Application-owned ordered enemy placements selected by all room states, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The 301 populations and their 1,658 placements are the ones the 322 retail room states select. Placement order governs
+/// The 301 populations and their 1,658 placements are the ones the 322 room states select. Placement order governs
 /// linked place allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
 /// not an editable visual asset.
 /// </remarks>
@@ -23,7 +23,7 @@ public static class RoomEnemyPopulationDefinitions
         ..CeresRoomEnemyPopulationDefinitions.Build(),
     ], ListCount, PlacementCount);
 
-    /// <summary>Number of distinct populations the retail room states select, empty ones included.</summary>
+    /// <summary>Number of distinct populations the room states select, empty ones included.</summary>
     public const int ListCount = 301;
     /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
     public const int PlacementCount = 1658;

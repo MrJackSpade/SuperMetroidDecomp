@@ -61,7 +61,7 @@ public sealed class SamusState
 
     /// <summary>
     /// Writes the pose as the game does when it skips the pose initializer
-    /// (the drained-Samus controllers): the previous pose's
+    /// (the drained Samus sequences): the previous pose's
     /// direction and movement type stay in force.
     /// </summary>
     internal void WritePoseWithoutInitialization(SamusPoseId pose)
@@ -436,7 +436,7 @@ public sealed class SamusState
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt flash's
-    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlashDefinitions.EndingCall"/>).
+    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
@@ -597,7 +597,7 @@ public sealed class SamusState
         Presentation = new SamusPresentation(artwork);
         LiquidPhysics = new SamusLiquidPhysicsState(compatibility.EffectWaits, Presentation.Particles, AudioRequests, PeriodicDamage);
         Kinematics = new SamusKinematicsState();
-        // The backing field supplies the retail standing-right default without invoking
+        // The backing field supplies the standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
         Kinematics.CollisionPose = Pose;
     }
@@ -841,7 +841,7 @@ public sealed class SamusState
     /// <summary>
     /// Absolute previous whole-pixel Y, 0 through 65535, written by a pose-collision correction this frame; null when
     /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it, and its readers wrap its sum with the
-    /// alignment delta at sixteen bits, as the room coordinate does.
+    /// alignment delta around the room, as the room coordinate does.
     /// </summary>
     private int? _poseCollisionPreviousYPosition;
     /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>

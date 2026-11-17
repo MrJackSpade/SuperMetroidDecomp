@@ -32,7 +32,7 @@ public static class EndingSequenceDefinitions
     /// <summary>Authored reveal, colour-fade and panel-hold durations, in cinematic updates.</summary>
     public static class Timing
     {
-        /// <summary>The reward reveal pauses after its counter runs from 127 to 63; the remaining 64 calls follow later.</summary>
+        /// <summary>The reward reveal pauses after its counter runs from 127 to 63; the remaining 64 updates follow later.</summary>
         public const int RewardRevealHalfFrames = 64;
 
         /// <summary>The copyright panel's hold.</summary>
@@ -45,7 +45,7 @@ public static class EndingSequenceDefinitions
         public const int ResultPanelHoldFrames = 180;
 
         /// <summary>The calls the item-percentage text moves down the screen for.</summary>
-        public const int ItemPercentageDropCalls = 40;
+        public const int ItemPercentageDropUpdates = 40;
 
         /// <summary>The explosion's whiteout holds this long, waiting for the planet escape's music, before the flyaway.</summary>
         public const int PlanetEscapeMusicWaitFrames = 120;
@@ -56,7 +56,7 @@ public static class EndingSequenceDefinitions
         /// <summary>The waiting backdrop's hold.</summary>
         public const int WaitingBackdropFrames = 180;
 
-        /// <summary>Pixels the item-percentage text moves down the screen on each call of its forty-call move down.</summary>
-        public const int TextDropPixelsPerCall = 2;
+        /// <summary>Pixels the item-percentage text moves down the screen on each update of its forty-update move down.</summary>
+        public const int TextDropPixelsPerUpdate = 2;
     }
 }

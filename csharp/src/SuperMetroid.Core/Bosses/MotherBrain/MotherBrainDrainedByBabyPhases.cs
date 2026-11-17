@@ -62,7 +62,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // The taken-aback step is not executed by the Baby. It runs on Mother Brain's next
         // actor turn, changes form/neck geometry, seeds the regain-balance wait, and falls through so
-        // that this first regain-balance call immediately decrements it.
+        // that this first regain-balance update immediately decrements it.
         Encounter.Form = MotherBrainForm.DrainedByBabyMetroid;
         Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
         Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;

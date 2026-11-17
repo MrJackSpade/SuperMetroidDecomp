@@ -30,8 +30,8 @@ public sealed class DeadSidehopperEnemyState
     /// <summary>Position 0..3 in the four-hop launch cycle, selecting the next launch velocity; each landing advances it modulo four.</summary>
     public int JumpPhase { get; internal set; }
 
-    /// <summary>Draining AI calls since the drain last stepped, 0..7; the eighth call steps the drain and restarts the count.</summary>
-    public int DrainStepCalls { get; internal set; }
+    /// <summary>Draining AI updates since the drain last stepped, 0..7; the eighth steps the drain and restarts the count.</summary>
+    public int DrainStepUpdates { get; internal set; }
 
     /// <summary>
     /// How far Shitroid's drain has gone: 0 before Shitroid feeds, 1..7 while draining and 8 once the victim is a corpse;
@@ -73,8 +73,8 @@ public sealed class DeadSidehopperEnemyState
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
-    /// Pre-rot AI calls counted since Samus first stood on the corpse, from zero: the call that counts
-    /// <see cref="CorpseRotScheduleDefinitions.PreRotDelayCalls"/> starts rotting, and the corpse never returns to the
+    /// Pre-rot AI updates counted since Samus first stood on the corpse, from zero: the update that counts
+    /// <see cref="CorpseRotScheduleDefinitions.PreRotDelayUpdates"/> starts rotting, and the corpse never returns to the
     /// delay, so the count stops there.
     /// </summary>
     public int PreRotDelayCounter
@@ -89,6 +89,6 @@ public sealed class DeadSidehopperEnemyState
     /// </summary>
     public int StateTimer { get; internal set; }
 
-    /// <summary>Counts one pre-rot AI call.</summary>
-    internal void CountPreRotDelayCall() => PreRotDelayCounter++;
+    /// <summary>Counts one pre-rot AI update.</summary>
+    internal void CountPreRotDelayUpdate() => PreRotDelayCounter++;
 }

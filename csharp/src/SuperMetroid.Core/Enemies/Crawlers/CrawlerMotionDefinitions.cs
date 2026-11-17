@@ -9,7 +9,7 @@ internal static class CrawlerMotionDefinitions
     /// <summary>The speed a falling crawler gains each update: half a pixel per update.</summary>
     internal static readonly SignedSixteenSixteen FallingGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
 
-    /// <summary>The whole-pixel falling speed, compared as signed, from which a falling crawler stops falling faster.</summary>
+    /// <summary>The whole-pixel falling speed, positive downward, from which a falling crawler stops falling faster.</summary>
     internal const int FallingSpeedCap = 4;
 
     /// <summary>

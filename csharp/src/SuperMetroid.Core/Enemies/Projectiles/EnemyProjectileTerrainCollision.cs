@@ -121,8 +121,8 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
     }
 
     /// <summary>
-    /// The unconditional rows of the enemy-projectile block
-    /// reaction tables. Slopes and extensions are resolved before reaching this test.
+    /// The block reactions an enemy projectile has whatever
+    /// the block's shape. Slopes and extensions are resolved first.
     /// Spike blocks stop projectiles; grapple blocks do not.
     /// </summary>
     private static bool IsWall(RoomCollisionType type) => type is

@@ -52,7 +52,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
     /// <summary>
     /// Executes the common grapple AI the grappled state selects. Returning true tells the
-    /// ordinary scheduler that this call replaced main AI for the current enemy frame.
+    /// ordinary scheduler that this update replaced main AI for the current enemy frame.
     /// </summary>
     internal bool RunCommonGrappleAi(RoomEnemyPlace enemy, IEnemyAiFrame frame)
     {
@@ -99,7 +99,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                     return true;
                 }
 
-                // This common wrapper is Powamp's crucial distinction: it invokes the enemy's normal main behaviour, with
+                // This shared grapple step is Powamp's crucial distinction: it invokes the enemy's normal main behaviour, with
                 // the whole frame it would otherwise see, while the grappled state remains observable, then clears that
                 // state after the actor has moved its grapple anchor.
                 _lifecycle.RunMainAi(enemy, frame);

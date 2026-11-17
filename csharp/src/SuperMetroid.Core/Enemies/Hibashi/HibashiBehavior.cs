@@ -16,7 +16,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyPlaces _places;
     /// <summary>The hitbox part each visible geyser found when it was placed, which its room lists right after it.</summary>
     private readonly EnemyPartLinks<RoomEnemyPlace> _hitboxes = new();
-    /// <summary>Receives each eruption's sound in call order, as the game queues it.</summary>
+    /// <summary>Receives each eruption's sound in the order the game queues them.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds paired Hibashi parts to the room's enemy places and the enemy audio queue.</summary>

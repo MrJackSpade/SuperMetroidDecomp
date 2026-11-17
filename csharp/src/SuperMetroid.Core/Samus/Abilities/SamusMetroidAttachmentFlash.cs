@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
 /// Runs the Metroid-attachment branch of Samus's miscellaneous colours. A draining Metroid is the
-/// retail producer: Samus alternates between the Speed Booster glow and the normal suit, one per update, until the
+/// only cause: Samus alternates between the Speed Booster glow and the normal suit, one per update, until the
 /// Metroid releases her (<see cref="SamusState.MetroidAttachmentShade"/>).
 /// </summary>
 public static class SamusMetroidAttachmentFlash

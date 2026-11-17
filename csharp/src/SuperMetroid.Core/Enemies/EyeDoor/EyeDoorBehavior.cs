@@ -24,9 +24,9 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Replays spawning a projectile with room graphics and the definition-specific initializer selected
-    /// by the eye-door room object's animation. The room object's block and room argument are retained
-    /// because the game initializers read both directly from their spawning room object.
+    /// Spawns the projectile the eye-door room object's animation chooses,
+    /// with the room's graphics. The projectile keeps the room object's block and room
+    /// because its setup reads both.
     /// </summary>
     public void SpawnEyeDoorProjectile(
         EyeDoorProjectileRequest request,

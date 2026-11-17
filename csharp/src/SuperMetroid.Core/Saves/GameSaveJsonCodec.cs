@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>Strict deterministic conversion between named JSON saves and the owned save store.</summary>
 public static class GameSaveJsonCodec
 {
-    /// <summary>Known equipment bits accepted by the named save schema.</summary>
+    /// <summary>Known equipment flags accepted by the named save schema.</summary>
     private static readonly SamusEquipmentFlags AllEquipmentFlags =
         Enum.GetValues<SamusEquipmentFlags>().Aggregate((left, right) => left | right);
-    /// <summary>Known beam bits accepted by the named save schema.</summary>
+    /// <summary>Known beam flags accepted by the named save schema.</summary>
     private static readonly SamusBeamFlags AllBeamFlags =
         Enum.GetValues<SamusBeamFlags>().Aggregate((left, right) => left | right);
     /// <summary>Known defeated bosses accepted by the named save schema.</summary>
@@ -321,7 +321,7 @@ public static class GameSaveJsonCodec
         return options;
     }
 
-    /// <summary>Every retail area, in area order.</summary>
+    /// <summary>Every area, in area order.</summary>
     private static IReadOnlyList<AreaId> RetailAreas => AreaIds.All;
 
     /// <summary>Rebuilds the persistent progress a validated document lists, rejecting anything out of place.</summary>
@@ -386,7 +386,7 @@ public static class GameSaveJsonCodec
         throw new InvalidDataException($"The save names {area}, which is no area.");
     }
 
-    /// <summary>Requires one entry per retail area, in area order, and returns the areas.</summary>
+    /// <summary>Requires one entry per area, in area order, and returns the areas.</summary>
     private static List<AreaId> DecodeAreaOrder(IEnumerable<AreaId?> areas, string property)
     {
         var listed = new List<AreaId>();

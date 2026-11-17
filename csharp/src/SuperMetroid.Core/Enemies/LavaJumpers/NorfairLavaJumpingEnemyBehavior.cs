@@ -61,7 +61,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         place.SetSpeciesState(state);
 
         // The jumping parent returns to exactly these population coordinates after every
-        // arc. Subpositions are deliberately not saved or cleared by the retail jump.
+        // arc. Subpositions are deliberately not saved or cleared by the jump.
         state.SpawnPosition = place.Position.Whole;
         state.Playback = new(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation);
     }

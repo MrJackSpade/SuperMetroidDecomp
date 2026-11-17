@@ -98,7 +98,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(
             (resumedSamus.EquippedItems & SamusEquipmentFlags.SpeedBooster) != SamusEquipmentFlags.None);
         // Samus's resume from pause also restores her suit's shade.
-        // Equipment bits are live, but the restored gameplay shade is cached.
+        // The equipped items are live, but the restored gameplay shade is cached.
         SuperMetroid.Core.Samus.Colours.SamusSuitShade.Show(session.GameplayRuntime.Player.Colours, resumedSamus.EquippedItems);
         session.GameplayRuntime.Room.LoadedScope.RoomObjects.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.Control.ReleaseRefillStationOnUnpause();

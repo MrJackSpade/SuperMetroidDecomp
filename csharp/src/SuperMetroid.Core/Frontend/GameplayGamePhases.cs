@@ -121,7 +121,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         {
             // The blackout state saves the live Ceres elevator checkpoint only after
             // the screen is blanked. This is the durable post-Ridley Ceres
-            // checkpoint the retail loader later replaces with Zebes arrival.
+            // checkpoint the loader later replaces with Zebes arrival.
             AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
             session.RaiseSavesChanged();
             session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
@@ -163,14 +163,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });
         session.display.PublishGameplay(session.GameplayRuntime);
         // The fade-out reloads the counter from the screen fade's delay, which
-        // the gunship zeroed, so the brightness falls one step on every call.
+        // the gunship zeroed, so the brightness falls one step on every update.
         bool black = session.EscapeFade.Darken();
         session.SetDisplayBrightness(session.EscapeFade.Level);
         if (black)
         {
             // The liftoff state resets display ownership, stops the escape timer/music,
             // cancels all three SFX libraries, and publishes the ending state. The new
-            // state performs its own setup on the following call.
+            // state performs its own setup on the following update.
             session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueSound(SamusSound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(EnemySound.Silence, priority: SoundRequestPriority.Essential);
@@ -288,8 +288,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // A door hit changes the game state during the gameplay call.
             // The already-produced gameplay image remains this frame's image; the
             // following update begins the door state from that publication.
-            // A message box opened later in the same call (a station's completion
-            // notice in the room objects' step) suspends that call until it
+            // A message box opened later in the same update (a station's completion
+            // notice in the room objects' step) suspends that update until it
             // closes, so the door's state waits for the box's final frame.
             session.GameState = SuperMetroidGameState.HitDoorBlock;
         }

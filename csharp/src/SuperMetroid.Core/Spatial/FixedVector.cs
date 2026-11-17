@@ -45,19 +45,19 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>Replaces only the Y fraction, as game code that sets only the fraction does.</summary>
     public FixedVector<TSpace> WithFractionY(int fraction) => WithY(Y.WithFraction(fraction));
 
-    /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 32 bits.</summary>
+    /// <summary>Adds two displacements, carrying fractions and wrapping each axis at 65536 whole pixels.</summary>
     public static FixedVector<TSpace> operator +(FixedVector<TSpace> left, FixedVector<TSpace> right) =>
         new(left.X + right.X, left.Y + right.Y);
 
-    /// <summary>Adds whole pixels to each axis, wrapping each axis's whole pixels at sixteen bits; fractions are unchanged.</summary>
+    /// <summary>Adds whole pixels to each axis, wrapping each axis's whole pixels at 65536; fractions are unchanged.</summary>
     public static FixedVector<TSpace> operator +(FixedVector<TSpace> vector, Offset16<TSpace> wholePixels) =>
         vector + FromWholePixels(wholePixels);
 
-    /// <summary>Subtracts whole pixels from each axis, wrapping each axis's whole pixels at sixteen bits; fractions are unchanged.</summary>
+    /// <summary>Subtracts whole pixels from each axis, wrapping each axis's whole pixels at 65536; fractions are unchanged.</summary>
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> vector, Offset16<TSpace> wholePixels) =>
         vector - FromWholePixels(wholePixels);
 
-    /// <summary>Subtracts two displacements, fractions included, wrapping each axis at 32 bits.</summary>
+    /// <summary>Subtracts two displacements, fractions included, wrapping each axis at 65536 whole pixels.</summary>
     public static FixedVector<TSpace> operator -(FixedVector<TSpace> left, FixedVector<TSpace> right) =>
         new(left.X - right.X, left.Y - right.Y);
 }

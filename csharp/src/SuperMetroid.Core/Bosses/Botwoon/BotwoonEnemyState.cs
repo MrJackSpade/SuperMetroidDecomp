@@ -96,7 +96,7 @@ public sealed class BotwoonEnemyState
     public int QuarterHealth { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
-    /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous call; a difference marks that traversal complete.</summary>
+    /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous update; a difference marks that traversal complete.</summary>
     public bool PreviousInsideHole { get; internal set; }
     /// <summary>Keeps the hole his head crossed from toggling his hole state again until his tail reaches the place the head crossed at, or a new walk starts inside the wall.</summary>
     public bool HoleLatch { get; internal set; }

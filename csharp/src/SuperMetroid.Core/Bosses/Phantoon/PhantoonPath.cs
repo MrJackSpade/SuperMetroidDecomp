@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Moves Phantoon along its figure-eight path, one authored unit step per movement cursor.</summary>
+/// <summary>Moves Phantoon along its figure-eight path, one authored unit step at a time.</summary>
 public static class PhantoonPath
 {
-    /// <summary>Reads the authored signed displacement at the movement cursor.</summary>
+    /// <summary>Reads the authored signed displacement at Phantoon's place on his path.</summary>
     public static Offset16<RoomPixels> Step(int index)
     {
         if ((uint)index >= PhantoonPathDefinitions.Length) throw new ArgumentOutOfRangeException(nameof(index));

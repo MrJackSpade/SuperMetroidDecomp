@@ -9,6 +9,6 @@ public enum ColourEffectHeatSuit
     /// <summary>Varia Suit, selected when Varia is equipped without Gravity.</summary>
     Varia,
 
-    /// <summary>Gravity Suit, which has priority when both suit bits are equipped.</summary>
+    /// <summary>Gravity Suit, which has priority when both suits are equipped.</summary>
     Gravity,
 }

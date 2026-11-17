@@ -15,7 +15,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Room effects enemy AI requests during a pass: the hardcoded room-object spawns of Botwoon, Spore Spawn, Crocomire,
+/// Room effects enemy AI requests during a pass: the fixed room-object spawns of Botwoon, Spore Spawn, Crocomire,
 /// Kraid, Mother Brain, the Shitroid, Phantoon and the Chozo statues, and the downward gates' projectile requests.
 /// </summary>
 internal sealed class EnemyRoomEffects
@@ -45,7 +45,7 @@ internal sealed class EnemyRoomEffects
     internal void StartCeresEscape() => _escapeTimer.RequestCeresStart();
 
     /// <summary>
-    /// Applies the hardcoded room objects and room effects that enemy AI requested during its pass.
+    /// Applies the fixed room objects and room effects that enemy AI requested during its pass.
     /// </summary>
     /// <remarks>
     /// Actors spawn their fixed room objects and make their other room writes
@@ -134,7 +134,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Applies Crocomire's hardcoded arena mutations through the shared 
+    /// Applies Crocomire's arena changes through the shared 
     /// room-object owner. Consuming the full frame-local list preserves publication order
     /// and fixed-pool exhaustion behavior.
     /// </summary>
@@ -157,7 +157,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Transfers Kraid's hardcoded ceiling/platform calls into the shared 
+    /// Transfers Kraid's ceiling and platform requests into the shared 
     /// room-object pool before the current frame's room-object step.
     /// </summary>
     internal void ApplyPendingKraidObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)
@@ -173,7 +173,7 @@ internal sealed class EnemyRoomEffects
 
     /// <summary>
     /// Transfers Mother Brain's fixed room-object requests to the shared 
-    /// owner. The enemy state publishes requests in call order; consuming them
+    /// owner. The enemy state publishes requests in the order it makes them; consuming them
     /// here keeps the places they take in update order and the one-frame execution seam.
     /// </summary>
     internal void ApplyPendingMotherBrainObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects, RoomFxOverlayState roomFxOverlay, ColourEffectSystem roomColourEffects)
@@ -210,7 +210,7 @@ internal sealed class EnemyRoomEffects
     }
 
     /// <summary>
-    /// Transfers Shitroid's hardcoded wall requests to the shared room-object
+    /// Transfers the Shitroid's wall requests to the shared room-object
     /// pool at both producer seams: enemy initialization and the end of each enemy pass.
     /// </summary>
     internal void ApplyPendingShitroidWallObjects(EnemyRoomEffectRequests requests, RoomObjectSystem roomObjects)

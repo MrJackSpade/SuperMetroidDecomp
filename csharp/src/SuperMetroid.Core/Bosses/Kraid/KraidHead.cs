@@ -116,7 +116,7 @@ internal sealed class KraidHead
             return;
         }
 
-        // The open mouth stays shown for 64 frames. Retail emits a rock on
+        // The open mouth stays shown for 64 frames. Kraid spits a rock on
         // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
             KraidCadenceDefinitions.SpitRockEverySixteenthMouthUpdate.IsDue(state.BodyState.HeadTimer))

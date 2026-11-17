@@ -530,7 +530,7 @@ internal sealed class SamusFramePhases
                 break;
 
             case SamusMovementOwner.BombJump:
-                // Preserve the retained pose while input is locked; the late-rise helper can restore input
+                // Preserve the retained pose while input is locked; the late rise can restore input
                 // before the bomb jump lets go of her movement, allowing a matched cancellation.
                 if (frame.BombJumpLocksPoseInput)
                 {
@@ -580,7 +580,7 @@ internal sealed class SamusFramePhases
                 }
                 else if (samus.InitializedPose != samus.Pose)
                 {
-                    // The drained-pose controllers store a drained pose without
+                    // The drained-pose sequences store a drained pose without
                     // initializing it, and the movement keeps running for the cached
                     // movement type. An airborne Samus therefore keeps her jump
                     // physics in the drained pose until a real initializer runs.
@@ -641,7 +641,7 @@ internal sealed class SamusFramePhases
         if (samus.CeresRidleyEjection.IsActive)
             return SamusMovementOwner.CeresRidleyEjection;
         // Knockback takes precedence over the normal movement-type step. Unlike bomb jump,
-        // normal pose input remains active so the knockback poses can still select the retail
+        // normal pose input remains active so the knockback poses can still select the game's
         // damage-boost escape chord.
         if (samus.KnockbackActive)
             return SamusMovementOwner.Knockback;
@@ -1019,7 +1019,7 @@ internal sealed class SamusFramePhases
                 _playerActions.Current,
                 _attractDemo.IsAttractDemo ? _playerActions.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_playerActions.NewlyPressed));
         _player.ProspectiveSamusPose = poseLookup.Transition;
-        // The retail table matcher clears a pending/active bomb direction as
+        // The table matcher clears a pending/active bomb direction as
         // soon as it selects a DIFFERENT pose, before collision and movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
@@ -1153,7 +1153,7 @@ internal sealed class SamusFramePhases
     /// <summary>
     /// Advances the saved-game appearance owner. The ordinary Samus
     /// animation and colour steps have already run earlier in this frame;
-    /// this tail owns only the exact 360-call fanfare lifetime and the restoration of her normal control.
+    /// this tail owns only the exact 360-update fanfare lifetime and the restoration of her normal control.
     /// </summary>
     internal void StepSamusLoadAppearance(RoomScope room)
     {

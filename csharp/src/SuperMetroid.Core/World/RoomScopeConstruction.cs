@@ -152,6 +152,9 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>Composes the Crocomire room's main, the rumble while his death uncovers the hidden wall (#2287).</summary>
     internal void ComposeCrocomireRumbleMain() => Main = new CrocomireRoomShakingMain();
 
+    /// <summary>Composes the Dachora room's main, which moves the camera toward its shaft while the shaft stands open (#2293).</summary>
+    internal void ComposeDachoraShaftCameraMain() => Main = new DachoraShaftCameraMain();
+
     /// <summary>The finished scope.</summary>
     /// <exception cref="InvalidOperationException">A required load step has not run.</exception>
     public RoomScope Complete() => new()

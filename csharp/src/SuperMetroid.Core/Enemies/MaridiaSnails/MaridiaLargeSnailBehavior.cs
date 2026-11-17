@@ -137,7 +137,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
         else if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(1)))
         {
-            // No floor one pixel below means Oum walked off a ledge. Retail restarts the
+            // No floor one pixel below means Oum walked off a ledge. Oum restarts the
             // complete three-impact settling sequence without skipping horizontal work.
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.BouncePhase = MaridiaLargeSnailBouncePhase.Falling;

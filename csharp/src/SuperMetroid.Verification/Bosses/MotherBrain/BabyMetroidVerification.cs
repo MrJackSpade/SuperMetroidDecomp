@@ -210,19 +210,19 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     /// </summary>
     internal static void VerifySamusRainbowFractionCarry()
     {
-        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(3), false), RainbowFramePart.None.AdvancedByOneCall(),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(3), false), RainbowFramePart.None.AdvancedByOneUpdate(),
             "one call from a cleared accumulator adds three 256ths without completing a frame");
         RainbowFramePart fraction = RainbowFramePart.None;
         for (int call = 1; call <= 85; call++)
         {
-            (RainbowFramePart next, bool completed) = fraction.AdvancedByOneCall();
+            (RainbowFramePart next, bool completed) = fraction.AdvancedByOneUpdate();
             AssertTrue(!completed, $"call {call} stays below a whole frame");
             fraction = next;
         }
         AssertEqual(RainbowFramePartConstants.Of(255), fraction, "85 calls accumulate 255 of the 256 a frame needs");
-        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(2), true), fraction.AdvancedByOneCall(),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(2), true), fraction.AdvancedByOneUpdate(),
             "the 86th call completes a frame and keeps the two-256ths remainder");
-        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(1), true), RainbowFramePartConstants.Of(254).AdvancedByOneCall(),
+        AssertEqual(new SamusRainbowFractionStep(RainbowFramePartConstants.Of(1), true), RainbowFramePartConstants.Of(254).AdvancedByOneUpdate(),
             "a fraction two short of a frame completes it and keeps the remainder");
         AssertThrows<ArgumentOutOfRangeException>(
             () => RainbowFramePartConstants.Of(256),

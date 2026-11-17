@@ -49,7 +49,7 @@ public static class SlopeShapeDefinitions
         SlopeSpeedDefinitions.Unscaled, 256);
 
     /// <summary>
-    /// A flat surface at the block's top that no retail slope uses, numbered six ways by the game. It is the surface of
+    /// A flat surface at the block's top that no slope uses, numbered six ways by the game. It is the surface of
     /// <see cref="Solid"/>, kept apart from it because a block keeps its behaviour through a change of collision kind
     /// (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>): a slope written as
     /// <see cref="Solid"/> keeps that shape's own behaviour, which this shape's would not (#1909).

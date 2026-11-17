@@ -225,21 +225,9 @@ internal enum ProjectileTrailPlacementList
     /// <summary>Where <see cref="ProjectileTrailFamily.ChargedWaveIcePlasma"/> trails start for up-left travel.</summary>
     ChargedWaveIcePlasmaUpLeft,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for vertical travel.</summary>
-    SpecialAttackWaveSpazerVertical,
+    /// <summary>Where the Spazer special attack's trailing pair's trails start for every direction but straight down.</summary>
+    SpazerAttackTrailingPair,
 
-    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for up-right and down-left travel.</summary>
-    SpecialAttackWaveSpazerRisingDiagonal,
-
-    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for horizontal travel.</summary>
-    SpecialAttackWaveSpazerHorizontal,
-
-    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackWaveSpazer"/> trails start for down-right and up-left travel.</summary>
-    SpecialAttackWaveSpazerFallingDiagonal,
-
-    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackSpazer"/> trails start for every direction but straight down.</summary>
-    SpecialAttackSpazer,
-
-    /// <summary>Where <see cref="ProjectileTrailFamily.SpecialAttackSpazer"/> trails start for downward travel.</summary>
-    SpecialAttackSpazerDown,
+    /// <summary>Where the Spazer special attack's trailing pair's trails start for downward travel.</summary>
+    SpazerAttackTrailingPairDown,
 }

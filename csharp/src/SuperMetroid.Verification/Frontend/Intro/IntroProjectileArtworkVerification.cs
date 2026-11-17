@@ -40,7 +40,7 @@ internal static class IntroProjectileArtworkVerification
                 Shown(intro, SpriteSourceKind.SamusProjectile).Image, $"Intro family ${family:X} shows its frame of the intro's projectile sheet");
         }
         projectiles.Reset();
-        ProjectileTrailFrame frame = ProjectileTrailVisualDefinitions.Frames[0];
+        ProjectileTrailFrame frame = ProjectileTrailFrame.IceSparkleClustered;
         var side = projectiles.AddTrail().Left;
         side.InstructionPointer = (ushort)(ProjectileTrailNative.Address(frame) + 4); side.FrameHold = 100;
         side.Position = side.Position.WithX(100).WithY(100); side.ShownPose = frame;

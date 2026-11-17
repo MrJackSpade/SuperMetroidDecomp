@@ -17,11 +17,31 @@ internal static class SamusProjectileProgramAddresses
     /// <summary>The layout.</summary>
     internal static SamusProjectileListLayout Layout => layout.Value;
 
-    /// <summary>Each place's instruction pointer, by segment: one per beat, then the segment's end.</summary>
-    internal static IReadOnlyDictionary<SamusProjectileSegment, ushort[]> BeatAddresses => Layout.BeatPositions;
+    /// <summary>Each list place's instruction pointer, by segment: one per timed record, then the list's end.</summary>
+    internal static IReadOnlyDictionary<SamusProjectileSegment, ushort[]> ListPlaceAddresses => Layout.ListPlacePositions;
 
     /// <summary>The list entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(SamusProjectileSegment program) => Layout.BeatPositions[program][0];
+    internal static ushort Entry(SamusProjectileSegment program) => Layout.ListPlacePositions[program][0];
+
+    /// <summary>
+    /// Whether the timed record at <paramref name="record"/> belongs to a list repeating one still picture, which a
+    /// projectile holds once it shows it (#2347).
+    /// </summary>
+    internal static bool ShowsStillPicture(ushort record) =>
+        Layout.TryPlaceAt(record, out SamusProjectileSegmentBeat place)
+            ? SamusProjectileAnimations.Segments.Beats(place.Segment) is [AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame]
+            : throw new InvalidDataException($"$93:{record:X4} is not a Samus projectile list position.");
+
+    /// <summary>The end of the list storing the timed record at <paramref name="record"/>: where a held picture's place stands.</summary>
+    internal static ushort ListEndOf(ushort record) =>
+        Layout.TryPlaceAt(record, out SamusProjectileSegmentBeat place)
+            ? Layout.ListPlacePositions[place.Segment][^1]
+            : throw new InvalidDataException($"$93:{record:X4} is not a Samus projectile list position.");
+
+    /// <summary>Whether <paramref name="animation"/> holds a still picture in any of its phases (#2347), which no bomb does.</summary>
+    internal static bool HoldsStillPicture(Animation<SamusProjectileSegment> animation) =>
+        animation.Phases.Any(phase => SamusProjectileAnimations.Segments.Beats(phase.Segment)
+            .Any(beat => beat is AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame));
 
     /// <inheritdoc cref="SamusProjectileListLayoutAccess2.extension(SamusProjectileListLayout).Prefix"/>
     internal static ushort Prefix(SamusProjectileSegment program) => Layout.Prefix(program);

@@ -1692,14 +1692,16 @@ internal static class LookupStream1Verification
             ushort sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer) };
             AssertTrue(!shots.Animation.AdvanceProjectileAnimation(slot), "Actual native timed frame survives");
-            AssertEqual(duration, slot.FrameHold.RawValue, "Actual timer unchanged");
+            // A list repeating one still picture is held: no timer, the place at the list's end (#2347).
+            bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
+            AssertEqual<ushort?>(still ? null : duration, slot.FrameHold?.RawValue, "Actual timer unchanged, a still picture held");
             AssertEqual(sprite, slot.SpritemapPointer, "Installed artwork selection");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius");
             AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius");
             AssertEqual<SamusProjectileFrameId?>(SamusProjectileProgramsVerification.RecordAt(pointer), ProjectileTrails.GetTrailFrame(slot), "Actual trail frame is the record's");
-            AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
+            AssertEqual(still ? SamusProjectileProgramAddresses.ListEndOf(pointer) : unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
             interpreted++;
-            if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
+            if (duration == 0 || still) continue; // Existing bomb contract excludes zero-duration timed records; no bomb holds a still picture.
             var bomb = new SamusBomb(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             AssertTrue(!bombs.AdvanceProjectileAnimation(bomb), "Actual bomb timed frame survives");
             AssertEqual(duration, bomb.FrameHold.RawValue, "Actual bomb timer unchanged");
@@ -1793,6 +1795,9 @@ internal static class LookupStream1Verification
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: bindings));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Damage = 30 };
             var bomb = new SamusBomb(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
+            // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
+            bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
+                ?? throw new InvalidOperationException($"Projectile list position ${program.Start:X4} names no playback."));
             ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
             var visited = new HashSet<ushort>();
             bool finished = false;
@@ -1819,23 +1824,27 @@ internal static class LookupStream1Verification
                     }
                 }
                 AssertEqual(deleted, shots.Animation.AdvanceProjectileAnimation(slot), "Exact native projectile deletion tick");
-                AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Exact native bomb deletion tick");
+                if (bombPlays)
+                    AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Exact native bomb deletion tick");
                 actualTicks++;
                 if (deleted)
                 {
                     AssertEqual(0, slot.Damage, "Projectile deletion clears occupancy");
-                    AssertTrue(bomb.Type.IsNone, "Bomb deletion clears occupancy");
+                    AssertTrue(!bombPlays || bomb.Type.IsNone, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
                 // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).
-                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y,
+                // A shot holding a still picture keeps it with no timer while the list re-shows it, its place the list's end (#2347).
+                bool held = slot.FrameHold is null;
+                AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(held ? (ushort)0 : timer, held ? SamusProjectileProgramAddresses.ListEndOf(trail) : pointer, sprite, x, y,
                         SamusProjectileProgramAddresses.RecordAddress(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Frame(trail))),
-                    new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y,
+                    new VerifyLookupStream1ProjectileProgramsCase(slot.FrameHold?.RawValue ?? 0, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y,
                         SamusProjectileProgramAddresses.RecordAddress(ProjectileTrails.GetTrailFrame(slot) ?? throw new InvalidOperationException("A played projectile shows a record."))),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
-                AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y),
-                    new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
-                    "Every scheduled bomb exposure/physical envelope matches native");
+                if (bombPlays)
+                    AssertEqual(new LookupStream1VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y),
+                        new LookupStream1VerifyLookupStream1ProjectileProgramsCase(bomb.FrameHold.RawValue, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
+                        "Every scheduled bomb exposure/physical envelope matches native");
                 if (looped) { loops++; finished = true; break; }
             }
             AssertTrue(finished, "Complete native startup and first loop or terminal deletion confirmed");

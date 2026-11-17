@@ -800,7 +800,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
-        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailAnimationDefinitions.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
+        AssertEqual(ProjectileTrailNative.InstructionAddress(command), ProjectileTrailSparkleAnimations.Read(SamusSourceDefinitions.MovementBank.Value | commandAddress),
             "the compiled ice list holds its fall command after six poses");
         executingSide.FrameHold = 1;
         executingSide.InstructionPointer = commandAddress;
@@ -1717,22 +1717,20 @@ static void InstallPowerBeamTrailFixture(TestAddressSpace bus)
     WriteTestWord(bus, 0x90b649, 0xb4c9);
     WriteTestWord(bus, 0x90b5fd, 0xb5a1);
     WriteTestWord(bus, 0x90b64b, 0xb4c9);
-    WriteTestWord(bus, 0x90b4c9, 0x0000);
-    bus.WriteBytes(0x90b5a1, [
-        0x04, 0x00, 0x48, 0x2a,
-        0x04, 0x00, 0x49, 0x2a,
-        0x04, 0x00, 0x4a, 0x2a,
-        0x04, 0x00, 0x4b, 0x2a,
-        0x00, 0x00,
-    ]);
-
-    // This fixture supplies the appearance prefix needed for repeated one-frame tiles
-    // and the first embedded position command. Timing/commands now come from compiled
-    // retail definitions; the complete native program is checked by the trail-art suite.
-    WriteTestWords(bus, 0x90b4cb,
-        1, 0x2c38, 1, 0x2c38, 1, 0x2c38, 1, 0x2c38,
-        1, 0x2c39, 1, 0x2c39,
-        0xb525, 1, 0x2c39, 0);
+    // The trail programs' words, $90:B4C9 to $90:B5B2, as the retail cartridge stores them: the import reads every
+    // record's appearance, and every record of one frame must show the same one (#2348). Timing and commands come from
+    // compiled retail definitions; the complete native program is checked by the trail-art suite.
+    WriteTestWords(bus, 0x90b4c9,
+        0x0000, 0x0001, 0x2c38, 0x0001, 0x2c38, 0x0001, 0x2c38, 0x0001, 0x2c38, 0x0001, 0x2c39, 0x0001,
+        0x2c39, 0xb525, 0x0001, 0x2c39, 0x0001, 0x2c39, 0xb525, 0x0001, 0x2c3a, 0xb525, 0x0001, 0x2c3a,
+        0xb525, 0x0001, 0x2c3a, 0xb525, 0x0001, 0x2c3a, 0xb525, 0x0001, 0x2c3a, 0xb525, 0x0001, 0x2c3a,
+        0xb525, 0x0001, 0x2c3a, 0xb525, 0x0001, 0x2c3a, 0xb525, 0x0004, 0x2c3b, 0x0000, 0x78b9, 0x1ad7,
+        0x7899, 0x60d7, 0x0001, 0x2c38, 0x0001, 0x2c38, 0x0001, 0x2c38, 0x0001, 0x2c38, 0x0001, 0x2c39,
+        0x0001, 0x2c39, 0xb587, 0x0001, 0x2c39, 0x0001, 0x2c39, 0xb587, 0x0001, 0x2c3a, 0xb587, 0x0001,
+        0x2c3a, 0xb587, 0x0001, 0x2c3a, 0xb587, 0x0001, 0x2c3a, 0xb587, 0x0001, 0x2c3a, 0xb587, 0x0001,
+        0x2c3a, 0xb587, 0x0001, 0x2c3a, 0xb587, 0x0001, 0x2c3a, 0xb587, 0x0004, 0x2c3b, 0x0000, 0x9cb9,
+        0x1ad7, 0x9c99, 0x60d7, 0x0004, 0x2a3c, 0x0004, 0x2a3d, 0x0004, 0x2a3e, 0x0004, 0x2a3f, 0x0000,
+        0x0004, 0x2a48, 0x0004, 0x2a49, 0x0004, 0x2a4a, 0x0004, 0x2a4b, 0x0000);
 
     // `$9B:A4B3/$A4CB` first choose a beam-combination family, then a direction-specific
     // offset list. Plain power's offsets are all zero, so `$9B:A3CC` positions the 8x8 trail

@@ -22,7 +22,7 @@ public sealed class InstalledProjectileTrails
         WriteIndented = true,
     };
     /// <summary>Resolves one trail frame to its selected single-piece appearance.</summary>
-    /// <param name="frame">The trail frame, among the 42 left/right ice, wave and missile poses.</param>
+    /// <param name="frame">The trail frame: one of the ice sparkles', the wave trail's or the missile trail's.</param>
     /// <returns>The character, palette, priority and mirroring.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
     public SpritePart Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame) =>
@@ -32,7 +32,10 @@ public sealed class InstalledProjectileTrails
     /// <param name="json">Case-sensitive UTF-8 JSON read from its current position; the caller retains ownership of the stream.</param>
     /// <returns>An immutable appearance catalog that does not retain the document's mutable frame dictionary.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
-    /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate/unknown properties, lacks the exact 42 native frame keys or version 1, or has invalid tile, palette or priority values.</exception>
+    /// <exception cref="InvalidDataException">
+    /// JSON is malformed, contains duplicate/unknown properties, lacks the exact 42 native record keys or version 1, has
+    /// invalid tile, palette or priority values, or gives two records of one frame different appearances (#2348).
+    /// </exception>
     public static InstalledProjectileTrails Load(Stream json)
     {
         ProjectileTrailDocument document;
@@ -45,19 +48,22 @@ public sealed class InstalledProjectileTrails
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid trail JSON.", error); }
         if (document.Version != ProjectileTrailVisualDefinitions.Version || document.Frames is null ||
-            document.Frames.Count != ProjectileTrailVisualDefinitions.FrameCount)
-            throw new InvalidDataException("Trail document requires every native frame and version 1.");
+            document.Frames.Count != ProjectileTrailVisualDefinitions.RecordCount)
+            throw new InvalidDataException("Trail document requires every native record and version 1.");
         var attributes = new Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart>();
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.FrameCount; index++)
+        for (int index = 0; index < ProjectileTrailVisualDefinitions.RecordCount; index++)
         {
-            var frame = ProjectileTrailVisualDefinitions.Frames[index];
-            string name = ProjectileTrailVisualDefinitions.FrameNames[index];
+            var frame = ProjectileTrailSources.Records[index].Value;
+            string name = ProjectileTrailVisualDefinitions.RecordNames[index];
             if (!document.Frames.TryGetValue(name, out var p) || p is null ||
                 (uint)p.TileColumn >= ProjectileSpriteDefinitions.TileColumns || (uint)p.TileRow >= ProjectileSpriteDefinitions.TileRows ||
                 (uint)p.Palette > 7 || (uint)p.Priority > 3)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
-            attributes.Add(frame, SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                p.Palette, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0)));
+            SpritePart appearance = SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
+                p.Palette, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0));
+            // Every record of one frame shows that frame's one appearance (#2348).
+            if (!attributes.TryAdd(frame, appearance) && attributes[frame] != appearance)
+                throw new InvalidDataException($"Trail appearance {name} differs from another record of frame {frame}.");
         }
         return new(attributes);
     }

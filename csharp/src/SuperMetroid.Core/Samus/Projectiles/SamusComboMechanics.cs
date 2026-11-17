@@ -9,7 +9,7 @@ internal static class SamusComboMechanics
     /// The special beam attack a combination fires, or null when it fires none: only
     /// Wave, Ice, Spazer or Plasma equipped alone has one.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination is outside the twelve rows.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The combination pairs Spazer with Plasma, which cannot be equipped.</exception>
     internal static SamusComboKind? ComboKind(SamusBeamCombination beam) => beam switch
     {
         SamusBeamCombination.Wave => SamusComboKind.Wave,
@@ -21,7 +21,7 @@ internal static class SamusComboMechanics
             SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => null,
         SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
             SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave =>
-            throw new ArgumentOutOfRangeException(nameof(beam), beam, "The combo tables hold twelve rows."),
+            throw new ArgumentOutOfRangeException(nameof(beam), beam, "Spazer and Plasma cannot be equipped together."),
         _ => throw new ArgumentOutOfRangeException(nameof(beam), beam, "Undefined beam combination."),
     };
 

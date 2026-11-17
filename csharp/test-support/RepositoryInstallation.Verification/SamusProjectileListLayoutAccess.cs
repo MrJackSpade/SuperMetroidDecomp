@@ -9,8 +9,8 @@ internal static class SamusProjectileListLayoutAccess
     /// <summary>The native instruction pointers checks compare playbacks with.</summary>
     extension(SamusProjectileListLayout self)
     {
-        /// <summary>Each place's instruction pointer, by segment: one per beat, then the segment's end.</summary>
-        internal IReadOnlyDictionary<SamusProjectileSegment, ushort[]> BeatPositions => self.beatPositions;
+        /// <summary>Each list place's instruction pointer, by segment: one per timed record, then the list's end.</summary>
+        internal IReadOnlyDictionary<SamusProjectileSegment, ushort[]> ListPlacePositions => self.recordPositions;
 
         /// <summary>The instruction pointer of a projectile's playback; a cleared projectile's is zero.</summary>
         internal ushort Position(AnimationPlayback<SamusProjectileSegment>? playback) =>

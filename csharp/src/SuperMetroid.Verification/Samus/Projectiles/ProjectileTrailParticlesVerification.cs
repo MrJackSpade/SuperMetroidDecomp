@@ -18,13 +18,14 @@ internal static class ProjectileTrailParticlesVerification
     internal static void VerifyProjectileTrailParticles()
     {
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        // A charged power shot, part way through its animation, in the first direction that names a placement list.
+        // A charged power shot, part way through its animation, showing its first frame, in the first direction that names
+        // a placement list: the charged list places a trail from the charged shot's frames, not the uncharged one's.
         SamusProjectile shot = Enum.GetValues<SamusProjectileDirection>()
             .Select(direction => new SamusProjectile(0)
             {
                 Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true),
                 Direction = direction,
-                Playback = SamusProjectileProgramAddresses.PlaybackAt(0x86e3),
+                Playback = SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(SamusProjectileSegment.ChargedPowerUp, 1)),
                 Position = new(new(100, 0), new(200, 0)),
             })
             .First(candidate =>

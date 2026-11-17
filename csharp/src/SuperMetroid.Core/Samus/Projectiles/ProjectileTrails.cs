@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -43,11 +44,13 @@ internal sealed class ProjectileTrails
         // Beams select by their beams and charge, so charged plain power selects the charged trail, not ordinary power's.
         ProjectileTrailAnimations animations = ProjectileTrailSelection.Select(projectile.Type);
 
-        ProjectileTrailFamilyGroup group = projectile.Type.Echo is not null
-            ? ProjectileTrailFamilyGroup.SpecialBeamAttack
-            : projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
-        ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
-            group, projectile.Type.BeamCombination, projectile.Direction);
+        // The only echo that leaves a trail is the Spazer special attack's trailing pair, whose trail starts from its own
+        // lists (#2348); every other trail starts from its beams' family's lists, by charge.
+        ProjectileTrailPlacementList? list = projectile.Type.Echo == SamusBeamEcho.SpazerComboTrail
+            ? ProjectileTrailPlacements.SpazerAttackTrailingPairList(projectile.Direction)
+            : ProjectileTrailPlacements.List(
+                projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged,
+                projectile.Type.BeamCombination, projectile.Direction);
 
         // A shot whose direction names no placement list leaves no trail, and neither does a shot whose animation has shown
         // no frame yet or whose frame its list places no trail for: those placements are not part of the game's design
@@ -70,7 +73,7 @@ internal sealed class ProjectileTrails
     private static void StartSide(SamusProjectileTrailSide side, ProjectileTrailSegment segment, Position16<RoomPixels> origin, Offset16<RoomPixels> offset)
     {
         side.FrameHold = 1;
-        side.Cursor = new ProjectileTrailCursor(segment, 0);
+        side.Playback = ProjectileTrailSparkleAnimations.Start(segment);
         side.Position = Position16<RoomPixels>.Of(AddOffset(origin.X, offset.X), AddOffset(origin.Y, offset.Y));
     }
 
@@ -99,14 +102,18 @@ internal sealed class ProjectileTrails
         _ = trails.RemoveAll(static trail => trail.IsFinished);
     }
 
-    /// <summary>Advances one side's cues unless time is frozen.</summary>
+    /// <summary>
+    /// Counts one update off one side's frame unless time is frozen, and once the frame's updates are spent plays its
+    /// animation on to the next frame, moving the sparkles its cues name on the way; an animation that ends leaves the
+    /// side ended, its last frame shown no more.
+    /// </summary>
     private static void AdvanceTrailSide(
         SamusProjectileTrail pair,
         bool timeIsFrozen,
         HorizontalDirection direction)
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
-        if (side.FrameHold == 0)
+        if (side.Playback is not { } playback)
             return;
 
         if (!timeIsFrozen)
@@ -114,49 +121,39 @@ internal sealed class ProjectileTrails
             side.FrameHold--;
             if (side.FrameHold == 0)
             {
-                ProjectileTrailCursor cursor = side.Cursor ?? throw new InvalidOperationException(
-                    "A trail side with a running timer has started an animation.");
-                while (true)
+                AnimationPlace place = playback.Place;
+                switch (ProjectileTrailSparkleAnimations.Segments.PlayToNextFrame(playback.Animation, ref place, cue => Move(pair, cue)))
                 {
-                    ProjectileTrailStep step = cursor.Current;
-                    if (step is ProjectileTrailStep.End)
-                    {
-                        // The end leaves the timer zero and the cursor on itself.
-                        side.FrameHold = 0;
-                        return;
-                    }
-                    if (step is ProjectileTrailStep.Pose pose)
-                    {
-                        side.FrameHold = pose.Duration;
-                        side.ShownPose = pose.Frame;
-                        side.Cursor = cursor.Next();
+                    case AnimationShown<ProjectileTrailSegment, ProjectileTrailFrame>.Frame frame:
+                        side.FrameHold = frame.Duration;
+                        side.ShownPose = frame.Shown;
+                        side.Playback = playback with { Place = place };
                         break;
-                    }
-
-                    // A move continues with the next step in the same update.
-                    cursor = cursor.Next();
-                    ProjectileTrailCue movement = ((ProjectileTrailStep.Move)step).Movement;
-                    switch (movement)
-                    {
-                        // The cue names the side it moves. Both sides run the same moves, including
-                        // moves of their sibling.
-                        case ProjectileTrailCue.MoveLeftDown:
-                            pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));
-                            break;
-                        case ProjectileTrailCue.MoveRightDown:
-                            pair.Right.Position = pair.Right.Position.WithY(CoordinateAxis.Wrap(pair.Right.Position.Y + 1));
-                            break;
-                        case ProjectileTrailCue.MoveLeftUp:
-                            pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y - 1));
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailCue)} {movement}.");
-                    }
+                    case AnimationShown<ProjectileTrailSegment, ProjectileTrailFrame>.Ended:
+                        side.Playback = null;
+                        return;
+                    case var shown:
+                        throw new InvalidOperationException($"Trail sparkle animation {playback.PlayingSegment} played {shown}.");
                 }
             }
         }
 
         side.DisplayedPosition = side.Position;
+    }
+
+    /// <summary>
+    /// Moves the sparkle <paramref name="cue"/> names a pixel down: a cue names the sparkle it moves, whichever side's
+    /// animation raises it.
+    /// </summary>
+    private static void Move(SamusProjectileTrail pair, ProjectileTrailCue cue)
+    {
+        SamusProjectileTrailSide moved = cue switch
+        {
+            ProjectileTrailCue.MoveLeftDown => pair.Left,
+            ProjectileTrailCue.MoveRightDown => pair.Right,
+            _ => throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailCue)} {cue}."),
+        };
+        moved.Position = moved.Position.WithY(CoordinateAxis.Wrap(moved.Position.Y + 1));
     }
 
     /// <summary>
@@ -186,8 +183,8 @@ internal sealed class ProjectileTrails
     {
         SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         // A finished side, including one that ended in this frame's advance, shows nothing, and so does a side whose
-        // animation has shown no pose yet.
-        if (side.FrameHold == 0 || side.ShownPose is not { } pose)
+        // animation has shown no frame yet.
+        if (side.HasEnded || side.ShownPose is not { } pose)
             return;
 
         // The trail is published wherever it lies; the display clips it to the view (#1541).

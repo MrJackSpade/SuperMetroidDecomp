@@ -42,6 +42,12 @@ internal static class ProjectileNativeFixtureVerification
                 entry += 8;
             }
         }
+        // The lists themselves, as the cartridge stores them, from the word before the first to the last list's goto: the
+        // import reads each list's records up to its goto or delete (#2347).
+        int listsStart = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgramAddresses.ListPlaceAddresses.Values.Min(places => places[0]) - sizeof(ushort);
+        int listsEnd = SuperMetroid.Core.Samus.Projectiles.SamusProjectileProgramAddresses.ListPlaceAddresses.Values.Max(places => places[^1]) + 2 * sizeof(ushort);
+        for (int address = listsStart; address < listsEnd; address += sizeof(ushort))
+            WriteTestWord(bus, 0x930000 | address, rom.ReadCartridgeWord(0x930000 | address));
         // Complete the installed visual-binding domain before applying synthetic art.
         foreach (ushort record in SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameDefinitions.TimedRecordAddresses)
             WriteTestWord(bus, 0x930000 | (record + 2), rom.ReadCartridgeWord((0x930000 | (record + 2))));

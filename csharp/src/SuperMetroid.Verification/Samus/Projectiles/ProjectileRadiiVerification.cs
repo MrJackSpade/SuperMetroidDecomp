@@ -109,16 +109,18 @@ internal static class ProjectileRadiiVerification
             ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2)));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Damage = 30 };
             AssertEqual(false, projectiles.Animation.AdvanceProjectileAnimation(slot), "Timed projectile record survives");
-            AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");
+            // A list repeating one still picture is held: the shot keeps the picture, standing at the list's end (#2347).
+            bool still = SamusProjectileProgramAddresses.ShowsStillPicture(pointer);
+            AssertEqual<ushort?>(still ? null : duration, slot.FrameHold?.RawValue, "Frame duration unchanged, a still picture held");
             AssertEqual(expectedSprite, slot.SpritemapPointer, "Native artwork reference");
             AssertEqual(rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
             AssertEqual(rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
             AssertEqual<SamusProjectileFrameId?>(SamusProjectileProgramsVerification.RecordAt(pointer), ProjectileTrails.GetTrailFrame(slot), "Trail frame is the record's");
-            AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
+            AssertEqual(still ? SamusProjectileProgramAddresses.ListEndOf(pointer) : unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
-            // The bomb owner deliberately rejects zero-duration records. Keep that
+            // The bomb owner deliberately rejects zero-duration records, and no bomb shows a still picture. Keep that
             // existing contract instead of treating arbitrary beam records as bombs.
-            if (duration == 0) continue;
+            if (duration == 0 || still) continue;
             var bomb = new SamusBomb(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             AssertEqual(false, bombs.AdvanceProjectileAnimation(bomb), "Bomb timed record survives");
             AssertEqual(duration, bomb.FrameHold.RawValue, "Bomb duration unchanged");

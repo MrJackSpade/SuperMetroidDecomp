@@ -52,12 +52,12 @@ internal static class PowerBombFuseVerification
         // The Chainsaw beam runs the same fuse over its own list: for every animation position the installed service's
         // landing is the list position the native pointer arithmetic reaches, and a position that reaches none has none.
         int landings = 0;
-        foreach ((SamusProjectileSegment program, ushort[] places) in SamusProjectileProgramAddresses.BeatAddresses)
+        foreach (SamusProjectileSegment program in Enum.GetValues<SamusProjectileSegment>())
         {
-            for (int position = 0; position < places.Length; position++)
+            for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
             {
                 var cursor = new SamusProjectileSegmentBeat(program, position);
-                int landing = unchecked((ushort)(places[position] + SamusOverreadSourceDefinitions.FastAnimationOffset));
+                int landing = unchecked((ushort)(SamusProjectileProgramAddresses.Address(cursor) + SamusOverreadSourceDefinitions.FastAnimationOffset));
                 if (landing != 0 && SamusProjectileProgramAddresses.Layout.TryPlaceAt(landing, out SamusProjectileSegmentBeat native))
                 {
                     AssertEqual(native, InstalledFixtures.SamusOverreads.Projectiles.ChainsawFuseShift.Shift(cursor), $"Chainsaw fuse landing from {cursor}");

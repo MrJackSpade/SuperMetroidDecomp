@@ -56,31 +56,35 @@ internal static class ProjectileTrailArtworkVerification
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { new VerifyProjectileTrailArtworkCase(nativeTrail.Left, authoredTrail.Left), new VerifyProjectileTrailArtworkCase(nativeTrail.Right, authoredTrail.Right) })
                 {
-                    AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
+                    // A sparkle whose animation has ended has no place: the pointer the native one leaves behind is not
+                    // state (#2348).
+                    AssertEqual(sides.First.FrameHold == 0, sides.Second.HasEnded, "Trail artwork cannot change when a sparkle ends");
+                    if (sides.First.FrameHold != 0)
+                        AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
                     AssertEqual(sides.First.Position.Y, sides.Second.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
-        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.Select(ProjectileTrailNative.Address)), "Independent native stream walk finds exactly the catalog's appearance records");
+        AssertTrue(encountered.SetEquals(ProjectileTrailNative.RecordAddresses), "Independent native stream walk finds exactly the catalog's appearance records");
         int programWords = 0;
         for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
         {
-            if (ProjectileTrailAnimationDefinitions.TryRead(address, out _))
+            if (ProjectileTrailSparkleAnimations.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailAnimationDefinitions.Read(address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailSparkleAnimations.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
             {
                 int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
+                AssertThrows<InvalidDataException>(() => ProjectileTrailSparkleAnimations.Read(rejectedAddress), "Trail program rejects presentation gaps, odd addresses and unrelated high-bank words");
             }
         }
         AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
-        AssertThrows<InvalidDataException>(() => ProjectileTrailAnimationDefinitions.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
+        AssertThrows<InvalidDataException>(() => ProjectileTrailSparkleAnimations.Read(0x91b4c9), "Trail program rejects a wrong-bank alias");
         int draws = 0;
-        foreach (ProjectileTrailFrame pose in ProjectileTrailVisualDefinitions.Frames)
+        foreach (ProjectileTrailFrame pose in Enum.GetValues<ProjectileTrailFrame>())
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
         {
             ushort frame = ProjectileTrailNative.Address(pose);
@@ -112,7 +116,7 @@ internal static class ProjectileTrailArtworkVerification
             draws++;
         }
         var document = RequiredJson.Parse(json);
-        ProjectileTrailFrame first = ProjectileTrailVisualDefinitions.Frames[0];
+        ProjectileTrailFrame first = ProjectileTrailFrame.IceSparkleClustered;
         var animation = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var trail = animation.AddTrail().Left;
         trail.InstructionPointer = ProjectileTrailNative.Address(first); trail.FrameHold = 1; trail.Position = trail.Position.WithX(100).WithY(100);

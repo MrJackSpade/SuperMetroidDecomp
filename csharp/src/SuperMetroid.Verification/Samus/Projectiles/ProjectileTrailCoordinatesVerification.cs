@@ -13,13 +13,18 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Checks projectile-trail placements against the cartridge's selector, direction and placement tables.</summary>
 internal static class ProjectileTrailCoordinatesVerification
 {
-    /// <summary>$9B:A4B3, $9B:A4CB and $9B:A4E3: the uncharged, charged and special beam attack trail selector tables.</summary>
+    /// <summary>$9B:A4B3 and $9B:A4CB: the uncharged and charged trail selector tables.</summary>
     private static readonly (ProjectileTrailFamilyGroup Group, int Table)[] SelectorTables =
     [
         (ProjectileTrailFamilyGroup.Uncharged, 0x9ba4b3),
         (ProjectileTrailFamilyGroup.Charged, 0x9ba4cb),
-        (ProjectileTrailFamilyGroup.SpecialBeamAttack, 0x9ba4e3),
     ];
+
+    /// <summary>
+    /// $9B:A4E3: the special beam attacks' trail selector table, whose only row a trail reads is the Spazer row the Spazer
+    /// special attack's trailing pair selects by its beams (#2348).
+    /// </summary>
+    private const int SpecialBeamAttackSelectorTable = 0x9ba4e3;
 
     /// <summary>Bytes in one placement record: the left and right sparkles' signed X and Y offsets.</summary>
     private const int RecordByteCount = 4;
@@ -43,7 +48,7 @@ internal static class ProjectileTrailCoordinatesVerification
             if (orderedStarts.FirstOrDefault(start => start > starts[list]) is var next && next != 0)
                 AssertTrue(starts[list] + count * RecordByteCount <= next, $"{list}'s placements end before the next list begins");
         }
-        AssertEqual(854, ProjectileTrailPlacementSources.OwnPlacementCounts.Values.Sum(), "The eighty lists hold 854 placements of their own");
+        AssertEqual(838, ProjectileTrailPlacementSources.OwnPlacementCounts.Values.Sum(), "The seventy-six lists hold 838 placements of their own");
         int records = 0;
         foreach ((ProjectileTrailPlacementList list, FrozenDictionary<SamusProjectileFrameId, ProjectileTrailPlacement> placements) in
             ProjectileTrailPlacementDefinitions.PlacementsByList)
@@ -70,7 +75,15 @@ internal static class ProjectileTrailCoordinatesVerification
                 $"{group} {beams} direction {direction} selects the list the cartridge's pointers name");
             selections++;
         }
-        AssertEqual(480, selections, "Three selector tables of sixteen rows by the ten directions a shot is fired in");
+        AssertEqual(320, selections, "Two selector tables of sixteen rows by the ten directions a shot is fired in");
+        // The trailing pair selects its list from the Spazer row of the special beam attacks' table.
+        foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
+        {
+            AssertEqual(NativeList(bus, lists, SpecialBeamAttackSelectorTable, SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail).BeamCombination, direction.ToAimIndex()),
+                ProjectileTrailPlacements.SpazerAttackTrailingPairList(direction),
+                $"the Spazer special attack's trailing pair fired {direction} selects the list the cartridge's pointers name");
+            selections++;
+        }
 
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus, lists));
         Console.WriteLine($"Trail coordinates: {records} frame placements and {selections} selections match the cartridge.");
@@ -223,8 +236,7 @@ internal static class ProjectileTrailCoordinatesVerification
         return [.. kinds.SelectMany(SamusProjectileKinds.Animations)
             .SelectMany(start => SamusProjectileAnimations.StartingWith(start).Phases.Select(phase => phase.Segment))
             .SelectMany(segment => SamusProjectileAnimations.Segments.Beats(segment))
-            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
-            .Select(show => show.Shown)];
+            .Select(beat => beat.ShownFrame).OfType<SamusProjectileFrameId>()];
     }
 
     /// <summary>Every projectile type $90:BE17 can reflect, with its bank-$93 data table and index.</summary>

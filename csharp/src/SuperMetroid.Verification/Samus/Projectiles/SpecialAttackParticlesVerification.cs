@@ -81,7 +81,7 @@ internal static class SpecialAttackParticlesVerification
     /// </summary>
     private sealed record ShotState(bool IsOccupied, int Damage, SamusProjectileType Type, SamusBeamCombination PicturedBeams,
         SamusProjectileDirection Direction, bool IsSpent, FixedPosition<RoomPixels> Position, EightEightVector<RoomPixels> Velocity,
-        Extent16<RoomPixels> Radius, AnimationPlayback<SamusProjectileSegment>? Playback, WrappingCountdown FrameHold,
+        Extent16<RoomPixels> Radius, AnimationPlayback<SamusProjectileSegment>? Playback, WrappingCountdown? FrameHold,
         ProjectileSpriteId? Sprite, WrappingCountdown TrailTimer, object? Kind, SamusShotBehavior? Behavior);
 
     /// <summary>Reads <paramref name="shot"/>'s whole state.</summary>

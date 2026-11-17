@@ -1,14 +1,17 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
-/// <summary>Appearance-bearing timed records in the four bank-$90 trail lists, excluding commands and terminators.</summary>
+/// <summary>
+/// Appearance-bearing timed records in the four bank-$90 trail lists, excluding commands and terminators: the import's
+/// document holds one appearance per record, and every record of one frame must hold the same (#2348).
+/// </summary>
 public static class ProjectileTrailVisualDefinitions
 {
     /// <summary>Asset filename for editable OBJ appearances of the authored projectile trail records.</summary>
     public const string FileName = "projectile-trails.json";
     /// <summary>Supported JSON schema revision requiring all 42 native timed-record appearance keys.</summary>
     public const int Version = 1;
-    /// <summary>The trail frames' installed appearance names: seventeen left-ice, seventeen right-ice, four wave and four missile poses.</summary>
-    public static IReadOnlyList<string> FrameNames { get; } =
+    /// <summary>The trail records' appearance names in the import's document, in address order: seventeen left-ice, seventeen right-ice, four wave and four missile records.</summary>
+    public static IReadOnlyList<string> RecordNames { get; } =
     [
         "trail_B4CB",
         "trail_B4CF",
@@ -54,53 +57,6 @@ public static class ProjectileTrailVisualDefinitions
         "trail_B5AD",
     ];
 
-    /// <summary>The number of trail frames.</summary>
-    public const int FrameCount = 42;
-
-    /// <summary>The trail frames, in the order of <see cref="FrameNames"/>.</summary>
-    public static IReadOnlyList<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame> Frames { get; } =
-    [
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce0,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce1,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce2,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce3,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce4,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce5,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce6,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce7,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce8,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce9,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce10,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce11,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce12,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce13,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce14,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce15,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.LeftIce16,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce0,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce1,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce2,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce3,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce4,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce5,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce6,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce7,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce8,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce9,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce10,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce11,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce12,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce13,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce14,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce15,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.RightIce16,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Wave0,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Wave1,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Wave2,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Wave3,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Missile0,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Missile1,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Missile2,
-        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame.Missile3,
-    ];
+    /// <summary>The number of trail records.</summary>
+    public const int RecordCount = 42;
 }

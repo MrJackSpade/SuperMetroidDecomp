@@ -9,7 +9,9 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where each Samus projectile segment's places stand in the cartridge's bank-$93 lists (#1301, #1411, #1474, #1600):
 /// extraction's private knowledge of the instruction pointer each animation place stands for, which the glitch paths'
 /// list arithmetic and fresh trails read. The import pipeline decodes those reads into the Samus overread services; the
-/// game never sees a list position.
+/// game never sees a list position. A list stores one timed record per beat of its segment, except a list that repeats one
+/// still picture, whose records are all the segment's one held beat (#2347): the place before its first record is the
+/// segment's start, and every later place is the held picture's.
 /// </summary>
 internal sealed class SamusProjectileListLayout
 {
@@ -17,10 +19,10 @@ internal sealed class SamusProjectileListLayout
     internal const int TimedRecordByteCount = 8;
 
     /// <summary>
-    /// Each place's instruction pointer, by segment: one per beat, then the segment's end, where its goto or delete
-    /// stands or the next list starts; checks read it through their access extension.
+    /// Each list place's instruction pointer, by segment: one per timed record the list stores, then the list's end, where
+    /// its goto or delete stands or the next list starts; checks read it through their access extension.
     /// </summary>
-    internal readonly Dictionary<SamusProjectileSegment, ushort[]> beatPositions;
+    internal readonly Dictionary<SamusProjectileSegment, ushort[]> recordPositions;
     /// <summary>The place each instruction pointer stands for: a segment's start, else the one place at that pointer.</summary>
     private readonly Dictionary<ushort, SamusProjectileSegmentBeat> _places;
     /// <summary>
@@ -33,14 +35,18 @@ internal sealed class SamusProjectileListLayout
     /// <summary>Each segment's list entry and the word just before it.</summary>
     internal readonly IReadOnlyDictionary<SamusProjectileSegment, ListPosition> positions;
 
-    /// <summary>Where one segment's list stands: its entry and the word just before it.</summary>
+    /// <summary>Where one segment's list stands: its entry, the word just before it and the timed records it stores.</summary>
     /// <param name="Entry">The list's first instruction pointer.</param>
     /// <param name="PrecedingWord">The word just before the list, which a trail spawned at the list's start reads as its animation frame.</param>
-    internal readonly record struct ListPosition(int Entry, int PrecedingWord);
+    /// <param name="RecordCount">The timed records the list stores before its goto or delete, or before the next list starts.</param>
+    internal readonly record struct ListPosition(int Entry, int PrecedingWord, int RecordCount);
 
     /// <summary>Lays every segment's places out from its list position.</summary>
     /// <param name="positions">Every segment's list entry and preceding word.</param>
-    /// <exception cref="InvalidDataException">A segment has no position, or a timed record stands at no pointer or at two.</exception>
+    /// <exception cref="InvalidDataException">
+    /// A segment has no position, its list stores neither one record per beat nor one still picture, or a timed record
+    /// stands at no pointer or at two.
+    /// </exception>
     internal SamusProjectileListLayout(IReadOnlyDictionary<SamusProjectileSegment, ListPosition> positions)
     {
         Ensure.NotNull(positions);
@@ -48,16 +54,43 @@ internal sealed class SamusProjectileListLayout
         {
             if (!positions.ContainsKey(program))
                 throw new InvalidDataException($"The projectile list layout has no position for {program}.");
+            int beats = SamusProjectileAnimations.Segments.Beats(program).Count;
+            if (positions[program].RecordCount != beats && !IsStillPicture(program))
+                throw new InvalidDataException(
+                    $"Projectile list {program} stores {positions[program].RecordCount} timed records for its segment's {beats} beats.");
         }
         this.positions = positions;
-        beatPositions = Enum.GetValues<SamusProjectileSegment>().ToDictionary(program => program, Layout);
+        recordPositions = Enum.GetValues<SamusProjectileSegment>().ToDictionary(program => program, Layout);
         _places = BuildPlaces();
         recordFrames = BuildRecordFrames();
         _recordPositions = BuildRecordPositions(recordFrames);
     }
 
-    /// <summary>The instruction pointer <paramref name="place"/> stands for.</summary>
-    internal ushort Position(SamusProjectileSegmentBeat place) => beatPositions[place.Segment][place.Beat];
+    /// <summary>
+    /// The instruction pointer <paramref name="place"/> stands for: its beat's record, or the list's end once the segment's
+    /// beats are played.
+    /// </summary>
+    internal ushort Position(SamusProjectileSegmentBeat place) =>
+        recordPositions[place.Segment][place.Beat == SamusProjectileAnimations.Segments.Beats(place.Segment).Count
+            ? positions[place.Segment].RecordCount
+            : place.Beat];
+
+    /// <summary>
+    /// The animation place the list place before record <paramref name="record"/> of <paramref name="program"/>'s list
+    /// stands for, the list's end at its record count: the same beat, or, in a list repeating one still picture, the
+    /// segment's start before its first record and the held picture after it.
+    /// </summary>
+    internal SamusProjectileSegmentBeat PlaceOfRecord(SamusProjectileSegment program, int record) =>
+        positions[program].RecordCount == SamusProjectileAnimations.Segments.Beats(program).Count
+            ? new(program, record)
+            : new(program, Math.Min(record, 1));
+
+    /// <summary>
+    /// Whether <paramref name="program"/>'s segment is one held still picture, which its list may store as several records
+    /// showing that picture.
+    /// </summary>
+    private static bool IsStillPicture(SamusProjectileSegment program) =>
+        SamusProjectileAnimations.Segments.Beats(program) is [AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.HeldFrame];
 
     /// <summary>The instruction pointer of the first timed record that shows <paramref name="record"/>.</summary>
     internal ushort RecordPosition(SamusProjectileFrameId record) => checked((ushort)_recordPositions[record][0]);
@@ -73,14 +106,14 @@ internal sealed class SamusProjectileListLayout
     private IEnumerable<SamusProjectileSegment> ListOrder => positions.OrderBy(position => position.Value.Entry).Select(position => position.Key);
 
     /// <summary>
-    /// Each place's pointer: eight bytes per timed record from the entry, then the segment's end, which a run on into the
+    /// Each list place's pointer: eight bytes per timed record from the entry, then the list's end, which a run on into the
     /// next authored list shares with that list's entry.
     /// </summary>
     private ushort[] Layout(SamusProjectileSegment program)
     {
-        int beats = SamusProjectileAnimations.Segments.Beats(program).Count;
+        int records = positions[program].RecordCount;
         int entry = positions[program].Entry;
-        return [.. Enumerable.Range(0, beats + 1).Select(beat => checked((ushort)(entry + beat * TimedRecordByteCount)))];
+        return [.. Enumerable.Range(0, records + 1).Select(record => checked((ushort)(entry + record * TimedRecordByteCount)))];
     }
 
     /// <summary>Indexes every list position; an entry stands for its own segment's start.</summary>
@@ -89,9 +122,9 @@ internal sealed class SamusProjectileListLayout
         var places = ListOrder.ToDictionary(program => checked((ushort)positions[program].Entry), program => new SamusProjectileSegmentBeat(program, 0));
         foreach (SamusProjectileSegment program in ListOrder)
         {
-            ushort[] pointers = beatPositions[program];
-            for (int beat = 0; beat < pointers.Length; beat++)
-                places.TryAdd(pointers[beat], new(program, beat));
+            ushort[] pointers = recordPositions[program];
+            for (int record = 0; record < pointers.Length; record++)
+                places.TryAdd(pointers[record], PlaceOfRecord(program, record));
         }
         return places;
     }
@@ -103,13 +136,15 @@ internal sealed class SamusProjectileListLayout
         foreach (SamusProjectileSegment program in ListOrder)
         {
             IReadOnlyList<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>> beats = SamusProjectileAnimations.Segments.Beats(program);
-            for (int beat = 0; beat < beats.Count; beat++)
+            for (int record = 0; record < positions[program].RecordCount; record++)
             {
-                if (beats[beat] is not AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame shown)
+                // Every record of a list repeating one still picture shows that picture, the segment's one beat.
+                int beat = positions[program].RecordCount == beats.Count ? record : 0;
+                if (beats[beat].ShownFrame is not { } shown)
                     continue;
-                int place = beatPositions[program][beat];
-                if (!frames.TryAdd(place, shown.Shown) && frames[place] != shown.Shown)
-                    throw new InvalidDataException($"The timed projectile record at $93:{place:X4} shows both {frames[place]} and {shown.Shown}.");
+                int place = recordPositions[program][record];
+                if (!frames.TryAdd(place, shown) && frames[place] != shown)
+                    throw new InvalidDataException($"The timed projectile record at $93:{place:X4} shows both {frames[place]} and {shown}.");
             }
         }
         return frames;

@@ -76,8 +76,11 @@ public sealed class SamusProjectile
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>The projectile's animation and where it stands in it (#1600); null while it has none to animate.</summary>
     internal AnimationPlayback<SamusProjectileSegment>? Playback { get; set; }
-    /// <summary>Updates remaining before the current projectile cue advances.</summary>
-    public WrappingCountdown FrameHold { get; internal set; }
+    /// <summary>
+    /// Updates remaining before the projectile's animation shows its next frame; none once it shows a still picture it keeps
+    /// until its animation changes (#2347).
+    /// </summary>
+    public WrappingCountdown? FrameHold { get; internal set; }
     /// <summary>The composition the projectile shows, selected by the timed-frame animation or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Countdown controlling projectile-trail emission.</summary>

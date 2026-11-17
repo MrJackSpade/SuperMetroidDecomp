@@ -69,7 +69,7 @@ internal static class ClosedPresentationIdentityDefinitions
             .Concat(IntroDiscoveryActorSpriteDefinitions.Frames).Concat(IntroEggEffectSpriteDefinitions.Frames)
             .Concat(IntroRinkaSpriteDefinitions.Frames).Concat(IntroScientistSpriteDefinitions.Frames)
             .Select(frame => (int)frame.Pose).Distinct().ToArray(),
-        ("InstalledProjectileTrails", "Resolve", "frame") => [.. ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame)],
+        ("InstalledProjectileTrails", "Resolve", "frame") => [.. Enum.GetValues<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame>().Select(frame => (int)frame)],
         ("InstalledXrayOverlays", "TankBlock", "tank") =>
             [(int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.EnergyTank, (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.MissileTank,
                 (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.SuperMissileTank, (int)SuperMetroid.Core.Rooms.RoomObjects.InWorldCollectibleKind.PowerBombTank],

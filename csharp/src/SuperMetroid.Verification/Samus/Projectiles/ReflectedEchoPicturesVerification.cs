@@ -58,6 +58,5 @@ internal static class ReflectedEchoPicturesVerification
     private static HashSet<SamusProjectileFrameId> ShownFrames(SamusProjectileSegment start) =>
         [.. SamusProjectileAnimations.StartingWith(start).Phases
             .SelectMany(phase => SamusProjectileAnimations.Segments.Beats(phase.Segment).Skip(phase.FirstBeat).Take(phase.BeatCount))
-            .OfType<AnimationBeat<SamusProjectileFrameId, NoAnimationCue>.Frame>()
-            .Select(frame => frame.Shown)];
+            .Select(beat => beat.ShownFrame).OfType<SamusProjectileFrameId>()];
 }

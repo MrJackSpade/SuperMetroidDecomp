@@ -147,8 +147,6 @@ internal static class SamusProjectileRomDataVerification
             ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveLeftDown));
         bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
             ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveRightDown));
-        bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
-            ProjectileTrailNative.InstructionAddress(ProjectileTrailCue.MoveLeftUp));
         bus.ReadCartridgeByte(SamusSourceDefinitions.ProjectileDataBank.Value |
             (ushort)SamusProjectileInstruction.Delete);
         bus.ReadCartridgeByte(SamusSourceDefinitions.ProjectileDataBank.Value |

@@ -58,7 +58,7 @@ internal sealed class EndingGameSequence(FrontendSession session) : IGamePhase
     /// <summary>One update of the departing gunship's gameplay while the screen darkens, which starts the credits once black.</summary>
     private void LeaveZebes(ControllerButton controllerInput)
     {
-        // Leaving Zebes calls the complete main-gameplay update before
+        // Leaving Zebes runs the complete main-gameplay update before
         // the fade-out. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = RuntimeFrameAudio.WithLowHealthCheck });

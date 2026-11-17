@@ -157,7 +157,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         }
         else if (session.GameplayRuntime.RoomLoader.HasPendingDoorTransition && !session.GameplayRuntime.MessageBox.IsActive)
         {
-            // A door hit enters the door transition during the gameplay call.
+            // A door hit enters the door transition during the gameplay update.
             // The already-produced gameplay image remains this frame's image; the
             // following update reaches the door from that publication.
             // A message box opened later in the same update (a station's completion

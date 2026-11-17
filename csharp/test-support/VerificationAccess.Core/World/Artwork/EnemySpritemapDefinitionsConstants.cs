@@ -67,9 +67,9 @@ internal static class EnemySpritemapDefinitionsConstants
     /// <summary>Frames the document lists before the Yapping Maw's artwork.</summary>
     internal static int PreYappingMawFrameCount => FramesBefore(EnemyFrameId.YappingMawFacingUpJawsWide);
     /// <summary>Frames the document lists before the room sprite-object compositions.</summary>
-    internal static int PreRoomEffectActorFrameCount => FramesBefore(EnemyFrameId.EffectActorEmpty);
+    internal static int PreRoomEffectActorFrameCount => FramesBefore(EnemyFrameId.EffectActorBigDustCloudPuff);
     /// <summary>Frames the document lists before Draygon's breath frames.</summary>
-    internal static int PreDraygonBreathFrameCount => FramesBefore(EnemyFrameId.EffectActorDraygonBreathBubbles6By7Risen0);
+    internal static int PreDraygonBreathFrameCount => FramesBefore(EnemyFrameId.EffectActorDraygonBreathBubblesForming);
     /// <summary>Frames the document lists before Draygon's intro frames.</summary>
     internal static int PreDraygonIntroFrameCount => FramesBefore(EnemyFrameId.EffectActorEvirFacingLeftLegsStretched);
     /// <summary>Frames the document lists before the elevator's visual frames.</summary>

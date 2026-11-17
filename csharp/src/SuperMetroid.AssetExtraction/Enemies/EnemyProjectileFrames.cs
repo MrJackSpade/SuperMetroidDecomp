@@ -14,9 +14,8 @@ internal static class EnemyProjectileFrames
     internal static IReadOnlySet<EnemyProjectileFrameId> Compositions { get; } =
         EnemyProjectileSpritemapDefinitions.FrameNames.Select(Identity).Append(EnemyProjectileFrameId.Blank).ToHashSet();
 
-    /// <summary>The identity named after installed program frame <paramref name="name"/>.</summary>
-    internal static EnemyProjectileFrameId Identity(string name) =>
-        Enum.Parse<EnemyProjectileFrameId>(string.Concat(name.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..])));
+    /// <summary>The frame whose document name is installed frame <paramref name="name"/> (#2370), never its identity's name.</summary>
+    internal static EnemyProjectileFrameId Identity(string name) => EnemyProjectileFrameSheetKeys.Named(name);
 
     /// <summary>The parts <paramref name="frame"/> draws from installed projectile <paramref name="artwork"/>.</summary>
     internal static ReadOnlyMemory<SpritePart> Parts(EnemyProjectileSpritemapCatalog artwork, EnemyProjectileFrameId frame) =>

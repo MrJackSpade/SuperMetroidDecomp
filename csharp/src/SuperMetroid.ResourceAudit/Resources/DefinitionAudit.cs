@@ -43,15 +43,15 @@ internal static class DefinitionAudit
             exports.Add(ResourceDomains.EnemyFrame, frame.Frame.ToString());
             exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         }
+        // The frame displays resolve the empty frame without an installed frame: it draws nothing.
+        exports.Add(ResourceDomains.EnemyFrame, nameof(EnemyFrameId.Empty));
         // A record that stores an installed frame's picture again shows that frame (#2210, #2234, #2249), so it is defined
-        // exactly when the frame it shows is.
+        // exactly when the frame it shows is; the room effect actors' record that draws nothing shows the empty frame (#2370).
         foreach ((SnesAddress location, EnemyFrameId shown) in EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt)
         {
             if (exports.Contains(ResourceDomains.EnemyFrame, shown.ToString()))
                 exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(location.Bank, location.Offset));
         }
-        // The frame displays resolve the empty frame without an installed frame: it draws nothing.
-        exports.Add(ResourceDomains.EnemyFrame, nameof(EnemyFrameId.Empty));
         CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
             exports.Add(ResourceDomains.EnemyProjectileProgram, ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, EnemyProjectileProgramFrameSources.Operand(frame.Frame)));

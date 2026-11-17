@@ -902,26 +902,24 @@ public enum EnemyFrameId
     EffectActorEvirFacingLeftLegsTucked,
     /// <summary>A room effect actor: an Evir's body facing left, all white, legs lowering again.</summary>
     EffectActorEvirFacingLeftLegsLowering,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 6 pixels wide and 7 high, risen 0 pixels.</summary>
-    EffectActorDraygonBreathBubbles6By7Risen0,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 12 pixels wide and 12 high, risen 6 pixels.</summary>
-    EffectActorDraygonBreathBubbles12By12Risen6,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 14 pixels wide and 13 high, risen 8 pixels.</summary>
-    EffectActorDraygonBreathBubbles14By13Risen8,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 12 pixels wide and 14 high, risen 11 pixels.</summary>
-    EffectActorDraygonBreathBubbles12By14Risen11,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 12 pixels wide and 14 high, risen 14 pixels.</summary>
-    EffectActorDraygonBreathBubbles12By14Risen14,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 10 pixels wide and 13 high, risen 15 pixels.</summary>
-    EffectActorDraygonBreathBubbles10By13Risen15,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 10 pixels wide and 12 high, risen 16 pixels.</summary>
-    EffectActorDraygonBreathBubbles10By12Risen16,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 8 pixels wide and 10 high, risen 16 pixels.</summary>
-    EffectActorDraygonBreathBubbles8By10Risen16,
-    /// <summary>A room effect actor: a cluster of Draygon's breath bubbles 4 pixels wide and 6 high, risen 14 pixels.</summary>
-    EffectActorDraygonBreathBubbles4By6Risen14,
-    /// <summary>A room effect actor: empty.</summary>
-    EffectActorEmpty,
+    /// <summary>A room effect actor: a small cluster of Draygon's breath bubbles forming at its mouth.</summary>
+    EffectActorDraygonBreathBubblesForming,
+    /// <summary>A room effect actor: Draygon's breath bubbles swelling into a cluster of two.</summary>
+    EffectActorDraygonBreathBubblesSwelling,
+    /// <summary>A room effect actor: Draygon's breath bubbles billowing into a cluster of three.</summary>
+    EffectActorDraygonBreathBubblesBillowing,
+    /// <summary>A room effect actor: Draygon's breath bubbles rising, the cluster breaking into droplets.</summary>
+    EffectActorDraygonBreathBubblesRising,
+    /// <summary>A room effect actor: Draygon's breath bubbles lifting higher as droplets.</summary>
+    EffectActorDraygonBreathBubblesLifting,
+    /// <summary>A room effect actor: Draygon's breath bubbles thinning to a few droplets.</summary>
+    EffectActorDraygonBreathBubblesThinning,
+    /// <summary>A room effect actor: Draygon's breath bubbles scattering as sparse droplets.</summary>
+    EffectActorDraygonBreathBubblesScattering,
+    /// <summary>A room effect actor: Draygon's breath bubbles dispersing, their droplets far apart.</summary>
+    EffectActorDraygonBreathBubblesDispersing,
+    /// <summary>A room effect actor: the last two droplets of Draygon's breath bubbles.</summary>
+    EffectActorDraygonBreathBubblesVanishing,
     /// <summary>A room effect actor: a puff of dust.</summary>
     EffectActorBigDustCloudPuff,
     /// <summary>A room effect actor: a dust cloud swelling.</summary>
@@ -1042,14 +1040,14 @@ public enum EnemyFrameId
     EffectActorNuclearWaffleLeftExplosionScattering,
     /// <summary>A room effect actor: a nuclear waffle's explosion off to the left: the last scattered embers.</summary>
     EffectActorNuclearWaffleLeftExplosionScattered,
-    /// <summary>A room effect actor: a nuclear waffle's lava splash, 25 pixels wide.</summary>
-    EffectActorNuclearWaffleSplash25Wide,
-    /// <summary>A room effect actor: a nuclear waffle's lava splash, 29 pixels wide.</summary>
-    EffectActorNuclearWaffleSplash29Wide,
-    /// <summary>A room effect actor: a nuclear waffle's lava splash, 39 pixels wide.</summary>
-    EffectActorNuclearWaffleSplash39Wide,
-    /// <summary>A room effect actor: a nuclear waffle's lava splash, 45 pixels wide.</summary>
-    EffectActorNuclearWaffleSplash45Wide,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash: two short jets spurting out.</summary>
+    EffectActorNuclearWaffleSplashSpurting,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash: two jets streaming further out.</summary>
+    EffectActorNuclearWaffleSplashStreaming,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash: the jets bursting into droplets.</summary>
+    EffectActorNuclearWaffleSplashBursting,
+    /// <summary>A room effect actor: a nuclear waffle's lava splash: its droplets scattered wide.</summary>
+    EffectActorNuclearWaffleSplashScattered,
     /// <summary>A room effect actor: a falling spark's trailing sparkle, bright.</summary>
     EffectActorFallingSparkTrailBright,
     /// <summary>A room effect actor: a falling spark's trailing sparkle, twinkling.</summary>
@@ -1058,60 +1056,60 @@ public enum EnemyFrameId
     EffectActorFallingSparkTrailDimming,
     /// <summary>A room effect actor: a falling spark's trailing sparkle, fading.</summary>
     EffectActorFallingSparkTrailFading,
-    /// <summary>A room effect actor: a frozen Metroid's shell, 38 pixels wide and 27 high.</summary>
-    EffectActorMetroidShell38By27,
-    /// <summary>A room effect actor: a frozen Metroid's shell, 44 pixels wide and 29 high.</summary>
-    EffectActorMetroidShell44By29,
-    /// <summary>A room effect actor: a frozen Metroid's shell, 38 pixels wide and 28 high.</summary>
-    EffectActorMetroidShell38By28,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 23 pixels wide and 21 high, anchored 16 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc23By21Anchored16By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 22 pixels wide and 22 high, anchored 16 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc22By22Anchored16By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 23 high, anchored 16 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc24By23Anchored16By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 18 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc24By18Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 21 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc24By21Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 23 pixels wide and 22 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc23By22Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 23 pixels wide and 21 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc23By21Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 22 pixels wide and 22 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc22By22Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 24 pixels wide and 23 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc24By23Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 19 pixels wide and 18 high, anchored 16 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc19By18Anchored16By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 19 pixels wide and 22 high, anchored 16 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc19By22Anchored16By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 20 pixels wide and 21 high, anchored 16 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc20By21Anchored16By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 7 high, anchored 16 pixels in and 4 down.</summary>
-    EffectActorMetroidElectricityArc16By7Anchored16By4,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 8 pixels wide and 8 high, anchored 16 pixels in and 4 down.</summary>
-    EffectActorMetroidElectricityArc8By8Anchored16By4,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 6 high, anchored 16 pixels in and 4 down.</summary>
-    EffectActorMetroidElectricityArc16By6Anchored16By4,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 7 pixels wide and 12 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc7By12Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 8 pixels wide and 14 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc8By14Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 7 pixels wide and 14 high, anchored 8 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc7By14Anchored8By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 7 high, anchored 0 pixels in and 4 down.</summary>
-    EffectActorMetroidElectricityArc16By7Anchored0By4,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 8 high, anchored 0 pixels in and 4 down.</summary>
-    EffectActorMetroidElectricityArc16By8Anchored0By4,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 16 pixels wide and 6 high, anchored 0 pixels in and 4 down.</summary>
-    EffectActorMetroidElectricityArc16By6Anchored0By4,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 4 pixels wide and 6 high, anchored 0 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc4By6Anchored0By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 3 pixels wide and 6 high, anchored 0 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc3By6Anchored0By20,
-    /// <summary>A room effect actor: an arc of a Metroid's electricity 4 pixels wide and 7 high, anchored 0 pixels in and 20 down.</summary>
-    EffectActorMetroidElectricityArc4By7Anchored0By20,
+    /// <summary>A room effect actor: a frozen Metroid's shell, its dome rounded.</summary>
+    EffectActorMetroidShellRounded,
+    /// <summary>A room effect actor: a frozen Metroid's shell swollen wide.</summary>
+    EffectActorMetroidShellSwollen,
+    /// <summary>A room effect actor: a frozen Metroid's shell, its dome drawn up to a peak.</summary>
+    EffectActorMetroidShellPeaked,
+    /// <summary>A room effect actor: a Metroid's electricity crackling up and to the left of its point: a forked spark over an arched arc.</summary>
+    EffectActorMetroidElectricityUpperLeftCrackleArched,
+    /// <summary>A room effect actor: a Metroid's electricity crackling up and to the left of its point: a kinked spark over a knotted arc.</summary>
+    EffectActorMetroidElectricityUpperLeftCrackleKnotted,
+    /// <summary>A room effect actor: a Metroid's electricity crackling up and to the left of its point: a slanting spark over a flat arc.</summary>
+    EffectActorMetroidElectricityUpperLeftCrackleFlat,
+    /// <summary>A room effect actor: a Metroid's electricity forking up and to the right of its point: a hooked bolt over a straight streak.</summary>
+    EffectActorMetroidElectricityUpperRightForkHooked,
+    /// <summary>A room effect actor: a Metroid's electricity forking up and to the right of its point: a bent bolt over a looped streak.</summary>
+    EffectActorMetroidElectricityUpperRightForkBent,
+    /// <summary>A room effect actor: a Metroid's electricity forking up and to the right of its point: a zigzag bolt over a dipping streak.</summary>
+    EffectActorMetroidElectricityUpperRightForkZigzag,
+    /// <summary>A room effect actor: a Metroid's electricity crackling up and to the right of its point: a forked spark over an arched arc.</summary>
+    EffectActorMetroidElectricityUpperRightCrackleArched,
+    /// <summary>A room effect actor: a Metroid's electricity crackling up and to the right of its point: a kinked spark over a knotted arc.</summary>
+    EffectActorMetroidElectricityUpperRightCrackleKnotted,
+    /// <summary>A room effect actor: a Metroid's electricity crackling up and to the right of its point: a slanting spark over a flat arc.</summary>
+    EffectActorMetroidElectricityUpperRightCrackleFlat,
+    /// <summary>A room effect actor: a Metroid's electricity forking up and to the left of its point: a hooked bolt over a straight streak.</summary>
+    EffectActorMetroidElectricityUpperLeftForkHooked,
+    /// <summary>A room effect actor: a Metroid's electricity forking up and to the left of its point: a bent bolt over a looped streak.</summary>
+    EffectActorMetroidElectricityUpperLeftForkBent,
+    /// <summary>A room effect actor: a Metroid's electricity forking up and to the left of its point: a zigzag bolt over a dipping streak.</summary>
+    EffectActorMetroidElectricityUpperLeftForkZigzag,
+    /// <summary>A room effect actor: a Metroid's electricity arcing to the left of its point: an arched arc.</summary>
+    EffectActorMetroidElectricityLeftArcArched,
+    /// <summary>A room effect actor: a Metroid's electricity arcing to the left of its point: the knotted end of an arc.</summary>
+    EffectActorMetroidElectricityLeftArcKnotTip,
+    /// <summary>A room effect actor: a Metroid's electricity arcing to the left of its point: a flat arc.</summary>
+    EffectActorMetroidElectricityLeftArcFlat,
+    /// <summary>A room effect actor: a Metroid's electricity striking above its point: a hooked bolt.</summary>
+    EffectActorMetroidElectricityOverheadBoltHooked,
+    /// <summary>A room effect actor: a Metroid's electricity striking above its point: a bent bolt.</summary>
+    EffectActorMetroidElectricityOverheadBoltBent,
+    /// <summary>A room effect actor: a Metroid's electricity striking above its point: a zigzag bolt.</summary>
+    EffectActorMetroidElectricityOverheadBoltZigzag,
+    /// <summary>A room effect actor: a Metroid's electricity arcing to the right of its point: an arched arc.</summary>
+    EffectActorMetroidElectricityRightArcArched,
+    /// <summary>A room effect actor: a Metroid's electricity arcing to the right of its point: a knotted arc.</summary>
+    EffectActorMetroidElectricityRightArcKnotted,
+    /// <summary>A room effect actor: a Metroid's electricity arcing to the right of its point: a flat arc.</summary>
+    EffectActorMetroidElectricityRightArcFlat,
+    /// <summary>A room effect actor: a Metroid's electricity sparking above and to the right of its point: a forked spark.</summary>
+    EffectActorMetroidElectricityOverheadSparkForked,
+    /// <summary>A room effect actor: a Metroid's electricity sparking above and to the right of its point: a kinked spark.</summary>
+    EffectActorMetroidElectricityOverheadSparkKinked,
+    /// <summary>A room effect actor: a Metroid's electricity sparking above and to the right of its point: a slanting spark.</summary>
+    EffectActorMetroidElectricityOverheadSparkSlanted,
     /// <summary>A room effect actor: yapping maw base facing down.</summary>
     EffectActorYappingMawBaseFacingDown,
     /// <summary>A room effect actor: yapping maw base facing up.</summary>
@@ -1124,22 +1122,22 @@ public enum EnemyFrameId
     EffectActorEvirFacingRightLegsTucked,
     /// <summary>A room effect actor: an Evir's body facing right, all white, legs lowering again.</summary>
     EffectActorEvirFacingRightLegsLowering,
-    /// <summary>A room effect actor: foam from Draygon's mouth 9 pixels wide and 8 high, risen 0 pixels.</summary>
-    EffectActorDraygonFoam9By8Risen0,
-    /// <summary>A room effect actor: foam from Draygon's mouth 13 pixels wide and 14 high, risen 4 pixels.</summary>
-    EffectActorDraygonFoam13By14Risen4,
-    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 14 high, risen 8 pixels.</summary>
-    EffectActorDraygonFoam15By14Risen8,
-    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 16 high, risen 12 pixels.</summary>
-    EffectActorDraygonFoam15By16Risen12,
-    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 15 high, risen 16 pixels.</summary>
-    EffectActorDraygonFoam15By15Risen16,
-    /// <summary>A room effect actor: foam from Draygon's mouth 15 pixels wide and 12 high, risen 20 pixels.</summary>
-    EffectActorDraygonFoam15By12Risen20,
-    /// <summary>A room effect actor: foam from Draygon's mouth 14 pixels wide and 9 high, risen 24 pixels.</summary>
-    EffectActorDraygonFoam14By9Risen24,
-    /// <summary>A room effect actor: foam from Draygon's mouth 13 pixels wide and 9 high, risen 28 pixels.</summary>
-    EffectActorDraygonFoam13By9Risen28,
+    /// <summary>A room effect actor: foam bubbling from Draygon's mouth, a single ring.</summary>
+    EffectActorDraygonFoamBubbling,
+    /// <summary>A room effect actor: foam frothing from Draygon's mouth into a thick ring.</summary>
+    EffectActorDraygonFoamFrothing,
+    /// <summary>A room effect actor: foam from Draygon's mouth swelling into rings.</summary>
+    EffectActorDraygonFoamSwelling,
+    /// <summary>A room effect actor: foam from Draygon's mouth billowing into loose bubbles.</summary>
+    EffectActorDraygonFoamBillowing,
+    /// <summary>A room effect actor: foam from Draygon's mouth breaking into bubbles.</summary>
+    EffectActorDraygonFoamBreaking,
+    /// <summary>A room effect actor: foam from Draygon's mouth scattering as small bubbles.</summary>
+    EffectActorDraygonFoamScattering,
+    /// <summary>A room effect actor: foam from Draygon's mouth dispersing as specks.</summary>
+    EffectActorDraygonFoamDispersing,
+    /// <summary>A room effect actor: the last specks of foam from Draygon's mouth.</summary>
+    EffectActorDraygonFoamVanishing,
     /// <summary>Yapping Maw: reaching up, jaws wide open.</summary>
     YappingMawFacingUpJawsWide,
     /// <summary>Yapping Maw: reaching up, jaws closing.</summary>
@@ -2010,24 +2008,24 @@ public enum EnemyFrameId
     BotwoonHeadOpenUp,
     /// <summary>Samus's gunship: its entrance pad shut.</summary>
     GunshipEntrancePadShut,
-    /// <summary>Samus's gunship: its entrance pad shut, 1 pixels higher.</summary>
-    GunshipEntrancePadShutRaised1,
-    /// <summary>Samus's gunship: its entrance pad shut, 2 pixels higher.</summary>
-    GunshipEntrancePadShutRaised2,
-    /// <summary>Samus's gunship: its entrance pad shut, 4 pixels higher.</summary>
-    GunshipEntrancePadShutRaised4,
-    /// <summary>Samus's gunship: its entrance pad opening, 32 pixels wide.</summary>
-    GunshipEntrancePadOpening32Wide,
-    /// <summary>Samus's gunship: its entrance pad opening, 36 pixels wide.</summary>
-    GunshipEntrancePadOpening36Wide,
-    /// <summary>Samus's gunship: its entrance pad opening, 40 pixels wide.</summary>
-    GunshipEntrancePadOpening40Wide,
-    /// <summary>Samus's gunship: its entrance pad opening, 44 pixels wide.</summary>
-    GunshipEntrancePadOpening44Wide,
-    /// <summary>Samus's gunship: its entrance pad opening, 48 pixels wide.</summary>
-    GunshipEntrancePadOpening48Wide,
-    /// <summary>Samus's gunship: its entrance pad opening, 52 pixels wide.</summary>
-    GunshipEntrancePadOpening52Wide,
+    /// <summary>Samus's gunship: its entrance pad shut, lifting off its seat.</summary>
+    GunshipEntrancePadLifting,
+    /// <summary>Samus's gunship: its entrance pad shut, rising.</summary>
+    GunshipEntrancePadRising,
+    /// <summary>Samus's gunship: its entrance pad shut, raised to open.</summary>
+    GunshipEntrancePadRaised,
+    /// <summary>Samus's gunship: its entrance pad splitting into its two halves.</summary>
+    GunshipEntrancePadSplitting,
+    /// <summary>Samus's gunship: its entrance pad's halves parting.</summary>
+    GunshipEntrancePadParting,
+    /// <summary>Samus's gunship: its entrance pad's halves separating.</summary>
+    GunshipEntrancePadSeparating,
+    /// <summary>Samus's gunship: its entrance pad's halves spreading apart.</summary>
+    GunshipEntrancePadSpreading,
+    /// <summary>Samus's gunship: its entrance pad's halves widening the gap.</summary>
+    GunshipEntrancePadWidening,
+    /// <summary>Samus's gunship: its entrance pad nearly open.</summary>
+    GunshipEntrancePadNearlyOpen,
     /// <summary>Samus's gunship: entrance pad open.</summary>
     GunshipEntrancePadOpen,
     /// <summary>Samus's gunship: top hull.</summary>

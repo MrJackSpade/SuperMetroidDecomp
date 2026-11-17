@@ -2,7 +2,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>
 /// The installed program frames each artwork schema generation added, by the name the installed artwork file keys them
-/// under, which is its identity's name in snake case. Each frame is named for what its picture shows (since schema 17,
+/// under, which is its document name (<c>EnemyProjectileFrameNameDefinitions</c>, #2370). Each frame is named for what its picture shows (since schema 17,
 /// #2154, which renamed the frames schema 15 had named for the animation that first showed them and their place in it).
 /// Where each frame is stored in the cartridge is the import's knowledge (AssetExtraction's
 /// <c>EnemyProjectileProgramFrameDefinitions</c>).
@@ -626,16 +626,16 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("enemy_death_embers_cluster"),
         new("enemy_death_four_fireballs_amid_embers"),
         new("enemy_death_four_fireballs_amid_ash"),
-        new("enemy_death_four_embers_apart_62"),
-        new("enemy_death_four_embers_apart_70"),
-        new("enemy_death_four_embers_apart_76"),
-        new("enemy_death_four_embers_apart_80"),
-        new("enemy_death_four_ash_apart_86"),
-        new("enemy_death_four_ash_apart_94"),
-        new("enemy_death_four_ash_apart_98"),
-        new("enemy_death_four_ash_apart_106"),
-        new("enemy_death_four_ash_apart_118"),
-        new("enemy_death_four_ash_apart_130"),
+        new("enemy_death_four_embers_flying_apart"),
+        new("enemy_death_four_embers_spreading"),
+        new("enemy_death_four_embers_cooling"),
+        new("enemy_death_four_embers_dimming"),
+        new("enemy_death_four_ash_drifting"),
+        new("enemy_death_four_ash_spreading"),
+        new("enemy_death_four_ash_sinking"),
+        new("enemy_death_four_ash_falling"),
+        new("enemy_death_four_ash_settling"),
+        new("enemy_death_four_ash_dispersing"),
     ];
 
     /// <summary>Environmental and attack effects.</summary>

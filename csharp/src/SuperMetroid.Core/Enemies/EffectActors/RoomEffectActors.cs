@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
@@ -116,6 +117,9 @@ internal sealed class RoomEffectActors
                 continue;
             }
             EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
+            // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
+            if (CommonEnemyEmptyFrames.DrawsNothing(shown))
+                continue;
             _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
                 EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
         }

@@ -44,10 +44,10 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             AssertEqual(CommonEnemyEmptyFrameToolingDefinitions.EmptySpritemap,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6)),
                 $"bank ${bank:X2} shared empty OAM pointer");
-            AssertEqual(CommonEnemyEmptyFrameDefinitions.PointHitboxList,
+            AssertEqual(CommonEnemyEmptyFrames.PointHitboxList,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 8)),
                 $"bank ${bank:X2} shared empty hitbox pointer");
-            int hitbox = ((int)new SnesAddress(bank, CommonEnemyEmptyFrameDefinitions.PointHitboxList));
+            int hitbox = ((int)new SnesAddress(bank, CommonEnemyEmptyFrames.PointHitboxList));
             AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(hitbox),
                 $"bank ${bank:X2} shared point-hitbox count");
             for (int offset = 2; offset < 10; offset += 2)

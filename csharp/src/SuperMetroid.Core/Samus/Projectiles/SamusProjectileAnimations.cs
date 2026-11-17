@@ -526,8 +526,8 @@ internal static class SamusProjectileAnimations
         [
             Show(F.ChargedIceUpFacingRightCrossed, 1),
             Show(F.ChargedIceUpFacingRightStar, 1),
-            Show(F.ChargedIceUpFacingRightCrossedCopy, 1),
-            Show(F.ChargedIceUpFacingRightStarCopy, 1),
+            Show(F.ChargedIceUpFacingRightCrossed, 1),
+            Show(F.ChargedIceUpFacingRightStar, 1),
         ],
         [P.ChargedIceWaveUpFacingRight] =
         [

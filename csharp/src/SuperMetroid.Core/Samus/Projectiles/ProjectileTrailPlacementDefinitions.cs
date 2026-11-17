@@ -1527,8 +1527,6 @@ internal static class ProjectileTrailPlacementDefinitions
                 [F.ChargedPowerUpLeftAlternate] = new(new(0, 0), new(0, 0)),
                 [F.ChargedIceUpFacingRightCrossed] = new(new(0, 0), new(0, 0)),
                 [F.ChargedIceUpFacingRightStar] = new(new(0, 0), new(0, 0)),
-                [F.ChargedIceUpFacingRightCrossedCopy] = new(new(0, 0), new(0, 0)),
-                [F.ChargedIceUpFacingRightStarCopy] = new(new(0, 0), new(0, 0)),
                 [F.ChargedSpazerUpFacingRightStartupShort] = new(new(0, 0), new(0, 0)),
                 [F.ChargedSpazerUpFacingRightVerticalAlternateStartupShort] = new(new(0, 0), new(0, 0)),
                 [F.ChargedSpazerUpFacingRightStartupLong] = new(new(0, 0), new(0, 0)),

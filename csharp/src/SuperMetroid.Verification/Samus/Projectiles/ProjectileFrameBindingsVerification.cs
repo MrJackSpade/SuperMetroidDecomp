@@ -27,8 +27,8 @@ internal static class ProjectileFrameBindingsVerification
         {
             int address = SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(pointer + 2));
             ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
-            AssertEqual(native, stock.Resolve(pointer),
-                $"timed projectile $93:{pointer:X4} keeps its native sprite reference");
+            AssertEqual(ProjectileSpriteNative.FirstStored(native), stock.Resolve(pointer),
+                $"timed projectile $93:{pointer:X4} keeps the composition its native sprite reference stores");
         }
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
@@ -88,14 +88,27 @@ internal static class ProjectileFrameBindingsVerification
         AssertEqual(stock.Resolve(firstTimedRecord),
             RepositoryInstallation.Installation.LoadProjectiles().FrameBindings.Resolve(firstTimedRecord),
             "installed stock frame binding selects the native sprite");
-        // #1762: every composition a frame binds, and every flare and hit-burst composition, is named for the pose it shows,
-        // never by its place in its family.
-        string[] numbered = [.. document.Frames.Values.Concat(ChargeFlareSpriteDefinitions.All.Select(sprite => sprite.Name))
+        // #1762, #2295: every projectile composition, and every flare and hit-burst composition, is named for the pose and
+        // stage it shows, never by its place in its family or animation.
+        string[] numbered = [.. ProjectileSpriteDefinitions.All.Select(sprite => sprite.Name)
+            .Concat(ChargeFlareSpriteDefinitions.All.Select(sprite => sprite.Name))
             .Concat(HitBurstSpriteDefinitions.All.Select(sprite => sprite.Name))
-            .Where(name => name.Split('.').Any(segment => segment.All(char.IsAsciiDigit))).Distinct()];
-        AssertTrue(numbered.Length == 0, $"compositions are named for their poses, not numbered: {string.Join(", ", numbered)}");
+            .Where(name => name.Any(char.IsAsciiDigit))];
+        AssertTrue(numbered.Length == 0, $"compositions are named for their poses and stages, not numbered: {string.Join(", ", numbered)}");
         AssertEqual("Power.UpRight", document.Frames[nameof(SamusProjectileFrameId.PowerUpRight)], "the up-right Power beam binds the up-right Power pose");
-        AssertEqual("Wave.Right.Up1", document.Frames[nameof(SamusProjectileFrameId.WaveRightUpNear)], "the right-travelling Wave beam's first swing binds its first upward stage");
+        AssertEqual("Wave.Right.UpNear", document.Frames[nameof(SamusProjectileFrameId.WaveRightUpNear)], "the right-travelling Wave beam's first swing binds the composition of that stage");
+        // #2295: the down-left Spazer group stores no splitting lanes; its frames bind the compositions of the stages they show.
+        AssertEqual("Spazer.DownLeft.Parting", document.Frames[nameof(SamusProjectileFrameId.SpazerDownLeftParting)], "the down-left Spazer's parting lanes bind its parting composition");
+        AssertEqual("Spazer.DownLeft.Spreading", document.Frames[nameof(SamusProjectileFrameId.SpazerWaveDownLeftSpreading)], "the down-left Spazer's spreading lanes bind its spreading composition");
+        AssertEqual("Spazer.DownLeft.NearlySpread", document.Frames[nameof(SamusProjectileFrameId.SpazerWaveDownLeftNearlySpread)], "the down-left Spazer's nearly spread lanes bind its nearly spread composition");
+        AssertEqual("Spazer.DownLeft.Spread", document.Frames[nameof(SamusProjectileFrameId.SpazerDownLeftSpread)], "the down-left Spazer's spread lanes bind its spread composition");
+        // #2295: a record storing a composition again, byte for byte, binds that one composition: charged Ice's cross and star
+        // are charged Wave's alternate core and core, and the Wave beam's centre is the leftward Power beam's character.
+        AssertEqual("ChargedWave.CoreAlternate", document.Frames[nameof(SamusProjectileFrameId.ChargedIceUpFacingRightCrossed)], "charged Ice's cross binds the composition it stores");
+        AssertEqual("ChargedWave.Core", document.Frames[nameof(SamusProjectileFrameId.ChargedIceUpFacingRightStar)], "charged Ice's star binds the composition it stores");
+        AssertEqual("Power.Left", document.Frames[nameof(SamusProjectileFrameId.WaveRightCentre)], "the Wave beam's centre binds the composition it stores");
+        string[] unbound = [.. ProjectileSpriteDefinitions.All.Select(sprite => sprite.Name).Except(document.Frames.Values)];
+        AssertTrue(unbound.Length == 0, $"every installed composition is one a frame binds: {string.Join(", ", unbound)}");
         document.Frames.Remove(frameName);
         AssertThrows<InvalidDataException>(() => ProjectileFrameBindingFile.Load(new MemoryStream(ProjectileFrameBindingFile.Write(document))),
             "missing timed frame fails before gameplay");

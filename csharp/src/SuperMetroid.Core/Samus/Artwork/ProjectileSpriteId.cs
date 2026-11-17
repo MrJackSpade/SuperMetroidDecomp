@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 
 /// <summary>
 /// One Samus projectile or charge-flare composition: its family and the pose of the family it shows (#1762), such as
-/// <c>"Power.UpRight"</c> or <c>"Wave.Right.Up1"</c>.
+/// <c>"Power.UpRight"</c>.
 /// </summary>
 /// <param name="Group">The composition's family.</param>
 /// <param name="Pose">What the composition shows within its family: the direction it points or travels, and the stage of

@@ -248,8 +248,6 @@ internal static class SamusProjectileFrameDefinitions
         [SamusProjectileFrameId.ChargedWaveDownRightLobesPeakAlternate] = new(18, 18),
         [SamusProjectileFrameId.ChargedIceUpFacingRightCrossed] = new(8, 8),
         [SamusProjectileFrameId.ChargedIceUpFacingRightStar] = new(8, 8),
-        [SamusProjectileFrameId.ChargedIceUpFacingRightCrossedCopy] = new(8, 8),
-        [SamusProjectileFrameId.ChargedIceUpFacingRightStarCopy] = new(8, 8),
         [SamusProjectileFrameId.ChargedIceWaveUpFacingRightHidden] = new(12, 8),
         [SamusProjectileFrameId.ChargedIceWaveDownFacingRightCore] = new(12, 8),
         [SamusProjectileFrameId.ChargedIceWaveDownFacingRightCoreAlternate] = new(12, 8),

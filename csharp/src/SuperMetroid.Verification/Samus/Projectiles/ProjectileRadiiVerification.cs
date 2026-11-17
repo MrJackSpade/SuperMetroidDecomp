@@ -105,7 +105,8 @@ internal static class ProjectileRadiiVerification
             ushort duration = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x930000 | pointer));
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
-            ushort expectedSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
+            // A record storing a composition again, byte for byte, shows that composition (#2295).
+            ushort expectedSprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2)));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), Damage = 30 };
             AssertEqual(false, projectiles.Animation.AdvanceProjectileAnimation(slot), "Timed projectile record survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Frame duration unchanged");

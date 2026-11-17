@@ -141,7 +141,7 @@ internal static class ProjectileInstructionsVerification
                         if (command == 0x822f) { deleted = true; break; }
                         if (command == 0x8239) { pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); continue; }
                         AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
-                        timer = command; sprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
+                        timer = command; sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2))); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
                         trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }

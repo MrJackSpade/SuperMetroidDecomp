@@ -62,6 +62,7 @@ internal static class ProjectileCompositionsVerification
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<ProjectileSpriteDocument>(json, options);
+        VerifyCompositionsWrittenOnce(rom, document, options);
         ushort drawnId = ProjectileSpriteDefinitions.NativePointers.First(id => document.Frames[ProjectileSpriteDefinitions.Name(id)].Length > 0);
         string name = ProjectileSpriteDefinitions.Name(drawnId);
         var original = document.Frames[name][0];
@@ -84,7 +85,43 @@ internal static class ProjectileCompositionsVerification
             AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(malformed)), "Duplicate or unknown mechanics fields rejected");
         }
         AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), new(0, 0)), "Unknown sprite is loud");
-        Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons and invalid-field rejection pass without a draw-time ROM.");
+        Console.WriteLine($"Projectile compositions: {ProjectileSpriteDefinitions.NativePointers.Count} stored records as {ProjectileSpriteDefinitions.All.Count} compositions/{draws} native OAM comparisons and invalid-field rejection pass without a draw-time ROM.");
+    }
+
+    /// <summary>
+    /// Checks that each composition is written once (#1635, #2295): no two installed compositions hold the same parts, a record
+    /// storing a composition again, byte for byte, holds that composition, and the extractor refuses a cartridge whose records
+    /// would write one twice or whose copy differs from the composition it is held as.
+    /// </summary>
+    private static void VerifyCompositionsWrittenOnce(CartridgeImportAddressSpace rom, ProjectileSpriteDocument document,
+        JsonSerializerOptions options)
+    {
+        AssertEqual(ProjectileSpriteDefinitions.All.Count, document.Frames.Count, "one installed composition per distinct composition");
+        AssertEqual(document.Frames.Count, document.Frames.Values.Select(parts => JsonSerializer.Serialize(parts, options)).Distinct().Count(),
+            "no two installed compositions hold the same parts");
+        AssertEqual(ProjectileSpriteNative.Projectile(0xed9e), ProjectileSpriteNative.Projectile(0xedca),
+            "charged Ice's two stored crosses are one composition");
+        AssertEqual(ProjectileSpriteNative.Projectile(0xedb4), ProjectileSpriteNative.Projectile(0xede0),
+            "charged Ice's two stored stars are one composition");
+
+        // Power's rightward record, which nothing copies, rewritten as its leftward one: two compositions would store the same
+        // bytes.
+        byte[] doubled = rom.Rom.ToArray();
+        int left = CartridgeImportAddressSpace.ToRomOffset(0x930000 | ProjectileSpriteNative.Address(new(ProjectileSpriteGroup.Power, "Left")));
+        int right = CartridgeImportAddressSpace.ToRomOffset(0x930000 | ProjectileSpriteNative.Address(new(ProjectileSpriteGroup.Power, "Right")));
+        doubled.AsSpan(left, 7).CopyTo(doubled.AsSpan(right, 7));
+        InvalidDataException twice = AssertThrows<InvalidDataException>(() => ProjectileSpriteExtractor.Extract(new CartridgeImportAddressSpace(doubled)),
+            "a composition stored twice under two names is refused before it is written twice");
+        AssertTrue(twice.Message.Contains("Power.Left", StringComparison.Ordinal) && twice.Message.Contains("Power.Right", StringComparison.Ordinal),
+            $"the refusal names both compositions: {twice.Message}");
+
+        // The Wave beam's centre, held as the leftward Power beam's character, flipped: it no longer stores that composition.
+        byte[] diverged = rom.Rom.ToArray();
+        diverged[CartridgeImportAddressSpace.ToRomOffset(0x93ae65) + 6] ^= 0x40;
+        InvalidDataException copy = AssertThrows<InvalidDataException>(() => ProjectileSpriteExtractor.Extract(new CartridgeImportAddressSpace(diverged)),
+            "a record held as another composition's copy must store it byte for byte");
+        AssertTrue(copy.Message.Contains("$93:AE65", StringComparison.Ordinal) && copy.Message.Contains("Power.Left", StringComparison.Ordinal),
+            $"the refusal names the record and the composition it is held as: {copy.Message}");
     }
 
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>

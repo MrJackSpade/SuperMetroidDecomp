@@ -1687,7 +1687,8 @@ internal static class LookupStream1Verification
         foreach (ushort pointer in expected)
         {
             ushort duration = Word(0x930000 | pointer);
-            ushort sprite = Word(0x930000 | (pointer + 2));
+            // A record storing a composition again, byte for byte, shows that composition (#2295).
+            ushort sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
             var slot = new SamusProjectile(0) { FrameHold = WrappingCountdown.Start(1), Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer) };
             AssertTrue(!shots.Animation.AdvanceProjectileAnimation(slot), "Actual native timed frame survives");
             AssertEqual(duration, slot.FrameHold.RawValue, "Actual timer unchanged");
@@ -1811,7 +1812,7 @@ internal static class LookupStream1Verification
                     {
                         AssertTrue(word is > 0 and < 0x8000, "Native command reaches a timed frame");
                         looped = !visited.Add(pointer);
-                        timer = word; sprite = Word(0x930000 | (pointer + 2));
+                        timer = word; sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(Word(0x930000 | (pointer + 2)));
                         x = LookupStream1ProjectileProgramsRomByte(rom, 0x930000 | (pointer + 4)); y = LookupStream1ProjectileProgramsRomByte(rom, 0x930000 | (pointer + 5));
                         trail = pointer; pointer += 8;
                     }

@@ -17,14 +17,10 @@ public static class ProjectileFrameBindingExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        Dictionary<SamusProjectileFrameId, ushort> recordSprites = ProjectileSpriteLocations.RecordSprites(bus);
-        Dictionary<ushort, ProjectileSpriteId> byLocation = ProjectileSpriteLocations.Projectiles()
-            .ToDictionary(pair => pair.Value, pair => pair.Key);
+        Dictionary<SamusProjectileFrameId, ProjectileSpriteId> recordSprites = ProjectileSpriteLocations.RecordSprites(bus);
         var frames = new Dictionary<string, string>();
         foreach (SamusProjectileFrameId record in SamusProjectileFrameOrder.Frames)
-            frames.Add(ProjectileFrameBindingFormat.FrameName(record), byLocation.TryGetValue(recordSprites[record], out ProjectileSpriteId sprite)
-                ? sprite.Name
-                : throw new InvalidDataException($"Timed projectile record {record} selects ${recordSprites[record]:X4}, which is no projectile composition."));
+            frames.Add(ProjectileFrameBindingFormat.FrameName(record), recordSprites[record].Name);
         return ProjectileFrameBindingFile.Write(new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,

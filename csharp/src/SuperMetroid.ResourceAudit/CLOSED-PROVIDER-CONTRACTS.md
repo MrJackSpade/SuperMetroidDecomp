@@ -410,7 +410,7 @@ assets, saves or gameplay runs; mechanics and visual content are unchanged.
 
 Eight guarded providers require all twelve beam sheets, both sixteen-direction
 flare placement rows, 28 flare compositions/54 selectors, 42 trail appearances,
-805 timed projectile bindings, 417 ordinary projectile compositions, four rope
+624 projectile frame bindings, 345 ordinary projectile compositions, four rope
 segment appearances and 256 swing display angles. Sparse identity membership
 and separate parameter bounds remain explicit. Timed trail resolution either
 retains native attributes at an unconsumed list start or selects the installed

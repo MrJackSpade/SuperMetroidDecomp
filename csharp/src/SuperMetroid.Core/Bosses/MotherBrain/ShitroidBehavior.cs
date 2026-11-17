@@ -127,7 +127,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAction.BeginEntranceDelay:
                 state.Action = ShitroidAction.EntranceDelay;
-                state.StateTimer.Count = ShitroidFightDefinitions.EntranceDelayUpdates;
+                state.StateTimer.LastFor(ShitroidFightDefinitions.EntranceDelayUpdates);
                 goto case ShitroidAction.EntranceDelay;
 
             case ShitroidAction.EntranceDelay:
@@ -170,7 +170,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShitroidAction.ActivateSidehopperCorpse:
                 DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(place));
                 state.Action = ShitroidAction.RiseAfterFeeding;
-                state.StateTimer.Count = ShitroidFightDefinitions.RiseUpdates;
+                state.StateTimer.LastFor(ShitroidFightDefinitions.RiseUpdates);
                 goto case ShitroidAction.RiseAfterFeeding;
 
             case ShitroidAction.RiseAfterFeeding:
@@ -212,14 +212,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAction.BeginPostDrainPause:
                 state.Action = ShitroidAction.PostDrainPause;
-                state.StateTimer.Count = ShitroidFightDefinitions.PostDrainPauseUpdates;
+                state.StateTimer.LastFor(ShitroidFightDefinitions.PostDrainPauseUpdates);
                 goto case ShitroidAction.PostDrainPause;
 
             case ShitroidAction.PostDrainPause:
                 if (state.StateTimer.StepRunsOut())
                 {
                     state.Action = ShitroidAction.RiseAfterDrainingSamus;
-                    state.StateTimer.Count = ShitroidFightDefinitions.RiseUpdates;
+                    state.StateTimer.LastFor(ShitroidFightDefinitions.RiseUpdates);
                     goto case ShitroidAction.RiseAfterDrainingSamus;
                 }
                 return;
@@ -232,7 +232,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
                     state.Action = ShitroidAction.FlyBesideSamus;
                     state.DepartureSide = HorizontalDirection.Left;
-                    state.StateTimer.Count = ShitroidFightDefinitions.FlyBesideUpdates;
+                    state.StateTimer.LastFor(ShitroidFightDefinitions.FlyBesideUpdates);
                     SetShitroidAnimation(place, ShitroidSegment.LatchedOn);
                     goto case ShitroidAction.FlyBesideSamus;
                 }
@@ -256,11 +256,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (toHerLeft)
                 {
                     state.DepartureSide = HorizontalDirection.Right;
-                    state.StateTimer.Count = ShitroidFightDefinitions.FlyBesideUpdates;
+                    state.StateTimer.LastFor(ShitroidFightDefinitions.FlyBesideUpdates);
                     goto case ShitroidAction.FlyBesideSamus;
                 }
                 state.Action = ShitroidAction.HoldSamusBeforeRelease;
-                state.StateTimer.Count = ShitroidFightDefinitions.HoldBeforeReleaseUpdates;
+                state.StateTimer.LastFor(ShitroidFightDefinitions.HoldBeforeReleaseUpdates);
                 SetShitroidAnimation(place, ShitroidSegment.Remorse);
                 return;
             }
@@ -310,7 +310,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state, Position16<RoomPixels> camera)
     {
-        if (CoordinateAxis.Difference(camera.X, ShitroidFightDefinitions.ArenaLeftX + 1) >= 0)
+        if (CoordinateAxis.Difference(camera.X, ShitroidFightDefinitions.ArenaLeftX) > 0)
             return;
 
         // Puts the camera at its arena's edge directly, then rescrolls the room's four screens as the wall entrance does: the second
@@ -329,8 +329,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
-        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(1, 0), highState);
-        _room.Services.RoomScroll.Write(new Position16<RoomScreens>(3, 0), highState);
+        foreach (Position16<RoomScreens> screen in ShitroidFightDefinitions.ClosingScreens)
+            _room.Services.RoomScroll.Write(screen, highState);
     }
 
     /// <summary>Requests the two room-column wall objects at the authored Tourian positions.</summary>
@@ -354,10 +354,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = ShitroidAction.DrainSidehopper;
         state.ColourDelay = ShitroidFightDefinitions.FeedingPulseDelay;
         state.ReactsToSamus = false;
-        state.SidehopperDrainTimer = 320;
+        state.SidehopperDrainTimer = ShitroidFightDefinitions.SidehopperDrainUpdates;
     }
 
-    /// <summary>Shakes above the victim for 320 ticks before activating its corpse sequence.</summary>
+    /// <summary>Shakes above the victim for its drain before activating its corpse sequence.</summary>
     private void DrainShitroidVictim(RoomEnemyPlace place, ShitroidEnemyState state)
     {
         RoomEnemyPlace victim = RequireShitroidVictim(place);

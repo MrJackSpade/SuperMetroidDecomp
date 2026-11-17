@@ -94,7 +94,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (stoodUp)
         {
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.Admire;
-            Encounter.PhaseTimer.Count = 16;
+            Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.AdmireUpdates);
             return true;
         }
         return false;
@@ -106,12 +106,12 @@ internal sealed class MotherBrainFinishSamusOffPhases
     /// </summary>
     internal bool RunSecondPhaseFinishSamusOffAdmire()
     {
-        // Stand-up falls through here, so the freshly loaded countdown takes its first step on the same AI update.
+        // Stand-up falls through here, so the admiration's first update is the update she stands up on.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             _state.SetHeadAnimation(MotherBrainHeadSegment.StretchingPhase2);
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.ChargeFinalBeam;
-            Encounter.PhaseTimer.Count = 256;
+            Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FinalBeamChargeUpdates);
         }
         return false;
     }
@@ -145,7 +145,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
             Encounter.FinishOffPhase = MotherBrainFinishOffPhase.FireFinalBeam;
-            Encounter.PhaseTimer.Count = 256;
+            Encounter.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FinalBeamFireDelayUpdates);
         }
         return false;
     }

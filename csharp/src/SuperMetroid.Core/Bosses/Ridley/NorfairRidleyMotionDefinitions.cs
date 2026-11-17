@@ -15,8 +15,8 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The least upward speed Ridley lifts a grabbed Samus with: two pixels an update.</summary>
     internal static readonly SignedEightEight GrabLiftMinimumSpeed = SignedEightEight.FromPixels(2);
 
-    /// <summary>The countdown between the steps of his arena's reveal: a step every third update.</summary>
-    internal const int ArenaRevealStepHold = 2;
+    /// <summary>The updates between the steps of his arena's reveal: a step every third update.</summary>
+    internal const int ArenaRevealStepUpdates = 3;
 
     /// <summary>The seek divisor of his entry into the arena.</summary>
     internal const int ArenaEntryDivisor = 2;
@@ -30,25 +30,25 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The seek divisor of his flights carrying Samus and releasing her.</summary>
     internal const int CarryDivisor = 16;
 
-    /// <summary>The countdown of his hover, after which he chooses his next attack wherever he is.</summary>
-    internal const int HoverUpdates = 128;
+    /// <summary>The updates of his hover, on the last of which he chooses his next attack wherever he is.</summary>
+    internal const int HoverUpdates = 129;
 
-    /// <summary>The countdown of his flight to the swoop's start, before the swoop's dive.</summary>
+    /// <summary>The updates his swoop's own timer counts down as he flies to the swoop's start; it stops at zero, and the update after that is the dive's.</summary>
     internal const int SwoopSetupUpdates = 10;
 
-    /// <summary>The countdown of his swoop's dive, aiming down.</summary>
+    /// <summary>The updates his swoop's dive, aiming down, counts down before the update it ends on.</summary>
     internal const int SwoopDiveUpdates = 32;
 
-    /// <summary>The countdown of his swoop's sweep, aiming sideways, at whose end his tail whips.</summary>
+    /// <summary>The updates his swoop's sweep, aiming sideways, counts down before the update it ends on, on which his tail whips.</summary>
     internal const int SwoopSweepUpdates = 20;
 
-    /// <summary>The countdown of his swoop's turn up.</summary>
+    /// <summary>The updates his swoop's turn up counts down before the update it ends on.</summary>
     internal const int SwoopTurnUpdates = 16;
 
-    /// <summary>The countdown of his swoop's climb.</summary>
+    /// <summary>The updates his swoop's climb counts down before the update it ends on.</summary>
     internal const int SwoopClimbUpdates = 32;
 
-    /// <summary>The countdown of his swoop's recovery, after which he lunges at a grabbable Samus.</summary>
+    /// <summary>The updates his swoop's recovery counts down before the update it ends on, after which he lunges at a grabbable Samus.</summary>
     internal const int SwoopRecoveryUpdates = 32;
 
     /// <summary>The speed his swoop's dive moves toward: four and a half pixels an update.</summary>
@@ -63,29 +63,29 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The speed his swoop's recovery moves toward: one and three quarter pixels an update.</summary>
     internal static readonly SignedEightEight SwoopRecoverySpeed = SignedEightEight.FromParts(1, 192);
 
-    /// <summary>The countdown of each leg of his wall sweep, after its first.</summary>
-    internal const int WallSweepLegUpdates = 128;
+    /// <summary>The updates of each leg of his wall sweep, after its first.</summary>
+    internal const int WallSweepLegUpdates = 129;
 
-    /// <summary>The least countdown of his wall sweep's first leg, to which a random roll adds.</summary>
-    internal const int WallSweepFirstLegMinimum = 32;
+    /// <summary>The fewest updates of his wall sweep's first leg, to which a random roll adds.</summary>
+    internal const int WallSweepFirstLegLeastUpdates = 33;
 
-    /// <summary>The countdown of his settling at the pogo's height before his first bounce.</summary>
-    internal const int PogoSettleUpdates = 32;
+    /// <summary>The updates of his settling at the pogo's height before his first bounce.</summary>
+    internal const int PogoSettleUpdates = 33;
 
-    /// <summary>The least countdown of his pogo, to which a random roll adds.</summary>
-    internal const int PogoMinimumUpdates = 128;
+    /// <summary>The fewest updates of his pogo, to which a random roll adds.</summary>
+    internal const int PogoLeastUpdates = 129;
 
     /// <summary>The pogo bounces after which he breathes fireballs, and the count starts again.</summary>
     internal const int PogoBouncesPerFireballing = 2;
 
-    /// <summary>The countdown of his flight carrying Samus to his carry's anchor.</summary>
-    internal const int CarryToAnchorUpdates = 32;
+    /// <summary>The updates of his flight carrying Samus to his carry's anchor.</summary>
+    internal const int CarryToAnchorUpdates = 33;
 
-    /// <summary>The countdown of his carry's rise, after which he releases Samus.</summary>
-    internal const int CarryRiseUpdates = 32;
+    /// <summary>The updates of his carry's rise, on the last of which he releases Samus.</summary>
+    internal const int CarryRiseUpdates = 33;
 
-    /// <summary>The countdown of his flight away after releasing Samus.</summary>
-    internal const int CarryReleaseUpdates = 64;
+    /// <summary>The updates of his flight away after releasing Samus.</summary>
+    internal const int CarryReleaseUpdates = 65;
 
     /// <summary>The pixels a carried Samus's offset from his claw closes, on each axis, each update.</summary>
     internal const int GrabOffsetDecay = 4;
@@ -105,18 +105,18 @@ internal static class NorfairRidleyMotionDefinitions
     /// </summary>
     internal const int WoundedAttackHealth = 14400;
 
-    /// <summary>The countdown of his death roar.</summary>
-    internal const int DeathRoarUpdates = 32;
+    /// <summary>The updates of his death roar.</summary>
+    internal const int DeathRoarUpdates = 33;
 
-    /// <summary>The countdown of his death's explosions, after which he breaks up.</summary>
-    internal const int DeathExplosionUpdates = 160;
+    /// <summary>The updates of his death's explosions, on the last of which he breaks up.</summary>
+    internal const int DeathExplosionUpdates = 161;
 
     /// <summary>The updates between his death's small explosions, less the one each spawns on.</summary>
     internal const int DeathExplosionInterval = 4;
 
-    /// <summary>The countdown of the wait after his breakup.</summary>
-    internal const int BreakupWaitUpdates = 32;
+    /// <summary>The updates of the wait after his breakup.</summary>
+    internal const int BreakupWaitUpdates = 33;
 
-    /// <summary>The countdown of his death's end, after which his drops scatter and his body goes.</summary>
-    internal const int DeathFinishUpdates = 256;
+    /// <summary>The updates of his death's end, on the last of which his drops scatter and his body goes.</summary>
+    internal const int DeathFinishUpdates = 257;
 }

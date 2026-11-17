@@ -46,9 +46,8 @@ internal sealed class MotherBrainThirdPhaseFight
     public MotherBrainPhase3NeckPhase Phase3NeckPhase { get; internal set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
-    /// <summary>Countdown shared by the two phase-three recoil phases; it stops at zero.</summary>
-    [IntegerQuantity("frames left in the recoil; the death sequence waits for the tenth")]
-    public int Phase3NeckRecoilTimer { get; private set; }
+    /// <summary>The wait of her neck's recoil from a Hyper Beam hit and of its recovery after it, each run out by its phase.</summary>
+    public BossCountdown Phase3NeckRecoil { get; } = new();
 
     /// <summary>
     /// Whether phase-three attacks are suspended. Hyper Beam recoil sets it
@@ -160,20 +159,16 @@ internal sealed class MotherBrainThirdPhaseFight
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
-                Phase3NeckRecoilTimer = MotherBrainLateFightDefinitions.RecoilRecoveryUpdates;
+                Phase3NeckRecoil.LastFor(MotherBrainLateFightDefinitions.RecoilRecoveryUpdates);
 
-                // The recovery takes its first step in this same update, so its timer of recovery already reads
-                // one less when the update ends.
+                // The recovery's first update is this same update.
                 goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
 
             case MotherBrainPhase3NeckPhase.RecoilRecovery:
-                if (Phase3NeckRecoilTimer != 0)
-                {
-                    Phase3NeckRecoilTimer--;
+                if (Phase3NeckRecoil.StepKeepsRunning())
                     return;
-                }
 
-                // The timer stays at zero once it runs out, while the four-ring recovery animation plays.
+                // On the recovery's last update the four-ring recovery animation starts.
                 _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;
@@ -187,17 +182,14 @@ internal sealed class MotherBrainThirdPhaseFight
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Raise;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-                Phase3NeckRecoilTimer = MotherBrainLateFightDefinitions.HyperBeamRecoilUpdates;
+                Phase3NeckRecoil.LastFor(MotherBrainLateFightDefinitions.HyperBeamRecoilUpdates);
 
-                // The recoil takes its first step in this same update, so its timer of 11 first reads one less.
+                // The recoil's first update is this same update.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
             case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
-                if (Phase3NeckRecoilTimer != 0)
-                {
-                    Phase3NeckRecoilTimer--;
+                if (Phase3NeckRecoil.StepKeepsRunning())
                     return;
-                }
 
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
                 Phase3DisableAttacks = false;
@@ -220,9 +212,9 @@ internal sealed class MotherBrainThirdPhaseFight
         // the arena's left limit she stays where she is.
         Encounter.Form = MotherBrainForm.ThirdPhase;
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.RecoverSetupUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.RecoverSetupUpdates);
         _state.RequestWalkBackward(
-            CoordinateAxis.Wrap(_state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels),
+            _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels,
             MotherBrainWalkSpeed.ReallyFast);
         return false;
     }
@@ -233,7 +225,7 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseRecoverSetupForFighting()
     {
-        // The timer of 32 runs out on its 33rd step, so the wait takes 33 updates after the one-update recovery.
+        // The wait to fight starts on the update after the one-update recovery.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
@@ -266,7 +258,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // Her walking animation changes her pose later in the update, so on the update she asks to walk she still
         // stands and may also choose an attack.
         if (Encounter.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
-            !frame.RandomNumberSeed.IsNegative)
+            !frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.ThirdPhaseAttacks))
             return false;
 
         if (frame.RandomNumberSeed.Takes(MotherBrainRandomDefinitions.ThirdPhaseBombs))
@@ -279,7 +271,7 @@ internal sealed class MotherBrainThirdPhaseFight
         }
 
         Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
-        Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.Phase3AttackCooldownUpdates;
+        Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.Phase3AttackCooldownUpdates);
         return false;
     }
 
@@ -289,8 +281,8 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RunThirdPhaseFightingAttackCooldown()
     {
-        // The attack's cooldown ends the update its timer runs out, and the fight resumes on the next, so the neck
-        // and the walking pause for all 65 updates.
+        // The attack's cooldown ends on its last update and the fight resumes on the next, so the neck and the walking
+        // pause for every update of the cooldown.
         if (Encounter.PhaseTimer.StepRunsOut())
             Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
         return false;

@@ -38,14 +38,11 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
         Death = new NorfairRidleyDeath(dependencies.Lifecycle, _room, dependencies.DeathsAndDrops, dependencies.RidleyProjectiles, dependencies.RoomFx, dependencies.Audio);
     }
 
-    /// <summary>
-    /// Lower Norfair Ridley's wait once Samus's door has finished, before his eyes fade: a countdown of 170
-    /// (<see cref="BossCountdown"/>) stepped first on the update the door finishes, so his eye fade begins on its 171st step.
-    /// </summary>
-    public int InitialDelay => 170;
+    /// <summary>Lower Norfair Ridley's wait once Samus's door has finished, its first update the one the door finishes on.</summary>
+    public int InitialDelayUpdates => NorfairRidleyRevealDefinitions.RevealDelayUpdates;
 
-    /// <summary>Lower Norfair Ridley's roar holds no updates before his arena's reveal steps.</summary>
-    public int RoarHold => 0;
+    /// <summary>Lower Norfair Ridley's hold after his roar: his arena's reveal takes its first step on its first update.</summary>
+    public int RoarHoldUpdates => NorfairRidleyRevealDefinitions.BeforeFirstStepUpdates;
 
     /// <summary>Runs one update of his arena's reveal, which he holds his roar through; he takes off once it ends.</summary>
     /// <param name="place">Ridley's body.</param>
@@ -135,7 +132,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
 
             case NorfairRidleyPhase.HoverSetup:
                 state.Phase = NorfairRidleyPhase.Hover;
-                state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.HoverUpdates;
+                state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.HoverUpdates);
                 NorfairRidleyCombat.TickNorfairRidleyHover(place, state);
                 return;
 
@@ -216,7 +213,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 state.Tail.IdealLinkSpacing = RidleyTailDefinitions.WallSweepLinkSpacing;
                 state.Tail.ExtensionSpeed = RidleyTailDefinitions.PogoExtensionSpeed;
                 state.Phase = NorfairRidleyPhase.SweepToWallBehind;
-                state.PhaseTimer.Count = RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.WallSweepFirstLegMinimum;
+                state.PhaseTimer.LastFor(RidleyRandomDefinitions.WallSweepTimer.Of(_room.Random.Read()) + NorfairRidleyMotionDefinitions.WallSweepFirstLegLeastUpdates);
                 Combat.TickNorfairRidleyWallSweep(place, state, samus, RidleyWallSweepTarget.WallBehind);
                 return;
 
@@ -261,7 +258,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                 if (state.PhaseTimer.StepRunsOut())
                 {
                     state.Phase = NorfairRidleyPhase.CarryRise;
-                    state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.CarryRiseUpdates;
+                    state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryRiseUpdates);
                 }
                 return;
 
@@ -272,7 +269,7 @@ internal sealed class NorfairRidleyBehavior : IEnemySpecies, IRidleyRevealEncoun
                     state.Tail.ExtensionSpeed = RidleyTailDefinitions.StandardExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Phase = NorfairRidleyPhase.CarryRelease;
-                    state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.CarryReleaseUpdates;
+                    state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.CarryReleaseUpdates);
                 }
                 else
                     NorfairRidleyMovement.MoveNorfairRidleyToward(place, state.Flight, state.Target.WithY(NorfairRidleyArenaDefinitions.FlightLineY), NorfairRidleyMotionDefinitions.CarryDivisor);

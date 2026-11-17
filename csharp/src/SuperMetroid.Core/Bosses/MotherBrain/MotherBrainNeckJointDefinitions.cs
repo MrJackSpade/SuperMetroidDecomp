@@ -30,6 +30,25 @@ internal static class MotherBrainNeckJointDefinitions
     /// <summary>The upper-neck angle the main tube's landing gives the neck.</summary>
     internal static readonly RotationAngle InitialUpperAngle = RotationAngle.FromSteps(80);
 
+    /// <summary>The height above which her brain turns her neck's bob up back down.</summary>
+    internal const int BobUpHighestBrainY = 60;
+
+    /// <summary>How far below her brain Samus may be for her neck's bob down to turn both halves back up.</summary>
+    internal const int BobDownSamusBelowBrain = 4;
+
+    /// <summary>The neck's reference point from her body, from which <see cref="LowerAnchorFromReference"/> reaches the lower joints' anchor.</summary>
+    internal static readonly Offset16<RoomPixels> ReferenceFromBody = new(-80, 46);
+
+    /// <summary>The lower joints' anchor from the neck's reference point: body+(32,-50) in all.</summary>
+    internal static readonly Offset16<RoomPixels> LowerAnchorFromReference = new(112, -96);
+
+    /// <summary>
+    /// The farthest a joint lies from its anchor, in pixels (#1627): the game multiplies the sine by the distance as a
+    /// signed count of whole pixels, which goes no further, and the neck's distances are 2, 10 and 20, so a farther one is
+    /// rejected rather than given a product the game never forms.
+    /// </summary>
+    internal const int FarthestJointDistance = 127;
+
     /// <summary>The joints the neck hitboxes test: joint 0 is buried in the body and joint 4 is covered by the brain rectangles.</summary>
     internal static Range CollisionJoints { get; } = 1..4;
 

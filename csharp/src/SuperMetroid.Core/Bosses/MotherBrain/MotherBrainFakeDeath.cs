@@ -56,7 +56,7 @@ internal sealed class MotherBrainFakeDeath
     {
         if (state.PhaseTimer.StepRunsOut())
         {
-            state.PhaseTimer.Count = 8;
+            state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FakeDeathGreyStepUpdates);
             if (MotherBrainFadeDefinitions.FakeDeathToGrey.ImageAt(state.FakeDeathGreying.TakeStep()) is { } image)
             {
                 // Fake-death fade greys her brain's three colours only. Copying a convenient
@@ -90,11 +90,11 @@ internal sealed class MotherBrainFakeDeath
         if (state.FakeDeathExplosionTimer.StepKeepsRunning())
             return;
 
-        state.FakeDeathExplosionTimer.Count = 8;
+        state.FakeDeathExplosionTimer.LastFor(MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates);
         // The index steps backward through the eight positions, from the first back to the last.
-        state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
-            MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
-        Position16<RoomPixels> explosion = MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
+        state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions.Count - 1) %
+            MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions.Count;
+        Position16<RoomPixels> explosion = MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions[state.FakeDeathExplosionIndex];
 
         // The tube dust reads the current random number and never draws a new one. Drawing a new
         // number here would desynchronize every later Rinka and phase-two attack decision.
@@ -107,7 +107,7 @@ internal sealed class MotherBrainFakeDeath
 
     /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
     /// <remarks>Every spawn after the first waits until its timer runs out, so each waits out the
-    /// count its preceding clear step set.</remarks>
+    /// wait its preceding clear step started.</remarks>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
         switch (state.TubeCollapseStep)
@@ -201,7 +201,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             case MotherBrainTubeCollapseStep.ClearBottomMiddleTubes:
                 RequestMotherBrainTubeObject(state, MotherBrainTubeCollapseDefinitions.BottomMiddleTubesBlocks,
-                    MotherBrainTubeCollapseStep.Finished, 0);
+                    MotherBrainTubeCollapseStep.Finished, 1);
                 return;
             case MotherBrainTubeCollapseStep.Finished:
                 return;
@@ -216,11 +216,11 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainEnemyState state,
         RoomObjectSpawnRequest<MotherBrainRoomMutation> blocks,
         MotherBrainTubeCollapseStep next,
-        int timer)
+        int updates)
     {
         _access.RequestMotherBrainObject(blocks.Block, blocks.RoomObject);
         state.TubeCollapseStep = next;
-        state.TubeCollapseTimer.Count = timer;
+        state.TubeCollapseTimer.LastFor(updates);
     }
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
@@ -332,7 +332,7 @@ internal sealed class MotherBrainFakeDeath
             tube.Presence = tube.Presence.With(EnemyPresence.Hidden);
         // The tube holds the encounter that spawned it (#2218).
         MotherBrainEnemyState state = tube.RequireSpeciesState<MotherBrainEnemyState>();
-        state.Head.Position = state.Head.Position.WithWrappedWholeY(tube.Position.Y.Whole - MotherBrainTubeCollapseDefinitions.HeadAboveMainTube);
+        state.Head.Position = state.Head.Position.WithWholeY(tube.Position.Y.Whole - MotherBrainTubeCollapseDefinitions.HeadAboveMainTube);
         if (state.Head.Position.Y.Whole < MotherBrainFightDefinitions.BrainFloorY)
         {
             SpawnMotherBrainTubeSmoke(tube);
@@ -366,10 +366,10 @@ internal sealed class MotherBrainFakeDeath
         if (tubeState.SmokeDelay.StepKeepsRunning())
             return;
 
-        tubeState.SmokeDelay.Count = MotherBrainTubeCollapseDefinitions.SmokeIntervalUpdates;
-        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets.Length;
+        tubeState.SmokeDelay.LastFor(MotherBrainTubeCollapseDefinitions.SmokeIntervalUpdates);
+        tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) % MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
         _projectiles.SpawnDustOrExplosion(
-            new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), MotherBrainTubeCollapseDefinitions.SmokeY),
+            new(tube.Position.X.Whole + MotherBrainTubeCollapseDefinitions.SmokeXOffsets[tubeState.SmokePositionIndex], MotherBrainTubeCollapseDefinitions.SmokeY),
             MiscDustAnimation.SmallDustCloud);
     }
 
@@ -392,7 +392,7 @@ internal sealed class MotherBrainFakeDeath
         for (int row = drawn; row < drawn + MotherBrainMuralDefinitions.RowsEachUpdate; row++)
         {
             _access.RequestMotherBrainObject(
-                new(MotherBrainMuralDefinitions.Column, CoordinateAxis.Wrap(MotherBrainMuralDefinitions.TopBlockRow + row)),
+                new(MotherBrainMuralDefinitions.Column, MotherBrainMuralDefinitions.TopBlockRow + row),
                 MotherBrainRoomMutation.RevealMuralRow);
         }
         state.MuralRowsDrawn = drawn + MotherBrainMuralDefinitions.RowsEachUpdate;
@@ -406,7 +406,7 @@ internal sealed class MotherBrainFakeDeath
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.PhaseTimer.Count = 4;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.FromGreyStepUpdates);
         if (MotherBrainFadeDefinitions.FakeDeathFromGrey.ImageAt(state.FromFakeDeathGrey.TakeStep()) is { } image)
         {
             // The restoration from grey recolours only three of the brain's colours.
@@ -420,6 +420,6 @@ internal sealed class MotherBrainFakeDeath
         state.UpperNeckMovement = MotherBrainNeckMovement.Lower;
         state.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
         state.Phase2FightPhase = MotherBrainPhase2FightPhase.StretchingShakeHead;
-        state.PhaseTimer.Count = 23;
+        state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.MenacingShakeUpdates);
     }
 }

@@ -21,14 +21,26 @@ internal static class MotherBrainGlassShardDefinitions
     /// </summary>
     internal const int ShardJitterCentre = 8;
 
-    /// <summary>One of the two parts of the sample a falling shard's sparkle check reads, the sample divided by 32; the shard sparkles when both are even.</summary>
-    internal static readonly RandomSampleField SparkleCheckLowBit = new(5, 1);
+    /// <summary>
+    /// The chance a falling shard sparkles each update, one in four: the sample divided by 32 and the sample divided by
+    /// 1024 are both even.
+    /// </summary>
+    internal static readonly RandomClearBitsChance ShardSparkles = new(new RandomSampleField(5, 1), new RandomSampleField(10, 1));
 
-    /// <summary>The other part of the sample a falling shard's sparkle check reads, the sample divided by 1024; the shard sparkles when both are even.</summary>
-    internal static readonly RandomSampleField SparkleCheckHighBit = new(10, 1);
-
-    /// <summary>A sparkle's offset from its shard on each axis, 0 through 31 pixels less sixteen: the sample modulo 32.</summary>
+    /// <summary>
+    /// A sparkle's offset from its shard on each axis, 0 through 31 pixels less <see cref="SparkleOffsetCentre"/>: the
+    /// sample modulo 32.
+    /// </summary>
     internal static readonly RandomSampleField SparkleOffset = new(0, 5);
+
+    /// <summary>
+    /// The pixels taken from a sparkle's <see cref="SparkleOffset"/> on each axis, so it shows from sixteen pixels before
+    /// its shard to fifteen past it.
+    /// </summary>
+    internal const int SparkleOffsetCentre = 16;
+
+    /// <summary>The gravity a falling shard gains each update: an eighth of a pixel an update.</summary>
+    internal static readonly SignedEightEight ShardGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>
     /// Graphics installed by the shard and sparkle initializers: from the sheet of her tank glass's pieces, in

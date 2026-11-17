@@ -3,19 +3,19 @@
 /// <summary>The phases of Mother Brain's revival (#2208): coming back to life and attacking the Baby Metroid until its last blow. Its values are arbitrary.</summary>
 public enum MotherBrainRevivalPhase
 {
-    /// <summary>Starts the 768-count revival wait, whose first step comes on the next update.</summary>
+    /// <summary>Starts the revival wait, whose first update is the next.</summary>
     InanimateGrey,
 
-    /// <summary>When the wait runs out, re-enables breath/drool, clears the colour step counter, and starts the 224-count color-restoration delay.</summary>
+    /// <summary>When the wait runs out, re-enables breath/drool, clears the colour step counter, and starts the wait before the colours' restoration.</summary>
     ShowSignsOfLife,
 
-    /// <summary>Reverses the eight drained-grey colour steps when the timer runs out, then re-enables brain colour handling and falls into wake-up.</summary>
+    /// <summary>Reverses the eight drained-grey colour steps, one each time its wait runs out, then re-enables brain colour handling and falls into wake-up.</summary>
     TransitionFromGrey,
 
-    /// <summary>Waits until she stands, then extends the neck and immediately begins a 16-count wake-up stretch.</summary>
+    /// <summary>Waits until she stands, then extends the neck and immediately begins the wake-up stretch.</summary>
     WakeUp,
 
-    /// <summary>Expires the short stretch delay, starts the phase-three stretching head animation, and seeds a 128-count walking delay.</summary>
+    /// <summary>Waits out the short stretch, starts the phase-three stretching head animation, and starts the wait before walking.</summary>
     WakeUpStretch,
 
     /// <summary>After the wait repeatedly requests forward walking until X passes 80, then enables health-based colours and prepares the neck.</summary>
@@ -30,7 +30,7 @@ public enum MotherBrainRevivalPhase
     /// <summary>A random number may change her posture or fire the targeted onion rings, aimed at Samus when there is no Baby.</summary>
     MurderBabyAttack,
 
-    /// <summary>Waits for the 64-count timer to pass zero before returning to baby-attack selection.</summary>
+    /// <summary>Waits out the attack's cooldown before returning to baby-attack selection.</summary>
     MurderBabyAttackCooldown,
 
     /// <summary>Repeatedly requests standing and backward walking to X 64; the baby owns replacement of this body phase.</summary>

@@ -78,7 +78,7 @@ internal sealed class CeresRidleyFlight
     {
         if (Ensure.NotNull(samus).Health >= CeresRidleyFightDefinitions.SamusLowEnergy)
             return null;
-        Ensure.NotNull(state).PhaseTimer.Count = CeresRidleyFlightDefinitions.FireballingCutShort;
+        Ensure.NotNull(state).PhaseTimer.LastFor(CeresRidleyFlightDefinitions.FireballingCutShortUpdates);
         return RidleyAnimations.FireballingEnd.For(state.Flight.FacingDirection);
     }
 
@@ -160,7 +160,7 @@ internal sealed class CeresRidleyFlight
         // The fireball phase starts his mouth-and-fireball animation, whose cues aim and spawn the fireballs.
         RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.Fireballing);
         state.Phase = CeresRidleyPhase.FireballShooting;
-        state.PhaseTimer.Count = CeresRidleyFlightDefinitions.FireballingUpdates;
+        state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.FireballingUpdates);
         TickCeresRidleyFireballShooting(place, state);
     }
 
@@ -209,7 +209,7 @@ internal sealed class CeresRidleyFlight
         if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.SwoopStartLineY) < 0)
         {
             state.Phase = CeresRidleyPhase.SwoopDescendingAimingDown;
-            state.PhaseTimer.Count = CeresRidleyFlightDefinitions.SwoopDiveUpdates;
+            state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
             state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
         }
     }
@@ -221,13 +221,13 @@ internal sealed class CeresRidleyFlight
         RotationAngle targetAngle,
         SignedEightEight targetSpeed,
         CeresRidleyPhase nextPhase,
-        int nextTimer)
+        int nextUpdates)
     {
         RidleyFlight.UpdateSwoopVelocity(state.Flight, turn, targetAngle, targetSpeed);
         if (state.PhaseTimer.StepRunsOut())
         {
             state.Phase = nextPhase;
-            state.PhaseTimer.Count = nextTimer;
+            state.PhaseTimer.LastFor(nextUpdates);
         }
     }
 
@@ -256,15 +256,15 @@ internal sealed class CeresRidleyFlight
         CeresRidleyState state)
     {
         // Ridley rises past Y=32 while the Baby still follows his original hand
-        // anchor. Crossing that line starts the Baby's independent fall and a
-        // countdown of 21, which runs out on its 22nd step, before Ridley changes to the retrieval pose.
+        // anchor. Crossing that line starts the Baby's independent fall and the wait
+        // before Ridley changes to the retrieval pose.
         state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CoordinateAxis.Wrap(CeresRidleyArenaDefinitions.RetreatMovementTop));
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.BabyDropLineY) < 0)
         {
             state.Baby.Action = CeresBabyAction.Drop;
             state.Phase = CeresRidleyPhase.WaitBeforeRetrievingBaby;
-            state.PhaseTimer.Count = CeresRidleyFlightDefinitions.BabyRetrievalDelay;
+            state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.BabyRetrievalDelayUpdates);
         }
     }
 
@@ -275,7 +275,7 @@ internal sealed class CeresRidleyFlight
         // two radius-four rectangles centered on the hand and Baby points.
         AccelerateRidleyToward(place, state.Flight, state.Baby.Position.Whole - CeresRidleyArenaDefinitions.RetrievalHandAboveBaby, CeresRidleyFlightDefinitions.RetrievalDivisor);
 
-        Offset16<RoomPixels> fromHand = state.Baby.Position.Whole - (place.Position.Whole + CeresRidleyBabyScene.CeresBabyFeetAnchor);
+        Offset16<RoomPixels> fromHand = state.Baby.Position.Whole - (place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= CeresRidleyArenaDefinitions.BabyGraspReach || Math.Abs(fromHand.Y) >= CeresRidleyArenaDefinitions.BabyGraspReach)
         {
             return;
@@ -286,17 +286,16 @@ internal sealed class CeresRidleyFlight
         BeginCeresRidleyRetreat(state);
     }
 
-    /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the getaway delay, a countdown of 64.</summary>
+    /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the getaway delay.</summary>
     internal void TickCeresRidleyRetreat(RoomEnemyPlace place, CeresRidleyState state)
     {
         // The retreat accelerates toward the off-screen point, and the check against the line comes before his
-        // movement. Once he is above the retreat point the delay starts and takes its first step in the same update, so it runs
-        // out on its 65th step.
+        // movement. Once he is above the retreat point the delay starts, its first update the same update.
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (CoordinateAxis.Difference(place.Position.Y.Whole, CeresRidleyArenaDefinitions.RetreatPoint.Y) < 0)
         {
             state.Phase = CeresRidleyPhase.RetreatDelay;
-            state.PhaseTimer.Count = CeresRidleyFlightDefinitions.RetreatDelay;
+            state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.RetreatDelayUpdates);
             TickCeresRidleyRetreatDelay(state);
         }
     }

@@ -12,19 +12,19 @@ public enum MotherBrainAscentPhase
     /// <summary>Shows her phase-two attack and rear-leg colours and shows the prepared enemy background.</summary>
     SetupPhase2Graphics,
 
-    /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the 128-count suspense wait.</summary>
+    /// <summary>Configures articulated drawing and blending, makes head/body tangible, sets head health 18,000, and immediately starts the suspense wait.</summary>
     SetupPhase2Brain,
 
-    /// <summary>Waits for the timer to pass zero, then seeds the 32-count rising-preparation delay and falls into it.</summary>
+    /// <summary>Waits out the suspense, then starts the wait before rising and falls into it.</summary>
     PauseForSuspense,
 
-    /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts readying her standing body with a 256-count later pause.</summary>
+    /// <summary>Starts the floor-clipping effect, starts the hidden head animation, and starts readying her standing body and the pause that follows it.</summary>
     PrepareForRising,
 
-    /// <summary>Readies her standing body one update at a time and decrements the suspense timer on the update that finishes it.</summary>
+    /// <summary>Readies her standing body one update at a time; the update that finishes it is the pause's first.</summary>
     ReadyStandingBody,
 
-    /// <summary>Waits for the 256-count timer to pass zero before placing the hidden body/background and enabling its hitboxes.</summary>
+    /// <summary>Waits out the pause before placing the hidden body/background and enabling its hitboxes.</summary>
     ContinuePausing,
 
     /// <summary>Reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
@@ -36,6 +36,6 @@ public enum MotherBrainAscentPhase
     /// <summary>Waits for the body animation to publish the standing pose before initializing grey-colour restoration.</summary>
     WaitUntilUncrouched,
 
-    /// <summary>Restores brain sprite colors on the four-count timer cadence, then enables phase-two colour handling and drool.</summary>
+    /// <summary>Restores brain sprite colors one step each time its wait runs out, then enables phase-two colour handling and drool.</summary>
     TransitionFromGray,
 }

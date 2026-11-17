@@ -13,6 +13,6 @@ internal static class MotherBrainPainfulWalking
     internal static int PauseTimer(int stage) => MotherBrainPainfulWalkingDefinitions.PauseTimers[Pair(stage)];
 
     /// <summary>Maps each forward/backward stagger stage to its shared timing pair, rejecting stages outside its eight stages.</summary>
-    private static int Pair(int stage) => (uint)stage < MotherBrainPainfulWalkingDefinitions.StageCount
+    private static int Pair(int stage) => stage is >= 0 and < MotherBrainPainfulWalkingDefinitions.StageCount
         ? stage / MotherBrainPainfulWalkingDefinitions.StagesPerPair : throw new ArgumentOutOfRangeException(nameof(stage));
 }

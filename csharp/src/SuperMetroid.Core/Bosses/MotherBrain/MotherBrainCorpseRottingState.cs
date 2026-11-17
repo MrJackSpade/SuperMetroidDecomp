@@ -37,9 +37,8 @@ public sealed class MotherBrainCorpseRottingState
                 // The rotting step samples the already-existing global seed; it does not advance
                 // RNG. One dust projectile is emitted for every fallen row.
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
-                    Position: brainPosition + new Offset16<RoomPixels>(
-                        randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset) - 16,
-                        16),
+                    Position: brainPosition + MotherBrainLateFightDefinitions.CorpseDustFromBrain +
+                        new Offset16<RoomPixels>(randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset), 0),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(mainEnemyExecutionCounter),
                     SoundEffect: EnemySound.LiquidDamage));

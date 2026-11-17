@@ -35,4 +35,10 @@ internal static class MotherBrainNeckTurnDefinitions
 
     /// <summary>Nine steps an update: her neck thrown up by a Hyper Beam hit's recoil.</summary>
     internal static readonly RotationAngle HyperBeamRecoil = RotationAngle.FromSteps(9);
+
+    /// <summary>
+    /// The neck turn from which her drool is the dying drool: a neck turning half a step an update or faster drools it, a
+    /// slower one drools the ordinary drool.
+    /// </summary>
+    internal static readonly RotationAngle DyingDrool = RotationAngle.FromSteps(0, 128);
 }

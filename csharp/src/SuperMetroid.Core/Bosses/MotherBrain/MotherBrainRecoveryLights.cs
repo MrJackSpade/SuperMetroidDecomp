@@ -15,7 +15,7 @@ public readonly record struct MotherBrainRecoveryLights
 
     /// <summary>The image at <paramref name="step"/> of the recovery, which its cutscene's step names.</summary>
     /// <exception cref="InvalidDataException">The step is not one of the seven authored images.</exception>
-    public static MotherBrainRecoveryLights At(int step) => (uint)step < MotherBrainRoomColorDefinitions.RecoveryLightsFrames
+    public static MotherBrainRecoveryLights At(int step) => step is >= 0 and < MotherBrainRoomColorDefinitions.RecoveryLightsFrames
         ? All[step]
         : throw new InvalidDataException($"Mother Brain room-light recovery frame {step} is not authored.");
 }

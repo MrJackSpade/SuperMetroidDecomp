@@ -156,9 +156,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         if (reaction.HyperBeamRecoil)
         {
             // The neck phase itself runs on Mother Brain's next ordinary phase-three
-            // main call.
+            // main call; any wait her body is in runs out on its next step.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
-            Encounter.PhaseTimer.Count = 0;
+            Encounter.PhaseTimer.LastFor(1);
         }
     }
 
@@ -168,7 +168,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void RequestBabyStumbleBackward()
     {
-        int targetX = CoordinateAxis.Wrap(State.BodyPosition.X - 1);
+        int targetX = State.BodyPosition.X - 1;
         State.RequestWalkBackward(targetX, MotherBrainWalkSpeed.ReallyFast);
     }
 

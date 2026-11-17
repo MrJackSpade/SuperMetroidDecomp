@@ -45,6 +45,9 @@ internal static class MotherBrainRandomChancesVerification
             AssertSameAt(!(roll4096 < 4080), MotherBrainRandomDefinitions.FinishOffBombs.IsTakenBy(sample), "finish-off bomb", sample);
             AssertSameAt(!(roll256 < 192), MotherBrainRandomDefinitions.PostureChanges.IsTakenBy(sample), "posture change", sample);
             AssertSameAt(roll256 < 128, MotherBrainRandomDefinitions.ThirdPhaseBombs.IsTakenBy(sample), "phase-three bomb", sample);
+            AssertSameAt(sample >= 32768, MotherBrainRandomDefinitions.ThirdPhaseAttacks.IsTakenBy(sample), "phase-three attack", sample);
+            AssertSameAt(sample >= 32768, MotherBrainRandomDefinitions.BabyVolleyFires.IsTakenBy(sample), "Baby volley", sample);
+            AssertSameAt((sample & 32) == 0 && (sample & 1024) == 0, MotherBrainGlassShardDefinitions.ShardSparkles.IsTakenBy(sample), "shard sparkle", sample);
             AssertSameAt(sample < 16384, MotherBrainRandomDefinitions.FakeDeathDustSmokes.IsTakenBy(sample), "fake death dust smoke", sample);
             AssertSameAt(sample < 16384, MotherBrainRandomDefinitions.EscapeDoorDustSmokes.IsTakenBy(sample), "escape door dust smoke", sample);
             AssertSameAt(MotherBrainDeathExplosionNativeSelectors.Animations[sample < 16384 ? 0 : sample < 57344 ? 1 : 2], MotherBrainRandomDefinitions.MixedDeathExplosionAnimation.Choose(sample),
@@ -60,7 +63,7 @@ internal static class MotherBrainRandomChancesVerification
         for (int shake = short.MinValue; shake <= ushort.MaxValue; shake++)
             AssertSameAt((shake & 6) >> 1, MotherBrainCadenceDefinitions.BrainShakeStep.Of(shake), "brain shake step", shake);
 
-        int smokePlaces = MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets.Length;
+        int smokePlaces = MotherBrainTubeCollapseDefinitions.SmokeXOffsets.Count;
         for (int smoke = 0; smoke < smokePlaces; smoke++)
             AssertSameAt((smoke + 1) & 3, (smoke + 1) % smokePlaces, "falling tube smoke place", smoke);
 

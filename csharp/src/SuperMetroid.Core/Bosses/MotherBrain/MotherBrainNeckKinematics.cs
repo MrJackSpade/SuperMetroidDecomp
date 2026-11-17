@@ -53,8 +53,8 @@ internal static class MotherBrainNeckKinematics
                 lowerAngle = candidate;
                 break;
             }
-            case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above Y=60.
-                if (CoordinateAxis.Difference(brainY, 60) < 0)
+            case MotherBrainNeckMovement.BobUp: // Bob up to nine sixteenths of a turn unless the brain is already above its highest bob.
+                if (brainY < MotherBrainNeckJointDefinitions.BobUpHighestBrainY)
                 {
                     lowerMovement = MotherBrainNeckMovement.BobDown;
                 }
@@ -103,7 +103,7 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.None:
                 break;
             case MotherBrainNeckMovement.BobDown: // Bob down; Samus below the brain forces both halves back upward.
-                if (CoordinateAxis.AsSigned(brainY + 4 - samusY) >= 0)
+                if (brainY + MotherBrainNeckJointDefinitions.BobDownSamusBelowBrain >= samusY)
                 {
                     lowerMovement = MotherBrainNeckMovement.BobUp;
                     upperMovement = MotherBrainNeckMovement.BobUp;
@@ -167,10 +167,10 @@ internal static class MotherBrainNeckKinematics
     /// <param name="distances">Each joint's distance from its anchor, indexed by joint.</param>
     internal static ImmutableArray<Position16<RoomPixels>> CalculateGeometry(Position16<RoomPixels> body, RotationAngle lowerAngle, RotationAngle upperAngle, IReadOnlyList<int> distances)
     {
-        // The body reference point is deliberately offset. Adding (112,-96)
+        // The body reference point is deliberately offset. Adding the lower anchor's offset
         // below reduces it to body+(32,-50), but retaining the two stages keeps each
         // segment's equation separately readable.
-        Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
+        Position16<RoomPixels> reference = body + MotherBrainNeckJointDefinitions.ReferenceFromBody;
         TrigonometryAngle lower = lowerAngle.ToTrigonometryAngle();
         TrigonometryAngle upper = upperAngle.ToTrigonometryAngle();
 
@@ -187,7 +187,7 @@ internal static class MotherBrainNeckKinematics
         Position16<RoomPixels> reference,
         TrigonometryAngle angle,
         int distance) =>
-        reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
+        reference + MotherBrainNeckJointDefinitions.LowerAnchorFromReference + CalculatePolarOffset(angle, distance);
 
     /// <summary>
     /// One joint's displacement: the sine multiply for the angle (X) and the angle plus a
@@ -198,22 +198,15 @@ internal static class MotherBrainNeckKinematics
             CalculateSignedComponent(angle.TurnedBy(TrigonometryAngle.QuarterTurn), distance));
 
     /// <summary>
-    /// The farthest a joint lies from its anchor, in pixels (#1627): the game multiplies the sine by the distance as a
-    /// signed count of whole pixels, which goes no further, and the neck's distances are 2, 10 and 20, so a farther one is
-    /// rejected rather than given a product the game never forms.
-    /// </summary>
-    private const int FarthestJointDistance = 127;
-
-    /// <summary>
     /// The signed sine multiply, keeping the product's whole pixels exactly as the game does. A joint lies at most
-    /// <see cref="FarthestJointDistance"/> pixels from its anchor.
+    /// <see cref="MotherBrainNeckJointDefinitions.FarthestJointDistance"/> pixels from its anchor.
     /// </summary>
     internal static int CalculateSignedComponent(
         TrigonometryAngle angle,
         int distance)
     {
         int sine = Trigonometry.SignedSine(angle);
-        int product = sine * Ensure.BetweenInclusive(0, FarthestJointDistance, distance);
+        int product = sine * Ensure.BetweenInclusive(0, MotherBrainNeckJointDefinitions.FarthestJointDistance, distance);
         return CoordinateAxis.AsSigned(EightEight.WholeOf(product));
     }
 }

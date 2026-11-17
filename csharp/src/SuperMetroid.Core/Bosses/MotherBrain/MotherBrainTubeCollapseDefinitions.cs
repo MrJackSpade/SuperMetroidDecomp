@@ -13,10 +13,10 @@ internal static class MotherBrainTubeCollapseDefinitions
     internal const int FreeProjectilesNeeded = 4;
 
     /// <summary>The updates the collapse waits after clearing a tube's blocks before the next tube falls.</summary>
-    internal const int StepWaitUpdates = 32;
+    internal const int StepWaitUpdates = 33;
 
     /// <summary>The updates the collapse waits after clearing the last side tube's blocks before the main tube falls.</summary>
-    internal const int MainTubeWaitUpdates = 2;
+    internal const int MainTubeWaitUpdates = 3;
 
     /// <summary>The blocks the bottom left tube leaves as it falls.</summary>
     internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> BottomLeftTubeBlocks =
@@ -85,7 +85,30 @@ internal static class MotherBrainTubeCollapseDefinitions
     internal const int LandingShakeUpdates = 32;
 
     /// <summary>The updates between the smoke puffs of the falling main tube.</summary>
-    internal const int SmokeIntervalUpdates = 8;
+    internal const int SmokeIntervalUpdates = 9;
+
+    /// <summary>How far right of a falling tube each of its smoke puffs shows, in the order they cycle.</summary>
+    internal static IReadOnlyList<int> SmokeXOffsets { get; } = [-8, 2, -4, 6];
+
+    /// <summary>
+    /// Where the explosions about her tank burst as she fakes her death, by place: each explosion takes the place before
+    /// the last, so they burst from the last place back to the first and then again.
+    /// </summary>
+    internal static IReadOnlyList<Position16<RoomPixels>> FakeDeathExplosionPositions { get; } =
+    [
+        new(136, 116),
+        new(120, 132),
+        new(124, 90),
+        new(138, 146),
+        new(120, 52),
+        new(124, 170),
+        new(138, 72),
+        new(120, 206),
+    ];
+
+    /// <summary>The ceiling block her fake death's flash clears above her tank.</summary>
+    internal static readonly RoomObjectSpawnRequest<MotherBrainRoomMutation> CeilingBlock =
+        new(new(14, 2), MotherBrainRoomMutation.ClearCeilingBlock);
 
     /// <summary>The height the falling main tube's smoke puffs show at.</summary>
     internal const int SmokeY = 208;

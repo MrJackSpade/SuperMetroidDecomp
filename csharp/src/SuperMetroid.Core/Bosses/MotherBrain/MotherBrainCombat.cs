@@ -111,8 +111,8 @@ internal sealed class MotherBrainCombat
         // arrives during the existing flash. Common no-death normal-shot damage (#2255) then owns
         // health, hurt-AI, and the final authored hurt duration.
         head.FlashTimer = head.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.FlashTimer)
-            ? 14
-            : 13;
+            ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
+            : MotherBrainFightDefinitions.HurtFlash;
 
         _ = _collision.ApplyNormalShotDamage(head, projectile, projectileType, projectileDamage, _room.Area);
     }
@@ -205,13 +205,12 @@ internal sealed class MotherBrainCombat
     internal static void ReactToMotherBrainHeadTouch(EnemyTouchContext context)
     {
         // The brain's touch is not ordinary touch damage. A spin-jumping Samus toggles
-        // the head's visible flash length between the game's 13/14-frame
-        // cadence; every other movement type returns without changing either actor.
+        // the head's visible flash length between its two hurt flashes; every other movement type returns without changing either actor.
         RoomEnemyPlace place = context.Place;
         if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
             place.FlashTimer = place.FlashTimer != 0 && MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(place.FlashTimer)
-                ? 14
-                : 13;
+                ? MotherBrainFightDefinitions.HurtFlashKeepingPhase
+                : MotherBrainFightDefinitions.HurtFlash;
     }
 
     /// <summary>
@@ -241,10 +240,10 @@ internal sealed class MotherBrainCombat
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
-                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
-                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
+                        componentOrigin.X + hitbox.Left,
+                        componentOrigin.Y + hitbox.Top,
+                        componentOrigin.X + hitbox.Right,
+                        componentOrigin.Y + hitbox.Bottom))
                     continue;
                 reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;

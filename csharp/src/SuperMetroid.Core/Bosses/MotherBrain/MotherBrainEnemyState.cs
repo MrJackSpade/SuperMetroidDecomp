@@ -185,7 +185,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>How far her greying at her fake death has come: its eight colourings, then the step that completes it.</summary>
     public MotherBrainFadeProgress FakeDeathGreying { get; } = new();
 
-    /// <summary>Updates until the next fake-death explosion, on an eight-frame cadence.</summary>
+    /// <summary>The wait before the next fake-death explosion (<see cref="MotherBrainWaitDefinitions.FakeDeathExplosionIntervalUpdates"/>).</summary>
     public BossCountdown FakeDeathExplosionTimer { get; } = new();
     /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer runs out.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }
@@ -290,7 +290,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public int StandingBodyReadyingElapsed
     {
         get;
-        internal set => field = (uint)value < MotherBrainReadyingDefinitions.StandingBodyDuration
+        internal set => field = value is >= 0 and < MotherBrainReadyingDefinitions.StandingBodyDuration
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain's rise readies her standing body over twelve updates.");
     }
@@ -353,7 +353,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public bool SmallPurpleBreathActive { get; internal set; }
 
     /// <summary>
-    /// The place in <see cref="MotherBrainBehavior.MotherBrainDroolOffsets"/> of the mouth point the last drool hung from.
+    /// The place in <see cref="MotherBrainFightDefinitions.DroolMouthOffsets"/> of the mouth point the last drool hung from.
     /// Each drool takes the next of the six points, the first after the last, so a fresh encounter's first drool hangs
     /// from the second.
     /// </summary>

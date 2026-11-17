@@ -290,9 +290,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
-    internal const int PhantoonDamageThreshold = 300;
-
     /// <summary>Runs Phantoon's hurt reaction, which only flashes his colours.</summary>
     internal static void ApplyPhantoonHurt(RoomEnemyPlace body, PhantoonEnemyState state)
     {

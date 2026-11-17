@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -54,7 +55,7 @@ internal static class MotherBrainFightDefinitions
     internal const int BombWalkLongRetreatX = 64;
 
     /// <summary>The updates she waits after firing a bomb.</summary>
-    internal const int AfterBombUpdates = 44;
+    internal const int AfterBombUpdates = 45;
 
     /// <summary>How far below her head the attack choice measures Samus's height from.</summary>
     internal const int AttackMeasureBelowHead = 4;
@@ -122,15 +123,61 @@ internal static class MotherBrainFightDefinitions
     /// <summary>How far above the floor her drool's splash shows.</summary>
     internal const int DroolSplashRise = 4;
 
+    /// <summary>How far her released drool drops before its first falling frame.</summary>
+    internal const int DroolReleaseDrop = 12;
+
+    /// <summary>The points on her mouth her drool hangs from, from her brain, in the order the drools take them.</summary>
+    internal static IReadOnlyList<Offset16<RoomPixels>> DroolMouthOffsets { get; } =
+        [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
+
+    /// <summary>The updates a hit on her brain flashes it for.</summary>
+    internal const int HurtFlash = 13;
+
+    /// <summary>
+    /// The updates a hit landing on a white update of a running flash flashes her brain for: one longer, so the flash keeps
+    /// its place in the alternation.
+    /// </summary>
+    internal const int HurtFlashKeepingPhase = 14;
+
+    /// <summary>The shake each planted step of her walk starts.</summary>
+    internal static readonly EarthquakeShake FootstepShake =
+        new(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
+
+    /// <summary>The updates each footstep's shake lasts.</summary>
+    internal const int FootstepShakeUpdates = 4;
+
+    /// <summary>The shake her rise through the floor starts.</summary>
+    internal static readonly EarthquakeShake RiseShake =
+        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+
+    /// <summary>The updates her rise's shake is started for; it stops once she has risen.</summary>
+    internal const int RiseShakeUpdates = 256;
+
+    /// <summary>The shake an onion ring bursting against the arena's edge, or a hand beam leaving the arena, starts.</summary>
+    internal static readonly EarthquakeShake ProjectileExplosionShake =
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+
+    /// <summary>The updates each such shake lasts.</summary>
+    internal const int ProjectileExplosionShakeUpdates = 10;
+
+    /// <summary>The walk credit her second phase's walking starts from once its credit is spent.</summary>
+    internal const int SecondPhaseStartingCredit = 1;
+
+    /// <summary>The walk credit each standing turn of her second phase's walking earns.</summary>
+    internal const int SecondPhaseCreditPerTurn = 6;
+
+    /// <summary>The screen of her room's row her fake death closes, locking the arena to the first.</summary>
+    internal static readonly Position16<RoomScreens> ArenaClosedScreen = new(1, 0);
+
     /// <summary>The updates she reels, taken aback, before regaining her balance as the Baby drains her.</summary>
-    internal const int RegainBalanceUpdates = 48;
+    internal const int RegainBalanceUpdates = 49;
 
     /// <summary>The stagger stage at which her rainbow beam runs out as the Baby drains her.</summary>
     internal const int BeamRunsOutStage = 6;
 
     /// <summary>The updates she waits, crouched, before turning grey.</summary>
-    internal const int BeforeGreyUpdates = 64;
+    internal const int BeforeGreyUpdates = 65;
 
     /// <summary>The updates each step of her turn to grey lasts.</summary>
-    internal const int GreyStepUpdates = 16;
+    internal const int GreyStepUpdates = 17;
 }

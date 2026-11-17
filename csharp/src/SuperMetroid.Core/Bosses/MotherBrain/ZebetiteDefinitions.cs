@@ -20,6 +20,12 @@ internal static class ZebetiteDefinitions
     /// <summary>How far each half of a split pair stands from its generation's centre line: the primary above, the linked below.</summary>
     internal const int SplitHalfOffset = 40;
 
+    /// <summary>The health an active Zebetite regenerates up to, one each update, and starts its picture from.</summary>
+    internal const int MaximumHealth = 1000;
+
+    /// <summary>The sound a Zebetite makes when a shot hits it.</summary>
+    internal static readonly SoundEffectId ShotSound = RoomSound.MissileDoorHit;
+
     /// <summary>The primary half's placement.</summary>
     internal static readonly RoomEnemyPlacement PrimarySpawn =
         new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
-/// A countdown of a boss fight (#2212, #2233, #2253, #2267): Mother Brain's fight, the Baby Metroid's cutscene, the Rinkas'
-/// and the Shitroid's waits, both Ridleys' phases and breakup fragments, the Golden Torizo's eggs, and Botwoon's spit
+/// A countdown of a boss fight (#2212, #2233, #2253, #2267, #2311): Mother Brain's fight, the Baby Metroid's cutscene, the
+/// Rinkas' and the Shitroid's waits, both Ridleys' phases and breakup fragments, the Golden Torizo's eggs, and Botwoon's spit
 /// cooldown, pre-fall wait and wall explosions. It holds the game's count and runs out on the update whose step takes the
 /// count below zero, so loaded with a count it lasts one update more than that count, and a count of zero runs out on its
 /// first step. Every such wait of theirs is one of these.

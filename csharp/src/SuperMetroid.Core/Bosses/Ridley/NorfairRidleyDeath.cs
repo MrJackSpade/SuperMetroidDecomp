@@ -73,7 +73,7 @@ internal sealed class NorfairRidleyDeath
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
         state.Phase = NorfairRidleyPhase.DeathExplosions;
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.DeathExplosionUpdates;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.DeathExplosionUpdates);
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
@@ -110,7 +110,7 @@ internal sealed class NorfairRidleyDeath
         state.MovementAnimationEnabled = false;
         body.Presence = body.Presence.With(EnemyPresence.Hidden);
         state.Phase = NorfairRidleyPhase.DeathWait;
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.BreakupWaitUpdates;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.BreakupWaitUpdates);
     }
 
     /// <summary>The breakup's deliberate wait before the death's final countdown.</summary>
@@ -119,7 +119,7 @@ internal sealed class NorfairRidleyDeath
         if (!state.PhaseTimer.StepRunsOut())
             return;
         state.Phase = NorfairRidleyPhase.DeathFinish;
-        state.PhaseTimer.Count = NorfairRidleyMotionDefinitions.DeathFinishUpdates;
+        state.PhaseTimer.LastFor(NorfairRidleyMotionDefinitions.DeathFinishUpdates);
     }
 
     /// <summary>

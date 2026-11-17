@@ -317,7 +317,7 @@ internal sealed class TorizoAttacks
             // The jitter is one of thirty-two, so the fall speed lies between 49 and 80 256ths of a pixel.
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(
                 TorizoRandomDefinitions.DroolFallJitter.Of(random) + TorizoMotionDefinitions.InitialDroolSlowestFall));
-            // Every branch stores a zero X velocity.
+            // The drool has no sideways speed.
             int jitteredX = _room.Random.Next(TorizoRandomDefinitions.InitialDroolXJitter) + torizo.Position.X.Whole;
             projectile.Position = projectile.Position.WithWholeX(TorizoFacing.Posture(torizo).IsTurning
                 ? jitteredX
@@ -582,7 +582,7 @@ internal sealed class TorizoAttacks
     {
         projectile.StartAnimation(new TorizoProjectileAnimation(definition.Animation));
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
-        // The initializer draws the X jitter before the Y jitter.
+        // The setup draws the X jitter before the Y jitter.
         projectile.Velocity = new EightEightVector<RoomPixels>(
             definition.BaseVelocity.X + VelocityJitter(_room.Random.Generate()),
             definition.BaseVelocity.Y + VelocityJitter(_room.Random.Generate()));
@@ -844,7 +844,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>
     /// Allocates the room-graphics enemy projectile a room object's script requests, then runs the statue fragment's
-    /// initializer against the publishing room object's block coordinates.
+    /// setup against the publishing room object's block coordinates.
     /// </summary>
     public EnemyProjectile? SpawnBombTorizoStatueBreakingProjectile(
         BombTorizoStatueProjectileRequest request)
@@ -878,8 +878,7 @@ internal sealed class TorizoAttacks
         speed.IsNegative && speed >= -TorizoMotionDefinitions.SettledBounceSpeed;
 
     /// <summary>
-    /// Where a projectile that struck a floor bursts: a little below the top of the block it lies in. A block's top is at
-    /// most 65520, so the burst stays in the room's coordinates.
+    /// Where a projectile that struck a floor bursts: a little below the top of the block it lies in.
     /// </summary>
     private static int FloorBurstY(EnemyProjectile projectile) =>
         RoomGridConversions.BlockStart(projectile.Position.Y.Whole) + TorizoProjectilePlacementDefinitions.FloorBurstDepth;

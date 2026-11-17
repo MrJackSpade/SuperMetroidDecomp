@@ -23,7 +23,7 @@ public sealed class RidleyFlightState
 
     /// <summary>Gets which way Ridley faces: left, toward the screen in his intermediate turning pose, or right.</summary>
     public RidleyFacing FacingDirection { get; internal set; }
-    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits wrapped into the coordinate range.</summary>
+    /// <summary>Gets the movement clamp's lowest whole-pixel corner, which may lie left of or above the room.</summary>
     public Position16<RoomPixels> MovementMinimum { get; internal set; }
     /// <summary>Gets the movement clamp's maximum whole-pixel corner.</summary>
     public Position16<RoomPixels> MovementMaximum { get; internal set; }

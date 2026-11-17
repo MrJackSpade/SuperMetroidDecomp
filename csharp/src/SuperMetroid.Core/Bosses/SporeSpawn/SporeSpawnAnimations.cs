@@ -69,7 +69,7 @@ internal static class SporeSpawnAnimations
             Cue(new SporeSpawnCue.QueueSound(Sound: SporeSpawnSoundDefinitions.Opening)),
             Show(F.SporeSpawnShut, 1),
             .. Enumerable.Range(0, OpeningDurations.Length).Select(pose => Show(OpeningFrames[pose], OpeningDurations[pose])),
-            Cue(new SporeSpawnCue.Signal(K.ClearDamagedFlag)),
+            Cue(new SporeSpawnCue.Signal(K.ReopenToHits)),
             SelectMovement(SporeSpawnMovement.Idle),
         ],
         [P.OpenPulse] =

@@ -40,9 +40,9 @@ internal static class RidleyAnimations
         [P.TurnFromLeftToRight] = Turn(F.RidleyBodyLeft, HorizontalDirection.Right, F.RidleyBodyRight),
         [P.TurnFromRightToLeft] = Turn(F.RidleyBodyRight, HorizontalDirection.Left, F.RidleyBodyLeft),
         [P.FireballingFacingLeft] = FireballingBeats(Side.Left, [Cue(K.AimFireball)]),
-        [P.FireballingEndFacingLeft] = [Cue(K.ClearRoaringFlag), Show(F.RidleyBodyLeft, 1)],
+        [P.FireballingEndFacingLeft] = [Cue(K.StopRoaring), Show(F.RidleyBodyLeft, 1)],
         [P.FireballingFacingRight] = FireballingBeats(Side.Right, []),
-        [P.FireballingEndFacingRight] = [Cue(K.ClearRoaringFlag), Show(F.RidleyBodyRight, 1)],
+        [P.FireballingEndFacingRight] = [Cue(K.StopRoaring), Show(F.RidleyBodyRight, 1)],
         [P.TransitionToFlyingFacingLeft] = TransitionToFlyingBeats(Side.Left, new(1, -12), new(-4, -8)),
         [P.TransitionToFlyingFacingRight] = TransitionToFlyingBeats(Side.Right, new(-1, -12), new(4, -8)),
     });
@@ -136,7 +136,7 @@ internal static class RidleyAnimations
         Show(side.MouthHalfOpen, 8),
         Show(side.MouthOpen, OpeningRoarDuration),
         Show(side.MouthHalfOpen, 8),
-        Cue(K.ClearRoaringFlag),
+        Cue(K.StopRoaring),
         Show(side.Standing, 1),
     ];
 
@@ -147,7 +147,7 @@ internal static class RidleyAnimations
         Cue(K.Roar),
         Show(side.MouthHalfOpen, 8),
         Show(side.MouthOpen, DeathRoarDuration),
-        Cue(K.ClearRoaringFlag),
+        Cue(K.StopRoaring),
     ];
 
     /// <summary>Turns from <paramref name="from"/> through the forward pose to <paramref name="to"/>.</summary>

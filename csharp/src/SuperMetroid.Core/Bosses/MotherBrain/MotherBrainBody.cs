@@ -300,7 +300,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Runs the hand beam's charging initializer. The body—not the articulated
+    /// Runs the hand beam's charging setup. The body—not the articulated
     /// head—is the source: its frame puts the hand at its hand offset.
     /// </summary>
     internal void SpawnMotherBrainHandBeamCharging(
@@ -353,7 +353,7 @@ internal sealed class MotherBrainBody
 
     /// <summary>
     /// Makes the twelve turret spawns
-    /// the body's initializer requests. Allocation scans the pool from its highest place down, so the first turret takes
+    /// the body's setup requests. Allocation scans the pool from its highest place down, so the first turret takes
     /// the highest place and each later one the next place below.
     /// </summary>
     private void SpawnMotherBrainInitialTurrets(MotherBrainEnemyState state)

@@ -261,7 +261,7 @@ internal static class SamusPoseMetadata
     /// <summary>
     /// Applies one ordinary Draygon-held transition without inventing pose physics.
     /// Every admitted pose stays within one facing, retains radius 21, and restarts the
-    /// target's animation at its start through the normal pose initializer.
+    /// target's animation at its start through the normal pose setup.
     /// </summary>
     public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
@@ -432,7 +432,7 @@ internal static class SamusPoseMetadata
     /// input transitions while their art is active. Holding the completed facing selects
     /// the spin jump; releasing it on the Jump edge selects the neutral jump transition. Crouched turns are
     /// deliberately excluded because their radius expansion requires the room-aware
-    /// crouch-jump collision path rather than the direct ordinary initializer.
+    /// crouch-jump collision path rather than the direct ordinary setup.
     /// </remarks>
     public static bool IsStandingGroundTurnToJumpTransition(
         SamusPoseId sourcePose,
@@ -510,7 +510,7 @@ internal static class SamusPoseMetadata
 
     /// <summary>
     /// True for all six stable spin-jumping bodies. The input transitions use
-    /// the ordinary spin jump as generic outputs; the spin-jump initializer can then substitute Space Jump or Screw
+    /// the ordinary spin jump as generic outputs; the spin-jump setup can then substitute Space Jump or Screw
     /// Attack without changing the movement step.
     /// </summary>
     public static bool IsSpinJumpPose(SamusPoseId pose) => pose is
@@ -657,8 +657,8 @@ internal static class SamusPoseMetadata
                 samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
                     samus.Kinematics.Position.Y.Whole + centerAdjustment);
 
-                // The special target installs through the pose initializer, which runs the new
-                // normal-jumping type to the normal-jump initializer (the forward jump cannot start a spark there). It
+                // The special target installs through the pose setup, which runs the new
+                // normal-jumping type to the normal-jump setup (the forward jump cannot start a spark there). It
                 // then restores the suit shade after a wall jump with Screw Attack.
                 SamusAerialPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
@@ -770,7 +770,7 @@ internal static class SamusPoseMetadata
     /// Deliberately share one set of input transitions among the neutral jump, the forward
     /// jump, and the non-compact aimed jump bodies. In particular, holding Jump after
     /// releasing Right/Left turns the forward jump into the neutral jump. Both endpoints therefore take part in this
-    /// classification: entering and leaving the forward body run the same pose and animation initializer and keep the
+    /// classification: entering and leaving the forward body run the same pose and animation setup and keep the
     /// live velocity.
     /// </remarks>
     public static bool IsSameFacingAerialAimFireOrForwardTransition(SamusPoseId source, SamusPoseId target)

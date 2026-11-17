@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyExplosionDefinitions
 {
     /// <summary>
-    /// The breakup initializer draws a fragment's horizontal speed from one random value as the sum of two
+    /// The breakup setup draws a fragment's horizontal speed from one random value as the sum of two
     /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
     internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
@@ -90,7 +90,7 @@ internal static class RidleyExplosionDefinitions
 
     /// <summary>
     /// The body-relative position while Ridley faces left and the pose each way of each body fragment, loaded by the
-    /// breakup initializer; a right-facing placement mirrors the left-facing one's X.
+    /// breakup setup; a right-facing placement mirrors the left-facing one's X.
     /// </summary>
     internal static readonly FrozenDictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition> BodyParts =
         new Dictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition>

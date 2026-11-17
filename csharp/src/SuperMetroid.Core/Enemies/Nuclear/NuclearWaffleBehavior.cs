@@ -158,7 +158,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
                 graphics);
             segment.StartAnimation(new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Initial));
             segment.Position = owner.Position.WithWhole(initialHead);
-            // The initializer makes these four links indestructible duds. Their
+            // The setup makes these four links indestructible duds. Their
             // shot-blocking property admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot animation.
             segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;

@@ -137,7 +137,7 @@ internal sealed class SamusPresentation
     /// <summary>
     /// Publishes the angle-selected grapple art exactly as the grapple swing does before the normal
     /// animation pass. The latter will decrement this fifteen to fourteen later in
-    /// the same gameplay frame; exposing this narrow writer prevents grapple code from
+    /// the same gameplay frame; this one narrow operation keeps grapple code from
     /// acquiring a general-purpose escape hatch around animation invariants.
     /// </summary>
     public static void ShowGrappleSwingPicture(SamusState samus, GrappleSwingPicture picture)

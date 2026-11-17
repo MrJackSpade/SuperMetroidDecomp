@@ -14,7 +14,7 @@ internal interface IRoomObjectDrawing
 
     /// <summary>
     /// What <paramref name="block"/>, a block a setup or a reaction writes of its own accord, shows: its installed picture
-    /// (#1580). The writer gives it its collision.
+    /// (#1580). What places the block gives it its collision.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed setup-block pictures are not bound, or lack the block.</exception>
     RoomBlockAppearance SetupBlock(RoomObjectSetupBlock block);

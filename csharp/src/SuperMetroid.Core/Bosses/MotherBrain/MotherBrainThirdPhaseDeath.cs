@@ -399,7 +399,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         MotherBrainCorpseRottingStepResult corpseRotting = CorpseRotting.Step(
             _state.BrainPosition,
             frame.RandomNumberSeed,
-            frame.MainEnemyExecutionCounter);
+            frame.EnemyPassCount);
         requests.CorpseDustRequests.AddRange(corpseRotting.DustRequests);
         if (corpseRotting.StillRotting)
             return false;

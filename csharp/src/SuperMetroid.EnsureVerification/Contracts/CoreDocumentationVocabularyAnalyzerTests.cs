@@ -1330,5 +1330,30 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         Expect("class P { /// <summary>Moves two pixels in her direction; the direction is two pixels away; a speed table; a table of distances; the input transitions.</summary>\nint F => 0; }");
         Expect("class P { /// <summary>The direction one turn on; the direction of one link; directions one full turn holds; direction zero of the rope's turn.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: the shot direction is two in the transition table.</summary>\n[CompatibilityService(\"direction\")] class Direction { }");
+        // The original's routines and storage told in boss and enemy prose, outside hardware owners and markup (#2336): an
+        // initializer, a writer, an execution counter, ordinary places and places in ascending order, a value wrapped into
+        // the coordinate range, a branch on a value, a signed compare and the roaring or damaged flag, in prose; and an
+        // execution counter in a declared name.
+        Expect("class P { /// <summary>Runs the Norfair branch of the shared initializer.</summary>\nint F => 0; }", "('initializer')");
+        Expect("class P { void Run() { // The spin-jump initializers cancel the boost.\n } }", "('initializers')");
+        Expect("class P { string S = \"N00b-tube initialiser lost its piece.\"; }", "('initialiser')");
+        Expect("class P { /// <summary>Draws the wings before the common writer emits his body.</summary>\nint F => 0; }", "('writer')");
+        Expect("class P { /// <summary>The body uses the current execution counter.</summary>\nint F => 0; }", "('execution counter')");
+        Expect("class P { /// <summary>Checks Samus's five ordinary projectile places.</summary>\nint F => 0; }",
+            "('ordinary projectile places')");
+        Expect("class P { void Run() { // The check scans the shots' places in ascending order.\n } }", "('places in ascending order')");
+        Expect("class P { /// <summary>The corner, retaining negative limits wrapped into the coordinate range.</summary>\nint F => 0; }",
+            "('wrapped into the coordinate range')");
+        Expect("class P { void Run() { // Ridley's shot reaction branches on area index.\n } }", "('branches on')");
+        Expect("class P { void Run() { // The rainbow step uses a signed compare after adding sixteen.\n } }", "('signed compare')");
+        Expect("class P { /// <summary>Clears the roaring flag.</summary>\nint F => 0; }", "('roaring flag')");
+        Expect("class P { /// <summary>Clears the damaged flag.</summary>\nint F => 0; }", "('damaged flag')");
+        Expect("class P { int MainEnemyExecutionCounter { get; init; } }", "('MainEnemyExecutionCounter')");
+        Expect("class P { void M(int enemyMainExecutionCounter) { } }", "('enemyMainExecutionCounter')");
+        // A C# construct's initializer, a projectile's branch, the update count, the shot places, setup, a roar ending and a
+        // hardware owner are English.
+        Expect("class P { /// <summary>Set before property initializers run; an object initializer; the afterburn's branches; the enemy's setup.</summary>\nint F => 0; }");
+        Expect("class P { /// <summary>The body's update count; Samus's five shot places; his roar ends.</summary>\nint F => 0; int UpdateCount; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the initializer branches on the execution counter.</summary>\n[CompatibilityService(\"init\")] class Init { int MainEnemyExecutionCounter; }");
     }
 }

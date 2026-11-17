@@ -409,7 +409,7 @@ internal sealed class MotherBrainProjectiles
                 SpawnMotherBrainGlassSparkle(shard);
         }
 
-        /// <summary>Runs the sparkle initializer using the spawning shard as parameter.</summary>
+        /// <summary>Runs the sparkle setup using the spawning shard as parameter.</summary>
         private void SpawnMotherBrainGlassSparkle(EnemyProjectile source)
         {
             EnemyProjectile? sparkle = dependencies.Projectiles.AllocateEnemyProjectile();
@@ -431,7 +431,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         /// <summary>
-        /// Runs the fired child's initializer. Each child first advances the
+        /// Runs the fired child's setup. Each child first advances the
         /// shared aimed start position, then receives a randomized secondary displacement used only for
         /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
         /// children turn into the game's large impact dust and earthquake.

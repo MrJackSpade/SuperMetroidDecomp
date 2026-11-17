@@ -17,7 +17,7 @@ public readonly record struct SamusTransitionShot
     public SamusProjectileDirection Aim { get; }
 
     /// <summary>
-    /// Hands over the shot of the pose <paramref name="samus"/> is in. Only the normal-jump initializer and the moonwalk
+    /// Hands over the shot of the pose <paramref name="samus"/> is in. Only the normal-jump setup and the moonwalk
     /// transition hand a shot over, and every normal-jump and moonwalk pose aims one of the ten aims (#1506).
     /// </summary>
     /// <exception cref="InvalidOperationException">Her pose aims nowhere.</exception>

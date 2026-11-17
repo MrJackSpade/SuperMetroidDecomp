@@ -21,7 +21,7 @@ internal sealed class EnemyAnimationPlayer
 
     /// <summary>
     /// Shows the body frame the already resolved visual frame shows on its boss's body (#1466, #1515, #1540), on the update its
-    /// cue selects a new frame: from then on it is the frame the place's part of the boss shows. The common writer draws
+    /// cue selects a new frame: from then on it is the frame the place's part of the boss shows. The common enemy drawing draws
     /// its sprite half, which may be empty for a pose shown only on the body. Selecting a pose with no body frame leaves
     /// the part's frame as it was.
     /// </summary>

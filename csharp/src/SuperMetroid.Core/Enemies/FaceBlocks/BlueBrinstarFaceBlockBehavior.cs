@@ -60,7 +60,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // authored directional animations show the same neutral picture as their first frame.
         state.Playback = EnemyAnimationPlayback.Start(place, BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial));
 
-        // The initializer always restarts the glow's countdown, even before Samus has the Morph Ball, and starts the glow
+        // The setup always restarts the glow's countdown, even before Samus has the Morph Ball, and starts the glow
         // only once she has collected it. Main AI makes the same test every update, so a block in the room where she
         // collects it starts the glow at once.
         if (HasCollectedMorphBall(samus))

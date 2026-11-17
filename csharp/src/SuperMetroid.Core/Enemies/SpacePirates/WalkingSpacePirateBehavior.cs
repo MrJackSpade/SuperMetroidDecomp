@@ -287,7 +287,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Runs the firing cues and the laser initializer.</summary>
+    /// <summary>Runs the firing cues and the laser setup.</summary>
     private void SpawnWalkingSpacePirateLaser(
         RoomEnemyPlace source,
         HorizontalDirection direction,
@@ -297,7 +297,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
-    /// Runs the common laser initializer. Wall and walking Pirates
+    /// Runs the common laser setup. Wall and walking Pirates
     /// use different actor animation steps and muzzle offsets, but the allocated projectile is the
     /// same definition and therefore belongs in one shared implementation.
     /// </summary>
@@ -323,7 +323,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
-    /// The speed of a pirate's laser: the initializer reads the firing pirate's placement, where walking and wall
+    /// The speed of a pirate's laser: the setup reads the firing pirate's placement, where walking and wall
     /// pirates name their laser's speed.
     /// </summary>
     private static PirateLaserSpeed LaserSpeedOf(RoomEnemyPlace pirate) => pirate.Spawn.Population.SpawnSettings switch
@@ -334,7 +334,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     };
 
     /// <summary>
-    /// Runs the common laser initializer once the firing enemy has chosen
+    /// Runs the common laser setup once the firing enemy has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
     /// different actor animation steps, but the game deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.
@@ -368,7 +368,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // at once.
         projectile.State = new PirateLaserState(speed, direction);
 
-        // The initializer replaces the projectile definition's properties with the enemy's damage and the
+        // The setup replaces the projectile definition's properties with the enemy's damage and the
         // laser's own property. The laser does not take the Pirate's pictures or colours: it draws from the room's
         // shared sheet in its standard colours.
         projectile.Damage = source.Definition.Damage;

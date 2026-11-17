@@ -18,9 +18,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Runs Ceres Ridley's shot-overlap seam against Samus's five ordinary
-    /// projectile places. The shot response increments a dedicated counter and never
-    /// subtracts enemy health; the projectile owner performs its normal explosion change.
+    /// Checks Samus's shots against Ceres Ridley. A shot that strikes him adds to his hits and takes no health; the shot
+    /// explodes as it would on any enemy.
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(
         SamusProjectileSystem projectiles,
@@ -74,10 +73,8 @@ internal sealed class CeresRidleyHits
             : CeresRidleyFightDefinitions.HurtFlash;
         ridley.HitCounter++;
 
-        // The game draws the hurt flash from the enemy frame that just completed.
-        // Collision runs afterward, so publish that same pre-increment frame immediately
-        // for standalone renderers inspecting the colours before the next enemy update. Only the count's cadence
-        // phase is read, and it wraps, so the count before zero reads as the last phase.
+        // His hurt flash takes its phase from the update that has just run, before this hit, and shows at once. Only the
+        // count's phase is read, so the count before zero reads as the cycle's last phase.
         RidleyBodyContact.UpdateHurtFlash(
             place,
             ridley,
@@ -124,9 +121,7 @@ internal sealed class CeresRidleyHits
                 int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
                 int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
 
-                // The rectangle checks use signed comparisons and treat touching
-                // right/bottom edges as non-overlap. Ceres coordinates remain in the low
-                // positive room range, so these integer comparisons are the same result.
+                // Touching right or bottom edges do not overlap.
                 if (CoordinateAxis.Difference(left, subjectRight) <= 0 &&
                     CoordinateAxis.Difference(right, subjectLeft) > 0 &&
                     CoordinateAxis.Difference(top, subjectBottom) <= 0 &&

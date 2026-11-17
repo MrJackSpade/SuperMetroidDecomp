@@ -67,8 +67,7 @@ internal sealed class RidleyFlight
         int minimum,
         int maximum)
     {
-        // Ridley's velocities are signed 1/256-pixel values that the game adds, in 256ths of a pixel, to the
-        // ordinary 1/65536-pixel position's fraction.
+        // Ridley's velocity moves him in 256ths of a pixel.
         FixedCoordinate moved = position.MovedBy(velocity);
 
         if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)

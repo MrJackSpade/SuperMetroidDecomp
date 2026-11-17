@@ -153,10 +153,10 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     private static void DecrementAmmoDueToRainbowBeam(
         SamusState samus,
-        int mainEnemyExecutionCounter)
+        int enemyPassCount)
     {
         // Missiles and Super Missiles drain on every fourth enemy pass, Power Bombs on every update.
-        if (MotherBrainCadenceDefinitions.RainbowMissileDrainEveryFourthEnemyPass.IsDue(mainEnemyExecutionCounter))
+        if (MotherBrainCadenceDefinitions.RainbowMissileDrainEveryFourthEnemyPass.IsDue(enemyPassCount))
         {
             samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: HudItem.Missile);
             samus.SuperMissiles = DecrementOneAmmoType(samus, samus.SuperMissiles, selectedItem: HudItem.SuperMissile);
@@ -344,7 +344,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
         DamageSamusDueToRainbowBeam(samus);
-        DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
+        DecrementAmmoDueToRainbowBeam(samus, frame.EnemyPassCount);
         requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, frame.CameraCheckpoint);
 
         if (Encounter.PhaseTimer.StepRunsOut())

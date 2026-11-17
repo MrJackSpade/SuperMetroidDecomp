@@ -69,7 +69,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}."),
         };
 
-        // The initializer makes the statue solid to Samus and animates it, on screen or off.
+        // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
         statue.Processing = statue.Processing.With(EnemyProcessing.Animates | EnemyProcessing.OffScreen);
         statue.Frame = EnemyFrameId.Empty;

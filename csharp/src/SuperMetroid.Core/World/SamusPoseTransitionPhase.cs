@@ -100,7 +100,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Falling)
             SamusAerialPoseTransitions.ApplyFallingInputFallback(samus);
 
-        // The normal-jump initializer publishes the fresh Shoot direction
+        // The normal-jump setup publishes the fresh Shoot direction
         // for every accepted route, including aim changes within a jump. The
         // earlier projectile epilogue cleared the previous update's handoff.
         if (samus.Pose != samus.PoseHistory.PreviousPose)
@@ -472,7 +472,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>
-    /// Applies the input transition the input phase selected from the pose table, through the family initializer that owns the
+    /// Applies the input transition the input phase selected from the pose table, through the family setup that owns the
     /// source and target pair. Self-transitions in the turn tables mean "remain in this animation".
     /// </summary>
     private void ApplyInputTransition(SamusControlFrame frame, SamusState samus, SamusPoseTransition inputTransition, ISamusRoomObjects roomObjects)
@@ -590,7 +590,7 @@ internal sealed class SamusPoseTransitionPhase
                        target is SamusPoseId.SpringBallJumpRightPose or
                            SamusPoseId.SpringBallJumpLeftPose):
                 // These six poses all share one animation.
-                // The initializer preserves frame/timer and applies turning
+                // The setup preserves frame/timer and applies turning
                 // reversal momentum only when direction actually changes.
                 SamusPosturePoseTransitions.ApplyMorphBallPoseChange(samus, target);
                 return true;
@@ -780,7 +780,7 @@ internal sealed class SamusPoseTransitionPhase
                 // and the moonwalk turns—continues taking the standing pose's input transitions.
                 // Those can interrupt the art with either same-facing
                 // spin or neutral jump. Preserve newly pressed Shoot as well:
-                // the normal-jump initializer owns the simultaneous
+                // the normal-jump setup owns the simultaneous
                 // Jump+Fire bridge when the selected body is SamusMovementType.NormalJumping.
                 SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(samus,
                     targetPose,
@@ -806,7 +806,7 @@ internal sealed class SamusPoseTransitionPhase
                      (SamusPoseMetadata.IsRightFacingNormalJumpPose(target) ||
                       SamusPoseMetadata.IsLeftFacingNormalJumpPose(target)):
                 // Aim and Fire cancel both compact spin and wall-
-                // jump bodies through the same normal-jump initializer without
+                // jump bodies through the same normal-jump setup without
                 // restarting the jump arc. The wall-jump Shot transition, for example, maps Shot
                 // directly from the right wall jump to the right gun-extended normal jump. The jump's start performs
                 // changed-pose collision for every radius expansion; a rejected
@@ -889,7 +889,7 @@ internal sealed class SamusPoseTransitionPhase
                          SamusPoseId.ShinesparkDiagonalLeftPose:
                 // These are ordinary held/new input transitions, but
                 // their transition hands her movement to a special owner instead of
-                // invoking a normal movement-type initializer.
+                // invoking a normal movement-type setup.
                 SamusAerialPoseTransitions.ApplyShinesparkDirectionTransition(samus,
                     targetPose);
                 break;
@@ -925,7 +925,7 @@ internal sealed class SamusPoseTransitionPhase
                  boostFallback != frame.PoseAtFrameStart)
         {
             // Releasing every boost chord reaches the neutral jump poses:
-            // the same initializer as its held-Jump input transition.
+            // the same setup as its held-Jump input transition.
             SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
                 samus,
                 boostFallback,
@@ -1097,7 +1097,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsAimedAerialPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose is { } aerialFallback)
         {
-            // Install the fallback's pose metadata and initializer first.
+            // Install the fallback's pose metadata and setup first.
             // Falling's run-speed kill, after this response, then clears only the extra component;
             // it must not be folded into base speed like running deceleration.
             // A retained compact pose selects history/momentum work only;

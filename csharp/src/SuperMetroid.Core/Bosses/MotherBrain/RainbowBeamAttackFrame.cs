@@ -11,7 +11,7 @@ public sealed record RainbowBeamAttackFrame
     public required int EnemyFrameCounter { get; init; }
 
     /// <summary>The main enemy pass counter's current count; its place in a short repeating cycle paces ammunition drain and corpse dust sounds.</summary>
-    public required int MainEnemyExecutionCounter { get; init; }
+    public required int EnemyPassCount { get; init; }
 
     /// <summary>Whether a Power Bomb's explosion is active, which stops the countdown to the rainbow beam's firing.</summary>
     public required bool PowerBombActive { get; init; }

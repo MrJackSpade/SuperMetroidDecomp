@@ -355,8 +355,8 @@ internal sealed class MotherBrainHead
         Position16<RoomPixels> mouth = head.Position.Whole + MotherBrainFightDefinitions.MouthOffset;
         TrigonometryAngle angle = EnemyMath.CalculateBearing(target - mouth).ToTrigonometryAngle().TurnedBy(TrigonometryAngle.QuarterTurn);
 
-        // The clamp performs two signed comparisons within one turn. The
-        // wraparound half, from three quarters of a turn round past zero, maps to the lowest aim; the opposite half maps
+        // The clamp splits the turn in two halves. The
+        // half from three quarters of a turn round past zero maps to the lowest aim; the opposite half maps
         // to the highest. Only the aims between them survive unchanged.
         state.OnionRingsTargetAngle =
             angle >= MotherBrainOnionRingDefinitions.LowestAim && angle < MotherBrainOnionRingDefinitions.HighestAim ? angle
@@ -364,7 +364,7 @@ internal sealed class MotherBrainHead
             : MotherBrainOnionRingDefinitions.LowestAim;
     }
 
-    /// <summary>Runs the bomb's initializer.</summary>
+    /// <summary>Runs the bomb's setup.</summary>
     private void SpawnMotherBrainBomb(
         MotherBrainEnemyState state,
         int afterburnCount)
@@ -388,7 +388,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Runs the head's onion-ring step and the ring's initializer. The shared
+    /// Runs the head's onion-ring step and the ring's setup. The shared
     /// allocator deliberately runs after the twelve room turrets and all lingering drool,
     /// so pool saturation drops the ring when the pool is full.
     /// </summary>
@@ -417,7 +417,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 
-    /// <summary>Runs the head's drool step and the drool's initializer.</summary>
+    /// <summary>Runs the head's drool step and the drool's setup.</summary>
     internal void SpawnMotherBrainDrool(MotherBrainEnemyState state)
     {
         if (!state.DroolGenerationEnabled)
@@ -442,7 +442,7 @@ internal sealed class MotherBrainHead
         MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool);
     }
 
-    /// <summary>Runs the head's big purple breath step and the breath's initializer.</summary>
+    /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
     {
         EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
@@ -460,7 +460,7 @@ internal sealed class MotherBrainHead
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
     }
 
-    /// <summary>Runs the small-breath spawn and the breath's initializer.</summary>
+    /// <summary>Runs the small-breath spawn and the breath's setup.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
         EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();

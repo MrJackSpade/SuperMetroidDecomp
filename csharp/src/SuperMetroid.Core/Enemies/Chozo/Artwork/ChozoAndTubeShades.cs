@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
 /// <summary>
 /// The shades the Chozo statues' and the n00b tube's pictures are pre-coloured in (#1512): each statue's own colours,
-/// which its initializer installs, and the glass tube's crack colours, which the tube room's crack initializer installs.
+/// which its setup installs, and the glass tube's crack colours, which the tube room's crack setup installs.
 /// The import colours them from the installed Chozo-and-tube colours.
 /// </summary>
 internal static class ChozoAndTubeShades

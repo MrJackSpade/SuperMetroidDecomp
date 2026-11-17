@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainTurretDefinitions
 {
     /// <summary>
-    /// Graphics installed by both projectile initializers: the shared sheet in the Rinkas' colours, the standard colours
+    /// Graphics installed by both projectile setups: the shared sheet in the Rinkas' colours, the standard colours
     /// of the sheet the import composes under Mother Brain's room's set, which loads them beside her (#1464, #1512). The
     /// turrets and their bullets exist only in the first phase, before the second phase's attack colours load.
     /// </summary>
@@ -29,7 +29,7 @@ internal static class MotherBrainTurretDefinitions
     internal const int MinimumFiringCooldown = 128;
 
     /// <summary>
-    /// The twelve wall turrets in the order her body's initializer spawns them: four bays of three, from the rightmost bay
+    /// The twelve wall turrets in the order her body's setup spawns them: four bays of three, from the rightmost bay
     /// leftwards, each bay's ceiling turret first and then its two wall turrets. Each turret has its place, the direction it
     /// starts facing and the arc, in ring order, it may turn through.
     /// </summary>

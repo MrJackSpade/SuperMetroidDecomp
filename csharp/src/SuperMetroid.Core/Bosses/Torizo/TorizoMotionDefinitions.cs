@@ -153,7 +153,7 @@ internal static class TorizoMotionDefinitions
 
     /// <summary>
     /// Golden Torizo's egg hatch timer, a countdown (<see cref="BossCountdown"/>) of 66 for every egg, so each egg rolls
-    /// 66 updates and hatches on the next: the egg's initializer meant to draw it at random but reads a fixed value (#1945).
+    /// 66 updates and hatches on the next: the egg's setup meant to draw it at random but reads a fixed value (#1945).
     /// </summary>
     internal const int EggHatchTimer = 66;
 }

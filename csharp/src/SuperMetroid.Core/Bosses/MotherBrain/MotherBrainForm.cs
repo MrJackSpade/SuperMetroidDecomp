@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Which stage of the encounter Mother Brain is in. Shot reactions, bomb reactions and the footstep sound branch on
+/// Which stage of the encounter Mother Brain is in. Shot reactions, bomb reactions and the footstep sound depend on
 /// it; the encounter only ever moves forward through these stages, apart from the corpse interval that returns to
 /// <see cref="SecondPhase"/>.
 /// </summary>

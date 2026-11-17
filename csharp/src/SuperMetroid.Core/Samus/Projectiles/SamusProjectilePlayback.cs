@@ -61,7 +61,7 @@ internal static class SamusProjectilePlayback
     }
 
     /// <summary>
-    /// The hitbox a freshly selected animation declares through its first step, as the initializers' reads of the animation's
+    /// The hitbox a freshly selected animation declares through its first step, as the setups' reads of the animation's
     /// radii see it; a projectile with no animation (the safe left-facing Murder Beam) reads zero.
     /// </summary>
     internal static Extent16<RoomPixels> InitialRadius(SamusProjectileSegment? segment)

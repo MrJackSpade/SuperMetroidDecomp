@@ -180,7 +180,7 @@ public enum SamusPoseId
 
     /// <summary>
     /// This pose is the right-facing Space Jump body. The equipment-aware movement-type
-    /// initializer substitutes this for the input transition's ordinary
+    /// setup substitutes this for the input transition's ordinary
     /// spin-jump target when Space Jump is equipped and Screw Attack is not.
     /// </summary>
     SpaceJumpRightPose,

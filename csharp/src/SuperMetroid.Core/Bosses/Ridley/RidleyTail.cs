@@ -413,9 +413,8 @@ internal sealed class RidleyTail
         int radius,
         SamusProjectileSystem projectiles)
     {
-        // The projectile rectangle check scans the five ordinary places in ascending
-        // order. It admits beams, missiles and Super Missiles and rejects bombs, Power Bombs
-        // and shots already converted to explosions.
+        // Samus's shots are checked in shot-place order: beams, missiles and Super Missiles count; bombs, Power Bombs
+        // and shots already exploding do not.
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
             if (!projectile.HasEnemyCollisionPayload)
@@ -468,7 +467,7 @@ internal sealed class RidleyTail
             TickRidleyTailLink(state.Tail, link);
         if (pointed && !state.Tail.Links.Any(link => link.Active))
             state.Tail.Action = RidleyTailAction.Pogo;
-        // The tail's setup and stab overwrite the result of the shared pointed-tail step.
+        // The tail's setup and stab take precedence over the pointed tail's choice.
         if (action == RidleyTailAction.PogoSetup)
             state.Tail.Action = RidleyTailAction.PointDown;
         else if (action == RidleyTailAction.Stab)

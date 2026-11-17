@@ -43,7 +43,7 @@ internal static class MotherBrainGlassShardDefinitions
     internal static readonly SignedEightEight ShardGravity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 
     /// <summary>
-    /// Graphics installed by the shard and sparkle initializers: from the sheet of her tank glass's pieces, in
+    /// Graphics installed by the shard and sparkle setups: from the sheet of her tank glass's pieces, in
     /// <paramref name="shading"/>, the encounter's sprite colours, which hold the glass shards' colours her room's entry loads.
     /// </summary>
     internal static SpriteGraphics Graphics(PictureShading shading) => new(SpawnedObjectOwner.MotherBrainTankGlass, shading);

@@ -126,7 +126,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The population already supplies the animating property, and the initializer sets it again; leaving the
+        // The population already supplies the animating property, and the setup sets it again; leaving the
         // shell needs the animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         place.Frame = EnemyFrameId.Empty;

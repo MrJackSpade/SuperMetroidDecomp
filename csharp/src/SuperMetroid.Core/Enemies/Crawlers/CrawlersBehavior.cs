@@ -71,7 +71,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Initializes a crawler of any species through the shared initializer. Each species differs only by the family whose
+    /// Initializes a crawler of any species through the shared setup. Each species differs only by the family whose
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
     internal static void InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
@@ -137,12 +137,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {blockSide}."),
         };
 
-    /// <summary>Runs the separate orange-Zoomer initializer.</summary>
+    /// <summary>Runs the separate orange-Zoomer setup.</summary>
     internal static void InitializeOrangeZoomer(RoomEnemyPlace place)
     {
         CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
         SignedEightEight crawlSpeed = settings.CrawlSpeed ??
-            throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its initializer has no speed for.");
+            throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");
 
         CrawlerSurfaceOrientation orientation = settings.Orientation;
         var state = new CrawlerEnemyState(CrawlerAction.Settling)

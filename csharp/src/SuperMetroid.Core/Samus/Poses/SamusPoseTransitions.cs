@@ -41,7 +41,7 @@ internal static class SamusPoseTransitions
         }
 
         // A crouched or compact source can grow when falling is selected. The game's
-        // pose initializer runs the same pose-expansion collision as an input-driven transition,
+        // pose setup runs the same pose-expansion collision as an input-driven transition,
         // including its fractional clamp. Skipping it embeds the new body in the
         // floor after a near-ground unmorph. Rejection also skips starting the fall.
         SamusPoseId sourcePose = samus.Pose;
@@ -67,8 +67,8 @@ internal static class SamusPoseTransitions
         samus.Pose = targetPose;
         // The input phase publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
-        // The pose refresh runs the new falling movement type through the falling initializer
-        // before the fall's start initializes the downward state. That initializer derives
+        // The pose refresh runs the new falling movement type through the falling setup
+        // before the fall's start initializes the downward state. That setup derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement behaviour consumes it.
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
@@ -178,7 +178,7 @@ internal static class SamusPoseTransitions
     internal static SamusAnimationFrame StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
         // Keeps the gun raised when both the old and new standing
-        // initializer's poses aim straight up, including landing and its completion.
+        // setup's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
             SamusPoseMetadata.ReadAim(sourcePose).AimsStraightUp &&
             SamusPoseMetadata.ReadAim(targetPose).AimsStraightUp ? SamusAnimationFrame.AfterStart : SamusAnimationFrame.Start;
@@ -391,7 +391,7 @@ internal static class SamusPoseTransitions
             (SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseId.FallingAimDiagonalUpRightPose) or
             // Ends every moonwalk turn/jump animation with a transition to
             // the spin jump. Installing the animation's transition pose refreshes the pose, but skips the pose
-            // initializer's later jump initialization. Its unchanged vertical direction permits Moonfall.
+            // setup's later jump initialization. Its unchanged vertical direction permits Moonfall.
             (SamusPoseId.MoonwalkTurnJumpLeftPose or SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, SamusPoseId.SpinJumpLeftPose) or
             (SamusPoseId.MoonwalkTurnJumpRightPose or SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
@@ -433,7 +433,7 @@ internal static class SamusPoseTransitions
             SamusPoseId installedPose = startsMoonwalkJump
                 ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, targetPose)
                 : targetPose;
-            // Animation-owned pose changes still run the target movement initializer.
+            // Animation-owned pose changes still run the target movement setup.
             // In particular an aerial turn must stop decelerating in the old direction
             // when its final normal-jump/falling pose is installed, even if water made
             // the turn finish before base speed reached zero. Do not clear that speed.
@@ -447,10 +447,10 @@ internal static class SamusPoseTransitions
         {
             // The drained release animation has now reached its authored normal pose.
             // Clear only the drained-release marker; pose initialization above already owns the
-            // same radius and animation writes as the game's pose initializer.
+            // same radius and animation writes as the game's pose setup.
             samus.Drained.CompleteRelease();
         }
-        // The pose-transition cue does not run the jump initializers. An input
+        // The pose-transition cue does not run the jump setups. An input
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
         samus.MorphBallBounceState = SamusBallBounceState.None;

@@ -1411,6 +1411,32 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex CallNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Cc]alls?(?![a-z])", RegexOptions.CultureInvariant);
 
     /// <summary>
+    /// The original's routines and storage told in boss and enemy prose (#2336), outside hardware owners and markup: an
+    /// initializer (the shared initializer, the spin-jump initializer's priority), a writer (the common writer emits his
+    /// body), an execution counter, ordinary projectile places and places scanned in ascending or descending order, a
+    /// value wrapped into the coordinate range, a branch on a value (the shot reaction branches on area index), a signed
+    /// compare, comparison or branch, and the roaring or damaged flag. Core says what the game does: the enemy's or the
+    /// pose's setup, the common enemy drawing, the update count, Samus's shots, a position off the room's edge, what a
+    /// reaction depends on, which way a distance lies, the roar ending. English stays legal: a C# object, collection,
+    /// field, property, array, static or module initializer, a branch of a projectile, and a hardware owner.
+    /// </summary>
+    private static readonly Regex RoutineNarrationProse = new(
+        @"\binitiali[sz]ers?\b(?<!\b(?:object|collection|field|property|array|static|module)\s+initiali[sz]ers?)" +
+        @"|\bwriters?\b|\bexecution[-\s]+counters?\b" +
+        @"|\bordinary\s+(?:projectile\s+|shot\s+)?places\b|\bplaces\s+in\s+(?:ascending|descending)\s+order\b" +
+        @"|\bwrapped\s+into\s+(?:the|its)\s+[\w-]+\s+range\b" +
+        @"|\bbranch(?:es|ed|ing)?\s+on\b|\bsigned[-\s]+(?:compares?|comparisons?|branch(?:es)?)\b" +
+        @"|\b(?:roaring|damaged)[-\s]+flags?\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// A camel-case word of a declared name that names the original's execution counter (#2336): ExecutionCounter at
+    /// any word boundary (<c>MainEnemyExecutionCounter</c>, <c>enemyMainExecutionCounter</c>). Core names the update
+    /// count it means.
+    /// </summary>
+    private static readonly Regex ExecutionCounterNameWord = new(@"(?:^|_|(?<=[a-z0-9])(?=[A-Z]))[Ee]xecutionCounters?(?![a-z])", RegexOptions.CultureInvariant);
+
+    /// <summary>
     /// Fix history told by an adverb of error (#2192), part of the review trail and read in every Core type: incorrectly,
     /// wrongly, erroneously or mistakenly (Testing it here incorrectly advanced the animation, Requiring a collision
     /// wrongly skipped the check). Core states what the game does; what an earlier version of the port got wrong is the
@@ -1678,7 +1704,8 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             return;
         foreach (SyntaxNode node in root.DescendantNodes())
         {
-            if (DeclaredName(node) is { } name && CallNameWord.IsMatch(name.ValueText) && !IsInHardwareOwner(node))
+            if (DeclaredName(node) is { } name &&
+                (CallNameWord.IsMatch(name.ValueText) || ExecutionCounterNameWord.IsMatch(name.ValueText)) && !IsInHardwareOwner(node))
                 context.ReportDiagnostic(Diagnostic.Create(Rule, name.GetLocation(), name.ValueText));
         }
     }
@@ -1882,6 +1909,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : MachineReadingProse.Match(Markup.Replace(text, " ")) is { Success: true } machineReading ? machineReading.Value
             : RetailCursorProse.Match(Markup.Replace(text, " ")) is { Success: true } retailCursor ? retailCursor.Value
             : PoseDataNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } poseData ? poseData.Value
+            : RoutineNarrationProse.Match(Markup.Replace(text, " ")) is { Success: true } routineNarration ? routineNarration.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

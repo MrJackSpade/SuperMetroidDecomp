@@ -62,7 +62,7 @@ internal sealed class RidleyBodyAnimation
                 flight.Roaring = true;
                 _audio.QueueEnemySound(RidleySoundDefinitions.Roar, priority: SoundRequestPriority.Normal);
                 return null;
-            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.ClearRoaringFlag }:
+            case RidleyBodyCue.Signal { Kind: RidleyBodyCueKind.StopRoaring }:
                 flight.Roaring = false;
                 return null;
             case RidleyBodyCue.SetClawHeight setClawHeight:

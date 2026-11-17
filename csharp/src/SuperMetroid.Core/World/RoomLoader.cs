@@ -724,7 +724,7 @@ internal sealed class RoomLoader
         // The door transition promotes a departing elevator's global status from
         // ElevatorActorStatus.Departing to ElevatorActorStatus.BeginArrivalReturn after the destination room objects, door code, and door setup have been created. The
         // room load initializes enemies in the same update, so publish that carried
-        // status immediately before Enemies.Load: the destination elevator initializer
+        // status immediately before Enemies.Load: the destination elevator setup
         // must see the arrival and place itself at its arrival height instead of clearing the journey.
         bool arrivingByElevator = _room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
@@ -1002,7 +1002,7 @@ internal sealed class RoomLoader
             GunshipScenario = entry.GunshipScenario,
             DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
         });
-        // The shared Ridley initializer marks the map explored only for a live boss.
+        // The shared Ridley setup marks the map explored only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
         if (enemies.Ceres.RidleyPresent)
         {

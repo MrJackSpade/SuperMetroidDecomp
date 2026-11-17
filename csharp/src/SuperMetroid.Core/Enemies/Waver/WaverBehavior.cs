@@ -50,7 +50,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // The initializer first shows the left steady animation and then asks for the spawn's facing. Only right-facing
+        // The setup first shows the left steady animation and then asks for the spawn's facing. Only right-facing
         // spawns therefore change it; left-facing spawns ask for the one playing and keep it.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));

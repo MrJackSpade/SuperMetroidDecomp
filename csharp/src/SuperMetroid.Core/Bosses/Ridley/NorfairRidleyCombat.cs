@@ -45,7 +45,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Runs the Norfair branch of the shared initializer and begins his encounter, which his body holds from then on
+    /// Sets Lower Norfair Ridley up and begins his encounter, which his body holds from then on
     /// (#2231). A defeated Ridley is deleted before any encounter, workspace or colour side effects, matching the
     /// defeated-boss gate, and begins none; a live fight begins with Ridley below the visible arena.
     /// </summary>
@@ -372,7 +372,7 @@ internal sealed class NorfairRidleyCombat
 
         if (RidleyClawOverlapsSamus(place, state, samus, NorfairRidleyArenaDefinitions.LungeClawReach))
         {
-            // The missed lunge reverses before the carry setup accelerates.
+            // The grabbing lunge reverses its vertical speed before the carry accelerates.
             state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y.Negated());
             BeginNorfairRidleyGrab(place, state, samus);
         }
@@ -391,7 +391,7 @@ internal sealed class NorfairRidleyCombat
         if (place.Health == 0)
         {
             StartNorfairRidleyDeathSequence(place, state);
-            // The grab tail-jumps to the move-to-death-spot phase on the same successful zero-health grab.
+            // At zero health the grab moves him on toward his death spot in this same update.
             TickNorfairRidleyMoveToDeathSpot(place, state);
             return;
         }
@@ -456,14 +456,13 @@ internal sealed class NorfairRidleyCombat
     private static int GetNorfairRidleyClawY(RoomEnemyPlace place, NorfairRidleyState state) =>
         CoordinateAxis.Wrap(place.Position.Y.Whole + RidleyClawOffsets.ReadY(state.Flight.ClawHeight));
 
-    /// <summary>Starts a turn only when Ridley faces away from the half of its 256-pixel screen his X lies in.</summary>
+    /// <summary>Starts a turn only when Ridley faces away from the half of the screen his X lies in.</summary>
     internal static void SelectNorfairRidleyFacingAnimation(RoomEnemyPlace place, NorfairRidleyState state)
     {
         if (state.Flight.FacingDirection == RidleyFacing.Turning)
             return;
-        // The facing test reads whether X lies in the right half of its 256-pixel screen,
-        // not the sign of the full coordinate. Keep an inward
-        // facing actor's current animation and timer untouched.
+        // He turns by which half of its screen his X lies in, whatever the screen. Facing inward, he keeps his animation
+        // and its timer.
         bool rightHalf = RoomGridConversions.OffsetWithinScreen(place.Position.X.Whole) >= ScreenGeometry.ScreenWidthPixels / 2;
         if (state.Flight.FacingDirection == RidleyFacing.Left ? rightHalf : !rightHalf)
             return;

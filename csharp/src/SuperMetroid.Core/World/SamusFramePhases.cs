@@ -583,7 +583,7 @@ internal sealed class SamusFramePhases
                     // The drained-pose sequences store a drained pose without
                     // initializing it, and the movement keeps running for the cached
                     // movement type. An airborne Samus therefore keeps her jump
-                    // physics in the drained pose until a real initializer runs.
+                    // physics in the drained pose until a real setup runs.
                     StepUninitializedPoseMovement(room.RoomObjects);
                 }
                 break;

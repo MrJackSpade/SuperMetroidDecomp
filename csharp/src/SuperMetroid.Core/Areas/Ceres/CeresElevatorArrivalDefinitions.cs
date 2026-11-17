@@ -12,20 +12,20 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresElevatorArrivalDefinitions
 {
     /// <summary>
-    /// The graphics both arrival projectiles start with: the shared sheet, as their initializer clears them, with the
+    /// The graphics both arrival projectiles start with: the shared sheet, as their setup clears them, with the
     /// level-data concealer's colour cleared to black. A new game clears that colour just before the arrival spawns, so
     /// the concealer hides the landing recess until both projectiles delete themselves at touchdown.
     /// </summary>
     internal static SpriteGraphics StartingGraphics { get; } =
         SpriteGraphics.SharedIn(PictureShading.Shaded(CeresElevatorShades.ConcealerCleared));
 
-    /// <summary>The updates the moving pad waits before it moves, which its initializer seeds.</summary>
+    /// <summary>The updates the moving pad waits before it moves, which its setup seeds.</summary>
     internal const int MovingPadWaitFrames = 60;
 
-    /// <summary>The initializer places the moving pad twenty-eight pixels below Samus.</summary>
+    /// <summary>The setup places the moving pad twenty-eight pixels below Samus.</summary>
     internal const int MovingPadYOffset = 28;
 
-    /// <summary>The initializer places the stationary platform at world Y=97.</summary>
+    /// <summary>The setup places the stationary platform at world Y=97.</summary>
     internal const int StationaryPlatformY = 97;
 
     /// <summary>The descent clamps Samus to world Y=72 when it ends.</summary>

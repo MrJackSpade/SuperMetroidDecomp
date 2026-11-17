@@ -90,7 +90,7 @@ internal sealed class MotherBrainGlassObjects
 
     /// <summary>Sets the glass-destroyed event.</summary>
     internal void SetGlassDestroyed() =>
-        (_events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(StoryEvent.MotherBrainGlassDestroyed);
+        (_events ?? throw new InvalidOperationException("Mother Brain glass has no story events to mark its breaking in.")).Set(StoryEvent.MotherBrainGlassDestroyed);
 
     /// <summary>The shatter sound's request priority.</summary>
     private static readonly SoundRequestPriority ShatterSoundPriority = SoundRequestPriority.Essential;

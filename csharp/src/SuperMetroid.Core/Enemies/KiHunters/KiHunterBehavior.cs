@@ -839,7 +839,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SignedEightEight KiHunterAcidTerminalYSpeed = SignedEightEight.FromParts(2, 0);
 
     /// <summary>
-    /// Spawns an acid spit from its definition and initializer.
+    /// Spawns an acid spit from its definition and setup.
     /// The acid draws from the Ki-Hunter's spawned-object sheet in the colours the firing body shows.
     /// </summary>
     internal void SpawnKiHunterAcidSpit(RoomEnemyPlace body, HorizontalDirection direction)

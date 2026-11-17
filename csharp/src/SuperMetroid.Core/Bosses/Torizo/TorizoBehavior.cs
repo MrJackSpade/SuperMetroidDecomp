@@ -117,8 +117,8 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 RequestTorizoMusic(MusicRequest.SelectTrack(MusicTrack.TorizoAwakening));
                 torizo.Contact = torizo.Contact.Without(EnemyContact.SolidToSamus);
-                // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left: the
-                // original's facing-right statue, which no room starts, is not kept (#1941).
+                // The dormant statue holds until its hand is gone, then awakens. Bomb Torizo always sits facing left; no
+                // room has him facing right (#1941).
                 TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening));
                 return;
 

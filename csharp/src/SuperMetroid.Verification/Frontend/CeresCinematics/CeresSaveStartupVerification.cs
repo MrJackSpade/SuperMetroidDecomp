@@ -37,7 +37,7 @@ internal static class CeresSaveStartupVerification
         var maps = InstalledFixtures.Maps;
         var departureProgress = new PersistentProgress();
         departureProgress.SetDefeatedBosses(AreaId.Ceres, DefeatedBosses.AreaBoss);
-        var departure = new SuperMetroidSaveSnapshot
+        var departure = SaveSnapshotFixtures.NewGame with
         {
             Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
             StartupRoute = SaveLoadingGameState.CeresDestruction,

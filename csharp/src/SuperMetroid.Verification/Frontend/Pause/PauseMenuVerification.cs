@@ -261,7 +261,7 @@ internal static class PauseMenuVerification
             secretPause.ReadDisplayedMapCell(new(exploredSecretMapX, revealTestMapY)),
             "Secret pause map keeps entered secret cell visually distinct");
 
-        SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(samus, revealSystem, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship });
+        SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(samus, revealSystem, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship));
         var revealSaveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         revealSaveRam.SaveSlot(SaveSlot.A, revealSnapshot);
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(SaveSlot.A) ??

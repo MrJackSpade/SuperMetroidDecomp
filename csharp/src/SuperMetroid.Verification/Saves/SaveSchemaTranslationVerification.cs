@@ -25,7 +25,6 @@ internal static class SaveSchemaTranslationVerification
         var ram = new SaveSlotStore(RetailPresentationFixture());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            ReserveMissiles = 27,
             // A selection and mode other than the first of each, which schema six kept as numbers (#1605).
             SelectedHudItem = HudItem.PowerBomb,
             ReserveTankMode = ReserveTankMode.Manual,
@@ -41,13 +40,13 @@ internal static class SaveSchemaTranslationVerification
         // A Zebetite count and the Shitroid-approach event, which schema four listed as counter events and by number (#1527).
         system.Progress.ZebetitesDestroyed = 3;
         system.SetEvent(StoryEvent.ShitroidEncounterMusicSkipped);
-        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship, JapaneseText = true }));
+        ram.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.Gunship) with { JapaneseText = true }));
         ram.CompleteGame();
         ram.SelectSlot(SaveSlot.A);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(ram));
         AssertTrue(!json.Contains("preservedUntranslatedSram", StringComparison.Ordinal) &&
             json.Contains("\"gameCompleted\": true", StringComparison.Ordinal) &&
-            json.Contains("\"reserveMissiles\": 27", StringComparison.Ordinal) &&
+            !json.Contains("reserveMissiles", StringComparison.Ordinal) &&
             !json.Contains("loadedItemCount", StringComparison.Ordinal) &&
             json.Contains("\"japaneseText\": true", StringComparison.Ordinal), "schema two contains named missing state and no SRAM blob");
         SaveSlotStore targetSaves = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture());
@@ -57,7 +56,6 @@ internal static class SaveSchemaTranslationVerification
         var restoredSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var restoredSystem = new SharedGameState(new SharedRandom());
         (loaded ?? throw new InvalidOperationException("Verification requires loaded.")).ApplyTo(restoredSamus, restoredSystem);
-        AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
         AssertTrue(loaded.JapaneseText && targetSaves.HasCompletedGame, "language and completion survive save load");
 
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
@@ -72,6 +70,19 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(GameSaveJsonFormat.SchemaVersion, upgradedTwo.SchemaVersion, "schema two becomes the current schema");
         AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedTwo, RetailPresentationFixture()), RetailPresentationFixture()),
             SaveRamCodec.Encode(ram, RetailPresentationFixture()), "a schema-two save upgrades to the same saves");
+
+        // A schema-twelve save keeps each slot's reserve-missile count, which nothing in the game reads (#2364): the current
+        // schema's strict reader rejects it, and the save upgrades to the same saves without it.
+        JsonObject schemaTwelve = RequiredJson.Parse(json).AsObject();
+        schemaTwelve["schemaVersion"] = 12;
+        schemaTwelve.Required("slots").Required(0).Required("resources")["reserveMissiles"] = 27;
+        JsonObject twelveAsCurrent = RequiredJson.Parse(schemaTwelve.ToJsonString()).AsObject();
+        twelveAsCurrent["schemaVersion"] = GameSaveJsonFormat.SchemaVersion;
+        AssertInvalidJsonSave(twelveAsCurrent.ToJsonString(), "reserveMissiles");
+        GameSaveJsonDocument upgradedTwelve = LegacyGameSaveJson.Deserialize(schemaTwelve.ToJsonString(), "game save", out bool migratedTwelve);
+        AssertTrue(migratedTwelve, "a schema-twelve save is upgraded");
+        AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedTwelve, RetailPresentationFixture()), RetailPresentationFixture()),
+            SaveRamCodec.Encode(ram, RetailPresentationFixture()), "a schema-twelve save upgrades to the same saves, dropping its reserve-missile count");
 
         // A schema-three save keeps the cartridge's loading-state word; it upgrades to the startup route that word selects
         // (#1523), and a word the cartridge does not name resumes the main game.
@@ -243,7 +254,6 @@ internal static class SaveSchemaTranslationVerification
         legacy.Remove("powerOnFoundNoValidSave");
         JsonObject slot = legacy.Required("slots").Required(0).AsObject();
         slot.Remove("japaneseText"); slot.Remove("loadedItemCount");
-        slot.Required("resources").AsObject().Remove("reserveMissiles");
         slot.Required("resources")["health"] = 42; // Deliberately differs from native image health 99.
         byte[] native = SaveRamCodec.Encode(ram, RetailPresentationFixture());
         native[0x1a00] = 0xa5; // Unused SRAM, outside all slots and metadata.
@@ -252,6 +262,8 @@ internal static class SaveSchemaTranslationVerification
             throw new InvalidOperationException("Verification requires slot 0.")), RetailPresentationFixture());
         countedPayload[SaveRamLayout.LoadedItemCountOffset] = 0x21;
         countedPayload[SaveRamLayout.LoadedItemCountOffset + 1] = 0x43;
+        // Nor is its missile reserve, which schema one read from the image (#2364).
+        countedPayload[SaveRamLayout.ReserveMissilesOffset] = 27;
         SaveRamCodec.WriteSlot(native, 0, countedPayload);
         var pages = new JsonArray();
         for (int offset = 0; offset < native.Length; offset += 256)
@@ -263,7 +275,9 @@ internal static class SaveSchemaTranslationVerification
         SaveSlotStore importedSaves = GameSaveJsonCodec.ToStore(upgraded, RetailPresentationFixture());
         var imported = importedSaves.ReadSlot(SaveSlot.A);
         AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Health, "legacy named health overrides stale raw image");
-        AssertEqual(27, imported.ReserveMissiles, "legacy importer decodes reserve missile word");
+        AssertEqual(SaveRamLayout.ReserveMissilesSavedWord,
+            SaveRamCodec.ReadSlotWord(SaveRamCodec.Encode(importedSaves, RetailPresentationFixture()), 0, SaveRamLayout.ReserveMissilesOffset),
+            "legacy importer does not carry the image's reserve-missile count");
         AssertEqual(SaveRamLayout.LoadedItemCountSavedWord,
             SaveRamCodec.ReadSlotWord(SaveRamCodec.Encode(importedSaves, RetailPresentationFixture()), 0, SaveRamLayout.LoadedItemCountOffset),
             "legacy importer does not carry the image's item set-up count");

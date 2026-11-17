@@ -64,7 +64,7 @@ internal static class MenuScreenPublicationVerification
     {
         var maps = InstalledFixtures.Maps;
         var saves = new SaveSlotStore(RetailPresentationFixture());
-        saves.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
+        saves.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saves.SelectSlot(SaveSlot.A);
         var fileSelect = new FileSelectMenuState(saves, AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
         for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)

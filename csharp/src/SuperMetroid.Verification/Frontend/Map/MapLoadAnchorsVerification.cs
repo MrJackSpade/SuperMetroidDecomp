@@ -163,7 +163,7 @@ internal static class MapLoadAnchorsVerification
         void VerifyStationMenu(LoadStation station)
         {
             var saves = stationSaves;
-            var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = station, Health = 99, MaxHealth = 99 };
+            var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = station };
             snapshot.Progress.SetAreaMap(station.Area, acquired: true);
             snapshot.Progress.UsedStations.Add(station);
             saves.SaveSlot(SaveSlot.A, snapshot);

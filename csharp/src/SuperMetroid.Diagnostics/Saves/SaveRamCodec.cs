@@ -132,12 +132,11 @@ public static class SaveRamCodec
                 ReadWord(payload, SaveRamLayout.SaveStationOffset), "The save's checkpoint"))
         {
             ControllerBindings = ReadControllerBindings(payload).RequireUniquePermutation(),
-            // The debug build's placement-mode word, the never-read word after it and the item set-up count are not
-            // decoded: no retail routine reads any of them (SaveRamLayout.DebugFlagSavedWord, NewFileMarkerSavedWord,
-            // LoadedItemCountSavedWord).
+            // The debug build's placement-mode word, the never-read word after it, the item set-up count and the missile
+            // reserve are not decoded: no retail routine reads any of them (SaveRamLayout.DebugFlagSavedWord,
+            // NewFileMarkerSavedWord, LoadedItemCountSavedWord, ReserveMissilesSavedWord).
             MoonwalkEnabled = ReadWord(payload, SaveRamLayout.MoonwalkOffset) != 0,
             IconCancelEnabled = ReadWord(payload, SaveRamLayout.IconCancelOffset) != 0,
-            ReserveMissiles = SamusCountWords.Decode(ReadWord(payload, SaveRamLayout.ReserveMissilesOffset)),
             JapaneseText = ReadWord(payload, SaveRamLayout.JapaneseTextOffset) != 0,
         };
     }
@@ -176,7 +175,7 @@ public static class SaveRamCodec
         WriteWord(payload, SaveRamLayout.HudItemOffset, FieldWord(snapshot.HudItem.SavedNumber(), nameof(snapshot.HudItem)));
         WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, SamusCountWords.Encode(snapshot.MaxReserveEnergy));
         WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusCountWords.Encode(snapshot.ReserveEnergy));
-        WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SamusCountWords.Encode(snapshot.ReserveMissiles));
+        WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SaveRamLayout.ReserveMissilesSavedWord);
         WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
         WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, SaveRamLayout.LoadedItemCountSavedWord);
         WriteWord(payload, SaveRamLayout.GameTimeFramesOffset,
@@ -210,7 +209,6 @@ public static class SaveRamCodec
         ControllerBindings = slot.ControllerBindings,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        ReserveMissiles = slot.ReserveMissiles,
         JapaneseText = slot.JapaneseText,
         EquippedItems = slot.EquippedItems,
         CollectedItems = slot.CollectedItems,

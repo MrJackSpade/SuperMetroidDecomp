@@ -304,9 +304,7 @@ internal static class PipeBugBehaviorVerification
             case EnemyDefinitionId.CorpseSkree:
             case EnemyDefinitionId.BabyMetroid:
             case EnemyDefinitionId.BombTorizo:
-            case EnemyDefinitionId.BombTorizoOrb:
             case EnemyDefinitionId.GoldenTorizo:
-            case EnemyDefinitionId.GoldenTorizoOrb:
             case EnemyDefinitionId.TourianStatue:
             case EnemyDefinitionId.Shaktool:
             case EnemyDefinitionId.NoobTubeCrack:

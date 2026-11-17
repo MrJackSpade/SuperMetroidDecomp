@@ -166,12 +166,8 @@ internal static class EnemyDropsVerification
             missileSamus,
             expectedSound: 3,
             assertEffect: samus =>
-            {
                 AssertEqual(5, samus.Missiles,
-                    "missile pickup caps the visible missile count");
-                AssertEqual(1, samus.ReserveMissiles,
-                    "missile overflow enters native unused reserve-missile WRAM");
-            });
+                    "missile pickup caps the missile count at the capacity"));
 
         SamusState superSamus = CreateDropTestSamus();
         superSamus.SuperMissiles = 4;

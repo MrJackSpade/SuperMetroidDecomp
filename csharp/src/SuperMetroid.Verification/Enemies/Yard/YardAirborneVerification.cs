@@ -70,7 +70,7 @@ internal static class YardAirborneVerification
         AssertEqual(initial, runtime.YardKickDistance.HorizontalDistancePlusOne,
             "arriving on Zebes after Ceres initialises Samus with one pixel");
 
-        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = LoadStationDefinitions.CrateriaSave };
+        var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = LoadStationDefinitions.CrateriaSave };
         var saves = new SaveSlotStore(RetailPresentationFixtureVerification.RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, snapshot);
         SuperMetroidSaveSlot slot = saves.ReadSlot(SaveSlot.A) ?? throw new InvalidDataException("The Yard kick fixture save failed validation.");

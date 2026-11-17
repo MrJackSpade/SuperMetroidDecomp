@@ -70,7 +70,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             for (int index = 0; index < AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles; index += 3)
                 explored.SetExplored(area, AreaMapSize.Extent.CellAtRowMajorIndex(index), explored: true);
         }
-        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot { Progress = explored });
+        saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with { Progress = explored });
         SuperMetroidSaveSlot restored = saveRam.ReadSlot(SaveSlot.A) ??
             throw new InvalidOperationException("Compiled explored-map save failed checksums.");
         foreach (AreaId area in AreaIds.All)
@@ -97,7 +97,7 @@ internal static class ExploredMapPackingDefinitionsVerification
     private static void VerifyCalculatedMapPackingBindings(PersistentProgress explored)
     {
         var original = InstalledFixtures.Maps;
-        var snapshot = new SuperMetroidSaveSnapshot { Progress = explored };
+        var snapshot = SaveSnapshotFixtures.NewGame with { Progress = explored };
         var unbound = new SaveSlotStore();
         AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(SaveSlot.A, snapshot),
             "unbound map packing fails before persistence");

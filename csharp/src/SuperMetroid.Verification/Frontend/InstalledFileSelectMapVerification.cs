@@ -17,7 +17,7 @@ internal static class InstalledFileSelectMapVerification
     internal static void VerifyInstalledFileSelectMenu(InstalledScreenContent original, bool verifyCapturedRendering = false)
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = new SuperMetroidSaveSnapshot { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave, Health = 99, MaxHealth = 99 };
+        var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.GlassTunnelSave };
         snapshot.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
         snapshot.Progress.UsedStations.Add(LoadStationDefinitions.GlassTunnelSave);
         saves.SaveSlot(SaveSlot.A, snapshot);

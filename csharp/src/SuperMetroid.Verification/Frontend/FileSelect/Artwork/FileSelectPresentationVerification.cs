@@ -21,7 +21,7 @@ internal static class FileSelectPresentationVerification
         _ = FileSelectSourcePresentationConstants.Load(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(bus));
 
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot
+        saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
         {
             Health = 45,
             MaxHealth = 99,

@@ -30,7 +30,7 @@ internal static class BootDemoSetCountVerification
             "boot with no valid slot plays the three ordinary demo sets");
 
         // Saving creates a valid slot. The marker stays overwritten and the boot count stays latched.
-        saveRam.SaveSlot(SaveSlot.A, new SuperMetroidSaveSnapshot());
+        saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         AssertEqual("madadameyohn", ReadMarker(saveRam),
             "a later save does not restore the completion marker");
         AssertEqual(StockAttractDemoScenes.OrdinaryPlaylist, game.Session.DemoPlaylist,

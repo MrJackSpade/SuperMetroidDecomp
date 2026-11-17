@@ -25,7 +25,7 @@ internal static class FileCopyArrowVerification
         // All save changes belong to this private store.
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         foreach (SaveSlot slot in SaveSlots.All)
-            saves.SaveSlot(slot, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
+            saves.SaveSlot(slot, SaveSnapshotFixtures.NewGame);
         foreach (var pair in new[] { new FileCopyArrowVerifyFileCopyArrowCase(0, 2), new FileCopyArrowVerifyFileCopyArrowCase(0, 1), new FileCopyArrowVerifyFileCopyArrowCase(1, 2), new FileCopyArrowVerifyFileCopyArrowCase(2, 0), new FileCopyArrowVerifyFileCopyArrowCase(1, 0), new FileCopyArrowVerifyFileCopyArrowCase(2, 1) }.Select((slots, row) => new VerifyFileCopyArrowCase(slots, row)))
         {
             saves.SelectSlot(SaveSlot.A);

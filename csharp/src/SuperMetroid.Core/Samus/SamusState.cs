@@ -312,13 +312,6 @@ public sealed class SamusState
     /// <summary>Maximum missiles.</summary>
     public int MaxMissiles { get; set; }
 
-    /// <summary>
-    /// The missile reserve. Super Metroid never exposes a missile-reserve tank in normal
-    /// play, but its shared restore still sends overflow here and caps it at either
-    /// max missiles or 99. Retaining the otherwise-unused value makes enemy drops exact.
-    /// </summary>
-    public int ReserveMissiles { get; set; }
-
     /// <summary>Current super missiles.</summary>
     public int SuperMissiles { get; set; }
 
@@ -922,7 +915,6 @@ public sealed class SamusState
         MaxPowerBombs = source.MaxPowerBombs;
         MaxReserveEnergy = source.MaxReserveEnergy;
         ReserveEnergy = source.ReserveEnergy;
-        ReserveMissiles = source.ReserveMissiles;
     }
 
     /// <summary>

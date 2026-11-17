@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Input;
-
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>

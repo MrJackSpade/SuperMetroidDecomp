@@ -761,9 +761,10 @@ internal sealed class MotherBrainProjectiles
     }
 
     /// <summary>
-    /// Detects when a fired hand beam has crossed the fight arena's bounds. A beam that has passed the room's top or left
-    /// lies at a far height or column, past the arena's bottom right, so it is outside as before.
+    /// Detects when a fired hand beam has crossed the fight arena's bounds
     /// (<see cref="MotherBrainHandBeamDefinitions.ArenaTopLeft"/>, <see cref="MotherBrainHandBeamDefinitions.ArenaBottomRight"/>).
+    /// A beam that has passed the room's top or left lies at a far height or column, past the arena's bottom right, so it is
+    /// outside too.
     /// </summary>
     private static bool IsMotherBrainHandBeamOutsideArena(
         EnemyProjectile beam) =>

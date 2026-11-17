@@ -234,7 +234,7 @@ public static class GameplayDisplayCapture
                 perspective.Transform.Scroll.X + shake.Foreground.X,
                 perspective.Transform.Scroll.Y + shake.Foreground.Y),
         };
-        // The band's background scroll is signed (#2308), as the ordinary view's is: the latched scroll read as signed plus
+        // The band's background scroll is signed (#2308), as the ordinary view's is: the latched scroll as a signed offset plus
         // the room's shake, unwrapped.
         TurningRoomLowerBand? floor = perspective.Below == BelowPerspectiveFloor.RoomBackground
             ? new(GameplayRenderDefinitions.CeresFloorFirstLine, SignedScroll(scrolls.BackgroundScroll) + shake.Background,

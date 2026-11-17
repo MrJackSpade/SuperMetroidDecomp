@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="BabyFadeImage">The image of the Baby's fade to black shown, if one is.</param>
 /// <param name="RecoveryLightsImage">The image of the room lights' recovery shown, if one is (#2316).</param>
 /// <param name="StartedAnimation">The animation the Baby starts on this step, if it starts one (#2319).</param>
+/// <param name="Visibility">Whether the step shows or hides the Baby on its place, or leaves it as it is (#2310).</param>
 [IndependentFlag("independent requests one cutscene step makes")]
 public readonly record struct BabyMetroidCutsceneStepResult(
     BabyMetroidCutscenePhase PhaseBefore,

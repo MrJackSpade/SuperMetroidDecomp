@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

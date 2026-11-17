@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
 

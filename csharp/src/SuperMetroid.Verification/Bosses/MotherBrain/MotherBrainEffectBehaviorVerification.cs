@@ -14,7 +14,6 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 

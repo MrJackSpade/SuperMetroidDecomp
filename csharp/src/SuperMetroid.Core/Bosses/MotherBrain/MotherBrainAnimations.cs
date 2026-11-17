@@ -4,7 +4,6 @@ using B = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBodySegment;
 using H = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHeadSegment;
 using M = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

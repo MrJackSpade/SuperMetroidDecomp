@@ -92,7 +92,7 @@ internal static class ProjectileTrailNative
     };
 
     /// <summary>The bank-$90 address of the first record that shows <paramref name="frame"/>.</summary>
-    internal static ushort Address(ProjectileTrailFrame frame) => ProjectileTrailSources.FrameAddress(frame);
+    internal static ushort Address(ProjectileTrailFrame frame) => ProjectileTrailSourcesConstants.FrameAddress(frame);
 
     /// <summary>The bank-$90 address of every timed record the trail programs store, in address order.</summary>
     internal static IEnumerable<ushort> RecordAddresses => ProjectileTrailSources.Records.Select(record => record.Key);

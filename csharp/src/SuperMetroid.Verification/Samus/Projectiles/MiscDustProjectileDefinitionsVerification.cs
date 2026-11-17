@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

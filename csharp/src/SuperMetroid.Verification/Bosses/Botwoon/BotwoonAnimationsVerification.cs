@@ -10,9 +10,9 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Animation;
 
 /// <summary>

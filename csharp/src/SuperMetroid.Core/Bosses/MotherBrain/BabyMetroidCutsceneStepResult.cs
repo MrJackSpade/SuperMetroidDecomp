@@ -10,8 +10,12 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     bool AmbientCrySoundQueued,
     DustExplosionRequest? DeathExplosion,
     MotherBrainFadeImage? BabyFadeImage,
-    int? RecoveryLightsFrame)
+    int? RecoveryLightsFrame,
+    BabyMetroidVisibilityRequest Visibility)
 {
+    /// <summary>The step on which the Baby deletes itself, the last of the cutscene.</summary>
+    public bool BabyDeleted => PhaseAfter == BabyMetroidCutscenePhase.Deleted;
+
     /// <summary>The one-update fatal-impact edge, before the ongoing shake phase.</summary>
     public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
         PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;

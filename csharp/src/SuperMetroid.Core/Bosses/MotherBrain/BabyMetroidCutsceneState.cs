@@ -32,15 +32,6 @@ public sealed class BabyMetroidCutsceneState
     public BabyMetroidCutscenePhase Phase { get; internal set; } =
         BabyMetroidCutscenePhase.Inactive;
 
-    /// <summary>How the actor meets Samus and her shots, after initialization makes it block the Plasma Beam.</summary>
-    public EnemyContact Contact { get; private set; }
-
-    /// <summary>What the room's enemy passes run for the actor, after initialization starts its animation.</summary>
-    public EnemyProcessing Processing { get; private set; }
-
-    /// <summary>Whether the actor is drawn and still holds its place.</summary>
-    public EnemyPresence Presence { get; private set; }
-
     /// <summary>
     /// Whether the onion-ring hit flash shows the shared white colours this update instead of
     /// the Baby's own sprite colours.
@@ -126,28 +117,17 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Which of the two rainbow colour cycles Samus currently shows.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
 
-    /// <summary>True after the deleted enemy property marks the cutscene actor deleted.</summary>
-    public bool IsDeleted => Presence.HasAny(EnemyPresence.Deleted);
+    /// <summary>True once the Baby has deleted itself at the end of the cutscene (<see cref="BabyMetroidCutscenePhase.Deleted"/>).</summary>
+    public bool IsDeleted => Phase == BabyMetroidCutscenePhase.Deleted;
 
     /// <summary>
-    /// Initializes the Baby. The population entry supplies its properties; initialization
-    /// adds two more, overwrites the population coordinates, and waits at its arrival point
-    /// before beginning the dash, from the fractions of a pixel its place keeps
-    /// (<see cref="BabyMetroidArrivalFractions"/>).
+    /// Initializes the Baby. Its place keeps how it meets Samus, what the room runs for it and whether it is drawn
+    /// (#2310); initialization overwrites the population coordinates and waits at its arrival point before beginning
+    /// the dash, from the fractions of a pixel its place keeps (<see cref="BabyMetroidArrivalFractions"/>).
     /// </summary>
     /// <param name="leftInPlace">The position the Baby's place still holds from its previous occupant.</param>
-    /// <param name="populationContact">The population entry's contact.</param>
-    /// <param name="populationProcessing">The population entry's processing.</param>
-    /// <param name="populationPresence">The population entry's presence.</param>
-    public void Initialize(
-        FixedPosition<RoomPixels> leftInPlace,
-        EnemyContact populationContact,
-        EnemyProcessing populationProcessing,
-        EnemyPresence populationPresence)
+    public void Initialize(FixedPosition<RoomPixels> leftInPlace)
     {
-        Contact = populationContact.With(EnemyContact.BlocksPlasmaBeam);
-        Processing = populationProcessing.With(EnemyProcessing.Animates);
-        Presence = populationPresence;
         HurtFlashShown = false;
         SetAnimation(MotherBrainBabySegment.Initial);
         RouteLeg = null;
@@ -204,6 +184,7 @@ public sealed class BabyMetroidCutsceneState
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
         int? recoveryLightsFrame = null;
+        BabyMetroidVisibilityRequest visibility = BabyMetroidVisibilityRequest.Unchanged;
 
         // Enemy collision handling runs touch AI before main AI, against the Baby's
         // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
@@ -584,17 +565,17 @@ public sealed class BabyMetroidCutsceneState
                 {
                     // Completion does not write the Baby's eighth colour. It hides the actor,
                     // starts readying Mother Brain's attacks again, and waits through 128..0 before its first update.
-                    Presence = Presence.With(EnemyPresence.Hidden);
+                    visibility = BabyMetroidVisibilityRequest.Hide;
                     Phase = BabyMetroidCutscenePhase.ReadyMotherBrainAttacksAgain;
                     PhaseTimer.Count = 128;
                 }
                 else
                 {
                     deathExplosion = StepDeathExplosion();
-                    // The flicker step clears invisibility on odd enemy frames and sets it on even.
-                    Presence = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsSetIn(enemyFrameCounter)
-                        ? Presence.Without(EnemyPresence.Hidden)
-                        : Presence.With(EnemyPresence.Hidden);
+                    // The flicker step shows the Baby on odd enemy frames and hides it on even.
+                    visibility = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsSetIn(enemyFrameCounter)
+                        ? BabyMetroidVisibilityRequest.Show
+                        : BabyMetroidVisibilityRequest.Hide;
                 }
                 break;
 
@@ -642,11 +623,12 @@ public sealed class BabyMetroidCutsceneState
                 motherBrain.BeginPhase3RecoveryFromBabyCutscene();
                 samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
                 samus.Drained.EnableHyperBeam(samus);
-                Presence = Presence.With(EnemyPresence.Deleted);
+                Phase = BabyMetroidCutscenePhase.Deleted;
                 break;
             }
 
             case BabyMetroidCutscenePhase.Inactive:
+            case BabyMetroidCutscenePhase.Deleted:
             default:
                 throw new InvalidOperationException($"Unsupported Baby Metroid phase {Phase}.");
         }
@@ -677,7 +659,8 @@ public sealed class BabyMetroidCutsceneState
             ambientCrySoundQueued,
             deathExplosion,
             babyFadeImage,
-            recoveryLightsFrame);
+            recoveryLightsFrame,
+            visibility);
     }
 
     /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision response: a living Baby gets a sixteen-frame flash timer and health subtraction saturated at zero.</summary>

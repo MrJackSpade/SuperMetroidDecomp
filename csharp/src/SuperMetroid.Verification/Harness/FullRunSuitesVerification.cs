@@ -41,6 +41,7 @@ using static SuperMetroid.Verification.Enemies.Sbug.SbugReversalVerification;
 using static SuperMetroid.Verification.Enemies.Puyo.PuyoCeilingTurnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFatalBlowShakeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidHeadTargetVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidPresenceVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidInheritedFractionsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidWallClearTimingVerification;
@@ -1141,6 +1142,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRainbowReleaseKnockback), () => VerifyRainbowReleaseKnockback()),
         new(nameof(VerifyBabyMetroidInheritedFractions), () => VerifyBabyMetroidInheritedFractions()),
         new(nameof(VerifyBabyMetroidHeadTarget), () => VerifyBabyMetroidHeadTarget()),
+        new(nameof(VerifyBabyMetroidPresence), () => VerifyBabyMetroidPresence()),
         new(nameof(VerifyMotherBrainWalkBackwardsPose), () => VerifyMotherBrainWalkBackwardsPose()),
         new(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHealth()),
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),

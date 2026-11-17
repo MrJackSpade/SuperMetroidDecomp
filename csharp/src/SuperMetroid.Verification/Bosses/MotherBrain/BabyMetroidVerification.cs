@@ -77,11 +77,8 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
-    baby.Initialize(FixedPosition<RoomPixels>.Zero, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Contact, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Processing, MotherBrainBabyMetroidDefinitions.SpawnPopulation.Presence);
-    // The population's animation and off-screen processing, plus initialization's Plasma Beam block (native $3800).
-    AssertEqual(EnemyContact.BlocksPlasmaBeam, baby.Contact, "Baby population/init contact OR");
-    AssertEqual(EnemyProcessing.Animates | EnemyProcessing.OffScreen, baby.Processing, "Baby population/init processing OR");
-    AssertEqual(EnemyPresence.None, baby.Presence, "Baby population/init presence OR");
+    baby.Initialize(FixedPosition<RoomPixels>.Zero);
+
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
     // their own palette rows (#1422, #1513).

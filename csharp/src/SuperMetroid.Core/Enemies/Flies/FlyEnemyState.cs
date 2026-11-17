@@ -10,12 +10,20 @@ public sealed class FlyEnemyState
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<FlySegment> Playback { get; set; }
 
+    /// <summary>How many updates the fly's dive has lasted (#2369), counted from the update it starts on.</summary>
+    public int DiveUpdates { get; internal set; }
+
     /// <summary>
-    /// The fly's dive and retreat clock (#2281): it counts the dive's updates, then the retreat's updates left, the dive's
-    /// and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, to zero, and then the circling updates left from
-    /// <see cref="FlyMotionDefinitions.AttackCooldown"/> before another dive.
+    /// The retreat's updates left (#2369): its dive's and <see cref="FlyMotionDefinitions.RetreatBeyondDive"/> more, the
+    /// last the one it turns back to circling on.
     /// </summary>
-    public int RetreatTimer { get; internal set; }
+    public int RetreatUpdatesLeft { get; internal set; }
+
+    /// <summary>
+    /// The circling updates left before the fly can dive again (#2369): <see cref="FlyMotionDefinitions.AttackCooldown"/>
+    /// after each retreat, none before its first dive.
+    /// </summary>
+    public int CooldownUpdatesLeft { get; internal set; }
 
     /// <summary>
     /// Signed 1/256-pixel attack/retreat velocity in room pixels per actor update: X sampled from Samus's attack-start angle

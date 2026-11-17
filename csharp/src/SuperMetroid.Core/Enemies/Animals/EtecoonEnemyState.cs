@@ -32,9 +32,6 @@ public sealed class EtecoonEnemyState
     /// </summary>
     public bool AwaitingSamus { get; internal set; }
 
-    /// <summary>The teaching hops counted before the count empties.</summary>
-    internal const int TeachingHopsPerLesson = 4;
-
     /// <summary>The main-AI behaviour.</summary>
     public EtecoonAction Action { get; internal set; }
 
@@ -63,12 +60,12 @@ public sealed class EtecoonEnemyState
 
     /// <summary>
     /// Teaching hops taken since the count was last emptied, none when the Etecoon is placed: the count empties on reaching
-    /// <see cref="TeachingHopsPerLesson"/>.
+    /// <see cref="EtecoonRouteDefinitions.TeachingHopsPerLesson"/>.
     /// </summary>
     public int TeachingHops
     {
         get;
-        internal set => field = Ensure.BetweenInclusive(0, EtecoonEnemyState.TeachingHopsPerLesson, value);
+        internal set => field = Ensure.BetweenInclusive(0, EtecoonRouteDefinitions.TeachingHopsPerLesson, value);
     }
 
     /// <summary>Takes a heading, which also empties the teaching-hop count.</summary>

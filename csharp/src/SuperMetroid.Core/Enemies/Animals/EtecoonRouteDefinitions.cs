@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>Where Samus wakes and steers an Etecoon, and the room columns its teaching routes turn at (#2279).</summary>
 internal static class EtecoonRouteDefinitions
 {
+    /// <summary>The teaching hops an Etecoon counts before the count empties (#2369).</summary>
+    internal const int TeachingHopsPerLesson = 4;
+
     /// <summary>The vertical distance, in pixels, Samus must come strictly within to wake a dormant Etecoon.</summary>
     internal const int ActivationYDistance = 128;
 

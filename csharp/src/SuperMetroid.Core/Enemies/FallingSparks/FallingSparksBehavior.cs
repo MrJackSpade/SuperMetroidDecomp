@@ -45,7 +45,7 @@ internal sealed class FallingSparksBehavior
             Spark,
             SpriteGraphics.SpawnedBy(source));
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkSegment.Falling));
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource), source.Position.Y.Fraction));
+        projectile.Position = source.Position.WithWholeY(source.Position.Y.Whole + FallingSparkMotionDefinitions.SpawnBelowSource);
 
         // The setup zeros both ordinary velocities, then takes a random number. The
         // authored launches are one short of the eight selections; the last selection drifts by
@@ -119,7 +119,7 @@ internal sealed class FallingSparksBehavior
         // Because the bounce's whole part is negative, later frames skip collision and gravity while the
         // impact spark arcs upward through its eleven-frame blinking animation.
         spark.VerticalSpeed = FallingSparkMotionDefinitions.ImpactBounce;
-        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - FallingSparkMotionDefinitions.ImpactLift);
+        projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole - FallingSparkMotionDefinitions.ImpactLift);
     }
 
     /// <summary>Spawns a trail object at the spark's current whole-pixel position.</summary>

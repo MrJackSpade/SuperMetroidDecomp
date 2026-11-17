@@ -111,7 +111,7 @@ internal static class EnemySpawnSettingsCodec
         [EnemyDefinitionId.Boulder] = words => Unset("Boulder landing depth", Bits(words.Parameter1, 0, 8), new BoulderSpawnSettings(TriggerHeight: Bits(words.Initialization, 0, 8), TriggerReach: Bits(words.Parameter2, 0, 8), Start: Bits(words.Parameter2, 8, 8) is var drop and not 0 ? new BoulderStart.FallsFrom(drop) : BoulderStart.RollsAtOnce.Instance, Roll: Bits(words.Parameter1, 8, 8) switch { 0 => BoulderRoll.Right, 1 => BoulderRoll.Left, 2 => BoulderRoll.LeftBreakingOnImpact, var other => throw Unmapped("Roll", other) })),
         [EnemyDefinitionId.Boyon] = words => new BoyonSpawnSettings(SpeedMultiplier: EnemySpawnSelectors.Select("SpeedMultiplier", EnemySpawnSelectorDefinitions.BoyonSpeedMultipliers, Bits(words.Parameter1, 0, 8)), JumpHeight: EnemySpawnSelectors.Select("JumpHeight", EnemySpawnSelectorDefinitions.BoyonJumpHeights, Bits(words.Parameter1, 8, 8)), TriggerDistance: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Bull] = words => new BullSpawnSettings(Intervals: EnemySpawnSelectors.Select("Intervals", EnemySpawnSelectorDefinitions.BullIntervals, Bits(words.Parameter1, 0, 16)), MaximumSpeed: EnemySpawnSelectors.Select("MaximumSpeed", EnemySpawnSelectorDefinitions.BullMaximumSpeeds, Bits(words.Parameter2, 0, 16))),
-        [EnemyDefinitionId.Cacatac] = words => new CacatacSpawnSettings(Direction: Bits(words.Parameter1, 0, 8) switch { 0 => CacatacDirection.Left, 1 => CacatacDirection.Right, 2 => CacatacDirection.InitialStop, var other => throw Unmapped("Direction", other) }, Mounting: (words.Parameter1 & 65280) != 0 ? CacatacMounting.Floor : CacatacMounting.Ceiling, TravelDistance: EnemySpawnSelectors.Select("TravelDistance", EnemySpawnSelectorDefinitions.CacatacTravelDistances, Bits(words.Parameter2, 0, 8)), Speed: EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 8, 8))),
+        [EnemyDefinitionId.Cacatac] = words => new CacatacSpawnSettings(Direction: CacatacStartOf(Bits(words.Parameter1, 0, 8)).Direction, Start: CacatacStartOf(Bits(words.Parameter1, 0, 8)).Start, Mounting: (words.Parameter1 & 65280) != 0 ? CacatacMounting.Floor : CacatacMounting.Ceiling, TravelDistance: EnemySpawnSelectors.Select("TravelDistance", EnemySpawnSelectorDefinitions.CacatacTravelDistances, Bits(words.Parameter2, 0, 8)), Speed: EnemySpawnSelectors.LinearSpeed("Speed", Bits(words.Parameter2, 8, 8))),
         [EnemyDefinitionId.Choot] = words => new ChootSpawnSettings(FallingPath: EnemySpawnSelectors.Select("FallingPath", EnemySpawnSelectorDefinitions.ChootFallingPaths, Bits(words.Parameter1, 8, 8)), PatternLoops: Bits(words.Parameter1, 0, 8), JumpDelay: Bits(words.Parameter2, 0, 16)),
         [EnemyDefinitionId.Chozo] = words => new ChozoStatueSpawnSettings(Site: EnemySpawnSelectors.Select("Site", EnemySpawnSelectorDefinitions.ChozoStatueSites, Half(words.Parameter2))),
         [EnemyDefinitionId.CorpseRipper] = words => new CorpseSpawnSettings(Corpse: EnemySpawnSelectors.Select("Corpse", DeadTourianCorpsesConstants.ByVariant(DeadTourianCorpseSpecies.Ripper), Half(words.Parameter1))),
@@ -303,7 +303,7 @@ internal static class EnemySpawnSettingsCodec
         BoulderSpawnSettings s => Checked(EnemyDefinitionId.Boulder, settings, new PopulationWords(Initialization: Place(s.TriggerHeight, 0, 8), SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Roll switch { BoulderRoll.Right => 0, BoulderRoll.Left => 1, BoulderRoll.LeftBreakingOnImpact => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 8) , Parameter2: Place(s.TriggerReach, 0, 8) | Place(s.Start is BoulderStart.FallsFrom fall ? fall.Drop : 0, 8, 8))),
         BoyonSpawnSettings s => Checked(EnemyDefinitionId.Boyon, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.SelectorOf("SpeedMultiplier", EnemySpawnSelectorDefinitions.BoyonSpeedMultipliers, s.SpeedMultiplier), 0, 8) | Place(EnemySpawnSelectors.SelectorOf("JumpHeight", EnemySpawnSelectorDefinitions.BoyonJumpHeights, s.JumpHeight), 8, 8), Parameter2: Place(s.TriggerDistance, 0, 16))),
         BullSpawnSettings s => Checked(EnemyDefinitionId.Bull, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: EnemySpawnSelectors.SelectorOf("Intervals", EnemySpawnSelectorDefinitions.BullIntervals, s.Intervals), Parameter2: EnemySpawnSelectors.SelectorOf("MaximumSpeed", EnemySpawnSelectorDefinitions.BullMaximumSpeeds, s.MaximumSpeed))),
-        CacatacSpawnSettings s => Checked(EnemyDefinitionId.Cacatac, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction switch { CacatacDirection.Left => 0, CacatacDirection.Right => 1, CacatacDirection.InitialStop => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) << 0) | (s.Mounting == CacatacMounting.Floor ? 256 : 0), Parameter2: Place(EnemySpawnSelectors.SelectorOf("TravelDistance", EnemySpawnSelectorDefinitions.CacatacTravelDistances, s.TravelDistance), 0, 8) | Place(EnemySpawnSelectors.LinearSpeedRow("Speed", s.Speed), 8, 8))),
+        CacatacSpawnSettings s => Checked(EnemyDefinitionId.Cacatac, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: ((s.Direction, s.Start) switch { (HorizontalDirection.Left, CacatacStart.Patrolling) => 0, (HorizontalDirection.Right, CacatacStart.Patrolling) => 1, (HorizontalDirection.Right, CacatacStart.Stopped) => 2, _ => throw new ArgumentOutOfRangeException(nameof(settings)) }) | (s.Mounting == CacatacMounting.Floor ? 256 : 0), Parameter2: Place(EnemySpawnSelectors.SelectorOf("TravelDistance", EnemySpawnSelectorDefinitions.CacatacTravelDistances, s.TravelDistance), 0, 8) | Place(EnemySpawnSelectors.LinearSpeedRow("Speed", s.Speed), 8, 8))),
         ChootSpawnSettings s => Checked(EnemyDefinitionId.Choot, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: Place(EnemySpawnSelectors.SelectorOf("FallingPath", EnemySpawnSelectorDefinitions.ChootFallingPaths, s.FallingPath), 8, 8) | Place(s.PatternLoops, 0, 8), Parameter2: Place(s.JumpDelay, 0, 16))),
         ChozoStatueSpawnSettings s => Checked(EnemyDefinitionId.Chozo, settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: 0, Parameter2: EnemySpawnSelectors.SelectorOf("Site", EnemySpawnSelectorDefinitions.ChozoStatueSites, s.Site) * 2)),
         CorpseSpawnSettings s => Checked(CorpseEnemy(s.Corpse), settings, new PopulationWords(Initialization: 0, SpeciesPropertyBits: 0, ExtraProperties: 0, Parameter1: EnemySpawnSelectors.SelectorOf("Corpse", DeadTourianCorpsesConstants.ByVariant(s.Corpse.Species), s.Corpse) * 2, Parameter2: 0)),
@@ -550,7 +550,7 @@ internal static class EnemySpawnSettingsCodec
     private static FirefleaFlight FirefleaFlightOf(bool circling, EnemySpeedSign sign, SignedSixteenSixteen speed) =>
         circling
             ? new FirefleaFlight.Circling(EnemySpawnSelectors.FirefleaTurnPerUpdate(sign == EnemySpeedSign.Positive ? speed : -speed))
-            : new FirefleaFlight.Bobbing(speed, sign);
+            : new FirefleaFlight.Bobbing(speed, sign == EnemySpeedSign.Positive ? VerticalDirection.Down : VerticalDirection.Up);
 
     /// <summary>The words that give a Fireflea <paramref name="settings"/>: the first speed row and sign that give its flight.</summary>
     /// <exception cref="ArgumentException">No speed row gives the flight.</exception>
@@ -571,6 +571,18 @@ internal static class EnemySpawnSettingsCodec
         }
         throw new ArgumentException($"No speed row gives a Fireflea the flight {settings.Flight}.", nameof(settings));
     }
+
+    /// <summary>
+    /// The patrol direction and start a Cacatac's direction selector names (#2369): left, right, or stopped at first,
+    /// which patrols right once it starts.
+    /// </summary>
+    private static (HorizontalDirection Direction, CacatacStart Start) CacatacStartOf(int selector) => selector switch
+    {
+        0 => (HorizontalDirection.Left, CacatacStart.Patrolling),
+        1 => (HorizontalDirection.Right, CacatacStart.Patrolling),
+        2 => (HorizontalDirection.Right, CacatacStart.Stopped),
+        var other => throw Unmapped("Direction", other),
+    };
 
     private static InvalidDataException Unmapped(string setting, int value) =>
         new($"Population words select {setting} {value}, which the species does not define.");

@@ -263,8 +263,8 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Multiviola, new(1455, 456), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new MultiviolaSpawnSettings(Heading: new TrigonometryAngle(208), Speed: 3)),
             new(EnemyDefinitionId.PirateRedWalking, new(2555, 624), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, PatrolReach: 0)),
             new(EnemyDefinitionId.PirateRedWalking, new(1767, 656), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, true, new WalkingSpacePirateSpawnSettings(Facing: HorizontalDirection.Left, LaserSpeed: PirateLaserSpeed.Slow, PatrolReach: 16)),
-            new(EnemyDefinitionId.Cacatac, new(3160, 483), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
-            new(EnemyDefinitionId.Cacatac, new(3240, 483), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
+            new(EnemyDefinitionId.Cacatac, new(3160, 483), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
+            new(EnemyDefinitionId.Cacatac, new(3240, 483), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
         ], 7),
         new(nameof(RoomEnemyPopulationDefinitions.Plowerhouse),
         [
@@ -491,7 +491,7 @@ internal static class NorfairRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Waver, new(185, 440), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.Waver, new(448, 544), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.Waver, new(147, 222), EnemyContact.None, EnemyProcessing.OffScreen | EnemyProcessing.Animates, EnemyPresence.None, false, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
-            new(EnemyDefinitionId.Cacatac, new(268, 149), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
+            new(EnemyDefinitionId.Cacatac, new(268, 149), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, false, new CacatacSpawnSettings(Direction: HorizontalDirection.Left, Start: CacatacStart.Patrolling, Mounting: CacatacMounting.Floor, TravelDistance: 16, Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(0))),
         ], 8),
         new(nameof(RoomEnemyPopulationDefinitions.IceBeamAcid),
         [

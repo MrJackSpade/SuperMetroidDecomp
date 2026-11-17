@@ -412,7 +412,7 @@ internal static class NativeEnemyFamilyStateImport
             enemies.ZebetiteBehavior.SharedPulse = ZebetitePulse.All[words.C];
         if (enemy.SpeciesState<ChozoStatueState>() is { } chozoStatueRecord)
         {
-            chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.IsWreckedShip);
+            chozoStatueRecord.AwaitingHand = ChozoNativeWords.AwaitingHandAt(words.F, chozoStatueRecord.Site == ChozoStatueSite.WreckedShip);
         }
         if (enemy.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
@@ -519,9 +519,7 @@ internal static class NativeEnemyFamilyStateImport
             // The record holds the speed and its negation for walking left; the speed alone is the state.
             cacatacRecord.Speed = cacatacRecord.Speed.WithWholePixels(unchecked((short)words.A));
             // Every recorded direction but left patrols right, as the game's restore-patrol cue reads it (#2277).
-            HorizontalDirection cacatacPatrol = CacatacNativeWords.Directions.Decode(words.D, "recorded CacatacDirection") == CacatacDirection.Left
-                ? HorizontalDirection.Left
-                : HorizontalDirection.Right;
+            HorizontalDirection cacatacPatrol = CacatacNativeWords.Directions.Decode(words.D, "recorded Cacatac direction").Direction;
             (CacatacAction cacatacAction, HorizontalDirection? cacatacPatrolling) = CacatacNativeWords.CacatacActions.Decode(words.E, "recorded CacatacAction");
             if (cacatacPatrolling is { } patrolling && patrolling != cacatacPatrol)
                 throw new InvalidDataException($"Recorded Cacatac patrols {patrolling} but its direction word ${words.D:X4} names {cacatacPatrol}.");
@@ -757,7 +755,10 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (enemy.DefinitionId == EnemyDefinitionId.EtecoonEscape && enemy.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
-            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Velocity), new SignedEightEight(words.A));
+            // The record's signed walking speed: its sign is the way the Etecoon walks (#2369).
+            var escapeVelocity = new SignedEightEight(words.A);
+            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Direction), escapeVelocity.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right);
+            PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Speed), escapeVelocity.IsNegative ? escapeVelocity.Negated() : escapeVelocity);
             PrivateState.Set(escape, nameof(EscapeEtecoonEnemyState.Action), AnimalsNativeWords.EscapeEtecoonActionAt(words.F));
         }
         if (enemy.DefinitionId == EnemyDefinitionId.FaceBlock && enemy.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
@@ -867,8 +868,22 @@ internal static class NativeEnemyFamilyStateImport
             // Only circling names the way it circles (#2277); a retreat starts circling clockwise again.
             if (flyRotation is { } flyCircles)
                 fly.Rotation = flyCircles;
-            // The word counts the dive up and its retreat down past zero; the port's retreat holds its true duration.
-            fly.RetreatTimer = fly.Action == FlyAction.Retreat ? TrueDuration(words.A) : unchecked((short)words.A);
+            // The word counts the dive up, its retreat down past zero and the circling cooldown down (#2369): it is the
+            // current phase's count; the port's retreat holds its true duration.
+            switch (fly.Action)
+            {
+                case FlyAction.AttackSamus:
+                    fly.DiveUpdates = unchecked((short)words.A);
+                    break;
+                case FlyAction.Retreat:
+                    fly.RetreatUpdatesLeft = TrueDuration(words.A);
+                    break;
+                case FlyAction.Circling:
+                    fly.CooldownUpdatesLeft = unchecked((short)words.A);
+                    break;
+                default:
+                    throw new InvalidDataException($"Recorded fly action {fly.Action} has no count.");
+            }
         }
         if (enemies.DragonStates[index] is { } dragon)
         {

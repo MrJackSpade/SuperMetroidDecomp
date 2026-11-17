@@ -41,10 +41,10 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Updates left before the glow steps, restarted at sixteen by each step and by a block waking.</summary>
     private int _glowStepCountdown;
     /// <summary>
-    /// The frame of the glow every face block shows, 0 through <see cref="FaceBlockShades.GlowFrames"/> minus one, kept
-    /// when a block wakes. It starts at the last frame, so the glow's first step shows its first.
+    /// The frame of the glow every face block shows, kept when a block wakes. It starts at the last frame, so the glow's
+    /// first step shows its first.
     /// </summary>
-    private int _glowFrame = FaceBlockShades.GlowFrames - 1;
+    private FaceBlockGlowFrame _glowFrame = FaceBlockGlowFrame.Last;
 
     /// <summary>The glow every face block in the room shows once it has started (#1512).</summary>
     private PictureShading Glow => PictureShading.Shaded(FaceBlockShades.Glow(_glowFrame));
@@ -135,7 +135,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         _glowStepCountdown = FaceBlockGlowDefinitions.FrameDuration;
-        _glowFrame = (_glowFrame + 1) % FaceBlockShades.GlowFrames;
+        _glowFrame = _glowFrame.Next;
         PictureShading glow = Glow;
         foreach (RoomEnemyPlace block in _blocks)
             block.Shading = glow;

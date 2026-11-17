@@ -29,10 +29,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Normal));
 
         BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
-        BullSpeedIntervals intervals = settings.Intervals;
-        state.AccelerationIntervalTimerReset = intervals.Acceleration;
-        state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
-        state.DecelerationIntervalTimerReset = intervals.Deceleration;
+        state.AccelerationIntervalTimer = settings.Intervals.Acceleration;
         state.ActivationTimer = BullMovementDefinitions.MovementDelay;
         state.MaxSpeed = settings.MaximumSpeed;
     }
@@ -63,7 +60,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case BullAction.Accelerating:
                 if (state.IsBelowMaximumSpeed)
-                    AccelerateBull(state);
+                    AccelerateBull(place, state);
                 MoveBull(place, state);
                 TriggerBullDecelerationIfOffTarget(place, state, samus);
                 return;
@@ -78,7 +75,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
                 MoveBull(place, state);
-                DecelerateBull(state);
+                DecelerateBull(place, state);
                 return;
 
             default:
@@ -94,22 +91,22 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             .ToMirroredTrigonometryAngle() - TrigonometryAngle.QuarterTurn).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
-    private static void AccelerateBull(BullEnemyState state)
+    private static void AccelerateBull(RoomEnemyPlace place, BullEnemyState state)
     {
         if (--state.AccelerationIntervalTimer != 0)
             return;
 
-        state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
+        state.AccelerationIntervalTimer = place.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration;
         state.Accelerate();
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
-    private static void DecelerateBull(BullEnemyState state)
+    private static void DecelerateBull(RoomEnemyPlace place, BullEnemyState state)
     {
         if (--state.AccelerationIntervalTimer != 0)
             return;
 
-        state.AccelerationIntervalTimer = state.DecelerationIntervalTimerReset;
+        state.AccelerationIntervalTimer = place.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration;
         state.Decelerate();
     }
 

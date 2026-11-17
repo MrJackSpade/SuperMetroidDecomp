@@ -40,7 +40,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Whether Samus stands far enough into the room to hear the Etecoons' hops and wall jumps.</summary>
     private static bool SamusHearsEtecoon(SamusState samus) =>
-        !CoordinateAxis.Precedes(samus.Position.X.Whole, EtecoonRouteDefinitions.AudibleFromSamusX);
+        samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
     internal static void InitializeEtecoon(RoomEnemyPlace place)
@@ -390,7 +390,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.FirstTeachingX) >= 0)
+        if (place.Position.X.Whole >= EtecoonRouteDefinitions.FirstTeachingX)
             return;
 
         state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
@@ -405,7 +405,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.RunStartX) < 0)
+        if (place.Position.X.Whole < EtecoonRouteDefinitions.RunStartX)
             return;
 
         state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
@@ -420,7 +420,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.RunStartX) < 0)
+        if (place.Position.X.Whole < EtecoonRouteDefinitions.RunStartX)
             return;
 
         state.Action = EtecoonAction.LongJump;
@@ -437,7 +437,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MoveEtecoonHorizontally(place, state, level);
         MoveEtecoonVertically(place, state, samus, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.LongJumpMidpointX) < 0)
+        if (place.Position.X.Whole < EtecoonRouteDefinitions.LongJumpMidpointX)
             return;
 
         StartEtecoonAnimation(place, state, EtecoonSegment.RunningRight);
@@ -451,7 +451,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.LongJumpEndX) < 0)
+        if (place.Position.X.Whole < EtecoonRouteDefinitions.LongJumpEndX)
             return;
 
         StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
@@ -491,7 +491,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ActionTimer = EtecoonTimingDefinitions.HopCrouch;
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
             state.Action = state.Route == EtecoonRoute.TeachAtOnce &&
-                CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.LongRunMaximumX) < 0
+                place.Position.X.Whole < EtecoonRouteDefinitions.LongRunMaximumX
                     ? EtecoonAction.WaitForSamusBeforeLongRun
                     : EtecoonAction.IdleBetweenTeachingJumps;
             return;
@@ -515,7 +515,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Four teaching hops are counted. Then clears only the count, keeping the
         // heading used by the airborne states. The count is cleared on reaching four, so it never leaves 0 through 4.
         state.TeachingHops++;
-        bool fewerThanFourTeachingJumps = state.TeachingHops < EtecoonEnemyState.TeachingHopsPerLesson;
+        bool fewerThanFourTeachingJumps = state.TeachingHops < EtecoonRouteDefinitions.TeachingHopsPerLesson;
         if (!fewerThanFourTeachingJumps)
         {
             // The hop count is cleared once complete before testing for the teach-at-once route,
@@ -573,7 +573,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(place, state, level);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, EtecoonRouteDefinitions.RunStartX) < 0)
+        if (place.Position.X.Whole < EtecoonRouteDefinitions.RunStartX)
             return;
 
         state.Action = EtecoonAction.ReturnJump;

@@ -174,7 +174,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!hitWall)
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
 
-        if (!hitWall && CoordinateAxis.Difference(place.Position.X.Whole, DachoraMotionDefinitions.LeftTurnX) >= 0)
+        if (!hitWall && place.Position.X.Whole >= DachoraMotionDefinitions.LeftTurnX)
             return;
 
         StartDachoraAnimation(place, state, DachoraSegment.RunningRight);
@@ -205,7 +205,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
-        if (CoordinateAxis.Difference(place.Position.X.Whole, DachoraMotionDefinitions.ShinesparkX) < 0)
+        if (place.Position.X.Whole < DachoraMotionDefinitions.ShinesparkX)
             return;
 
         StartDachoraAnimation(place, state, DachoraSegment.ChargeRight);

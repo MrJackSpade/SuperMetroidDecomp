@@ -14,7 +14,7 @@ internal static class AtomicAnimations
     internal static AnimationSegments<AtomicSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<AtomicSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.UpRight] =
+        [P.UpRightTurning] =
         [
             Show(EnemyFrameId.AtomicFacingUpRightTurned0, 8),
             Show(EnemyFrameId.AtomicFacingUpRightTurned60, 8),
@@ -23,7 +23,7 @@ internal static class AtomicAnimations
             Show(EnemyFrameId.AtomicFacingUpRightTurned240, 8),
             Show(EnemyFrameId.AtomicFacingUpRightTurned300, 8),
         ],
-        [P.UpLeft] =
+        [P.UpLeftTurning] =
         [
             Show(EnemyFrameId.AtomicFacingUpLeftTurned0, 8),
             Show(EnemyFrameId.AtomicFacingUpLeftTurned60, 8),
@@ -32,7 +32,7 @@ internal static class AtomicAnimations
             Show(EnemyFrameId.AtomicFacingUpLeftTurned240, 8),
             Show(EnemyFrameId.AtomicFacingUpLeftTurned300, 8),
         ],
-        [P.DownLeft] =
+        [P.UpRightTurningBack] =
         [
             Show(EnemyFrameId.AtomicFacingUpRightTurned300, 8),
             Show(EnemyFrameId.AtomicFacingUpRightTurned240, 8),
@@ -41,7 +41,7 @@ internal static class AtomicAnimations
             Show(EnemyFrameId.AtomicFacingUpRightTurned60, 8),
             Show(EnemyFrameId.AtomicFacingUpRightTurned0, 8),
         ],
-        [P.DownRight] =
+        [P.UpLeftTurningBack] =
         [
             Show(EnemyFrameId.AtomicFacingUpLeftTurned300, 8),
             Show(EnemyFrameId.AtomicFacingUpLeftTurned240, 8),
@@ -55,10 +55,10 @@ internal static class AtomicAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<AtomicSegment, Animation<AtomicSegment>> StartingAt { get; } = new Dictionary<AtomicSegment, Animation<AtomicSegment>>
     {
-        [P.UpRight] = new([Whole(P.UpRight)], AnimationEnd.LoopsFrom(0)),
-        [P.UpLeft] = new([Whole(P.UpLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.DownLeft] = new([Whole(P.DownLeft)], AnimationEnd.LoopsFrom(0)),
-        [P.DownRight] = new([Whole(P.DownRight)], AnimationEnd.LoopsFrom(0)),
+        [P.UpRightTurning] = new([Whole(P.UpRightTurning)], AnimationEnd.LoopsFrom(0)),
+        [P.UpLeftTurning] = new([Whole(P.UpLeftTurning)], AnimationEnd.LoopsFrom(0)),
+        [P.UpRightTurningBack] = new([Whole(P.UpRightTurningBack)], AnimationEnd.LoopsFrom(0)),
+        [P.UpLeftTurningBack] = new([Whole(P.UpLeftTurningBack)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

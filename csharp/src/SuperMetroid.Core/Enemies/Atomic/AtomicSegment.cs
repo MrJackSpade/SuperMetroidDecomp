@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 internal enum AtomicSegment
 {
     /// <summary>Turning one way through its six up-right poses, a sixth of a turn each, repeating.</summary>
-    UpRight,
+    UpRightTurning,
     /// <summary>Turning one way through its six up-left poses, a sixth of a turn each, repeating.</summary>
-    UpLeft,
-    /// <summary>Turning the other way through its six up-right poses, in reverse, repeating.</summary>
-    DownLeft,
-    /// <summary>Turning the other way through its six up-left poses, in reverse, repeating.</summary>
-    DownRight,
+    UpLeftTurning,
+    /// <summary>Turning back the other way through its six up-right poses, in reverse, repeating (#2369).</summary>
+    UpRightTurningBack,
+    /// <summary>Turning back the other way through its six up-left poses, in reverse, repeating (#2369).</summary>
+    UpLeftTurningBack,
 }

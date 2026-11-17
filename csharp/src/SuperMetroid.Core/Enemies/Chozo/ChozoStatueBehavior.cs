@@ -62,12 +62,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeChozoStatue(RoomEnemyPlace statue)
     {
         ChozoStatueSite site = statue.SpawnSettings<ChozoStatueSpawnSettings>().Site;
-        bool isWreckedShip = site switch
-        {
-            ChozoStatueSite.WreckedShip => true,
-            ChozoStatueSite.LowerNorfair => false,
-            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}."),
-        };
+        if (!Enum.IsDefined(site))
+            throw new InvalidOperationException($"Undefined {nameof(ChozoStatueSite)} {site}.");
 
         // The setup makes the statue solid to Samus and animates it, on screen or off.
         statue.Contact = statue.Contact.With(EnemyContact.SolidToSamus);
@@ -76,17 +72,17 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         statue.AnimationClock.Restart();
 
         // The statue shows its own colours, the shade of its site's statue, which no other enemy shows (#1512).
-        statue.Shading = PictureShading.Shaded(isWreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
+        statue.Shading = PictureShading.Shaded(site == ChozoStatueSite.WreckedShip ? ChozoAndTubeShades.WreckedShipStatue : ChozoAndTubeShades.LowerNorfairStatue);
 
         var state = new ChozoStatueState
         {
-            IsWreckedShip = isWreckedShip,
+            Site = site,
             HandTriggered = false,
         };
         statue.SetSpeciesState(state);
         _statue = state;
 
-        if (state.IsWreckedShip)
+        if (state.Site == ChozoStatueSite.WreckedShip)
         {
             state.Playback = new(ChozoStatueAnimations.StartingWith(ChozoStatueSegment.WreckedShipInitial), AnimationPlace.StartOfAnimation);
             RequestChozoObject(ChozoStatueRoomObject.WreckedShipHand, ChozoStatueRoomDefinitions.WreckedShipHandBlock);
@@ -120,7 +116,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             triggerBlock.Terrain.WithCollision(RoomCollisionType.Air));
         state.HandTriggered = true;
         DisableChozoStatueSamusControls();
-        if (!state.IsWreckedShip)
+        if (state.Site == ChozoStatueSite.LowerNorfair)
         {
             // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(StoryEvent.LowerNorfairChozoLoweredAcid);
@@ -146,10 +142,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.AwaitingHand || !state.HandTriggered)
             return;
-        if (state.IsWreckedShip && !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
+        if (state.Site == ChozoStatueSite.WreckedShip && !_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
             return;
 
-        state.Playback = new(ChozoStatueAnimations.StartingWith(state.IsWreckedShip
+        state.Playback = new(ChozoStatueAnimations.StartingWith(state.Site == ChozoStatueSite.WreckedShip
             ? ChozoStatueSegment.WreckedShipActivated
             : ChozoStatueSegment.LowerNorfairActivated), AnimationPlace.StartOfAnimation);
         statue.AnimationClock.StepOnNextUpdate();
@@ -245,7 +241,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The hand offset belongs to the same carry step as the velocity.
         // Writing Samus after collision reproduces the cutscene's absolute ownership.
-        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + motion.SamusOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + motion.SamusOffset.Y)));
+        samus.Position = samus.Position.WithWhole(new(statue.Position.X.Whole + motion.SamusOffset.X, statue.Position.Y.Whole + motion.SamusOffset.Y));
     }
 
     /// <summary>Spawns a plug-crumble room object and spike-footstep only when the offset floor block has the special type.</summary>
@@ -255,7 +251,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         int footstepOffsetX)
     {
         Position16<RoomPixels> probe = new(
-            CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth));
+            statue.Position.X.Whole + footstepOffsetX, statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth);
         Position16<RoomBlocks> footstep = level.GridBlock(probe.ToRoomBlock());
         Position16<RoomBlocks> below = footstep + new Offset16<RoomBlocks>(0, 1);
         if (!level.Size.Contains(below) || level.GetCollisionBlock(below).CollisionType != RoomCollisionType.SpikeBlock)
@@ -278,7 +274,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectileBehavior.Still,
             graphics: default);
         projectile.StartAnimation(new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)));
-        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffsetX), CoordinateAxis.Wrap(statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth)));
+        projectile.Position = projectile.Position.WithWhole(new(statue.Position.X.Whole + footstepOffsetX, statue.Position.Y.Whole + ChozoStatueRoomDefinitions.FootstepDepth));
     }
 
     /// <summary>Restores Samus controls, closes and opens the room's screens behind her and queues the slope access's closing.</summary>

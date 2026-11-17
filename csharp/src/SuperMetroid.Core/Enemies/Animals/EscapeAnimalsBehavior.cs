@@ -63,7 +63,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         place.Position = place.Position.WithWhole(initialization.Position);
         state.Playback = new(EscapeEtecoonAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation);
-        state.StartWalking(initialization.Velocity);
+        state.StartWalking(initialization.Direction, initialization.Speed);
     }
 
     /// <summary>Initializes the escape Dachora.</summary>
@@ -131,7 +131,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.TurnAround();
             state.Playback = new(EscapeEtecoonAnimations.StartingWith(HasCrittersEscaped()
                 ? EscapeEtecoonSegment.RunningForEscape
-                : state.Velocity.IsNegative
+                : state.Direction == HorizontalDirection.Left
                     ? EscapeEtecoonSegment.RunningLeftLowTide
                     : EscapeEtecoonSegment.RunningRightLowTide), AnimationPlace.StartOfAnimation);
         }

@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// <summary>How a Beetom idles, crawls, hops, lunges, drains Samus and is thrown off (#2149).</summary>
 internal static class BeetomMotionDefinitions
 {
+    /// <summary>The furthest place along the quadratic speed curve a falling or flung Beetom accelerates to: mark 64.</summary>
+    internal static readonly QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
+
     /// <summary>How close Samus comes horizontally, in pixels and exclusive, before a deciding Beetom lunges at her.</summary>
     internal const int ProximityDistance = 96;
 

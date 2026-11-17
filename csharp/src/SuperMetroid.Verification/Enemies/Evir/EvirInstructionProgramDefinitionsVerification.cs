@@ -62,7 +62,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
             body.SetSpawnSettings(PlacedBody);
             body.Bind(EnemyDefinitionId.Evir, body.Definition);
-            var bodyState = new EvirBodyState(spit: place) { Facing = EvirFacing.Left };
+            var bodyState = new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left };
             body.SetSpeciesState(bodyState);
             // The spit finds its body as production places it, two places after the body.
             place.Bind(EnemyDefinitionId.EvirProjectile, place.Definition);
@@ -70,9 +70,9 @@ internal static class EvirInstructionProgramDefinitionsVerification
             EvirSpitState state = PrepareEvirSpit(place, EvirSegment.ProjectileRegenerating, body);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
-            state.Facing = EvirFacing.Right;
+            state.Facing = HorizontalDirection.Right;
             state.Action = EvirSpitAction.Regenerating;
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { Facing = EvirFacing.Left });
+            enemies.Places.InUpdateOrder[0].SetSpeciesState(new EvirBodyState(spit: place) { Facing = HorizontalDirection.Left });
             object?[] arguments = [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int call = 0; call < 10; call++)
             {

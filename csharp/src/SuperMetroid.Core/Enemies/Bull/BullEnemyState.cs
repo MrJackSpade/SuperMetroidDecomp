@@ -102,12 +102,6 @@ public sealed class BullEnemyState
     /// </summary>
     public bool ShotReactionDisabled { get; internal set; }
 
-    /// <summary>Acceleration interval in eligible AI updates, 3 through 15, selected by the spawn's interval setting and also copied into the initial live interval timer.</summary>
-    public int AccelerationIntervalTimerReset { get; internal set; }
-
-    /// <summary>Deceleration interval in eligible AI updates, 1 through 7, selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
-    public int DecelerationIntervalTimerReset { get; internal set; }
-
     /// <summary>
     /// The main-AI updates left before a no-damage kick's guard runs out, inherited from the place's previous Bull: set to
     /// 48 by the kick and counted down each main-AI update, clearing the guard on the update it reaches zero (#2282). Zero

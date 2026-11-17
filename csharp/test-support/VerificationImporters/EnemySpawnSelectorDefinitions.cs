@@ -16,7 +16,7 @@ internal static class EnemySpawnSelectorDefinitions
 {
     /// <summary>An Atomic's spinning animation, by its first parameter.</summary>
     public static readonly AtomicSegment[] AtomicSpins =
-        [AtomicSegment.UpRight, AtomicSegment.UpLeft, AtomicSegment.DownLeft, AtomicSegment.DownRight];
+        [AtomicSegment.UpRightTurning, AtomicSegment.UpLeftTurning, AtomicSegment.UpRightTurningBack, AtomicSegment.UpLeftTurningBack];
 
     /// <summary>An Etecoon's route after its first landing, by its second parameter's low byte.</summary>
     public static readonly EtecoonRoute[] EtecoonRoutes =

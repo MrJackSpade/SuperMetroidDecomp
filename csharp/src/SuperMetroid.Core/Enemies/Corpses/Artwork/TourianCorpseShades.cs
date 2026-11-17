@@ -27,10 +27,9 @@ internal static class TourianCorpseShades
     /// <summary>The effect name of the Shitroid victim's drain into a corpse.</summary>
     internal const string SidehopperDrainEffect = "dead-sidehopper-drain";
 
-    /// <summary>The drain's steps: six draining stages, then the corpse's paint.</summary>
-    internal const int SidehopperDrainSteps = 7;
-
-    /// <summary>The shade of drain step <paramref name="step"/>.</summary>
-    internal static PictureShade SidehopperDrain(int step) =>
-        new(SidehopperDrainEffect, Ensure.BetweenInclusive(0, SidehopperDrainSteps - 1, step));
+    /// <summary>
+    /// The shade the victim shows at drain stage <paramref name="stage"/> (#2369): one of six draining steps, then the
+    /// corpse's paint.
+    /// </summary>
+    internal static PictureShade SidehopperDrain(SidehopperDrainStage stage) => new(SidehopperDrainEffect, stage.ShadeStep);
 }

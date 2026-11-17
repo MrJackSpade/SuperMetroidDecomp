@@ -20,6 +20,12 @@ public sealed class CrawlerEnemyState
     /// Signed 1/256-pixel motion. On horizontal surfaces X is the tangent and Y the floor/ceiling-probe
     /// direction; on vertical surfaces Y is the tangent and X the wall-probe direction.
     /// </summary>
+    /// <remarks>
+    /// The crawl direction and the surface side stay the signs of this one velocity rather than directions of their own
+    /// (#2369): a crawler placed without a crawl speed crawls at zero until its first landing, and the surface it turns
+    /// onto meanwhile is read from the zero velocity's signs, which reversing leaves unchanged. Separate directions would
+    /// turn where the game does not.
+    /// </remarks>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>
@@ -59,12 +65,9 @@ public sealed class CrawlerEnemyState
     }
     /// <summary>Attached AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer.</summary>
     public CrawlerAction NonFallingAction { get; internal set; }
-    /// <summary>The number of successive missed surface probes at which the crawler stops turning and falls.</summary>
-    internal const int MissedProbesBeforeFalling = 4;
-
     /// <summary>
     /// Count of successive updates whose attachment probe misses the surface, 0 through
-    /// <see cref="MissedProbesBeforeFalling"/>: contact and landing reset it, and the fourth miss selects falling rather
+    /// <see cref="CrawlerMotionDefinitions.MissedProbesBeforeFalling"/>: contact and landing reset it, and the fourth miss selects falling rather
     /// than another outside-corner turn.
     /// </summary>
     public int ConsecutiveTurnCounter
@@ -80,6 +83,6 @@ public sealed class CrawlerEnemyState
     internal bool MissedSurfaceTooOften()
     {
         ConsecutiveTurnCounter++;
-        return ConsecutiveTurnCounter >= MissedProbesBeforeFalling;
+        return ConsecutiveTurnCounter >= CrawlerMotionDefinitions.MissedProbesBeforeFalling;
     }
 }

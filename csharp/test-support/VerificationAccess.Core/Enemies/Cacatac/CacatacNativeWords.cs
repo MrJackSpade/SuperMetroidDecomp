@@ -20,13 +20,17 @@ internal static class CacatacNativeWords
             [(CacatacAction.Stopped, null)] = 0xa01b,
         });
 
-    /// <summary>The direction word naming each <see cref="CacatacDirection"/>, as the placement and the enemy's state hold it.</summary>
-    internal static readonly NativeWordIdentities<CacatacDirection> Directions = new(new Dictionary<CacatacDirection, ushort>
-    {
-        [CacatacDirection.Left] = 0,
-        [CacatacDirection.Right] = 1,
-        [CacatacDirection.InitialStop] = 2,
-    });
+    /// <summary>
+    /// The direction word naming each patrol direction and start, as the placement and the enemy's state hold it: a
+    /// Cacatac stopped at first patrols right once it starts (#2369).
+    /// </summary>
+    internal static readonly NativeWordIdentities<(HorizontalDirection Direction, CacatacStart Start)> Directions =
+        new(new Dictionary<(HorizontalDirection Direction, CacatacStart Start), ushort>
+        {
+            [(HorizontalDirection.Left, CacatacStart.Patrolling)] = 0,
+            [(HorizontalDirection.Right, CacatacStart.Patrolling)] = 1,
+            [(HorizontalDirection.Right, CacatacStart.Stopped)] = 2,
+        });
 
     /// <summary>
     /// The even byte offset naming each <see cref="CacatacSpikeDirection"/> in the spike spawn command and the spike

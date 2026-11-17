@@ -14,7 +14,7 @@ public abstract class EvirPartState
     }
 
     /// <summary>The side the part faces: the body's own, which the arms and spit copy when they position themselves.</summary>
-    public EvirFacing Facing { get; internal set; }
+    public HorizontalDirection Facing { get; internal set; }
 
     /// <summary>The animation the part plays and where it stands in it (#1600), which its initialization starts.</summary>
     internal AnimationPlayback<EvirSegment> Playback { get; set; }

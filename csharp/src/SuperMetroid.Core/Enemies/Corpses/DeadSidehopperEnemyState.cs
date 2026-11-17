@@ -34,28 +34,22 @@ public sealed class DeadSidehopperEnemyState
     public int DrainStepUpdates { get; internal set; }
 
     /// <summary>
-    /// How far Shitroid's drain has gone: 0 before Shitroid feeds, 1..7 while draining and 8 once the victim is a corpse;
-    /// absent for a corpse placed already dead, which has no drain and is drained from the start (<see cref="IsDrained"/>).
-    /// Gameplay reads it: it decides whether the victim hops or drains after a landing and whether a shot, touch or Power
-    /// Bomb starts it rotting.
+    /// How far Shitroid's drain has gone (#2369); absent for a corpse placed already dead, which has no drain and is
+    /// drained from the start (<see cref="IsDrained"/>).
     /// </summary>
-    [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
-    public int? DrainStage { get; internal set; }
-
-    /// <summary>The drain stage at which the victim is fully drained.</summary>
-    internal const int FullyDrainedStage = 8;
+    public SidehopperDrainStage? DrainStage { get; internal set; }
 
     /// <summary>
     /// Whether the corpse is drained, placed already dead or turned into a corpse by Shitroid's feeding, so a shot, touch
     /// or Power Bomb starts it rotting.
     /// </summary>
-    internal bool IsDrained => DrainStage is null or >= FullyDrainedStage;
+    internal bool IsDrained => DrainStage is not { } stage || stage.IsDrained;
 
     /// <summary>
     /// Whether draining has begun: Shitroid has fed on the corpse, or it was placed already dead. The hop's end and the
     /// post-landing pause turn to the drain once it has.
     /// </summary>
-    internal bool HasBegunDraining => DrainStage is not 0;
+    internal bool HasBegunDraining => DrainStage is not { } stage || stage.HasBegun;
 
     /// <summary>
     /// The colours the corpse shows, from how far its drain has gone (#1512): a corpse placed already dead lies in the
@@ -65,8 +59,8 @@ public sealed class DeadSidehopperEnemyState
     internal PictureShading Shading => DrainStage switch
     {
         null => TourianCorpseShades.InDrainedColours,
-        < 2 => TourianCorpseShades.InShitroidTargetColours,
-        { } stage => PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(stage - 2)),
+        { IsShaded: false } => TourianCorpseShades.InShitroidTargetColours,
+        { } stage => PictureShading.Shaded(TourianCorpseShades.SidehopperDrain(stage)),
     };
 
     /// <summary>Signed 1/256-pixel hop velocity, horizontal and vertical.</summary>

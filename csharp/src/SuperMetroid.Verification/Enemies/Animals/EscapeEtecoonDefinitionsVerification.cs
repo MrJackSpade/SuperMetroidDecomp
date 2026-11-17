@@ -40,7 +40,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 NativeEnemyAnimationOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Animation),
                 $"escape Etecoon role {role} instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
-                initialization.Velocity.RawValue,
+                (initialization.Direction == HorizontalDirection.Left ? initialization.Speed.Negated() : initialization.Speed).RawValue,
                 $"escape Etecoon role {role} speed");
         }
 
@@ -73,7 +73,9 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} pre-instruction");
             AssertEqual(new AnimationPlayback<EscapeEtecoonSegment>(EscapeEtecoonAnimations.StartingWith(expected.Animation), AnimationPlace.StartOfAnimation), state.Playback,
                 $"production escape Etecoon selector {parameter} program");
-            AssertEqual(expected.Velocity, state.Velocity,
+            AssertEqual(expected.Direction, state.Direction,
+                $"production escape Etecoon selector {parameter} direction");
+            AssertEqual(expected.Speed, state.Speed,
                 $"production escape Etecoon selector {parameter} speed");
             AssertEqual(new[] { EscapeEtecoonRole.LeftWalker, EscapeEtecoonRole.RightWalker, EscapeEtecoonRole.WaitForEscapeEvent }[role],
                 SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter),

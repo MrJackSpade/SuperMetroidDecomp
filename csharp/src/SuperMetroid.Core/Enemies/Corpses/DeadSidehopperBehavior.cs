@@ -68,7 +68,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 InitializeShitroidVictimSidehopper(place);
                 break;
             case DeadSidehopperLayout.AlreadyDead:
-                InitializeAlternateDeadSidehopper(place);
+                InitializeAlreadyDeadSidehopper(place);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DeadSidehopperLayout)} {layout}.");
@@ -92,13 +92,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.AliveWaitForCamera);
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperIdle);
         // The victim shows the colours the Shitroid's entry gives it, the target the room's colours fade to (#1512).
-        state.DrainStage = 0;
+        state.DrainStage = SidehopperDrainStage.Untouched;
         place.Shading = state.Shading;
         state.Velocity = DeadSidehopperLaunchDefinitions.FirstHop;
     }
 
-    /// <summary>Runs the already-dead Tourian layout.</summary>
-    private static void InitializeAlternateDeadSidehopper(RoomEnemyPlace place)
+    /// <summary>Lays out a Sidehopper corpse placed already dead, drained from the start and waiting for Samus to touch it.</summary>
+    private static void InitializeAlreadyDeadSidehopper(RoomEnemyPlace place)
     {
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(place, DeadSidehopperAction.WaitForSamusCollision);
         SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperInitiallyDead);
@@ -133,20 +133,16 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         switch (state.Action)
         {
             case DeadSidehopperAction.AliveWaitForCamera:
-                if (CoordinateAxis.Precedes(camera.X, DeadSidehopperVictimDefinitions.ActivationCameraX))
+                // The camera reaching the victim starts its hop on the same update.
+                if (camera.X < DeadSidehopperVictimDefinitions.ActivationCameraX)
                 {
                     state.Action = DeadSidehopperAction.ActivatedMovement;
-                    goto case DeadSidehopperAction.ActivatedMovement;
+                    HopDeadSidehopper(place, state, level);
                 }
                 return;
 
             case DeadSidehopperAction.ActivatedMovement:
-                if (MoveDeadSidehopper(place, state, level))
-                {
-                    state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
-                    SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperHopping);
-                    state.Action = DeadSidehopperAction.Landing;
-                }
+                HopDeadSidehopper(place, state, level);
                 return;
 
             case DeadSidehopperAction.Landing:
@@ -200,6 +196,16 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
+    /// <summary>Moves the victim one update through its hop; on landing it counts the hop and plays its landing.</summary>
+    private void HopDeadSidehopper(RoomEnemyPlace place, DeadSidehopperEnemyState state, RoomLevelData level)
+    {
+        if (!MoveDeadSidehopper(place, state, level))
+            return;
+        state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
+        SetDeadSidehopperAnimation(place, state, DeadTourianSegment.SidehopperHopping);
+        state.Action = DeadSidehopperAction.Landing;
+    }
+
     /// <summary>
     /// Moves the victim through its hop. Left of <see cref="DeadSidehopperVictimDefinitions.TerrainFromX"/> it moves
     /// directly and lands on the scripted floor; from there on it collides with the room's terrain.
@@ -209,7 +215,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state,
         RoomLevelData level)
     {
-        bool beforeTerrainBoundary = CoordinateAxis.Precedes(place.Position.X.Whole, DeadSidehopperVictimDefinitions.TerrainFromX);
+        bool beforeTerrainBoundary = place.Position.X.Whole < DeadSidehopperVictimDefinitions.TerrainFromX;
         SignedSixteenSixteen horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta();
         if (beforeTerrainBoundary)
         {
@@ -237,7 +243,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 place,
                 axis: Axis.Vertical,
                 state.Velocity.Y);
-            return !CoordinateAxis.Precedes(place.Position.Y.Whole, DeadSidehopperVictimDefinitions.FloorY);
+            return place.Position.Y.Whole >= DeadSidehopperVictimDefinitions.FloorY;
         }
 
         SignedSixteenSixteen verticalDisplacement = state.Velocity.Y.ToSixteenSixteenDelta();
@@ -277,7 +283,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.DrainStepUpdates = 0;
 
         // Only the victim drains: a corpse placed already dead never reaches its drain.
-        state.DrainStage++;
+        state.DrainStage = (state.DrainStage ?? throw new InvalidOperationException("A Sidehopper corpse placed already dead never drains.")).Next;
         place.Shading = state.Shading;
         if (!state.IsDrained)
             return;
@@ -303,7 +309,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Begins Shitroid's drain of its victim, when the Shitroid latches on to feed.</summary>
     internal static void ActivateDeadSidehopperVictim(RoomEnemyPlace victim) =>
-        victim.RequireSpeciesState<DeadSidehopperEnemyState>().DrainStage = 1;
+        victim.RequireSpeciesState<DeadSidehopperEnemyState>().DrainStage = SidehopperDrainStage.LatchedOn;
 
     /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
     private static void ResolveDeadSidehopperShot(RoomEnemyPlace place)

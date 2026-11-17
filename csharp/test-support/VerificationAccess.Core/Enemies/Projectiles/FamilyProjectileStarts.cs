@@ -76,12 +76,10 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.MotherBrainDeathExplosion or RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
             RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => enemies.MotherBrainBehavior.Projectiles.Projectile,
         RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion => enemies.OldTourianEscapeShaftWallBehavior.WallExplosion,
-        RoomEnemyProjectileKind.RidleyFireball or RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
-            RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
-            RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
-            RoomEnemyProjectileKind.RidleyVerticalAfterburnDown => enemies.RidleyProjectiles.Fireballs,
-        RoomEnemyProjectileKind.CeresFallingDebrisLight or RoomEnemyProjectileKind.CeresFallingDebrisDark =>
-            enemies.CeresFallingTiles.Behavior,
+        RoomEnemyProjectileKind.RidleyFireball or RoomEnemyProjectileKind.RidleyAfterburnCenter or
+            RoomEnemyProjectileKind.RidleyHorizontalAfterburn or RoomEnemyProjectileKind.RidleyVerticalAfterburn =>
+            enemies.RidleyProjectiles.Fireballs,
+        RoomEnemyProjectileKind.CeresFallingDebris => enemies.CeresFallingTiles.Behavior,
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud => SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.Behavior,
         RoomEnemyProjectileKind.AlcoonFireball => AlcoonBehavior.Fireball,
         RoomEnemyProjectileKind.PowampSpike => PowampBehavior.Spike,
@@ -111,7 +109,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
             RoomEnemyProjectileKind.TorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
             RoomEnemyProjectileKind.BombTorizoSonicBoom or RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-            RoomEnemyProjectileKind.TorizoRightFootDust or RoomEnemyProjectileKind.TorizoLeftFootDust or
+            RoomEnemyProjectileKind.TorizoLandingDust or
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam => enemies.TorizoBehavior.Attacks.TorizoProjectiles,
         RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueEyeGlow or
             RoomEnemyProjectileKind.TourianStatueParticle or RoomEnemyProjectileKind.TourianStatueTail or
@@ -189,11 +187,11 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.TourianStatuePhantoon => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Phantoon),
         RoomEnemyProjectileKind.TourianStatueBaseDecoration =>
             new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.BaseDecoration),
-        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.HorizontalCenter),
-        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter => new RidleyFireballAnimation(RidleyFireballSegment.VerticalCenter),
         // The Skree's and Metaree's particles show their enemy's look and Ki-Hunter acid its way, which their spawners
-        // choose (#2278).
+        // choose (#2278), and so do Ridley's afterburn centre the axis its pair flies along, a Torizo's landing dust its
+        // foot and a Ceres falling tile its look (#2378).
         RoomEnemyProjectileKind.SkreeMetareeParticle or RoomEnemyProjectileKind.KiHunterAcidSpit or
+            RoomEnemyProjectileKind.RidleyAfterburnCenter or
             RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
             RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.KraidCeilingRock or
@@ -204,10 +202,9 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
             RoomEnemyProjectileKind.MotherBrainHandBeamFired or RoomEnemyProjectileKind.MotherBrainDeathExplosion or
-            RoomEnemyProjectileKind.RidleyFireball or RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
-            RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
-            RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or RoomEnemyProjectileKind.CeresFallingDebrisLight or
-            RoomEnemyProjectileKind.CeresFallingDebrisDark or RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
+            RoomEnemyProjectileKind.RidleyFireball or RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
+            RoomEnemyProjectileKind.RidleyVerticalAfterburn or RoomEnemyProjectileKind.CeresFallingDebris or
+            RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
             RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpike or RoomEnemyProjectileKind.PirateMotherBrainLaser or
             RoomEnemyProjectileKind.PirateClaw or RoomEnemyProjectileKind.DustOrExplosion or RoomEnemyProjectileKind.KagoBug or
             RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit or
@@ -216,7 +213,7 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.TorizoDeathExplosion or RoomEnemyProjectileKind.BombTorizoStatueBreaking or
             RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.BombTorizoSonicBoom or
             RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-            RoomEnemyProjectileKind.TorizoRightFootDust or RoomEnemyProjectileKind.TorizoLeftFootDust or
+            RoomEnemyProjectileKind.TorizoLandingDust or
             RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam or RoomEnemyProjectileKind.SporeSpawnStalk or
             RoomEnemyProjectileKind.SporeSpawnSpore or RoomEnemyProjectileKind.SporeSpawnSpawner => null,

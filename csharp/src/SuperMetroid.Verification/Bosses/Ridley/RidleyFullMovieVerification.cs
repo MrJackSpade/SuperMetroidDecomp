@@ -438,7 +438,7 @@ internal static class RidleyFullMovieVerification
                 (runtime.Enemies.NorfairRidley() ?? throw new InvalidOperationException("Verification requires Lower Norfair Ridley.")).Flight, afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(norfairDamage, fireball.Damage, $"the Norfair room's fireball damage with Samus's record in {samusArea}");
-            runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(3584, 0));
+            runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.RidleyHorizontalAfterburn, EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(3584, 0));
             AssertEqual(norfairDamage, runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--].Damage, "directional afterburn takes the same room row");
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;

@@ -872,21 +872,22 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                             (W(NativeSnapshotMemory.EnemyProjectileVariableF + index) == 0))
                             mismatches.Add(owner + " fireball afterburn gate differs");
                         break;
-                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter:
-                    case RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter:
-                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight:
-                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft:
-                    case RoomEnemyProjectileKind.RidleyVerticalAfterburnUp:
-                    case RoomEnemyProjectileKind.RidleyVerticalAfterburnDown:
+                    case RoomEnemyProjectileKind.RidleyAfterburnCenter:
+                    case RoomEnemyProjectileKind.RidleyHorizontalAfterburn:
+                    case RoomEnemyProjectileKind.RidleyVerticalAfterburn:
                         // The native chain count is a byte stepped past zero by the afterburn that ends the chain, which
                         // leaves it at $FF; the port's count of afterburns left stays at zero.
                         int nativeRemainingAfterburns = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
                         CheckValue(owner + " remaining afterburns", projectile.StateOf<RidleyAfterburnChainState>().Remaining,
                             nativeRemainingAfterburns == 0xff ? 0 : nativeRemainingAfterburns);
-                        // The cartridge stores the kind a directional afterburn's successor takes, its own (#2245); a centre stores none.
-                        RoomEnemyProjectileKind successorKind = projectile.Kind is RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
-                            RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter ? RoomEnemyProjectileKind.None : projectile.Kind;
-                        Check(owner + " next afterburn kind", EnemyProjectileNativeWords.Kinds.Word(successorKind), NativeSnapshotMemory.EnemyProjectileVariableF + index);
+                        // The cartridge stores the kind a directional afterburn's successor takes, its own (#2245); a centre stores
+                        // none. Each way's afterburn is one of its axis's kind's definitions (#2378).
+                        RoomEnemyProjectileKind successorKind = projectile.Kind == RoomEnemyProjectileKind.RidleyAfterburnCenter
+                            ? RoomEnemyProjectileKind.None
+                            : projectile.Kind;
+                        Check(owner + " next afterburn kind",
+                            EnemyProjectileNativeWords.IdentityWord(successorKind, W(NativeSnapshotMemory.EnemyProjectileVariableF + index)),
+                            NativeSnapshotMemory.EnemyProjectileVariableF + index);
                         break;
                     case RoomEnemyProjectileKind.DustOrExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
@@ -928,8 +929,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.MotherBrainTopLeftTube:
                     case RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube:
                     case RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube:
-                    case RoomEnemyProjectileKind.CeresFallingDebrisLight:
-                    case RoomEnemyProjectileKind.CeresFallingDebrisDark:
+                    case RoomEnemyProjectileKind.CeresFallingDebris:
                     case RoomEnemyProjectileKind.GunshipLiftoffDustCloud:
                     case RoomEnemyProjectileKind.AlcoonFireball:
                     case RoomEnemyProjectileKind.PowampSpike:
@@ -964,8 +964,7 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.BombTorizoSonicBoom:
                     case RoomEnemyProjectileKind.GoldenTorizoChozoOrb:
                     case RoomEnemyProjectileKind.GoldenTorizoSonicBoom:
-                    case RoomEnemyProjectileKind.TorizoRightFootDust:
-                    case RoomEnemyProjectileKind.TorizoLeftFootDust:
+                    case RoomEnemyProjectileKind.TorizoLandingDust:
                     case RoomEnemyProjectileKind.GoldenTorizoEgg:
                     case RoomEnemyProjectileKind.GoldenTorizoSuperMissile:
                     case RoomEnemyProjectileKind.GoldenTorizoEyeBeam:

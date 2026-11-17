@@ -41,8 +41,9 @@ internal static class EnemyProjectileDefinitionsVerification
         // explosion no spawn starts, and #2166 Shaktool's three attack circles, which no spawn starts either. #2278 made the
         // identical definitions that differ only in their way or look one kind each: the Skree's and Metaree's eight
         // particles, the Work Robot's four diagonal lasers and the two each of Kraid's rising rocks, Fake Kraid's spikes and
-        // Ki-Hunter acid.
-        AssertEqual(105, kinds.Length, "compiled enemy-projectile definition count");
+        // Ki-Hunter acid. #2378 did the same for Ridley's two afterburn centres, his left and right and his up and down
+        // afterburns, the Torizo's two feet's landing dust and Ceres's light and dark falling tiles.
+        AssertEqual(100, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
         Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
@@ -223,14 +224,10 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
                         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
                         RoomEnemyProjectileKind.RidleyFireball or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or
-                        RoomEnemyProjectileKind.CeresFallingDebrisLight or
-                        RoomEnemyProjectileKind.CeresFallingDebrisDark or
+                        RoomEnemyProjectileKind.RidleyAfterburnCenter or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburn or
+                        RoomEnemyProjectileKind.CeresFallingDebris or
                         RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                         RoomEnemyProjectileKind.AlcoonFireball or
                         RoomEnemyProjectileKind.PowampSpike or
@@ -268,8 +265,7 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.BombTorizoSonicBoom or
                         RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
                         RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-                        RoomEnemyProjectileKind.TorizoRightFootDust or
-                        RoomEnemyProjectileKind.TorizoLeftFootDust or
+                        RoomEnemyProjectileKind.TorizoLandingDust or
                         RoomEnemyProjectileKind.GoldenTorizoEgg or
                         RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
@@ -341,14 +337,10 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
                         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
                         RoomEnemyProjectileKind.RidleyFireball or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburnUp or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburnDown or
-                        RoomEnemyProjectileKind.CeresFallingDebrisLight or
-                        RoomEnemyProjectileKind.CeresFallingDebrisDark or
+                        RoomEnemyProjectileKind.RidleyAfterburnCenter or
+                        RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
+                        RoomEnemyProjectileKind.RidleyVerticalAfterburn or
+                        RoomEnemyProjectileKind.CeresFallingDebris or
                         RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                         RoomEnemyProjectileKind.AlcoonFireball or
                         RoomEnemyProjectileKind.PowampSpike or
@@ -386,8 +378,7 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.BombTorizoSonicBoom or
                         RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
                         RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-                        RoomEnemyProjectileKind.TorizoRightFootDust or
-                        RoomEnemyProjectileKind.TorizoLeftFootDust or
+                        RoomEnemyProjectileKind.TorizoLandingDust or
                         RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
                         RoomEnemyProjectileKind.TourianStatueSplash or
                         RoomEnemyProjectileKind.TourianStatueEyeGlow or

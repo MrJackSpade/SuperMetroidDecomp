@@ -70,12 +70,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.MotherBrainRoomTurret,
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
         RoomEnemyProjectileKind.RidleyFireball,
-        RoomEnemyProjectileKind.RidleyHorizontalAfterburnCenter,
-        RoomEnemyProjectileKind.RidleyVerticalAfterburnCenter,
-        RoomEnemyProjectileKind.RidleyHorizontalAfterburnRight,
-        RoomEnemyProjectileKind.RidleyHorizontalAfterburnLeft,
-        RoomEnemyProjectileKind.RidleyVerticalAfterburnUp,
-        RoomEnemyProjectileKind.RidleyVerticalAfterburnDown,
+        RoomEnemyProjectileKind.RidleyAfterburnCenter,
+        RoomEnemyProjectileKind.RidleyHorizontalAfterburn,
+        RoomEnemyProjectileKind.RidleyVerticalAfterburn,
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool,
         RoomEnemyProjectileKind.TorizoInitialDrool,
         RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
@@ -86,13 +83,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         RoomEnemyProjectileKind.BombTorizoSonicBoom,
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb,
         RoomEnemyProjectileKind.GoldenTorizoSonicBoom,
-        RoomEnemyProjectileKind.TorizoRightFootDust,
-        RoomEnemyProjectileKind.TorizoLeftFootDust,
+        RoomEnemyProjectileKind.TorizoLandingDust,
         RoomEnemyProjectileKind.GoldenTorizoEgg,
         RoomEnemyProjectileKind.GoldenTorizoSuperMissile,
         RoomEnemyProjectileKind.GoldenTorizoEyeBeam,
-        RoomEnemyProjectileKind.CeresFallingDebrisLight,
-        RoomEnemyProjectileKind.CeresFallingDebrisDark,
+        RoomEnemyProjectileKind.CeresFallingDebris,
         RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
         // The shared dust and explosion programs are typed (#1760): the misc-dust kind is spawned with a program, not one
         // its kind starts, and the shared-frame draws present each of their frames on it.
@@ -206,7 +201,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             TorizoFamily("drool", RoomEnemyProjectileKind.BombTorizoLowHealthDrool, TorizoProjectileFamily.Drool),
             TorizoFamily("explosive swipe", RoomEnemyProjectileKind.BombTorizoExplosiveSwipe, TorizoProjectileFamily.Swipe),
             TorizoFamily("sonic boom", RoomEnemyProjectileKind.BombTorizoSonicBoom, TorizoProjectileFamily.SonicBoom),
-            TorizoFamily("landing dust", RoomEnemyProjectileKind.TorizoRightFootDust, TorizoProjectileFamily.LandingDust),
+            TorizoFamily("landing dust", RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectileFamily.LandingDust),
             TorizoFamily("explosion", RoomEnemyProjectileKind.BombTorizoLowHealthExplosion, TorizoProjectileFamily.Explosion),
             TorizoFamily("Chozo orb", RoomEnemyProjectileKind.BombTorizoChozoOrb, TorizoProjectileFamily.ChozoOrb),
         };
@@ -246,7 +241,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
         var environmentAndAttackFamilies = new ProjectileFrameFamily[]
         {
-            ShownFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebrisLight,
+            ShownFamily("Ceres falling debris", RoomEnemyProjectileKind.CeresFallingDebris,
                 CeresFallingDebrisVisualDefinitions.Frames.Select(debris => CeresFallingDebrisVisualDefinitions.ShownProjectileFrames[debris])),
             ShownFamily("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity, SaveStationElectricityAnimations.Segments.Frames),
             ShownFamily("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud, GunshipDustAnimations.Segments.Frames),

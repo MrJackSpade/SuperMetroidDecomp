@@ -77,8 +77,7 @@ internal sealed class TorizoAttacks
             [RoomEnemyProjectileKind.BombTorizoLowHealthExplosion] = null,
             [RoomEnemyProjectileKind.TorizoDeathExplosion] = null,
             [RoomEnemyProjectileKind.BombTorizoStatueBreaking] = null,
-            [RoomEnemyProjectileKind.TorizoRightFootDust] = null,
-            [RoomEnemyProjectileKind.TorizoLeftFootDust] = null,
+            [RoomEnemyProjectileKind.TorizoLandingDust] = null,
         };
 
         /// <inheritdoc/>
@@ -606,10 +605,7 @@ internal sealed class TorizoAttacks
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        RoomEnemyProjectileKind kind = foot == HorizontalDirection.Right
-            ? RoomEnemyProjectileKind.TorizoRightFootDust
-            : RoomEnemyProjectileKind.TorizoLeftFootDust;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, TorizoProjectiles, graphics: default);
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.TorizoLandingDust, TorizoProjectiles, graphics: default);
         projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileSegment.LandingDustRightFoot : TorizoProjectileSegment.LandingDustLeftFoot));
         Offset16<RoomPixels> dust = TorizoProjectilePlacementDefinitions.RightFootDust;
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + (foot == HorizontalDirection.Right ? dust : dust.MirroredX()));

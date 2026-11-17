@@ -49,15 +49,6 @@ internal static class EnemyFrameCartridgeLookupTooling
     internal static ushort Word(EnemyFrameId frame) =>
         frame == EnemyFrameId.Empty ? EmptySpritemapWord : EnemyFrameCartridgeLookup.Of(frame).Offset;
 
-    /// <summary>
-    /// The bank-local word the installed frame shown from bank <paramref name="bank"/>'s record at <paramref name="word"/> is
-    /// stored at: the word itself, or, for a record that stores a frame's picture again (#2210, #2272), that frame's own word.
-    /// </summary>
-    internal static ushort OwnWord(byte bank, ushort word) =>
-        EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt.TryGetValue(new SnesAddress(bank, word), out EnemyFrameId frame)
-            ? EnemyFrameCartridgeLookup.Of(frame).Offset
-            : word;
-
     /// <summary>The bank-local word of the frame an enemy colliding by its radius shows, zero before it shows any.</summary>
     internal static ushort Word(EnemyFrameId? frame) => frame is { } shown ? Word(shown) : (ushort)0;
 

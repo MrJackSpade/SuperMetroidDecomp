@@ -577,7 +577,7 @@ internal static class NativeEnemyAnimationOracle
             // A frame word repeating another record's picture shows the frame read from that record (#2249): the owner's own
             // rule where it has one, otherwise the record of the frame the import's repeated records name (#2272).
             ushort pictured = kind != NativeEnemyListDefinitions.WordKind.Frame ? operand
-                : picturedAt?.Invoke(operand) ?? EnemyFrameCartridgeLookupTooling.OwnWord(bank, operand);
+                : picturedAt?.Invoke(operand) ?? EnemyFrameCartridgeLookupToolingConstants.OwnWord(bank, operand);
             if (kind == NativeEnemyListDefinitions.WordKind.Callback && goesTo?.Invoke(word) is { } goneTo)
             {
                 // An owner routine that only goes on to another list (#2167) is that list's goto.

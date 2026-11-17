@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
 
@@ -61,6 +62,19 @@ public sealed class TorizoEnemyState
     /// (#1945), so it counts on.
     /// </summary>
     public int DecisionCounter { get; internal set; }
+
+    /// <summary>
+    /// The eggs Golden Torizo has laid that may remain (#2332): its egg-laying run repeats while any of them is still an
+    /// egg. An egg that hatches into nothing or breaks leaves its place, which another projectile may take.
+    /// </summary>
+    internal List<EnemyProjectile> LaidEggs { get; } = [];
+
+    /// <summary>Whether any egg Golden Torizo laid remains; the eggs that have gone are forgotten.</summary>
+    internal bool EggsRemain()
+    {
+        LaidEggs.RemoveAll(egg => egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
+        return LaidEggs.Count > 0;
+    }
 
     /// <summary>Whether Golden Torizo's eye beams explode on impact; its eye-beam animation enables them.</summary>
     public bool EyeBeamExplosionsEnabled { get; internal set; }

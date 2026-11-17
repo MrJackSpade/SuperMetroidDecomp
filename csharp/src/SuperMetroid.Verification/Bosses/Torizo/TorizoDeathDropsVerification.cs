@@ -22,7 +22,18 @@ internal static class TorizoDeathDropsVerification
         int header = RoomEnemyRomLayout.DefinitionBank | EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizo);
         AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord(header + 58)),
             TorizoDeathDefinitions.DeathDropChances, "the Torizos' death drop chances are Bomb Torizo's header's");
-        Console.WriteLine("  Torizo death drops: both deaths roll the chances Bomb Torizo's header names.");
+        // Each orb's drop rolls the table its own header names (#2332).
+        foreach ((EnemyDefinitionId orb, EnemyDropChances chances) in new[]
+                 {
+                     (EnemyDefinitionId.BombTorizoOrb, TorizoChozoOrbDefinitions.BombTorizoOrbDropChances),
+                     (EnemyDefinitionId.GoldenTorizoOrb, TorizoChozoOrbDefinitions.GoldenTorizoOrbDropChances),
+                 })
+        {
+            int orbHeader = RoomEnemyRomLayout.DefinitionBank | EnemyDefinitionIds.HeaderPointer(orb);
+            AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord(orbHeader + 58)), chances,
+                $"{orb}'s drop chances are its header's");
+        }
+        Console.WriteLine("  Torizo death drops: both deaths roll the chances Bomb Torizo's header names, and each orb its own header's.");
     }
 
     /// <summary>Runs the Torizo death drop chance check against the repository cartridge.</summary>

@@ -23,11 +23,11 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
     /// <summary>Whether Samus's Bombs wake the hand: from its second update until they do.</summary>
     internal bool WakeArmed { get; private set; }
 
-    /// <summary>The crumble step the hand shows; none before its crumble starts (#1627).</summary>
-    internal int? CrumbleStep { get; private set; }
+    /// <summary>The step of its crumble the hand shows; none before its crumble starts (#1627, #2332).</summary>
+    internal ListStep<BombTorizoHandCrumbleStep>? CrumbleStep { get; private set; }
 
-    /// <summary>The updates left before the hand's next step.</summary>
-    private int _updatesBeforeNextStep = 1;
+    /// <summary>How long the hand holds before its next step: its first update, then each step's own updates.</summary>
+    private readonly BossCountdown _holdBeforeNextStep = HoldFor(1);
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
@@ -37,42 +37,52 @@ internal sealed class BombTorizoHandObject(BombTorizoHandObjects owner) : RoomOb
         {
             WakeArmed = false;
             Phase = BombTorizoHandPhase.Crumbling;
-            _updatesBeforeNextStep = 1;
+            _holdBeforeNextStep.LastFor(1);
         }
-        if (--_updatesBeforeNextStep != 0)
+        if (_holdBeforeNextStep.StepKeepsRunning())
             return;
         switch (Phase)
         {
             case BombTorizoHandPhase.Starting:
                 context.Draw(place, BombTorizoHandDraws.Family, BombTorizoHandCrumbleDefinitions.RestingImage);
-                _updatesBeforeNextStep = 1;
+                _holdBeforeNextStep.LastFor(1);
                 Phase = BombTorizoHandPhase.Arming;
                 return;
             case BombTorizoHandPhase.Arming:
                 WakeArmed = true;
-                _updatesBeforeNextStep = 1;
+                _holdBeforeNextStep.LastFor(1);
                 Phase = BombTorizoHandPhase.Resting;
                 return;
             case BombTorizoHandPhase.Resting:
-                _updatesBeforeNextStep = 1;
+                _holdBeforeNextStep.LastFor(1);
                 return;
             case BombTorizoHandPhase.Crumbling:
-                int next = CrumbleStep is { } shown ? shown + 1 : 0;
-                CrumbleStep = next;
-                if (next == BombTorizoHandCrumbleDefinitions.Crumble.Count)
+                ListStep<BombTorizoHandCrumbleStep>? next = CrumbleStep is { } shown
+                    ? shown.Following
+                    : ListStep<BombTorizoHandCrumbleStep>.FirstOf(BombTorizoHandCrumbleDefinitions.Crumble);
+                if (next is not { } nextStep)
                 {
                     _owner.QueueMusic();
                     context.RoomObjects.DeleteObject(place);
                     return;
                 }
-                BombTorizoHandCrumbleStep step = BombTorizoHandCrumbleDefinitions.Crumble[next];
+                CrumbleStep = nextStep;
+                BombTorizoHandCrumbleStep step = nextStep.Entry;
                 if (step.FragmentBefore is { } fragment)
                     _owner.SpawnFragment(place, fragment);
                 context.Draw(place, BombTorizoHandDraws.Family, step.Image);
-                _updatesBeforeNextStep = step.Updates;
+                _holdBeforeNextStep.LastFor(step.Updates);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BombTorizoHandPhase)} {Phase}.");
         }
+    }
+
+    /// <summary>A hold that lasts <paramref name="updates"/> updates.</summary>
+    private static BossCountdown HoldFor(int updates)
+    {
+        var hold = new BossCountdown();
+        hold.LastFor(updates);
+        return hold;
     }
 }

@@ -459,10 +459,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Replay { Kind: TorizoReplayKind.WhileEggsRemain }:
-                return _projectiles.EnemyProjectiles.Any(projectile =>
-                        projectile.Kind == RoomEnemyProjectileKind.GoldenTorizoEgg)
-                    ? TorizoAnimations.ReplayPhase(continuation)
-                    : null;
+                return state.EggsRemain() ? TorizoAnimations.ReplayPhase(continuation) : null;
 
             case TorizoCue.Signal { Kind: TorizoCueKind.DisableEyeBeamExplosions }:
                 state.EyeBeamExplosionsEnabled = false;

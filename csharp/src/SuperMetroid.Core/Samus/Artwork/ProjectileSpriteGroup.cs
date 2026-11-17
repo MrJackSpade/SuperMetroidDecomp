@@ -5,7 +5,7 @@ public enum ProjectileSpriteGroup
 {
     /// <summary>The empty composition an invisible projectile draws.</summary>
     Nothing,
-    /// <summary>The eight small Power beam poses.</summary>
+    /// <summary>The eight small Power beam poses: Ice shows the first four, and the Wave beam's centre the first (#2295).</summary>
     Power,
     /// <summary>Plasma's axial and diagonal strips.</summary>
     Plasma,
@@ -25,12 +25,10 @@ public enum ProjectileSpriteGroup
     Missile,
     /// <summary>The eight super-missile compass poses: each axial pose followed by a diagonal one.</summary>
     SuperMissile,
-    /// <summary>The Wave beam's centred core and its four stages in each of eight displacement directions.</summary>
+    /// <summary>The Wave beam's four stages in each of eight displacement directions; its centre is a Power pose (#2295).</summary>
     Wave,
-    /// <summary>Charged Wave's two cores, then its paired lobes.</summary>
+    /// <summary>Charged Wave's two cores, then its paired lobes, which charged Ice Wave shows too and whose cores charged Ice shows (#2295).</summary>
     ChargedWave,
-    /// <summary>Charged IceWave's two cores, then its paired lobes.</summary>
-    ChargedIceWave,
     /// <summary>PlasmaWave's cores and lobes in each of its twelve orientations and alternates.</summary>
     PlasmaWave,
     /// <summary>Spazer's seeds and three-lane spreads: four large diagonal orientations, then four small axial ones.</summary>
@@ -39,10 +37,6 @@ public enum ProjectileSpriteGroup
     ChargedSpazer,
     /// <summary>Charged Power's sixteen poses.</summary>
     ChargedPower,
-    /// <summary>Charged Ice's four poses.</summary>
-    ChargedIce,
-    /// <summary>Ice beam's four centered poses.</summary>
-    Ice,
     /// <summary>Spazer's startup strips and pairs across its orientations.</summary>
     SpazerStartup,
     /// <summary>Charged Plasma's startup growth across its axial and diagonal orientations.</summary>

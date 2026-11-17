@@ -10,7 +10,10 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// </summary>
 internal static class ProjectileSpriteNative
 {
-    /// <summary>The bank-$93 address of each projectile composition, in <see cref="ProjectileSpriteDefinitions.All"/> order.</summary>
+    /// <summary>
+    /// The bank-$93 address of each projectile composition record, in <see cref="ProjectileSpriteDefinitions.Stored"/> order:
+    /// a record that stores a composition again, byte for byte, holds that composition (#2295).
+    /// </summary>
     private static readonly ushort[] ProjectileAddresses =
     [
         0xa117, 0xa24d, 0xa254, 0xa25b, 0xa262, 0xa269, 0xa270, 0xa277, 0xa27e, 0xa37d, 0xa393, 0xa3b3,
@@ -58,16 +61,23 @@ internal static class ProjectileSpriteNative
         0xa966, 0xa977, 0xa988, 0xa999,
     ];
 
-    /// <summary>The bank-$93 address of <paramref name="sprite"/>.</summary>
+    /// <summary>The bank-$93 address of <paramref name="sprite"/>: for a projectile composition, the first record that stores it.</summary>
     internal static ushort Address(ProjectileSpriteId sprite) => ChargeFlareSpriteDefinitions.All.Contains(sprite)
         ? FlareAddresses[Place(ChargeFlareSpriteDefinitions.All, sprite)]
-        : ProjectileAddresses[Place(ProjectileSpriteDefinitions.All, sprite)];
+        : ProjectileAddresses[Place(ProjectileSpriteDefinitions.Stored, sprite)];
 
     /// <summary>The projectile composition stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No projectile composition is stored there.</exception>
     internal static ProjectileSpriteId Projectile(int address) => Array.IndexOf(ProjectileAddresses, (ushort)address) is int place and >= 0
-        ? ProjectileSpriteDefinitions.All[place]
+        ? ProjectileSpriteDefinitions.Stored[place]
         : throw new InvalidDataException($"No projectile composition is stored at $93:{address:X4}.");
+
+    /// <summary>
+    /// The bank-$93 address a slot showing the composition stored at <paramref name="address"/> reports: the first record that
+    /// stores it, a record that stores it again byte for byte holding the same composition (#2295).
+    /// </summary>
+    /// <exception cref="InvalidDataException">No projectile composition is stored there.</exception>
+    internal static ushort FirstStored(int address) => Address(Projectile(address));
 
     /// <summary>The timed record stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No timed record is stored there.</exception>
@@ -88,7 +98,7 @@ internal static class ProjectileSpriteNative
     /// <summary>Native views of the projectile compositions.</summary>
     extension(ProjectileSpriteDefinitions)
     {
-        /// <summary>The bank-$93 address of each projectile composition, in storage order.</summary>
+        /// <summary>The bank-$93 address of each projectile composition record, in storage order.</summary>
         internal static IReadOnlyList<ushort> NativePointers => ProjectileAddresses;
 
         /// <summary>The installed name of the projectile composition stored at bank-$93 <paramref name="address"/>.</summary>

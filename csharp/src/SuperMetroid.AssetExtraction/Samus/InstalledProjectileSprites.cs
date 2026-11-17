@@ -28,7 +28,7 @@ public sealed class InstalledProjectileSprites
 
     /// <summary>Validates and compiles the complete required projectile spritemap set into independently owned visual compositions, including the empty Nothing frame.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
-    /// <returns>Installed artwork keyed by the 417 compositions timed records draw, each exactly as installed (#1596).</returns>
+    /// <returns>Installed artwork keyed by the distinct compositions timed records draw, each exactly as installed (#1596, #2295).</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed or ambiguous, its schema or required identity set is invalid, or a part exceeds the supported OAM fields or count.</exception>
     public static InstalledProjectileSprites Load(Stream json)

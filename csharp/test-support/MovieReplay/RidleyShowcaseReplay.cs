@@ -805,7 +805,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
                 // No Spazer phase is compared: only a Spazer special attack's particles have one, they set it before
                 // reading it, and the callback mapping above rejects them in this movie.
-                Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);
+                // A record storing a composition again, byte for byte, shows that composition (#2295).
+                ushort nativeSpritemap = W(NativeSnapshotMemory.ProjectileSpritemap + index);
+                CheckValue(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), nativeSpritemap == 0 ? 0 : global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(nativeSpritemap));
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)

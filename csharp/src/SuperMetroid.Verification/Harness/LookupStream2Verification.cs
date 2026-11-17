@@ -1462,14 +1462,14 @@ internal static class LookupStream2Verification
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingFile.Load(new MemoryStream(json));
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
-            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), stock.Resolve(pointer), "Every installed selector retains its exact native target");
+            AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), stock.Resolve(pointer), "Every installed selector retains its native target's composition");
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = system.Animation.AdvanceProjectileAnimation(shot);
-            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
+            AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
         int checkedAxialEndPairs = 0;
@@ -1493,7 +1493,7 @@ internal static class LookupStream2Verification
             var shot = new SamusProjectile(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = system.Animation.AdvanceProjectileAnimation(shot);
-            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
+            AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
         AssertEqual(787, checkedWaveIce, "All other calculated beam/effect records including18 explicit exceptional policies");
@@ -1506,7 +1506,7 @@ internal static class LookupStream2Verification
             var bomb = new SamusBomb(0) { Playback = SamusProjectileProgramAddresses.PlaybackAt(pointer), FrameHold = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps.PowerBombGlowColors, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
             _ = bombs.AdvanceProjectileAnimation(bomb);
-            AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
+            AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }
         AssertEqual(14, checkedBombs, "Both normal/fast PowerBomb and Bomb visual cycles");

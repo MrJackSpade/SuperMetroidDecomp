@@ -14,31 +14,50 @@ internal static class ProjectileSpriteLocations
 {
 
     /// <summary>
-    /// The bank-$93 address of the composition each frame draws, by frame: every timed record that shows a frame stores the
-    /// same composition (#2274).
+    /// The composition each frame draws, by frame: every timed record that shows a frame stores the same composition (#2274),
+    /// a record holding a byte-for-byte copy of a composition standing for that composition (#2295).
     /// </summary>
-    /// <exception cref="InvalidDataException">Two records that show one frame store different compositions.</exception>
-    internal static Dictionary<SamusProjectileFrameId, ushort> RecordSprites(ISnesAddressSpace bus)
+    /// <exception cref="InvalidDataException">
+    /// A record selects a bank-$93 address that holds no projectile composition, or two records that show one frame store
+    /// different compositions.
+    /// </exception>
+    internal static Dictionary<SamusProjectileFrameId, ProjectileSpriteId> RecordSprites(ISnesAddressSpace bus)
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
-        int SpriteAt(int record) => RomDataReader.ReadWordFixedBank(cartridge,
-            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+        Dictionary<int, ProjectileSpriteId> stored = StoredProjectiles().ToDictionary(entry => entry.Key, entry => entry.Value);
+        ProjectileSpriteId SpriteAt(SamusProjectileFrameId frame, int record)
+        {
+            int address = RomDataReader.ReadWordFixedBank(cartridge,
+                SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+            return stored.TryGetValue(address, out ProjectileSpriteId sprite)
+                ? sprite
+                : throw new InvalidDataException($"Timed projectile record {frame} at $93:{record:X4} selects ${address:X4}, which is no projectile composition.");
+        }
         return SamusProjectileFrameOrder.Frames.ToDictionary(frame => frame, frame =>
         {
-            int sprite = SpriteAt(lists.RecordPosition(frame));
+            ProjectileSpriteId sprite = SpriteAt(frame, lists.RecordPosition(frame));
             foreach (int record in lists.RecordPositions(frame))
             {
-                if (SpriteAt(record) != sprite)
-                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions ${sprite:X4} and ${SpriteAt(record):X4}.");
+                ProjectileSpriteId other = SpriteAt(frame, record);
+                if (other != sprite)
+                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions {sprite.Name} and {other.Name}.");
             }
-            return checked((ushort)sprite);
+            return sprite;
         });
     }
 
-    /// <summary>The bank-$93 address of each projectile composition.</summary>
+    /// <summary>The bank-$93 address of each projectile composition: the first record that stores it.</summary>
     internal static Dictionary<ProjectileSpriteId, ushort> Projectiles() =>
-        ProjectileSpriteDefinitions.All.Select((id, place) => KeyValuePair.Create(id, PointerAt(place))).ToDictionary();
+        ProjectileSpriteDefinitions.Stored.Select((id, place) => KeyValuePair.Create(id, PointerAt(place)))
+            .DistinctBy(entry => entry.Key).ToDictionary();
+
+    /// <summary>
+    /// Every bank-$93 projectile composition record, in storage order, with the composition it holds: a record that stores a
+    /// composition again, byte for byte, holds that composition (#2295).
+    /// </summary>
+    internal static IEnumerable<KeyValuePair<int, ProjectileSpriteId>> StoredProjectiles() =>
+        ProjectileSpriteDefinitions.Stored.Select((id, place) => KeyValuePair.Create((int)PointerAt(place), id));
 
     /// <summary>The bank-$93 address of each charge-flare composition: four main flares, then two runs of twelve seventeen-byte sparks.</summary>
     internal static Dictionary<ProjectileSpriteId, ushort> Flares() =>
@@ -65,10 +84,10 @@ internal static class ProjectileSpriteLocations
     /// <summary>Maps a compass pose to its missile-group composition after preceding variable-size records.</summary>
     private static ushort MissilePointer(int start, int pose) => (ushort)(start +
         pose / 2 * (RecordBytes(2) + RecordBytes(3)) + pose % 2 * RecordBytes(2));
-    /// <summary>Calculates the sorted bank-$93 composition pointer at one catalog index from native group layouts.</summary>
+    /// <summary>Calculates the sorted bank-$93 composition pointer at one stored record's index from native group layouts.</summary>
     internal static ushort PointerAt(int index)
     {
-        if ((uint)index >= 417) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= ProjectileSpriteDefinitions.Stored.Count) throw new ArgumentOutOfRangeException(nameof(index));
         if (index < 1) return (ushort)(NothingStart + index * RecordBytes(0));
         index -= 1;
         if (index < 8) return (ushort)(PowerStart + index * RecordBytes(1));

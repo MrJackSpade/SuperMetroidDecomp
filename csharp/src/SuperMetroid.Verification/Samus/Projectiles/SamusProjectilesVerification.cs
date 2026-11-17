@@ -92,12 +92,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(SamusSuitColorExtractor.Extract(bus)));
     var fixtureFlarePlacement = ChargeFlarePlacementFile.Load(
         new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
-    var fixtureFlareSprites = ChargeFlareSprites.Load(
-        new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
     var fixtureFrames = ProjectileFrameBindingFile.Load(
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
-    var fixtureSprites = InstalledProjectileSprites.Load(
-        new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles()
     {
         SamusProjectileSystem created = new(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftMuzzleSubpixelCarry(SamusProjectileSystem.PlaceCount), new SamusShotCount(), InstalledFixtures.SamusArtwork(projectileFrames: fixtureFrames));
@@ -1888,19 +1884,10 @@ static void InstallSamusBeamPaletteFixture(TestAddressSpace bus)
     }
 }
 
-/// <summary>
-/// Seeds one-object artwork for every compiled charge-flare spritemap and the bank-$90 main
-/// flare animation delays.
-/// </summary>
+/// <summary>The bank-$90 main flare animation delays.</summary>
 static void InstallChargeFlareFixture(TestAddressSpace bus)
 {
-    // Every compiled flare identity uses the original one-OBJ synthetic artwork.
     // Animation timing remains owned by the native compiled instruction sequence.
-    foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
-    {
-        SyntheticSamusCartridge.WriteSingleObjectProjectileSpritemap(
-            bus, pointer, x: 0, y: 0, tileAttributes: 0x2c30);
-    }
     for (int index = 0; index < 30; index++)
         WriteTestByte(bus, 0x90c487 + index, 3);
     WriteTestByte(bus, 0x90c4a7, 5);

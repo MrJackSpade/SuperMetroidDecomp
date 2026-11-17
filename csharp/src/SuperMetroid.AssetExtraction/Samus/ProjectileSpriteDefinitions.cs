@@ -1,12 +1,15 @@
-﻿using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The Samus projectile compositions timed projectile records draw, by family.</summary>
 public static class ProjectileSpriteDefinitions
 {
-    /// <summary>Supported projectile-composition JSON schema revision, three, naming every composition by family and pose (#1762).</summary>
-    public const int Version = 3;
+    /// <summary>
+    /// Supported projectile-composition JSON schema revision, four, naming every composition by family and pose (#1762), each
+    /// pose for the stage it shows, with a composition the cartridge stores again byte for byte held once (#2295).
+    /// </summary>
+    public const int Version = 4;
     /// <summary>Installed JSON resource filename for editable projectile sprite compositions, separate from their timing, damage, and collision mechanics.</summary>
     public const string FileName = "projectile-compositions.json";
     /// <summary>Maximum sprite parts allowed in one authored composition, 128, matching the screen's sprite capacity rather than an animation-frame count.</summary>
@@ -16,105 +19,194 @@ public static class ProjectileSpriteDefinitions
     /// <summary>Sixteen columns and thirty-two rows in the logical OBJ character grid; row times sixteen plus column forms the nine-bit tile index, with large-part neighbors wrapping natively.</summary>
     public const int TileRows = 32;
 
+    /// <summary>The Power beam fired left: one character, which the Wave beam's centre, Ice's star and the Spazer and Plasma startups' first strip also show.</summary>
+    private static readonly ProjectileSpriteId PowerLeft = new(ProjectileSpriteGroup.Power, "Left");
+    /// <summary>The Power beam fired up left, which Ice's cross also shows.</summary>
+    private static readonly ProjectileSpriteId PowerUpLeft = new(ProjectileSpriteGroup.Power, "UpLeft");
+    /// <summary>The Power beam fired up, which Ice's narrow star also shows.</summary>
+    private static readonly ProjectileSpriteId PowerUp = new(ProjectileSpriteGroup.Power, "Up");
+    /// <summary>The Power beam fired up right, which Ice's mirrored cross also shows.</summary>
+    private static readonly ProjectileSpriteId PowerUpRight = new(ProjectileSpriteGroup.Power, "UpRight");
+    /// <summary>The missile explosion's ball, which the Super Missile explosion opens with too.</summary>
+    private static readonly ProjectileSpriteId MissileExplosionBall = new(ProjectileSpriteGroup.MissileExplosion, "Ball");
+    /// <summary>The missile explosion's flare, which the Super Missile explosion shows too.</summary>
+    private static readonly ProjectileSpriteId MissileExplosionFlare = new(ProjectileSpriteGroup.MissileExplosion, "Flare");
+
     /// <summary>
-    /// Each projectile family's poses, in the game's storage order (#1762): each pose names the direction its composition
-    /// points or travels and the stage of its animation it shows. A wave's poses name the side it swings to, a spread its
-    /// widening from its seed, and an alternate the drawing the beam shows on alternate updates.
+    /// Charged Wave's cores and paired lobes, in storage order: each lobe pair's swing from the core (Near, Midway, Far, Peak)
+    /// and its alternate drawing. Charged Ice Wave stores all of them again, byte for byte, and charged Ice's cross and star
+    /// are its alternate core and core.
     /// </summary>
-    private static readonly ProjectileSpriteFamily[] Families =
+    private static readonly ProjectileSpriteId[] ChargedWave = Poses(ProjectileSpriteGroup.ChargedWave,
+        "Core", "CoreAlternate", "Right.LobesNear", "Right.LobesNearAlternate", "Right.LobesMidway",
+        "Right.LobesMidwayAlternate", "Right.LobesFar", "Right.LobesFarAlternate", "Right.LobesPeak",
+        "Right.LobesPeakAlternate", "DownRight.LobesNear", "DownRight.LobesNearAlternate", "DownRight.LobesMidway",
+        "DownRight.LobesMidwayAlternate", "DownRight.LobesFar", "DownRight.LobesFarAlternate", "DownRight.LobesPeak",
+        "DownRight.LobesPeakAlternate", "UpRight.LobesNear", "UpRight.LobesNearAlternate", "UpRight.LobesMidway",
+        "UpRight.LobesMidwayAlternate", "UpRight.LobesFar", "UpRight.LobesFarAlternate", "UpRight.LobesPeak",
+        "UpRight.LobesPeakAlternate", "Down.LobesNear", "Down.LobesNearAlternate", "Down.LobesMidway",
+        "Down.LobesMidwayAlternate", "Down.LobesFar", "Down.LobesFarAlternate", "Down.LobesPeak", "Down.LobesPeakAlternate");
+    /// <summary>Charged Wave's core.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCore = ChargedWave[0];
+    /// <summary>Charged Wave's alternate core.</summary>
+    private static readonly ProjectileSpriteId ChargedWaveCoreAlternate = ChargedWave[1];
+
+    /// <summary>The Spazer beam's up-right seed, which charged Spazer's up-right startup grows into.</summary>
+    private static readonly ProjectileSpriteId SpazerUpRightSeed = new(ProjectileSpriteGroup.Spazer, "UpRight.Seed");
+    /// <summary>The Spazer beam's down-right seed, which charged Spazer's down-right startup grows into.</summary>
+    private static readonly ProjectileSpriteId SpazerDownRightSeed = new(ProjectileSpriteGroup.Spazer, "DownRight.Seed");
+    /// <summary>The Spazer beam's up-left seed, which charged Spazer's up-left startup grows into.</summary>
+    private static readonly ProjectileSpriteId SpazerUpLeftSeed = new(ProjectileSpriteGroup.Spazer, "UpLeft.Seed");
+    /// <summary>The Spazer beam's downward seed, which charged Spazer's downward startup grows into.</summary>
+    private static readonly ProjectileSpriteId SpazerDownSeed = new(ProjectileSpriteGroup.Spazer, "Down.Seed");
+    /// <summary>The Spazer beam's leftward lanes splitting, which its rightward lanes show too.</summary>
+    private static readonly ProjectileSpriteId SpazerLeftSplitting = new(ProjectileSpriteGroup.Spazer, "Left.Splitting");
+    /// <summary>The Spazer beam's upward seed, which charged Spazer's upward startup grows into.</summary>
+    private static readonly ProjectileSpriteId SpazerUpSeed = new(ProjectileSpriteGroup.Spazer, "Up.Seed");
+    /// <summary>Charged Spazer's leftward lanes splitting, which its rightward lanes show too.</summary>
+    private static readonly ProjectileSpriteId ChargedSpazerLeftSplitting = new(ProjectileSpriteGroup.ChargedSpazer, "Left.Splitting");
+    /// <summary>Charged Power's shot fired up left, which it shows in every direction but left.</summary>
+    private static readonly ProjectileSpriteId ChargedPowerUpLeft = new(ProjectileSpriteGroup.ChargedPower, "UpLeft");
+    /// <summary>Charged Power's alternate drawing fired left, which it shows in every direction.</summary>
+    private static readonly ProjectileSpriteId ChargedPowerLeftAlternate = new(ProjectileSpriteGroup.ChargedPower, "LeftAlternate");
+    /// <summary>Charged Spazer's upward startup strip, which charged Plasma's upward core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupUpShort = new(ProjectileSpriteGroup.SpazerStartup, "Up.Short");
+    /// <summary>Charged Spazer's horizontal alternate startup strip, which charged Plasma's rightward alternate core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupHorizontalAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "HorizontalAlternate.Short");
+    /// <summary>Charged Spazer's down-right alternate startup strip, which charged Plasma's down-right alternate core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupDownRightAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "DownRightAlternate.Short");
+    /// <summary>Charged Spazer's vertical alternate startup strip, which charged Plasma's upward alternate core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupVerticalAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "VerticalAlternate.Short");
+    /// <summary>Charged Spazer's up-right alternate startup strip, which charged Plasma's up-right alternate core also shows.</summary>
+    private static readonly ProjectileSpriteId SpazerStartupUpRightAlternateShort = new(ProjectileSpriteGroup.SpazerStartup, "UpRightAlternate.Short");
+
+    /// <summary>
+    /// The composition each of the cartridge's 417 projectile composition records holds, in its storage order (#1762, #2295):
+    /// each named by its family and pose, the pose naming the direction it points or travels and the stage of its animation
+    /// it shows. A wave's poses name the side it swings to and how far (Near, Midway, Far, Peak), a spread its lanes'
+    /// widening from its seed (Splitting, Parting, Spreading, NearlySpread, Spread), and an alternate the drawing the beam
+    /// shows on alternate updates. A record that stores, byte for byte, a composition stored earlier holds that composition:
+    /// it is one picture, named once, for the family that stores it first, and the import maps both records to it.
+    /// </summary>
+    internal static IReadOnlyList<ProjectileSpriteId> Stored { get; } =
     [
-        new(ProjectileSpriteGroup.Nothing, ["Empty"]),
-        new(ProjectileSpriteGroup.Power, ["Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"]),
-        new(ProjectileSpriteGroup.Plasma, ["Right", "DownRight", "Up", "UpRight"]),
-        new(ProjectileSpriteGroup.MissileExplosion, ["Stage1", "Stage2", "Stage3", "Stage4", "Stage5", "Stage6"]),
-        new(ProjectileSpriteGroup.BombExplosion, ["Stage1", "Stage2", "Stage3", "Stage4", "Stage5"]),
-        new(ProjectileSpriteGroup.SuperMissileExplosion, ["Stage1", "Stage2", "Stage3", "Stage4", "Stage5", "Stage6"]),
-        new(ProjectileSpriteGroup.PowerBomb, ["Phase1", "Phase2", "Phase3"]),
-        new(ProjectileSpriteGroup.BeamExplosion, ["Stage1", "Stage2", "Stage3", "Stage4", "Stage5", "Stage6"]),
-        new(ProjectileSpriteGroup.Bomb, ["Phase1", "Phase2", "Phase3", "Phase4"]),
-        new(ProjectileSpriteGroup.Missile, ["Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"]),
-        new(ProjectileSpriteGroup.SuperMissile, ["Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"]),
-        new(ProjectileSpriteGroup.Wave, ["Centre", "Right.Up1", "Right.Up2", "Right.Up3", "Right.Up4", "Right.Down1",
-            "Right.Down2", "Right.Down3", "Right.Down4", "DownRight.UpRight1", "DownRight.UpRight2", "DownRight.UpRight3",
-            "DownRight.UpRight4", "DownRight.DownLeft1", "DownRight.DownLeft2", "DownRight.DownLeft3",
-            "DownRight.DownLeft4", "Down.Right1", "Down.Right2", "Down.Right3", "Down.Right4", "Down.Left1", "Down.Left2",
-            "Down.Left3", "Down.Left4", "UpRight.UpLeft1", "UpRight.UpLeft2", "UpRight.UpLeft3", "UpRight.UpLeft4",
-            "UpRight.DownRight1", "UpRight.DownRight2", "UpRight.DownRight3", "UpRight.DownRight4"]),
-        new(ProjectileSpriteGroup.ChargedWave, ["Core", "CoreAlternate", "Right.Spread1", "Right.Spread1Alternate",
-            "Right.Spread2", "Right.Spread2Alternate", "Right.Spread3", "Right.Spread3Alternate", "Right.Spread4",
-            "Right.Spread4Alternate", "DownRight.Spread1", "DownRight.Spread1Alternate", "DownRight.Spread2",
-            "DownRight.Spread2Alternate", "DownRight.Spread3", "DownRight.Spread3Alternate", "DownRight.Spread4",
-            "DownRight.Spread4Alternate", "UpRight.Spread1", "UpRight.Spread1Alternate", "UpRight.Spread2",
-            "UpRight.Spread2Alternate", "UpRight.Spread3", "UpRight.Spread3Alternate", "UpRight.Spread4",
-            "UpRight.Spread4Alternate", "Down.Spread1", "Down.Spread1Alternate", "Down.Spread2", "Down.Spread2Alternate",
-            "Down.Spread3", "Down.Spread3Alternate", "Down.Spread4", "Down.Spread4Alternate"]),
-        new(ProjectileSpriteGroup.ChargedIceWave, ["Core", "CoreAlternate", "Right.Spread1", "Right.Spread1Alternate",
-            "Right.Spread2", "Right.Spread2Alternate", "Right.Spread3", "Right.Spread3Alternate", "Right.Spread4",
-            "Right.Spread4Alternate", "DownRight.Spread1", "DownRight.Spread1Alternate", "DownRight.Spread2",
-            "DownRight.Spread2Alternate", "DownRight.Spread3", "DownRight.Spread3Alternate", "DownRight.Spread4",
-            "DownRight.Spread4Alternate", "UpRight.Spread1", "UpRight.Spread1Alternate", "UpRight.Spread2",
-            "UpRight.Spread2Alternate", "UpRight.Spread3", "UpRight.Spread3Alternate", "UpRight.Spread4",
-            "UpRight.Spread4Alternate", "Down.Spread1", "Down.Spread1Alternate", "Down.Spread2", "Down.Spread2Alternate",
-            "Down.Spread3", "Down.Spread3Alternate", "Down.Spread4", "Down.Spread4Alternate"]),
-        new(ProjectileSpriteGroup.PlasmaWave, ["RightShort.Core", "RightShort.Spread1", "RightShort.Spread2",
-            "RightShort.Spread3", "RightShort.Spread4", "RightLong.Core", "RightLong.Spread1", "RightLong.Spread2",
-            "RightLong.Spread3", "RightLong.Spread4", "DownRightShort.Core", "DownRightShort.Spread1",
-            "DownRightShort.Spread2", "DownRightShort.Spread3", "DownRightShort.Spread4", "DownRightLong.Core",
-            "DownRightLong.Spread1", "DownRightLong.Spread2", "DownRightLong.Spread3", "DownRightLong.Spread4",
-            "UpShort.Core", "UpShort.Spread1", "UpShort.Spread2", "UpShort.Spread3", "UpShort.Spread4", "UpLong.Core",
-            "UpLong.Spread1", "UpLong.Spread2", "UpLong.Spread3", "UpLong.Spread4", "RightAlternate.Core",
-            "RightAlternate.Spread1", "RightAlternate.Spread2", "RightAlternate.Spread3", "RightAlternate.Spread4",
-            "DownRightAlternate.Core", "DownRightAlternate.Spread1", "DownRightAlternate.Spread2",
-            "DownRightAlternate.Spread3", "DownRightAlternate.Spread4", "UpAlternate.Core", "UpAlternate.Spread1",
-            "UpAlternate.Spread2", "UpAlternate.Spread3", "UpAlternate.Spread4", "UpRightAlternate.Core",
-            "UpRightAlternate.Spread1", "UpRightAlternate.Spread2", "UpRightAlternate.Spread3", "UpRightAlternate.Spread4",
-            "UpRightShort.Core", "UpRightShort.Spread1", "UpRightShort.Spread2", "UpRightShort.Spread3",
-            "UpRightShort.Spread4", "UpRightLong.Core", "UpRightLong.Spread1", "UpRightLong.Spread2", "UpRightLong.Spread3",
-            "UpRightLong.Spread4"]),
-        new(ProjectileSpriteGroup.Spazer, ["UpRight.Seed", "UpRight.Spread2", "UpRight.Spread3", "UpRight.Spread4",
-            "UpRight.Spread5", "UpRight.Spread1", "DownRight.Seed", "DownRight.Spread2", "DownRight.Spread3",
-            "DownRight.Spread4", "DownRight.Spread5", "DownRight.Spread1", "DownLeft.Seed", "DownLeft.Spread1",
-            "DownLeft.Spread2", "DownLeft.Spread3", "DownLeft.Spread4", "UpLeft.Seed", "UpLeft.Spread2", "UpLeft.Spread3",
-            "UpLeft.Spread4", "UpLeft.Spread5", "UpLeft.Spread1", "Down.Seed", "Down.Spread1", "Down.Spread2",
-            "Down.Spread3", "Down.Spread4", "Down.Spread5", "Left.Seed", "Left.Spread1", "Left.Spread2", "Left.Spread3",
-            "Left.Spread4", "Left.Spread5", "Up.Seed", "Up.Spread1", "Up.Spread2", "Up.Spread3", "Up.Spread4", "Up.Spread5",
-            "Right.Seed", "Right.Spread1", "Right.Spread2", "Right.Spread3", "Right.Spread4", "Right.Spread5"]),
-        new(ProjectileSpriteGroup.ChargedSpazer, ["HorizontalAlternate.Seed", "HorizontalAlternate.Spread1",
-            "HorizontalAlternate.Spread2", "HorizontalAlternate.Spread3", "HorizontalAlternate.Spread4",
-            "HorizontalAlternate.Spread5", "VerticalAlternate.Seed", "VerticalAlternate.Spread1",
-            "VerticalAlternate.Spread2", "VerticalAlternate.Spread3", "VerticalAlternate.Spread4",
-            "VerticalAlternate.Spread5", "DownRightAlternate.Seed", "DownRightAlternate.Spread1",
-            "DownRightAlternate.Spread2", "DownRightAlternate.Spread3", "DownRightAlternate.Spread4",
-            "DownRightAlternate.Spread5", "UpRightAlternate.Seed", "UpRightAlternate.Spread1", "UpRightAlternate.Spread2",
-            "UpRightAlternate.Spread3", "UpRightAlternate.Spread4", "UpRightAlternate.Spread5", "UpRight.Seed",
-            "UpRight.Spread2", "UpRight.Spread3", "UpRight.Spread4", "UpRight.Spread5", "UpRight.Spread1", "DownRight.Seed",
-            "DownRight.Spread2", "DownRight.Spread3", "DownRight.Spread4", "DownRight.Spread5", "DownRight.Spread1",
-            "DownLeft.Seed", "DownLeft.Spread2", "DownLeft.Spread3", "DownLeft.Spread4", "DownLeft.Spread5",
-            "DownLeft.Spread1", "UpLeft.Seed", "UpLeft.Spread2", "UpLeft.Spread3", "UpLeft.Spread4", "UpLeft.Spread5",
-            "UpLeft.Spread1", "Down.Seed", "Down.Spread1", "Down.Spread2", "Down.Spread3", "Down.Spread4", "Down.Spread5",
-            "Left.Seed", "Left.Spread1", "Left.Spread2", "Left.Spread3", "Left.Spread4", "Left.Spread5", "Up.Seed",
-            "Up.Spread1", "Up.Spread2", "Up.Spread3", "Up.Spread4", "Up.Spread5", "Right.Seed", "Right.Spread1",
-            "Right.Spread2", "Right.Spread3", "Right.Spread4", "Right.Spread5"]),
-        new(ProjectileSpriteGroup.ChargedPower, ["Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down",
-            "DownLeft", "LeftAlternate", "UpLeftAlternate", "UpAlternate", "UpRightAlternate", "RightAlternate",
-            "DownRightAlternate", "DownAlternate", "DownLeftAlternate"]),
-        new(ProjectileSpriteGroup.ChargedIce, ["Phase1", "Phase2", "Phase3", "Phase4"]),
-        new(ProjectileSpriteGroup.Ice, ["Phase1", "Phase2", "Phase3", "Phase4"]),
-        new(ProjectileSpriteGroup.SpazerStartup, ["Left.Stage1", "Left.Stage2", "UpLeft.Stage1", "UpLeft.Stage2",
-            "Up.Stage1", "Up.Stage2", "UpRight.Stage1", "UpRight.Stage2", "Right.Stage1", "Right.Stage2",
-            "DownRight.Stage1", "DownRight.Stage2", "Down.Stage1", "Down.Stage2", "HorizontalAlternate.Stage1",
-            "HorizontalAlternate.Stage2", "DownRightAlternate.Stage1", "DownRightAlternate.Stage2",
-            "VerticalAlternate.Stage1", "VerticalAlternate.Stage2", "UpRightAlternate.Stage1", "UpRightAlternate.Stage2"]),
-        new(ProjectileSpriteGroup.PlasmaStartup, ["Right.Core", "Right.Short", "Right.Long", "Right.Full", "Up.Core",
-            "Up.Short", "Up.Long", "Up.Full", "DownRight.Core", "DownRight.Short", "DownRight.Long", "DownRight.Full",
-            "UpRight.Core", "UpRight.Short", "UpRight.Long", "UpRight.Full", "RightAlternate.Core", "RightAlternate.Short",
-            "RightAlternate.Long", "RightAlternate.Full", "UpAlternate.Core", "UpAlternate.Short", "UpAlternate.Long",
-            "UpAlternate.Full", "DownRightAlternate.Core", "DownRightAlternate.Short", "DownRightAlternate.Long",
-            "DownRightAlternate.Full", "UpRightAlternate.Core", "UpRightAlternate.Short", "UpRightAlternate.Long",
-            "UpRightAlternate.Full"]),
+        new(ProjectileSpriteGroup.Nothing, "Empty"),
+        PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
+        .. Poses(ProjectileSpriteGroup.Power, "Right", "DownRight", "Down", "DownLeft"),
+        .. Poses(ProjectileSpriteGroup.Plasma, "Right", "DownRight", "Up", "UpRight"),
+        new(ProjectileSpriteGroup.MissileExplosion, "Spark"), MissileExplosionBall,
+        new(ProjectileSpriteGroup.MissileExplosion, "Blast"), MissileExplosionFlare,
+        .. Poses(ProjectileSpriteGroup.MissileExplosion, "Burst", "Embers"),
+        .. Poses(ProjectileSpriteGroup.BombExplosion, "Orb", "SparklingOrb", "Burst", "WideBurst", "Ring"),
+        MissileExplosionBall, new(ProjectileSpriteGroup.SuperMissileExplosion, "Blast"), MissileExplosionFlare,
+        .. Poses(ProjectileSpriteGroup.SuperMissileExplosion, "RingedBall", "Ring", "FadingRing"),
+        .. Poses(ProjectileSpriteGroup.PowerBomb, "Bright", "Dimming", "Dark"),
+        .. Poses(ProjectileSpriteGroup.BeamExplosion, "Speck", "Glint", "Flash", "RingedFlash", "Ring", "FadingRing"),
+        .. Poses(ProjectileSpriteGroup.Bomb, "Dark", "Smouldering", "Glowing", "Flashing"),
+        .. Poses(ProjectileSpriteGroup.Missile, "Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"),
+        .. Poses(ProjectileSpriteGroup.SuperMissile, "Left", "UpLeft", "Up", "UpRight", "Right", "DownRight", "Down", "DownLeft"),
+        PowerLeft,
+        .. Poses(ProjectileSpriteGroup.Wave, "Right.UpNear", "Right.UpMidway", "Right.UpFar", "Right.UpPeak", "Right.DownNear",
+            "Right.DownMidway", "Right.DownFar", "Right.DownPeak", "DownRight.UpRightNear", "DownRight.UpRightMidway",
+            "DownRight.UpRightFar", "DownRight.UpRightPeak", "DownRight.DownLeftNear", "DownRight.DownLeftMidway",
+            "DownRight.DownLeftFar", "DownRight.DownLeftPeak", "Down.RightNear", "Down.RightMidway", "Down.RightFar",
+            "Down.RightPeak", "Down.LeftNear", "Down.LeftMidway", "Down.LeftFar", "Down.LeftPeak", "UpRight.UpLeftNear",
+            "UpRight.UpLeftMidway", "UpRight.UpLeftFar", "UpRight.UpLeftPeak", "UpRight.DownRightNear",
+            "UpRight.DownRightMidway", "UpRight.DownRightFar", "UpRight.DownRightPeak"),
+        .. ChargedWave,
+        .. ChargedWave,
+        .. Poses(ProjectileSpriteGroup.PlasmaWave, "RightShort.Core", "RightShort.LobesNear", "RightShort.LobesMidway",
+            "RightShort.LobesFar", "RightShort.LobesPeak", "RightLong.Core", "RightLong.LobesNear", "RightLong.LobesMidway",
+            "RightLong.LobesFar", "RightLong.LobesPeak", "DownRightShort.Core", "DownRightShort.LobesNear",
+            "DownRightShort.LobesMidway", "DownRightShort.LobesFar", "DownRightShort.LobesPeak", "DownRightLong.Core",
+            "DownRightLong.LobesNear", "DownRightLong.LobesMidway", "DownRightLong.LobesFar", "DownRightLong.LobesPeak",
+            "UpShort.Core", "UpShort.LobesNear", "UpShort.LobesMidway", "UpShort.LobesFar", "UpShort.LobesPeak",
+            "UpLong.Core", "UpLong.LobesNear", "UpLong.LobesMidway", "UpLong.LobesFar", "UpLong.LobesPeak",
+            "RightAlternate.Core", "RightAlternate.LobesNear", "RightAlternate.LobesMidway", "RightAlternate.LobesFar",
+            "RightAlternate.LobesPeak", "DownRightAlternate.Core", "DownRightAlternate.LobesNear",
+            "DownRightAlternate.LobesMidway", "DownRightAlternate.LobesFar", "DownRightAlternate.LobesPeak",
+            "UpAlternate.Core", "UpAlternate.LobesNear", "UpAlternate.LobesMidway", "UpAlternate.LobesFar",
+            "UpAlternate.LobesPeak", "UpRightAlternate.Core", "UpRightAlternate.LobesNear", "UpRightAlternate.LobesMidway",
+            "UpRightAlternate.LobesFar", "UpRightAlternate.LobesPeak", "UpRightShort.Core", "UpRightShort.LobesNear",
+            "UpRightShort.LobesMidway", "UpRightShort.LobesFar", "UpRightShort.LobesPeak", "UpRightLong.Core",
+            "UpRightLong.LobesNear", "UpRightLong.LobesMidway", "UpRightLong.LobesFar", "UpRightLong.LobesPeak"),
+        SpazerUpRightSeed,
+        .. Poses(ProjectileSpriteGroup.Spazer, "UpRight.Parting", "UpRight.Spreading", "UpRight.NearlySpread",
+            "UpRight.Spread", "UpRight.Splitting"),
+        SpazerDownRightSeed,
+        .. Poses(ProjectileSpriteGroup.Spazer, "DownRight.Parting", "DownRight.Spreading", "DownRight.NearlySpread",
+            "DownRight.Spread", "DownRight.Splitting", "DownLeft.Seed", "DownLeft.Parting", "DownLeft.Spreading",
+            "DownLeft.NearlySpread", "DownLeft.Spread"),
+        SpazerUpLeftSeed,
+        .. Poses(ProjectileSpriteGroup.Spazer, "UpLeft.Parting", "UpLeft.Spreading", "UpLeft.NearlySpread", "UpLeft.Spread",
+            "UpLeft.Splitting"),
+        SpazerDownSeed,
+        .. Poses(ProjectileSpriteGroup.Spazer, "Down.Splitting", "Down.Parting", "Down.Spreading", "Down.NearlySpread",
+            "Down.Spread", "Left.Seed"),
+        SpazerLeftSplitting,
+        .. Poses(ProjectileSpriteGroup.Spazer, "Left.Parting", "Left.Spreading", "Left.NearlySpread", "Left.Spread"),
+        SpazerUpSeed,
+        .. Poses(ProjectileSpriteGroup.Spazer, "Up.Splitting", "Up.Parting", "Up.Spreading", "Up.NearlySpread", "Up.Spread",
+            "Right.Seed"),
+        SpazerLeftSplitting,
+        .. Poses(ProjectileSpriteGroup.Spazer, "Right.Parting", "Right.Spreading", "Right.NearlySpread", "Right.Spread"),
+        .. Poses(ProjectileSpriteGroup.ChargedSpazer, "HorizontalAlternate.Seed", "HorizontalAlternate.Splitting",
+            "HorizontalAlternate.Parting", "HorizontalAlternate.Spreading", "HorizontalAlternate.NearlySpread",
+            "HorizontalAlternate.Spread", "VerticalAlternate.Seed", "VerticalAlternate.Splitting", "VerticalAlternate.Parting",
+            "VerticalAlternate.Spreading", "VerticalAlternate.NearlySpread", "VerticalAlternate.Spread",
+            "DownRightAlternate.Seed", "DownRightAlternate.Splitting", "DownRightAlternate.Parting",
+            "DownRightAlternate.Spreading", "DownRightAlternate.NearlySpread", "DownRightAlternate.Spread",
+            "UpRightAlternate.Seed", "UpRightAlternate.Splitting", "UpRightAlternate.Parting", "UpRightAlternate.Spreading",
+            "UpRightAlternate.NearlySpread", "UpRightAlternate.Spread", "UpRight.Seed", "UpRight.Parting",
+            "UpRight.Spreading", "UpRight.NearlySpread", "UpRight.Spread", "UpRight.Splitting", "DownRight.Seed",
+            "DownRight.Parting", "DownRight.Spreading", "DownRight.NearlySpread", "DownRight.Spread", "DownRight.Splitting",
+            "DownLeft.Seed", "DownLeft.Parting", "DownLeft.Spreading", "DownLeft.NearlySpread", "DownLeft.Spread",
+            "DownLeft.Splitting", "UpLeft.Seed", "UpLeft.Parting", "UpLeft.Spreading", "UpLeft.NearlySpread", "UpLeft.Spread",
+            "UpLeft.Splitting", "Down.Seed", "Down.Splitting", "Down.Parting", "Down.Spreading", "Down.NearlySpread",
+            "Down.Spread", "Left.Seed"),
+        ChargedSpazerLeftSplitting,
+        .. Poses(ProjectileSpriteGroup.ChargedSpazer, "Left.Parting", "Left.Spreading", "Left.NearlySpread", "Left.Spread",
+            "Up.Seed", "Up.Splitting", "Up.Parting", "Up.Spreading", "Up.NearlySpread", "Up.Spread", "Right.Seed"),
+        ChargedSpazerLeftSplitting,
+        .. Poses(ProjectileSpriteGroup.ChargedSpazer, "Right.Parting", "Right.Spreading", "Right.NearlySpread", "Right.Spread"),
+        new(ProjectileSpriteGroup.ChargedPower, "Left"),
+        ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft, ChargedPowerUpLeft,
+        ChargedPowerUpLeft,
+        ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate,
+        ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate, ChargedPowerLeftAlternate,
+        ChargedWaveCoreAlternate, ChargedWaveCore, ChargedWaveCoreAlternate, ChargedWaveCore,
+        PowerLeft, PowerUpLeft, PowerUp, PowerUpRight,
+        PowerLeft, new(ProjectileSpriteGroup.SpazerStartup, "Left.Long"),
+        new(ProjectileSpriteGroup.SpazerStartup, "UpLeft.Short"), SpazerUpLeftSeed,
+        SpazerStartupUpShort, SpazerUpSeed,
+        new(ProjectileSpriteGroup.SpazerStartup, "UpRight.Short"), SpazerUpRightSeed,
+        .. Poses(ProjectileSpriteGroup.SpazerStartup, "Right.Short", "Right.Long", "DownRight.Short"), SpazerDownRightSeed,
+        new(ProjectileSpriteGroup.SpazerStartup, "Down.Short"), SpazerDownSeed,
+        SpazerStartupHorizontalAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "HorizontalAlternate.Long"),
+        SpazerStartupDownRightAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "DownRightAlternate.Long"),
+        SpazerStartupVerticalAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "VerticalAlternate.Long"),
+        SpazerStartupUpRightAlternateShort, new(ProjectileSpriteGroup.SpazerStartup, "UpRightAlternate.Long"),
+        PowerLeft, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "Right.Short", "Right.Long", "Right.Full"),
+        SpazerStartupUpShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "Up.Short", "Up.Long", "Up.Full",
+            "DownRight.Core", "DownRight.Short", "DownRight.Long", "DownRight.Full", "UpRight.Core", "UpRight.Short",
+            "UpRight.Long", "UpRight.Full"),
+        SpazerStartupHorizontalAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "RightAlternate.Short",
+            "RightAlternate.Long", "RightAlternate.Full"),
+        SpazerStartupVerticalAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpAlternate.Short",
+            "UpAlternate.Long", "UpAlternate.Full"),
+        SpazerStartupDownRightAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "DownRightAlternate.Short",
+            "DownRightAlternate.Long", "DownRightAlternate.Full"),
+        SpazerStartupUpRightAlternateShort, .. Poses(ProjectileSpriteGroup.PlasmaStartup, "UpRightAlternate.Short",
+            "UpRightAlternate.Long", "UpRightAlternate.Full"),
     ];
 
-    /// <summary>The 417 compositions timed projectile records draw, in the game's storage order, including the zero-part Nothing composition.</summary>
-    public static IReadOnlyList<ProjectileSpriteId> All { get; } =
-        [.. Families.SelectMany(family => family.Poses.Select(pose => new ProjectileSpriteId(family.Group, pose)))];
+    /// <summary>
+    /// The distinct compositions timed projectile records draw, in the order the cartridge first stores them, including the
+    /// zero-part Nothing composition: one per picture, a composition stored again byte for byte held once (#1635, #2295).
+    /// </summary>
+    public static IReadOnlyList<ProjectileSpriteId> All { get; } = [.. Stored.Distinct()];
+
+    /// <summary>The compositions of <paramref name="group"/> showing <paramref name="poses"/>, in that order.</summary>
+    private static ProjectileSpriteId[] Poses(ProjectileSpriteGroup group, params string[] poses) =>
+        [.. poses.Select(pose => new ProjectileSpriteId(group, pose))];
 }

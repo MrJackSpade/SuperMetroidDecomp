@@ -484,10 +484,6 @@ internal enum SamusProjectileFrameId
     ChargedIceUpFacingRightCrossed,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a star.</summary>
     ChargedIceUpFacingRightStar,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a cross, drawn by the second of its two identical cross compositions.</summary>
-    ChargedIceUpFacingRightCrossedCopy,
-    /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceUpFacingRight"/> showing the Charged Ice picture, a star, drawn by the second of its two identical star compositions.</summary>
-    ChargedIceUpFacingRightStarCopy,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveUpFacingRight"/> showing nothing.</summary>
     ChargedIceWaveUpFacingRightHidden,
     /// <summary>A frame of <see cref="SamusProjectileSegment.ChargedIceWaveDownFacingRight"/> showing the Charged Ice Wave picture, core.</summary>

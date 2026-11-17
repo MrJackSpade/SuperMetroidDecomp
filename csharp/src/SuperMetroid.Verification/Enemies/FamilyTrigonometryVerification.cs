@@ -76,7 +76,7 @@ internal static class FamilyTrigonometryVerification
             int product = (Math.Abs((int)sample) / 256) * speed;
             int displacement = product;
             if (sample < 0 && product != 0)
-                displacement = -product - (SixteenSixteen.FractionOf(product) == 0 ? 1 : 0);
+                displacement = -product - (SixteenSixteenConstants3.FractionOf(product) == 0 ? 1 : 0);
             return unchecked(initial + (uint)displacement);
         }
         // Each origin and heading runs every speed a Bull flies at, 0 through 2880 256ths of a pixel an update (#2065), on one

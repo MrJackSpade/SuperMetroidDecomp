@@ -22,9 +22,6 @@ internal sealed class EnemyPartLinks<TLinks> where TLinks : class
     /// <summary>The places of the parts placed this room, each once, however often a part was placed again in it.</summary>
     internal IEnumerable<RoomEnemyPlace> Placed => _links.Keys;
 
-    /// <summary>Whether <paramref name="part"/> has been placed as a part of this species this room.</summary>
-    internal bool IsPlaced(RoomEnemyPlace part) => _links.ContainsKey(Ensure.NotNull(part));
-
     /// <summary>The partners <paramref name="part"/> found when it was placed.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="part"/> has not been placed as this species this room.</exception>
     internal TLinks Of(RoomEnemyPlace part) =>

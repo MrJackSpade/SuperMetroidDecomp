@@ -72051,6 +72051,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipIdleBob",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipIdleBob.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Gunship.GunshipIdleBobDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -72059,6 +72072,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipIdleBobDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipLandingBrake",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipLandingBrake.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -72114,19 +72140,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipMotion",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipMotion.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Gunship.GunshipMotionDefinitions",
@@ -72386,6 +72399,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiCollisionPartEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiCollisionPartEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiCollisionPartState",
@@ -74611,6 +74637,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteBodyEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteBodyState",
       "kind": "class",
       "scope": "product",
@@ -74728,17 +74767,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteEntity",
-      "kind": "class",
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlow",
+      "kind": "record struct",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteEntity.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteGlow.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadAction",
@@ -74752,6 +74791,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteHeadEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteHeadRise",
@@ -74887,6 +74939,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteOverlayEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteOverlayState",
       "kind": "class",
       "scope": "product",
@@ -74911,6 +74976,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePartEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePartEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdollitePartState",
@@ -74998,7 +75076,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteRiseStage",
-      "kind": "record struct",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -75037,6 +75115,32 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Enemies/Magdollite/MagdolliteRiseStageAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteRiseStages",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteRiseStages.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteRiseStages.extension(SuperMetroid.Core.Enemies.Magdollite.MagdolliteRiseStage)",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteRiseStages.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -75107,6 +75211,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleAnimations",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/BabyTurtleAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleCue",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/BabyTurtleCue.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleCueKind",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/BabyTurtleCueKind.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleEnemyState",
       "kind": "class",
       "scope": "product",
@@ -75131,6 +75274,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleSegment",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/BabyTurtleSegment.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleSpawnSettings",
@@ -75261,6 +75417,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleDamageBox",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleDamageBox.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleEnemyDefinitionCatalogAccess",
@@ -76199,6 +76368,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamColour",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeBeamColour.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeBeamCone",
@@ -80616,6 +80798,38 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyPlaceFrameAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.RoomEnemyPlaceInitializationAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyPlaceInitializationAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.RoomEnemyPlaceInitializationAccess.extension(SuperMetroid.Core.Enemies.RoomEnemyPlace)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemyPlaceInitializationAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -129362,6 +129576,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Spatial.SixteenSixteenConstants3",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Spatial/SixteenSixteenConstants3.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.SixteenSixteenWords",
       "kind": "static class",
       "scope": "test",
@@ -159366,6 +159596,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Enemies/Magdollite/VerifyMagdolliteLavaBehaviorCase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Enemies.MamaTurtles.BabyTurtleNativeListAddressesInstruction",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Enemies/MamaTurtles/BabyTurtleNativeListAddressesInstruction.cs"
       ],
       "partial": "none",
       "disposition": "value"

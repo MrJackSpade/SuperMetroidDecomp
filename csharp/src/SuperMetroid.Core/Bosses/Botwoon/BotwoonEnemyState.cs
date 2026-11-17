@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// Botwoon's state beyond what his head shares with every enemy, including its thirteen body segments, which are not
 /// ordinary enemies and so are kept here rather than spawned as enemies.
 /// </summary>
+[ArchitectureReview("context-bag", "Botwoon's fight state: every member is a wait, stage, band, path or segment of his own fight that he owns for the room (his spit cooldown, pre-fall and explosion waits, speed stage and health band, #2266, #2267), not a service carried through.")]
 public sealed class BotwoonEnemyState
 {
     /// <summary>

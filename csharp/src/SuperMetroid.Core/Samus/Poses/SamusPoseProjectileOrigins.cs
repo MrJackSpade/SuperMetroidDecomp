@@ -1,4 +1,3 @@
-using static SuperMetroid.Core.Samus.Poses.SamusPoseProjectileOriginDefinitions;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -13,6 +12,5 @@ internal static class SamusPoseProjectileOrigins
     /// <exception cref="InvalidOperationException">The pose is undefined.</exception>
     internal static int ReadYOffset(SamusPoseId pose) =>
         SamusUnauthoredPoseDefinitions.Poses.TryRead(pose, out SamusUnauthoredPoseDefinition? unauthored) ? unauthored.ProjectileYOffset
-        : YOffsets.TryGetValue(pose, out int offset) ? offset
-        : throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {pose}.");
+        : SamusPoseTraits.Authored(pose).ProjectileHeight;
 }

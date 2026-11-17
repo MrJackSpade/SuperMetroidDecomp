@@ -207,23 +207,14 @@ internal static class SamusPoseTransitions
         if (aim.DisablesShooting)
             return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
         bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
-        return aim.Direction switch
-        {
-            SamusProjectileDirection.UpFacingRight => SamusPoseId.LandingAimUpRightPose,
-            SamusProjectileDirection.UpRight => SamusPoseId.LandingAimDiagonalUpRightPose,
-            SamusProjectileDirection.Right => shotHeld ? SamusPoseId.FiringLandingRightPose : SamusPoseId.NormalLandingRightPose,
-            SamusProjectileDirection.DownRight => SamusPoseId.LandingAimDiagonalDownRightPose,
-            SamusProjectileDirection.DownLeft => SamusPoseId.LandingAimDiagonalDownLeftPose,
-            SamusProjectileDirection.Left => shotHeld ? SamusPoseId.FiringLandingLeftPose : SamusPoseId.NormalLandingLeftPose,
-            SamusProjectileDirection.UpLeft => SamusPoseId.LandingAimDiagonalUpLeftPose,
-            SamusProjectileDirection.UpFacingLeft => SamusPoseId.LandingAimUpLeftPose,
-            // The straight-down aims are consumed by TryApplyCompactAerialLanding,
-            // because the 10 -> 21 expansion needs room collision data.
-            SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => throw new InvalidOperationException(
-                $"Landing from aim {aim} requires the collision-aware compact landing operation."),
-            _ => throw new InvalidOperationException(
-                $"Landing from aim {aim} requires the collision-aware compact landing operation."),
-        };
+        // The straight-down aims are consumed by TryApplyCompactAerialLanding, because the 10 -> 21 expansion needs room
+        // collision data.
+        SamusLandingChoice landing = aim.Direction is { } direction &&
+            SamusAimedPoseChoiceDefinitions.Landings.TryGetValue(direction, out SamusLandingChoice? choice)
+            ? choice
+            : throw new InvalidOperationException(
+                $"Landing from aim {aim} requires the collision-aware compact landing operation.");
+        return shotHeld ? landing.ShootHeld : landing.ShootReleased;
     }
 
     /// <summary>

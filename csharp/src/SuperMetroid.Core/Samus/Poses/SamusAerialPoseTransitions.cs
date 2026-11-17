@@ -149,35 +149,15 @@ internal static class SamusAerialPoseTransitions
                 $"Aerial turn {sourcePose} -> {genericTargetPose} is not a turn while jumping or falling.");
         }
 
-        // These are literal copies of the two aerial turn tables. The straight-down aims are
-        // not typos: compact down-aim sources reuse the jumping or falling down-aim turns
-        // according to facing. Retaining all ten entries preserves aim through the turn.
+        // The turn keeps her aim. A straight-down aim takes the down-aimed turn away from the way she faces.
         SamusProjectileDirection? shotDirection = SamusPoseMetadata.ReadAimDirection(samus);
-        SamusPoseId selectedTurnPose = jumping
-            ? shotDirection switch
-            {
-                SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftJumpAimUpPose,
-                SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose,
-                SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftJumpPose,
-                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight => SamusPoseId.TurningRightToLeftJumpAimDownPose,
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightJumpAimDownPose,
-                SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightJumpPose,
-                SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose,
-                SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightJumpAimUpPose,
-                _ => throw new InvalidDataException($"Jump pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)})."),
-            }
-            : shotDirection switch
-            {
-                SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftFallingAimUpPose,
-                SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose,
-                SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftFallingPose,
-                SamusProjectileDirection.DownRight or SamusProjectileDirection.DownFacingRight => SamusPoseId.TurningRightToLeftFallingAimDownPose,
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightFallingAimDownPose,
-                SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightFallingPose,
-                SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose,
-                SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightFallingAimUpPose,
-                _ => throw new InvalidDataException($"Fall pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)})."),
-            };
+        IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> turns = jumping
+            ? SamusAimedPoseChoiceDefinitions.JumpingTurns
+            : SamusAimedPoseChoiceDefinitions.FallingTurns;
+        SamusPoseId selectedTurnPose = shotDirection is { } direction && turns.TryGetValue(direction, out SamusPoseId turn)
+            ? turn
+            : throw new InvalidDataException(
+                $"{(jumping ? "Jump" : "Fall")} pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(samus)}).");
 
         if ((turnsLeft && !SamusPoseMetadata.IsRightToLeftAerialTurnPose(selectedTurnPose)) ||
             (turnsRight && !SamusPoseMetadata.IsLeftToRightAerialTurnPose(selectedTurnPose)))

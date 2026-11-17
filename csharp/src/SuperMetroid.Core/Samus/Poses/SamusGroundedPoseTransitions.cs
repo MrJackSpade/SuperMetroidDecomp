@@ -126,19 +126,11 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static SamusPoseId SelectRanIntoWallPose(SamusPoseId sourcePose)
     {
-        return SamusPoseMetadata.ReadAim(sourcePose).Direction switch
-        {
-            SamusProjectileDirection.UpFacingRight => SamusPoseId.StandingAimUpRightPose,
-            SamusProjectileDirection.UpRight => SamusPoseId.RanIntoWallAimUpRightPose,
-            SamusProjectileDirection.Right or SamusProjectileDirection.DownFacingRight => SamusPoseId.RanIntoWallRightPose,
-            SamusProjectileDirection.DownRight => SamusPoseId.RanIntoWallAimDownRightPose,
-            SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.Left => SamusPoseId.RanIntoWallLeftPose,
-            SamusProjectileDirection.DownLeft => SamusPoseId.RanIntoWallAimDownLeftPose,
-            SamusProjectileDirection.UpLeft => SamusPoseId.RanIntoWallAimUpLeftPose,
-            SamusProjectileDirection.UpFacingLeft => SamusPoseId.StandingAimUpLeftPose,
-            _ => throw new InvalidDataException(
-                $"Pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(sourcePose)})."),
-        };
+        return SamusPoseMetadata.ReadAim(sourcePose).Direction is { } direction &&
+            SamusAimedPoseChoiceDefinitions.WallStops.TryGetValue(direction, out SamusPoseId wallStop)
+            ? wallStop
+            : throw new InvalidDataException(
+                $"Pose {sourcePose} aims in no shot direction ({SamusPoseMetadata.ReadAim(sourcePose)}).");
     }
 
     /// <summary>
@@ -310,22 +302,12 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     public static void ApplyMoonwalkTurnJump(SamusState samus, SamusPoseId targetPose)
     {
-        SamusPoseId expectedTarget = SamusPoseMetadata.ReadAimDirection(samus) switch
-        {
-            SamusProjectileDirection.UpRight => SamusPoseId.MoonwalkTurnJumpAimUpLeftPose,
-            SamusProjectileDirection.Right => SamusPoseId.MoonwalkTurnJumpLeftPose,
-            SamusProjectileDirection.DownRight => SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
-            SamusProjectileDirection.DownLeft => SamusPoseId.MoonwalkTurnJumpAimDownRightPose,
-            SamusProjectileDirection.Left => SamusPoseId.MoonwalkTurnJumpRightPose,
-            SamusProjectileDirection.UpLeft => SamusPoseId.MoonwalkTurnJumpAimUpRightPose,
-            // Stable moonwalk poses publish only the six directions enumerated above.
-            // Another aim means the pose state or metadata is inconsistent, not missing logic.
-            SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
-                SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => throw new InvalidDataException(
-                $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose."),
-            _ => throw new InvalidDataException(
-                $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose."),
-        };
+        // A moonwalk aims only level or diagonally; any other aim means the pose state is inconsistent.
+        SamusPoseId expectedTarget = SamusPoseMetadata.ReadAimDirection(samus) is { } direction &&
+            SamusAimedPoseChoiceDefinitions.MoonwalkTurnJumps.TryGetValue(direction, out SamusPoseId turnJump)
+            ? turnJump
+            : throw new InvalidDataException(
+                $"Moonwalk aim {SamusPoseMetadata.ReadAim(samus)} is invalid for a stable moonwalk pose.");
         SamusPoseId inputTableTarget = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose;
         if (!SamusPoseMetadata.IsMoonwalkingPose(samus.Pose) || targetPose != expectedTarget && targetPose != inputTableTarget)
@@ -512,39 +494,13 @@ internal static class SamusGroundedPoseTransitions
         else
         {
             SamusPoseAim aim = SamusPoseMetadata.ReadAim(samus);
-            selectedTurnPose = wasCrouching
-                ? aim.Direction switch
-                {
-                    SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftCrouchingAimUpPose,
-                    SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose,
-                    SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftCrouchingPose,
-                    SamusProjectileDirection.DownRight => SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose,
-                    SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose,
-                    SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightCrouchingPose,
-                    SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose,
-                    SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightCrouchingAimUpPose,
-                    // Grounded/crouched pose metadata cannot publish the compact-aerial
-                    // straight-down aims (or any aim outside its eight).
-                    SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => throw new InvalidDataException(
-                        $"Crouched turn aim {aim} is invalid."),
-                    _ => throw new InvalidDataException(
-                        $"Crouched turn aim {aim} is invalid."),
-                }
-                : aim.Direction switch
-                {
-                    SamusProjectileDirection.UpFacingRight => SamusPoseId.TurningRightToLeftAimUpPose,
-                    SamusProjectileDirection.UpRight => SamusPoseId.TurningRightToLeftAimDiagonalUpPose,
-                    SamusProjectileDirection.Right => SamusPoseId.TurningRightToLeftPose,
-                    SamusProjectileDirection.DownRight => SamusPoseId.TurningRightToLeftAimDiagonalDownPose,
-                    SamusProjectileDirection.DownLeft => SamusPoseId.TurningLeftToRightAimDiagonalDownPose,
-                    SamusProjectileDirection.Left => SamusPoseId.TurningLeftToRightPose,
-                    SamusProjectileDirection.UpLeft => SamusPoseId.TurningLeftToRightAimDiagonalUpPose,
-                    SamusProjectileDirection.UpFacingLeft => SamusPoseId.TurningLeftToRightAimUpPose,
-                    SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => throw new InvalidDataException(
-                        $"Grounded turn aim {aim} is invalid."),
-                    _ => throw new InvalidDataException(
-                        $"Grounded turn aim {aim} is invalid."),
-                };
+            IReadOnlyDictionary<SamusProjectileDirection, SamusPoseId> turns = wasCrouching
+                ? SamusAimedPoseChoiceDefinitions.CrouchingTurns
+                : SamusAimedPoseChoiceDefinitions.StandingTurns;
+            // Grounded and crouched poses never aim straight down, nor outside their eight aims.
+            selectedTurnPose = aim.Direction is { } direction && turns.TryGetValue(direction, out SamusPoseId turn)
+                ? turn
+                : throw new InvalidDataException($"{(wasCrouching ? "Crouched" : "Grounded")} turn aim {aim} is invalid.");
         }
 
         if (!wasForwardFacing &&
@@ -555,17 +511,10 @@ internal static class SamusGroundedPoseTransitions
                 $"Grounded turn source {samus.Pose} has direction metadata inconsistent with target {targetPose}.");
         }
 
-        SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
-
-        // Folds the run-button/speed-booster component into base speed, the fraction carrying into the whole pixels.
-        // Both speeds stay a few pixels an update, so the sum is a plain add.
-        speed.BaseSpeed += speed.ExtraRunSpeed;
-
-        // The transition consumes the extra component and selects
-        // SamusAccelerationMode.Turning. The direction selector reads that mode as “move opposite the NEW facing direction”
-        // while the speed calculation decelerates, which is how reversal preserves old momentum.
-        speed.ExtraRunSpeed = default;
-        speed.AccelerationMode = SamusAccelerationMode.Turning;
+        // The turn consumes the extra run speed and selects SamusAccelerationMode.Turning. The direction selector reads
+        // that mode as “move opposite the NEW facing direction” while the speed calculation decelerates, which is how
+        // reversal preserves old momentum.
+        FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
 
         ApplySimpleGroundedPoseChange(samus, samus.Pose, selectedTurnPose, "Grounded turn");
 

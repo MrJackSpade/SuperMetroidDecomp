@@ -14,11 +14,15 @@ public static class BossLineScrolls
     /// Phantoon's wave as a sine wave over every screen line (#1858, #2031): his body ripples about where it is placed, and
     /// <paramref name="camera"/> shows it from there.
     /// </summary>
+    /// <remarks>
+    /// The wave's base scroll is the camera's signed distance from the placement (#2308), as the body's shown scroll is
+    /// (<see cref="Enemies.BossBodies.BossBodyPlacement.Shown"/>): negative while his body lies right of the camera's corner.
+    /// </remarks>
     /// <param name="wave">The wave the boss published.</param>
     /// <param name="camera">The frame's camera, the room pixel at the screen's top-left.</param>
     /// <param name="placement">Where his body is placed, the room pixel each of its frames lies against.</param>
     public static ScrollWave Of(PhantoonWave wave, Position16<RoomPixels> camera, Position16<RoomPixels> placement) =>
-        new(CoordinateAxis.Wrap(camera.X - placement.X), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Ensure.NotNull(wave).Amplitude), wave.Phase, wave.Period, 0,
+        new(CoordinateAxis.Difference(camera.X, placement.X), UnsignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(Ensure.NotNull(wave).Amplitude), wave.Phase, wave.Period, 0,
             ScreenGeometry.ScreenHeightPixels);
 
     /// <summary>
@@ -31,7 +35,10 @@ public static class BossLineScrolls
     public static ScrollStretch Of(CrocomireMeltDistortion melt, Position16<RoomPixels> camera) =>
         new(BodyRowAtScreenTop(Ensure.NotNull(melt).LevelledTop, camera), BodyRowAtScreenTop(melt.Top, camera), melt.FirstLine, melt.EndLine, melt.Slope);
 
-    /// <summary>The row of a body placed on room row <paramref name="top"/> that the screen's top shows against <paramref name="camera"/>.</summary>
+    /// <summary>
+    /// The row of a body placed on room row <paramref name="top"/> that the screen's top shows against
+    /// <paramref name="camera"/>, a signed row (#2308): negative while the body's row lies below the screen's top.
+    /// </summary>
     private static int BodyRowAtScreenTop(int top, Position16<RoomPixels> camera) =>
-        GameplaySceneView.LayerRowAtScreenTop(CoordinateAxis.Wrap(camera.Y - top));
+        GameplaySceneView.LayerRowAtScreenTop(CoordinateAxis.Difference(camera.Y, top));
 }

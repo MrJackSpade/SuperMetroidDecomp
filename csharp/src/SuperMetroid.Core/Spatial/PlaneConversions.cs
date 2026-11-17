@@ -24,4 +24,10 @@ public static class PlaneConversions
     /// </summary>
     public static Offset16<PlanePixels> AsPlaneOffset(this Position16<RoomPixels> scroll) => Offset16<PlanePixels>.Wrapped(scroll.X, scroll.Y);
 
+    /// <summary>
+    /// The background plane offset a signed background scroll shows at the screen's top-left (#2308): a negative scroll
+    /// lies left of or above the background's origin.
+    /// </summary>
+    public static Offset16<PlanePixels> AsPlaneOffset(this Offset16<BackgroundPixels> scroll) => new(scroll.X, scroll.Y);
+
 }

@@ -66,7 +66,7 @@ public static class GameplayEffectCapture
     /// counted from the camera's row.
     /// </summary>
     /// <param name="fx">The room effect the frame shows.</param>
-    /// <param name="backgroundVerticalScroll">The background camera's top row.</param>
+    /// <param name="backgroundVerticalScroll">The background camera's top row, signed (#2308): negative above the background's origin.</param>
     public static SampledScrollWave? BuildLavaAcidBackgroundVerticalScrolls(
         RoomFxOverlayRenderSnapshot fx,
         int backgroundVerticalScroll)

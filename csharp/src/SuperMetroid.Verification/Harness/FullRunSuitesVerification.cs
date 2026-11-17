@@ -3,6 +3,7 @@ using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using static SuperMetroid.Verification.Runtime.GameplayDisplayFrameTestsVerification;
 using static SuperMetroid.Verification.Rendering.SignedBackgroundScrollVerification;
+using static SuperMetroid.Verification.Rendering.SignedLineScrollRowsVerification;
 using static SuperMetroid.Verification.Harness.FullMovieReplayVerification;
 using static SuperMetroid.Verification.Bosses.Ridley.RidleyFullMovieVerification;
 using static SuperMetroid.Verification.Samus.Movement.AerialSpreadTransitionVerification;
@@ -1230,6 +1231,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState()),
         new(nameof(VerifyOceanSky), () => VerifyOceanSky()),
         new(nameof(VerifySignedBackgroundScroll), () => VerifySignedBackgroundScroll()),
+        new(nameof(VerifySignedLineScrollRows), () => VerifySignedLineScrollRows()),
         new(nameof(VerifyPublishedSkyBands), () => VerifyPublishedSkyBands()),
         new(nameof(VerifyPublishedHudRows), () => VerifyPublishedHudRows()),
         new(nameof(VerifyWaterEffectPlane), () => VerifyWaterEffectPlane()),

@@ -26,7 +26,8 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         (RoomEnemySystem enemies, RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
         AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.Initial), AnimationPlace.StartOfAnimation), state.Playback, "face block starts neutral");
         ushort neutral = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.Initial).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(place, 3), "face block neutral pose");
+        // A still picture shows once and holds (#2275).
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral], [1]), EnemyInstructionRunner.ShownFrames(place, 3), "face block neutral pose");
 
         foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockSegment program) in new[]
                  {

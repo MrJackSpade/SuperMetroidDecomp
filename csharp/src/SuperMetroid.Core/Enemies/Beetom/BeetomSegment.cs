@@ -6,16 +6,24 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// </summary>
 internal enum BeetomSegment
 {
-    /// <summary>The crawling left animation.</summary>
+    /// <summary>The leftward crawl's start, its entry cue.</summary>
     CrawlingLeft,
+    /// <summary>The leftward crawl's four strides.</summary>
+    CrawlingLeftStride,
     /// <summary>The hop left animation.</summary>
     HopLeft,
-    /// <summary>The draining left animation.</summary>
+    /// <summary>The leftward drain's green gem, shown once.</summary>
     DrainingLeft,
-    /// <summary>The crawling right animation.</summary>
+    /// <summary>The leftward drain's red gem pulse.</summary>
+    DrainingLeftRed,
+    /// <summary>The rightward crawl's start, its entry cue.</summary>
     CrawlingRight,
+    /// <summary>The rightward crawl's four strides.</summary>
+    CrawlingRightStride,
     /// <summary>The hop right animation.</summary>
     HopRight,
-    /// <summary>The draining right animation.</summary>
+    /// <summary>The rightward drain's green gem, shown once.</summary>
     DrainingRight,
+    /// <summary>The rightward drain's red gem pulse.</summary>
+    DrainingRightRed,
 }

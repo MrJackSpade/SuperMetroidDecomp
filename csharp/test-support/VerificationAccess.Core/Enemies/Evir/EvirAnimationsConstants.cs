@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -10,6 +10,6 @@ internal static class EvirAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params EvirSegment[] programs) =>
         programs.SelectMany(program => EvirAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, EvirCue>.Frame>()
-            .Select(frame => EvirFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => EvirFrameToolingDefinitions.Spritemap(frame));
 }

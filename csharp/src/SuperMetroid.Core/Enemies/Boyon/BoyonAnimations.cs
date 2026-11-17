@@ -18,6 +18,9 @@ internal static class BoyonAnimations
         [P.Idle] =
         [
             Cue(new(K.StopProcessingOffScreen)),
+        ],
+        [P.IdleRest] =
+        [
             Show(EnemyFrameId.BoyonRestingRound, 10),
             Show(EnemyFrameId.BoyonRestingGlinting, 10),
             Show(EnemyFrameId.BoyonRestingSquat, 10),
@@ -27,6 +30,9 @@ internal static class BoyonAnimations
         [
             Cue(new(K.ProcessOffScreen)),
             Cue(new(K.StartBounce)),
+        ],
+        [P.BouncingStar] =
+        [
             Show(EnemyFrameId.BoyonBouncingBulging, 5),
             Show(EnemyFrameId.BoyonBouncingStarShaped, 5),
             Show(EnemyFrameId.BoyonBouncingStarSpread, 5),
@@ -36,12 +42,18 @@ internal static class BoyonAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2275): each raises its own entry cues
+    /// once, then rests or bounces for good.
+    /// </summary>
     internal static IReadOnlyDictionary<BoyonSegment, Animation<BoyonSegment>> StartingAt { get; } = new Dictionary<BoyonSegment, Animation<BoyonSegment>>
     {
-        [P.Idle] = new([new(P.Idle, 0, 1, 1), new(P.Idle, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.Bouncing] = new([new(P.Bouncing, 0, 2, 1), new(P.Bouncing, 2, 6, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.Idle] = new([Whole(P.Idle), Whole(P.IdleRest)], AnimationEnd.LoopsFrom(1)),
+        [P.Bouncing] = new([Whole(P.Bouncing), Whole(P.BouncingStar)], AnimationEnd.LoopsFrom(1)),
     };
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<BoyonSegment> Whole(BoyonSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BoyonSegment> StartingWith(BoyonSegment segment) => StartingAt[segment];

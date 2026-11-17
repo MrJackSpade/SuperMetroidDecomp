@@ -31,7 +31,8 @@ internal static class ChootBehaviorVerification
 
         AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Idle), AnimationPlace.StartOfAnimation), state.Playback, "Choot initializer animation");
         ushort[] idle = ChootAnimationsConstants.Spritemaps(ChootSegment.Idle).ToArray();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([idle[0], idle[0]], [1, 1]),
+        // A still picture shows once and holds (#2275).
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([idle[0]], [1]),
             EnemyInstructionRunner.ShownFrames(place, 3), "Choot idle pose");
         AssertTrue(!place.Processing.HasAny(EnemyProcessing.OffScreen), "Choot idle program disables off-screen processing");
 
@@ -40,7 +41,7 @@ internal static class ChootBehaviorVerification
         AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Jumping), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real preparation handoff starts the jumping animation");
         ushort[] jumping = ChootAnimationsConstants.Spritemaps(ChootSegment.Jumping).ToArray();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([jumping[0], jumping[1], jumping[1]], [8, 1, 1]),
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([jumping[0], jumping[1]], [8, 1]),
             EnemyInstructionRunner.ShownFrames(place, 10), "Choot jumping animation");
         AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen), "Choot jumping program enables off-screen processing");
 
@@ -49,7 +50,7 @@ internal static class ChootBehaviorVerification
         AssertEqual(new AnimationPlayback<ChootSegment>(ChootAnimations.StartingWith(ChootSegment.Falling), AnimationPlace.StartOfAnimation), state.Playback,
             "Choot real apex handoff starts the falling animation");
         ushort[] falling = ChootAnimationsConstants.Spritemaps(ChootSegment.Falling).ToArray();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([falling[0], falling[1], falling[1]], [8, 1, 1]),
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([falling[0], falling[1]], [8, 1]),
             EnemyInstructionRunner.ShownFrames(place, 10), "Choot falling animation");
         Console.WriteLine(artwork is null
             ? "  Choot behavior: idle, jumping and falling animations and their off-screen switches run as the cartridge does."

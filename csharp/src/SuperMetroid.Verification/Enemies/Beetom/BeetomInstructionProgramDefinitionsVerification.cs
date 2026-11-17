@@ -172,9 +172,9 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AnimationPlayback<BeetomSegment> playback = state.Playback;
         int cycle = playback.Animation.CyclePhase;
         AnimationPhase<BeetomSegment> loop = playback.Animation.Phases[cycle];
-        AssertTrue(playback.Place.Phase == cycle && playback.Place.Beat == 1 && loop.Segment == animation,
+        AssertTrue(playback.Place.Phase == cycle && playback.Place.Beat == 1 && ReferenceEquals(playback.Animation, BeetomAnimations.StartingWith(animation)),
             $"Beetom {animation} loops back and shows its loop's first pose");
-        var first = AssertIs<AnimationBeat<EnemyFrameId, BeetomCue>.Frame>(BeetomAnimations.Segments.Beats(animation)[loop.FirstBeat], $"Beetom {animation} loop's first beat");
+        var first = AssertIs<AnimationBeat<EnemyFrameId, BeetomCue>.Frame>(BeetomAnimations.Segments.Beats(loop.Segment)[loop.FirstBeat], $"Beetom {animation} loop's first beat");
         AssertEqual(BeetomFrameToolingDefinitions.Spritemap(first.Shown), place.SpritemapPointer, $"Beetom {animation} loop's first pose");
     }
 

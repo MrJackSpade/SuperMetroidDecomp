@@ -14,61 +14,31 @@ internal static class CacatacProjectileAnimations
     internal static AnimationSegments<CacatacSpikeDirection, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
         new Dictionary<CacatacSpikeDirection, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
-        [P.LeftFacingUp] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeLeftHigh, 1),
-        ],
-        [P.UpLeft] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeUpLeft, 1),
-        ],
-        [P.Up] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeUp, 1),
-        ],
-        [P.UpRight] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeUpRight, 1),
-        ],
-        [P.RightFacingUp] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeRightHigh, 1),
-        ],
-        [P.LeftFacingDown] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeLeftLow, 1),
-        ],
-        [P.DownLeft] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeDownLeft, 1),
-        ],
-        [P.Down] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeDown, 1),
-        ],
-        [P.DownRight] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeDownRight, 1),
-        ],
-        [P.RightFacingDown] =
-        [
-            Show(EnemyProjectileFrameId.CacatacSpikeRightLow, 1),
-        ],
+        [P.LeftFacingUp] = [Hold(EnemyProjectileFrameId.CacatacSpikeLeftHigh)],
+        [P.UpLeft] = [Hold(EnemyProjectileFrameId.CacatacSpikeUpLeft)],
+        [P.Up] = [Hold(EnemyProjectileFrameId.CacatacSpikeUp)],
+        [P.UpRight] = [Hold(EnemyProjectileFrameId.CacatacSpikeUpRight)],
+        [P.RightFacingUp] = [Hold(EnemyProjectileFrameId.CacatacSpikeRightHigh)],
+        [P.LeftFacingDown] = [Hold(EnemyProjectileFrameId.CacatacSpikeLeftLow)],
+        [P.DownLeft] = [Hold(EnemyProjectileFrameId.CacatacSpikeDownLeft)],
+        [P.Down] = [Hold(EnemyProjectileFrameId.CacatacSpikeDown)],
+        [P.DownRight] = [Hold(EnemyProjectileFrameId.CacatacSpikeDownRight)],
+        [P.RightFacingDown] = [Hold(EnemyProjectileFrameId.CacatacSpikeRightLow)],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>The animation that starts at each segment an owner can start or restart at: each spike a still picture (#2275).</summary>
     internal static IReadOnlyDictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>> StartingAt { get; } = new Dictionary<CacatacSpikeDirection, Animation<CacatacSpikeDirection>>
     {
-        [P.LeftFacingUp] = new([new(P.LeftFacingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.UpLeft] = new([new(P.UpLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Up] = new([new(P.Up, 0, 1, 1)], AnimationEnd.Holds),
-        [P.UpRight] = new([new(P.UpRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RightFacingUp] = new([new(P.RightFacingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.LeftFacingDown] = new([new(P.LeftFacingDown, 0, 1, 1)], AnimationEnd.Holds),
-        [P.DownLeft] = new([new(P.DownLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Down] = new([new(P.Down, 0, 1, 1)], AnimationEnd.Holds),
-        [P.DownRight] = new([new(P.DownRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RightFacingDown] = new([new(P.RightFacingDown, 0, 1, 1)], AnimationEnd.Holds),
+        [P.LeftFacingUp] = new([Whole(P.LeftFacingUp)], AnimationEnd.Holds),
+        [P.UpLeft] = new([Whole(P.UpLeft)], AnimationEnd.Holds),
+        [P.Up] = new([Whole(P.Up)], AnimationEnd.Holds),
+        [P.UpRight] = new([Whole(P.UpRight)], AnimationEnd.Holds),
+        [P.RightFacingUp] = new([Whole(P.RightFacingUp)], AnimationEnd.Holds),
+        [P.LeftFacingDown] = new([Whole(P.LeftFacingDown)], AnimationEnd.Holds),
+        [P.DownLeft] = new([Whole(P.DownLeft)], AnimationEnd.Holds),
+        [P.Down] = new([Whole(P.Down)], AnimationEnd.Holds),
+        [P.DownRight] = new([Whole(P.DownRight)], AnimationEnd.Holds),
+        [P.RightFacingDown] = new([Whole(P.RightFacingDown)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation of a spike launched in <paramref name="direction"/>.</summary>
@@ -78,6 +48,9 @@ internal static class CacatacProjectileAnimations
             ? animation
             : throw new InvalidDataException($"Cacatac spike direction {direction} is outside the ten spike directions.");
 
-    /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<CacatacSpikeDirection> Whole(CacatacSpikeDirection segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.HeldFrame(frame);
 }

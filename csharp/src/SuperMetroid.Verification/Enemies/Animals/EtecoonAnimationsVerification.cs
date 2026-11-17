@@ -18,7 +18,8 @@ internal static class EtecoonAnimationsVerification
             new NativeEnemyCueRules<NoAnimationCue>(
                 word => null,
                 (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions.")),
-            countedEntries: [new NativeCountedEntry<EtecoonSegment>("the flex", EtecoonAnimations.Flexing, FlexingStart)]);
+            countedEntries: [new NativeCountedEntry<EtecoonSegment>("the flex", EtecoonAnimations.Flexing, FlexingStart)],
+            onlyRunOnInto: new HashSet<EtecoonSegment> { EtecoonSegment.JumpingLeft, EtecoonSegment.FlexEnd });
         Console.WriteLine($"  Etecoon animations: {Entries.Length} segments ({beats} beats) and {EtecoonAnimations.StartingAt.Count} animations match bank $A7.");
     }
 }

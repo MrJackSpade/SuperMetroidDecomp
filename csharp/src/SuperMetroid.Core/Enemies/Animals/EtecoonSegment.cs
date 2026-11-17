@@ -12,8 +12,10 @@ internal enum EtecoonSegment
     BeginRunningLeft,
     /// <summary>The running left animation.</summary>
     RunningLeft,
-    /// <summary>The wall jump left animation.</summary>
+    /// <summary>The wall jump left's leap.</summary>
     WallJumpLeft,
+    /// <summary>The spin a wall jump left plays after its leap, for good.</summary>
+    JumpingLeft,
     /// <summary>The hopping facing left animation.</summary>
     HoppingFacingLeft,
     /// <summary>The hop facing left, up to its crest and down again, which hitting a ceiling enters at the crest.</summary>
@@ -38,6 +40,8 @@ internal enum EtecoonSegment
     WallJumpRightEligible,
     /// <summary>The initial animation.</summary>
     Initial,
-    /// <summary>The flex: its hop poses, played four times, then its two closing poses.</summary>
+    /// <summary>The flex's six hop poses, which the flex plays four times.</summary>
     Flexing,
+    /// <summary>The flex's two closing poses, the last held.</summary>
+    FlexEnd,
 }

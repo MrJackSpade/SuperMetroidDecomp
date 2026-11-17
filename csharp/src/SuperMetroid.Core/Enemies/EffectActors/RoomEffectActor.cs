@@ -39,7 +39,7 @@ public sealed class RoomEffectActor
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
-    internal AnimationPlayback<RoomEffectActorKind>? Playback { get; private set; }
+    internal AnimationPlayback<RoomEffectActorSegment>? Playback { get; private set; }
 
     /// <summary>Updates left showing <see cref="Frame"/> before the animation moves on; not counted while the object <see cref="Holds"/>.</summary>
     public int Timer { get; private set; }
@@ -71,25 +71,31 @@ public sealed class RoomEffectActor
     /// </summary>
     private void AdvanceAnimation()
     {
-        AnimationPlayback<RoomEffectActorKind> playback = Playback ?? throw new InvalidOperationException(
+        AnimationPlayback<RoomEffectActorSegment> playback = Playback ?? throw new InvalidOperationException(
             $"Effect actor {Kind} has no animation to play.");
-        Animation<RoomEffectActorKind> animation = playback.Animation;
+        Animation<RoomEffectActorSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        AnimationShown<RoomEffectActorKind, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
+        AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
             ref animation, ref place,
             raised => throw new InvalidOperationException($"Effect actor {Kind}'s event-free animation raised {raised}."));
         switch (shown)
         {
-            case AnimationShown<RoomEffectActorKind, RoomEffectActorPicture>.Frame frame:
+            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Frame frame:
                 Playback = new(animation, place);
                 Frame = frame.Shown;
                 Timer = frame.Duration;
                 return;
-            case AnimationShown<RoomEffectActorKind, RoomEffectActorPicture>.Held:
+            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.HeldFrame held:
+                // A still picture shows from now on (#2275).
+                Playback = new(animation, place);
+                Frame = held.Shown;
+                Holds = true;
+                return;
+            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Held:
                 Playback = new(animation, place);
                 Holds = true;
                 return;
-            case AnimationShown<RoomEffectActorKind, RoomEffectActorPicture>.Ended:
+            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended:
                 End();
                 return;
             default:

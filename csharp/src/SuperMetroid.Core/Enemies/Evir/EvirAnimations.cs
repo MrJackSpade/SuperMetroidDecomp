@@ -73,34 +73,51 @@ internal static class EvirAnimations
             Show(EnemyFrameId.EvirArmsFacingRightSpreading, 10),
             Show(EnemyFrameId.EvirArmsFacingRightFolded, 48),
         ],
-        [P.ProjectileNormal] =
-        [
-            Show(EnemyFrameId.EvirSpineBall, 1),
-        ],
+        [P.ProjectileNormal] = [new AnimationBeat<EnemyFrameId, EvirCue>.HeldFrame(EnemyFrameId.EvirSpineBall)],
         [P.ProjectileRegenerating] =
         [
             Cue(new(K.SetInitialRegenerationOffset)),
+        ],
+        [P.ProjectileRegeneratingSound] =
+        [
             Cue(new(K.PlaySpitSound)),
         ],
-        [P.ProjectileRegenerationLoop] =
+        [P.ProjectileRegrowing] =
         [
             Show(EnemyFrameId.EvirSpineBallRegrowing, 8),
             Cue(new(K.AdvanceRegenerationOffset)),
+        ],
+        [P.ProjectileRegrown] =
+        [
             Show(EnemyFrameId.EvirSpineBall, 16),
             Cue(new(K.FinishRegeneration)),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>How many times a regenerating spit regrows a step out from the mouth.</summary>
+    private const int RegrowthSteps = 8;
+
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2275): the spit is a still picture,
+    /// and a regenerating spit starts its own regrowth, sounds, regrows eight steps out from the mouth and is whole again.
+    /// </summary>
     internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
-        [P.BodyFacingLeft] = new([new(P.BodyFacingLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingLeft] = new([new(P.ArmsFacingLeft, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BodyFacingRight] = new([new(P.BodyFacingRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ArmsFacingRight] = new([new(P.ArmsFacingRight, 0, 17, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ProjectileNormal] = new([new(P.ProjectileNormal, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ProjectileRegenerating] = new([new(P.ProjectileRegenerating, 0, 1, 1), new(P.ProjectileRegenerating, 1, 1, 1), new(P.ProjectileRegenerationLoop, 0, 2, 8), new(P.ProjectileRegenerationLoop, 2, 2, 1)], AnimationEnd.Holds),
+        [P.BodyFacingLeft] = new([Whole(P.BodyFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingLeft] = new([Whole(P.ArmsFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.BodyFacingRight] = new([Whole(P.BodyFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ArmsFacingRight] = new([Whole(P.ArmsFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ProjectileNormal] = new([Whole(P.ProjectileNormal)], AnimationEnd.Holds),
+        [P.ProjectileRegenerating] = new(
+            [Whole(P.ProjectileRegenerating), Whole(P.ProjectileRegeneratingSound), Repeated(P.ProjectileRegrowing, RegrowthSteps), Whole(P.ProjectileRegrown)],
+            AnimationEnd.Holds),
     };
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<EvirSegment> Whole(EvirSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<EvirSegment> Repeated(EvirSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EvirSegment> StartingWith(EvirSegment segment) => StartingAt[segment];

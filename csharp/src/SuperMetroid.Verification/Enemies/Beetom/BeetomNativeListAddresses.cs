@@ -17,11 +17,15 @@ internal static class BeetomNativeListAddresses
     internal static readonly NativeProgramEntry<BeetomSegment>[] Entries =
     [
         new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingLeft, 0xb696),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingLeftStride, 0xb698),
         new NativeProgramEntry<BeetomSegment>(BeetomSegment.HopLeft, 0xb6ac),
         new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingLeft, 0xb6cc),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingLeftRed, 0xb6de),
         new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingRight, 0xb6f2),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.CrawlingRightStride, 0xb6f4),
         new NativeProgramEntry<BeetomSegment>(BeetomSegment.HopRight, 0xb708),
         new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingRight, 0xb728),
+        new NativeProgramEntry<BeetomSegment>(BeetomSegment.DrainingRightRed, 0xb73a),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

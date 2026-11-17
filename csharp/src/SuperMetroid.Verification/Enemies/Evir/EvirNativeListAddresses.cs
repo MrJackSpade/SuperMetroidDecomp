@@ -22,7 +22,9 @@ internal static class EvirNativeListAddresses
         new NativeProgramEntry<EvirSegment>(EvirSegment.ArmsFacingRight, 0x8727),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileNormal, 0x876f),
         new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegenerating, 0x8775),
-        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegenerationLoop, 0x877d),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegeneratingSound, 0x877b),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegrowing, 0x877d),
+        new NativeProgramEntry<EvirSegment>(EvirSegment.ProjectileRegrown, 0x8787),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

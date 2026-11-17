@@ -22,7 +22,11 @@ internal static class BeetomAnimationsVerification
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
                 },
-                Omitted: OmittedInstructions.Contains));
+                Omitted: OmittedInstructions.Contains),
+            onlyRunOnInto: new HashSet<BeetomSegment>
+            {
+                BeetomSegment.CrawlingLeftStride, BeetomSegment.DrainingLeftRed, BeetomSegment.CrawlingRightStride, BeetomSegment.DrainingRightRed,
+            });
         Console.WriteLine($"  Beetom animations: {Entries.Length} segments ({beats} beats) and {BeetomAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

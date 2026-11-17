@@ -44,6 +44,9 @@ internal static class CacatacAnimations
         [P.UpsideDownIdle] =
         [
             Cue(new(K.RestorePatrol)),
+        ],
+        [P.UpsideDownIdlePoses] =
+        [
             Show(EnemyFrameId.CacatacUpsideDownSplayed, 8),
             Show(EnemyFrameId.CacatacUpsideDownDrawingIn, 8),
             Show(EnemyFrameId.CacatacUpsideDownDrawnIn, 8),
@@ -68,14 +71,20 @@ internal static class CacatacAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2275). The upright idle restores the
+    /// patrol on every cycle; the upside-down idle restores it once, its own entry cue, and then cycles its poses.
+    /// </summary>
     internal static IReadOnlyDictionary<CacatacSegment, Animation<CacatacSegment>> StartingAt { get; } = new Dictionary<CacatacSegment, Animation<CacatacSegment>>
     {
-        [P.UpsideUpIdle] = new([new(P.UpsideUpIdle, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.UpsideUpAttack] = new([new(P.UpsideUpAttack, 0, 10, 1), new(P.UpsideUpIdle, 0, 9, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownIdle] = new([new(P.UpsideDownIdle, 0, 1, 1), new(P.UpsideDownIdle, 1, 8, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.UpsideDownAttack] = new([new(P.UpsideDownAttack, 0, 10, 1), new(P.UpsideDownIdle, 0, 1, 1), new(P.UpsideDownIdle, 1, 8, 1)], AnimationEnd.LoopsFrom(2)),
+        [P.UpsideUpIdle] = new([Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(0)),
+        [P.UpsideUpAttack] = new([Whole(P.UpsideUpAttack), Whole(P.UpsideUpIdle)], AnimationEnd.LoopsFrom(1)),
+        [P.UpsideDownIdle] = new([Whole(P.UpsideDownIdle), Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(1)),
+        [P.UpsideDownAttack] = new([Whole(P.UpsideDownAttack), Whole(P.UpsideDownIdle), Whole(P.UpsideDownIdlePoses)], AnimationEnd.LoopsFrom(2)),
     };
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<CacatacSegment> Whole(CacatacSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CacatacSegment> StartingWith(CacatacSegment segment) => StartingAt[segment];

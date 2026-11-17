@@ -27,56 +27,38 @@ internal static class DeadTourianAnimations
             Show(EnemyFrameId.DeadSidehopperLegsCrouched, 4),
             Cue(new(K.EndHop)),
         ],
-        [P.SidehopperIdle] =
-        [
-            Show(EnemyFrameId.DeadSidehopperLegsStraight, 1),
-        ],
-        [P.SidehopperCorpse] =
-        [
-            Show(EnemyFrameId.DeadSidehopperSprawled, 1),
-        ],
-        [P.SidehopperInitiallyDead] =
-        [
-            Show(EnemyFrameId.DeadSidehopperSprawledLegsUp, 1),
-        ],
-        [P.ZoomerCorpseOnItsBack] =
-        [
-            Show(EnemyFrameId.DeadZoomerCorpseOnItsBack, 1),
-        ],
-        [P.ZoomerCorpseUpright] =
-        [
-            Show(EnemyFrameId.DeadZoomerCorpseUpright, 1),
-        ],
-        [P.RipperCorpseLevel] =
-        [
-            Show(EnemyFrameId.DeadRipperCorpseLevel, 1),
-        ],
-        [P.RipperCorpseTilted] =
-        [
-            Show(EnemyFrameId.DeadRipperCorpseTilted, 1),
-        ],
-        [P.SkreeCorpse] =
-        [
-            Show(EnemyFrameId.DeadSkreeCorpse, 1),
-        ],
+        [P.SidehopperIdle] = [Hold(EnemyFrameId.DeadSidehopperLegsStraight)],
+        [P.SidehopperCorpse] = [Hold(EnemyFrameId.DeadSidehopperSprawled)],
+        [P.SidehopperInitiallyDead] = [Hold(EnemyFrameId.DeadSidehopperSprawledLegsUp)],
+        [P.ZoomerCorpseOnItsBack] = [Hold(EnemyFrameId.DeadZoomerCorpseOnItsBack)],
+        [P.ZoomerCorpseUpright] = [Hold(EnemyFrameId.DeadZoomerCorpseUpright)],
+        [P.RipperCorpseLevel] = [Hold(EnemyFrameId.DeadRipperCorpseLevel)],
+        [P.RipperCorpseTilted] = [Hold(EnemyFrameId.DeadRipperCorpseTilted)],
+        [P.SkreeCorpse] = [Hold(EnemyFrameId.DeadSkreeCorpse)],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DeadTourianSegment, Animation<DeadTourianSegment>> StartingAt { get; } = new Dictionary<DeadTourianSegment, Animation<DeadTourianSegment>>
     {
-        [P.SidehopperHopping] = new([new(P.SidehopperHopping, 0, 9, 1)], AnimationEnd.Holds),
-        [P.SidehopperIdle] = new([new(P.SidehopperIdle, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SidehopperCorpse] = new([new(P.SidehopperCorpse, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SidehopperInitiallyDead] = new([new(P.SidehopperInitiallyDead, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ZoomerCorpseOnItsBack] = new([new(P.ZoomerCorpseOnItsBack, 0, 1, 1)], AnimationEnd.Holds),
-        [P.ZoomerCorpseUpright] = new([new(P.ZoomerCorpseUpright, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RipperCorpseLevel] = new([new(P.RipperCorpseLevel, 0, 1, 1)], AnimationEnd.Holds),
-        [P.RipperCorpseTilted] = new([new(P.RipperCorpseTilted, 0, 1, 1)], AnimationEnd.Holds),
-        [P.SkreeCorpse] = new([new(P.SkreeCorpse, 0, 1, 1)], AnimationEnd.Holds),
+        [P.SidehopperHopping] = new([Whole(P.SidehopperHopping)], AnimationEnd.Holds),
+        [P.SidehopperIdle] = new([Whole(P.SidehopperIdle)], AnimationEnd.Holds),
+        [P.SidehopperCorpse] = new([Whole(P.SidehopperCorpse)], AnimationEnd.Holds),
+        [P.SidehopperInitiallyDead] = new([Whole(P.SidehopperInitiallyDead)], AnimationEnd.Holds),
+        [P.ZoomerCorpseOnItsBack] = new([Whole(P.ZoomerCorpseOnItsBack)], AnimationEnd.Holds),
+        [P.ZoomerCorpseUpright] = new([Whole(P.ZoomerCorpseUpright)], AnimationEnd.Holds),
+        [P.RipperCorpseLevel] = new([Whole(P.RipperCorpseLevel)], AnimationEnd.Holds),
+        [P.RipperCorpseTilted] = new([Whole(P.RipperCorpseTilted)], AnimationEnd.Holds),
+        [P.SkreeCorpse] = new([Whole(P.SkreeCorpse)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DeadTourianSegment> StartingWith(DeadTourianSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DeadTourianSegment> Whole(DeadTourianSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, DeadTourianCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, DeadTourianCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DeadTourianCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, DeadTourianCue>.Frame(frame, duration);

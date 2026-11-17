@@ -32,21 +32,34 @@ internal static class ChozoTourianDustAnimations
             Show(EnemyProjectileFrameId.ChozoDustPuffPairTwin, 2),
             Show(EnemyProjectileFrameId.ChozoDustPuffTrioTwin, 2),
             Show(EnemyProjectileFrameId.ChozoDustCloudsDenseTwin, 2),
+        ],
+        [P.TourianDescentDustEnd] =
+        [
             Cue(new EnemyProjectileCommonCue.Signal(CK.Delete)),
         ],
     });
 
+    /// <summary>How many puffs the Tourian statue's descent dust raises before it is deleted.</summary>
+    private const int DescentDustPuffs = 64;
+
     /// <summary>The animation that starts at each segment an owner can start or restart at: the footstep dust's.</summary>
     internal static IReadOnlyDictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>> StartingAt { get; } = new Dictionary<ChozoTourianDustSegment, Animation<ChozoTourianDustSegment>>
     {
-        [P.Footsteps] = new([new(P.Footsteps, 0, 6, 1)], AnimationEnd.Holds),
+        [P.Footsteps] = new([Whole(P.Footsteps)], AnimationEnd.Holds),
     };
 
     /// <summary>
     /// The dust the Tourian statue raises as it sinks (#2061): sixty-four puffs scattered about its origin, then deleted.
     /// </summary>
     internal static Animation<ChozoTourianDustSegment> TourianDescentDust { get; } =
-        new([new(P.TourianDescentDust, 0, 6, 64), new(P.TourianDescentDust, 6, 1, 1)], AnimationEnd.Holds);
+        new([Repeated(P.TourianDescentDust, DescentDustPuffs), Whole(P.TourianDescentDustEnd)], AnimationEnd.Holds);
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ChozoTourianDustSegment> Whole(ChozoTourianDustSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<ChozoTourianDustSegment> Repeated(ChozoTourianDustSegment segment, int plays) =>
+        new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<ChozoTourianDustSegment> StartingWith(ChozoTourianDustSegment segment) => StartingAt[segment];

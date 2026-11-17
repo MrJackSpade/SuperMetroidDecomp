@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -10,6 +10,6 @@ internal static class DeadTourianAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params DeadTourianSegment[] programs) =>
         programs.SelectMany(program => DeadTourianAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, DeadTourianCue>.Frame>()
-            .Select(frame => DeadTourianFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => DeadTourianFrameToolingDefinitions.Spritemap(frame));
 }

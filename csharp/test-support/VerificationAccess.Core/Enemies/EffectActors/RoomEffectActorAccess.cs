@@ -12,18 +12,21 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// </summary>
 internal static class RoomEffectActorAccess
 {
-    /// <summary>The bytes a beat occupies in its native list: only timed frames, four bytes each.</summary>
-    private static int BeatBytes(AnimationBeat<RoomEffectActorPicture, NoAnimationCue> beat) => beat switch
+    /// <summary>
+    /// The bytes beat <paramref name="index"/> of <paramref name="segment"/> occupies in its native list: a timed frame or a
+    /// still picture four bytes a record, a frame the list shows in two records in a row (#2275) eight.
+    /// </summary>
+    private static int BeatBytes(RoomEffectActorSegment segment, int index) => RoomEffectActorAnimations.Segments.Beats(segment)[index] switch
     {
-        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame => 4,
-        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Pause or AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Event => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
-        _ => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
+        AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame or AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame =>
+            4 * RoomEffectActorProgramAddresses.RecordsOf(segment, index),
+        var beat => throw new InvalidOperationException($"Room sprite-object segments have no {beat} beat."),
     };
 
-    /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="kind"/>'s segment.</summary>
-    internal static ushort RecordAddress(RoomEffectActorKind kind, int beat) =>
-        checked((ushort)(RoomEffectActorProgramAddresses.Entries[kind] +
-            RoomEffectActorAnimations.Segments.Beats(kind).Take(beat).Sum(BeatBytes)));
+    /// <summary>The bank-$B4 address of beat <paramref name="beat"/> of <paramref name="segment"/>.</summary>
+    internal static ushort RecordAddress(RoomEffectActorSegment segment, int beat) =>
+        checked((ushort)(RoomEffectActorProgramAddresses.SegmentEntries[segment] +
+            Enumerable.Range(0, beat).Sum(index => BeatBytes(segment, index))));
 
     /// <summary>Native views of a sprite object.</summary>
     extension(RoomEffectActor self)

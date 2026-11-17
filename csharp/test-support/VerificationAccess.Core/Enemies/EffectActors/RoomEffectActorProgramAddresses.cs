@@ -32,4 +32,23 @@ internal static class RoomEffectActorProgramAddresses
         [RoomEffectActorKind.EvirFacingRight] = 0xc61c,
         [RoomEffectActorKind.HitBurst] = 0xc5c6,
     };
+
+    /// <summary>
+    /// Each segment's list address (#2275): a kind's own run starts at the kind's list, and a Metroid's electricity's and
+    /// shell's cycles at the records their first pass runs on into.
+    /// </summary>
+    internal static IReadOnlyDictionary<RoomEffectActorSegment, ushort> SegmentEntries { get; } =
+        new Dictionary<RoomEffectActorSegment, ushort>(Entries.Select(entry =>
+            KeyValuePair.Create(Enum.Parse<RoomEffectActorSegment>(entry.Key.ToString()), entry.Value)))
+        {
+            [RoomEffectActorSegment.MetroidElectricityCycle] = 0xc436,
+            [RoomEffectActorSegment.MetroidShellCycle] = 0xc536,
+        };
+
+    /// <summary>
+    /// The native records beat <paramref name="beat"/> of <paramref name="segment"/> stands for: one, except the splash's
+    /// first frame, which the list shows in two records of two updates each and the port as one frame of four (#2275).
+    /// </summary>
+    internal static int RecordsOf(RoomEffectActorSegment segment, int beat) =>
+        segment == RoomEffectActorSegment.NuclearWaffleSplash && beat == 0 ? 2 : 1;
 }

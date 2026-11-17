@@ -167,6 +167,15 @@ internal sealed class CoreModel
 
     private ProjectileProgramFrames? _programFrames;
 
+    /// <summary>
+    /// The static segments each family's animation data declares (#2275). The data's own starting animations read them only
+    /// to count a segment's beats, which runs none of their cues: the family's programs run those, as its code plays them.
+    /// </summary>
+    public IReadOnlySet<ISymbol> FamilySegments => _familySegments ??= new HashSet<ISymbol>(
+        Families.Select(ProgramFrames.AnimationSegments).OfType<ISymbol>(), SymbolEqualityComparer.Default);
+
+    private HashSet<ISymbol>? _familySegments;
+
     /// <summary>The programs motion handlers restart only the objects of some kinds in, read once (#1854, #1843).</summary>
     public KindRestarts KindRestarts => _kindRestarts ??= new KindRestarts(this);
 

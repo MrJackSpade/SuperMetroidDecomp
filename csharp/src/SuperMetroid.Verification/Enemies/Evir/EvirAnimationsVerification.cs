@@ -21,7 +21,8 @@ internal static class EvirAnimationsVerification
                     var instruction = Instructions[word];
                     AssertEqual(instruction.Kind, cue.Kind, $"{at}: cue");
                     AssertEqual(0, operands.Length, $"{at}: operands");
-                }));
+                }),
+            onlyRunOnInto: new HashSet<EvirSegment> { EvirSegment.ProjectileRegeneratingSound, EvirSegment.ProjectileRegrown });
         Console.WriteLine($"  Evir animations: {Entries.Length} segments ({beats} beats) and {EvirAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

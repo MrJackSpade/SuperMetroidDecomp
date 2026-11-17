@@ -32,7 +32,8 @@ internal static class DeadTourianBehaviorVerification
         {
             DeadSidehopperBehavior.SetDeadSidehopperAnimation(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), pose);
             ushort frame = DeadTourianAnimationsConstants.Spritemaps(pose).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
+            // A still picture shows once and holds (#2275).
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),
                 EnemyInstructionRunner.ShownFrames(corpse, 3), $"dead Sidehopper {pose} pose");
         }
 

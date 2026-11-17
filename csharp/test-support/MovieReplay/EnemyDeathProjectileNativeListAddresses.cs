@@ -16,7 +16,9 @@ internal static class EnemyDeathProjectileNativeListAddresses
     [
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.RespawnTail, 0xeca3),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.BigExplosion, 0xecaf),
+        new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.BigExplosionEnd, 0xecc1),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.FakeKraidExplosion, 0xecc9),
+        new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.FakeKraidExplosionEnd, 0xecdf),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.NormalExplosion, 0xed4b),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.SmallExplosion, 0xed69),
         new NativeProgramEntry<EnemyDeathProjectileSegment>(EnemyDeathProjectileSegment.SmallEnergy, 0xed8d),
@@ -51,5 +53,6 @@ internal static class EnemyDeathProjectileNativeListAddresses
 
     /// <summary>The family's typed programs beside their native lists; the big and Fake Kraid explosions start at their counted entries.</summary>
     internal static NativeEnemyProjectileFamily Family { get; } = NativeEnemyProjectileFamily.Of(Entries, EnemyDeathProjectileAnimations.Segments, EnemyDeathProjectileAnimations.StartingAt, (frame => EnemyProjectileProgramFrameSources.Operand(frame)), EnemyDeathProjectileCueRules.Rules,
-        countedEntries: CountedExplosions);
+        countedEntries: CountedExplosions,
+        onlyRunOnInto: new HashSet<EnemyDeathProjectileSegment> { EnemyDeathProjectileSegment.BigExplosionEnd, EnemyDeathProjectileSegment.FakeKraidExplosionEnd });
 }

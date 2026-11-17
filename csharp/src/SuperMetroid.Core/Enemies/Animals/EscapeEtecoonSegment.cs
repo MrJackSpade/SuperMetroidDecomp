@@ -6,20 +6,28 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// </summary>
 internal enum EscapeEtecoonSegment
 {
-    /// <summary>The running left low tide animation.</summary>
+    /// <summary>The leftward run's low-tide check, its entry cue.</summary>
     RunningLeftLowTide,
+    /// <summary>The leftward run's four strides at low tide.</summary>
+    RunningLeftLowTideStride,
     /// <summary>The running left high tide animation.</summary>
     RunningLeftHighTide,
-    /// <summary>The running right low tide animation.</summary>
+    /// <summary>The rightward run's low-tide check, its entry cue.</summary>
     RunningRightLowTide,
+    /// <summary>The rightward run's four strides at low tide.</summary>
+    RunningRightLowTideStride,
     /// <summary>The running right high tide animation.</summary>
     RunningRightHighTide,
-    /// <summary>The running for escape animation.</summary>
+    /// <summary>The escape run's start, its entry cue.</summary>
     RunningForEscape,
+    /// <summary>The escape run's four strides.</summary>
+    RunningForEscapeStride,
     /// <summary>The stationary animation.</summary>
     Stationary,
-    /// <summary>The express gratitude then escape animation.</summary>
+    /// <summary>The thanks to Samus, its entry cue.</summary>
     ExpressGratitudeThenEscape,
-    /// <summary>The loop.</summary>
-    ExpressGratitudeThenEscapeLoop,
+    /// <summary>A thanking Etecoon's four steps to the left, each moving it three pixels.</summary>
+    ThankingSteps,
+    /// <summary>A thanking Etecoon's look back to the right and turn, before it runs for the escape.</summary>
+    ThankingLook,
 }

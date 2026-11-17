@@ -30,7 +30,12 @@ internal static class EscapeEtecoonAnimationsVerification
                         'E' => AnimalsNativeWords.EscapeEtecoonActions.Word(EscapeEtecoonAction.Escaping),
                         _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                     }, $"{at}: operand {index}");
-                }));
+                }),
+            onlyRunOnInto: new HashSet<EscapeEtecoonSegment>
+            {
+                EscapeEtecoonSegment.RunningLeftLowTideStride, EscapeEtecoonSegment.RunningRightLowTideStride,
+                EscapeEtecoonSegment.RunningForEscapeStride, EscapeEtecoonSegment.ThankingLook,
+            });
         Console.WriteLine($"  escape Etecoon animations: {Entries.Length} segments ({beats} beats) and {EscapeEtecoonAnimations.StartingAt.Count} animations match bank $B3.");
     }
 }

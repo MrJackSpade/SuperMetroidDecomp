@@ -8,6 +8,8 @@ internal enum ChozoTourianDustSegment
 {
     /// <summary>The footsteps animation.</summary>
     Footsteps,
-    /// <summary>One puff of the Tourian statue's descent dust, repeated, then the deletion.</summary>
+    /// <summary>One puff of the Tourian statue's descent dust, which its animation repeats.</summary>
     TourianDescentDust,
+    /// <summary>The descent dust's deletion once its puffs are done.</summary>
+    TourianDescentDustEnd,
 }

@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
-using P = SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind;
+using K = SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorKind;
+using P = SuperMetroid.Core.Enemies.EffectActors.RoomEffectActorSegment;
 
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
@@ -13,9 +14,12 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// </summary>
 internal static class RoomEffectActorAnimations
 {
-    /// <summary>Every room effect actor's animation: one segment per kind, the beats that kind shows.</summary>
-    internal static AnimationSegments<RoomEffectActorKind, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RoomEffectActorKind, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
+    /// <summary>
+    /// Every room effect actor's runs (#2275): one segment per kind, the beats that kind shows, and a Metroid's electricity's
+    /// and shell's cycles, which their first pass runs on into.
+    /// </summary>
+    internal static AnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
     {
         [P.DraygonFoam] =
         [
@@ -144,8 +148,7 @@ internal static class RoomEffectActorAnimations
         ],
         [P.NuclearWaffleSplash] =
         [
-            Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 2),
-            Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 2),
+            Show(EnemyFrameId.EffectActorNuclearWaffleSplash25Wide, 4),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash29Wide, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash39Wide, 2),
             Show(EnemyFrameId.EffectActorNuclearWaffleSplash45Wide, 2),
@@ -190,6 +193,9 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorMetroidElectricityArc16By6Anchored0By4, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityArc16By8Anchored0By4, 2),
             Show(EnemyFrameId.EffectActorEmpty, 7),
+        ],
+        [P.MetroidElectricityCycle] =
+        [
             Show(EnemyFrameId.EffectActorMetroidElectricityArc23By21Anchored8By20, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityArc22By22Anchored8By20, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityArc24By23Anchored8By20, 4),
@@ -256,45 +262,42 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorEmpty, 1),
             Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
             Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
-            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
-            Show(EnemyFrameId.EffectActorEmpty, 1),
         ],
-        [P.YappingMawBaseFacingDown] =
+        [P.MetroidShellCycle] =
         [
-            Show(EnemyFrameId.EffectActorYappingMawBaseFacingDown, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By27, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
+            Show(EnemyFrameId.EffectActorMetroidShell38By28, 1),
+            Show(EnemyFrameId.EffectActorEmpty, 1),
         ],
-        [P.YappingMawBaseFacingUp] =
-        [
-            Show(EnemyFrameId.EffectActorYappingMawBaseFacingUp, 1),
-        ],
+        [P.YappingMawBaseFacingDown] = [Hold(EnemyFrameId.EffectActorYappingMawBaseFacingDown)],
+        [P.YappingMawBaseFacingUp] = [Hold(EnemyFrameId.EffectActorYappingMawBaseFacingUp)],
         [P.EvirFacingLeft] =
         [
             Show(EnemyFrameId.EffectActorEvirFacingLeftLegsStretched, 10),
@@ -320,36 +323,43 @@ internal static class RoomEffectActorAnimations
 
     /// <summary>
     /// The animation each kind plays: its segment once and done, or, for a Metroid's electricity and shell, a first pass
-    /// and then the rest of its segment looping.
+    /// and then its cycle looping (#2275); a Yapping Maw's base is a still picture.
     /// </summary>
-    internal static IReadOnlyDictionary<RoomEffectActorKind, Animation<RoomEffectActorKind>> StartingAt { get; } = new Dictionary<RoomEffectActorKind, Animation<RoomEffectActorKind>>
+    internal static IReadOnlyDictionary<RoomEffectActorKind, Animation<RoomEffectActorSegment>> StartingAt { get; } = new Dictionary<RoomEffectActorKind, Animation<RoomEffectActorSegment>>
     {
-        [P.DraygonFoam] = new([new(P.DraygonFoam, 0, 8, 1)], AnimationEnd.Stops),
-        [P.SmallExplosion] = new([new(P.SmallExplosion, 0, 6, 1)], AnimationEnd.Stops),
-        [P.DudShot] = new([new(P.DudShot, 0, 6, 1)], AnimationEnd.Stops),
-        [P.SmokePuff] = new([new(P.SmokePuff, 0, 5, 1)], AnimationEnd.Stops),
-        [P.RisingDustPuff] = new([new(P.RisingDustPuff, 0, 4, 1)], AnimationEnd.Stops),
-        [P.Smoke] = new([new(P.Smoke, 0, 4, 1)], AnimationEnd.Stops),
-        [P.BigExplosion] = new([new(P.BigExplosion, 0, 6, 1)], AnimationEnd.Stops),
-        [P.ShortBigDustCloud] = new([new(P.ShortBigDustCloud, 0, 4, 1)], AnimationEnd.Stops),
-        [P.BigDustCloud] = new([new(P.BigDustCloud, 0, 8, 1)], AnimationEnd.Stops),
-        [P.DraygonBreathBubbles] = new([new(P.DraygonBreathBubbles, 0, 9, 1)], AnimationEnd.Stops),
-        [P.NuclearWaffleBody] = new([new(P.NuclearWaffleBody, 0, 12, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.NuclearWaffleRightExplosion] = new([new(P.NuclearWaffleRightExplosion, 0, 7, 1)], AnimationEnd.Stops),
-        [P.NuclearWaffleLeftExplosion] = new([new(P.NuclearWaffleLeftExplosion, 0, 7, 1)], AnimationEnd.Stops),
-        [P.NuclearWaffleSplash] = new([new(P.NuclearWaffleSplash, 0, 5, 1)], AnimationEnd.Stops),
-        [P.FallingSparkTrail] = new([new(P.FallingSparkTrail, 0, 4, 1)], AnimationEnd.Stops),
-        [P.MetroidElectricity] = new([new(P.MetroidElectricity, 0, 31, 1), new(P.MetroidElectricity, 31, 31, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.MetroidShell] = new([new(P.MetroidShell, 0, 32, 1), new(P.MetroidShell, 32, 30, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.YappingMawBaseFacingDown] = new([new(P.YappingMawBaseFacingDown, 0, 1, 1)], AnimationEnd.Holds),
-        [P.YappingMawBaseFacingUp] = new([new(P.YappingMawBaseFacingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EvirFacingLeft] = new([new(P.EvirFacingLeft, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EvirFacingRight] = new([new(P.EvirFacingRight, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HitBurst] = new([new(P.HitBurst, 0, 4, 1)], AnimationEnd.Stops),
+        [K.DraygonFoam] = new([Whole(P.DraygonFoam)], AnimationEnd.Stops),
+        [K.SmallExplosion] = new([Whole(P.SmallExplosion)], AnimationEnd.Stops),
+        [K.DudShot] = new([Whole(P.DudShot)], AnimationEnd.Stops),
+        [K.SmokePuff] = new([Whole(P.SmokePuff)], AnimationEnd.Stops),
+        [K.RisingDustPuff] = new([Whole(P.RisingDustPuff)], AnimationEnd.Stops),
+        [K.Smoke] = new([Whole(P.Smoke)], AnimationEnd.Stops),
+        [K.BigExplosion] = new([Whole(P.BigExplosion)], AnimationEnd.Stops),
+        [K.ShortBigDustCloud] = new([Whole(P.ShortBigDustCloud)], AnimationEnd.Stops),
+        [K.BigDustCloud] = new([Whole(P.BigDustCloud)], AnimationEnd.Stops),
+        [K.DraygonBreathBubbles] = new([Whole(P.DraygonBreathBubbles)], AnimationEnd.Stops),
+        [K.NuclearWaffleBody] = new([Whole(P.NuclearWaffleBody)], AnimationEnd.LoopsFrom(0)),
+        [K.NuclearWaffleRightExplosion] = new([Whole(P.NuclearWaffleRightExplosion)], AnimationEnd.Stops),
+        [K.NuclearWaffleLeftExplosion] = new([Whole(P.NuclearWaffleLeftExplosion)], AnimationEnd.Stops),
+        [K.NuclearWaffleSplash] = new([Whole(P.NuclearWaffleSplash)], AnimationEnd.Stops),
+        [K.FallingSparkTrail] = new([Whole(P.FallingSparkTrail)], AnimationEnd.Stops),
+        [K.MetroidElectricity] = new([Whole(P.MetroidElectricity), Whole(P.MetroidElectricityCycle)], AnimationEnd.LoopsFrom(1)),
+        [K.MetroidShell] = new([Whole(P.MetroidShell), Whole(P.MetroidShellCycle)], AnimationEnd.LoopsFrom(1)),
+        [K.YappingMawBaseFacingDown] = new([Whole(P.YappingMawBaseFacingDown)], AnimationEnd.Holds),
+        [K.YappingMawBaseFacingUp] = new([Whole(P.YappingMawBaseFacingUp)], AnimationEnd.Holds),
+        [K.EvirFacingLeft] = new([Whole(P.EvirFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [K.EvirFacingRight] = new([Whole(P.EvirFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [K.HitBurst] = new([Whole(P.HitBurst)], AnimationEnd.Stops),
     };
 
     /// <summary>The animation <paramref name="kind"/> plays from its spawn.</summary>
-    internal static Animation<RoomEffectActorKind> StartingWith(RoomEffectActorKind kind) => StartingAt[kind];
+    internal static Animation<RoomEffectActorSegment> StartingWith(RoomEffectActorKind kind) => StartingAt[kind];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<RoomEffectActorSegment> Whole(RoomEffectActorSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): enemy-sheet frame <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Hold(EnemyFrameId frame) =>
+        new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame(RoomEffectActorPicture.OfEnemyFrame(frame));
 
     /// <summary>Shows enemy-sheet frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Show(EnemyFrameId frame, int duration) =>

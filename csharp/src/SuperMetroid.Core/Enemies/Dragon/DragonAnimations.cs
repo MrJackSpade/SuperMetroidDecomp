@@ -15,19 +15,13 @@ internal static class DragonAnimations
     internal static AnimationSegments<DragonSegment, EnemyFrameId, DragonCue> Segments { get; } = new(
         new Dictionary<DragonSegment, AnimationBeat<EnemyFrameId, DragonCue>[]>
     {
-        [P.IdleFacingLeft] =
-        [
-            Show(EnemyFrameId.DragonBodyFacingLeft, 1),
-        ],
+        [P.IdleFacingLeft] = [Hold(EnemyFrameId.DragonBodyFacingLeft)],
         [P.WingsFacingLeft] =
         [
             Show(EnemyFrameId.DragonWingFacingLeftRaised, 5),
             Show(EnemyFrameId.DragonWingFacingLeftLowered, 5),
         ],
-        [P.IdleFacingRight] =
-        [
-            Show(EnemyFrameId.DragonBodyFacingRight, 1),
-        ],
+        [P.IdleFacingRight] = [Hold(EnemyFrameId.DragonBodyFacingRight)],
         [P.WingsFacingRight] =
         [
             Show(EnemyFrameId.DragonWingFacingRightRaised, 5),
@@ -56,16 +50,22 @@ internal static class DragonAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = new Dictionary<DragonSegment, Animation<DragonSegment>>
     {
-        [P.IdleFacingLeft] = new([new(P.IdleFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.WingsFacingLeft] = new([new(P.WingsFacingLeft, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.IdleFacingRight] = new([new(P.IdleFacingRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.WingsFacingRight] = new([new(P.WingsFacingRight, 0, 2, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.AttackingFacingLeft] = new([new(P.AttackingFacingLeft, 0, 6, 1)], AnimationEnd.Holds),
-        [P.AttackingFacingRight] = new([new(P.AttackingFacingRight, 0, 6, 1)], AnimationEnd.Holds),
+        [P.IdleFacingLeft] = new([Whole(P.IdleFacingLeft)], AnimationEnd.Holds),
+        [P.WingsFacingLeft] = new([Whole(P.WingsFacingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleFacingRight] = new([Whole(P.IdleFacingRight)], AnimationEnd.Holds),
+        [P.WingsFacingRight] = new([Whole(P.WingsFacingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.AttackingFacingLeft] = new([Whole(P.AttackingFacingLeft)], AnimationEnd.Holds),
+        [P.AttackingFacingRight] = new([Whole(P.AttackingFacingRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DragonSegment> StartingWith(DragonSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DragonSegment> Whole(DragonSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, DragonCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, DragonCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, DragonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, DragonCue>.Frame(frame, duration);

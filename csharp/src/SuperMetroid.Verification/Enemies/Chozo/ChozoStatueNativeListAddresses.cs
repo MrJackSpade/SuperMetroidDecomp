@@ -19,11 +19,14 @@ internal static class ChozoStatueNativeListAddresses
     [
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairInitial, 0xe39d),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairActivated, 0xe3a7),
-        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairActivatedLoop, 0xe3e5),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairFlexing, 0xe3e5),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.LowerNorfairRelease, 0xe401),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipInitial, 0xe457),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivated, 0xe461),
-        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipActivatedLoop, 0xe49d),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipFlexing, 0xe49d),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipFlexEnd, 0xe4b9),
         new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipWalkingWithSamus, 0xe4c1),
+        new NativeProgramEntry<ChozoStatueSegment>(ChozoStatueSegment.WreckedShipSettingSamusDown, 0xe529),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

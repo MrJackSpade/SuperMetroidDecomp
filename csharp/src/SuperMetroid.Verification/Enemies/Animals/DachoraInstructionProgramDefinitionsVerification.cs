@@ -51,7 +51,9 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             // The self-looping animations: one phase of their own segment, played again and again.
             if (!DachoraAnimations.StartingAt.TryGetValue(program, out Animation<DachoraSegment>? animation) ||
-                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program)
+                animation is not { Phases: [{ Plays: 1 } only], End: AnimationEnd.Loop { Phase: 0 } } || only.Segment != program ||
+                // A still picture shows for good: it has no timed loop to follow.
+                EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Segments, program) == 1)
                 continue;
             (RoomEnemySystem enemies, RoomEnemyPlace place) = NewDachora(0);
             place.Bind(EnemyDefinitionId.Dachora, place.Definition);

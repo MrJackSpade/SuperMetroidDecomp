@@ -6,8 +6,12 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// </summary>
 internal enum BoyonSegment
 {
-    /// <summary>The idle animation.</summary>
+    /// <summary>The idle's start, its entry cue.</summary>
     Idle,
-    /// <summary>The bouncing animation.</summary>
+    /// <summary>The idle's resting poses.</summary>
+    IdleRest,
+    /// <summary>The bounce's start, its entry cues.</summary>
     Bouncing,
+    /// <summary>The bounce's star poses.</summary>
+    BouncingStar,
 }

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
+using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -10,6 +10,6 @@ internal static class BlueBrinstarFaceBlockAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params BlueBrinstarFaceBlockSegment[] programs) =>
         programs.SelectMany(program => BlueBrinstarFaceBlockAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
-            .Select(frame => BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap(frame));
 }

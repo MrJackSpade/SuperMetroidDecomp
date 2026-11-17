@@ -16,10 +16,7 @@ internal static class EyeDoorSweatAnimations
     internal static AnimationSegments<EyeDoorSweatSegment, EnemyProjectileFrameId, EyeDoorProjectileCue> Segments { get; } = new(
         new Dictionary<EyeDoorSweatSegment, AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>[]>
     {
-        [P.Falling] =
-        [
-            Show(EnemyProjectileFrameId.EyeDoorSweatDrop, 6),
-        ],
+        [P.Falling] = [Hold(EnemyProjectileFrameId.EyeDoorSweatDrop)],
         [P.HitFloor] =
         [
             Cue(new(K.StopMoving)),
@@ -33,12 +30,18 @@ internal static class EyeDoorSweatAnimations
     /// <summary>The animation that starts at each segment: the fall loops, and the splash holds once it has deleted the drop.</summary>
     internal static IReadOnlyDictionary<EyeDoorSweatSegment, Animation<EyeDoorSweatSegment>> StartingAt { get; } = new Dictionary<EyeDoorSweatSegment, Animation<EyeDoorSweatSegment>>
     {
-        [P.Falling] = new([new(P.Falling, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.HitFloor] = new([new(P.HitFloor, 0, 5, 1)], AnimationEnd.Holds),
+        [P.Falling] = new([Whole(P.Falling)], AnimationEnd.LoopsFrom(0)),
+        [P.HitFloor] = new([Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<EyeDoorSweatSegment> StartingWith(EyeDoorSweatSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<EyeDoorSweatSegment> Whole(EyeDoorSweatSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EyeDoorProjectileCue>.Frame(frame, duration);

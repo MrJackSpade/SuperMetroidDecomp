@@ -14,20 +14,23 @@ internal static class DeadTorizoAnimations
     internal static AnimationSegments<DeadTorizoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<DeadTorizoSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.Stationary] =
-        [
-            Show(EnemyFrameId.DeadTorizoStanding, 1),
-        ],
+        [P.Stationary] = [Hold(EnemyFrameId.DeadTorizoStanding)],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>> StartingAt { get; } = new Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>>
     {
-        [P.Stationary] = new([new(P.Stationary, 0, 1, 1)], AnimationEnd.Holds),
+        [P.Stationary] = new([Whole(P.Stationary)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DeadTorizoSegment> StartingWith(DeadTorizoSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DeadTorizoSegment> Whole(DeadTorizoSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

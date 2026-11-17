@@ -259,7 +259,14 @@ internal sealed class Walk
             foreach (IFieldSymbol member in scan.EnumMembers)
                 Record(unit, scan, member, context);
             foreach (Unit target in scan.Targets)
+            {
+                // A family's animation data counting its own segments' beats (a starting animation's whole phase) runs none
+                // of their cues (#2275); the family's code that plays them reaches them.
+                if (target.Kind == UnitKind.Member && SymbolEqualityComparer.Default.Equals(unit.Type, target.Type)
+                    && _model.FamilySegments.Contains(target.Symbol))
+                    continue;
                 Reach(target, context, viaDispatch: false, origin: unit);
+            }
         }
         LinkConstructorArguments();
         RecordHandedPrograms();

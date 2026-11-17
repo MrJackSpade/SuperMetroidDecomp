@@ -18,6 +18,9 @@ internal static class BeetomAnimations
         [P.CrawlingLeft] =
         [
             Cue(new(K.StopProcessingOffScreen)),
+        ],
+        [P.CrawlingLeftStride] =
+        [
             Show(EnemyFrameId.BeetomCrawlingLeftLegsTucked, 10),
             Show(EnemyFrameId.BeetomCrawlingLeftLegsMid, 10),
             Show(EnemyFrameId.BeetomCrawlingLeftLegsOut, 10),
@@ -37,6 +40,9 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreen, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreenDim, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemGreen, 48),
+        ],
+        [P.DrainingLeftRed] =
+        [
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemRedBright, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemRed, 5),
             Show(EnemyFrameId.BeetomLatchedFacingLeftGemRedDim, 5),
@@ -45,6 +51,9 @@ internal static class BeetomAnimations
         [P.CrawlingRight] =
         [
             Cue(new(K.StopProcessingOffScreen)),
+        ],
+        [P.CrawlingRightStride] =
+        [
             Show(EnemyFrameId.BeetomCrawlingRightLegsTucked, 10),
             Show(EnemyFrameId.BeetomCrawlingRightLegsMid, 10),
             Show(EnemyFrameId.BeetomCrawlingRightLegsOut, 10),
@@ -64,6 +73,9 @@ internal static class BeetomAnimations
             Show(EnemyFrameId.BeetomLatchedFacingRightGemGreen, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemGreenDim, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemGreen, 48),
+        ],
+        [P.DrainingRightRed] =
+        [
             Show(EnemyFrameId.BeetomLatchedFacingRightGemRedBright, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemRed, 5),
             Show(EnemyFrameId.BeetomLatchedFacingRightGemRedDim, 5),
@@ -71,16 +83,22 @@ internal static class BeetomAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2275): a crawl stops processing off
+    /// screen, its own entry cue, and then strides for good; a drain shows its green gem once and then pulses red for good.
+    /// </summary>
     internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
-        [P.CrawlingLeft] = new([new(P.CrawlingLeft, 0, 1, 1), new(P.CrawlingLeft, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HopLeft] = new([new(P.HopLeft, 0, 5, 1)], AnimationEnd.Holds),
-        [P.DrainingLeft] = new([new(P.DrainingLeft, 0, 4, 1), new(P.DrainingLeft, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.CrawlingRight] = new([new(P.CrawlingRight, 0, 1, 1), new(P.CrawlingRight, 1, 4, 1)], AnimationEnd.LoopsFrom(1)),
-        [P.HopRight] = new([new(P.HopRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.DrainingRight] = new([new(P.DrainingRight, 0, 4, 1), new(P.DrainingRight, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingLeft] = new([Whole(P.CrawlingLeft), Whole(P.CrawlingLeftStride)], AnimationEnd.LoopsFrom(1)),
+        [P.HopLeft] = new([Whole(P.HopLeft)], AnimationEnd.Holds),
+        [P.DrainingLeft] = new([Whole(P.DrainingLeft), Whole(P.DrainingLeftRed)], AnimationEnd.LoopsFrom(1)),
+        [P.CrawlingRight] = new([Whole(P.CrawlingRight), Whole(P.CrawlingRightStride)], AnimationEnd.LoopsFrom(1)),
+        [P.HopRight] = new([Whole(P.HopRight)], AnimationEnd.Holds),
+        [P.DrainingRight] = new([Whole(P.DrainingRight), Whole(P.DrainingRightRed)], AnimationEnd.LoopsFrom(1)),
     };
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<BeetomSegment> Whole(BeetomSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<BeetomSegment> StartingWith(BeetomSegment segment) => StartingAt[segment];

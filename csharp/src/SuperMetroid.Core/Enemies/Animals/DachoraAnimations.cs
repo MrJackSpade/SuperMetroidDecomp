@@ -67,14 +67,8 @@ internal static class DachoraAnimations
             Show(EnemyFrameId.DachoraStandingFacingLeftEyeHalfShut, 5),
             Show(EnemyFrameId.DachoraStandingFacingLeftEyeShut, 11),
         ],
-        [P.EchoLeft] =
-        [
-            Show(EnemyFrameId.DachoraStretchedUpFacingLeft, 10),
-        ],
-        [P.FallingLeft] =
-        [
-            Show(EnemyFrameId.DachoraRunningLeftNearLegPassing, 5),
-        ],
+        [P.EchoLeft] = [Hold(EnemyFrameId.DachoraStretchedUpFacingLeft)],
+        [P.FallingLeft] = [Hold(EnemyFrameId.DachoraRunningLeftNearLegPassing)],
         [P.RunningRight] =
         [
             Show(EnemyFrameId.DachoraRunningRightFarLegBack, 5),
@@ -128,42 +122,42 @@ internal static class DachoraAnimations
             Show(EnemyFrameId.DachoraStandingFacingRightEyeHalfShut, 5),
             Show(EnemyFrameId.DachoraStandingFacingRightEyeShut, 11),
         ],
-        [P.ChargeRight] =
-        [
-            Show(EnemyFrameId.DachoraCrouchedFacingRight, 1),
-        ],
-        [P.EchoRight] =
-        [
-            Show(EnemyFrameId.DachoraStretchedUpFacingRight, 10),
-        ],
-        [P.FallingRight] =
-        [
-            Show(EnemyFrameId.DachoraRunningRightNearLegPassing, 5),
-        ],
+        [P.ChargeRight] = [Hold(EnemyFrameId.DachoraCrouchedFacingRight)],
+        [P.EchoRight] = [Hold(EnemyFrameId.DachoraStretchedUpFacingRight)],
+        [P.FallingRight] = [Hold(EnemyFrameId.DachoraRunningRightNearLegPassing)],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at. The echoes, the falls and the charge's
+    /// crouch are still pictures (#2275).
+    /// </summary>
     internal static IReadOnlyDictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
     {
-        [P.RunningLeft] = new([new(P.RunningLeft, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningLeftFast] = new([new(P.RunningLeftFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningLeftVeryFast] = new([new(P.RunningLeftVeryFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.IdleLeft] = new([new(P.IdleLeft, 0, 11, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BlinkLeft] = new([new(P.BlinkLeft, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.EchoLeft] = new([new(P.EchoLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingLeft] = new([new(P.FallingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRight] = new([new(P.RunningRight, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRightFast] = new([new(P.RunningRightFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.RunningRightVeryFast] = new([new(P.RunningRightVeryFast, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.IdleRight] = new([new(P.IdleRight, 0, 11, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.BlinkRight] = new([new(P.BlinkRight, 0, 9, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.ChargeRight] = new([new(P.ChargeRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.EchoRight] = new([new(P.EchoRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FallingRight] = new([new(P.FallingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeft] = new([Whole(P.RunningLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftFast] = new([Whole(P.RunningLeftFast)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningLeftVeryFast] = new([Whole(P.RunningLeftVeryFast)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleLeft] = new([Whole(P.IdleLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.BlinkLeft] = new([Whole(P.BlinkLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.EchoLeft] = new([Whole(P.EchoLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingLeft] = new([Whole(P.FallingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRight] = new([Whole(P.RunningRight)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightFast] = new([Whole(P.RunningRightFast)], AnimationEnd.LoopsFrom(0)),
+        [P.RunningRightVeryFast] = new([Whole(P.RunningRightVeryFast)], AnimationEnd.LoopsFrom(0)),
+        [P.IdleRight] = new([Whole(P.IdleRight)], AnimationEnd.LoopsFrom(0)),
+        [P.BlinkRight] = new([Whole(P.BlinkRight)], AnimationEnd.LoopsFrom(0)),
+        [P.ChargeRight] = new([Whole(P.ChargeRight)], AnimationEnd.Holds),
+        [P.EchoRight] = new([Whole(P.EchoRight)], AnimationEnd.LoopsFrom(0)),
+        [P.FallingRight] = new([Whole(P.FallingRight)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DachoraSegment> StartingWith(DachoraSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<DachoraSegment> Whole(DachoraSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
+    /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

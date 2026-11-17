@@ -8,10 +8,14 @@ internal enum EnemyDeathProjectileSegment
 {
     /// <summary>The respawn tail animation.</summary>
     RespawnTail,
-    /// <summary>One burst of the big explosion, repeated, then the drop.</summary>
+    /// <summary>One burst of the big explosion, which its animation repeats.</summary>
     BigExplosion,
-    /// <summary>One burst of Fake Kraid's explosion, repeated, then the drop.</summary>
+    /// <summary>The big explosion becoming its drop once its bursts are done.</summary>
+    BigExplosionEnd,
+    /// <summary>One burst of Fake Kraid's explosion, which its animation repeats.</summary>
     FakeKraidExplosion,
+    /// <summary>Fake Kraid's explosion becoming its drop once its bursts are done.</summary>
+    FakeKraidExplosionEnd,
     /// <summary>The normal explosion animation.</summary>
     NormalExplosion,
     /// <summary>The small explosion animation.</summary>

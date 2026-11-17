@@ -24,7 +24,7 @@ internal static class CacatacBehaviorVerification
         {
             string orientation = upsideUp ? "upright" : "inverted";
             CacatacSegment idle = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdle;
-            CacatacSegment loop = idle;
+            CacatacSegment loop = upsideUp ? CacatacSegment.UpsideUpIdle : CacatacSegment.UpsideDownIdlePoses;
             (RoomEnemySystem enemies, RoomEnemyPlace place, CacatacEnemyState state) = Create(upsideUp);
             AssertEqual(new AnimationPlayback<CacatacSegment>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
             state.Action = CacatacAction.Stopped;

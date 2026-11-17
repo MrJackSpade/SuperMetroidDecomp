@@ -18,9 +18,6 @@ internal static class AlcoonAnimations
         [P.WalkingLeft] =
         [
             Cue(new AlcoonCue.Signal(K.Move)),
-        ],
-        [P.WalkingLeftLoop] =
-        [
             Show(EnemyFrameId.AlcoonWalkingLeftNearLegStepping, 10),
             Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingLeftNearLegPlanted, 10),
@@ -62,9 +59,6 @@ internal static class AlcoonAnimations
         [P.WalkingRight] =
         [
             Cue(new AlcoonCue.Signal(K.Move)),
-        ],
-        [P.WalkingRightLoop] =
-        [
             Show(EnemyFrameId.AlcoonWalkingRightNearLegStepping, 10),
             Cue(new AlcoonCue.Signal(K.Move)),
             Show(EnemyFrameId.AlcoonWalkingRightNearLegPlanted, 10),
@@ -106,25 +100,35 @@ internal static class AlcoonAnimations
     });
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at. A fire animation ends at its
-    /// start-walking cue, which always continues at the walk for the Alcoon's facing (#2061).
+    /// The animation that starts at each segment an owner can start or restart at. A walk is one cycle, its move cue and
+    /// its four strides, played for good (#2275). A fire animation ends at its start-walking cue, which always continues at
+    /// the walk for the Alcoon's facing (#2061).
     /// </summary>
     internal static IReadOnlyDictionary<AlcoonSegment, Animation<AlcoonSegment>> StartingAt { get; } = new Dictionary<AlcoonSegment, Animation<AlcoonSegment>>
     {
-        [P.WalkingLeft] = new([new(P.WalkingLeft, 0, 1, 1), new(P.WalkingLeftLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WalkingLeftLoop] = new([new(P.WalkingLeftLoop, 0, 7, 1), new(P.WalkingLeft, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireLeft] = new([new(P.FireLeft, 0, 19, 1)], AnimationEnd.Holds),
-        [P.AirborneLeftLookingUp] = new([new(P.AirborneLeftLookingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.AirborneLeftLookingForward] = new([new(P.AirborneLeftLookingForward, 0, 1, 1)], AnimationEnd.Holds),
-        [P.WalkingRight] = new([new(P.WalkingRight, 0, 1, 1), new(P.WalkingRightLoop, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WalkingRightLoop] = new([new(P.WalkingRightLoop, 0, 7, 1), new(P.WalkingRight, 0, 1, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FireRight] = new([new(P.FireRight, 0, 19, 1)], AnimationEnd.Holds),
-        [P.AirborneRightLookingUp] = new([new(P.AirborneRightLookingUp, 0, 1, 1)], AnimationEnd.Holds),
-        [P.AirborneRightLookingForward] = new([new(P.AirborneRightLookingForward, 0, 1, 1)], AnimationEnd.Holds),
+        [P.WalkingLeft] = new([Whole(P.WalkingLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.FireLeft] = new([Whole(P.FireLeft)], AnimationEnd.Holds),
+        [P.AirborneLeftLookingUp] = new([Whole(P.AirborneLeftLookingUp)], AnimationEnd.Holds),
+        [P.AirborneLeftLookingForward] = new([Whole(P.AirborneLeftLookingForward)], AnimationEnd.Holds),
+        [P.WalkingRight] = new([Whole(P.WalkingRight)], AnimationEnd.LoopsFrom(0)),
+        [P.FireRight] = new([Whole(P.FireRight)], AnimationEnd.Holds),
+        [P.AirborneRightLookingUp] = new([Whole(P.AirborneRightLookingUp)], AnimationEnd.Holds),
+        [P.AirborneRightLookingForward] = new([Whole(P.AirborneRightLookingForward)], AnimationEnd.Holds),
     };
+
+    /// <summary>The left walk entered at its first stride, past its move cue, as a wall turning the Alcoon left enters it.</summary>
+    internal static AnimationContinuation<AlcoonSegment> WalkingLeftFromFirstStride { get; } = new(StartingAt[P.WalkingLeft],
+        Segments.PlaceOfFrame(StartingAt[P.WalkingLeft], P.WalkingLeft, EnemyFrameId.AlcoonWalkingLeftNearLegStepping));
+
+    /// <summary>The right walk entered at its first stride, past its move cue, as a wall turning the Alcoon right enters it.</summary>
+    internal static AnimationContinuation<AlcoonSegment> WalkingRightFromFirstStride { get; } = new(StartingAt[P.WalkingRight],
+        Segments.PlaceOfFrame(StartingAt[P.WalkingRight], P.WalkingRight, EnemyFrameId.AlcoonWalkingRightNearLegStepping));
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<AlcoonSegment> StartingWith(AlcoonSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<AlcoonSegment> Whole(AlcoonSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, AlcoonCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, AlcoonCue>.Frame(frame, duration);

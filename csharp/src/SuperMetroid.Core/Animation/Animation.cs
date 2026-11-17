@@ -26,6 +26,19 @@ internal sealed record Animation<TSegment>
     /// <summary>How the animation ends once its last phase has played.</summary>
     internal AnimationEnd End { get; }
 
+    /// <summary>
+    /// The end of a play of the one phase that plays <paramref name="segment"/> (#2275): its last beat played, where an
+    /// owner continuing the animation there counts the phase's next play.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">No phase, or more than one, plays <paramref name="segment"/>.</exception>
+    internal AnimationPlace EndOfPlayOf(TSegment segment)
+    {
+        int[] playing = [.. Enumerable.Range(0, Phases.Count).Where(index => EqualityComparer<TSegment>.Default.Equals(Phases[index].Segment, segment))];
+        if (playing.Length != 1)
+            throw new InvalidOperationException($"{playing.Length} phases play {segment}, not one.");
+        return new(playing[0], Phases[playing[0]].BeatCount);
+    }
+
     /// <summary>The phase a looping animation's cycle starts at: the phase it loops from.</summary>
     /// <exception cref="InvalidOperationException">The animation does not loop, so it has no cycle.</exception>
     internal int CyclePhase => End is AnimationEnd.Loop loop

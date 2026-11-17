@@ -811,7 +811,10 @@ internal sealed class ProjectileProgramFrames(CoreModel model)
     /// The type declaring <paramref name="family"/>'s animation data (the static segments its <c>Segments</c> returns), when it
     /// declares any this generator reads.
     /// </summary>
-    public INamedTypeSymbol? AnimationDataType(INamedTypeSymbol family) => ReadableNamedBy(family, "Segments")?.ContainingType.OriginalDefinition;
+    public INamedTypeSymbol? AnimationDataType(INamedTypeSymbol family) => AnimationSegments(family)?.ContainingType.OriginalDefinition;
+
+    /// <summary>The static segments <paramref name="family"/>'s <c>Segments</c> returns, when it declares any this generator reads.</summary>
+    public ISymbol? AnimationSegments(INamedTypeSymbol family) => ReadableNamedBy(family, "Segments");
 
     /// <summary>The static member <paramref name="family"/>'s <paramref name="property"/> returns, when it declares one this generator reads.</summary>
     private ISymbol? ReadableNamedBy(INamedTypeSymbol family, string property)

@@ -91,7 +91,7 @@ internal static class MamaTurtleAnimations
             Cue(new MamaTurtleCue.Signal(K.EnterShell)),
             Hold(EnemyFrameId.TurtleMamaOutOfShellFacingLeft),
         ],
-        [P.BabyLeaveShellLeft] =
+        [P.BabyLeaveShell] =
         [
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
             Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
@@ -151,35 +151,30 @@ internal static class MamaTurtleAnimations
             Cue(new MamaTurtleCue.Signal(K.EnterShell)),
             Hold(EnemyFrameId.TurtleMamaOutOfShellFacingRight),
         ],
-        [P.BabyLeaveShellRight] =
-        [
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsTrailing, 5),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
-            Cue(new MamaTurtleCue.Signal(K.LeftShell)),
-            Show(EnemyFrameId.TurtleBabyCrawlingLeftLegsReturning, 47),
-        ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>> StartingAt { get; } = new Dictionary<MamaTurtleSegment, Animation<MamaTurtleSegment>>
     {
-        [P.BabyCrawlingLeft] = new([new(P.BabyCrawlingLeft, 0, 25, 1)], AnimationEnd.Holds),
-        [P.BabySpinning] = new([new(P.BabySpinning, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MamaSpinning] = new([new(P.MamaSpinning, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.MamaEnterShellLeft] = new([new(P.MamaEnterShellLeft, 0, 5, 1)], AnimationEnd.Holds),
-        [P.BabyHidingLeft] = new([new(P.BabyHidingLeft, 0, 5, 1)], AnimationEnd.Holds),
-        [P.MamaAsleep] = new([new(P.MamaAsleep, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MamaLeaveShellLeft] = new([new(P.MamaLeaveShellLeft, 0, 6, 1)], AnimationEnd.Holds),
-        [P.BabyLeaveShellLeft] = new([new(P.BabyLeaveShellLeft, 0, 4, 1)], AnimationEnd.Holds),
-        [P.BabyCrawlingRight] = new([new(P.BabyCrawlingRight, 0, 25, 1)], AnimationEnd.Holds),
-        [P.MamaEnterShellRight] = new([new(P.MamaEnterShellRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.BabyHidingRight] = new([new(P.BabyHidingRight, 0, 5, 1)], AnimationEnd.Holds),
-        [P.MamaLeaveShellRight] = new([new(P.MamaLeaveShellRight, 0, 6, 1)], AnimationEnd.Holds),
-        [P.BabyLeaveShellRight] = new([new(P.BabyLeaveShellRight, 0, 4, 1)], AnimationEnd.Holds),
+        [P.BabyCrawlingLeft] = new([Whole(P.BabyCrawlingLeft)], AnimationEnd.Holds),
+        [P.BabySpinning] = new([Whole(P.BabySpinning)], AnimationEnd.LoopsFrom(0)),
+        [P.MamaSpinning] = new([Whole(P.MamaSpinning)], AnimationEnd.LoopsFrom(0)),
+        [P.MamaEnterShellLeft] = new([Whole(P.MamaEnterShellLeft)], AnimationEnd.Holds),
+        [P.BabyHidingLeft] = new([Whole(P.BabyHidingLeft)], AnimationEnd.Holds),
+        [P.MamaAsleep] = new([Whole(P.MamaAsleep)], AnimationEnd.Holds),
+        [P.MamaLeaveShellLeft] = new([Whole(P.MamaLeaveShellLeft)], AnimationEnd.Holds),
+        [P.BabyLeaveShell] = new([Whole(P.BabyLeaveShell)], AnimationEnd.Holds),
+        [P.BabyCrawlingRight] = new([Whole(P.BabyCrawlingRight)], AnimationEnd.Holds),
+        [P.MamaEnterShellRight] = new([Whole(P.MamaEnterShellRight)], AnimationEnd.Holds),
+        [P.BabyHidingRight] = new([Whole(P.BabyHidingRight)], AnimationEnd.Holds),
+        [P.MamaLeaveShellRight] = new([Whole(P.MamaLeaveShellRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MamaTurtleSegment> StartingWith(MamaTurtleSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MamaTurtleSegment> Whole(MamaTurtleSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MamaTurtleCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MamaTurtleCue>.Frame(frame, duration);

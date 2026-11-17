@@ -10,6 +10,6 @@ internal static class MorphBallEyeAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MorphBallEyeSegment[] programs) =>
         programs.SelectMany(program => MorphBallEyeAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
-            .Select(frame => MorphBallEyeFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => MorphBallEyeFrameToolingDefinitions.Spritemap(frame));
 }

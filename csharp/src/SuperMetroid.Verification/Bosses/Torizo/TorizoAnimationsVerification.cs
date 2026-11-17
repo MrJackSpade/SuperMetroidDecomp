@@ -565,6 +565,8 @@ internal static class TorizoAnimationsVerification
                         throw new InvalidDataException("The Torizo list reader reads no goto back into a list's own beats (#2144).");
                     case NativeEnemyControlKind.PoseShownAgain:
                         throw new InvalidDataException("The Torizo list reader reads no instruction that shows a pose again (#2180).");
+                    case NativeEnemyControlKind.WrittenOutRepeat:
+                        throw new InvalidDataException("The Torizo list reader reads no run written out again after itself (#2337).");
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");
                 }

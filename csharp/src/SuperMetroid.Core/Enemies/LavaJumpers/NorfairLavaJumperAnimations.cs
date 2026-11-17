@@ -17,7 +17,7 @@ internal static class NorfairLavaJumperAnimations
     {
         [P.Hidden] =
         [
-            Show(EnemyFrameId.NorfairLavaJumperClawsCurledDown, 1),
+            Hold(EnemyFrameId.NorfairLavaJumperClawsCurledDown),
         ],
         [P.Jump] =
         [
@@ -35,7 +35,7 @@ internal static class NorfairLavaJumperAnimations
             Show(EnemyFrameId.NorfairLavaJumperFlameFlare, 1),
             Show(EnemyFrameId.Empty, 1),
         ],
-        [P.FollowerLoop] =
+        [P.FollowerFlickering] =
         [
             Show(EnemyFrameId.NorfairLavaJumperFlameSmall, 1),
             Show(EnemyFrameId.Empty, 1),
@@ -44,19 +44,28 @@ internal static class NorfairLavaJumperAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at: the hidden claws are a still picture,
+    /// and the trailing flame flares and flickers once, a cycle it repeats from the flare (#2337).
+    /// </summary>
     internal static IReadOnlyDictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>> StartingAt { get; } = new Dictionary<NorfairLavaJumperSegment, Animation<NorfairLavaJumperSegment>>
     {
-        [P.Hidden] = new([new(P.Hidden, 0, 1, 1)], AnimationEnd.Holds),
-        [P.Jump] = new([new(P.Jump, 0, 8, 1)], AnimationEnd.Holds),
-        [P.Follower] = new([new(P.Follower, 0, 2, 1), new(P.FollowerLoop, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.Hidden] = new([Whole(P.Hidden)], AnimationEnd.Holds),
+        [P.Jump] = new([Whole(P.Jump)], AnimationEnd.Holds),
+        [P.Follower] = new([Whole(P.Follower), Whole(P.FollowerFlickering)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<NorfairLavaJumperSegment> StartingWith(NorfairLavaJumperSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<NorfairLavaJumperSegment> Whole(NorfairLavaJumperSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairLavaJumperCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NorfairLavaJumperCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, NorfairLavaJumperCue> Cue(NorfairLavaJumperCue cue) => new AnimationBeat<EnemyFrameId, NorfairLavaJumperCue>.Event(cue);

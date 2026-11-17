@@ -28,7 +28,12 @@ internal static class MagdolliteAnimationsVerification
                         _ => throw new InvalidOperationException($"Undefined operand roles {instruction.Operands}."),
                     };
                     AssertEqual(expected, cue, $"{at}: cue");
-                }));
+                }),
+            // The head is free again, or surfaces, only after its pillar's counted rise or descent (#2337).
+            onlyRunOnInto: new HashSet<MagdolliteSegment>
+            {
+                MagdolliteSegment.LeftPillarRaised, MagdolliteSegment.LeftSurfacing, MagdolliteSegment.RightPillarRaised, MagdolliteSegment.RightSurfacing,
+            });
         Console.WriteLine($"  Magdollite animations: {Entries.Length} segments ({beats} beats) and {MagdolliteAnimations.StartingAt.Count} animations match bank $A8.");
     }
 }

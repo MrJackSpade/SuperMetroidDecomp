@@ -23,12 +23,12 @@ internal static class MamaTurtleNativeListAddresses
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyHidingLeft, 0x8c30),
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaAsleep, 0x8c44),
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaLeaveShellLeft, 0x8c4a),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyLeaveShellLeft, 0x8c62),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyLeaveShell, 0x8c62),
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyCrawlingRight, 0x8c72),
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaEnterShellRight, 0x8d00),
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyHidingRight, 0x8d14),
         new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.MamaLeaveShellRight, 0x8d28),
-        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyLeaveShellRight, 0x8d40),
+        new NativeProgramEntry<MamaTurtleSegment>(MamaTurtleSegment.BabyLeaveShell, 0x8d40),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

@@ -79,7 +79,8 @@ internal static class HopperAnimationDefinitionsVerification
             HoppersBehavior.StartHopperJump(place, state, HopperHopDirection.Forward);
             AssertEqual(new AnimationPlayback<HopperSegment>(HopperAnimations.StartingWith(jumping), AnimationPlace.StartOfAnimation), state.Playback, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
+            // The airborne pose is a still picture (#2337): it shows once and rests there.
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne], [1]),
                 EnemyInstructionRunner.ShownFrames(place, 2), $"hopper airborne pose {context}");
             AssertTrue(place.Processing.HasAny(EnemyProcessing.OffScreen),
                 $"hopper jumping program {context} enables off-screen processing");

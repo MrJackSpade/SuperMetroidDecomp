@@ -97,7 +97,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleCueKind.LoopOrTurnAround:
                 return SelectBabyTurtleCrawlLoop(place, place.RequireSpeciesState<BabyTurtleEnemyState>());
             case MamaTurtleCueKind.LeaveShell:
-                return SelectBabyTurtleLeaveShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
+                return SelectBabyTurtleLeaveShell(place, samus);
             case MamaTurtleCueKind.LeftShell:
                 return FinishBabyTurtleLeavingShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
             case MamaTurtleCueKind.SetSpinningStoppable:
@@ -637,18 +637,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActionTimer = MamaTurtleMotionDefinitions.RiseToHoverDuration;
     }
 
-    /// <summary>Animation cue: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
-    private static MamaTurtleSegment? SelectBabyTurtleLeaveShell(
-        RoomEnemyPlace baby,
-        BabyTurtleEnemyState state,
-        SamusState samus)
-    {
-        if (!EnemyCollision.IsSamusStandingOn(baby, samus))
-            return null;
-        return state.Velocity.X < 0
-            ? MamaTurtleSegment.BabyLeaveShellLeft
-            : MamaTurtleSegment.BabyLeaveShellRight;
-    }
+    /// <summary>
+    /// Animation cue: branch out of hiding only while ridden, whichever way the baby crawls (#2337); otherwise the hiding
+    /// animation runs on.
+    /// </summary>
+    private static MamaTurtleSegment? SelectBabyTurtleLeaveShell(RoomEnemyPlace baby, SamusState samus) =>
+        EnemyCollision.IsSamusStandingOn(baby, samus) ? MamaTurtleSegment.BabyLeaveShell : null;
 
     /// <summary>Animation cue: restore crawling after leaving the shell.</summary>
     private static MamaTurtleSegment FinishBabyTurtleLeavingShell(

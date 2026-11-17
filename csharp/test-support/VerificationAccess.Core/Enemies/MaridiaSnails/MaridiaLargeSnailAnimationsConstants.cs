@@ -10,6 +10,6 @@ internal static class MaridiaLargeSnailAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params MaridiaLargeSnailSegment[] programs) =>
         programs.SelectMany(program => MaridiaLargeSnailAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>.Frame>()
-            .Select(frame => MaridiaLargeSnailFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => MaridiaLargeSnailFrameToolingDefinitions.Spritemap(frame));
 }

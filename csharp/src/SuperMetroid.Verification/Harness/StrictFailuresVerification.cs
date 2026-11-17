@@ -2,7 +2,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 

@@ -1207,7 +1207,7 @@ internal static class LookupStream4Verification
     }
 
     /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
-    private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
         // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
@@ -1227,7 +1227,7 @@ internal static class LookupStream4Verification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Func<SamusState, bool> canGrab = NorfairRidleyCombat.SamusMovementUsesRidleyGrab;
-        Action<NorfairRidleyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
+        Action<NorfairRidleyState, SamusState> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             // A record no gameplay path gives Samus names no pose (#1517), so it has no grab policy to check.
@@ -1243,9 +1243,7 @@ internal static class LookupStream4Verification
             AssertTrue(state.Tail.WhipRequested, "Actual release requests tail whip");
             AssertEqual(RidleyTailAction.Neutral, state.Tail.Action, "Actual release resets tail controller");
         }
-        var absentState = new NorfairRidleyState();
-        release(absentState, null);
-        AssertEqual(ordinaryFrames, absentState.IntangibilityTimer, "Missing Samus retains standing release fallback");
+
     }
 
     /// <summary>Checks Ridley tail angle selection data against native table values.</summary>

@@ -25,7 +25,8 @@ internal static class StatueWalkDefinitionsVerification
     internal static void VerifyCompiledStatueWalking(CartridgeImportAddressSpace rom)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Func<RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = enemies.TorizoBehavior.Choices.ProcessGoldenTorizoWalkAnimation;
+        Func<RoomEnemyPlace, TorizoEnemyState, SamusState, RoomLevelData, int, AnimationContinuation<TorizoAnimation>?> walk = (torizo, state, samus, level, stepPixels) =>
+            enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(torizo, state, samus, level, TorizoWalkerDefinitions.GoldenTorizo, stepPixels);
         Action<RoomEnemyPlace, SamusState, RoomLevelData, ChozoCarryStep> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = CreateEmptyRoom(new(32, 32));
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];

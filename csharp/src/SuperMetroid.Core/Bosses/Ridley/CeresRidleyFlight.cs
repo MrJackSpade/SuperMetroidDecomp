@@ -374,7 +374,7 @@ internal sealed class CeresRidleyFlight
                 run.Raise(step);
             }
             run.Raise(step);
-            return SignedEightEight.Min(run.Velocity, CeresRidleyFlightDefinitions.MaximumSeekSpeed);
+            return SignedEightEight.Min(run.Velocity, RidleyInertiaDefinitions.MaximumVelocity);
         }
         if (!velocity.IsNegative)
         {
@@ -382,7 +382,7 @@ internal sealed class CeresRidleyFlight
             run.Lower(step);
         }
         run.Lower(step);
-        return SignedEightEight.Max(run.Velocity, CeresRidleyFlightDefinitions.MinimumSeekSpeed);
+        return SignedEightEight.Max(run.Velocity, RidleyInertiaDefinitions.MinimumVelocity);
     }
 
     /// <summary>

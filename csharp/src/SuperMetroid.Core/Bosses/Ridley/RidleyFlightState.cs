@@ -20,6 +20,7 @@ public sealed class RidleyFlightState
         MovementMinimum = minimum;
         MovementMaximum = maximum;
         Wings = new RidleyWingBeat(firstWingPose);
+        BodyPlayback = new(RidleyAnimations.StartingWith(RidleyAnimations.Initial.For(facing)), AnimationPlace.StartOfAnimation);
     }
 
     /// <summary>Gets which way Ridley faces: left, toward the screen in his intermediate turning pose, or right.</summary>
@@ -44,9 +45,11 @@ public sealed class RidleyFlightState
     /// toward each phase's target speed before it resolves into axis velocities.
     /// </summary>
     public SignedEightEight SwoopSpeed { get; internal set; }
-    /// <summary>Ridley's playing body animation and where it stands (#641, #1600); before the first start, the initial animation.</summary>
-    internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; } =
-        new(RidleyAnimations.StartingWith(RidleyBodySegment.InitialFacingLeft), AnimationPlace.StartOfAnimation);
+    /// <summary>
+    /// Ridley's playing body animation and where it stands (#641, #1600): from his setup, his standing pose for the way he
+    /// faces as he is placed (#2335).
+    /// </summary>
+    internal AnimationPlayback<RidleyBodySegment> BodyPlayback { get; set; }
     /// <summary>Gets the claw height Ridley's body animation last selected; he starts standing.</summary>
     public RidleyClawHeight ClawHeight { get; internal set; } = RidleyClawHeight.Standing;
     /// <summary>Gets whether Ridley's animation has enabled the roar presentation.</summary>

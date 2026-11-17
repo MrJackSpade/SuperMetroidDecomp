@@ -228,7 +228,7 @@ internal static class TorizoProjectileAnimationsVerification
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.MayTurnToSmoke }:
                 // The native branch names the smoke the owner turns the explosion into (#2167).
-                AssertEqual(Word(0), ProjectileEntry(TorizoAttacks.DeathSmoke), $"{at}: branch target");
+                AssertEqual(Word(0), ProjectileEntry(TorizoProjectileSegment.DeathSmoke), $"{at}: branch target");
                 return;
             case TorizoProjectileCue.SetRadius setRadius:
                 AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), setRadius.Radius, $"{at}: radius");

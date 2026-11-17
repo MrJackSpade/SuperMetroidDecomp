@@ -48,6 +48,24 @@ internal static class NorfairRidleyMotionDefinitions
     /// <summary>The updates his swoop's recovery lasts; on the last he lunges at a grabbable Samus or chooses his next attack.</summary>
     internal const int SwoopRecoveryUpdates = 33;
 
+    /// <summary>How far his swoop's heading turns each update of its dive: an eighth of a step.</summary>
+    internal static readonly RotationAngle SwoopDiveTurn = RotationAngle.FromSteps(0, 32);
+
+    /// <summary>The heading his swoop's dive turns toward, facing right: two steps round from straight down.</summary>
+    internal static readonly RotationAngle SwoopDiveHeading = RotationAngle.FromSteps(2);
+
+    /// <summary>How far his swoop's heading turns each update of its sweep: a step and a quarter.</summary>
+    internal static readonly RotationAngle SwoopSweepTurn = RotationAngle.FromSteps(1, 64);
+
+    /// <summary>How far his swoop's heading turns each update of its turn up: two steps.</summary>
+    internal static readonly RotationAngle SwoopTurnUpTurn = RotationAngle.FromSteps(2);
+
+    /// <summary>How far his swoop's heading turns each update of its climb: four steps.</summary>
+    internal static readonly RotationAngle SwoopClimbTurn = RotationAngle.FromSteps(4);
+
+    /// <summary>The updates the pose he shows holds before his turn toward the arena's other half shows its first.</summary>
+    internal const int TurnStartUpdates = 2;
+
     /// <summary>The speed his swoop's dive moves toward: four and a half pixels an update.</summary>
     internal static readonly SignedEightEight SwoopDiveSpeed = SignedEightEight.FromParts(4, 128);
 

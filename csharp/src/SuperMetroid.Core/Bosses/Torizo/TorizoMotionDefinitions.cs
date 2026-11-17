@@ -83,6 +83,9 @@ internal static class TorizoMotionDefinitions
     /// <summary>The horizontal speed Golden Torizo's orb loses on each floor bounce.</summary>
     internal static readonly SignedEightEight GoldenOrbBounceDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(64);
 
+    /// <summary>The speed Golden Torizo's egg rolls on the way it faces as it starts to hatch: a pixel an update.</summary>
+    internal static readonly SignedEightEight EggHatchingSpeed = SignedEightEight.FromPixels(1);
+
     /// <summary>The horizontal speed Golden Torizo's egg loses on each floor bounce.</summary>
     internal static readonly SignedEightEight EggBounceDrag = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
 

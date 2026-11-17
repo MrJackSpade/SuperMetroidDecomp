@@ -378,10 +378,10 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, inputs.Level, new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.TurningLeft, CollisionFacingLeft = TorizoAnimation.TurningRight });
+                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.BombTorizo, walk.Velocity);
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkAnimation(torizo, state, inputs.Samus, inputs.Level, new TorizoWalkStep { Velocity = walk.Velocity, CollisionFacingRight = TorizoAnimation.FacelessTurningLeft, CollisionFacingLeft = TorizoAnimation.FacelessTurningRight });
+                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.FacelessBombTorizo, walk.Velocity);
 
             case TorizoCue.Replay { Kind: TorizoReplayKind.WhileRising }:
                 return state.Velocity.Y.IsNegative ? TorizoAnimations.ReplayPhase(continuation) : null;
@@ -546,12 +546,7 @@ internal sealed class TorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkGoldenTorizo } walk:
-                return Choices.ProcessGoldenTorizoWalkAnimation(
-                    torizo,
-                    state,
-                    inputs.Samus,
-                    inputs.Level,
-                    walk.Velocity);
+                return Choices.ProcessTorizoWalkStep(torizo, state, inputs.Samus, inputs.Level, TorizoWalkerDefinitions.GoldenTorizo, walk.Velocity);
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(state, showArtwork.Look);

@@ -75,14 +75,14 @@ internal static class RidleyInteractions
         ShowsHitBurst = EnemyBombReaction.NeverShowsHitBurst,
     };
 
-    /// <summary>The reaction of the first Ridley hitbox the probe overlaps, or null when the occupant is not Ridley.</summary>
+    /// <summary>
+    /// The reaction of the first hitbox of Ridley's body the probe overlaps, which both Ridley bodies' own entities ask for
+    /// (#2335): true with the reaction, or false when none overlaps.
+    /// </summary>
     /// <exception cref="InvalidDataException">Ridley's frame has no compiled collision.</exception>
-    internal static bool? FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static bool FindRidleyHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        if (!RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId))
-            return null;
-
         // An installed picture's composition may be edited; touch and shots still meet the hitboxes of the eleven
         // body frames the game defines.
         foreach (RidleyCollisionComponent component in

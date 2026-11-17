@@ -18,8 +18,19 @@ internal static class RidleyBreakup
     }
 
     /// <summary>The link of <paramref name="tail"/> that becomes tail fragment <paramref name="part"/>, or null for a body fragment.</summary>
-    internal static RidleyTailLink? TailLinkBecoming(RidleyExplosionPart part, RidleyTailState tail) =>
-        tail.Links.Zip(TailLinkParts, (link, linkPart) => linkPart == part ? link : null).OfType<RidleyTailLink>().SingleOrDefault();
+    internal static RidleyTailLink? TailLinkBecoming(RidleyExplosionPart part, RidleyTailState tail) => part switch
+    {
+        RidleyExplosionPart.TailBase => tail.Base,
+        RidleyExplosionPart.TailFirstShaftLink => tail.Shaft[0],
+        RidleyExplosionPart.TailSecondShaftLink => tail.Shaft[1],
+        RidleyExplosionPart.TailThirdShaftLink => tail.Shaft[2],
+        RidleyExplosionPart.TailFourthShaftLink => tail.Shaft[3],
+        RidleyExplosionPart.TailInnerJoint => tail.InnerJoint,
+        RidleyExplosionPart.TailTip => tail.Tip,
+        RidleyExplosionPart.Wings or RidleyExplosionPart.Legs or RidleyExplosionPart.OpenHeadAndNeck or RidleyExplosionPart.Torso
+            or RidleyExplosionPart.Claw => null,
+        _ => throw new ArgumentOutOfRangeException(nameof(part), part, "Ridley's breakup has no such part."),
+    };
 
     /// <summary>
     /// Selects the tail pose the breakup initializer loads; the tip's comes from the direction it points, turned by the

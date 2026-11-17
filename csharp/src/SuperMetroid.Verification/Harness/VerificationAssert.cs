@@ -1306,6 +1306,15 @@ internal static class VerificationAssert
         return 0;
     }
 
+    /// <summary>Checks Ridley's grab and release policy for each of Samus's movements, apart from the rest of stream 4 (#2335).</summary>
+    [VerificationCommand("--lookup-stream-4-ridley-movement-policy")]
+    internal static int LookupStream4RidleyMovementPolicyCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyLookupStream4RidleyMovementPolicy), () => VerifyLookupStream4RidleyMovementPolicy(rom));
+        return 0;
+    }
+
     /// <summary>Checks Baby Metroid transfer-phase tiles at their native VRAM positions.</summary>
     [VerificationCommand("--lookup-stream-4-baby-phase")]
     internal static int LookupStream4BabyPhaseCommand()

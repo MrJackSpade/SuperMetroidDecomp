@@ -97,7 +97,7 @@ internal static class FirefleaFxVerification
         for (int i = 0; i < looks.Length; i++)
         {
             ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
-            AssertEqual((int)LittleEndianBytes.HighByte(word), looks[i].Level, $"Original Fireflea flash {i}");
+            AssertEqual(LittleEndianBytes.HighByte(word), looks[i].Level, $"Original Fireflea flash {i}");
             AssertEqual((byte)0, LittleEndianBytes.LowByte(word), $"Original Fireflea flash {i} carries nothing");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaFlashShade(7), "Flash upper bound");

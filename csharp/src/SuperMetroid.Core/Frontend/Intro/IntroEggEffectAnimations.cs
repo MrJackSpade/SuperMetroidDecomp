@@ -30,15 +30,15 @@ internal static class IntroEggEffectAnimations
                 B.Show(S.SlimePuddle, 10),
             ],
         },
-        new Dictionary<IntroEggEffectAnimation, Animation<IntroEggEffectAnimation>>
+        plays => new Dictionary<IntroEggEffectAnimation, Animation<IntroEggEffectAnimation>>
         {
-            [A.ShellUpperLeft] = CinematicPlays.Still(A.ShellUpperLeft),
-            [A.ShellUpperRight] = CinematicPlays.Still(A.ShellUpperRight),
-            [A.ShellLeft] = CinematicPlays.Still(A.ShellLeft),
-            [A.ShellCentre] = CinematicPlays.Still(A.ShellCentre),
-            [A.ShellRight] = CinematicPlays.Still(A.ShellRight),
-            [A.ShellLower] = CinematicPlays.Still(A.ShellLower),
-            [A.SlimeDrop] = CinematicPlays.Still(A.SlimeDrop),
-            [A.SlimeImpact] = CinematicPlays.Through(A.SlimeImpact, 4, AnimationEnd.Stops),
+            [A.ShellUpperLeft] = plays.Still(A.ShellUpperLeft),
+            [A.ShellUpperRight] = plays.Still(A.ShellUpperRight),
+            [A.ShellLeft] = plays.Still(A.ShellLeft),
+            [A.ShellCentre] = plays.Still(A.ShellCentre),
+            [A.ShellRight] = plays.Still(A.ShellRight),
+            [A.ShellLower] = plays.Still(A.ShellLower),
+            [A.SlimeDrop] = plays.Still(A.SlimeDrop),
+            [A.SlimeImpact] = plays.Through(A.SlimeImpact, AnimationEnd.Stops),
         });
 }

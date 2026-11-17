@@ -26,10 +26,10 @@ internal static class IntroMotherBrainAnimations
                 B.Raise(K.StartCrossFade),
             ],
         },
-        new Dictionary<IntroMotherBrainAnimation, Animation<IntroMotherBrainAnimation>>
+        plays => new Dictionary<IntroMotherBrainAnimation, Animation<IntroMotherBrainAnimation>>
         {
-            [A.Pulsing] = new([new(A.Pulsing, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
-            [A.StartingPageTwo] = new([new(A.StartingPageTwo, 0, 2, 1), new(A.Pulsing, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+            [A.Pulsing] = plays.Looping(A.Pulsing),
+            [A.StartingPageTwo] = new([plays.Whole(A.StartingPageTwo), plays.Whole(A.Pulsing)], AnimationEnd.LoopsFrom(1)),
         });
 
     /// <summary>Mother Brain's explosions: each burns through its pictures and a blank pause, over and over.</summary>
@@ -57,10 +57,10 @@ internal static class IntroMotherBrainAnimations
                 Show(S.Blank, 16),
             ],
         },
-        new Dictionary<IntroMotherBrainExplosionAnimation, Animation<IntroMotherBrainExplosionAnimation>>
+        plays => new Dictionary<IntroMotherBrainExplosionAnimation, Animation<IntroMotherBrainExplosionAnimation>>
         {
-            [IntroMotherBrainExplosionAnimation.Big] = new([new(IntroMotherBrainExplosionAnimation.Big, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
-            [IntroMotherBrainExplosionAnimation.Small] = new([new(IntroMotherBrainExplosionAnimation.Small, 0, 7, 1)], AnimationEnd.LoopsFrom(0)),
+            [IntroMotherBrainExplosionAnimation.Big] = plays.Looping(IntroMotherBrainExplosionAnimation.Big),
+            [IntroMotherBrainExplosionAnimation.Small] = plays.Looping(IntroMotherBrainExplosionAnimation.Small),
         });
 
     /// <summary>Shows <paramref name="pose"/> for <paramref name="duration"/> updates in an animation that publishes no cue.</summary>

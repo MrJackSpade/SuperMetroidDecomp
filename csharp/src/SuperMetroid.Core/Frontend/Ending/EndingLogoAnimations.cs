@@ -35,11 +35,11 @@ internal static class EndingLogoAnimations
                 B.Hold(S.LogoLeftCircleWhole),
             ],
         },
-        new Dictionary<EndingLogoAnimation, Animation<EndingLogoAnimation>>
+        plays => new Dictionary<EndingLogoAnimation, Animation<EndingLogoAnimation>>
         {
-            [A.UpperS] = CinematicPlays.Still(A.UpperS),
-            [A.LowerS] = CinematicPlays.Still(A.LowerS),
-            [A.UpperCircle] = CinematicPlays.Through(A.UpperCircle, 6, AnimationEnd.Holds),
-            [A.LowerCircle] = CinematicPlays.Through(A.LowerCircle, 4, AnimationEnd.Holds),
+            [A.UpperS] = plays.Still(A.UpperS),
+            [A.LowerS] = plays.Still(A.LowerS),
+            [A.UpperCircle] = plays.Through(A.UpperCircle, AnimationEnd.Holds),
+            [A.LowerCircle] = plays.Through(A.LowerCircle, AnimationEnd.Holds),
         });
 }

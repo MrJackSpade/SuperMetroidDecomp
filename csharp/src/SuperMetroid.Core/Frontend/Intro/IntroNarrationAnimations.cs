@@ -27,11 +27,11 @@ internal static class IntroNarrationAnimations
             ],
             [A.NextPageArrowDelayed] = [B.Show(S.Blank, 60)],
         },
-        new Dictionary<IntroNarrationAnimation, Animation<IntroNarrationAnimation>>
+        plays => new Dictionary<IntroNarrationAnimation, Animation<IntroNarrationAnimation>>
         {
-            [A.Caret] = CinematicPlays.Still(A.Caret),
-            [A.CaretBlinking] = CinematicPlays.Through(A.CaretBlinking, 2, AnimationEnd.LoopsFrom(0)),
-            [A.NextPageArrow] = CinematicPlays.Through(A.NextPageArrow, 4, AnimationEnd.LoopsFrom(0)),
-            [A.NextPageArrowDelayed] = new([new(A.NextPageArrowDelayed, 0, 1, 1), new(A.NextPageArrow, 0, 4, 1)], AnimationEnd.LoopsFrom(1)),
+            [A.Caret] = plays.Still(A.Caret),
+            [A.CaretBlinking] = plays.Looping(A.CaretBlinking),
+            [A.NextPageArrow] = plays.Looping(A.NextPageArrow),
+            [A.NextPageArrowDelayed] = new([plays.Whole(A.NextPageArrowDelayed), plays.Whole(A.NextPageArrow)], AnimationEnd.LoopsFrom(1)),
         });
 }

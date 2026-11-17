@@ -16,21 +16,24 @@ internal static class IntroRinkaAnimations
     internal static CinematicAnimations<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> Rinka { get; } = new(
         new Dictionary<IntroRinkaAnimation, AnimationBeat<CinematicSpritePose, IntroRinkaCue>[]>
         {
-            [A.Rinka] =
+            [A.RinkaAppearing] =
             [
                 R.Show(S.RinkaDim, 10),
                 R.Show(S.RinkaGlowing, 10),
                 R.Show(S.RinkaBright, 10),
                 R.Raise(IntroRinkaCue.StartMoving),
+            ],
+            [A.Rinka] =
+            [
                 R.Show(S.RinkaGlowing, 10),
                 R.Show(S.RinkaDim, 10),
                 R.Show(S.RinkaGlowing, 10),
                 R.Show(S.RinkaBright, 10),
             ],
         },
-        new Dictionary<IntroRinkaAnimation, Animation<IntroRinkaAnimation>>
+        plays => new Dictionary<IntroRinkaAnimation, Animation<IntroRinkaAnimation>>
         {
-            [A.Rinka] = new([new(A.Rinka, 0, 4, 1), new(A.Rinka, 4, 4, 1)], AnimationEnd.LoopsFrom(1)),
+            [A.Rinka] = new([plays.Whole(A.RinkaAppearing), plays.Whole(A.Rinka)], AnimationEnd.LoopsFrom(1)),
         });
 
     /// <summary>The invisible spawner's animation: it waits 74 updates, launches a pair, waits 128 updates, launches another, and ends.</summary>
@@ -45,8 +48,8 @@ internal static class IntroRinkaAnimations
                 W.Raise(IntroRinkaSpawnerCue.SpawnMissingPair),
             ],
         },
-        new Dictionary<IntroRinkaAnimation, Animation<IntroRinkaAnimation>>
+        plays => new Dictionary<IntroRinkaAnimation, Animation<IntroRinkaAnimation>>
         {
-            [A.Spawner] = new([new(A.Spawner, 0, 4, 1)], AnimationEnd.Stops),
+            [A.Spawner] = plays.Through(A.Spawner, AnimationEnd.Stops),
         });
 }

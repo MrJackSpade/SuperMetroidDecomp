@@ -36,8 +36,8 @@ internal static class IntroEyeAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<IntroEyeSegment, Animation<IntroEyeSegment>> StartingAt { get; } = new Dictionary<IntroEyeSegment, Animation<IntroEyeSegment>>
     {
-        [P.Blinking] = new([new(P.Blinking, 0, 8, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FinalPageClosing] = new([new(P.FinalPageClosing, 0, 3, 1)], AnimationEnd.Holds),
+        [P.Blinking] = new([Segments.Whole(P.Blinking)], AnimationEnd.LoopsFrom(0)),
+        [P.FinalPageClosing] = new([Segments.Whole(P.FinalPageClosing)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>

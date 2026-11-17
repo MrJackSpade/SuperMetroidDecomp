@@ -53,6 +53,15 @@ internal sealed class AnimationSegments<TSegment, TFrame, TEvent>
     /// <summary>The beats of <paramref name="segment"/>.</summary>
     internal IReadOnlyList<AnimationBeat<TFrame, TEvent>> Beats(TSegment segment) => beats[segment];
 
+    /// <summary>The phase that plays every beat of <paramref name="segment"/> once (#2358), its length read from the segment.</summary>
+    internal AnimationPhase<TSegment> Whole(TSegment segment) => Repeated(segment, 1);
+
+    /// <summary>
+    /// The phase that plays every beat of <paramref name="segment"/> <paramref name="plays"/> times (#2358), its length read
+    /// from the segment.
+    /// </summary>
+    internal AnimationPhase<TSegment> Repeated(TSegment segment, int plays) => new(segment, 0, beats[segment].Length, plays);
+
     /// <summary>
     /// Whether <paramref name="animation"/> opens with a frame (#2317): played from its start, it shows a frame or a held
     /// frame before it raises any event.

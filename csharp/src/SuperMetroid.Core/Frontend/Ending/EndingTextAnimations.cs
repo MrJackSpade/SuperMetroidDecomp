@@ -55,7 +55,7 @@ internal static class EndingTextAnimations
                 B.Hold(Whole(T.ClearTime)),
             ],
         };
-        return new(segments, segments.ToDictionary(pair => pair.Key, pair => CinematicPlays.Through(pair.Key, pair.Value.Length, AnimationEnd.Holds)));
+        return new(segments, plays => segments.Keys.ToDictionary(text => text, text => plays.Through(text, AnimationEnd.Holds)));
     }
 
     /// <summary><paramref name="text"/> typed in full.</summary>

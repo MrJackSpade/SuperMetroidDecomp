@@ -206,10 +206,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemyPlace robot,
         Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
-        CoordinateAxis.AsSigned(camera.X + ScreenGeometry.ScreenWidthPixels - robot.Position.X.Whole) >= 0 &&
-        CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
-        CoordinateAxis.AsSigned(camera.Y + ScreenGeometry.ScreenHeightPixels - robot.Position.Y.Whole) >= 0;
+        robot.Position.X.Whole > camera.X &&
+        robot.Position.X.Whole <= camera.X + ScreenGeometry.ScreenWidthPixels &&
+        robot.Position.Y.Whole > camera.Y &&
+        robot.Position.Y.Whole <= camera.Y + ScreenGeometry.ScreenHeightPixels;
 
     /// <summary>Uses the existing random number to reset cooldown and starts the firing animation when ready.</summary>
     private WorkRobotSegment? TryFireWorkRobotLaser(
@@ -317,7 +317,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A robot without power runs nothing after the common shot AI: it has no recoil.</summary>
     internal EnemyShotReaction UnpoweredWorkRobotShotReaction { get; } = new();
 
-    /// <summary>A Work Robot laser, in any of its five directions (#1760): it flies with room collision.</summary>
+    /// <summary>A Work Robot laser, whichever way it flies (#1760): it flies with room collision.</summary>
     internal static readonly EnemyProjectileBehavior Laser = new SingleMotionProjectileBehavior(
         context => FlyWorkRobotLaser(context.Projectile, context.Level));
 
@@ -360,8 +360,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveWorkRobotTouch(context.Place, context.Samus);
 
     /// <summary>
-    /// Allocates one of the five Work Robot laser definitions. Horizontal left/right
-    /// share one definition; the sign in the owner's laser velocity supplies the sixth direction.
+    /// Allocates a Work Robot laser: it flies ahead of the robot, the way it faces, and up, straight or down as
+    /// <paramref name="definition"/> names, its velocity holding its way (#2278).
     /// </summary>
     internal void SpawnWorkRobotLaser(
         RoomEnemyPlace robot,
@@ -373,8 +373,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (projectile is null)
             return;
 
-        // The enemy-projectile spawn copies the complete definition before the family's own setup: the five lasers
-        // do not share radii or damage, and the definition also supplies the blank first frame and all three contact
+        // The enemy-projectile spawn copies the complete definition before the family's own setup: the diagonal and
+        // horizontal lasers do not share radii or damage, and the definition also supplies the blank first frame and all three contact
         // properties. The laser's pictures carry their own
         // colours, so it draws from the room's shared sheet in its standard colours: no picture of it shows before its
         // first pass, so the robot's graphics its spawn briefly held never draw.
@@ -387,15 +387,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithX(state.Facing == HorizontalDirection.Left ? -WorkRobotLaserDefinitions.Speed : WorkRobotLaserDefinitions.Speed);
         projectile.Velocity = projectile.Velocity.WithY(definition switch
         {
-            WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
-                -WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
-            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
+            WorkRobotLaser.Upward => -WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
+            WorkRobotLaser.Downward => WorkRobotLaserDefinitions.DiagonalVerticalSpeed,
             WorkRobotLaser.Horizontal => SignedEightEight.Zero,
             _ => throw new InvalidOperationException(
                 $"Undefined Work Robot laser definition {definition}."),
         });
 
-        // All five initializers place the muzzle ahead of the robot in the way it faces and above it.
+        // Every laser starts at the muzzle ahead of the robot, the way it faces, and above it.
         int ahead = WorkRobotLaserDefinitions.MuzzleAhead;
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
             (state.Facing == HorizontalDirection.Left ? -ahead : ahead)), 0),

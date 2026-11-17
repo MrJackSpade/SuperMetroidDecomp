@@ -45,6 +45,12 @@ public sealed class YardEnemyState
     public YardMovement Movement { get; internal set; }
 
     /// <summary>
+    /// The way the Yard crawls while its <see cref="Movement"/> is <see cref="YardMovement.Crawling"/>: the surface and way
+    /// of the crawl its animation last began (#2278), which may lag <see cref="Direction"/> by one update.
+    /// </summary>
+    public YardDirection Crawl { get; internal set; }
+
+    /// <summary>
     /// The airborne Yard's velocity in pixels per update. Gravity adds an eighth of a pixel to its fall, its sideways
     /// speed slows by a sixteenth of a pixel toward rest while it meets nothing, and a collision reverses each part as the
     /// compatibility services describe; a downward collision lands it while it falls less than three pixels an update.

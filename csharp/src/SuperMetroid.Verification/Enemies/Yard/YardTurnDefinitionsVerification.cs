@@ -18,24 +18,24 @@ internal static class YardTurnDefinitionsVerification
     {
         YardTurnDefinitionsRecord[] records =
         [
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingLeft, false, 0xa3cce2),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideLeftMovingDown, false, 0xa3ccea),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingRight, false, 0xa3ccf2),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideRightMovingUp, false, 0xa3ccfa),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingRight, false, 0xa3cd02),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideRightMovingDown, false, 0xa3cd0a),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingLeft, false, 0xa3cd12),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideLeftMovingUp, false, 0xa3cd1a),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingLeft, true, 0xa3cd22),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingRight, true, 0xa3cd2a),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideUpMovingRight, true, 0xa3cd32),
-            new YardTurnDefinitionsRecord(YardMovement.CrawlingUpsideDownMovingLeft, true, 0xa3cd3a),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingLeft, false, 0xa3cce2),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideLeftMovingDown, false, 0xa3ccea),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingRight, false, 0xa3ccf2),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideRightMovingUp, false, 0xa3ccfa),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingRight, false, 0xa3cd02),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideRightMovingDown, false, 0xa3cd0a),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingLeft, false, 0xa3cd12),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideLeftMovingUp, false, 0xa3cd1a),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingLeft, true, 0xa3cd22),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingRight, true, 0xa3cd2a),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideUpMovingRight, true, 0xa3cd32),
+            new YardTurnDefinitionsRecord(YardDirection.UpsideDownMovingLeft, true, 0xa3cd3a),
         ];
 
-        foreach ((YardMovement movement, bool disabled, int address) in records)
+        foreach ((YardDirection movement, bool disabled, int address) in records)
         {
             YardTurnDefinition definition =
-                YardTurns.ForMovement(movement, disabled);
+                YardTurns.ForCrawl(movement, disabled);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{disabled} lookahead X");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
@@ -46,23 +46,20 @@ internal static class YardTurnDefinitionsVerification
                 $"Yard turn {movement}/{disabled} inside list");
         }
 
-        // The four vertical crawling states do not consult the suppression flag.
-        foreach (YardMovement movement in new[]
+        // The four crawls along a wall do not consult the suppression flag.
+        foreach (YardDirection movement in new[]
         {
-            YardMovement.CrawlingUpsideLeftMovingDown,
-            YardMovement.CrawlingUpsideRightMovingUp,
-            YardMovement.CrawlingUpsideRightMovingDown,
-            YardMovement.CrawlingUpsideLeftMovingUp,
+            YardDirection.UpsideLeftMovingDown,
+            YardDirection.UpsideRightMovingUp,
+            YardDirection.UpsideRightMovingDown,
+            YardDirection.UpsideLeftMovingUp,
         })
         {
             AssertEqual(
-                YardTurns.ForMovement(movement, false),
-                YardTurns.ForMovement(movement, true),
+                YardTurns.ForCrawl(movement, false),
+                YardTurns.ForCrawl(movement, true),
                 $"Yard vertical turn {movement} ignores suppression flag");
         }
-        AssertThrows<InvalidDataException>(
-            () => YardTurns.ForMovement(YardMovement.Airborne, false),
-            "Yard airborne state has no surface-turn definition");
 
         Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(records));
         Console.WriteLine(
@@ -77,10 +74,10 @@ internal static class YardTurnDefinitionsVerification
         RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
         RoomLevelData solid = VerificationHelpersVerification.CreateSolidRowsRoom(new(64, 64), firstSolidRow: 0, solidRowCount: 64);
 
-        foreach ((YardMovement movement, bool disabled, _) in records)
+        foreach ((YardDirection movement, bool disabled, _) in records)
         {
             YardTurnDefinition definition =
-                YardTurns.ForMovement(movement, disabled);
+                YardTurns.ForCrawl(movement, disabled);
             VerifyYardTurnProductionBranch(
                 movement, disabled, empty, definition.OutsideTurnAnimation,
                 $"Yard outside turn {movement}/{disabled}");
@@ -90,7 +87,7 @@ internal static class YardTurnDefinitionsVerification
         }
 
         static void VerifyYardTurnProductionBranch(
-            YardMovement movement,
+            YardDirection movement,
             bool disabled,
             RoomLevelData level,
             YardSegment expectedProgram,
@@ -105,7 +102,8 @@ internal static class YardTurnDefinitionsVerification
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingUpsideUpMovingLeft), AnimationPlace.StartOfAnimation),
-                Movement = movement,
+                Movement = YardMovement.Crawling,
+                Crawl = movement,
                 TurnTransitionDisabled = disabled,
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
             };

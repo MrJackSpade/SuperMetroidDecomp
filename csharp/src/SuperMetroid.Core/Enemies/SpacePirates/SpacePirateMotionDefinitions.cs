@@ -52,7 +52,7 @@ internal static class SpacePirateMotionDefinitions
     internal const int NinjaLandingDustDrop = 28;
 
     /// <summary>A thrown claw's launch speed, eight pixels an update.</summary>
-    internal static SignedEightEight NinjaClawLaunchSpeed { get; } = SignedEightEight.FromPixels(8);
+    internal static ReturningClawSpeed NinjaClawLaunchSpeed { get; } = ReturningClawSpeed.FromPixels(8);
 
     /// <summary>How far down a walking Pirate's ground probe reaches, one pixel.</summary>
     internal static SignedSixteenSixteen WalkingGroundProbeStep { get; } = SignedSixteenSixteen.FromWholePixels(1);

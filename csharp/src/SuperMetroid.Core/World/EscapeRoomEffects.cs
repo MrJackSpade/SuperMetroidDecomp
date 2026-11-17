@@ -56,8 +56,8 @@ internal sealed class EscapeRoomEffects
         {
             int random = _system.NextRandom();
             Position16<RoomPixels> explosion = new(
-                CoordinateAxis.Wrap(room.Camera.PixelPosition.X + ZebesEscapeDefinitions.ExplosionScreenX.Of(random)),
-                CoordinateAxis.Wrap(room.Camera.PixelPosition.Y + ZebesEscapeDefinitions.ExplosionScreenY.Of(random)));
+                room.Camera.PixelPosition.X + ZebesEscapeDefinitions.ExplosionScreenX.Of(random),
+                room.Camera.PixelPosition.Y + ZebesEscapeDefinitions.ExplosionScreenY.Of(random));
             Position16<RoomBlocks> block = explosion.ToRoomBlock();
             // Outdoors an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the kind
             // its block's column phase gives it; indoors such an explosion is a small explosion.

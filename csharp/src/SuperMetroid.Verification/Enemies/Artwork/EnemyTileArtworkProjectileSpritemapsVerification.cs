@@ -97,6 +97,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         // The shared dust and explosion programs are typed (#1760): the misc-dust kind is spawned with a program, not one
         // its kind starts, and the shared-frame draws present each of their frames on it.
         RoomEnemyProjectileKind.MiscDustExplosion,
+        // Ki-Hunter acid's spawner starts the program of the way it spits it (#2278).
+        RoomEnemyProjectileKind.KiHunterAcidSpit,
     ];
 
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
@@ -252,7 +254,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             ShownFamily("Magdollite lava", RoomEnemyProjectileKind.LavaThrownByMagdollite, MagdolliteLavaAnimations.Segments.Frames),
             ShownFamily("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustAnimations.Segments.Frames),
             ShownFamily("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat, EyeDoorSweatAnimations.Segments.Frames),
-            ShownFamily("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft, KiHunterAcidSpitAnimations.Segments.Frames),
+            ShownFamily("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpit, KiHunterAcidSpitAnimations.Segments.Frames),
             ShownFamily("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball, FuneNamiheFireballAnimations.Segments.Frames),
             ShownFamily("Dragon fireball", RoomEnemyProjectileKind.DragonFireball, DragonFireballAnimations.Segments.Frames),
             ShownFamily("Powamp spike", RoomEnemyProjectileKind.PowampSpike, PowampSpikeAnimations.Segments.Frames),
@@ -478,7 +480,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             bool skree = spawner == EnemyDefinitionId.Skree;
             RoomEnemySystem enemies = BurstSystem(artwork, spawner);
             Action<RoomEnemyPlace> spawn = place => SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.SpawnBurst(enemies.Projectiles, place,
-                skree ? SuperMetroid.Core.Enemies.Skree.SkreeParticleDefinitions.Burst : SuperMetroid.Core.Enemies.Metaree.MetareeParticleDefinitions.Burst);
+                skree ? SkreeMetareeParticleSegment.Skree : SkreeMetareeParticleSegment.Metaree);
             // The burst's spawner binds through the system's own registry, which owns its species (#2010).
             RoomEnemyPlace enemy = enemies.Places.InUpdateOrder[0];
             enemy.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96));

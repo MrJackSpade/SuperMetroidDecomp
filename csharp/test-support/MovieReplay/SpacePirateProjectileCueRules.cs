@@ -20,10 +20,11 @@ internal static class SpacePirateProjectileCueRules
         (word, operands, cue, at) =>
         {
             VerificationAssertions.AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue");
-            bool right = cue.Direction == HorizontalDirection.Right;
-            Enum started = cue.Kind == SpacePirateProjectileCueKind.FireLaser
-                ? right ? PirateLaserMotion.FlyingRight : PirateLaserMotion.FlyingLeft
-                : right ? PirateClawMotion.ThrownRight : PirateClawMotion.ThrownLeft;
-            VerificationAssertions.AssertEqual<Enum?>(started, EnemyProjectileMotionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
+            // Both ways' routines stand for the one motion; the routine the list installs names the cue's way (#2278).
+            ushort routine = (ushort)(operands[0] | operands[1] << 8);
+            VerificationAssertions.AssertEqual<Enum?>(SingleMotion.Moving, EnemyProjectileMotionAccess.FromWord(routine), $"{at}: movement");
+            VerificationAssertions.AssertEqual(cue.Kind == SpacePirateProjectileCueKind.FireLaser
+                ? EnemyProjectileMotionAccess.PirateLaserFlight(cue.Direction)
+                : EnemyProjectileMotionAccess.PirateClawThrow(cue.Direction), routine, $"{at}: the movement's way");
         });
 }

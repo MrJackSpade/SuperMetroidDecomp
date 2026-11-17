@@ -22,7 +22,7 @@ public sealed class BullEnemyState
     {
         Action = action;
         ShotReactionDisabled = previous?.ShotReactionDisabled ?? false;
-        ShotReactionDisableTimer = previous?.ShotReactionDisableTimer ?? WrappingCountdown.Start(0);
+        ShotReactionDisableTimer = previous?.ShotReactionDisableTimer ?? 0;
     }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
@@ -109,9 +109,13 @@ public sealed class BullEnemyState
     public int DecelerationIntervalTimerReset { get; internal set; }
 
     /// <summary>
-    /// Wrapping guard countdown, inherited from the place's previous Bull, set to 48 by an immune-shot kick and
-    /// decremented each main-AI call; reaching zero clears the guard and pins the countdown at one, while a countdown
-    /// starting at zero first wraps to its largest count.
+    /// The main-AI updates left before a no-damage kick's guard runs out, inherited from the place's previous Bull: set to
+    /// 48 by the kick and counted down each main-AI update, clearing the guard on the update it reaches zero (#2282). Zero
+    /// while no guard counts; the guard is set only with its countdown.
     /// </summary>
-    public WrappingCountdown ShotReactionDisableTimer { get; internal set; }
+    public int ShotReactionDisableTimer
+    {
+        get;
+        internal set => field = Ensure.AtLeastZero(value);
+    }
 }

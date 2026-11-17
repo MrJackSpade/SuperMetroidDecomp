@@ -422,6 +422,9 @@ internal static class NativeEnemyFamilyStateImport
             };
             yardRecord.ConsecutiveTurnCounter = words.E;
             yardRecord.Movement = YardNativeWords.YardMovements.Decode(words.F, "recorded YardMovement");
+            // A crawl's routine names its way (#2278).
+            if (yardRecord.Movement == YardMovement.Crawling)
+                yardRecord.Crawl = YardNativeWords.Crawls.Decode(words.F, "recorded Yard crawl");
         }
         if (enemy.SpeciesState<ZoaEnemyState>() is { } zoaRecord)
         {

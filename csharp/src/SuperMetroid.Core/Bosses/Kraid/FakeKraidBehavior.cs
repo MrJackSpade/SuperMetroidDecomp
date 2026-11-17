@@ -245,31 +245,29 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = velocity;
     }
 
-    /// <summary>Allocates a facing-specific spike at an authored body row.</summary>
+    /// <summary>Allocates a spike at an authored body row, flying the way Fake Kraid faces (#2278).</summary>
     /// <returns>False when the enemy projectile pool is full.</returns>
     internal bool SpawnFakeKraidSpike(
         RoomEnemyPlace source,
         FakeKraidEnemyState state,
         FakeKraidSpikeRow row)
     {
-        RoomEnemyProjectileKind kind = state.Facing == HorizontalDirection.Left
-            ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
-            : RoomEnemyProjectileKind.FakeKraidSpikeRight;
         EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return false;
 
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
-            kind,
+            RoomEnemyProjectileKind.FakeKraidSpike,
             SpitAndSpikes,
             SpriteGraphics.SpawnedBy(source));
-        projectile.StartAnimation(new FakeKraidProjectileAnimation(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
+        bool left = state.Facing == HorizontalDirection.Left;
+        projectile.StartAnimation(new FakeKraidProjectileAnimation(left
             ? FakeKraidProjectilePose.SpikeLeft
             : FakeKraidProjectilePose.SpikeRight));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
             source.Position.Whole + Offset16<RoomPixels>.Of(0, FakeKraidProjectiles.SpikeYOffset(row)));
-        projectile.Velocity = new(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft ? -FakeKraidProjectileDefinitions.SpikeSpeed : FakeKraidProjectileDefinitions.SpikeSpeed, SignedEightEight.Zero);
+        projectile.Velocity = new(left ? -FakeKraidProjectileDefinitions.SpikeSpeed : FakeKraidProjectileDefinitions.SpikeSpeed, SignedEightEight.Zero);
         return true;
     }
 
@@ -356,8 +354,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         private static readonly Dictionary<RoomEnemyProjectileKind, FakeKraidProjectileMotion?> StartingMotions = new()
         {
             [RoomEnemyProjectileKind.FakeKraidSpit] = FakeKraidProjectileMotion.SpitFlying,
-            [RoomEnemyProjectileKind.FakeKraidSpikeLeft] = FakeKraidProjectileMotion.SpikeFlying,
-            [RoomEnemyProjectileKind.FakeKraidSpikeRight] = FakeKraidProjectileMotion.SpikeFlying,
+            [RoomEnemyProjectileKind.FakeKraidSpike] = FakeKraidProjectileMotion.SpikeFlying,
         };
 
         /// <inheritdoc/>

@@ -212,7 +212,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = DachoraAction.ChargingShinespark;
         state.StartCharging(DachoraTimingDefinitions.ChargeDuration);
         state.SetGlowCycle(frame: 0, ticks: 0);
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole + DachoraMotionDefinitions.ChargeCrouchDepth);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole + DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraChargeSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -275,7 +275,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemyPlace echo in echoes)
             echo.RequireSpeciesState<DachoraEchoState>().Lifetime = 0;
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
-        place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
+        place.Position = place.Position.WithWholeY(place.Position.Y.Whole - DachoraMotionDefinitions.ChargeCrouchDepth);
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DachoraLaunchSound, priority: SoundRequestPriority.Normal);
 
         DachoraSegment echoList = state.Facing == HorizontalDirection.Right

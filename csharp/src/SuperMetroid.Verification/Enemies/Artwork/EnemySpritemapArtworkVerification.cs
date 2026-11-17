@@ -361,8 +361,10 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(15, shaktoolFrames.Count,
             "Shaktool's visual frame identities are distinct");
-        AssertTrue(ShaktoolAnimationsConstants.Spritemaps(Enum.GetValues<ShaktoolSegment>()).ToHashSet().SetEquals(shaktoolFrames),
-            "the Shaktool's programs show exactly its installed frames");
+        AssertTrue(ShaktoolAnimationsConstants.Spritemaps(Enum.GetValues<ShaktoolSegment>())
+                .Concat(ShaktoolHeadPictureDefinitions.AimedPictures.Values.Select(SuperMetroid.Core.Enemies.Shaktool.Artwork.ShaktoolFrameToolingDefinitions.Spritemap))
+                .ToHashSet().SetEquals(shaktoolFrames),
+            "the Shaktool's programs and its head's aimed pictures (#2284) show exactly its installed frames");
         HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(18, platformFramePointers.Count,

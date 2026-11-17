@@ -122,10 +122,9 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
             AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.AcidSpit),
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
-            RoomEnemyProjectileKind kind = movingRight
-                ? RoomEnemyProjectileKind.KiHunterAcidSpitRight
-                : RoomEnemyProjectileKind.KiHunterAcidSpitLeft;
-            AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == kind),
+            // The acid is one kind whichever way it is spat; its velocity is its way (#2278).
+            AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpit &&
+                    projectile.Velocity.X.IsNegative != movingRight),
                 $"KiHunter {(movingRight ? "right" : "left")} acid spawn");
             AssertAsleep(state.Playback, program, $"KiHunter {(movingRight ? "right" : "left")} spit reaches terminal sleep");
         }

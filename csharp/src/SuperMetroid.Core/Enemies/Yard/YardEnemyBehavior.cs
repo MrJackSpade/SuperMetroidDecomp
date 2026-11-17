@@ -67,7 +67,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Movement = YardMovement.HoldingStill;
                 return null;
             case YardCue.BeginCrawling beginCrawling:
-                state.Movement = beginCrawling.Crawl;
+                state.Movement = YardMovement.Crawling;
+                state.Crawl = beginCrawling.Crawl;
                 return null;
             case YardCue.Signal { Kind: YardCueKind.BeginHiding }:
                 state.Movement = YardMovement.Hiding;
@@ -164,15 +165,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunYardAirborneMovement(place, state, samus, level);
                 return;
             // Direction-changing animation can publish the new direction one frame before it starts the matching
-            // movement. The game moves by that movement, not by the briefly newer direction.
-            case YardMovement.CrawlingUpsideUpMovingLeft:
-            case YardMovement.CrawlingUpsideLeftMovingDown:
-            case YardMovement.CrawlingUpsideDownMovingRight:
-            case YardMovement.CrawlingUpsideRightMovingUp:
-            case YardMovement.CrawlingUpsideUpMovingRight:
-            case YardMovement.CrawlingUpsideRightMovingDown:
-            case YardMovement.CrawlingUpsideDownMovingLeft:
-            case YardMovement.CrawlingUpsideLeftMovingUp:
+            // crawl. The game crawls the way its crawl began, not by the briefly newer direction.
+            case YardMovement.Crawling:
                 RunYardCrawlingMovement(place, state, level);
                 return;
             default:
@@ -267,13 +261,10 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         RoomLevelData level)
     {
-        bool movesVertically = state.Movement is
-            YardMovement.CrawlingUpsideLeftMovingDown or
-            YardMovement.CrawlingUpsideRightMovingUp or
-            YardMovement.CrawlingUpsideRightMovingDown or
-            YardMovement.CrawlingUpsideLeftMovingUp;
-        YardTurnDefinition turn = YardTurns.ForMovement(
-            state.Movement,
+        // A crawl along a wall moves vertically, one along a floor or ceiling horizontally.
+        bool movesVertically = YardDirections.IsOnWall(state.Crawl);
+        YardTurnDefinition turn = YardTurns.ForCrawl(
+            state.Crawl,
             state.TurnTransitionDisabled);
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
@@ -502,7 +493,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HidingAnimation = definition.HidingAnimation;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, state.Direction);
-        state.Movement = definition.Movement;
+        state.Movement = YardMovement.Crawling;
+        state.Crawl = definition.Crawl;
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
         return true;

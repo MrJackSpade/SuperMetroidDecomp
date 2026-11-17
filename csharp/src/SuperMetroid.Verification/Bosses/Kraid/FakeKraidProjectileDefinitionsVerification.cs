@@ -79,10 +79,10 @@ internal static class FakeKraidProjectileDefinitionsVerification
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);
-            RoomEnemyProjectileKind expectedKind = facing == HorizontalDirection.Left
-                ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
-                : RoomEnemyProjectileKind.FakeKraidSpikeRight;
-            AssertEqual(expectedKind, spike.Kind, $"Fake Kraid spike row {row} kind");
+            AssertEqual(RoomEnemyProjectileKind.FakeKraidSpike, spike.Kind, $"Fake Kraid spike row {row} kind");
+            AssertTrue(spike.Animation is FakeKraidProjectileAnimation { Pose: var pose } &&
+                    pose == (facing == HorizontalDirection.Left ? FakeKraidProjectilePose.SpikeLeft : FakeKraidProjectilePose.SpikeRight),
+                $"Fake Kraid spike row {row} shows the pose its facing chooses");
             AssertEqual(source.Position.X.Whole, spike.Position.X.Whole,
                 $"Fake Kraid spike row {row} X origin");
             AssertEqual(unchecked((ushort)(source.Position.Y.Whole +

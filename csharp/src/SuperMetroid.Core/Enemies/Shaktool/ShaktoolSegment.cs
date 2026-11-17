@@ -22,20 +22,11 @@ internal enum ShaktoolSegment
     ArmPieceNormal,
     /// <summary>The head head bob animation.</summary>
     HeadHeadBob,
-    /// <summary>The head aiming left animation.</summary>
+    /// <summary>
+    /// The head aiming left, where its head bob rests until the chain moves again; while the chain orients it, the head
+    /// shows the picture its orientation chooses instead (#2284).
+    /// </summary>
     HeadAimingLeft,
-    /// <summary>The head aiming up left animation.</summary>
-    HeadAimingUpLeft,
-    /// <summary>The head aiming up animation.</summary>
-    HeadAimingUp,
-    /// <summary>The head aiming up right animation.</summary>
-    HeadAimingUpRight,
-    /// <summary>The head aiming right animation.</summary>
-    HeadAimingRight,
-    /// <summary>The head aiming down right animation.</summary>
-    HeadAimingDownRight,
-    /// <summary>The head aiming down animation.</summary>
+    /// <summary>The head aiming down, its first pose until the chain first orients it.</summary>
     HeadAimingDown,
-    /// <summary>The head aiming down left animation.</summary>
-    HeadAimingDownLeft,
 }

@@ -476,16 +476,16 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         projectile.StartAnimation(new SpacePirateProjectileAnimation(thrown == HorizontalDirection.Right
             ? SpacePirateProjectileSegment.ClawRight
             : SpacePirateProjectileSegment.ClawLeft));
-        projectile.State = new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed);
+        projectile.State = new NinjaPirateClawState(SpacePirateMotionDefinitions.NinjaClawLaunchSpeed, thrown);
     }
 
-    /// <summary>Flies a claw thrown toward <paramref name="thrown"/> out and back, with exact camera culling.</summary>
+    /// <summary>Flies a claw out along its throw and back, with exact camera culling.</summary>
     private static void FlyNinjaPirateClaw(
         EnemyProjectile projectile,
-        Position16<RoomPixels> camera,
-        HorizontalDirection thrown)
+        Position16<RoomPixels> camera)
     {
         NinjaPirateClawState claw = projectile.StateOf<NinjaPirateClawState>();
+        HorizontalDirection thrown = claw.Thrown;
         int outbound = claw.StepAlongThrow();
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound
@@ -558,34 +558,29 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>A Ninja Pirate's claw (#1760): its spawner starts its animation, which installs its throw left or right.</summary>
+    /// <summary>
+    /// A Ninja Pirate's claw (#1760): its spawner starts its animation and chooses its throw's way, and the animation throws
+    /// it.
+    /// </summary>
     internal static readonly EnemyProjectileBehavior Claw = new ClawBehavior();
 
-    /// <summary>A thrown claw: it flies out and back in its throw's direction, once its animation throws it.</summary>
-    private sealed class ClawBehavior : EnemyProjectileMotionBehavior<PirateClawMotion>, IEnemyProjectileCues<SpacePirateProjectileCue>
+    /// <summary>A thrown claw: it flies out and back along its throw, once its animation throws it (#2278).</summary>
+    private sealed class ClawBehavior()
+        : SingleMotionProjectileBehavior(context => FlyNinjaPirateClaw(context.Projectile, context.Camera), initial: null),
+            IEnemyProjectileCues<SpacePirateProjectileCue>
     {
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, PirateClawMotion motion)
-        {
-            switch (motion)
-            {
-                case PirateClawMotion.ThrownLeft:
-                    FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Left);
-                    break;
-                case PirateClawMotion.ThrownRight:
-                    FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Right);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(PirateClawMotion)} {motion}.");
-            }
-        }
-
-        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">
+        /// The cue is not a claw's throw, or throws the claw a way other than its thrower chose.
+        /// </exception>
         public void RunCue(EnemyProjectileCueContext context, SpacePirateProjectileCue cue)
         {
             if (cue.Kind != SpacePirateProjectileCueKind.ThrowClaw)
                 throw new InvalidOperationException($"A claw's animation published {cue}.");
-            context.Projectile.StartMotion(cue.Direction == HorizontalDirection.Right ? PirateClawMotion.ThrownRight : PirateClawMotion.ThrownLeft);
+            HorizontalDirection thrown = context.Projectile.StateOf<NinjaPirateClawState>().Thrown;
+            if (cue.Direction != thrown)
+                throw new InvalidOperationException($"A claw its pirate threw {thrown} played the animation that throws it {cue.Direction}.");
+            StartMoving(context.Projectile);
         }
     }
 

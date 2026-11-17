@@ -310,6 +310,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(WorkRobotAnimations), "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs");
         RequireSegmentFrames(ShaktoolAnimations.Segments, ShaktoolFrameToolingDefinitions.Spritemap, ShaktoolFrameToolingDefinitions.Bank,
             nameof(ShaktoolAnimations), "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolAnimations.cs");
+        // Shaktool's head shows the picture its orientation chooses, not an animation (#2284).
+        ushort[] shaktoolHeadPictures = [.. ShaktoolHeadPictureDefinitions.AimedPictures.Values.Select(ShaktoolFrameToolingDefinitions.Spritemap).Distinct()];
+        foreach (ushort frame in shaktoolHeadPictures)
+            report.Require(ResourceDomains.EnemyDisplay, nameof(ShaktoolHeadPictureDefinitions), ResourceIndex.Address(ShaktoolFrameToolingDefinitions.Bank, frame),
+                "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolHeadPictureDefinitions.cs", exports);
+        rows.Add(new(shaktoolHeadPictures.Length));
         RequireSegmentFrames(YardAnimations.Segments, YardFrameToolingDefinitions.Spritemap, YardFrameToolingDefinitions.Bank,
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
         RequireSegmentFrames(KiHunterAnimations.Segments, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,

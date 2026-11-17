@@ -26,7 +26,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideUpMovingLeft] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideUpMovingLeft)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideUpMovingLeft)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideUpMovingLeft)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingLeft)),
             Show(EnemyFrameId.YardCrawlingUpsideUpFacingLeftLegsTucked, 9),
@@ -44,7 +44,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideLeftMovingDown] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideLeftMovingDown)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideLeftMovingDown)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideLeftMovingDown)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingDown)),
             Show(EnemyFrameId.YardCrawlingUpsideLeftFacingDownLegsTucked, 9),
@@ -62,7 +62,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideDownMovingRight] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideDownMovingRight)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideDownMovingRight)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideDownMovingRight)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingRight)),
             Show(EnemyFrameId.YardCrawlingUpsideDownFacingRightLegsTucked, 9),
@@ -80,7 +80,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideRightMovingUp] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideRightMovingUp)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideRightMovingUp)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideRightMovingUp)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingUp)),
             Show(EnemyFrameId.YardCrawlingUpsideRightFacingUpLegsTucked, 9),
@@ -98,7 +98,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideUpMovingRight] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideUpMovingRight)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideUpMovingRight)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideUpMovingRight)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingRight)),
             Show(EnemyFrameId.YardCrawlingUpsideUpFacingRightLegsTucked, 9),
@@ -116,7 +116,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideRightMovingDown] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideRightMovingDown)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideRightMovingDown)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideRightMovingDown)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingDown)),
             Show(EnemyFrameId.YardCrawlingUpsideRightFacingDownLegsTucked, 9),
@@ -134,7 +134,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideDownMovingLeft] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideDownMovingLeft)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideDownMovingLeft)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideDownMovingLeft)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingLeft)),
             Show(EnemyFrameId.YardCrawlingUpsideDownFacingLeftLegsTucked, 9),
@@ -152,7 +152,7 @@ internal static class YardAnimations
         ],
         [P.CrawlingUpsideLeftMovingUp] =
         [
-            Cue(new YardCue.BeginCrawling(Crawl: YardMovement.CrawlingUpsideLeftMovingUp)),
+            Cue(new YardCue.BeginCrawling(Crawl: YardDirection.UpsideLeftMovingUp)),
             Cue(new YardCue.SetHidingAnimation(OptionalTarget: P.HidingUpsideLeftMovingUp)),
             Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingUp)),
             Show(EnemyFrameId.YardCrawlingUpsideLeftFacingUpLegsTucked, 9),

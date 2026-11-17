@@ -20,6 +20,6 @@ public static class ChozoCarry
         if (!ChozoCarryPoseDefinitions.Poses.TryGetValue(step.Pose, out ChozoCarryPoseDefinition pose))
             throw new ArgumentOutOfRangeException(nameof(step), step, $"Undefined {nameof(ChozoCarryPose)}.");
         return new(sign < 0 ? -pose.Speed : pose.Speed,
-            new(CoordinateAxis.AsSigned(sign * pose.Hold.X), pose.Hold.Y));
+            new(sign * pose.Hold.X, pose.Hold.Y));
     }
 }

@@ -38,8 +38,11 @@ internal static class EnemyProjectileDefinitionsVerification
             .Distinct()
             .ToArray();
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion; #2024 removed the spike-clearing
-        // explosion no spawn starts, and #2166 Shaktool's three attack circles, which no spawn starts either.
-        AssertEqual(118, kinds.Length, "compiled enemy-projectile definition count");
+        // explosion no spawn starts, and #2166 Shaktool's three attack circles, which no spawn starts either. #2278 made the
+        // identical definitions that differ only in their way or look one kind each: the Skree's and Metaree's eight
+        // particles, the Work Robot's four diagonal lasers and the two each of Kraid's rising rocks, Fake Kraid's spikes and
+        // Ki-Hunter acid.
+        AssertEqual(105, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
         Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
@@ -186,21 +189,13 @@ internal static class EnemyProjectileDefinitionsVerification
                     RoomEnemyProjectileKind.None or
                         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
-                        RoomEnemyProjectileKind.SkreeParticleOuterRight or
-                        RoomEnemyProjectileKind.SkreeParticleInnerRight or
-                        RoomEnemyProjectileKind.SkreeParticleOuterLeft or
-                        RoomEnemyProjectileKind.SkreeParticleInnerLeft or
-                        RoomEnemyProjectileKind.MetareeParticleOuterRight or
-                        RoomEnemyProjectileKind.MetareeParticleInnerRight or
-                        RoomEnemyProjectileKind.MetareeParticleOuterLeft or
-                        RoomEnemyProjectileKind.MetareeParticleInnerLeft or
+                        RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
                         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                         RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
                         RoomEnemyProjectileKind.KraidSpitRock or
                         RoomEnemyProjectileKind.KraidCeilingRock or
-                        RoomEnemyProjectileKind.KraidRisingRockLeft or
-                        RoomEnemyProjectileKind.KraidRisingRockRight or
+                        RoomEnemyProjectileKind.KraidRisingRock or
                         RoomEnemyProjectileKind.PhantoonDestroyableFlame or
                         RoomEnemyProjectileKind.PhantoonStartingFlame or
                         RoomEnemyProjectileKind.DraygonGoop or
@@ -239,18 +234,13 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                         RoomEnemyProjectileKind.AlcoonFireball or
                         RoomEnemyProjectileKind.PowampSpike or
-                        RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
+                        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or
                         RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
-                        RoomEnemyProjectileKind.WorkRobotLaserDownLeft or
-                        RoomEnemyProjectileKind.WorkRobotLaserUpRight or
-                        RoomEnemyProjectileKind.WorkRobotLaserDownRight or
                         RoomEnemyProjectileKind.FallingSpark or
                         RoomEnemyProjectileKind.NuclearWaffleBody or
                         RoomEnemyProjectileKind.FakeKraidSpit or
-                        RoomEnemyProjectileKind.FakeKraidSpikeLeft or
-                        RoomEnemyProjectileKind.FakeKraidSpikeRight or
-                        RoomEnemyProjectileKind.KiHunterAcidSpitLeft or
-                        RoomEnemyProjectileKind.KiHunterAcidSpitRight or
+                        RoomEnemyProjectileKind.FakeKraidSpike or
+                        RoomEnemyProjectileKind.KiHunterAcidSpit or
                         RoomEnemyProjectileKind.PirateMotherBrainLaser or
                         RoomEnemyProjectileKind.PirateClaw or
                         RoomEnemyProjectileKind.PolypRock or
@@ -317,21 +307,13 @@ internal static class EnemyProjectileDefinitionsVerification
                     RoomEnemyProjectileKind.None or
                         RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
-                        RoomEnemyProjectileKind.SkreeParticleOuterRight or
-                        RoomEnemyProjectileKind.SkreeParticleInnerRight or
-                        RoomEnemyProjectileKind.SkreeParticleOuterLeft or
-                        RoomEnemyProjectileKind.SkreeParticleInnerLeft or
-                        RoomEnemyProjectileKind.MetareeParticleOuterRight or
-                        RoomEnemyProjectileKind.MetareeParticleInnerRight or
-                        RoomEnemyProjectileKind.MetareeParticleOuterLeft or
-                        RoomEnemyProjectileKind.MetareeParticleInnerLeft or
+                        RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
                         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
                         RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
                         RoomEnemyProjectileKind.KraidSpitRock or
                         RoomEnemyProjectileKind.KraidCeilingRock or
-                        RoomEnemyProjectileKind.KraidRisingRockLeft or
-                        RoomEnemyProjectileKind.KraidRisingRockRight or
+                        RoomEnemyProjectileKind.KraidRisingRock or
                         RoomEnemyProjectileKind.PhantoonDestroyableFlame or
                         RoomEnemyProjectileKind.PhantoonStartingFlame or
                         RoomEnemyProjectileKind.DraygonGoop or
@@ -370,18 +352,13 @@ internal static class EnemyProjectileDefinitionsVerification
                         RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
                         RoomEnemyProjectileKind.AlcoonFireball or
                         RoomEnemyProjectileKind.PowampSpike or
-                        RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
+                        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or
                         RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
-                        RoomEnemyProjectileKind.WorkRobotLaserDownLeft or
-                        RoomEnemyProjectileKind.WorkRobotLaserUpRight or
-                        RoomEnemyProjectileKind.WorkRobotLaserDownRight or
                         RoomEnemyProjectileKind.FallingSpark or
                         RoomEnemyProjectileKind.NuclearWaffleBody or
                         RoomEnemyProjectileKind.FakeKraidSpit or
-                        RoomEnemyProjectileKind.FakeKraidSpikeLeft or
-                        RoomEnemyProjectileKind.FakeKraidSpikeRight or
-                        RoomEnemyProjectileKind.KiHunterAcidSpitLeft or
-                        RoomEnemyProjectileKind.KiHunterAcidSpitRight or
+                        RoomEnemyProjectileKind.FakeKraidSpike or
+                        RoomEnemyProjectileKind.KiHunterAcidSpit or
                         RoomEnemyProjectileKind.PirateMotherBrainLaser or
                         RoomEnemyProjectileKind.PirateClaw or
                         RoomEnemyProjectileKind.PolypRock or
@@ -492,14 +469,21 @@ internal static class EnemyProjectileDefinitionsVerification
     }
 
     /// <summary>
-    /// The motion a production spawn of <paramref name="kind"/> starts with (#1843): the one its native record's
-    /// pre-instruction stands for, except the Pirates' and Mother Brain's laser and a wall turret's shot, whose spawners
-    /// hold them still past their record's flight until their animations start it.
+    /// The motion a production spawn of <paramref name="kind"/> starts with (#1843): the one its native records'
+    /// pre-instruction stands for, which every record of a kind several identical records name agrees on (#2278), except
+    /// the Pirates' and Mother Brain's laser and a wall turret's shot, whose spawners hold them still past their record's
+    /// flight until their animations start it.
     /// </summary>
-    private static Enum? ProductionStartingMotion(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind) =>
-        kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
-            ? null
-            : EnemyProjectileMotionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | EnemyProjectileNativeWords.Kinds.Word(kind)) + 2));
+    private static Enum? ProductionStartingMotion(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind)
+    {
+        if (kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret)
+            return null;
+        Enum?[] motions = [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
+            .Select(word => EnemyProjectileMotionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | word) + 2)))
+            .Distinct()];
+        AssertEqual(1, motions.Length, $"every {kind} record starts one motion");
+        return motions[0];
+    }
 
     /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
@@ -510,9 +494,11 @@ internal static class EnemyProjectileDefinitionsVerification
     {
 
         var forbidden = new HashSet<int>();
-        foreach (RoomEnemyProjectileKind kind in kinds)
+        // Every record of a kind is checked against its one definition: identical records name one kind (#2278).
+        foreach ((RoomEnemyProjectileKind kind, ushort word) in kinds
+            .SelectMany(kind => EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind].Select(word => (kind, word))))
         {
-            int address = 0x860000 | EnemyProjectileNativeWords.Kinds.Word(kind);
+            int address = 0x860000 | word;
             for (int index = 0; index < 14; index++)
                 forbidden.Add(address + index);
 

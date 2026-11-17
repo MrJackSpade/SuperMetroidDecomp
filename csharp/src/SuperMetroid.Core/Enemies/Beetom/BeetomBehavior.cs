@@ -277,16 +277,16 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // collision move. Restore only the whole pixels, preserving collision-produced
         // subposition just as the game does.
         int reach = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.LedgeProbeReach : BeetomMotionDefinitions.LedgeProbeReach;
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole + reach);
+        place.Position = place.Position.WithWholeX(place.Position.X.Whole + reach);
         if (!_terrain.MoveEnemyVertically(level, place, SignedSixteenSixteen.FromWholePixels(BeetomMotionDefinitions.LedgeProbeDrop)))
         {
             state.Begin(BeetomAction.StartCrawling, direction.Reversed());
-            place.Position = place.Position.WithWrappedWholeY(place.Position.Y.Whole - BeetomMotionDefinitions.LedgeProbeDrop);
-            place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - reach);
+            place.Position = place.Position.WithWholeY(place.Position.Y.Whole - BeetomMotionDefinitions.LedgeProbeDrop);
+            place.Position = place.Position.WithWholeX(place.Position.X.Whole - reach);
             return;
         }
 
-        place.Position = place.Position.WithWrappedWholeX(place.Position.X.Whole - reach);
+        place.Position = place.Position.WithWholeX(place.Position.X.Whole - reach);
         SignedSixteenSixteen displacement = direction == HorizontalDirection.Left ? -BeetomMotionDefinitions.CrawlSpeed : BeetomMotionDefinitions.CrawlSpeed;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, displacement))
             state.Begin(BeetomAction.StartCrawling, direction.Reversed());
@@ -357,7 +357,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.ButtonCounter != 0)
         {
-            place.Position = place.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole - BeetomMotionDefinitions.DrainHoldAbove)));
+            place.Position = place.Position.WithWhole(new(samus.Position.X.Whole, samus.Position.Y.Whole - BeetomMotionDefinitions.DrainHoldAbove));
             if (controllerInput != state.LastSeenPlayerActions)
             {
                 state.LastSeenPlayerActions = controllerInput;

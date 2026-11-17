@@ -4,30 +4,29 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal static class YardTurnDefinitions
 {
     /// <summary>
-    /// The turn records the movement step uses for each crawling
-    /// state. Ordinary turns look seven pixels along motion.
+    /// The turn records the movement step uses for each way the Yard crawls. Ordinary turns look seven pixels along motion.
     /// </summary>
-    internal static readonly Dictionary<YardMovement, YardTurnDefinition> Turns = new()
+    internal static readonly Dictionary<YardDirection, YardTurnDefinition> Turns = new()
     {
-        [YardMovement.CrawlingUpsideUpMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnUpsideUpMovingLeft, YardSegment.InsideTurnUpsideUpMovingLeft),
-        [YardMovement.CrawlingUpsideLeftMovingDown] = new(new(0, 7), YardSegment.OutsideTurnUpsideLeftMovingDown, YardSegment.InsideTurnUpsideLeftMovingDown),
-        [YardMovement.CrawlingUpsideDownMovingRight] = new(new(7, 0), YardSegment.OutsideTurnUpsideDownMovingRight, YardSegment.InsideTurnUpsideDownMovingRight),
-        [YardMovement.CrawlingUpsideRightMovingUp] = new(new(0, -7), YardSegment.OutsideTurnUpsideRightMovingUp, YardSegment.InsideTurnUpsideRightMovingUp),
-        [YardMovement.CrawlingUpsideUpMovingRight] = new(new(7, 0), YardSegment.OutsideTurnUpsideUpMovingRight, YardSegment.InsideTurnUpsideUpMovingRight),
-        [YardMovement.CrawlingUpsideRightMovingDown] = new(new(0, 7), YardSegment.OutsideTurnUpsideRightMovingDown, YardSegment.InsideTurnUpsideRightMovingDown),
-        [YardMovement.CrawlingUpsideDownMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnUpsideDownMovingLeft, YardSegment.InsideTurnUpsideDownMovingLeft),
-        [YardMovement.CrawlingUpsideLeftMovingUp] = new(new(0, -7), YardSegment.OutsideTurnUpsideLeftMovingUp, YardSegment.InsideTurnUpsideLeftMovingUp),
+        [YardDirection.UpsideUpMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnUpsideUpMovingLeft, YardSegment.InsideTurnUpsideUpMovingLeft),
+        [YardDirection.UpsideLeftMovingDown] = new(new(0, 7), YardSegment.OutsideTurnUpsideLeftMovingDown, YardSegment.InsideTurnUpsideLeftMovingDown),
+        [YardDirection.UpsideDownMovingRight] = new(new(7, 0), YardSegment.OutsideTurnUpsideDownMovingRight, YardSegment.InsideTurnUpsideDownMovingRight),
+        [YardDirection.UpsideRightMovingUp] = new(new(0, -7), YardSegment.OutsideTurnUpsideRightMovingUp, YardSegment.InsideTurnUpsideRightMovingUp),
+        [YardDirection.UpsideUpMovingRight] = new(new(7, 0), YardSegment.OutsideTurnUpsideUpMovingRight, YardSegment.InsideTurnUpsideUpMovingRight),
+        [YardDirection.UpsideRightMovingDown] = new(new(0, 7), YardSegment.OutsideTurnUpsideRightMovingDown, YardSegment.InsideTurnUpsideRightMovingDown),
+        [YardDirection.UpsideDownMovingLeft] = new(new(-7, 0), YardSegment.OutsideTurnUpsideDownMovingLeft, YardSegment.InsideTurnUpsideDownMovingLeft),
+        [YardDirection.UpsideLeftMovingUp] = new(new(0, -7), YardSegment.OutsideTurnUpsideLeftMovingUp, YardSegment.InsideTurnUpsideLeftMovingUp),
     };
 
     /// <summary>
-    /// The transition-disabled alternatives, which only the four horizontal crawling states have: zero lookahead and
-    /// the corresponding vertical crawl behaviours.
+    /// The transition-disabled alternatives, which only the four crawls along a floor or ceiling have: zero lookahead and
+    /// the corresponding crawls along a wall.
     /// </summary>
-    internal static readonly Dictionary<YardMovement, YardTurnDefinition> DisabledTurns = new()
+    internal static readonly Dictionary<YardDirection, YardTurnDefinition> DisabledTurns = new()
     {
-        [YardMovement.CrawlingUpsideUpMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingDown, YardSegment.CrawlingUpsideRightMovingUp),
-        [YardMovement.CrawlingUpsideDownMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingUp, YardSegment.CrawlingUpsideLeftMovingDown),
-        [YardMovement.CrawlingUpsideUpMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingDown, YardSegment.CrawlingUpsideLeftMovingUp),
-        [YardMovement.CrawlingUpsideDownMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingUp, YardSegment.CrawlingUpsideRightMovingDown),
+        [YardDirection.UpsideUpMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingDown, YardSegment.CrawlingUpsideRightMovingUp),
+        [YardDirection.UpsideDownMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingUp, YardSegment.CrawlingUpsideLeftMovingDown),
+        [YardDirection.UpsideUpMovingRight] = new(new(0, 0), YardSegment.CrawlingUpsideRightMovingDown, YardSegment.CrawlingUpsideLeftMovingUp),
+        [YardDirection.UpsideDownMovingLeft] = new(new(0, 0), YardSegment.CrawlingUpsideLeftMovingUp, YardSegment.CrawlingUpsideRightMovingDown),
     };
 }

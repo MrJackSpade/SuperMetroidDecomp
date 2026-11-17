@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Shaktool;
 
@@ -25,14 +26,33 @@ internal static class ShaktoolNativeListAddresses
         new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.ArmPieceNormal, 0xda72),
         new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadHeadBob, 0xda90),
         new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingLeft, 0xdaa4),
-        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingUpLeft, 0xdaac),
-        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingUp, 0xdab4),
-        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingUpRight, 0xdabc),
-        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingRight, 0xdac4),
-        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingDownRight, 0xdacc),
         new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingDown, 0xdad4),
-        new NativeProgramEntry<ShaktoolSegment>(ShaktoolSegment.HeadAimingDownLeft, 0xdadc),
     ];
+
+    /// <summary>The cartridge's table of the head's list for each aim, by the bearing of the direction it aims.</summary>
+    private const int AimListTable = 0xaadd15;
+
+    /// <summary>
+    /// The picture the native list the cartridge selects for the head aiming at <paramref name="bucket"/>, the bearing of
+    /// the direction it aims, shows (#2284), as its spritemap word: each list shows one picture and holds it, looping on
+    /// itself or sleeping.
+    /// </summary>
+    internal static ushort AimedSpritemap(IImportCartridgeSource cartridge, int bucket)
+    {
+        ArgumentNullException.ThrowIfNull(cartridge);
+        ushort list = cartridge.ReadCartridgeWord(AimListTable + (bucket >> 5) * 2);
+        string at = $"Shaktool head list ${list:X4} at bearing {bucket}";
+        int bank = Bank << 16;
+        AssertEqual(NativeEnemyListDefinitions.WordKind.Frame,
+            NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(bank | list)), $"{at}: frame");
+        ushort next = cartridge.ReadCartridgeWord(bank | (list + 4));
+        NativeEnemyListDefinitions.WordKind after = NativeEnemyListDefinitions.Classify(next);
+        if (after == NativeEnemyListDefinitions.WordKind.GoTo)
+            AssertEqual(list, cartridge.ReadCartridgeWord(bank | (list + 6)), $"{at}: loops on its picture");
+        else if (after != NativeEnemyListDefinitions.WordKind.Sleep)
+            throw new InvalidDataException($"{at} goes on to ${next:X4} after its picture.");
+        return cartridge.ReadCartridgeWord(bank | (list + 2));
+    }
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, ShaktoolNativeListAddressesInstruction> Instructions = new()

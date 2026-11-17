@@ -812,7 +812,9 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
             {
                 int index = projectile.Place * 2;
                 string owner = $"Enemy projectile {projectile.Place}";
-                Check(owner + " identity", EnemyProjectileNativeWords.Kinds.Word(projectile.Kind), NativeSnapshotMemory.EnemyProjectileId + index);
+                // Identical cartridge definitions that differ only in their way or look name one kind (#2278).
+                Check(owner + " identity", EnemyProjectileNativeWords.IdentityWord(projectile.Kind, W(NativeSnapshotMemory.EnemyProjectileId + index)),
+                    NativeSnapshotMemory.EnemyProjectileId + index);
                 if (!projectile.IsActive || W(NativeSnapshotMemory.EnemyProjectileId + index) == 0) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.EnemyProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.EnemyProjectileY + index);
@@ -891,21 +893,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.None:
                     case RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace:
                     case RoomEnemyProjectileKind.YappingMawBody:
-                    case RoomEnemyProjectileKind.SkreeParticleOuterRight:
-                    case RoomEnemyProjectileKind.SkreeParticleInnerRight:
-                    case RoomEnemyProjectileKind.SkreeParticleOuterLeft:
-                    case RoomEnemyProjectileKind.SkreeParticleInnerLeft:
-                    case RoomEnemyProjectileKind.MetareeParticleOuterRight:
-                    case RoomEnemyProjectileKind.MetareeParticleInnerRight:
-                    case RoomEnemyProjectileKind.MetareeParticleOuterLeft:
-                    case RoomEnemyProjectileKind.MetareeParticleInnerLeft:
+                    case RoomEnemyProjectileKind.SkreeMetareeParticle:
                     case RoomEnemyProjectileKind.CrocomireProjectile:
                     case RoomEnemyProjectileKind.CrocomireBridgeCrumbling:
                     case RoomEnemyProjectileKind.CrocomireSpikeWallPieces:
                     case RoomEnemyProjectileKind.KraidSpitRock:
                     case RoomEnemyProjectileKind.KraidCeilingRock:
-                    case RoomEnemyProjectileKind.KraidRisingRockLeft:
-                    case RoomEnemyProjectileKind.KraidRisingRockRight:
+                    case RoomEnemyProjectileKind.KraidRisingRock:
                     case RoomEnemyProjectileKind.PhantoonDestroyableFlame:
                     case RoomEnemyProjectileKind.PhantoonStartingFlame:
                     case RoomEnemyProjectileKind.DraygonGoop:
@@ -937,18 +931,13 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     case RoomEnemyProjectileKind.GunshipLiftoffDustCloud:
                     case RoomEnemyProjectileKind.AlcoonFireball:
                     case RoomEnemyProjectileKind.PowampSpike:
-                    case RoomEnemyProjectileKind.WorkRobotLaserUpLeft:
+                    case RoomEnemyProjectileKind.WorkRobotLaserDiagonal:
                     case RoomEnemyProjectileKind.WorkRobotLaserHorizontal:
-                    case RoomEnemyProjectileKind.WorkRobotLaserDownLeft:
-                    case RoomEnemyProjectileKind.WorkRobotLaserUpRight:
-                    case RoomEnemyProjectileKind.WorkRobotLaserDownRight:
                     case RoomEnemyProjectileKind.FallingSpark:
                     case RoomEnemyProjectileKind.NuclearWaffleBody:
                     case RoomEnemyProjectileKind.FakeKraidSpit:
-                    case RoomEnemyProjectileKind.FakeKraidSpikeLeft:
-                    case RoomEnemyProjectileKind.FakeKraidSpikeRight:
-                    case RoomEnemyProjectileKind.KiHunterAcidSpitLeft:
-                    case RoomEnemyProjectileKind.KiHunterAcidSpitRight:
+                    case RoomEnemyProjectileKind.FakeKraidSpike:
+                    case RoomEnemyProjectileKind.KiHunterAcidSpit:
                     case RoomEnemyProjectileKind.PirateMotherBrainLaser:
                     case RoomEnemyProjectileKind.PirateClaw:
                     case RoomEnemyProjectileKind.PolypRock:

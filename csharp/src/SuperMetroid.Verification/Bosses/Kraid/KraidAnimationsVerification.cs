@@ -334,13 +334,17 @@ internal static class KraidAnimationsVerification
                  {
                      new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidSpitRock, KraidRockSegment.SharedPose),
                      new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidCeilingRock, KraidRockSegment.SharedPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockLeft, KraidRockSegment.SharedPose),
-                     new VerifyRockProducersCase(RoomEnemyProjectileKind.KraidRisingRockRight, KraidRockSegment.RisingRightPose),
                  })
         {
             EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == kind);
             AssertTrue(projectile.Animation is KraidRockAnimation started && started.Program == program, $"{kind} starts the {program} program");
         }
+        // Both rising rocks are one kind, the random sample's side choosing each one's pose (#2278).
+        EnemyProjectile[] rising = [.. enemies.Projectiles.EnemyProjectiles.Where(item => item.Kind == RoomEnemyProjectileKind.KraidRisingRock)];
+        AssertEqual(2, rising.Length, "both rising rocks spawn as one kind");
+        foreach (KraidRockSegment pose in new[] { KraidRockSegment.SharedPose, KraidRockSegment.RisingRightPose })
+            AssertEqual(1, rising.Count(rock => rock.Animation is KraidRockAnimation started && started.Program == pose),
+                $"one rising rock starts the {pose} program");
         EnemyProjectile bug = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KagoBug);
         AssertTrue(bug.Animation is KagoBugProjectileAnimation { PlayingSegment: KagoBugProjectileSegment.Waiting },
             "a new Kago bug starts its own waiting animation");

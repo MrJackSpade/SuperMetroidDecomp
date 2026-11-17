@@ -11,18 +11,10 @@ public sealed class PuyoEnemyState
     internal AnimationPlayback<PuyoSegment> Playback { get; set; }
 
     /// <summary>
-    /// The Puyo's place along the shared quadratic speed curve, whose whole marks choose its vertical speed, from the curve's
-    /// start through <see cref="LargestYSpeedCurvePlace"/>: a hop starts below its 96th mark, and any step that would leave
-    /// that range restarts the fall at the curve's start (<see cref="StepAirbornePlace"/>).
+    /// The Puyo's place along the shared quadratic speed curve, whose whole marks choose its vertical speed: a hop starts
+    /// below its 96th mark and rises back to the curve's start, where it falls from (<see cref="StepAirbornePlace"/>).
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }
-
-    /// <summary>
-    /// The furthest place the Puyo keeps, the last before 128 whole marks: a step past it, as a step back past the
-    /// curve's start, restarts the fall.
-    /// </summary>
-    internal static readonly QuadraticSpeedCurvePlace LargestYSpeedCurvePlace =
-        QuadraticSpeedCurvePlace.FromMarks(128) - QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(1);
 
     /// <summary>
     /// The grounded updates left before the next hop, the one it hops on included: its placement's hop cooldown and the
@@ -70,15 +62,22 @@ public sealed class PuyoEnemyState
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceHalf { get; internal set; }
 
     /// <summary>
-    /// One airborne update's change to the speed-curve place: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step back past the curve's start, or on past <see cref="LargestYSpeedCurvePlace"/>, restarts
-    /// the fall at the curve's start: the apex while rising, and a restart of an overlong fall.
+    /// One airborne update's change to the speed-curve place: rising lowers it by <paramref name="delta"/>, and a rise
+    /// past the curve's start is the hop's apex, where it falls from the start; falling raises it, and an overlong fall
+    /// starts again from rest (<see cref="PuyoFallRestart"/>).
     /// </summary>
     /// <param name="delta">The hop's step along the curve, at most three whole marks.</param>
     internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta)
     {
-        YSpeedCurvePlace = Falling ? YSpeedCurvePlace + delta : YSpeedCurvePlace - delta;
-        if (!YSpeedCurvePlace.IsNegative && YSpeedCurvePlace <= LargestYSpeedCurvePlace)
+        if (Falling)
+        {
+            YSpeedCurvePlace += delta;
+            if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.InTwoHundredFiftySixthsOfMark))
+                YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+            return;
+        }
+        YSpeedCurvePlace -= delta;
+        if (!YSpeedCurvePlace.IsNegative)
             return;
         Falling = true;
         YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;

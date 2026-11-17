@@ -13,22 +13,11 @@ public enum YardMovement
     HoldingStill,
     /// <summary>Probes the current attachment surface while hidden and drops Yard if support disappears.</summary>
     Hiding,
-    /// <summary>Floor-attached leftward crawl using horizontal surface and corner probes.</summary>
-    CrawlingUpsideUpMovingLeft,
-    /// <summary>Downward crawl with Yard's top facing left, using vertical surface and corner probes.</summary>
-    CrawlingUpsideLeftMovingDown,
-    /// <summary>Ceiling-attached rightward crawl using horizontal surface and corner probes.</summary>
-    CrawlingUpsideDownMovingRight,
-    /// <summary>Upward crawl with Yard's top facing right, using vertical surface and corner probes.</summary>
-    CrawlingUpsideRightMovingUp,
-    /// <summary>Floor-attached rightward crawl using horizontal surface and corner probes.</summary>
-    CrawlingUpsideUpMovingRight,
-    /// <summary>Downward crawl with Yard's top facing right, using vertical surface and corner probes.</summary>
-    CrawlingUpsideRightMovingDown,
-    /// <summary>Ceiling-attached leftward crawl using horizontal surface and corner probes.</summary>
-    CrawlingUpsideDownMovingLeft,
-    /// <summary>Upward crawl with Yard's top facing left, using vertical surface and corner probes.</summary>
-    CrawlingUpsideLeftMovingUp,
+    /// <summary>
+    /// Crawls along its surface the way <see cref="YardEnemyState.Crawl"/> names (#2278), with surface and corner probes
+    /// along that surface: vertical ones on a wall, horizontal ones on a floor or ceiling.
+    /// </summary>
+    Crawling,
     /// <summary>Applies 1/65536-pixel shell motion, horizontal decay, gravity, per-axis collision bounces, and low-speed floor landing.</summary>
     Airborne,
 }

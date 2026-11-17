@@ -21,7 +21,7 @@ internal static class YardSurfaceLossVerification
         foreach ((int counted, int expected, YardBehavior expectedBehavior, YardMovement expectedMovement) in
                  new VerifyYardSurfaceLossCase[]
                  {
-                     new VerifyYardSurfaceLossCase(2, 3, YardBehavior.NormalCrawling, YardMovement.CrawlingUpsideUpMovingRight),
+                     new VerifyYardSurfaceLossCase(2, 3, YardBehavior.NormalCrawling, YardMovement.Crawling),
                      new VerifyYardSurfaceLossCase(3, 4, YardBehavior.Dropped, YardMovement.Airborne),
                  })
         {
@@ -31,7 +31,8 @@ internal static class YardSurfaceLossVerification
             place.Radius = new(8, 8);
             var state = new YardEnemyState(YardMovement.HoldingStill)
             {
-                Movement = YardMovement.CrawlingUpsideUpMovingRight,
+                Movement = YardMovement.Crawling,
+                Crawl = YardDirection.UpsideUpMovingRight,
                 Behavior = YardBehavior.NormalCrawling,
                 CrawlingVelocity = EightEightVector<RoomPixels>.FromTwoHundredFiftySixthsOfPixel(256, 256),
                 ConsecutiveTurnCounter = counted,

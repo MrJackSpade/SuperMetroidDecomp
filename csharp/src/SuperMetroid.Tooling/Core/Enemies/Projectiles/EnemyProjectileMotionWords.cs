@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
@@ -132,18 +133,39 @@ internal static class EnemyProjectileMotionWords
         [0x9701] = SingleMotion.Moving,
         [0x9e1e] = FakeKraidProjectileMotion.SpitFlying,
         [0x9e83] = FakeKraidProjectileMotion.SpikeFlying,
-        [0xa05c] = PirateLaserMotion.FlyingLeft,
-        [0xa07a] = PirateLaserMotion.FlyingRight,
-        [0xa0d1] = PirateClawMotion.ThrownLeft,
-        [0xa124] = PirateClawMotion.ThrownRight,
+        [0xa05c] = SingleMotion.Moving,
+        [0xa07a] = SingleMotion.Moving,
+        [0xa0d1] = SingleMotion.Moving,
+        [0xa124] = SingleMotion.Moving,
         [0xb977] = TourianStatueEffectMotion.SplashHolding,
         [0xb982] = TourianStatueEffectMotion.ParticleFalling,
         [0xb9fd] = TourianStatueEffectMotion.SoulRising,
     };
 
     /// <summary>
+    /// The routine that flies a Space Pirate's or Mother Brain's laser each way (#2278): both stand for
+    /// <see cref="SingleMotion.Moving"/>, and the laser's state keeps the way it flies.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<HorizontalDirection, ushort> PirateLaserFlights = new Dictionary<HorizontalDirection, ushort>
+    {
+        [HorizontalDirection.Left] = 0xa05c,
+        [HorizontalDirection.Right] = 0xa07a,
+    };
+
+    /// <summary>
+    /// The routine that flies a Ninja Space Pirate's claw thrown each way (#2278): both stand for
+    /// <see cref="SingleMotion.Moving"/>, and the claw's state keeps the way it was thrown.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<HorizontalDirection, ushort> PirateClawThrows = new Dictionary<HorizontalDirection, ushort>
+    {
+        [HorizontalDirection.Left] = 0xa0d1,
+        [HorizontalDirection.Right] = 0xa124,
+    };
+
+    /// <summary>
     /// The one routine address of <paramref name="motion"/>; holding still, and the one motion of the kinds that move
-    /// one way, stand for several routines and have no single word.
+    /// one way, stand for several routines and have no single word: a family that keeps its way in its state names its
+    /// routines by that way (<see cref="PirateLaserFlights"/>, <see cref="PirateClawThrows"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="motion"/> has no single routine address.</exception>
     internal static ushort Word(Enum? motion)

@@ -2,19 +2,22 @@ using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>What a ninja pirate's thrown claw keeps: its speed, and whether it is still flying out or coming back.</summary>
+/// <summary>
+/// What a ninja pirate's thrown claw keeps: the way it was thrown, its speed, and whether it is still flying out or coming
+/// back.
+/// </summary>
 /// <param name="launchSpeed">The claw's launch speed.</param>
-internal sealed class NinjaPirateClawState(SignedEightEight launchSpeed) : EnemyProjectileState
+/// <param name="thrown">The way the claw is thrown: it flies out that way and comes back the other.</param>
+internal sealed class NinjaPirateClawState(ReturningClawSpeed launchSpeed, HorizontalDirection thrown) : EnemyProjectileState
 {
-    /// <summary>How much a claw flying out slows each update: an eighth of a pixel an update.</summary>
-    private static readonly SignedEightEight OutwardDeceleration = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(32);
+    /// <summary>The way the claw is thrown, which its pirate chose: it flies out that way and comes back the other.</summary>
+    internal HorizontalDirection Thrown { get; } = thrown;
 
     /// <summary>
-    /// The claw's sideways speed along its throw, never negative: it slows to rest while the claw flies out, a whole number
-    /// of updates from its launch, and speeds up once the claw comes back (<see cref="ReturningClawSpeed"/>), reaching up
-    /// to 255 pixels an update. Only its whole pixels move the claw (<see cref="StepAlongThrow"/>).
+    /// The claw's speed along its throw (#2284): it slows to rest while the claw flies out, a whole number of updates from
+    /// its launch, and speeds up once the claw comes back. Only its whole pixels move the claw (<see cref="StepAlongThrow"/>).
     /// </summary>
-    internal SignedEightEight Speed { get; private set; } = launchSpeed;
+    internal ReturningClawSpeed Speed { get; private set; } = launchSpeed;
 
     /// <summary>Whether the claw is still flying out; it turns back once its outward speed has run out.</summary>
     internal bool Outbound { get; private set; } = true;
@@ -22,20 +25,18 @@ internal sealed class NinjaPirateClawState(SignedEightEight launchSpeed) : Enemy
     /// <summary>
     /// One update of the claw's flight: the whole pixels it moves along its throw, positive while it flies out and negative
     /// once it comes back, from the speed before this update's change. The speed then slows while flying out, turning the
-    /// claw back on the update it reaches zero, or speeds up while coming back.
+    /// claw back on the update it comes to rest, or speeds up while coming back.
     /// </summary>
     internal int StepAlongThrow()
     {
-        int pixels = Speed.UnsignedWholePixels;
+        int pixels = Speed.WholePixels;
         if (!Outbound)
         {
-            Speed = SignedEightEight.Wrapped(ReturningClawSpeed.Accelerated(Speed.UnsignedTwoHundredFiftySixthsOfPixel));
+            Speed = Speed.SpedUpComingBack();
             return -pixels;
         }
-        Speed -= OutwardDeceleration;
-        if (Speed.IsNegative)
-            throw new InvalidOperationException($"A claw launched at {launchSpeed} passed rest without stopping.");
-        if (Speed.IsZero)
+        Speed = Speed.SlowedFlyingOut();
+        if (Speed.IsAtRest)
             Outbound = false;
         return pixels;
     }

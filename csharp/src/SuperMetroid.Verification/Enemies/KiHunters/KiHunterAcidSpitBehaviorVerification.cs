@@ -29,10 +29,11 @@ internal static class KiHunterAcidSpitBehaviorVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
         };
-        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, false);
-        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);
-        EnemyProjectile left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
-        EnemyProjectile right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, HorizontalDirection.Left);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, HorizontalDirection.Right);
+        // Both ways' acid is one kind, its velocity its way (#2278).
+        EnemyProjectile left = Find(HorizontalDirection.Left);
+        EnemyProjectile right = Find(HorizontalDirection.Right);
         foreach ((EnemyProjectile spit, KiHunterAcidSpitSegment program) in new[] { new VerifyKiHunterAcidSpitBehaviorCase(left, KiHunterAcidSpitSegment.Left), new VerifyKiHunterAcidSpitBehaviorCase(right, KiHunterAcidSpitSegment.Right) })
         {
             AssertEqual(program, ProgramOf(spit), $"the {spit.Kind} spit starts its launch program");
@@ -51,8 +52,9 @@ internal static class KiHunterAcidSpitBehaviorVerification
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the acid's native list bytes");
         Console.WriteLine($"  Ki-Hunter acid behavior: both launches and the {updates}-update splash match their native lists.");
 
-        EnemyProjectile Find(RoomEnemyProjectileKind kind) =>
-            enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
+        EnemyProjectile Find(HorizontalDirection direction) =>
+            enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpit &&
+                projectile.Velocity.X.IsNegative == (direction == HorizontalDirection.Left));
     }
 
     /// <summary>The native entry of <paramref name="program"/>.</summary>

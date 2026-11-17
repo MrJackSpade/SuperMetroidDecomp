@@ -103,8 +103,7 @@ internal sealed class KraidProjectiles
         private static readonly Dictionary<RoomEnemyProjectileKind, KraidRockMotion?> StartingMotions = new()
         {
             [RoomEnemyProjectileKind.KraidSpitRock] = KraidRockMotion.Flying,
-            [RoomEnemyProjectileKind.KraidRisingRockLeft] = KraidRockMotion.Flying,
-            [RoomEnemyProjectileKind.KraidRisingRockRight] = KraidRockMotion.Flying,
+            [RoomEnemyProjectileKind.KraidRisingRock] = KraidRockMotion.Flying,
             [RoomEnemyProjectileKind.KraidCeilingRock] = KraidRockMotion.CeilingRockFalling,
         };
 

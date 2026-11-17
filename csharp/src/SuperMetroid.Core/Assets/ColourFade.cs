@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// A colour partway through a fade between the colour an ink shows and one endpoint colour (#2289): each channel moves from
-/// the colour the fade starts at toward the one it ends on by the fade's progress, truncated to a whole level, as a typed
-/// fade between two shadings moves (<see cref="PictureShadeFade"/>). A door's fades, the death fade and the time-up whiteout
-/// show the whole display so.
+/// A colour partway through a fade between the colour an ink shows and one endpoint colour (#2289): each of its fade levels
+/// (<see cref="FadeLevelColour"/>) moves from the colour the fade starts at toward the one it ends on by the fade's
+/// progress, truncated to a whole level, so every colour it shows lies on the game's fade scale. A door's fades, the death
+/// fade and the time-up whiteout show the whole display so.
 /// </summary>
 public sealed record ColourFade : ColourEffect
 {
@@ -38,11 +38,11 @@ public sealed record ColourFade : ColourEffect
     /// <inheritdoc />
     public override RgbColor Apply(RgbColor shown)
     {
-        RgbColor from = Direction == GradualFadeDirection.Toward ? shown : Endpoint;
-        RgbColor to = Direction == GradualFadeDirection.Toward ? Endpoint : shown;
-        return new RgbColor(Channel(from.Red, to.Red), Channel(from.Green, to.Green), Channel(from.Blue, to.Blue));
+        FadeLevelColour from = (Direction == GradualFadeDirection.Toward ? shown : Endpoint).FadeLevels;
+        FadeLevelColour to = (Direction == GradualFadeDirection.Toward ? Endpoint : shown).FadeLevels;
+        return new FadeLevelColour(Level(from.Red, to.Red), Level(from.Green, to.Green), Level(from.Blue, to.Blue)).ToColour();
     }
 
-    /// <summary>One channel partway from <paramref name="from"/> to <paramref name="to"/>.</summary>
-    private int Channel(int from, int to) => from + ((to - from) * Progress / Length);
+    /// <summary>One fade level partway from <paramref name="from"/> to <paramref name="to"/>.</summary>
+    private int Level(int from, int to) => from + ((to - from) * Progress / Length);
 }

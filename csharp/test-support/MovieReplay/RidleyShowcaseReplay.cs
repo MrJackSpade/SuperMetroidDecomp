@@ -476,7 +476,10 @@ internal sealed class RidleyShowcaseReplay : IConvertedMovieReplay
                     ?? throw new InvalidDataException("The pause screen is bound to the map presentation the game was bound with."));
                 comparedColours = PauseShownColours.ComparedIn(menu);
             }
-            if (!deferLoadingOwners)
+            // A door's fades are typed fades the port shows by their progress, not the shared counter's gradual steps
+            // (#2289), so their colours are not the cartridge's while a fade runs; its completion, which gameplay sees, is.
+            bool doorFading = runtime.DoorFade.Stage is DoorFadeStage.FadingOut or DoorFadeStage.FadingIn;
+            if (!deferLoadingOwners && !doorFading)
             foreach (int color in comparedColours)
             {
                 ushort nativeColor = (ushort)(W(NativeSnapshotMemory.PaletteBuffer + color * 2) & 0x7fff);

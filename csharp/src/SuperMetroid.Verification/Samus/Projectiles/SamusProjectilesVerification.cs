@@ -506,7 +506,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         if (call < 3)
         {
             AssertTrue(!restoredSuit, $"ordinary charged glow call {call + 1} restores no suit");
-            AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.ChargedShotFlash, 3 - call), chargeProjectiles.Charge.ChargedShotGlow,
+            AssertEqual(3 - call, (int)SamusSnapshotWords.EncodeChargedShotGlow(chargeProjectiles.Charge.ChargedShotGlow),
                 $"ordinary charged glow call {call + 1} decrements before branch");
             AssertEqual(SamusShades.ChargedShotGlow, chargedGlowColours.Suit,
                 $"ordinary charged glow call {call + 1} shows the glow's shade, which leaves transparent color zero to the sheet");
@@ -661,7 +661,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int call = 0; call < 21; call++)
     {
         PictureShade suitBefore = hyperGlowColours.Suit;
-        int hyperStepsBefore = hyperProjectiles.Charge.ChargedShotGlow.RemainingSteps;
+        int hyperStepsBefore = SamusSnapshotWords.EncodeChargedShotGlow(hyperProjectiles.Charge.ChargedShotGlow) - (1 << 15);
         bool glowRestoredSuit =
             hyperProjectiles.UpdateBeamChargeGlow(hyperGlowColours, hyperSamus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady);
         AssertEqual(call == 20, glowRestoredSuit, $"Hyper body glow call {call + 1} restores the suit only as it ends");

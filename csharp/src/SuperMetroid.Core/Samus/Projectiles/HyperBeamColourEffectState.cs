@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Samus.Colours;
@@ -28,8 +29,8 @@ public sealed class HyperBeamColourEffectState
     /// </summary>
     public int FrameHold { get; private set; }
 
-    /// <summary>The shade of the beams' cycle last shown, by its place in the cycle, or none before the first update.</summary>
-    private int? _shownCycleShade;
+    /// <summary>The shade of the beams' cycle last shown, or none before the first update.</summary>
+    private PictureShade? _shownCycleShade;
 
     /// <summary>
     /// Starts the Hyper Beam's colour effect. No colour is shown until its first update
@@ -65,25 +66,16 @@ public sealed class HyperBeamColourEffectState
         }
 
         AnimationPlace place = Place;
-        AnimationShown<ColourEffectId, int> next = ColourEffectAnimations.Steps.PlayToNextFrame(
-            HyperBeamDefinition().Animation, ref place,
-            cue => throw new InvalidDataException($"The Hyper Beam's colour animation raised {cue}, which its object does not perform."));
+        AnimationShown<SamusGlowSegment, PictureShade> next = SamusGlowAnimationDefinitions.Segments.PlayToNextFrame(
+            SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.HyperBeamCycle], ref place, static _ => { });
         Place = place;
-        if (next is not AnimationShown<ColourEffectId, int>.Frame shown)
-            throw new InvalidDataException($"The Hyper Beam's colour animation reached {next}; its cycle only shows frames.");
-        // The cycle's frames are the beams' cycle colourings in order.
-        if (shown.Segment != ColourEffectId.HyperBeam)
-            throw new InvalidDataException($"The Hyper Beam's colour animation showed frame {shown.Shown} of {shown.Segment}, outside its cycle.");
-        int frameIndex = shown.Shown;
+        if (next is not AnimationShown<SamusGlowSegment, PictureShade>.Frame shown)
+            throw new InvalidOperationException($"The Hyper Beam's colour cycle reached {next}; it only shows shades.");
 
-        colours.LayOverBeams(SamusShades.HyperBeamCycle(frameIndex));
+        colours.LayOverBeams(shown.Shown);
 
         FrameHold = shown.Duration;
-        _shownCycleShade = frameIndex;
+        _shownCycleShade = shown.Shown;
     }
-
-    /// <summary>The colour effect definition the Hyper Beam spawns.</summary>
-    private static ColourEffectDefinition HyperBeamDefinition() =>
-        ColourEffectAnimations.Definition(ColourEffectId.HyperBeam);
 
 }

@@ -85,7 +85,8 @@ internal static void VerifyTypedNativeWords()
     for (ushort word = 1 << 15; word <= (1 << 15) + 20; word++)
         AssertEqual(word, SamusSnapshotWords.EncodeChargedShotGlow(SamusSnapshotWords.DecodeChargedShotGlow(word)), $"Hyper Beam glow word {word:X4} round-trips");
     AssertEqual(ChargedShotGlow.HyperBeamGlow, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20), "the Hyper Beam shot's glow word is its glow's start");
-    AssertEqual(ChargedShotGlow.Of(ChargedShotGlowKind.HyperBeamGlow, 0), SamusSnapshotWords.DecodeChargedShotGlow(1 << 15), "the Hyper Beam glow's last step is its marker alone");
+    AssertEqual(ChargedShotGlow.None, SamusSnapshotWords.DecodeChargedShotGlow(1 << 15).Played(out _),
+        "the Hyper Beam glow's marker alone is its last update before it ends");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow(5), "a glow word past the flash is rejected");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 21), "a glow word past the Hyper Beam glow is rejected");
     for (ushort word = 0; word <= BeamChargeDefinitions.SpecialAttackCounter; word++)

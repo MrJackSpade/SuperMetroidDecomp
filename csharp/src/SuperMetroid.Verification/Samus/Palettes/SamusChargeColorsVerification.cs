@@ -89,7 +89,7 @@ internal static class SamusChargeColorsVerification
         for (int call = 0; call < 20; call++)
         {
             PictureShade before = samusColours.Suit;
-            int glowStepsBefore = projectiles.Charge.ChargedShotGlow.RemainingSteps;
+            int glowStepsBefore = SuperMetroid.TestSupport.VerificationImporters.SamusSnapshotWords.EncodeChargedShotGlow(projectiles.Charge.ChargedShotGlow) - (1 << 15);
             AssertTrue(!projectiles.UpdateBeamChargeGlow(samusColours, samus, global::SuperMetroid.Core.Fx.RoomVisorAnimation.Steady),
                 $"Hyper-shot call {call} restores no suit");
             if ((call & 1) != 0)

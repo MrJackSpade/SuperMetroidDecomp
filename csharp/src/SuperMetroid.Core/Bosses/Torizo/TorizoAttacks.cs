@@ -157,15 +157,26 @@ internal sealed class TorizoAttacks
                 case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.ThrowSuperMissile }:
                     projectile.StartMotion(TorizoProjectileMotion.SuperMissileThrown);
                     return null;
-                case TorizoProjectileCue.SetProperties setProperties:
-                    EnemyProjectileEngine.SetPropertyFlags(projectile, setProperties.Properties);
-                    if (setProperties.Depth is { } setDepth)
-                        projectile.Depth = setDepth;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.DrawBehindSamus }:
+                    projectile.Depth = EnemyProjectileDepth.BehindSamus;
                     return null;
-                case TorizoProjectileCue.ClearProperties clearProperties:
-                    EnemyProjectileEngine.ClearPropertyFlags(projectile, clearProperties.Properties);
-                    if (clearProperties.Depth is { } clearedDepth)
-                        projectile.Depth = clearedDepth;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopHarmingSamusAndDrawInFront }:
+                    projectile.CanDamageSamus = false;
+                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.PersistOnContactAndDrawInFront }:
+                    projectile.PersistsOnSamusContact = true;
+                    projectile.Depth = EnemyProjectileDepth.InFrontOfSamus;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.TurnHarmful }:
+                    projectile.CanDamageSamus = true;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.TurnHarmfulAndStopBlockingShots }:
+                    projectile.CanDamageSamus = true;
+                    projectile.BlocksSamusProjectiles = false;
+                    return null;
+                case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.BlockShots }:
+                    projectile.BlocksSamusProjectiles = true;
                     return null;
                 case TorizoProjectileCue.PlaySound playSound:
                     audio.QueueEnemySound(playSound.Sound, playSound.Priority);

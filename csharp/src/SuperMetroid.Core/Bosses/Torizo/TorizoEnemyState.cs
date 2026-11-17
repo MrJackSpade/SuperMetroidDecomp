@@ -19,8 +19,20 @@ public sealed class TorizoEnemyState
     /// <summary>Which way Torizo faces, which foot leads and whether it is turning around (#2237).</summary>
     internal TorizoPosture Posture { get; set; }
 
-    /// <summary>The behaviour latches: a caught Super Missile, a stun, and Bomb Torizo's blown-up face and gut.</summary>
-    internal TorizoBehaviorFlags Behavior { get; set; }
+    /// <summary>Whether Golden Torizo has caught a Super Missile; later shots bypass the catch and stun him.</summary>
+    internal bool CaughtSuperMissile { get; set; }
+
+    /// <summary>
+    /// Whether Golden Torizo is stunned: a Super Missile hit or another family's shot stuns him, his stun-health interrupt
+    /// reads it, and his stun animation's unmark cue clears it.
+    /// </summary>
+    internal bool Stunned { get; set; }
+
+    /// <summary>Whether Bomb Torizo's face is blown up; its faceless animations walk on from here, and its death sets it.</summary>
+    internal bool FaceBlownUp { get; set; }
+
+    /// <summary>Whether Bomb Torizo's gut is blown up, which its first low-health interruption sets, and its death too.</summary>
+    internal bool GutBlownUp { get; set; }
     /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
 

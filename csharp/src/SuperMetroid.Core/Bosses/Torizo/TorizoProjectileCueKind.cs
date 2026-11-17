@@ -33,6 +33,18 @@ internal enum TorizoProjectileCueKind
     StopHarmingSamus,
     /// <summary>Moves the projectile in front of Samus.</summary>
     DrawInFront,
+    /// <summary>Moves the projectile behind Samus.</summary>
+    DrawBehindSamus,
+    /// <summary>Stops the projectile damaging Samus and moves it in front of her.</summary>
+    StopHarmingSamusAndDrawInFront,
+    /// <summary>Lets the projectile survive touching Samus and moves it in front of her.</summary>
+    PersistOnContactAndDrawInFront,
+    /// <summary>Lets the projectile damage Samus.</summary>
+    TurnHarmful,
+    /// <summary>Lets the projectile damage Samus and stops it blocking her projectiles.</summary>
+    TurnHarmfulAndStopBlockingShots,
+    /// <summary>Makes the projectile block Samus's projectiles.</summary>
+    BlockShots,
     /// <summary>
     /// A death explosion has shown itself (#2167): one time in four, by the room's random draw, its owner turns it into the
     /// death smoke instead of a scattered blast.

@@ -10,16 +10,6 @@ internal abstract record TorizoProjectileCue
     {
     }
 
-    /// <summary>Turns behaviours off.</summary>
-    /// <param name="Properties">The behaviours a property cue turns on or off.</param>
-    /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
-    internal sealed record ClearProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
-
-    /// <summary>Turns behaviours on.</summary>
-    /// <param name="Properties">The behaviours a property cue turns on or off.</param>
-    /// <param name="Depth">The depth relative to Samus the cue moves the projectile to, or null to leave it.</param>
-    internal sealed record SetProperties(EnemyProjectilePropertyFlags Properties, EnemyProjectileDepth? Depth = null) : TorizoProjectileCue;
-
     /// <summary>Requests a sound at the priority the cue states.</summary>
     /// <param name="Sound">The sound a <see cref="PlaySound"/> cue queues.</param>
     /// <param name="Priority">How strongly the sound competes for a place in its library's request queue.</param>

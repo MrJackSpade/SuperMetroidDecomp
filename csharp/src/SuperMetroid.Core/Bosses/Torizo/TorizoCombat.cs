@@ -63,7 +63,7 @@ internal sealed class TorizoCombat
         // A bomb is neither Missile nor Super Missile, so it stuns him before the common damage, whether or not he has
         // caught a Super Missile; while his animation is locked it does the common damage alone.
         if (!state.AnimationLocked)
-            SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
+            state.Stunned = true;
         DamageByNormalBomb(torizo, state, c.Bomb);
     }
 
@@ -109,15 +109,14 @@ internal sealed class TorizoCombat
         state.DeathStarted = true;
         state.Phase = TorizoPhase.Idle;
         TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoAnimation.Dying));
-        SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
+        state.GutBlownUp = true;
+        state.FaceBlownUp = true;
         // The normal Torizo shot reaction makes the actor intangible when
         // entering the death animation. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible animation frames continue.
         torizo.Contact = torizo.Contact.With(EnemyContact.IgnoresSamus);
     }
 
-    /// <summary>Latches <paramref name="flags"/>.</summary>
-    internal static void SetBehavior(RoomEnemyPlace torizo, TorizoBehaviorFlags flags) => torizo.RequireSpeciesState<TorizoEnemyState>().Behavior |= flags;
 
     /// <summary>Bomb Torizo's shot reaction (#2240): its hitbox reactions before impact, then common damage without its death.</summary>
     internal EnemyShotReaction BombTorizoShotReaction => field ??= ShotReaction(ResolveBombTorizoShotBeforeImpact);
@@ -209,12 +208,10 @@ internal sealed class TorizoCombat
 
         // Once he has caught a Super Missile, any shot stuns him before the common damage, unless his animation is
         // locked or it strikes his stand-up and sit-down frames.
-        if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked &&
-            TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
-            SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
+        if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked && torizoState.CaughtSuperMissile)
+            torizoState.Stunned = true;
 
-        if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked &&
-            !TorizoBody.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
+        if (c.HitboxShot == TorizoReactions.Shot && !torizoState.AnimationLocked && !torizoState.CaughtSuperMissile)
         {
             if (c.Family == SamusProjectileFamily.Missile)
             {
@@ -233,7 +230,7 @@ internal sealed class TorizoCombat
                 if (TorizoFacing.FacesSamus(enemy, c.Samus))
                 {
                     c.Projectiles.EnemyImpacts.ApplyFrameHitboxCollisionPrelude(c.Projectile, c.MarksCollision);
-                    SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
+                    torizoState.CaughtSuperMissile = true;
                     torizoState.Phase = TorizoPhase.Idle;
                     c.Projectile.IsSpent = true;
                     enemy.AnimationClock.StepOnNextUpdate();
@@ -251,7 +248,7 @@ internal sealed class TorizoCombat
             {
                 // A beam or any other shot that is neither a Missile nor a Super Missile stuns him, arming his
                 // counterattack, before the common damage.
-                SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
+                torizoState.Stunned = true;
             }
         }
         return false;

@@ -34,7 +34,8 @@ internal static class MotherBrainBombAfterburnPicturesVerification
             .Select(beat => beat.Shown)
             .Distinct()
             .ToArray();
-        VerificationAssertions.AssertEqual(15, frames.Length, "the afterburn chain shows five frames of each of its three stages");
+        // The three stages show one set of five pictures, each stage's copies one frame since #2234.
+        VerificationAssertions.AssertEqual(5, frames.Length, "the afterburn chain's three stages show the same five frames");
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         foreach (var frame in frames)

@@ -19,7 +19,7 @@ internal static class NorfairLavaJumperNativeListAddresses
         new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.Hidden, 0xbe3c),
         new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.Jump, 0xbe42),
         new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.Follower, 0xbe62),
-        new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.FollowerLoop, 0xbe6e),
+        new NativeProgramEntry<NorfairLavaJumperSegment>(NorfairLavaJumperSegment.FollowerFlickering, 0xbe6e),
     ];
 
     /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>

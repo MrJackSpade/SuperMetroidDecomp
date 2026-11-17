@@ -22,7 +22,7 @@ internal static class MorphBallEyeAnimations
         ],
         [P.FacingRightClosed] =
         [
-            Show(EnemyFrameId.MorphBallEyeFacingRightClosed, 48),
+            Hold(EnemyFrameId.MorphBallEyeFacingRightClosed),
         ],
         [P.FacingLeftDeactivating] =
         [
@@ -32,7 +32,7 @@ internal static class MorphBallEyeAnimations
         ],
         [P.FacingLeftClosed] =
         [
-            Show(EnemyFrameId.MorphBallEyeFacingLeftClosed, 48),
+            Hold(EnemyFrameId.MorphBallEyeFacingLeftClosed),
         ],
         [P.FacingRightActivating] =
         [
@@ -50,35 +50,35 @@ internal static class MorphBallEyeAnimations
         ],
         [P.MountFacingRight] =
         [
-            Show(EnemyFrameId.MorphEyeMountRight, 1),
+            Hold(EnemyFrameId.MorphEyeMountRight),
         ],
         [P.MountFacingDown] =
         [
-            Show(EnemyFrameId.MorphEyeMountDown, 1),
+            Hold(EnemyFrameId.MorphEyeMountDown),
         ],
         [P.MountFacingLeft] =
         [
-            Show(EnemyFrameId.MorphEyeMountLeft, 1),
+            Hold(EnemyFrameId.MorphEyeMountLeft),
         ],
         [P.MountFacingUp] =
         [
-            Show(EnemyFrameId.MorphEyeMountUp, 1),
+            Hold(EnemyFrameId.MorphEyeMountUp),
         ],
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>> StartingAt { get; } = new Dictionary<MorphBallEyeSegment, Animation<MorphBallEyeSegment>>
     {
-        [P.FacingRightDeactivating] = new([new(P.FacingRightDeactivating, 0, 3, 1), new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingRightClosed] = new([new(P.FacingRightClosed, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingLeftDeactivating] = new([new(P.FacingLeftDeactivating, 0, 3, 1), new(P.FacingLeftClosed, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingLeftClosed] = new([new(P.FacingLeftClosed, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingRightActivating] = new([new(P.FacingRightActivating, 0, 4, 1)], AnimationEnd.Holds),
-        [P.FacingLeftActivating] = new([new(P.FacingLeftActivating, 0, 4, 1)], AnimationEnd.Holds),
-        [P.MountFacingRight] = new([new(P.MountFacingRight, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MountFacingDown] = new([new(P.MountFacingDown, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MountFacingLeft] = new([new(P.MountFacingLeft, 0, 1, 1)], AnimationEnd.Holds),
-        [P.MountFacingUp] = new([new(P.MountFacingUp, 0, 1, 1)], AnimationEnd.Holds),
+        [P.FacingRightDeactivating] = new([Whole(P.FacingRightDeactivating), Whole(P.FacingRightClosed)], AnimationEnd.Holds),
+        [P.FacingRightClosed] = new([Whole(P.FacingRightClosed)], AnimationEnd.Holds),
+        [P.FacingLeftDeactivating] = new([Whole(P.FacingLeftDeactivating), Whole(P.FacingLeftClosed)], AnimationEnd.Holds),
+        [P.FacingLeftClosed] = new([Whole(P.FacingLeftClosed)], AnimationEnd.Holds),
+        [P.FacingRightActivating] = new([Whole(P.FacingRightActivating)], AnimationEnd.Holds),
+        [P.FacingLeftActivating] = new([Whole(P.FacingLeftActivating)], AnimationEnd.Holds),
+        [P.MountFacingRight] = new([Whole(P.MountFacingRight)], AnimationEnd.Holds),
+        [P.MountFacingDown] = new([Whole(P.MountFacingDown)], AnimationEnd.Holds),
+        [P.MountFacingLeft] = new([Whole(P.MountFacingLeft)], AnimationEnd.Holds),
+        [P.MountFacingUp] = new([Whole(P.MountFacingUp)], AnimationEnd.Holds),
     };
 
     /// <summary>
@@ -98,6 +98,12 @@ internal static class MorphBallEyeAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MorphBallEyeSegment> StartingWith(MorphBallEyeSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MorphBallEyeSegment> Whole(MorphBallEyeSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);
 }

@@ -21,8 +21,11 @@ internal static class MaridiaLargeSnailMotionDefinitions
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, for the snail to attack once its cooldown ends.</summary>
     internal const int AttackReach = 32;
 
-    /// <summary>How long a new snail waits before it may rotate into an attack, in updates.</summary>
-    internal const int InitialAttackCooldown = 128;
+    /// <summary>
+    /// How many rolling updates a new or attacking snail waits before it may rotate into an attack, the one it first may on
+    /// included (#2340).
+    /// </summary>
+    internal const int InitialAttackCooldown = 129;
 
     /// <summary>How many impacts the snail's landing or ledge fall settles in.</summary>
     internal const int SettlingBounces = 3;

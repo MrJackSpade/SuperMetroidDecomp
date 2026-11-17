@@ -88,19 +88,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Grounded decision delay between jumps or spits.</summary>
-    private const int KiHunterGroundWaitFrames = 12;
-    /// <summary>Cooldown after an acid-spit cue.</summary>
-    private const int KiHunterSpitWaitFrames = 24;
-    /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
-    private const int KiHunterGroundAttackDistance = 96;
-
-
-    /// <summary>The detached wing's step along the speed curve while it slows: a mark and a half per update.</summary>
-    private static readonly QuadraticSpeedCurvePlace DetachedSpeedStep = QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(384);
-    /// <summary>The speed-curve place a slowing detached wing lands on when the next step would go below zero: mark one.</summary>
-    private static readonly QuadraticSpeedCurvePlace SlowestDetachedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(1);
-
     /// <summary>Initializes the Ki-Hunter body.</summary>
     internal void InitializeKiHunter(RoomEnemyPlace body)
     {
@@ -113,7 +100,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HasLostWings = false;
         StartKiHunterAnimation(body, state, KiHunterSegment.FlyingLeft);
         state.SwoopAngle = RotationAngle.Zero;
-        state.Velocity = FixedVector<RoomPixels>.FromWholePixels(KiHunterMotionDefinitions.PatrolStartVelocity);
+        state.Heading = KiHunterMotionDefinitions.PatrolStartHeading;
+        state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
+        state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
         state.UpperPatrolY = CoordinateAxis.Wrap(body.Position.Y.Whole - KiHunterMotionDefinitions.PatrolRise);
         state.LowerPatrolY = CoordinateAxis.Wrap(state.UpperPatrolY + KiHunterMotionDefinitions.PatrolDepth);
         state.SpawnPosition = body.Position.Whole;
@@ -124,7 +113,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.HasLostWings = true;
             state.Action = KiHunterAction.FallingAfterWingLoss;
-            state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(1, 0));
+            state.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
         }
     }
 
@@ -212,26 +201,26 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y))
+                state.VerticalVelocity))
         {
-            state.Velocity = state.Velocity.WithWholeY(-state.Velocity.Y.WholePixels);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-state.VerticalVelocity.WholePixels);
         }
         else if (CoordinateAxis.Precedes(body.Position.Y.Whole, state.UpperPatrolY))
         {
-            state.Velocity = state.Velocity.WithWholeY(1);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.PatrolSpeed);
         }
         else if (!CoordinateAxis.Precedes(body.Position.Y.Whole, state.LowerPatrolY))
         {
-            state.Velocity = state.Velocity.WithWholeY(-1);
+            state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(-KiHunterMotionDefinitions.PatrolSpeed);
         }
 
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                state.Velocity.X))
+                state.HorizontalVelocity))
         {
-            state.Velocity = state.Velocity.WithWholeX(-state.Velocity.X.WholePixels);
-            SetKiHunterPairFacing(body, state.Velocity.X.WholePixels >= 0);
+            state.Heading = state.Heading.Reversed();
+            SetKiHunterPairFacing(body, state.Heading);
         }
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
 
@@ -248,25 +237,28 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopOriginY = body.Position.Y.Whole;
         state.Action = KiHunterAction.Swooping;
 
-        bool swoopLeft = signedXDistance < 0;
-        if (swoopLeft)
+        // The swoop heads toward Samus and arcs that way (#2338).
+        state.Heading = signedXDistance < 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
+        if (state.Heading == HorizontalDirection.Left)
         {
-            state.MaximumAngularVelocity = KiHunterMotionDefinitions.LeftSwoopMaximumAngularVelocity;
-            state.AngularAcceleration = KiHunterMotionDefinitions.LeftSwoopAcceleration;
             state.SwoopAngle = KiHunterMotionDefinitions.LeftSwoopStartAngle;
             state.AnimationChangeAngle = KiHunterMotionDefinitions.LeftSwoopAnimationChangeAngle;
-            state.Velocity = state.Velocity.WithWholeX(-1);
         }
         else
         {
-            state.MaximumAngularVelocity = KiHunterMotionDefinitions.RightSwoopMaximumAngularVelocity;
-            state.AngularAcceleration = KiHunterMotionDefinitions.RightSwoopAcceleration;
             state.SwoopAngle = KiHunterMotionDefinitions.RightSwoopStartAngle;
             state.AnimationChangeAngle = KiHunterMotionDefinitions.RightSwoopAnimationChangeAngle;
-            state.Velocity = state.Velocity.WithWholeX(1);
         }
-        SetKiHunterPairFacing(body, movingRight: !swoopLeft);
+        SetKiHunterPairFacing(body, state.Heading);
     }
+
+    /// <summary>
+    /// <paramref name="speed"/> turning a swoop heading <paramref name="heading"/> (#2338): toward increasing angles for a
+    /// rightward swoop, decreasing ones for a leftward one.
+    /// </summary>
+    private static AngularSpeed SwoopTurning(AngularSpeed speed, HorizontalDirection heading) =>
+        heading == HorizontalDirection.Left ? -speed : speed;
 
     /// <summary>Runs the elliptic diving arc.</summary>
     private void RunKiHunterSwoop(
@@ -274,7 +266,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterBodyState state,
         RoomLevelData level)
     {
-        bool leftArc = state.AngularAcceleration.IsNegative;
+        bool leftArc = state.Heading == HorizontalDirection.Left;
         bool beforeAnimationChange = leftArc
             ? state.SwoopAngle >= state.AnimationChangeAngle
             : state.SwoopAngle < state.AnimationChangeAngle;
@@ -290,8 +282,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The cap holds only the whole steps; the fraction keeps accumulating beneath it.
-        state.AngularVelocity = (state.AngularVelocity + state.AngularAcceleration)
-            .WithWholeStepsLimitedTo(state.MaximumAngularVelocity);
+        state.AngularVelocity = (state.AngularVelocity + SwoopTurning(KiHunterMotionDefinitions.SwoopAcceleration, state.Heading))
+            .WithWholeStepsLimitedTo(SwoopTurning(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity, state.Heading));
 
         // The swoop runs through the second half of the turn: a rightward swoop ends as its angle comes round past the
         // full turn onto the first half, a leftward one as it falls below the half turn. At two steps an update neither
@@ -310,7 +302,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         SignedSixteenSixteen horizontalDisplacement = SignedSixteenSixteen.FromWholePixels(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
-            state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(leftArc ? 1 : -1, 0));
+            // Striking a wall, the body flies back the other way (#2338).
+            state.Heading = state.Heading.Reversed();
+            state.HorizontalSpeed = KiHunterMotionDefinitions.PatrolSpeed;
             StartKiHunterSwoopRecovery(state);
             return;
         }
@@ -328,7 +322,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartKiHunterSwoopRecovery(KiHunterBodyState state)
     {
         state.Action = KiHunterAction.RecoveringFromSwoop;
-        state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-1, 0));
+        state.VerticalVelocity = KiHunterMotionDefinitions.SwoopRecoveryVerticalVelocity;
     }
 
     /// <summary>Runs the collision escape leg.</summary>
@@ -340,7 +334,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                state.Velocity.X))
+                state.HorizontalVelocity))
         {
             state.Action = KiHunterAction.FlyingPatrol;
             return;
@@ -350,7 +344,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y) ||
+                state.VerticalVelocity) ||
             CoordinateAxis.Difference(body.Position.Y.Whole, state.SpawnPosition.Y) < 0)
         {
             state.Action = KiHunterAction.FlyingPatrol;
@@ -366,13 +360,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y))
+                state.VerticalVelocity))
         {
             state.Action = KiHunterAction.StartGroundJump;
             return;
         }
 
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + KiHunterGravity);
+        state.VerticalVelocity += KiHunterMotionDefinitions.Gravity;
     }
 
     /// <summary>Sets up a grounded jump.</summary>
@@ -383,14 +377,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Action = KiHunterAction.AnimatingOnGround;
         int random = _room.Random.Read();
-        bool jumpLeft = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0;
-        state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
-            jumpLeft ? -KiHunterMotionDefinitions.GroundJumpHorizontalSpeed : KiHunterMotionDefinitions.GroundJumpHorizontalSpeed,
-            KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - KiHunterMotionDefinitions.GroundJumpUpwardSpeed));
+        // The hop heads toward Samus, leftward when she is not to the body's right (#2338).
+        state.Heading = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0 ? HorizontalDirection.Left : HorizontalDirection.Right;
+        state.HorizontalSpeed = KiHunterMotionDefinitions.GroundJumpHorizontalSpeed;
+        state.VerticalVelocity = SignedSixteenSixteen.FromWholePixels(
+            KiHunterMotionDefinitions.ShallowerGroundJump.Of(random) - KiHunterMotionDefinitions.GroundJumpUpwardSpeed);
         StartKiHunterAnimation(
             body,
             body.RequireSpeciesState<KiHunterBodyState>(),
-            jumpLeft
+            state.Heading == HorizontalDirection.Left
                 ? KiHunterSegment.JumpLeft
                 : KiHunterSegment.JumpRight);
     }
@@ -404,21 +399,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(
                 level,
                 body,
-                state.Velocity.Y))
+                state.VerticalVelocity))
         {
-            if (state.Velocity.Y.WholePixels < 0)
+            if (state.VerticalVelocity.WholePixels < 0)
             {
-                state.Velocity = state.Velocity.WithWholeY(1);
+                state.VerticalVelocity = state.VerticalVelocity.WithWholePixels(KiHunterMotionDefinitions.HopReboundSpeed);
             }
             else
             {
-                state.Velocity = state.Velocity.WithY(KiHunterMotionDefinitions.LandedVerticalVelocity);
+                state.VerticalVelocity = KiHunterMotionDefinitions.LandedVerticalVelocity;
                 state.Action = KiHunterAction.AnimatingOnGround;
-                state.WaitTimer = KiHunterGroundWaitFrames;
+                state.WaitTimer = KiHunterMotionDefinitions.LandingWait;
                 StartKiHunterAnimation(
                     body,
                     body.RequireSpeciesState<KiHunterBodyState>(),
-                    state.Velocity.X.WholePixels < 0
+                    state.Heading == HorizontalDirection.Left
                         ? KiHunterSegment.LandLeft
                         : KiHunterSegment.LandRight);
             }
@@ -428,14 +423,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                state.Velocity.X))
+                state.HorizontalVelocity))
         {
-            state.Velocity = state.Velocity.WithWholeX(-state.Velocity.X.WholePixels);
+            state.Heading = state.Heading.Reversed();
             return;
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + KiHunterGravity);
+        state.VerticalVelocity += KiHunterMotionDefinitions.Gravity;
     }
 
     /// <summary>Waits after landing and decides what to do next.</summary>
@@ -448,7 +443,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         int distance = CoordinateAxis.Distance(body.Position.X.Whole, samus.Position.X.Whole);
-        state.Action = distance < KiHunterGroundAttackDistance
+        state.Action = distance < KiHunterMotionDefinitions.SpitRange
             ? KiHunterAction.SelectAcidSpit
             : KiHunterAction.StartGroundJump;
     }
@@ -580,7 +575,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 KiHunterWingState wingState = wings.RequireSpeciesState<KiHunterWingState>();
                 bodyState.HasLostWings = true;
                 bodyState.Action = KiHunterAction.FallingAfterWingLoss;
-                bodyState.Velocity = bodyState.Velocity.WithY(SignedSixteenSixteen.FromParts(1, 0));
+                bodyState.VerticalVelocity = KiHunterMotionDefinitions.WinglessFallStartVelocity;
                 if (wingState.Action != KiHunterWingAction.Detached)
                     DetachKiHunterWings(wings, wingState);
             }
@@ -654,8 +649,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Slows a detached wing by one speed step, landing on the slowest place on the curve when the step would go below its start.</summary>
     private static void SlowDetachedKiHunterWing(KiHunterWingState state)
     {
-        QuadraticSpeedCurvePlace next = state.DetachedSpeedCurvePlace - DetachedSpeedStep;
-        state.DetachedSpeedCurvePlace = next.IsNegative ? SlowestDetachedCurvePlace : next;
+        QuadraticSpeedCurvePlace next = state.DetachedSpeedCurvePlace - KiHunterMotionDefinitions.DetachedWingClimb.StepPerPass;
+        state.DetachedSpeedCurvePlace = next.IsNegative ? KiHunterMotionDefinitions.SlowestDetachedWingPlace : next;
     }
 
     /// <summary>
@@ -669,7 +664,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private KiHunterSegment ReturnKiHunterToSteadyAnimation(RoomEnemyPlace body)
     {
         KiHunterBodyState state = body.RequireSpeciesState<KiHunterBodyState>();
-        bool movingRight = state.Velocity.X.WholePixels >= 0;
+        bool movingRight = state.Heading == HorizontalDirection.Right;
         KiHunterSegment wingSegment = movingRight
             ? KiHunterSegment.WingsRight
             : KiHunterSegment.WingsLeft;
@@ -694,12 +689,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _audio.QueueEnemySound(EnemySound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction);
-        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterSpitWaitFrames;
+        body.RequireSpeciesState<KiHunterBodyState>().WaitTimer = KiHunterMotionDefinitions.SpitWait;
     }
 
     /// <summary>Restarts matching body and still-attached wing animations for the selected flight direction.</summary>
-    private void SetKiHunterPairFacing(RoomEnemyPlace body, bool movingRight)
+    private void SetKiHunterPairFacing(RoomEnemyPlace body, HorizontalDirection facing)
     {
+        bool movingRight = facing == HorizontalDirection.Right;
         StartKiHunterAnimation(
             body,
             body.RequireSpeciesState<KiHunterBodyState>(),
@@ -743,9 +739,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartKiHunterAnimation(RoomEnemyPlace wings, KiHunterWingState state, KiHunterSegment segment) =>
         state.Playback = EnemyAnimationPlayback.Start(wings, KiHunterAnimations.StartingWith(segment));
 
-    /// <summary>The 0.875-pixel downward acceleration, in 1/65536 pixels, added to a falling or hopping body each frame.</summary>
-    internal static SignedSixteenSixteen KiHunterGravity => KiHunterMotionDefinitions.Gravity;
-
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal EnemyBombReaction KiHunterBombReaction => field ??= new()
     {
@@ -767,11 +760,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProjectile projectile = context.Projectile;
             switch (cue)
             {
-                case KiHunterAcidSpitCue.Launch { Direction: HorizontalDirection.Left }:
-                    projectile.StartMotion(KiHunterAcidMotion.LaunchingLeft);
-                    break;
-                case KiHunterAcidSpitCue.Launch { Direction: HorizontalDirection.Right }:
-                    projectile.StartMotion(KiHunterAcidMotion.LaunchingRight);
+                case KiHunterAcidSpitCue.Launch launch:
+                    // The launch cue names the way the acid's animation spits it, which must be the way its Ki-Hunter spat it (#2338).
+                    HorizontalDirection spat = projectile.StateOf<KiHunterAcidState>().Spat;
+                    if (launch.Direction != spat)
+                        throw new InvalidOperationException($"Acid spat {spat} played the animation that launches it {launch.Direction}.");
+                    projectile.StartMotion(KiHunterAcidMotion.Launching);
                     break;
                 case KiHunterAcidSpitCue.Signal { Kind: KiHunterAcidSpitCueKind.StopMoving }:
                     projectile.HoldStill();
@@ -792,11 +786,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 case KiHunterAcidMotion.Falling:
                     RunKiHunterAcidMovement(context.Projectile, context.Level);
                     break;
-                case KiHunterAcidMotion.LaunchingLeft:
-                    StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
-                    break;
-                case KiHunterAcidMotion.LaunchingRight:
-                    StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
+                case KiHunterAcidMotion.Launching:
+                    StartKiHunterAcidMovement(context.Projectile);
                     break;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(KiHunterAcidMotion)} {motion}.");
@@ -831,12 +822,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
     };
-    /// <summary>Horizontal acid speed, three pixels per update, negated for leftward shots.</summary>
-    private static readonly SignedEightEight KiHunterAcidHorizontalSpeed = SignedEightEight.FromParts(3, 0);
-    /// <summary>Downward speed added to each active acid frame, a sixteenth of a pixel per update.</summary>
-    private static readonly SignedEightEight KiHunterAcidGravity = SignedEightEight.FromParts(0, 16);
-    /// <summary>Maximum downward speed for a falling acid projectile, two pixels per update.</summary>
-    private static readonly SignedEightEight KiHunterAcidTerminalYSpeed = SignedEightEight.FromParts(2, 0);
 
     /// <summary>
     /// Spawns an acid spit from its definition and setup.
@@ -848,33 +833,32 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (projectile is null)
             return;
 
-        bool movingRight = direction == HorizontalDirection.Right;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
             projectile,
             RoomEnemyProjectileKind.KiHunterAcidSpit,
             Acid,
             SpriteGraphics.SpawnedBy(body));
-        projectile.StartAnimation(new KiHunterAcidSpitAnimation(movingRight
+        projectile.StartAnimation(new KiHunterAcidSpitAnimation(direction == HorizontalDirection.Right
             ? KiHunterAcidSpitSegment.Right
             : KiHunterAcidSpitSegment.Left));
+        projectile.State = new KiHunterAcidState(direction);
 
-        projectile.Velocity = projectile.Velocity.WithX(movingRight
-            ? KiHunterAcidHorizontalSpeed
-            : -KiHunterAcidHorizontalSpeed);
+        projectile.Velocity = projectile.Velocity.WithX(direction == HorizontalDirection.Right
+            ? KiHunterMotionDefinitions.AcidHorizontalSpeed
+            : -KiHunterMotionDefinitions.AcidHorizontalSpeed);
         projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole +
-            (movingRight ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
+            (direction == HorizontalDirection.Right ? KiHunterMotionDefinitions.AcidSpitReach : -KiHunterMotionDefinitions.AcidSpitReach));
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Zero);
         projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - KiHunterMotionDefinitions.AcidSpitHeight).WithFractionX(0).WithFractionY(0);
     }
 
     /// <summary>
     /// Runs the acid's one-pass launch: its animation starts the launch after its opening frames, and the launch shifts the
-    /// acid <see cref="KiHunterMotionDefinitions.AcidLaunchShift"/> pixels in its direction and sets it falling.
+    /// acid <see cref="KiHunterMotionDefinitions.AcidLaunchShift"/> pixels the way it was spat and sets it falling.
     /// </summary>
-    internal static void StartKiHunterAcidMovement(
-        EnemyProjectile projectile,
-        HorizontalDirection direction)
+    internal static void StartKiHunterAcidMovement(EnemyProjectile projectile)
     {
+        HorizontalDirection direction = projectile.StateOf<KiHunterAcidState>().Spat;
         projectile.StartMotion(KiHunterAcidMotion.Falling);
         projectile.Position = projectile.Position.WithWrappedWholeX(
             projectile.Position.X.Whole + (direction == HorizontalDirection.Right
@@ -902,9 +886,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        SignedEightEight accelerated = projectile.Velocity.Y + KiHunterAcidGravity;
-        projectile.Velocity = projectile.Velocity.WithY(accelerated >= KiHunterAcidTerminalYSpeed
-            ? KiHunterAcidTerminalYSpeed
+        SignedEightEight accelerated = projectile.Velocity.Y + KiHunterMotionDefinitions.AcidGravity;
+        projectile.Velocity = projectile.Velocity.WithY(accelerated >= KiHunterMotionDefinitions.AcidFastestFall
+            ? KiHunterMotionDefinitions.AcidFastestFall
             : accelerated);
     }
 }

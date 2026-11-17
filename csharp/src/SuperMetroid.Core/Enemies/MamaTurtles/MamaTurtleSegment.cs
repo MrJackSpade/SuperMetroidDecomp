@@ -30,9 +30,10 @@ internal enum MamaTurtleSegment
     /// <summary>The Mama Turtle facing left coming out of her shell and standing, before she withdraws again.</summary>
     MamaLeaveShellLeft,
     /// <summary>
-    /// A baby turtle's legs coming out of its shell and resting, before and after it has left the shell.
+    /// A baby turtle's legs coming out of its shell and resting, before and after it has left the shell; they face left
+    /// whichever way it crawls (#2337).
     /// </summary>
-    BabyLeaveShellLeft,
+    BabyLeaveShell,
     /// <summary>
     /// A baby turtle crawling right, its legs tucking, reaching, planting and pushing, before it crawls on or turns
     /// around.
@@ -50,8 +51,4 @@ internal enum MamaTurtleSegment
     /// The Mama Turtle facing right coming out of her shell and standing, before she withdraws again.
     /// </summary>
     MamaLeaveShellRight,
-    /// <summary>
-    /// A baby turtle's legs coming out of its shell and resting, facing left, before and after it has left the shell.
-    /// </summary>
-    BabyLeaveShellRight,
 }

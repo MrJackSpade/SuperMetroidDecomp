@@ -272,6 +272,8 @@ internal static class NativeEnemyProjectileProgramOracle
                         break;
                     case NativeEnemyControlKind.PoseShownAgain:
                         throw new InvalidDataException($"{animation}'s native list shows no pose again (#2180): no projectile program reads such an instruction.");
+                    case NativeEnemyControlKind.WrittenOutRepeat:
+                        throw new InvalidDataException($"{animation}'s native list writes no run out again after itself (#2337): no projectile program does.");
                     default:
                         throw new InvalidDataException($"Undefined native control {control.Kind}.");
                 }

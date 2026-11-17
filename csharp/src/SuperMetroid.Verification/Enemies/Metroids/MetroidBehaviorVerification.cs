@@ -36,8 +36,10 @@ internal static class MetroidBehaviorVerification
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };
             state.Playback = new(MetroidAnimations.StartingWith(loop), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Segments, loop, MetroidFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Segments, loop)), $"Metroid {loop} loop");
+            // The chasing loop pulses four times before its cry (#2337), the draining loop once before its sound.
+            AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(MetroidAnimations.Segments, MetroidAnimations.StartingWith(loop), MetroidFrameToolingDefinitions.Spritemap),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(MetroidAnimations.Segments, MetroidAnimations.StartingWith(loop))),
+                $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
             AssertTrue(enemies.Audio.LatestSound is not null, $"Metroid {loop} loop plays its sound");
         }

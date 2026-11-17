@@ -33,11 +33,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         _places = places;
     }
 
-    /// <summary>Velocity increment applied after each moving frame, 56 256ths of a pixel per update.</summary>
-    private static readonly SignedEightEight NorfairLavaJumpingEnemyGravity = SignedEightEight.FromParts(0, 56);
-    /// <summary>The rising velocity at and above which, while still rising, the jumper switches to the visible jump animation.</summary>
-    private static readonly SignedEightEight NorfairLavaJumpingEnemyAnimationSwitchVelocity = -SignedEightEight.FromParts(4, 0);
-
     /// <summary>Initializes a lava jumper's cosmetic follower.</summary>
     internal void InitializeNorfairLavaJumperFollower(RoomEnemyPlace place)
     {
@@ -97,11 +92,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             case NorfairLavaJumpingEnemyAction.RiseBeforeAnimationSwitch:
                 MoveNorfairLavaJumpingEnemyVertically(place, state);
-                state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
+                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
 
                 // The flip starts once the rise has slowed to four pixels an update. Jumps start rising at about eight,
                 // so the flip always comes before the top of the arc.
-                if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
+                if (state.YVelocity.IsNegative && state.YVelocity >= NorfairLavaJumpDefinitions.AnimationSwitchVelocity)
                 {
                     StartNorfairLavaJumpingEnemyAnimation(place, state, NorfairLavaJumperSegment.Jump);
                     state.Action = NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal;
@@ -110,7 +105,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             case NorfairLavaJumpingEnemyAction.MoveUntilAnimationSignal:
                 MoveNorfairLavaJumpingEnemyVertically(place, state);
-                state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
+                state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
                 if (state.AnimationFinished)
                 {
                     state.AnimationFinished = false;
@@ -134,7 +129,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 }
                 else
                 {
-                    state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
+                    state.ApplyGravity(NorfairLavaJumpDefinitions.Gravity);
                 }
                 return;
 

@@ -11,8 +11,7 @@ public sealed class KagoEnemyState
     public bool UsesFastAnimation { get; internal set; }
 
     /// <summary>
-    /// The shots the Kago has left. The game decrements first and dies only when the signed result
-    /// is negative, so population value ten permits eleven accepted shots.
+    /// The shots the Kago has taken (#2340): it withstands as many as its placement's hit count and dies of the next.
     /// </summary>
-    public int HitCounter { get; internal set; }
+    public int HitsTaken { get; internal set; }
 }

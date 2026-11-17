@@ -61,7 +61,7 @@ internal static class KiHunterAnimations
         ],
         [P.DetachedWings] =
         [
-            Show(EnemyFrameId.KiHunterDetachedWings, 1),
+            Hold(EnemyFrameId.KiHunterDetachedWings),
         ],
         [P.JumpLeft] =
         [
@@ -131,26 +131,32 @@ internal static class KiHunterAnimations
     /// </summary>
     internal static IReadOnlyDictionary<KiHunterSegment, Animation<KiHunterSegment>> StartingAt { get; } = new Dictionary<KiHunterSegment, Animation<KiHunterSegment>>
     {
-        [P.FlyingLeft] = new([new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.Holds),
-        [P.SwoopLeft] = new([new(P.SwoopLeft, 0, 6, 1), new(P.FlyingLeft, 0, 4, 1)], AnimationEnd.Holds),
-        [P.FlyingRight] = new([new(P.FlyingRight, 0, 4, 1)], AnimationEnd.Holds),
-        [P.SwoopRight] = new([new(P.SwoopRight, 0, 6, 1), new(P.FlyingRight, 0, 4, 1)], AnimationEnd.Holds),
-        [P.WingsLeft] = new([new(P.WingsLeft, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.WingsRight] = new([new(P.WingsRight, 0, 3, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DetachedWings] = new([new(P.DetachedWings, 0, 1, 1)], AnimationEnd.Holds),
-        [P.JumpLeft] = new([new(P.JumpLeft, 0, 7, 1)], AnimationEnd.Holds),
-        [P.JumpRight] = new([new(P.JumpRight, 0, 7, 1)], AnimationEnd.Holds),
-        [P.LandLeft] = new([new(P.LandLeft, 0, 6, 1)], AnimationEnd.Holds),
-        [P.LandRight] = new([new(P.LandRight, 0, 6, 1)], AnimationEnd.Holds),
-        [P.SpitLeft] = new([new(P.SpitLeft, 0, 8, 1)], AnimationEnd.Holds),
-        [P.SpitRight] = new([new(P.SpitRight, 0, 8, 1)], AnimationEnd.Holds),
+        [P.FlyingLeft] = new([Whole(P.FlyingLeft)], AnimationEnd.Holds),
+        [P.SwoopLeft] = new([Whole(P.SwoopLeft), Whole(P.FlyingLeft)], AnimationEnd.Holds),
+        [P.FlyingRight] = new([Whole(P.FlyingRight)], AnimationEnd.Holds),
+        [P.SwoopRight] = new([Whole(P.SwoopRight), Whole(P.FlyingRight)], AnimationEnd.Holds),
+        [P.WingsLeft] = new([Whole(P.WingsLeft)], AnimationEnd.LoopsFrom(0)),
+        [P.WingsRight] = new([Whole(P.WingsRight)], AnimationEnd.LoopsFrom(0)),
+        [P.DetachedWings] = new([Whole(P.DetachedWings)], AnimationEnd.Holds),
+        [P.JumpLeft] = new([Whole(P.JumpLeft)], AnimationEnd.Holds),
+        [P.JumpRight] = new([Whole(P.JumpRight)], AnimationEnd.Holds),
+        [P.LandLeft] = new([Whole(P.LandLeft)], AnimationEnd.Holds),
+        [P.LandRight] = new([Whole(P.LandRight)], AnimationEnd.Holds),
+        [P.SpitLeft] = new([Whole(P.SpitLeft)], AnimationEnd.Holds),
+        [P.SpitRight] = new([Whole(P.SpitRight)], AnimationEnd.Holds),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<KiHunterSegment> StartingWith(KiHunterSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<KiHunterSegment> Whole(KiHunterSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, KiHunterCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, KiHunterCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, KiHunterCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, KiHunterCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, KiHunterCue> Cue(KiHunterCue cue) => new AnimationBeat<EnemyFrameId, KiHunterCue>.Event(cue);

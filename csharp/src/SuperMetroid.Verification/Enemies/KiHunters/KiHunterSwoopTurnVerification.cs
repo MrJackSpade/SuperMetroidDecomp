@@ -20,13 +20,13 @@ internal static class KiHunterSwoopTurnVerification
         AssertEqual(RotationAngle.FromSteps(255), KiHunterMotionDefinitions.LeftSwoopStartAngle, "a leftward swoop starts at angle 255");
         AssertEqual(RotationAngle.FromSteps(144), KiHunterMotionDefinitions.RightSwoopAnimationChangeAngle, "a rightward swoop changes animation at angle 144");
         AssertEqual(RotationAngle.FromSteps(240), KiHunterMotionDefinitions.LeftSwoopAnimationChangeAngle, "a leftward swoop changes animation at angle 240");
-        AssertEqual(SignedSixteenSixteen.FromParts(0, 65536 / 8), Widened(KiHunterMotionDefinitions.RightSwoopAcceleration),
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 65536 / 8), Widened(KiHunterMotionDefinitions.SwoopAcceleration),
             "a rightward swoop accelerates by the 16.16 eighth of a step");
-        AssertEqual(-SignedSixteenSixteen.FromParts(0, 65536 / 8), Widened(KiHunterMotionDefinitions.LeftSwoopAcceleration),
+        AssertEqual(-SignedSixteenSixteen.FromParts(0, 65536 / 8), Widened(-KiHunterMotionDefinitions.SwoopAcceleration),
             "a leftward swoop accelerates by the negated 16.16 eighth of a step");
-        AssertEqual(SignedSixteenSixteen.FromWholePixels(2), Widened(KiHunterMotionDefinitions.RightSwoopMaximumAngularVelocity),
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(2), Widened(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity),
             "a rightward swoop's whole velocity cap is two");
-        AssertEqual(SignedSixteenSixteen.FromWholePixels(-2), Widened(KiHunterMotionDefinitions.LeftSwoopMaximumAngularVelocity),
+        AssertEqual(SignedSixteenSixteen.FromWholePixels(-2), Widened(-KiHunterMotionDefinitions.SwoopMaximumAngularVelocity),
             "a leftward swoop's whole velocity cap is minus two");
 
         string? mismatch = null;
@@ -36,17 +36,17 @@ internal static class KiHunterSwoopTurnVerification
             SignedSixteenSixteen old = SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(fractions);
             if (speed.WholeSteps != old.WholePixels)
                 mismatch ??= $"speed {fractions}: whole steps {speed.WholeSteps}, 16.16 whole {old.WholePixels}";
-            foreach (AngularSpeed acceleration in new[] { KiHunterMotionDefinitions.RightSwoopAcceleration, KiHunterMotionDefinitions.LeftSwoopAcceleration })
+            foreach (AngularSpeed acceleration in new[] { KiHunterMotionDefinitions.SwoopAcceleration, -KiHunterMotionDefinitions.SwoopAcceleration })
             {
                 int sum = fractions + acceleration.FractionsOfStep;
                 if (sum >= short.MinValue && sum <= short.MaxValue && Widened(speed + acceleration) != old + Widened(acceleration))
                     mismatch ??= $"speed {fractions} accelerated by {acceleration} differs from the 16.16 sum";
             }
             SignedSixteenSixteen oldRightCap = old.WholePixels >= 2 ? old.WithWholePixels(2) : old;
-            if (Widened(speed.WithWholeStepsLimitedTo(KiHunterMotionDefinitions.RightSwoopMaximumAngularVelocity)) != oldRightCap)
+            if (Widened(speed.WithWholeStepsLimitedTo(KiHunterMotionDefinitions.SwoopMaximumAngularVelocity)) != oldRightCap)
                 mismatch ??= $"speed {fractions} capped rightward differs from the 16.16 whole-word cap";
             SignedSixteenSixteen oldLeftCap = old.WholePixels < -2 ? old.WithWholePixels(-2) : old;
-            if (Widened(speed.WithWholeStepsLimitedTo(KiHunterMotionDefinitions.LeftSwoopMaximumAngularVelocity)) != oldLeftCap)
+            if (Widened(speed.WithWholeStepsLimitedTo(-KiHunterMotionDefinitions.SwoopMaximumAngularVelocity)) != oldLeftCap)
                 mismatch ??= $"speed {fractions} capped leftward differs from the 16.16 whole-word cap";
         }
 

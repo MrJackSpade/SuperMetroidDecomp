@@ -46,14 +46,15 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         foreach (bool left in new[] { false, true })
         {
             int facing = left ? 1 : 0;
-            AssertEqual(Index(facing), MaridiaLargeSnailAnimationChoices.Idle(left), $"Oum idle facing left {left}");
-            AssertEqual(Index(facing | 2), MaridiaLargeSnailAnimationChoices.RollingForwards(left), $"Oum roll from idle facing left {left}");
-            AssertEqual(Index((facing & 1) | 4), MaridiaLargeSnailAnimationChoices.Attacking(left), $"Oum attack facing left {left}");
-            AssertEqual(Index((facing | 4) - 2), MaridiaLargeSnailAnimationChoices.RollingForwards(left), $"Oum roll after attack facing left {left}");
+            HorizontalDirection way = left ? HorizontalDirection.Left : HorizontalDirection.Right;
+            AssertEqual(Index(facing), MaridiaLargeSnailAnimationChoices.Idle(way), $"Oum idle facing left {left}");
+            AssertEqual(Index(facing | 2), MaridiaLargeSnailAnimationChoices.RollingForwards(way), $"Oum roll from idle facing left {left}");
+            AssertEqual(Index((facing & 1) | 4), MaridiaLargeSnailAnimationChoices.Attacking(way), $"Oum attack facing left {left}");
+            AssertEqual(Index((facing | 4) - 2), MaridiaLargeSnailAnimationChoices.RollingForwards(way), $"Oum roll after attack facing left {left}");
             foreach (bool backwards in new[] { false, true })
             {
                 int roll = facing | (backwards ? 6 : 2);
-                AssertEqual(Index(roll ^ 4), (backwards ? MaridiaLargeSnailAnimationChoices.RollingForwards(left) : MaridiaLargeSnailAnimationChoices.RollingBackwards(left)), $"Oum reversed roll from index {roll}");
+                AssertEqual(Index(roll ^ 4), (backwards ? MaridiaLargeSnailAnimationChoices.RollingForwards(way) : MaridiaLargeSnailAnimationChoices.RollingBackwards(way)), $"Oum reversed roll from index {roll}");
             }
             transitions += 6;
         }

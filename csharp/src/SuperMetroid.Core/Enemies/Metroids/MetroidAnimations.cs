@@ -11,54 +11,56 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// </summary>
 internal static class MetroidAnimations
 {
+    /// <summary>How many pulses a chasing Metroid's nuclei make between its cries.</summary>
+    private const int PulsesBetweenCries = 4;
+
+    /// <summary>
+    /// One pulse of the nuclei from dark to brightest and back (#2337), which a chasing Metroid plays between its cries and
+    /// a draining one before each draining sound.
+    /// </summary>
+    private static readonly AnimationBeat<EnemyFrameId, MetroidCue>[] NucleiPulse =
+    [
+        Show(EnemyFrameId.MetroidNucleiDark, 16),
+        Show(EnemyFrameId.MetroidNucleiGlowing, 16),
+        Show(EnemyFrameId.MetroidNucleiBright, 6),
+        Show(EnemyFrameId.MetroidNucleiBrightest, 10),
+        Show(EnemyFrameId.MetroidNucleiGlowing, 16),
+    ];
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue> Segments { get; } = new(
         new Dictionary<MetroidSegment, AnimationBeat<EnemyFrameId, MetroidCue>[]>
     {
-        [P.ChasingSamus] =
+        [P.ChasingSamus] = NucleiPulse,
+        [P.ChasingCry] =
         [
-            Show(EnemyFrameId.MetroidNucleiDark, 16),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiBright, 6),
-            Show(EnemyFrameId.MetroidNucleiBrightest, 10),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiDark, 16),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiBright, 6),
-            Show(EnemyFrameId.MetroidNucleiBrightest, 10),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiDark, 16),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiBright, 6),
-            Show(EnemyFrameId.MetroidNucleiBrightest, 10),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiDark, 16),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiBright, 6),
-            Show(EnemyFrameId.MetroidNucleiBrightest, 10),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
             Cue(new(K.PlayRandomCry)),
         ],
         [P.DrainingSamus] =
         [
-            Show(EnemyFrameId.MetroidNucleiDark, 16),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
-            Show(EnemyFrameId.MetroidNucleiBright, 6),
-            Show(EnemyFrameId.MetroidNucleiBrightest, 10),
-            Show(EnemyFrameId.MetroidNucleiGlowing, 16),
+            .. NucleiPulse,
             Cue(new(K.PlayDrainingSound)),
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2337): a chasing Metroid's nuclei
+    /// pulse four times before each cry, and a draining one's pulse once before each draining sound.
+    /// </summary>
     internal static IReadOnlyDictionary<MetroidSegment, Animation<MetroidSegment>> StartingAt { get; } = new Dictionary<MetroidSegment, Animation<MetroidSegment>>
     {
-        [P.ChasingSamus] = new([new(P.ChasingSamus, 0, 21, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.DrainingSamus] = new([new(P.DrainingSamus, 0, 6, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.ChasingSamus] = new([Repeated(P.ChasingSamus, PulsesBetweenCries), Whole(P.ChasingCry)], AnimationEnd.LoopsFrom(0)),
+        [P.DrainingSamus] = new([Whole(P.DrainingSamus)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MetroidSegment> StartingWith(MetroidSegment segment) => StartingAt[segment];
+
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MetroidSegment> Whole(MetroidSegment segment) => Repeated(segment, 1);
+
+    /// <summary><paramref name="plays"/> plays of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MetroidSegment> Repeated(MetroidSegment segment, int plays) => new(segment, 0, Segments.Beats(segment).Count, plays);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MetroidCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MetroidCue>.Frame(frame, duration);

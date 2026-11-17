@@ -31,6 +31,18 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>A closing Metroid's speed on an axis for each unit of the distance it reckons (<see cref="MetroidClosingDistance"/>).</summary>
     internal const int ClosingSpeedPerDistance = 32;
 
+    /// <summary>
+    /// How fast a Metroid a body attack throws off moves away from Samus on each axis, in sixteenths of a pixel an update
+    /// for each pixel between them: a quarter of their distance an update (#2339).
+    /// </summary>
+    internal const int BodyAttackThrowPerDistance = 4;
+
+    /// <summary>
+    /// How fast a shot Metroid recoils from where the shots it took came from on each axis, in sixteenths of a pixel an
+    /// update for each pixel between them: an eighth of their distance an update (#2339).
+    /// </summary>
+    internal const int ShotRecoilPerDistance = 2;
+
     /// <summary>How long a frozen Metroid flashes each update it strains against the ice, in updates.</summary>
     internal const int EscapeFlashDuration = 2;
 

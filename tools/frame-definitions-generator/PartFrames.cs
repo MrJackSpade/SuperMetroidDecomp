@@ -277,8 +277,7 @@ internal sealed record PartFrameConfiguration(
             {
                 ["BabyTurtle"] =
                 [
-                    "BabyCrawlingLeft", "BabyCrawlingRight", "BabyHidingLeft", "BabyHidingRight", "BabySpinning", "BabyLeaveShellLeft",
-                    "BabyLeaveShellRight",
+                    "BabyCrawlingLeft", "BabyCrawlingRight", "BabyHidingLeft", "BabyHidingRight", "BabySpinning", "BabyLeaveShell",
                 ],
                 ["MamaTurtle"] =
                 [

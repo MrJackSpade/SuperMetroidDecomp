@@ -10,7 +10,10 @@ internal sealed class GunshipState
     /// <summary>Starts the ship in <paramref name="phase"/>.</summary>
     internal GunshipState(GunshipPhase phase) => Phase = phase;
 
-    /// <summary>The ship's phase timer, decremented by the waiting phases; 144 updates per pad movement.</summary>
+    /// <summary>
+    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at 144, and the update
+    /// that takes it to zero ends the phase (#2340).
+    /// </summary>
     public int PhaseTimer { get; internal set; }
 
     /// <summary>

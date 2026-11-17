@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 internal static class MaridiaLargeSnailAnimationChoices
 {
     /// <summary>The idle animation facing left or right.</summary>
-    internal static A Idle(bool facingLeft) => facingLeft ? A.FacingLeftIdle : A.FacingRightIdle;
+    internal static A Idle(HorizontalDirection facing) => facing == HorizontalDirection.Left ? A.FacingLeftIdle : A.FacingRightIdle;
 
     /// <summary>The attack facing left or right.</summary>
-    internal static A Attacking(bool facingLeft) => facingLeft ? A.FacingLeftAttacking : A.FacingRightAttacking;
+    internal static A Attacking(HorizontalDirection facing) => facing == HorizontalDirection.Left ? A.FacingLeftAttacking : A.FacingRightAttacking;
 
     /// <summary>The forward roll facing left or right, as a roll from idle or after an attack runs.</summary>
-    internal static A RollingForwards(bool facingLeft) => facingLeft ? A.FacingLeftRollingForwards : A.FacingRightRollingForwards;
+    internal static A RollingForwards(HorizontalDirection facing) => facing == HorizontalDirection.Left ? A.FacingLeftRollingForwards : A.FacingRightRollingForwards;
 
     /// <summary>The backward roll facing left or right, as a wall reverses a forward roll.</summary>
-    internal static A RollingBackwards(bool facingLeft) => facingLeft ? A.FacingLeftRollingBackwards : A.FacingRightRollingBackwards;
+    internal static A RollingBackwards(HorizontalDirection facing) => facing == HorizontalDirection.Left ? A.FacingLeftRollingBackwards : A.FacingRightRollingBackwards;
 }

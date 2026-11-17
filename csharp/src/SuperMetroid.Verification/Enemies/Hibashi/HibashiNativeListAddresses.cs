@@ -13,6 +13,12 @@ internal static class HibashiNativeListAddresses
     /// <summary>The lists' bank.</summary>
     internal const byte Bank = 0xa6;
 
+    /// <summary>The native table of each rising step's height above the spawn, one word per step.</summary>
+    internal const int StepYOffsetTable = 0xa68dbb;
+
+    /// <summary>The native table of each rising step's half-height, one word per step.</summary>
+    internal const int StepYRadiusTable = 0xa68de7;
+
     /// <summary>Each typed program's native entry point, in authored order.</summary>
     internal static readonly NativeProgramEntry<HibashiSegment>[] Entries =
     [
@@ -20,32 +26,21 @@ internal static class HibashiNativeListAddresses
         new NativeProgramEntry<HibashiSegment>(HibashiSegment.Hitbox, 0x8da9),
     ];
 
-    /// <summary>Each owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
+    /// <summary>Each signalling owner instruction the lists use, keyed by its native routine: its cue and operand roles.</summary>
     internal static readonly Dictionary<ushort, HibashiNativeListAddressesInstruction> Instructions = new()
     {
         [0x8daf] = new HibashiNativeListAddressesInstruction(new HibashiCue.Signal(HibashiCueKind.PlayEruptionSound), ""),
-        [0x8e13] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[0]), ""),
-        [0x8e2d] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[1]), ""),
-        [0x8e41] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[2]), ""),
-        [0x8e55] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[3]), ""),
-        [0x8e69] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[4]), ""),
-        [0x8e7d] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[5]), ""),
-        [0x8e91] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[6]), ""),
-        [0x8ea5] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[7]), ""),
-        [0x8eb9] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[8]), ""),
-        [0x8ecd] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[9]), ""),
-        [0x8ee1] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[10]), ""),
-        [0x8ef5] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[11]), ""),
-        [0x8f09] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[12]), ""),
-        [0x8f1d] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[13]), ""),
-        [0x8f31] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[14]), ""),
-        [0x8f45] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[15]), ""),
-        [0x8f59] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[16]), ""),
-        [0x8f6d] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[17]), ""),
-        [0x8f81] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[18]), ""),
-        [0x8f95] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[19]), ""),
-        [0x8fa9] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[20]), ""),
-        [0x8fbd] = new HibashiNativeListAddressesInstruction(new HibashiCue.EruptionStep(HibashiDefinitions.EruptionSteps[21]), ""),
         [0x8fd1] = new HibashiNativeListAddressesInstruction(new HibashiCue.Signal(HibashiCueKind.FinishActivity), ""),
     };
+
+    /// <summary>
+    /// The native rising routines in step order (#2337): the routine at each place applies the step at that place of
+    /// <see cref="StepYOffsetTable"/> and <see cref="StepYRadiusTable"/>, and the first also gives the collision part its
+    /// width back. None takes an operand.
+    /// </summary>
+    internal static readonly ushort[] RisingStepRoutines =
+    [
+        0x8e13, 0x8e2d, 0x8e41, 0x8e55, 0x8e69, 0x8e7d, 0x8e91, 0x8ea5, 0x8eb9, 0x8ecd, 0x8ee1,
+        0x8ef5, 0x8f09, 0x8f1d, 0x8f31, 0x8f45, 0x8f59, 0x8f6d, 0x8f81, 0x8f95, 0x8fa9, 0x8fbd,
+    ];
 }

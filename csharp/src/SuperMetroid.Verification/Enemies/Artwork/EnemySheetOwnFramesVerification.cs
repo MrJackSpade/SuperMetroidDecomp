@@ -183,8 +183,7 @@ internal static class EnemySheetOwnFramesVerification
             [EnemyDefinitionId.BabyTurtle] = Reach(MamaTurtleAnimations.Segments, MamaTurtleAnimations.StartingAt,
             [
                 MamaTurtleSegment.BabyCrawlingLeft, MamaTurtleSegment.BabyCrawlingRight, MamaTurtleSegment.BabyHidingLeft,
-                MamaTurtleSegment.BabyHidingRight, MamaTurtleSegment.BabySpinning, MamaTurtleSegment.BabyLeaveShellLeft,
-                MamaTurtleSegment.BabyLeaveShellRight,
+                MamaTurtleSegment.BabyHidingRight, MamaTurtleSegment.BabySpinning, MamaTurtleSegment.BabyLeaveShell,
             ]),
         });
 

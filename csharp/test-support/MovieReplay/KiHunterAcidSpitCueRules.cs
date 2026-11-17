@@ -14,15 +14,23 @@ internal static class KiHunterAcidSpitCueRules
     {
         [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<KiHunterAcidSpitCue>.Exactly(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.Delete)),
         [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<KiHunterAcidSpitCue>.Exactly(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.StopMoving)),
-        // Setting a launch routine is the cue that launches the acid the way that routine moves it.
+        // Setting a launch routine is the cue that launches the acid the way that routine moves it (#2338): the routine of the
+        // cue's way.
         [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new(2, (operands, cue, at) =>
-            VerificationAssertions.AssertEqual<Enum?>(cue switch
+        {
+            ushort routine = LittleEndianBytes.Word(operands[0], operands[1]);
+            switch (cue)
             {
-                KiHunterAcidSpitCue.Launch { Direction: HorizontalDirection.Left } => KiHunterAcidMotion.LaunchingLeft,
-                KiHunterAcidSpitCue.Launch { Direction: HorizontalDirection.Right } => KiHunterAcidMotion.LaunchingRight,
-                KiHunterAcidSpitCue.Signal => null,
-                _ => throw new InvalidOperationException($"{at}: undefined {nameof(KiHunterAcidSpitCue)} {cue}."),
-            }, EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
+                case KiHunterAcidSpitCue.Launch launch:
+                    VerificationAssertions.AssertEqual(EnemyProjectileMotionAccess.KiHunterAcidLaunch(launch.Direction), routine, $"{at}: pre-instruction");
+                    break;
+                case KiHunterAcidSpitCue.Signal:
+                    VerificationAssertions.AssertEqual<Enum?>(null, EnemyProjectileMotionAccess.FromWord(routine), $"{at}: pre-instruction");
+                    break;
+                default:
+                    throw new InvalidOperationException($"{at}: undefined {nameof(KiHunterAcidSpitCue)} {cue}.");
+            }
+        }),
     };
 
     /// <summary>The oracle rules for the acid's programs.</summary>

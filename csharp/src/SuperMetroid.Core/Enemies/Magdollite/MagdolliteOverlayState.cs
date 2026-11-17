@@ -22,8 +22,8 @@ public sealed class MagdolliteOverlayState : MagdollitePartState
     /// </summary>
     public WrappingCountdown AttackTimer { get; internal set; }
 
-    /// <summary>Whether the hand throws its lava rightward, chosen from Samus's side at the apex.</summary>
-    public bool ThrowsRight { get; internal set; }
+    /// <summary>The way the hand throws its lava: toward Samus's side at the apex (#2338).</summary>
+    public HorizontalDirection ThrowDirection { get; internal set; }
 
     /// <summary>Whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }

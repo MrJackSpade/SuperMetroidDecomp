@@ -17,7 +17,7 @@ internal static class MaridiaLargeSnailAnimations
     {
         [P.FacingLeftIdle] =
         [
-            Show(EnemyFrameId.OumFacingLeftTurned0, 1),
+            Hold(EnemyFrameId.OumFacingLeftTurned0),
         ],
         [P.FacingLeftAttacking] =
         [
@@ -65,7 +65,7 @@ internal static class MaridiaLargeSnailAnimations
         ],
         [P.FacingRightIdle] =
         [
-            Show(EnemyFrameId.OumFacingRightTurned0, 1),
+            Hold(EnemyFrameId.OumFacingRightTurned0),
         ],
         [P.FacingRightAttacking] =
         [
@@ -116,21 +116,27 @@ internal static class MaridiaLargeSnailAnimations
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
     internal static IReadOnlyDictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>> StartingAt { get; } = new Dictionary<MaridiaLargeSnailSegment, Animation<MaridiaLargeSnailSegment>>
     {
-        [P.FacingLeftIdle] = new([new(P.FacingLeftIdle, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingLeftAttacking] = new([new(P.FacingLeftAttacking, 0, 15, 1)], AnimationEnd.Holds),
-        [P.FacingLeftRollingForwards] = new([new(P.FacingLeftRollingForwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingLeftRollingBackwards] = new([new(P.FacingLeftRollingBackwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightIdle] = new([new(P.FacingRightIdle, 0, 1, 1)], AnimationEnd.Holds),
-        [P.FacingRightAttacking] = new([new(P.FacingRightAttacking, 0, 15, 1)], AnimationEnd.Holds),
-        [P.FacingRightRollingForwards] = new([new(P.FacingRightRollingForwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
-        [P.FacingRightRollingBackwards] = new([new(P.FacingRightRollingBackwards, 0, 10, 1)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingLeftIdle] = new([Whole(P.FacingLeftIdle)], AnimationEnd.Holds),
+        [P.FacingLeftAttacking] = new([Whole(P.FacingLeftAttacking)], AnimationEnd.Holds),
+        [P.FacingLeftRollingForwards] = new([Whole(P.FacingLeftRollingForwards)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingLeftRollingBackwards] = new([Whole(P.FacingLeftRollingBackwards)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightIdle] = new([Whole(P.FacingRightIdle)], AnimationEnd.Holds),
+        [P.FacingRightAttacking] = new([Whole(P.FacingRightAttacking)], AnimationEnd.Holds),
+        [P.FacingRightRollingForwards] = new([Whole(P.FacingRightRollingForwards)], AnimationEnd.LoopsFrom(0)),
+        [P.FacingRightRollingBackwards] = new([Whole(P.FacingRightRollingBackwards)], AnimationEnd.LoopsFrom(0)),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<MaridiaLargeSnailSegment> StartingWith(MaridiaLargeSnailSegment segment) => StartingAt[segment];
 
+    /// <summary>One play of every beat of <paramref name="segment"/>.</summary>
+    private static AnimationPhase<MaridiaLargeSnailSegment> Whole(MaridiaLargeSnailSegment segment) => new(segment, 0, Segments.Beats(segment).Count, 1);
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>.Frame(frame, duration);
+
+    /// <summary>Shows <paramref name="frame"/> for good (#2337): a still picture rests on it until its owner plays another.</summary>
+    private static AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue> Cue(MaridiaLargeSnailCue cue) => new AnimationBeat<EnemyFrameId, MaridiaLargeSnailCue>.Event(cue);

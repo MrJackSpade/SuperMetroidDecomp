@@ -10,6 +10,6 @@ internal static class KzanAnimationsConstants
     /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
     internal static IEnumerable<ushort> Spritemaps(params KzanSegment[] programs) =>
         programs.SelectMany(program => KzanAnimations.Segments.Beats(program))
-            .OfType<AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame>()
-            .Select(frame => KzanFrameToolingDefinitions.Spritemap(frame.Shown));
+            .Select(beat => beat.ShownFrame).OfType<EnemyFrameId>()
+            .Select(frame => KzanFrameToolingDefinitions.Spritemap(frame));
 }

@@ -40,7 +40,7 @@ internal static class MamaTurtleOwnedStateVerification
         {
             RoomEnemyPlace baby = enemies.Places.InUpdateOrder[place];
             baby.Bind(EnemyDefinitionId.BabyTurtle, baby.Definition);
-            baby.SetSpawnSettings(new TurtleSpawnSettings(Speed: 1));
+            baby.SetSpawnSettings(new BabyTurtleSpawnSettings(Heading: HorizontalDirection.Right));
             MamaTurtleBehavior.InitializeBabyTurtle(baby);
         }
         RoomEnemyPlace mama = enemies.Places.InUpdateOrder[1];

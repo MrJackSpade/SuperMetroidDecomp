@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -60,12 +61,9 @@ public sealed class TitleSequenceState : IFrontendScreen
 
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int PhaseTimer { get; private set; }
-    /// <summary>The title card whose steps are running.</summary>
-    private TitleSequencePhase textCard = TitleSequencePhase.YearText;
-    /// <summary>The next step of the running title card.</summary>
-    private int textCardStep;
-    /// <summary>Frames left before the next title sequence entry is read.</summary>
-    private int sequenceEntryTimer;
+    /// <summary>The running title card's typing (#2359): it shows nothing until its first update reads its first beat.</summary>
+    private readonly AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue> textCard =
+        AnimationPlayer<TitleSequencePhase, TitleCardTyping, TitleCardCue>.Starting(TitleCards.Segments, TitleCards.Typing(TitleSequencePhase.YearText));
     /// <summary>The whole composition the title shows, the logo, or null while it shows none.</summary>
     internal TitleSprite? ActiveSprite { get; private set; }
     /// <summary>The running title card's text as far as it is typed, or null while no card shows any (#1979).</summary>
@@ -87,10 +85,10 @@ public sealed class TitleSequenceState : IFrontendScreen
     private readonly ScreenFade fade = new(0);
     /// <summary>Current screen brightness applied after composing title layers.</summary>
     internal int Brightness => fade.Level;
-    /// <summary>The frame of the Baby Metroid's pulse animation the floor shows.</summary>
-    internal int BabyFrame { get; private set; }
-    /// <summary>Updates left before the Baby Metroid's animation shows its next frame.</summary>
-    private int babyFrameTimer;
+    /// <summary>The Baby Metroid's pulse on the floor (#2359).</summary>
+    private readonly AnimationPlayer<TitleBabySegment, TitleBabyPose, NoAnimationCue> baby = TitleBabyAnimation.Start();
+    /// <summary>The pose of the Baby Metroid's pulse the floor shows.</summary>
+    internal TitleBabyPose BabyPose => baby.Showing;
     /// <summary>Whether the title shows its perspective floor behind its sprites.</summary>
     private bool floorBackgroundEnabled;
     /// <summary>Enables the installed gradient during the final title stages.</summary>
@@ -220,7 +218,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 StepSkipFadeOut();
         }
 
-        StepBabyMetroidAnimation();
+        baby.Step();
         // The title runs the same colour effects as rooms. The console lights and the
         // logo's and copyright's fades own their colours and timers; nothing else synthesizes a blink or a fade.
         colourEffects.StepScreen();
@@ -394,7 +392,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 : null,
             Brightness, gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled
-                ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimation[BabyFrame]).Shaded(FloorShading)
+                ? TitleFloors.Of(spriteSheets, BabyPose).Shaded(FloorShading)
                 : null);
     }
 
@@ -473,57 +471,60 @@ public sealed class TitleSequenceState : IFrontendScreen
         screenSprites.FinishFrame();
     }
 
-    /// <summary>Advances the running title card's timed frames and runs its scene or delete cues.</summary>
+    /// <summary>
+    /// Plays the running title card on one update: the card shows each typing as its turn comes, and once its whole text has
+    /// held it runs its scene cue and removes itself, which the scene's start has already done.
+    /// </summary>
     private void StepTextSequence()
     {
-        if (--sequenceEntryTimer > 0)
-            return;
-
-        while (true)
+        bool cued = false;
+        textCard.Step(cue =>
         {
-            TitleCardStep step = TitleCards.Steps(textCard)[textCardStep++];
-            if (step.Cue is not { } cue)
-            {
-                sequenceEntryTimer = step.Duration;
-                ActiveCard = step.Typed;
+            cued = true;
+            RunCardCue(cue);
+        });
+        if (!cued)
+            ActiveCard = textCard.Shown;
+    }
+
+    /// <summary>Runs a title card's scene or removal cue.</summary>
+    /// <exception cref="InvalidOperationException">The cue is undefined.</exception>
+    private void RunCardCue(TitleCardCue cue)
+    {
+        switch (cue)
+        {
+            case TitleCardCue.StartLowerPan:
+                Phase = TitleSequencePhase.LowerPan;
+                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
+                ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
                 return;
-            }
 
-            switch (cue)
-            {
-                case TitleCardCue.StartLowerPan:
-                    Phase = TitleSequencePhase.LowerPan;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
-                    ApplyScene(TitleSequenceDefinitions.Scenes.LowerPan);
-                    return;
+            case TitleCardCue.StartUpperPan:
+                Phase = TitleSequencePhase.UpperPan;
+                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
+                ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
+                return;
 
-                case TitleCardCue.StartUpperPan:
-                    Phase = TitleSequencePhase.UpperPan;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
-                    ApplyScene(TitleSequenceDefinitions.Scenes.UpperPan);
-                    return;
+            case TitleCardCue.StartDownwardPan:
+                Phase = TitleSequencePhase.DownwardPan;
+                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
+                ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
+                return;
 
-                case TitleCardCue.StartDownwardPan:
-                    Phase = TitleSequencePhase.DownwardPan;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
-                    ApplyScene(TitleSequenceDefinitions.Scenes.DownwardPan);
-                    return;
+            case TitleCardCue.StartFinalZoom:
+                Phase = TitleSequencePhase.FinalZoom;
+                gradientEnabled = true;
+                floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
+                PhaseTimer = 0;
+                ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
+                return;
 
-                case TitleCardCue.StartFinalZoom:
-                    Phase = TitleSequencePhase.FinalZoom;
-                    gradientEnabled = true;
-                    floorBackgroundEnabled = true; // The pan shows the floor beside the sprites.
-                    PhaseTimer = 0;
-                    ApplyScene(TitleSequenceDefinitions.Scenes.FinalZoom);
-                    return;
+            case TitleCardCue.RemoveCard:
+                ActiveCard = null;
+                return;
 
-                case TitleCardCue.RemoveCard:
-                    ActiveCard = null;
-                    return;
-
-                default:
-                    throw new InvalidOperationException($"Undefined TitleCardCue {cue}.");
-            }
+            default:
+                throw new InvalidOperationException($"Undefined TitleCardCue {cue}.");
         }
     }
 
@@ -531,9 +532,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
-        textCard = definition.Phase;
-        textCardStep = 0;
-        sequenceEntryTimer = 1;
+        textCard.Start(TitleCards.Typing(definition.Phase));
         ActiveSprite = null;
         ActiveCard = null;
         ActiveOrigin = definition.Origin;
@@ -568,16 +567,6 @@ public sealed class TitleSequenceState : IFrontendScreen
         Phase = TitleSequencePhase.TitleScreen;
         PhaseTimer = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames;
         fade.Show(DisplayBrightness.Full);
-    }
-
-    /// <summary>Advances the Baby Metroid's pulse animation when its authored frame duration expires.</summary>
-    private void StepBabyMetroidAnimation()
-    {
-        if (--babyFrameTimer > 0)
-            return;
-
-        BabyFrame = (BabyFrame + 1) % TitleSequenceDefinitions.Graphics.BabyAnimation.Count;
-        babyFrameTimer = TitleSequenceDefinitions.Timing.BabyFrameDuration;
     }
 
     /// <summary>Installs a compiled turning-floor scene's position and zoom while clearing the previous text sprite.</summary>

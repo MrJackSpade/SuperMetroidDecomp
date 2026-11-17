@@ -118,7 +118,7 @@ internal static class TitleSkipFadeVerification
         AssertEqual(0, rebuilt.Brightness, $"{rebuild} stays black");
         AssertEqual(idle.Floor, rebuilt.Floor, $"{rebuild} shows the floor at its own size, centred, as the idle title screen does");
         AssertEqual(idle.Gradient, rebuilt.Gradient, $"{rebuild} shows the idle title screen's gradient");
-        AssertEqual(natural[update].BabyFrame, rebuilt.BabyFrame, $"{rebuild} keeps the Baby Metroid's animation running");
+        AssertEqual(natural[update].BabyPose, rebuilt.BabyPose, $"{rebuild} keeps the Baby Metroid's animation running");
         AssertEqual(2, rebuilt.Draws.Length, $"{rebuild} draws the logo and the copyright");
         AssertRebuiltDraw(idle.Draws[0], pictures.Logo, PictureShading.Shaded(TitleShades.Drawn(TitleSpriteColouring.Logo)),
             rebuilt.Draws[0], $"{rebuild} draws the logo in its drawn colours");
@@ -151,7 +151,7 @@ internal static class TitleSkipFadeVerification
         AssertTrue(expected.Draws.SequenceEqual(shown.Draws), $"{place}: sprites ({Describe(expected.Draws)} expected, {Describe(shown.Draws)} drawn)");
         AssertEqual(expected.Floor, shown.Floor, $"{place}: floor");
         AssertEqual(expected.Gradient, shown.Gradient, $"{place}: gradient");
-        AssertEqual(expected.BabyFrame, shown.BabyFrame, $"{place}: Baby Metroid frame");
+        AssertEqual(expected.BabyPose, shown.BabyPose, $"{place}: Baby Metroid frame");
         AssertEqual(expected.FloorShading, shown.FloorShading, $"{place}: floor shading");
     }
 
@@ -187,7 +187,7 @@ internal static class TitleSkipFadeVerification
     {
         FloorScene scene = title.CaptureRenderSnapshot();
         return new TitleFrame(title.Phase, title.SkipStage, scene.Brightness, scene.Paint.SpriteDraws, scene.Background, scene.Gradient,
-            title.BabyFrame, title.FloorShading);
+            title.BabyPose, title.FloorShading);
     }
 
     /// <summary>What the title runs and shows after one update.</summary>
@@ -197,7 +197,7 @@ internal static class TitleSkipFadeVerification
     /// <param name="Draws">The sprites drawn, frontmost first, with their colours.</param>
     /// <param name="Floor">How the floor is shown, or null when it is hidden.</param>
     /// <param name="Gradient">The gradient shown over the floor, or null for none.</param>
-    /// <param name="BabyFrame">The frame of the Baby Metroid's pulse the floor shows.</param>
+    /// <param name="BabyPose">The pose of the Baby Metroid's pulse the floor shows.</param>
     /// <param name="FloorShading">The console lights' shading of the floor.</param>
     private sealed record TitleFrame(
         TitleSequencePhase Phase,
@@ -206,7 +206,7 @@ internal static class TitleSkipFadeVerification
         ImmutableArray<SpriteDraw> Draws,
         FloorView? Floor,
         ScreenGradientLayer? Gradient,
-        int BabyFrame,
+        TitleBabyPose BabyPose,
         PictureShading FloorShading);
 
     /// <summary>The logo's and the copyright's pictures in the title sheet.</summary>

@@ -26,25 +26,8 @@ internal static class CeresAnimations
                 B.Show(S.VortexSecond, 1),
             ],
             [A.DestructionLargeAsteroid] = [B.Hold(S.StationUnderAttackLargeAsteroid)],
-            [A.SmallExplosion] =
-            [
-                B.Show(S.SmallExplosionSpark, 3),
-                B.Show(S.SmallExplosionFlare, 3),
-                B.Show(S.SmallExplosionFireball, 3),
-                B.Show(S.SmallExplosionHollowing, 3),
-                B.Show(S.SmallExplosionRing, 3),
-                B.Show(S.SmallExplosionFadingRing, 3),
-            ],
-            [A.RepeatingSmallExplosion] =
-            [
-                B.Show(S.SmallExplosionSpark, 3),
-                B.Show(S.SmallExplosionFlare, 3),
-                B.Show(S.SmallExplosionFireball, 3),
-                B.Show(S.SmallExplosionHollowing, 3),
-                B.Show(S.SmallExplosionRing, 3),
-                B.Show(S.SmallExplosionFadingRing, 3),
-                B.Show(S.Blank, 16),
-            ],
+            [A.SmallExplosion] = SmallExplosionBurst(),
+            [A.RepeatingSmallExplosion] = [.. SmallExplosionBurst(), B.Show(S.Blank, 16)],
             [A.LargeExplosion] =
             [
                 B.Show(S.LargeBlastFireballCluster, 5),
@@ -80,24 +63,35 @@ internal static class CeresAnimations
             ],
             [A.ZebesJapaneseTitle] = [B.Show(S.ZebesJapaneseTitle, 192)],
         },
-        new Dictionary<CeresAnimation, Animation<CeresAnimation>>
+        plays => new Dictionary<CeresAnimation, Animation<CeresAnimation>>
         {
-            [A.Stars] = CinematicPlays.Still(A.Stars),
-            [A.LargeAsteroid] = CinematicPlays.Still(A.LargeAsteroid),
-            [A.StationUnderAttack] = CinematicPlays.Still(A.StationUnderAttack),
-            [A.SmallAsteroid] = CinematicPlays.Still(A.SmallAsteroid),
-            [A.Vortex] = CinematicPlays.Through(A.Vortex, 2, AnimationEnd.LoopsFrom(0)),
-            [A.DestructionLargeAsteroid] = CinematicPlays.Still(A.DestructionLargeAsteroid),
-            [A.SmallExplosion] = CinematicPlays.Through(A.SmallExplosion, 6, AnimationEnd.Stops),
-            [A.RepeatingSmallExplosion] = new([new(A.RepeatingSmallExplosion, 0, 7, 6)], AnimationEnd.Stops),
-            [A.LargeExplosion] = new([new(A.LargeExplosion, 0, 5, 7)], AnimationEnd.Stops),
-            [A.StationBlast] = CinematicPlays.Through(A.StationBlast, 6, AnimationEnd.Stops),
-            [A.ZebesPlanet] = CinematicPlays.Still(A.ZebesPlanet),
-            [A.ZebesStarsUpperLeft] = CinematicPlays.Still(A.ZebesStarsUpperLeft),
-            [A.ZebesStarsUpperRight] = CinematicPlays.Still(A.ZebesStarsUpperRight),
-            [A.ZebesStarsLowerLeft] = CinematicPlays.Still(A.ZebesStarsLowerLeft),
-            [A.ZebesStarsLowerRight] = CinematicPlays.Still(A.ZebesStarsLowerRight),
-            [A.ZebesTitle] = CinematicPlays.Through(A.ZebesTitle, 8, AnimationEnd.Stops),
-            [A.ZebesJapaneseTitle] = CinematicPlays.Through(A.ZebesJapaneseTitle, 1, AnimationEnd.Stops),
+            [A.Stars] = plays.Still(A.Stars),
+            [A.LargeAsteroid] = plays.Still(A.LargeAsteroid),
+            [A.StationUnderAttack] = plays.Still(A.StationUnderAttack),
+            [A.SmallAsteroid] = plays.Still(A.SmallAsteroid),
+            [A.Vortex] = plays.Looping(A.Vortex),
+            [A.DestructionLargeAsteroid] = plays.Still(A.DestructionLargeAsteroid),
+            [A.SmallExplosion] = plays.Through(A.SmallExplosion, AnimationEnd.Stops),
+            [A.RepeatingSmallExplosion] = new([plays.Repeated(A.RepeatingSmallExplosion, 6)], AnimationEnd.Stops),
+            [A.LargeExplosion] = new([plays.Repeated(A.LargeExplosion, 7)], AnimationEnd.Stops),
+            [A.StationBlast] = plays.Through(A.StationBlast, AnimationEnd.Stops),
+            [A.ZebesPlanet] = plays.Still(A.ZebesPlanet),
+            [A.ZebesStarsUpperLeft] = plays.Still(A.ZebesStarsUpperLeft),
+            [A.ZebesStarsUpperRight] = plays.Still(A.ZebesStarsUpperRight),
+            [A.ZebesStarsLowerLeft] = plays.Still(A.ZebesStarsLowerLeft),
+            [A.ZebesStarsLowerRight] = plays.Still(A.ZebesStarsLowerRight),
+            [A.ZebesTitle] = plays.Through(A.ZebesTitle, AnimationEnd.Stops),
+            [A.ZebesJapaneseTitle] = plays.Through(A.ZebesJapaneseTitle, AnimationEnd.Stops),
         });
+
+    /// <summary>A small explosion burning through its six pictures, three updates each.</summary>
+    private static AnimationBeat<CinematicSpritePose, CeresCue>[] SmallExplosionBurst() =>
+    [
+        B.Show(S.SmallExplosionSpark, 3),
+        B.Show(S.SmallExplosionFlare, 3),
+        B.Show(S.SmallExplosionFireball, 3),
+        B.Show(S.SmallExplosionHollowing, 3),
+        B.Show(S.SmallExplosionRing, 3),
+        B.Show(S.SmallExplosionFadingRing, 3),
+    ];
 }

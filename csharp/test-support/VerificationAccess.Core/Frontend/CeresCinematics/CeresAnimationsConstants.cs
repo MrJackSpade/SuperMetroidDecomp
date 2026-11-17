@@ -26,8 +26,8 @@ internal static class CeresAnimationsConstants
                 W.Raise(CeresExplosionSpawnerCue.SpawnFinalWave),
             ],
         },
-        new Dictionary<CeresAnimation, Animation<CeresAnimation>>
+        plays => new Dictionary<CeresAnimation, Animation<CeresAnimation>>
         {
-            [A.ExplosionSpawner] = CinematicPlays.Through(A.ExplosionSpawner, 6, AnimationEnd.Stops),
+            [A.ExplosionSpawner] = plays.Through(A.ExplosionSpawner, AnimationEnd.Stops),
         });
 }

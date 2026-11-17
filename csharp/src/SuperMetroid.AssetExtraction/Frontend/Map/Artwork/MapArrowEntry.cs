@@ -2,7 +2,7 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
-/// <summary>Defines one arrow's screen anchor and per-phase durations.</summary>
+/// <summary>Defines one arrow's screen anchor.</summary>
 [SpatialComponents("External format: map-arrows.json stores each arrow anchor as flat x/y fields.")]
 public sealed record MapArrowEntry
 {
@@ -13,6 +13,4 @@ public sealed record MapArrowEntry
     public required int X { get; init; }
     /// <summary>Gets the vertical screen-pixel anchor from zero through 223.</summary>
     public required int Y { get; init; }
-    /// <summary>Gets one positive update-tick duration per cyclic animation phase.</summary>
-    public required int[] DurationTicks { get; init; }
 }

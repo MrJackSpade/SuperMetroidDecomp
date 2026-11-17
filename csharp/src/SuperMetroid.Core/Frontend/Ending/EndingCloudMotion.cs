@@ -27,10 +27,16 @@ internal static class EndingCloudMotion
         var sprite = wrapper.Sprite;
         if (side)
         {
-            int direction = wrapper.Role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing ? -1 : 1;
-            sprite.ScreenPlace += new Offset16<ScreenPixels>(direction, direction * 2);
+            // The right-side clouds drift left and up, the left-side clouds right and down, two pixels down for one across.
+            HorizontalDirection drift = wrapper.Role is EndingSpriteRole.SideCloudRightLeading or EndingSpriteRole.SideCloudRightTrailing
+                ? HorizontalDirection.Left : HorizontalDirection.Right;
+            sprite.ScreenPlace += drift == HorizontalDirection.Left ? new Offset16<ScreenPixels>(-1, -2) : new Offset16<ScreenPixels>(1, 2);
         }
         else
-            sprite.ScreenPlace += new Offset16<ScreenPixels>(0, top ? 1 : -1);
+        {
+            // The top clouds drift down, the bottom clouds up, a pixel an update.
+            VerticalDirection drift = top ? VerticalDirection.Down : VerticalDirection.Up;
+            sprite.ScreenPlace += new Offset16<ScreenPixels>(0, drift == VerticalDirection.Down ? 1 : -1);
+        }
     }
 }

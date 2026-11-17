@@ -24,7 +24,7 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>Each menu layout's heading sprite.</summary>
     internal readonly Dictionary<GameOptionsPage, SpriteComposition> headingSprites;
     /// <summary>The missile cursor's sprite by animation frame.</summary>
-    internal readonly SpriteComposition[] cursorSprites;
+    internal readonly Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites;
 
     /// <summary>Compiled tiles of each named options page.</summary>
     private readonly Dictionary<GameOptionsScreen, BackgroundTile[]> pages;
@@ -234,7 +234,7 @@ public sealed class GameOptionsSourcePresentation
             "options special toggles");
         ValidateExactKeys(document.Sprites,
             [.. GameOptionsPresentationFormat.MenuPages.Select(GameOptionsNames.HeadingSpriteName),
-                .. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(MenuMissileFrames.Name)],
+                .. MenuMissileFrames.Names],
             "options sprites");
         GameOptionsPresentation presentation = GameOptionsLayoutFile.Presentation(document.HeadingAnchors, document.CursorAnchors,
             document.CursorFrameDuration);
@@ -286,8 +286,8 @@ public sealed class GameOptionsSourcePresentation
 
         var headingSprites = GameOptionsPresentationFormat.MenuPages.ToDictionary(page => page,
             page => CompileSprite(document, GameOptionsNames.HeadingSpriteName(page)));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount)
-            .Select(frame => CompileSprite(document, MenuMissileFrames.Name(frame)))];
+        Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites = MenuMissileAnimationDefinitions.Roll.ToDictionary(frame => frame,
+            frame => CompileSprite(document, MenuMissileFrames.Name(frame)));
         return new(document, presentation, new(pages, background, labels), new(headingSprites, cursorSprites),
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
@@ -378,5 +378,5 @@ public sealed class GameOptionsSourcePresentation
     /// <summary>The compiled heading and cursor compositions.</summary>
     /// <param name="Headings">Each menu layout's heading composition.</param>
     /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
-    private sealed record GameOptionsSprites(Dictionary<GameOptionsPage, SpriteComposition> Headings, SpriteComposition[] Cursors);
+    private sealed record GameOptionsSprites(Dictionary<GameOptionsPage, SpriteComposition> Headings, Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
 }

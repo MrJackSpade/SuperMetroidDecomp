@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
 using System.Collections.Immutable;
 using SuperMetroid.Verification.Bosses.MotherBrain;
@@ -399,7 +400,7 @@ internal static class LookupStream3Verification
             [.. Enum.GetValues<GameOverBabyFrame>().Select(frame =>
                 KeyValuePair.Create(GameOverPresentationNames.BabyFrameName(frame), presentation.babySprites[frame])),
             KeyValuePair.Create(GameOverPresentationDefinitions.EggFrame, presentation.eggSprite),
-            .. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame =>
+            .. MenuMissileAnimationDefinitions.Roll.Select(frame =>
                 KeyValuePair.Create(MenuMissileFrames.Name(frame), presentation.cursorSprites[frame]))]);
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
@@ -422,8 +423,8 @@ internal static class LookupStream3Verification
             .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationNames.BabyFrameName(frame),
                 oam => presentation.Presentation.DrawBaby(oam, GameOverSheet, frame, GameOverBabyColouring.Idle), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
             new(GameOverPresentationDefinitions.EggFrame, oam => presentation.Presentation.DrawEgg(oam, GameOverSheet), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
-            .. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame => new GameOverSpriteDraw(
-                MenuMissileFrames.Name(frame), oam => presentation.Presentation.DrawCursor(oam, GameOverSheet, frame, false),
+            .. MenuMissileAnimationDefinitions.Roll.Select(frame => new GameOverSpriteDraw(
+                MenuMissileFrames.Name(frame), oam => presentation.Presentation.DrawCursor(oam, GameOverSheet, frame, YesNoChoice.Yes),
                 original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
         ];
         foreach (GameOverSpriteDraw draw in draws)
@@ -450,10 +451,10 @@ internal static class LookupStream3Verification
         ConfirmCursorCaller(fileSelect.Artwork, source => FileSelectSourcePresentation.Load(new MemoryStream(fileSelect.Layout), source).cursorSprites);
         ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsSourcePresentation.Load(source).cursorSprites);
 
-        void ConfirmCursorCaller(byte[] json, Func<Stream, SpriteComposition[]> load)
+        void ConfirmCursorCaller(byte[] json, Func<Stream, Dictionary<MenuMissileFrame, SpriteComposition>> load)
         {
             var presentation = load(new MemoryStream(json));
-            for (int frame = 0; frame < 4; frame++)
+            foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
             {
                 string name = MenuMissileFrames.Name(frame);
                 var node = RequiredJson.Parse(json);
@@ -2095,10 +2096,10 @@ internal static class LookupStream3Verification
         FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
         FileSelectSourcePresentation Load(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(imported.Layout),
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-        SpriteComposition Composition(FileSelectSourcePresentation owner, int frame) => owner.helmetSprites[frame];
+        SpriteComposition Composition(FileSelectSourcePresentation owner, FileSelectHelmetFrame frame) => owner.helmetSprites[frame];
         var original = Read();
         var stock = Load(original);
-        for (int frame = 0; frame < 8; frame++)
+        foreach (FileSelectHelmetFrame frame in FileSelectHelmetAnimation.Turn)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var composition = Composition(stock, frame);
@@ -2119,7 +2120,7 @@ internal static class LookupStream3Verification
             AssertThrows<InvalidDataException>(() => Load(malformed), "helmet part footprint outside the sheet is rejected");
         }
         Console.WriteLine("File-select sprites: 114 border parts, 42 helmet parts, out-of-sheet rejection and actual helmet OAM pass; cursor dependency previously confirmed.");
-        void Confirm(FileSelectSourcePresentation actual, FileSelectArtworkDocument expected, int frame)
+        void Confirm(FileSelectSourcePresentation actual, FileSelectArtworkDocument expected, FileSelectHelmetFrame frame)
         {
             string name = FileSelectParts.HelmetSpriteName(frame);
             var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);

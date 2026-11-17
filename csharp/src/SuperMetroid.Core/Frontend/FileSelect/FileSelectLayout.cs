@@ -11,6 +11,4 @@ internal static class FileSelectLayout
 
     /// <summary>Updates each step of the menu's fades takes once the menu has opened: one level every second update.</summary>
     public const int FadeUpdatesPerStep = 2;
-    /// <summary>Slots A-C followed by Exit.</summary>
-    public const int DataSelectionCount = 4;
 }

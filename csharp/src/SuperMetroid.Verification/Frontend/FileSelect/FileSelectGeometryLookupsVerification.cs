@@ -39,7 +39,7 @@ internal static class FileSelectGeometryLookupsVerification
         {
             ushort expected = ReadVerificationWord(rom, 0x81a312 + row * 4);
             AssertEqual(expected, FileSelectCursorPositions.MainSelectionY(row), $"main cursor Y {row}");
-            AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.Main, row).Y,
+            AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.Main, FileSelectItemRows.MainWithData[row]).Y,
                 $"extracted main cursor Y {row}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.MainSelectionY, 6));
@@ -48,13 +48,14 @@ internal static class FileSelectGeometryLookupsVerification
     /// <summary>Compares four data-menu cursor rows from both native views with extracted positions.</summary>
     private static void VerifyFileSelectDataCursorY(ISnesAddressSpace rom, FileSelectPresentation presentation)
     {
-        AssertEqual(4, FileSelectLayout.DataSelectionCount, "data selection count");
+        AssertEqual(4, FileSelectCursorPositions.DataSelectionCount, "data selection count");
+        AssertEqual(FileSelectCursorPositions.DataSelectionCount, FileSelectItemRows.Data.Count, "the data pages show one row per cursor anchor");
         foreach (int address in new[] { 0x819772, 0x819c03 })
         for (int row = 0; row < 4; row++)
         {
             ushort expected = ReadVerificationWord(rom, address + row * 2);
             AssertEqual(expected, FileSelectCursorPositions.DataSelectionY(row), $"data cursor {address:X6}/{row}");
-            AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, row).Y,
+            AssertEqual(expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, FileSelectItemRows.Data[row]).Y,
                 $"extracted data cursor {address:X6}/{row}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectCursorPositions.DataSelectionY, 4));

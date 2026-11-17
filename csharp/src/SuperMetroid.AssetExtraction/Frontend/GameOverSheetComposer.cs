@@ -32,7 +32,7 @@ internal static class GameOverSheetComposer
         foreach (GameOverBabyFrame frame in Enum.GetValues<GameOverBabyFrame>())
             frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));
         frames.Add(Frame(GameOverPresentationDefinitions.EggFrame, gameOver.eggSprite, page, gameOver.EggPaletteIndex));
-        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+        foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
             frames.Add(Frame(MenuMissileFrames.Name(frame), gameOver.cursorSprites[frame], page, gameOver.CursorPaletteIndex));
         RgbColor[] colours = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         int babyInk = gameOver.BabyPaletteIndex * GroupColours;

@@ -151,16 +151,16 @@ internal static class FileSelectRoomMapVerification
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
-    /// <summary>Checks map palette cycling and independent availability-sensitive arrow animation in CGRAM and OAM.</summary>
+    /// <summary>Checks map palette cycling and the arrows each showing only while the map can scroll its way.</summary>
     internal static void VerifyFileSelectMapAnimations()
     {
         var bus = new TestAddressSpace();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var arrows = new Dictionary<string, MapArrowEntry>();
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
-            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79, DurationTicks = [3, 2] };
+            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79 };
         using var arrowJson = new MemoryStream();
-        MapArrowFile.Write(arrowJson, new() { Version = 1, Arrows = arrows });
+        MapArrowFile.Write(arrowJson, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         arrowJson.Position = 0;
         var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
@@ -183,10 +183,6 @@ internal static class FileSelectRoomMapVerification
         }
         var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
-        int ArrowPhase(int index)
-        {
-            return animations.arrows[MapScrollControls.Directions[index]].Frame;
-        }
         // The highlighted sprites name the shade of the cycle's current frame, which the import pre-colours from the cycle's
         // colours (#1512, #1597).
         AssertEqual(PictureShading.Shaded(MapSpriteShades.Highlight(MapHighlightFrame.First)),
@@ -214,19 +210,12 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");
         AssertEqual(32, first.LowTable[0], "arrow uses cartridge X");
         AssertEqual(79, first.LowTable[1], "arrow subtracts native one-pixel Y offset");
-        AssertEqual(1, ArrowPhase(0), "zero-initialized arrow timer advances before drawing");
         AssertEqual(0x10, first.LowTable[2], "installed arrow shape reaches OAM");
-        AssertTrue(first.LowTable.SequenceEqual(Draw().LowTable), "repaint does not advance arrow animation");
-        animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        AssertEqual(1, ArrowPhase(0), "arrow holds its full two-tick delay");
-        animations.StepArrows(direction => direction == MapScrollDirection.Left);
-        AssertEqual(0, ArrowPhase(0), "arrow sentinel wraps to frame zero");
-        for (int i = 0; i < 10; i++) animations.StepArrows(_ => false);
+        AssertTrue(first.LowTable.SequenceEqual(Draw().LowTable), "repaint does not change the arrows");
+        animations.StepArrows(_ => false);
         AssertEqual(0, Draw().LastFinalizedSpriteCount, "unavailable arrows disappear");
         animations.StepArrows(direction => direction is MapScrollDirection.Left or MapScrollDirection.Right);
         ScreenSprites resumed = Draw();
-        AssertEqual(0, ArrowPhase(0), "hidden arrow timer pauses");
-        AssertEqual(1, ArrowPhase(1), "newly visible arrow owns an independent timer");
         AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 public static class MenuMissileSpritemaps
 {
     /// <summary>
-    /// Returns the $82:BAB2 Draw_Menu_Selection_Missile spritemap ID for frame 0..3.
+    /// Returns the $82:BAB2 Draw_Menu_Selection_Missile spritemap ID for <paramref name="frame"/>, by its place in the roll.
     /// </summary>
     /// <remarks>
     /// Independently reviewed for #1165 against the supported ROM and pinned bank_82.asm.
@@ -15,9 +15,10 @@ public static class MenuMissileSpritemaps
     /// Reject unsupported indices with ArgumentOutOfRangeException,
     /// rather than masking them. Extraction reads each frame's spritemap with it.
     /// </remarks>
-    public static ushort SpritemapId(int frame)
+    internal static ushort SpritemapId(MenuMissileFrame frame)
     {
-        if ((uint)frame >= MenuMissileAnimationDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(MenuMissileSpriteDefinitions.FirstFrameSpritemap - frame);
+        int place = MenuMissileAnimationDefinitions.Roll.ToList().IndexOf(frame);
+        if (place < 0) throw new ArgumentOutOfRangeException(nameof(frame));
+        return (ushort)(MenuMissileSpriteDefinitions.FirstFrameSpritemap - place);
     }
 }

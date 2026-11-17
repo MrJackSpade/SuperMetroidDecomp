@@ -45,12 +45,12 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private InstalledScreenContent screenContent;
     /// <summary>Each slot's save; a null entry is an empty or invalid slot.</summary>
     private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot?> saveSlots = [];
-    /// <summary>The selection missile's frame cycle.</summary>
-    private readonly MenuMissileAnimation missile = new();
-    /// <summary>Updates remaining in the selected helmet's current turn frame.</summary>
-    private int helmetAnimationTimer;
-    /// <summary>Selected helmet turn frame retained through the options fade.</summary>
-    internal int HelmetAnimationFrame { get; private set; }
+    /// <summary>The selection missile's roll.</summary>
+    private readonly MenuMissileAnimation missile;
+    /// <summary>The selected slot's helmet turn, whose picture the helmet keeps through the options fade.</summary>
+    private readonly FileSelectHelmetAnimation selectedHelmet;
+    /// <summary>The selected slot's helmet picture, retained through the options fade.</summary>
+    internal FileSelectHelmetFrame HelmetAnimationFrame => selectedHelmet.Frame;
     /// <summary>The screen's brightness and the cadence of its entry and submenu fades; the menu opens black.</summary>
     private readonly ScreenFade screenFade = new(0);
     /// <summary>The page file select has selected, which it shows with its slots as they are now.</summary>
@@ -65,6 +65,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         this.audio = Ensure.NotNull(audio);
         this.screenContent = Ensure.NotNull(screenContent);
+        missile = new MenuMissileAnimation(screenContent.FileSelect.CursorFrameDuration);
+        selectedHelmet = new FileSelectHelmetAnimation(screenContent.FileSelect.HelmetFrameDuration);
         screen = new MenuScreen(screenContent.Backdrops.Menus, Ensure.NotNull(spriteSheets));
         BindSpriteSheets(spriteSheets);
 
@@ -121,7 +123,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         ControllerButton pressed = controller.NewlyPressed;
 
         if (!IsEntryPhase)
-            missile.Step(screenContent.FileSelect.CursorFrameDuration);
+            missile.Step();
         switch (Phase)
         {
             case FileSelectPhase.EnterBlankScreen:
@@ -176,11 +178,9 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.TurnSelectedHelmet:
-                StepSelectedHelmet();
-                // Start/A ends the turn early; otherwise it ends once the
-                // final frame has also used up its own timer, which then reads zero.
-                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None ||
-                    (HelmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
+                selectedHelmet.Step();
+                // Start/A ends the turn early; otherwise it ends once its last picture has shown for its whole hold.
+                if ((pressed & (ControllerButton.Start | ControllerButton.A)) != ControllerButton.None || selectedHelmet.HasFinished)
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
 
@@ -231,11 +231,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             // The menu fades out with the completed (or Start-shortened) helmet turn
             // still drawn. Resetting to the first frame during the fade produces
             // a one-frame-visible head snap immediately before loading.
-            int frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
+            FileSelectHelmetFrame frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? HelmetAnimationFrame
-                : 0;
-            presentation.DrawHelmet(sprites, sheet, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
+                : FileSelectHelmetFrame.TurnedAway;
+            presentation.DrawHelmet(sprites, sheet, frame, slot);
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
@@ -258,24 +258,6 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     {
         selectedPage = page;
         RefreshShownPage();
-    }
-
-    /// <summary>
-    /// The timer step for the selected helmet: each frame lasts the reload duration,
-    /// and advancing past the last frame stops the timer at zero on that frame instead.
-    /// </summary>
-    private void StepSelectedHelmet()
-    {
-        if (helmetAnimationTimer == 0 || --helmetAnimationTimer != 0)
-            return;
-        helmetAnimationTimer = screenContent.FileSelect.HelmetFrameDuration;
-        int next = HelmetAnimationFrame + 1;
-        if (next >= FileSelectHelmetAnimation.FrameCount)
-        {
-            helmetAnimationTimer = 0;
-            next = FileSelectHelmetAnimation.FrameCount - 1;
-        }
-        HelmetAnimationFrame = next;
     }
 
     /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>
@@ -351,8 +333,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             audio.QueueSound(SamusSound.FileSelected, priority: SoundRequestPriority.Normal);
             // The menu moves on to the helmet turn, which turns only the selected helmet.
-            HelmetAnimationFrame = 0;
-            helmetAnimationTimer = 1;
+            selectedHelmet.Restart();
             Phase = FileSelectPhase.TurnSelectedHelmet;
             return;
         }
@@ -624,17 +605,11 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>
     private Offset16<ScreenPixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
     {
-        FileSelectCursorPage page = IsMainPagePhase ? FileSelectCursorPage.Main
-            : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation
-            : FileSelectCursorPage.DataManagement;
-        int row = page switch
-        {
-            FileSelectCursorPage.Main => FileSelectItemRows.MainRow(SelectedItem),
-            FileSelectCursorPage.Confirmation => confirmationSelection == YesNoChoice.Yes ? 0 : 1,
-            FileSelectCursorPage.DataManagement => FileSelectItemRows.DataRow(submenuSelection),
-            _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
-        };
-        return presentation.CursorPosition(page, row);
+        if (IsMainPagePhase)
+            return presentation.CursorPosition(FileSelectCursorPage.Main, SelectedItem);
+        return Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm
+            ? presentation.CursorPosition(confirmationSelection)
+            : presentation.CursorPosition(FileSelectCursorPage.DataManagement, submenuSelection);
     }
 
     /// <summary>Queues the menu cursor sound at normal priority.</summary>
@@ -645,6 +620,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public void BindScreenContent(InstalledScreenContent catalog)
     {
         screenContent = Ensure.NotNull(catalog);
+        missile.Rebind(catalog.FileSelect.CursorFrameDuration);
+        selectedHelmet.Rebind(catalog.FileSelect.HelmetFrameDuration);
         screen.Backdrop = catalog.Backdrops.Menus;
         RefreshShownPage();
     }

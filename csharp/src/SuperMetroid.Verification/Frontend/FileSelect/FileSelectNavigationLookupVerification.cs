@@ -80,10 +80,10 @@ internal static class FileSelectNavigationLookupVerification
                 int nextOrdinal = ordinal;
                 if ((pressed & ControllerButton.Up) != 0) nextOrdinal = Math.Max(0, ordinal - 1);
                 else if ((pressed & ControllerButton.Down) != 0) nextOrdinal = Math.Min(original.Length - 1, ordinal + 1);
-                AssertEqual(FileSelectItemRows.DataItem(original[nextOrdinal]), actual(FileSelectItemRows.DataItem(original[ordinal]), pressed),
+                AssertEqual(FileSelectItemRows.Data[original[nextOrdinal]], actual(FileSelectItemRows.Data[original[ordinal]], pressed),
                     $"{description} row={original[ordinal]} input={pressed}");
             }
-            FileSelectItem[] selectable = original.Select(FileSelectItemRows.DataItem).ToArray();
+            FileSelectItem[] selectable = original.Select(row => FileSelectItemRows.Data[row]).ToArray();
             foreach (FileSelectItem rejected in Enum.GetValues<FileSelectItem>())
             {
                 if (selectable.Contains(rejected)) continue;
@@ -112,11 +112,11 @@ internal static class FileSelectNavigationLookupVerification
             for (int ordinal = 0; ordinal < original.Length; ordinal++)
             foreach (bool down in new[] { false, true })
             {
-                FileSelectItem expected = FileSelectItemRows.MainItem(original[(ordinal + (down ? 1 : -1) + original.Length) % original.Length]);
-                AssertEqual(expected, FileSelectMainNavigation.Move(FileSelectItemRows.MainItem(original[ordinal]), hasSave, down ? VerticalDirection.Down : VerticalDirection.Up),
+                FileSelectItem expected = FileSelectItemRows.MainWithData[original[(ordinal + (down ? 1 : -1) + original.Length) % original.Length]];
+                AssertEqual(expected, FileSelectMainNavigation.Move(FileSelectItemRows.MainWithData[original[ordinal]], hasSave, down ? VerticalDirection.Down : VerticalDirection.Up),
                     $"main navigation saves={hasSave} row={original[ordinal]} down={down}");
             }
-            FileSelectItem[] visible = original.Select(FileSelectItemRows.MainItem).ToArray();
+            FileSelectItem[] visible = original.Select(row => FileSelectItemRows.MainWithData[row]).ToArray();
             foreach (FileSelectItem selected in Enum.GetValues<FileSelectItem>())
             {
                 if (visible.Contains(selected)) continue;

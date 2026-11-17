@@ -1,22 +1,21 @@
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Assets;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Map arrow animations and the highlight cycle, advanced by menu ticks only.</summary>
+/// <summary>
+/// The map's scroll arrows, each shown while the map can scroll its way, and the highlight cycle, advanced by menu updates
+/// only.
+/// </summary>
 public sealed class FileSelectMapAnimations
 {
-    /// <summary>Independent visibility, phase, and delay state for each map-scroll arrow, by the direction it scrolls.</summary>
+    /// <summary>Each map-scroll arrow's anchor, picture and visibility, by the direction it scrolls.</summary>
     internal readonly Dictionary<MapScrollDirection, Arrow> arrows = [];
     /// <summary>The highlight cycle, advanced separately from arrow timing.</summary>
     private readonly MapHighlightAnimation highlight;
-    /// <summary>The installed arrow phases.</summary>
-    private MapArrowPresentation presentation;
-
-    /// <summary>Creates independent arrow counters and highlight timing for a map menu, binding installed arrow positions and phase durations without reading the game's animation data.</summary>
-    /// <param name="presentation">The installed arrow definitions.</param>
+    /// <summary>Creates the map menu's arrows at their installed anchors and its highlight cycle over its installed timing.</summary>
+    /// <param name="presentation">The installed arrow anchors.</param>
     /// <param name="highlightCycle">The installed highlight cycle's timing.</param>
     public FileSelectMapAnimations(MapArrowPresentation presentation, MapHighlightCycle highlightCycle)
     {
@@ -24,24 +23,17 @@ public sealed class FileSelectMapAnimations
         BindPresentation(presentation);
     }
 
-    /// <summary>Binds the installed arrow phases when the game is bound to its installed content, without resetting visible-arrow timing.</summary>
-    [MemberNotNull(nameof(presentation))]
+    /// <summary>Binds the installed arrow anchors when the game is bound to its installed content, keeping which arrows show.</summary>
     internal void BindPresentation(MapArrowPresentation content)
     {
         Ensure.NotNull(content);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
-            Arrow? previous = arrows.GetValueOrDefault(direction);
-            Arrow replacement;
-            int phaseCount;
-            MapArrowVisual visual = content.Get(direction);
-            replacement = new Arrow(visual.Position, MapArrowSprites.SpriteBase(direction));
-            phaseCount = visual.PhaseCount;
-            if (previous is not null)
-                replacement.ContinueFrom(previous, phaseCount);
+            Arrow replacement = new(content.Get(direction).Position, MapArrowSprites.SpriteBase(direction));
+            if (arrows.GetValueOrDefault(direction) is { } previous)
+                replacement.Admit(previous.Visible);
             arrows[direction] = replacement;
         }
-        presentation = content;
     }
 
     /// <summary>Resetting the map's animations resets the highlight cycle but does not clear the arrow counters.</summary>
@@ -56,21 +48,16 @@ public sealed class FileSelectMapAnimations
     /// <summary>The shading the file-select map's highlighted sprites show at the highlight cycle's current frame (#1512).</summary>
     public PictureShading HighlightShading => highlight.Shading;
 
-    /// <summary>Arrows advance only when their boundary test allows them to be drawn.</summary>
-    /// <param name="available">Direction-specific scroll-boundary predicate; unavailable arrows become hidden and retain their existing frame and remaining timer.</param>
-    /// <remarks>One update consumes one menu tick for visible arrows; phase durations are menu-tick counts, with the loop terminator wrapping to phase zero.</remarks>
+    /// <summary>Shows each arrow this update only while the map can scroll its way.</summary>
+    /// <param name="available">Whether the map can scroll each way; an arrow the map cannot scroll is hidden.</param>
     public void StepArrows(Func<MapScrollDirection, bool> available)
     {
+        Ensure.NotNull(available);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
-        {
-            Arrow arrow = arrows[direction];
-            if (!arrow.Admit(available(direction))) continue;
-            arrow.Step((presentation ?? throw new InvalidOperationException(
-                "Map arrows require installed animation definitions.")).Get(direction));
-        }
+            arrows[direction].Admit(available(direction));
     }
 
-    /// <summary>Appends currently visible arrow compositions to the sprite list in the map highlight shade, without advancing counters or changing scroll availability.</summary>
+    /// <summary>Appends the shown arrows' pictures to the sprite list in the map highlight shade, without changing which show.</summary>
     /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
     /// <param name="highlight">The shading of the highlight cycle's current frame on the screen that draws the arrows (#1512).</param>
     /// <param name="sheet">The installed map sprite sheet.</param>
@@ -87,43 +74,17 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    /// <summary>One map-scroll arrow's bound anchor and sprite identity with menu-tick counters.</summary>
+    /// <summary>One map-scroll arrow: its installed anchor, its picture and whether it shows.</summary>
     internal sealed class Arrow(Offset16<ScreenPixels> position, MapSpriteId spriteBase)
     {
-        /// <summary>Installed screen anchor retained while the arrow advances its visual phase.</summary>
+        /// <summary>Installed screen anchor.</summary>
         public readonly Offset16<ScreenPixels> Position = position;
-        /// <summary>Sprite composition selected for this scroll direction.</summary>
+        /// <summary>The arrow's picture for its scroll direction.</summary>
         public readonly MapSpriteId Base = spriteBase;
-        /// <summary>Remaining menu ticks before the next phase transition.</summary>
-        public int Timer { get; private set; }
-        /// <summary>Current presentation phase, preserved modulo replacement phase count on rebinding.</summary>
-        public int Frame { get; private set; }
-        /// <summary>Current scroll-boundary admission result; hidden arrows retain their counters.</summary>
+        /// <summary>Whether the arrow shows: whether the map could scroll its way at the last update.</summary>
         public bool Visible { get; private set; }
 
-        /// <summary>
-        /// Takes over <paramref name="previous"/>'s counters on rebinding: a shortened replacement cycle retains the
-        /// remaining accepted delay, then continues from the corresponding phase of its <paramref name="phaseCount"/>.
-        /// </summary>
-        internal void ContinueFrom(Arrow previous, int phaseCount)
-        {
-            Frame = previous.Frame % phaseCount;
-            Timer = previous.Timer;
-            Visible = previous.Visible;
-        }
-
-        /// <summary>Records this tick's scroll-boundary admission and returns it.</summary>
-        internal bool Admit(bool visible) => Visible = visible;
-
-        /// <summary>Consumes one menu tick of <paramref name="visual"/>'s cycle; past its last phase the cycle starts again from its first.</summary>
-        internal void Step(MapArrowVisual visual)
-        {
-            if (--Timer > 0)
-                return;
-            Frame++;
-            if (Frame == visual.PhaseCount)
-                Frame = 0;
-            Timer = visual.Duration(Frame);
-        }
+        /// <summary>Records whether the arrow shows this update.</summary>
+        internal void Admit(bool visible) => Visible = visible;
     }
 }

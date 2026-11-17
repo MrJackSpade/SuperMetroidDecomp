@@ -32,31 +32,29 @@ public sealed class FileSelectPresentation
     /// <summary>The page pixel a copy or clear prompt's slot letter is shown at.</summary>
     internal Position16<PlanePixels> DynamicAnchor(FileSelectAnchor anchor) => placements.DynamicAnchors[anchor];
 
-    /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
-    internal Offset16<ScreenPixels> CursorPosition(FileSelectCursorPage page, int selected) =>
-        Point(page switch
-        {
-            FileSelectCursorPage.Main => placements.MainCursorAnchors,
-            FileSelectCursorPage.DataManagement => placements.DataCursorAnchors,
-            FileSelectCursorPage.Confirmation => placements.ConfirmationCursorAnchors,
-            _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
-        }, selected, "cursor");
+    /// <summary>The cursor anchor at <paramref name="item"/>'s row on the main page or a copy or clear page.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The item is not a row of that page.</exception>
+    internal Offset16<ScreenPixels> CursorPosition(FileSelectCursorPage page, FileSelectItem item) => page switch
+    {
+        FileSelectCursorPage.Main => Ensure.Listed(placements.MainCursorAnchors, item),
+        FileSelectCursorPage.DataManagement => Ensure.Listed(placements.DataCursorAnchors, item),
+        _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
+    };
+
+    /// <summary>The cursor anchor at <paramref name="answer"/>'s row of a copy or clear confirmation.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The answer is undefined.</exception>
+    internal Offset16<ScreenPixels> CursorPosition(YesNoChoice answer) => Ensure.Listed(placements.ConfirmationCursorAnchors, answer);
 
     /// <summary>Draws the page's border frame of the file-select sheet at its authored screen anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), placements.BorderAnchors[border], shading: PictureShading.Standard);
 
     /// <summary>Draws one missile-cursor frame of the file-select sheet.</summary>
-    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Offset16<ScreenPixels> anchor) =>
+    internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, MenuMissileFrame frame, Offset16<ScreenPixels> anchor) =>
         screenSprites.AddImage(sheet.Frame(MenuMissileFrames.Name(frame)), anchor, shading: PictureShading.Standard);
 
-    /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
-    internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, SaveSlot slot) =>
+    /// <summary>Draws a slot's helmet picture of the file-select sheet at that slot's screen anchor.</summary>
+    internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectHelmetFrame frame, SaveSlot slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
             Ensure.Listed(placements.HelmetAnchors, slot), shading: PictureShading.Standard);
-
-    /// <summary>Reads an indexed screen anchor, rejecting selections outside its layout.</summary>
-    private static Offset16<ScreenPixels> Point(Offset16<ScreenPixels>[] points, int index, string owner) =>
-        (uint)index < points.Length ? points[index] :
-            throw new ArgumentOutOfRangeException(owner);
 }

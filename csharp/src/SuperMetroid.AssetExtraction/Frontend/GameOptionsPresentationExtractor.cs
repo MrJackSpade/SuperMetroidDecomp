@@ -76,7 +76,7 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsNames.HeadingSpriteName(GameOptionsPage.Special)] =
                 MenuSpriteExtractor.Read(bus, GameOptionsSourceDefinitions.HeadingSpritemaps[GameOptionsPage.Special]),
         };
-        for (int frame = 0; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+        foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             sprites.Add(MenuMissileFrames.Name(frame),
                 MenuSpriteExtractor.Read(bus, MenuMissileSpritemaps.SpritemapId(frame)));

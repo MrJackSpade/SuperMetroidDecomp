@@ -8,13 +8,16 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 internal static class EndingShootingStarParts
 {
     /// <summary>
-    /// $8B:E9A7 / Handle_ShootingStars.tilemapValues: frame 0 is the blank piece (character 0, palette 0), frames 1 to 3
-    /// grow through characters $1F0 to $1F2, and every later frame holds the full star at $1F3, all in sprite palette 4.
+    /// $8B:E9A7 / Handle_ShootingStars.tilemapValues: the lead-in is the blank piece (character 0, palette 0), the specks and
+    /// the dim star grow through characters $1F0 to $1F2, and the full star is $1F3, all in sprite palette 4.
     /// </summary>
-    internal static SpritePart Appearance(int frame) => frame switch
+    internal static SpritePart Appearance(EndingShootingStarLook look) => look switch
     {
-        0 => SpritePart.Single(0, 0, 0),
-        > 0 and < EndingShootingStarDefinitions.FrameCount => SpritePart.Single(CharacterSheetGrid.Cell(31, Math.Min(frame - 1, 3)), 4, 0),
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+        EndingShootingStarLook.LeadIn => SpritePart.Single(0, 0, 0),
+        EndingShootingStarLook.FaintSpeck => SpritePart.Single(CharacterSheetGrid.Cell(31, 0), 4, 0),
+        EndingShootingStarLook.BrightSpeck => SpritePart.Single(CharacterSheetGrid.Cell(31, 1), 4, 0),
+        EndingShootingStarLook.DimStar => SpritePart.Single(CharacterSheetGrid.Cell(31, 2), 4, 0),
+        EndingShootingStarLook.FullStar => SpritePart.Single(CharacterSheetGrid.Cell(31, 3), 4, 0),
+        _ => throw new ArgumentOutOfRangeException(nameof(look)),
     };
 }

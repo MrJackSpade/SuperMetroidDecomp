@@ -176,7 +176,7 @@ internal static class TitleSequenceRomDataVerification
         // Timing/selector identities are typed now. Keep synthetic blank
         // artwork, but provide the complete selector inventory to the extractor.
         int pointer = TitleSourceDefinitions.TextLists[definition.Phase];
-        foreach (TitleCardStep step in TitleCards.Steps(definition.Phase))
+        foreach (TitleCardOracle.NativeEntry step in TitleCardOracle.Entries(definition.Phase))
         {
             if (step.Cue is { } command)
             {

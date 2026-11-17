@@ -8,7 +8,4 @@ internal enum FileSelectCursorPage
 
     /// <summary>A copy or clear slot page.</summary>
     DataManagement,
-
-    /// <summary>A copy or clear Yes/No confirmation.</summary>
-    Confirmation,
 }

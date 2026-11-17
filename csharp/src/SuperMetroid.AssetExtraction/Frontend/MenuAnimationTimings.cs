@@ -16,7 +16,7 @@ internal static class MenuAnimationTimings
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         int duration = RomDataReader.ReadWordFixedBank(cartridge, MenuAnimationSourceDefinitions.MissileFrameDurations);
-        for (int frame = 1; frame < MenuMissileAnimationDefinitions.FrameCount; frame++)
+        for (int frame = 1; frame < MenuMissileAnimationDefinitions.Roll.Count; frame++)
         {
             int reload = RomDataReader.ReadWordFixedBank(cartridge, MenuAnimationSourceDefinitions.MissileFrameDurations + frame * sizeof(ushort));
             if (reload != duration)

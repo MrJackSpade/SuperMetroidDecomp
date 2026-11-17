@@ -25,9 +25,9 @@ public sealed class FileSelectSourcePresentation
     /// <summary>Each bordered heading's sprite.</summary>
     internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
     /// <summary>The missile cursor's sprite by animation frame.</summary>
-    internal readonly SpriteComposition[] cursorSprites;
+    internal readonly Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites;
     /// <summary>The selected slot's helmet sprite by animation frame.</summary>
-    internal readonly SpriteComposition[] helmetSprites;
+    internal readonly Dictionary<FileSelectHelmetFrame, SpriteComposition> helmetSprites;
 
     /// <summary>Stores the compiled presentation and its sprite compositions.</summary>
     private FileSelectSourcePresentation(FileSelectPresentation presentation, int objectPalette, FileSelectPages pages,
@@ -55,15 +55,18 @@ public sealed class FileSelectSourcePresentation
     internal int ObjectPalette { get; }
 
     /// <summary>The slot fields, anchors and durations of a validated document, which the game places its actors by.</summary>
+    /// <remarks>
+    /// The document lists each page's cursor anchors in its rows' order from the top, which keys them by row (#2359).
+    /// </remarks>
     private static FileSelectPlacements Placements(FileSelectLayoutDocument document) => new()
     {
         MainSlots = BySlot(document.MainSlots, "main slot fields"),
         DataSlots = BySlot(document.DataSlots, "data slot fields"),
         BorderAnchors = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => document.BorderAnchors[FileSelectPresentationFormat.BorderName(border)]),
-        MainCursorAnchors = document.MainCursorAnchors,
-        DataCursorAnchors = document.DataCursorAnchors,
-        ConfirmationCursorAnchors = document.ConfirmationCursorAnchors,
+        MainCursorAnchors = ByRow(FileSelectItemRows.MainWithData, document.MainCursorAnchors, "main cursor anchors"),
+        DataCursorAnchors = ByRow(FileSelectItemRows.Data, document.DataCursorAnchors, "data cursor anchors"),
+        ConfirmationCursorAnchors = ByRow(FileSelectItemRows.Confirmation, document.ConfirmationCursorAnchors, "confirmation cursor anchors"),
         HelmetAnchors = BySlot(document.HelmetAnchors, "helmet anchors"),
         DynamicAnchors = FileSelectPresentationFormat.Anchors.ToDictionary(anchor => anchor,
             anchor => document.DynamicAnchors[FileSelectPresentationFormat.AnchorName(anchor)]),
@@ -77,6 +80,14 @@ public sealed class FileSelectSourcePresentation
         inSlotOrder.Length == SaveSlots.All.Count
             ? Enumerable.Range(0, inSlotOrder.Length).ToDictionary(index => SaveSlots.All[index], index => inSlotOrder[index])
             : throw new InvalidDataException($"File select lists {inSlotOrder.Length} {what}, not one per save slot.");
+
+    /// <summary>Each row's entry of a document list that holds one per row of a page, top to bottom (#2359).</summary>
+    /// <exception cref="InvalidDataException">The list does not hold one entry per row.</exception>
+    private static Dictionary<TRow, T> ByRow<TRow, T>(IReadOnlyList<TRow> rows, T[] inRowOrder, string what)
+        where TRow : notnull =>
+        inRowOrder.Length == rows.Count
+            ? Enumerable.Range(0, inRowOrder.Length).ToDictionary(index => rows[index], index => inRowOrder[index])
+            : throw new InvalidDataException($"File select lists {inRowOrder.Length} {what}, not one per row.");
 
     /// <summary>Named, compiled 32-by-32 tilemaps for the menu pages.</summary>
     internal readonly Dictionary<FileSelectPage, BackgroundTile[]> pages;
@@ -238,10 +249,10 @@ public sealed class FileSelectSourcePresentation
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
         var borderSprites = FileSelectPresentationFormat.Borders.ToDictionary(border => border,
             border => CompileSprite(document, FileSelectParts.BorderSpriteName(border)));
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame =>
-            CompileSprite(document, MenuMissileFrames.Name(frame)))];
-        SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationFormat.HelmetFrameCount).Select(frame =>
-            CompileSprite(document, FileSelectParts.HelmetSpriteName(frame)))];
+        Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites = MenuMissileAnimationDefinitions.Roll.ToDictionary(frame => frame, frame =>
+            CompileSprite(document, MenuMissileFrames.Name(frame)));
+        Dictionary<FileSelectHelmetFrame, SpriteComposition> helmetSprites = FileSelectHelmetAnimation.Turn.ToDictionary(frame => frame, frame =>
+            CompileSprite(document, FileSelectParts.HelmetSpriteName(frame)));
 
         ValidatePatchPlacements(layout, patches);
         return new(new FileSelectPresentation(Placements(layout)), document.ObjectPalette, new(pages, background, patches),
@@ -446,10 +457,10 @@ public sealed class FileSelectSourcePresentation
 
     /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
     /// <param name="Borders">Each bordered heading's composition.</param>
-    /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
-    /// <param name="Helmets">The selected slot's helmet composition by animation frame.</param>
+    /// <param name="Cursors">The missile cursor's composition of each of its pictures.</param>
+    /// <param name="Helmets">The helmet's composition of each of its pictures.</param>
     private sealed record FileSelectSprites(
         Dictionary<FileSelectBorder, SpriteComposition> Borders,
-        SpriteComposition[] Cursors,
-        SpriteComposition[] Helmets);
+        Dictionary<MenuMissileFrame, SpriteComposition> Cursors,
+        Dictionary<FileSelectHelmetFrame, SpriteComposition> Helmets);
 }

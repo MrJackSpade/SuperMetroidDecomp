@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Title;
 
 namespace SuperMetroid.Verification.Frontend.Title;
@@ -30,7 +31,7 @@ internal static class TitleCardOracle
         foreach (TitleTextSequenceDefinition card in Cards)
         {
             int address = TitleSourceDefinitions.TextLists[card.Phase];
-            foreach (TitleCardStep step in TitleCards.Steps(card.Phase))
+            foreach (NativeEntry step in Entries(card.Phase))
             {
                 ushort word = cartridge.ReadCartridgeWord(address);
                 string at = $"{card.Phase} at ${address:X6}";
@@ -59,4 +60,22 @@ internal static class TitleCardOracle
         AssertEqual(extracted.All.Count(), extracted.All.Distinct().Count(), "every title composition and typing step has its own spritemap");
         return compared;
     }
+
+    /// <summary>
+    /// The native list entries the card <paramref name="phase"/> shows types as: each beat of its typing, a frame or the
+    /// blank opening as a timed entry and each cue as a command.
+    /// </summary>
+    internal static IEnumerable<NativeEntry> Entries(TitleSequencePhase phase) => TitleCards.Segments.Beats(phase).Select(beat => beat switch
+    {
+        AnimationBeat<TitleCardTyping, TitleCardCue>.Frame frame => new NativeEntry(frame.Duration, frame.Shown, null),
+        AnimationBeat<TitleCardTyping, TitleCardCue>.Pause pause => new NativeEntry(pause.Duration, null, null),
+        AnimationBeat<TitleCardTyping, TitleCardCue>.Event cue => new NativeEntry(0, null, cue.Raised),
+        _ => throw new InvalidDataException($"Title card {phase} plays a beat no native list entry shows: {beat}."),
+    });
+
+    /// <summary>One native title-list entry a card's typing stands for: a timed frame or a command.</summary>
+    /// <param name="Duration">The timed entry's updates; zero for a command.</param>
+    /// <param name="Typed">The card's text as far as the timed entry shows it typed, or null for a blank entry or a command.</param>
+    /// <param name="Cue">The command's cue, or null for a timed entry.</param>
+    internal readonly record struct NativeEntry(int Duration, TitleCardTyping? Typed, TitleCardCue? Cue);
 }

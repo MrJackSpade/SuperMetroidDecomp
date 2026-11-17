@@ -6,6 +6,9 @@ using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Input;
 namespace SuperMetroid.TestSupport.MovieReplay;
 
@@ -32,12 +35,13 @@ internal static class NativeSnapshotPauseImport
         SelectedRoom room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayHud = runtime.Hud.Shown(), MapRevealMode = game.Session.Assists.MapReveal, ScreenContent = game.Artwork.ScreenContent, SpriteSheets = game.Artwork.SpriteSheets });
         menu.ScrollMapTo(Offset16<MapPixels>.Wrapped(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
-        var highlight = menu.mapHighlight;
-        PrivateState.Set(highlight, nameof(highlight.Timer), (int)memory[PauseMemory.PaletteAnimationTimer]);
-        PrivateState.Set(highlight, nameof(highlight.Frame), SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame.At(memory[PauseMemory.PaletteAnimationFrame]));
-        // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
-        PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationFrame), W(PauseMemory.IndicatorAnimationFrame) / 2);
-        PrivateState.Set(menu, nameof(PauseMenuState.MapIndicatorAnimationTimer), (int)W(PauseMemory.IndicatorAnimationTimer));
+        // The highlight's native timer counts the updates its frame has left, as the player's does.
+        PrivateState.Field<MapHighlightAnimation, AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>>(menu.mapHighlight, "player")
+            .ResumeOn(memory[PauseMemory.PaletteAnimationFrame], memory[PauseMemory.PaletteAnimationTimer]);
+        // $0776 is a byte offset into $82:BA25's word tables; the native marker counts its timer down after its frame's
+        // update and moves on at zero, one update short of the player's count.
+        PrivateState.Field<MapIndicatorPulse, AnimationPlayer<MapIndicatorSegment, MapSpriteId, MapIndicatorCue>>(menu.mapIndicator, "player")
+            .ResumeOn(W(PauseMemory.IndicatorAnimationFrame) / 2, W(PauseMemory.IndicatorAnimationTimer) + 1);
         game.Session.Show(menu);
         game.Session.screenFade.SetCadence(W(PauseMemory.ScreenFadeDelay), W(PauseMemory.ScreenFadeCounter));
 

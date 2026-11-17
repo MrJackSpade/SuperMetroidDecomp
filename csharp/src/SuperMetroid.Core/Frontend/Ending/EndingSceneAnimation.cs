@@ -18,14 +18,27 @@ internal enum EndingSceneAnimation
     RightSideCloud,
     /// <summary>A cloud passing on the left of the escaping gunship.</summary>
     LeftSideCloud,
-    /// <summary>The exploding planet: its rumble, played five times, then its breaking apart.</summary>
+    /// <summary>
+    /// The exploding planet: its rumble, played five times, then its breaking apart; as a segment, the breaking apart, which
+    /// fades the explosion's colours in, cracks the planet open and spawns its silhouette.
+    /// </summary>
     ExplodingPlanet,
+    /// <summary>
+    /// A segment of the exploding planet (#2358): the planet rumbling once, from its deep shadow to its brightest light, before
+    /// it breaks apart.
+    /// </summary>
+    PlanetRumbling,
     /// <summary>The explosion's purple glow.</summary>
     ExplosionGlow,
     /// <summary>The explosion's stars.</summary>
     ExplosionStars,
-    /// <summary>The planet's lava, which shows after a delay and then glows on.</summary>
+    /// <summary>
+    /// The planet's lava, which shows after a delay and then glows on; as a segment, its glow, dark then bright, played over
+    /// and over.
+    /// </summary>
     ExplosionLava,
+    /// <summary>A segment of the planet's lava (#2358): the delay before it shows, while the planet still covers it.</summary>
+    ExplosionLavaHidden,
     /// <summary>The explosion silhouette, which starts the explosion.</summary>
     ExplosionSilhouette,
     /// <summary>The right stars, which start the finale, end the explosion and wait for the flyaway.</summary>

@@ -20,13 +20,16 @@ internal static class IntroBabyAnimations
             [
                 D.Hold(S.EggIntact),
             ],
-            [A.EggHatching] =
+            [A.EggResting] = [D.Show(S.EggIntact, 32)],
+            [A.EggRocking] =
             [
-                D.Show(S.EggIntact, 32),
                 D.Show(S.EggIntact, 5),
                 D.Show(S.EggRockingLeft, 5),
                 D.Show(S.EggIntact, 5),
                 D.Show(S.EggRockingRight, 5),
+            ],
+            [A.EggHatching] =
+            [
                 D.Show(S.EggIntact, 10),
                 D.Show(S.EggCrackingUpperLeft, 10),
                 D.Show(S.EggCrackingTop, 10),
@@ -54,11 +57,11 @@ internal static class IntroBabyAnimations
                 D.Show(S.ConfusedBabyRound, 10),
             ],
         },
-        new Dictionary<IntroBabyAnimation, Animation<IntroBabyAnimation>>
+        plays => new Dictionary<IntroBabyAnimation, Animation<IntroBabyAnimation>>
         {
-            [A.Egg] = new([new(A.Egg, 0, 1, 1)], AnimationEnd.Holds),
-            [A.EggHatching] = new([new(A.EggHatching, 0, 1, 1), new(A.EggHatching, 1, 4, 4), new(A.EggHatching, 5, 18, 1)], AnimationEnd.Holds),
-            [A.ConfusedBaby] = new([new(A.ConfusedBaby, 0, 4, 1)], AnimationEnd.LoopsFrom(0)),
+            [A.Egg] = plays.Still(A.Egg),
+            [A.EggHatching] = new([plays.Whole(A.EggResting), plays.Repeated(A.EggRocking, 4), plays.Whole(A.EggHatching)], AnimationEnd.Holds),
+            [A.ConfusedBaby] = plays.Looping(A.ConfusedBaby),
         });
 
     /// <summary>The laboratory scenes' delivered and examined Baby: each pulses ten times, starts its scene's next page and pulses on.</summary>
@@ -71,20 +74,22 @@ internal static class IntroBabyAnimations
                 L.Show(S.DeliveredBabyPulseMiddle, 10),
                 L.Show(S.DeliveredBabyPulseHigh, 10),
                 L.Show(S.DeliveredBabyPulseMiddle, 10),
-                L.Raise(IntroLaboratoryCue.StartPageFour),
             ],
+            [A.DeliveredBabyStartingPageFour] = [L.Raise(IntroLaboratoryCue.StartPageFour)],
             [A.ExaminedBaby] =
             [
                 L.Show(S.ExaminedBabyWide, 10),
                 L.Show(S.ExaminedBabyNarrowing, 10),
                 L.Show(S.ExaminedBabyNarrow, 10),
                 L.Show(S.ExaminedBabyNarrowing, 10),
-                L.Raise(IntroLaboratoryCue.StartPageFive),
             ],
+            [A.ExaminedBabyStartingPageFive] = [L.Raise(IntroLaboratoryCue.StartPageFive)],
         },
-        new Dictionary<IntroBabyAnimation, Animation<IntroBabyAnimation>>
+        plays => new Dictionary<IntroBabyAnimation, Animation<IntroBabyAnimation>>
         {
-            [A.DeliveredBaby] = new([new(A.DeliveredBaby, 0, 4, 10), new(A.DeliveredBaby, 4, 1, 1), new(A.DeliveredBaby, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
-            [A.ExaminedBaby] = new([new(A.ExaminedBaby, 0, 4, 10), new(A.ExaminedBaby, 4, 1, 1), new(A.ExaminedBaby, 0, 4, 1)], AnimationEnd.LoopsFrom(2)),
+            [A.DeliveredBaby] = new(
+                [plays.Repeated(A.DeliveredBaby, 10), plays.Whole(A.DeliveredBabyStartingPageFour), plays.Whole(A.DeliveredBaby)], AnimationEnd.LoopsFrom(2)),
+            [A.ExaminedBaby] = new(
+                [plays.Repeated(A.ExaminedBaby, 10), plays.Whole(A.ExaminedBabyStartingPageFive), plays.Whole(A.ExaminedBaby)], AnimationEnd.LoopsFrom(2)),
         });
 }

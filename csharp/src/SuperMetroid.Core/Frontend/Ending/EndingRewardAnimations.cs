@@ -64,14 +64,14 @@ internal static class EndingRewardAnimations
                 G.Show(S.HelmetlessHeadSmiling, 190),
             ],
         },
-        new Dictionary<EndingRewardAnimation, Animation<EndingRewardAnimation>>
+        plays => new Dictionary<EndingRewardAnimation, Animation<EndingRewardAnimation>>
         {
-            [A.HairRelease] = CinematicPlays.Through(A.HairRelease, 11, AnimationEnd.Stops),
-            [A.HairReleaseLegs] = CinematicPlays.Through(A.HairReleaseLegs, 1, AnimationEnd.Stops),
-            [A.GestureBody] = CinematicPlays.Through(A.GestureBody, 2, AnimationEnd.Stops),
-            [A.GestureArm] = CinematicPlays.Through(A.GestureArm, 15, AnimationEnd.Stops),
-            [A.GestureHelmet] = CinematicPlays.Through(A.GestureHelmet, 1, AnimationEnd.Stops),
-            [A.GestureHead] = CinematicPlays.Through(A.GestureHead, 4, AnimationEnd.Stops),
+            [A.HairRelease] = plays.Through(A.HairRelease, AnimationEnd.Stops),
+            [A.HairReleaseLegs] = plays.Through(A.HairReleaseLegs, AnimationEnd.Stops),
+            [A.GestureBody] = plays.Through(A.GestureBody, AnimationEnd.Stops),
+            [A.GestureArm] = plays.Through(A.GestureArm, AnimationEnd.Stops),
+            [A.GestureHelmet] = plays.Through(A.GestureHelmet, AnimationEnd.Stops),
+            [A.GestureHead] = plays.Through(A.GestureHead, AnimationEnd.Stops),
         });
 
     /// <summary>The jump's animations: each launch ends in flight, which holds its picture; the fall holds; the landing shoots.</summary>
@@ -117,13 +117,13 @@ internal static class EndingRewardAnimations
                 J.Show(S.SamusShooting, 128),
             ],
         },
-        new Dictionary<EndingRewardAnimation, Animation<EndingRewardAnimation>>
+        plays => new Dictionary<EndingRewardAnimation, Animation<EndingRewardAnimation>>
         {
-            [A.SuitlessJump] = CinematicPlays.Through(A.SuitlessJump, 5, AnimationEnd.Holds),
-            [A.SuitedJump] = CinematicPlays.Through(A.SuitedJump, 6, AnimationEnd.Holds),
-            [A.HelmetJump] = CinematicPlays.Through(A.HelmetJump, 3, AnimationEnd.Holds),
-            [A.HeadJump] = CinematicPlays.Through(A.HeadJump, 3, AnimationEnd.Holds),
-            [A.Falling] = CinematicPlays.Still(A.Falling),
-            [A.Landing] = CinematicPlays.Through(A.Landing, 5, AnimationEnd.Stops),
+            [A.SuitlessJump] = plays.Through(A.SuitlessJump, AnimationEnd.Holds),
+            [A.SuitedJump] = plays.Through(A.SuitedJump, AnimationEnd.Holds),
+            [A.HelmetJump] = plays.Through(A.HelmetJump, AnimationEnd.Holds),
+            [A.HeadJump] = plays.Through(A.HeadJump, AnimationEnd.Holds),
+            [A.Falling] = plays.Still(A.Falling),
+            [A.Landing] = plays.Through(A.Landing, AnimationEnd.Stops),
         });
 }

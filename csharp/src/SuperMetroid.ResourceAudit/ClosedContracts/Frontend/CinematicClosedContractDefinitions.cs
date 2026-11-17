@@ -12,7 +12,6 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDrawing.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardStep.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSprite.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCards.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceDefinitions.cs")]),

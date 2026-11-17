@@ -28,7 +28,7 @@ internal static class PausePresentationContractChecks
             class PauseConsumer {
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
                     PauseWireframePresentation wireframe, PauseEquipmentLabelPresentation labels,
-                    PauseSelectorPresentation selector, PauseReserveTankPresentation tanks,
+                    PauseSelectorPresentation selector, PauseSelectorLook look, PauseReserveTankPresentation tanks,
                     Span<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, Span<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tilemap, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     baseImage.CreateTilemap();
@@ -40,11 +40,7 @@ internal static class PausePresentationContractChecks
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
                     selector.Anchor(PauseEquipmentControls.SpaceJump);
                     selector.Anchor(PauseEquipmentControls.SpeedBooster);
-                    selector.NormalizePhase(int.MaxValue);
-                    selector.NormalizePhase(-1);
-                    selector.Duration(1000);
-                    selector.Draw(oam, sheet, PauseEquipmentControls.ReserveTransfer, int.MaxValue);
-                    selector.Draw(oam, sheet, PauseEquipmentControls.ReserveMode, 0);
+                    selector.Draw(oam, sheet, PauseEquipmentControls.ReserveMode, look);
                     tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount - 1);
                     tanks.Draw(oam, sheet, (PauseReserveTankVisual)99, 0);
                     tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
@@ -71,9 +67,9 @@ internal static class PausePresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "PausePresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 18, "eighteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 13 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
-            after.Consumers.Count == 18, "complete resources qualify, while wrong area/kind/phase/identity constants still fail (expected 13/5/0/18; " + after.Describe() + ")");
+        Require(before.UnresolvedCount == 14, "fourteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
+            after.Consumers.Count == 14, "complete resources qualify, while wrong area/kind/identity constants still fail (expected 10/4/0/14; " + after.Describe() + ")");
         // A selector is placed for a named control (#1772), so no selector can borrow another column's anchor.
         Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor") == 0,
             "every named control's selector anchor qualifies");

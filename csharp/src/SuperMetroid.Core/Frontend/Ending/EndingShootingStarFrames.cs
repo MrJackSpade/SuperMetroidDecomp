@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingShootingStarFrames
 {
-    /// <summary>The sheet frame showing visible animation frame <paramref name="frame"/> (#1392).</summary>
-    internal static string SheetFrameName(int frame) => frame is > 0 and < FrameCount
-        ? SheetFrameNames[Math.Min(frame, FullStarFrame) - 1]
-        : throw new ArgumentOutOfRangeException(nameof(frame));
+    /// <summary>The sheet frame showing <paramref name="look"/> (#1392).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="look"/> is the hidden lead-in, which shows no picture.</exception>
+    internal static string SheetFrameName(EndingShootingStarLook look) => Ensure.Listed(SheetFrameNames, look);
+
+    /// <summary>The pictures a visible star shows, in the order its flight shows them.</summary>
+    internal static IReadOnlyList<EndingShootingStarLook> Visible { get; } =
+        [EndingShootingStarLook.FaintSpeck, EndingShootingStarLook.BrightSpeck, EndingShootingStarLook.DimStar, EndingShootingStarLook.FullStar];
 }

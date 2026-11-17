@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -41,12 +42,14 @@ internal static class GameOverMenuIndexesVerification
             "game-over index zero queues library-three cancel");
         AnimationPlace? babyPlace = menu.BabyPlace;
         int babyTimer = menu.BabyFrameHold;
-        int missileTimer = menu.missile.Timer;
+        MenuMissileFrame missileFrame = menu.missile.Frame;
+        int missileUpdatesLeft = menu.missile.UpdatesLeft;
         menu.Step(0);
         AssertEqual(GameOverMenuPhase.WaitForInitialMusic, menu.Phase, "music wait holds while the queue is occupied");
         AssertEqual(babyPlace, menu.BabyPlace, "music wait does not animate the Baby");
         AssertEqual(babyTimer, menu.BabyFrameHold, "music wait keeps the Baby timer");
-        AssertEqual(missileTimer, menu.missile.Timer, "music wait does not draw the missile");
+        AssertEqual(missileFrame, menu.missile.Frame, "music wait does not draw the missile");
+        AssertEqual(missileUpdatesLeft, menu.missile.UpdatesLeft, "music wait keeps the missile's hold");
 
         foreach (bool ceres in new[] { true, false })
         {

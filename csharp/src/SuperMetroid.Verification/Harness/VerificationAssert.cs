@@ -173,7 +173,6 @@ using static SuperMetroid.Verification.Fx.LookupTreadmillMechanicsVerification;
 using static SuperMetroid.Verification.Enemies.Rios.LowerNorfairRioInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapArrowCasesVerification;
-using static SuperMetroid.Verification.Frontend.Map.MapArrowDurationsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapIndicatorAnimationVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapLoadAnchorsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSaveMarkerCoordinatesVerification;
@@ -2105,18 +2104,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector duration oracle revision");
         Suite(nameof(VerifyPauseSelectorDurations), () => VerifyPauseSelectorDurations(rom));
         Console.WriteLine("Pause selector durations: native program, sparse edits, custom lengths, cyclic indices and initial timer pass.");
-        return 0;
-    }
-
-    /// <summary>Checks map-scroll arrow animation timing.</summary>
-    [VerificationCommand("--lookup-map-arrow-durations")]
-    internal static int LookupMapArrowDurationsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map arrow duration oracle revision");
-        Suite(nameof(VerifyMapArrowDurations), () => VerifyMapArrowDurations(rom));
-        Console.WriteLine("Map arrow durations: all original phases, sparse edits, custom lengths, bounds and actual timing pass.");
         return 0;
     }
 

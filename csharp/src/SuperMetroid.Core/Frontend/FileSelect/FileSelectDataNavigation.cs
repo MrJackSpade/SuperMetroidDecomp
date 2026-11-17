@@ -20,7 +20,10 @@ internal static class FileSelectDataNavigation
     internal static FileSelectItem MoveCopyDestination(FileSelectItem selected, SaveSlot sourceSlot, ControllerButton pressed) =>
         Move(selected, SaveSlots.All.Where(slot => slot != sourceSlot).ToHashSet(), pressed);
 
-    /// <summary>Validates the selected row, gives Up priority, and scans toward the next enabled slot or Exit without wrapping.</summary>
+    /// <summary>
+    /// Validates the selected row, gives Up priority, and moves to the nearest selectable row that way on the copy and clear
+    /// pages (<see cref="FileSelectItemRows.Data"/>), staying put when there is none.
+    /// </summary>
     private static FileSelectItem Move(FileSelectItem selected, IReadOnlySet<SaveSlot> enabledSlots, ControllerButton pressed)
     {
         if (!Selectable(selected))
@@ -28,12 +31,15 @@ internal static class FileSelectDataNavigation
 
         // The selection is checked even on an update with no press, and Up wins when both directions are pressed. The
         // file select plays the sound.
-        int step = (pressed & ControllerButton.Up) != ControllerButton.None ? -1
-            : (pressed & ControllerButton.Down) != ControllerButton.None ? 1 : 0;
-        if (step == 0) return selected;
-        for (int row = FileSelectItemRows.DataRow(selected) + step; row is >= 0 and < FileSelectLayout.DataSelectionCount; row += step)
-            if (Selectable(FileSelectItemRows.DataItem(row))) return FileSelectItemRows.DataItem(row);
-        return selected;
+        Menus.MenuRowOrder<FileSelectItem> rows = FileSelectItemRows.Data;
+        IEnumerable<FileSelectItem> onward;
+        if ((pressed & ControllerButton.Up) != ControllerButton.None)
+            onward = rows.TakeWhile(row => row != selected).Reverse();
+        else if ((pressed & ControllerButton.Down) != ControllerButton.None)
+            onward = rows.SkipWhile(row => row != selected).Skip(1);
+        else
+            return selected;
+        return onward.Where(Selectable).Cast<FileSelectItem?>().FirstOrDefault() ?? selected;
 
         bool Selectable(FileSelectItem item) => item == FileSelectItem.Exit ||
             (FileSelectItemRows.TryGetSaveSlot(item, out SaveSlot slot) && enabledSlots.Contains(slot));

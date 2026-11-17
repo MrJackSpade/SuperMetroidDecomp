@@ -23,8 +23,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// </summary>
 internal static class EndingSpriteSheetComposer
 {
-    /// <summary>The visible shooting-star animation frames with a sheet frame of their own: the growing star's steps and the full star.</summary>
-    private static IEnumerable<int> StarSheetFrames => Enumerable.Range(1, EndingShootingStarDefinitions.FullStarFrame);
+    /// <summary>The visible shooting-star pictures, each with a sheet frame of its own: the growing star's steps and the full star.</summary>
+    private static IEnumerable<EndingShootingStarLook> StarSheetFrames => EndingShootingStarFrames.Visible;
 
     /// <summary>
     /// What ending sheet <paramref name="sheet"/> composes: the frames its scene's actors draw from it, coloured in the

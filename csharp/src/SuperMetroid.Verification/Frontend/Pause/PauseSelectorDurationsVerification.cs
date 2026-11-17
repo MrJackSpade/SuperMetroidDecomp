@@ -1,6 +1,7 @@
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
@@ -19,8 +20,6 @@ internal static class PauseSelectorDurationsVerification
         var document = RequiredJson.Deserialize<PauseSelectorDocument>(bytes, ArtworkJson.Options);
         PauseSelectorPresentation stock = PauseSelectorSourcePresentation.Load(new MemoryStream(bytes)).Presentation;
         Suite(nameof(VerifyPauseSelectorNativeDurations), () => VerifyPauseSelectorNativeDurations(rom, stock));
-        foreach (int invalid in new[] { -1, int.MinValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Duration(invalid), "negative selector phase rejected");
         foreach (int invalid in new[] { 0, -1, 255 })
         {
             var phases = (PauseSelectorPhase[])document.Animation.Clone(); phases[0] = phases[0] with { DurationTicks = invalid };
@@ -38,14 +37,17 @@ internal static class PauseSelectorDurationsVerification
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
         int phases = 0;
+        int[] durations = [.. selector.Segments.Beats(PauseSelectorSegment.Cycle)
+            .Select(beat => AssertIs<AnimationBeat<PauseSelectorLook, NoAnimationCue>.Frame>(beat, "each selector step shows a look").Duration)];
         while (rom.ReadCartridgeByte(program + phases * 3) != 255)
         {
-            AssertEqual(rom.ReadCartridgeByte(program + phases * 3), selector.Duration(phases), "original selector duration");
+            AssertEqual(rom.ReadCartridgeByte(program + phases * 3), durations[phases], "original selector duration");
             phases++;
             AssertTrue(phases <= 14, "original bounded selector program");
         }
-        AssertEqual(phases, selector.PhaseCount, "selector native terminator");
+        AssertEqual(phases, durations.Length, "selector native terminator");
+        AssertEqual(phases, selector.Looks.Count, "selector shows one look a step");
         AssertEqual(rom.ReadCartridgeByte(0x82c10c), selector.InitialDurationTicks, "separate native initial delay");
-        AssertEqual(rom.ReadCartridgeByte(program), selector.Duration(phases), "selector wraps before timing rule");
+        AssertEqual(AnimationEnd.LoopsFrom(0), selector.Cycling.End, "selector wraps to its first step after its last");
     }
 }

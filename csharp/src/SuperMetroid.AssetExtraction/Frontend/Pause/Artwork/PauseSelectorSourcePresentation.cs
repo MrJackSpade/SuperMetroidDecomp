@@ -39,10 +39,11 @@ public sealed class PauseSelectorSourcePresentation
 
     /// <summary>
     /// The name of every distinct frame <paramref name="presentation"/>'s animation shows, in the order it first shows it: the
-    /// reserve category's phases, then the beam category's, then the equipment category's.
+    /// reserve category's steps, then the beam category's, then the equipment category's.
     /// </summary>
     internal static IEnumerable<string> FrameNamesOf(PauseSelectorPresentation presentation) =>
-        presentation.reserve.Concat(presentation.beam).Concat(presentation.equipment).Distinct(StringComparer.Ordinal);
+        presentation.Looks.Select(look => look.Reserve).Concat(presentation.Looks.Select(look => look.Beam))
+            .Concat(presentation.Looks.Select(look => look.Equipment)).Distinct(StringComparer.Ordinal);
 
     /// <summary>The installed composition of the frame named <paramref name="name"/> as a whole frame of the pause sheet (#1392).</summary>
     /// <param name="name">The installed frame name.</param>

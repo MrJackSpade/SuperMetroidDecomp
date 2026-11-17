@@ -27,7 +27,7 @@ public sealed class GameOverSourcePresentation
     /// <summary>The egg's composition.</summary>
     internal readonly SpriteComposition eggSprite;
     /// <summary>The missile cursor's composition by animation frame.</summary>
-    internal readonly SpriteComposition[] cursorSprites;
+    internal readonly Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites;
 
     /// <summary>Retains the compiled presentation and its compositions.</summary>
     private GameOverSourcePresentation(GameOverPresentationDocument document, GameOverPresentation presentation, BackgroundTile[] tilemap,
@@ -131,8 +131,8 @@ public sealed class GameOverSourcePresentation
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,
             frame => CompileSprite(document, GameOverPresentationNames.BabyFrameName(frame)));
         SpriteComposition eggSprite = CompileSprite(document, GameOverPresentationDefinitions.EggFrame);
-        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, MenuMissileAnimationDefinitions.FrameCount).Select(frame =>
-            CompileSprite(document, MenuMissileFrames.Name(frame)))];
+        Dictionary<MenuMissileFrame, SpriteComposition> cursorSprites = MenuMissileAnimationDefinitions.Roll.ToDictionary(frame => frame, frame =>
+            CompileSprite(document, MenuMissileFrames.Name(frame)));
 
         var palettes = new Dictionary<GameOverBabyColouring, RgbColor[]>();
         foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())
@@ -173,7 +173,7 @@ public sealed class GameOverSourcePresentation
     /// <summary>The compiled Baby frames, egg and cursor frames.</summary>
     /// <param name="Baby">Each Baby frame's composition.</param>
     /// <param name="Egg">The egg's composition.</param>
-    /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
+    /// <param name="Cursors">The missile cursor's composition of each of its pictures.</param>
     private sealed record GameOverSprites(Dictionary<GameOverBabyFrame, SpriteComposition> Baby, SpriteComposition Egg,
-        SpriteComposition[] Cursors);
+        Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
 }

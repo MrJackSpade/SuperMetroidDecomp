@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Artwork;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -101,14 +102,10 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     internal FileSelectMapAnimations MapArrows { get; }
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
-    /// <summary>Current map-position marker frame.</summary>
-    internal int MapIndicatorAnimationFrame { get; private set; }
-    /// <summary>Remaining updates in the map-position marker frame.</summary>
-    internal int MapIndicatorAnimationTimer { get; private set; }
-    /// <summary>Current equipment selector sprite frame.</summary>
-    internal int ItemSelectorAnimationFrame { get; private set; }
-    /// <summary>Remaining updates in the equipment selector frame.</summary>
-    internal int ItemSelectorAnimationTimer { get; private set; }
+    /// <summary>The map-position marker's pulse.</summary>
+    internal readonly MapIndicatorPulse mapIndicator = new();
+    /// <summary>The equipment selector's installed animation, which restarts on each equipment-page entry.</summary>
+    internal readonly AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue> itemSelector;
 
     /// <summary>Creates the isolated pause display image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -122,6 +119,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         this.audio = Ensure.NotNull(entry.Audio);
         MapArrows = new FileSelectMapAnimations(screenContent.Maps.Arrows, screenContent.Maps.HighlightCycle);
         mapHighlight = new MapHighlightAnimation(screenContent.Maps.HighlightCycle);
+        PauseSelectorPresentation selectors = screenContent.PauseSelectors;
+        itemSelector = AnimationPlayer<PauseSelectorSegment, PauseSelectorLook, NoAnimationCue>.StartShowing(
+            selectors.Segments, selectors.Cycling, selectors.InitialDurationTicks);
         area = entry.Area;
         _ = AreaIds.Require(entry.Area);
         this.roomMapPosition = entry.RoomMapPosition;
@@ -253,7 +253,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (phase == PauseAnimationPhase.Stable && mapHighlight.Step())
             audio.QueueSound(RoomSound.PauseBeep, priority: SoundRequestPriority.Normal);
         if (ScreenMode == PauseScreenMode.Map)
-            StepMapIndicatorAnimation();
+            mapIndicator.Step(_ => { });
         else
             StepItemSelectorAnimation();
     }
@@ -416,33 +416,17 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     private void DrawMapPositionIndicator()
     {
         Offset16<ScreenPixels> origin = SamusMapCell().ToMapPixels().RelativeToScroll(MapScrollPosition);
-        MapSpriteId indicator = PauseMapIndicatorAnimation.Pulse[MapIndicatorAnimationFrame].Sprite;
         DrawMapSprite(
-            indicator,
+            mapIndicator.Sprite,
             origin,
             MapSpriteColouring.Markers);
     }
 
-    /// <summary>Advances the map marker's timer-before-draw frame cadence.</summary>
-    private void StepMapIndicatorAnimation()
-    {
-        // The timer starts at zero, advances to frame one on the first draw, then
-        // decrements after reloading. This order is intentionally not a conventional
-        // "draw frame zero for N ticks" animation.
-        if (MapIndicatorAnimationTimer == 0)
-        {
-            MapIndicatorAnimationFrame = (MapIndicatorAnimationFrame + 1) % PauseMapIndicatorAnimation.Pulse.Count;
-            MapIndicatorAnimationTimer = PauseMapIndicatorAnimation.Pulse[MapIndicatorAnimationFrame].Duration;
-        }
-        MapIndicatorAnimationTimer--;
-    }
-
-    /// <summary>Restarts the equipment selector at its first authored frame.</summary>
+    /// <summary>Restarts the equipment selector on its first look, held for the installed opening hold.</summary>
     private void ResetItemSelectorAnimation()
     {
-        ItemSelectorAnimationFrame = 0;
-        ItemSelectorAnimationTimer = screenContent
-            .PauseSelectors.InitialDurationTicks;
+        PauseSelectorPresentation selectors = screenContent.PauseSelectors;
+        itemSelector.Show(selectors.Cycling, selectors.InitialDurationTicks);
     }
 
     /// <summary>Advances the equipment selector only while inventory offers a selectable item.</summary>
@@ -451,14 +435,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == SamusEquipmentFlags.None && samus.CollectedBeams == SamusBeamFlags.None)
             return;
 
-        // The equipment selector's animation holds each of its frames for that frame's own duration.
-        ItemSelectorAnimationTimer--;
-        if (ItemSelectorAnimationTimer > 0)
-            return;
-
-        var selectors = screenContent.PauseSelectors;
-        ItemSelectorAnimationFrame = selectors.NormalizePhase(ItemSelectorAnimationFrame + 1);
-        ItemSelectorAnimationTimer = selectors.Duration(ItemSelectorAnimationFrame);
+        // The equipment selector's animation holds each of its looks for that look's own hold.
+        itemSelector.Step();
     }
 
     /// <summary>Draws the selected equipment item's authored sprite.</summary>
@@ -468,7 +446,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             return;
 
         var selector = screenContent.PauseSelectors;
-        selector.Draw(screen.Sprites, PauseSheet, SelectedControl, ItemSelectorAnimationFrame);
+        selector.Draw(screen.Sprites, PauseSheet, SelectedControl, itemSelector.Showing);
     }
 
     /// <summary>
@@ -680,6 +658,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         screenContent = Ensure.NotNull(catalog);
         MapArrows.BindPresentation(catalog.Maps.Arrows);
         mapHighlight.Bind(catalog.Maps.HighlightCycle);
+        itemSelector.Rebind(catalog.PauseSelectors.Segments, catalog.PauseSelectors.Cycling);
         // Live highlights and reserve-arrow colours are typed state their owners keep; rebinding never resets their phase.
         screen.BindArtwork(catalog);
         // The equipment page, its reserve arrow included, is derived from Samus's and the cursor's state each frame

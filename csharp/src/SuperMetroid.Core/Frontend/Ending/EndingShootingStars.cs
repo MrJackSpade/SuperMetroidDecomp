@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -13,15 +14,15 @@ internal sealed class EndingShootingStars
     {
         for (int index = 0; index < stars.Length; index++)
         {
-            Reset(ref stars[index]);
+            Reset(ref stars[index], EndingShootingStarDefinitions.Stars[index]);
             int delay = EndingShootingStarDefinitions.Stars[index].Delay;
             if (delay == 0) continue;
             stars[index].Delayed = true;
-            stars[index].Timer = delay;
+            stars[index].DelayLeft = delay;
         }
     }
 
-    /// <summary>Advances delayed or active stars, accelerates later frames, and resets those leaving the visible bounds.</summary>
+    /// <summary>Advances delayed or active stars, accelerates later pictures, and resets those leaving the visible bounds.</summary>
     internal void Step()
     {
         for (int index = 0; index < stars.Length; index++)
@@ -30,15 +31,14 @@ internal sealed class EndingShootingStars
             var definition = EndingShootingStarDefinitions.Stars[index];
             if (star.Delayed)
             {
-                if (--star.Timer >= 0) continue;
-                star.Timer = EndingShootingStarDefinitions.InitialTimer;
+                if (--star.DelayLeft >= 0) continue;
                 star.Delayed = false;
-                star.AnimationFrame = 0;
+                star.Flight.Show(EndingShootingStarAnimations.Flight(Pace(definition)), EndingShootingStarDefinitions.LeadInDuration);
                 // Expiring delay skips motion, but joins the same update's drawing pass.
             }
             else
             {
-                int multiplier = star.AnimationFrame >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
+                int multiplier = star.Look is EndingShootingStarLook.LeadIn or EndingShootingStarLook.FaintSpeck ? 1 : 2;
                 star.Velocity += definition.Acceleration * multiplier;
                 star.Position += star.Velocity.ToSixteenSixteen();
             }
@@ -47,18 +47,10 @@ internal sealed class EndingShootingStars
             if (whole.X is < EndingShootingStarDefinitions.SpriteOffset or > EndingShootingStarDefinitions.FieldFarEdge ||
                 whole.Y is < EndingShootingStarDefinitions.SpriteOffset or > EndingShootingStarDefinitions.FieldFarEdge)
             {
-                Reset(ref star);
+                Reset(ref star, definition);
                 continue;
             }
-            // A still star keeps its first visible frame for the rest of its flight (#1983).
-            if (star.AnimationFrame > 0 && definition.Period is null)
-                continue;
-            if (--star.Timer <= 0)
-            {
-                if (definition.Period is { } period)
-                    star.Timer = period;
-                star.AnimationFrame++;
-            }
+            star.Flight.Step();
         }
     }
 
@@ -67,17 +59,21 @@ internal sealed class EndingShootingStars
     {
         foreach (var star in stars)
         {
-            if (star.Delayed || star.AnimationFrame == 0) continue;
+            if (star.Delayed || star.Look == EndingShootingStarLook.LeadIn) continue;
             Offset16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            sprites.AddImage(sheet.Frame(EndingShootingStarFrames.SheetFrameName(star.AnimationFrame)), origin, shading);
+            sprites.AddImage(sheet.Frame(EndingShootingStarFrames.SheetFrameName(star.Look)), origin, shading);
         }
     }
 
-    /// <summary>Returns a star to the shared origin, undelayed, at the start of its animation lead-in.</summary>
-    private static void Reset(ref EndingShootingStar star) => star = new()
+    /// <summary>The pace <paramref name="definition"/>'s star flies at.</summary>
+    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => new(definition.Period);
+
+    /// <summary>Returns a star to the shared origin, undelayed, at the start of its lead-in.</summary>
+    private static void Reset(ref EndingShootingStar star, EndingShootingStarDefinition definition) => star = new()
     {
         Position = FixedVector<ScreenPixels>.FromWholePixels(
             Offset16<ScreenPixels>.Of(EndingShootingStarDefinitions.Origin, EndingShootingStarDefinitions.Origin)),
-        Timer = EndingShootingStarDefinitions.InitialTimer
+        Flight = AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue>.StartShowing(
+            EndingShootingStarAnimations.Segments, EndingShootingStarAnimations.Flight(Pace(definition)), EndingShootingStarDefinitions.LeadInDuration),
     };
 }

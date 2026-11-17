@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// Where file select places its slot fields and actors and how long its looping actors hold each frame: the part of the
 /// installed file-select presentation the game reads (#1502).
 /// </summary>
-public sealed record FileSelectPlacements
+internal sealed record FileSelectPlacements
 {
     /// <summary>Each save slot's field layout on the main file-select page.</summary>
     public required IReadOnlyDictionary<SaveSlot, FileSelectSlotFieldDocument> MainSlots { get; init; }
@@ -14,12 +14,12 @@ public sealed record FileSelectPlacements
     public required IReadOnlyDictionary<SaveSlot, FileSelectSlotFieldDocument> DataSlots { get; init; }
     /// <summary>Each bordered heading's origin in screen pixels.</summary>
     public required IReadOnlyDictionary<FileSelectBorder, Offset16<ScreenPixels>> BorderAnchors { get; init; }
-    /// <summary>Six missile-cursor origins in main-menu selection order, in screen pixels.</summary>
-    public required Offset16<ScreenPixels>[] MainCursorAnchors { get; init; }
-    /// <summary>Four missile-cursor origins in data-management selection order, in screen pixels.</summary>
-    public required Offset16<ScreenPixels>[] DataCursorAnchors { get; init; }
-    /// <summary>Two missile-cursor origins in confirmation-option order, in screen pixels.</summary>
-    public required Offset16<ScreenPixels>[] ConfirmationCursorAnchors { get; init; }
+    /// <summary>The missile cursor's origin at each main-page row, in screen pixels (#2359).</summary>
+    public required IReadOnlyDictionary<FileSelectItem, Offset16<ScreenPixels>> MainCursorAnchors { get; init; }
+    /// <summary>The missile cursor's origin at each copy and clear page row, in screen pixels (#2359).</summary>
+    public required IReadOnlyDictionary<FileSelectItem, Offset16<ScreenPixels>> DataCursorAnchors { get; init; }
+    /// <summary>The missile cursor's origin at each copy and clear confirmation answer, in screen pixels (#2359).</summary>
+    public required IReadOnlyDictionary<YesNoChoice, Offset16<ScreenPixels>> ConfirmationCursorAnchors { get; init; }
     /// <summary>Each save slot's helmet origin, in screen pixels.</summary>
     public required IReadOnlyDictionary<SaveSlot, Offset16<ScreenPixels>> HelmetAnchors { get; init; }
     /// <summary>The page pixel each copy or clear page's slot letter is shown at.</summary>

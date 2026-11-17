@@ -20,16 +20,18 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
 
     /// <summary>
     /// Creates the family's animations: <paramref name="segments"/> are the beats each segment plays, and
-    /// <paramref name="startingAt"/> the animation an actor starting each of them plays.
+    /// <paramref name="startingAt"/> writes, in the family's plays, the animation an actor starting each of them plays (#2358):
+    /// each phase a whole segment, its length read from the segment's beats.
     /// </summary>
     /// <exception cref="ArgumentException">An animation plays a segment the family does not hold.</exception>
     internal CinematicAnimations(IReadOnlyDictionary<TAnimation, AnimationBeat<TFrame, TCue>[]> segments,
-        IReadOnlyDictionary<TAnimation, Animation<TAnimation>> startingAt)
+        Func<CinematicPlays<TAnimation, TFrame, TCue>, IReadOnlyDictionary<TAnimation, Animation<TAnimation>>> startingAt)
     {
         Ensure.NotNull(segments);
         Ensure.NotNull(startingAt);
         Segments = new AnimationSegments<TAnimation, TFrame, TCue>(segments, segments.Keys);
-        foreach ((TAnimation start, Animation<TAnimation> animation) in startingAt)
+        IReadOnlyDictionary<TAnimation, Animation<TAnimation>> starting = startingAt(new CinematicPlays<TAnimation, TFrame, TCue>(Segments));
+        foreach ((TAnimation start, Animation<TAnimation> animation) in starting)
         {
             foreach (AnimationPhase<TAnimation> phase in animation.Phases)
             {
@@ -37,7 +39,7 @@ internal sealed class CinematicAnimations<TAnimation, TFrame, TCue>
                     throw new ArgumentException($"Animation {start} plays segment {phase.Segment}, which the family does not hold.", nameof(startingAt));
             }
         }
-        starts = startingAt.ToDictionary(pair => pair.Key, pair => pair.Value);
+        starts = starting.ToDictionary(pair => pair.Key, pair => pair.Value);
     }
 
     /// <summary>The segments the family's animations play.</summary>

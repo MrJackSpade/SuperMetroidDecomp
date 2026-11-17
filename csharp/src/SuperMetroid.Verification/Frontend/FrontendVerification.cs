@@ -263,8 +263,8 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     }
     AssertEqual(FileSelectPhase.FadeOutToOptions, savedMenu.Phase,
         "selected save completes helmet turn before load fade");
-    int selectedHelmetFrame = savedMenu.SelectedHelmetFrame;
-    AssertEqual(7, selectedHelmetFrame,
+    FileSelectHelmetFrame selectedHelmetFrame = savedMenu.SelectedHelmetFrame;
+    AssertEqual(FileSelectHelmetFrame.SparkleWide, selectedHelmetFrame,
         "selected save reaches final turned-head frame");
     savedMenu.Step(0);
     AssertEqual(selectedHelmetFrame, savedMenu.SelectedHelmetFrame,

@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies.Shutters.Artwork;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.Shutters;

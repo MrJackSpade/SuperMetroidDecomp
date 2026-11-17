@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 internal static class BotwoonDeathDefinitions
 {
-    /// <summary>The count Botwoon's wait before his fall starts from once his tail has finished entering its hole.</summary>
-    internal const int DeathDelayStart = 240;
-
-    /// <summary>The count of the wait at which his head starts falling.</summary>
-    internal const int DeathDelayEnd = 256;
+    /// <summary>
+    /// The updates Botwoon waits once his tail has finished entering the wall after the fatal hit, the update it does so
+    /// included; his head starts falling on the update after.
+    /// </summary>
+    internal const int PreFallWaitUpdates = 16;
 
     /// <summary>
     /// How far along the quadratic speed curve the dying head and each falling body segment move each airborne update:
@@ -47,11 +47,11 @@ internal static class BotwoonDeathDefinitions
     /// <summary>How far above the wall sequence's frame, before its jitter, a wall explosion bursts.</summary>
     internal const int ExplosionRise = 8;
 
-    /// <summary>The updates between large wall explosions once they run.</summary>
-    internal const int LargeExplosionInterval = 12;
+    /// <summary>The updates from one large wall explosion to the next once they run: one bursts every thirteenth update.</summary>
+    internal const int LargeExplosionInterval = 13;
 
-    /// <summary>The updates between pairs of small wall explosions once they run.</summary>
-    internal const int SmallExplosionInterval = 4;
+    /// <summary>The updates from one pair of small wall explosions to the next once they run: a pair bursts every fifth update.</summary>
+    internal const int SmallExplosionInterval = 5;
 
     /// <summary>A death drop's X across its 128-pixel strip from X 64: the sample modulo 128.</summary>
     internal static readonly RandomSampleField DropX = new(0, 7);

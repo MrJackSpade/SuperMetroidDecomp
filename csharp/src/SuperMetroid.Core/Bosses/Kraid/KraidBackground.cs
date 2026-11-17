@@ -29,9 +29,7 @@ internal sealed class KraidBackground
     }
 
     /// <summary>Kraid's installed eye colours, which his eye glow shows and times his roar from.</summary>
-    /// <exception cref="InvalidDataException">Kraid's eye colours are not installed.</exception>
-    internal KraidEyeColours EyeColours => _bossArtwork.KraidEyes ?? throw new InvalidDataException(
-        "Kraid's eyes require the installed Kraid eye colours.");
+    internal KraidEyeColours EyeColours => _bossArtwork.KraidEyes;
 
     /// <summary>
     /// Takes one step of the room backdrop's fade toward <paramref name="fade"/>'s colours on the shared gradual colour

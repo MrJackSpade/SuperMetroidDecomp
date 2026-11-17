@@ -11,13 +11,13 @@ public enum BotwoonPhase
     ChooseNextAction,
     /// <summary>Advances an authored movement path and body history until the path ends and selects direct hole movement.</summary>
     FollowAuthoredPath,
-    /// <summary>Holds position for the aimed spit animation/cooldown, then chooses another path and inside-hole state.</summary>
+    /// <summary>Holds position for the aimed spit and its cooldown, then on the next update chooses another path and inside-hole state.</summary>
     SpitWhileHidden,
-    /// <summary>Increments the head's death timer from 240 to 256 while body actors begin their staggered death delays.</summary>
+    /// <summary>Waits the head's pre-fall wait while the body segments begin their staggered death delays.</summary>
     DeathDelay,
-    /// <summary>Accelerates through the quadratic speed table until head Y reaches 200, then hides the landed head.</summary>
+    /// <summary>Speeds the head's fall along the quadratic speed curve until it lands on the floor at Y 200, then hides it.</summary>
     HeadFalling,
-    /// <summary>Waits for the final body point's landing flag before requesting drops and wall crumbling.</summary>
+    /// <summary>Waits for his tail segment to land before leaving his drops and crumbling the wall.</summary>
     WaitForBody,
     /// <summary>Runs the 192-update wall-explosion phase, then deletes the head, records the mini-boss's defeat, and queues the elevator song.</summary>
     WallExplosions,

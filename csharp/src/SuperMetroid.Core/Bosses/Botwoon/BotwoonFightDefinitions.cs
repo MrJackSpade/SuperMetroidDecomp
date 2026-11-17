@@ -9,20 +9,17 @@ internal static class BotwoonFightDefinitions
     /// <summary>The updates Botwoon waits in his hole before his first traversal.</summary>
     internal const int OpeningDelay = 256;
 
-    /// <summary>The updates of cooldown his spitting from a hole starts with.</summary>
-    internal const int HiddenSpitCooldown = 48;
-
     /// <summary>
     /// The volley he spits from a hole once his spitting animation reaches its spit: five spits, fanned from two spreads one
-    /// way of his aim to two the other.
+    /// way of his aim to two the other, after which his head cools down for 48 updates and he leaves the hole on the next.
     /// </summary>
-    internal static BotwoonSpitVolley AimedVolley { get; } = new(Count: 5, FirstOffsetSteps: -32);
+    internal static BotwoonSpitVolley AimedVolley { get; } = new(Count: 5, FirstOffsetSteps: -32, CooldownUpdates: 48);
 
     /// <summary>
     /// The volley he spits at once when he aims outside his hole spitting phase: three spits, fanned from one spread one way
-    /// of his aim to one the other.
+    /// of his aim to one the other, after which his head follows his movement again on the next update.
     /// </summary>
-    internal static BotwoonSpitVolley ImmediateVolley { get; } = new(Count: 3, FirstOffsetSteps: -16);
+    internal static BotwoonSpitVolley ImmediateVolley { get; } = new(Count: 3, FirstOffsetSteps: -16, CooldownUpdates: 1);
 
     /// <summary>The turn, in steps, between neighbouring spits of a volley.</summary>
     internal const int VolleySpreadSteps = 16;

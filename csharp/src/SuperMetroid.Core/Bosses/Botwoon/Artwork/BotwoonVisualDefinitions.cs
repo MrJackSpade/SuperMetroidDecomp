@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 internal static class BotwoonVisualDefinitions
 {
     /// <summary>
-    /// The installed frame each head pose shows: the visible frames are named in the physical order of
-    /// <c>Frames</c>, closed then open; the hidden head shows the shared empty frame.
+    /// The installed frame each head pose shows: his closed mouth, then his open mouth, facing each way in turn; the hidden
+    /// head shows the shared empty frame.
     /// </summary>
     internal static EnemyFrameTable<BotwoonHeadFrame> HeadFrames { get; } = new()
     {

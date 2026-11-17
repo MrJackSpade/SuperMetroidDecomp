@@ -66,10 +66,9 @@ internal sealed class MotherBrainRevivalPhases
 
             // The revival reverses the same greying steps used by the corpse transition. Its ninth step shows no
             // new colours and completes the revival into her waking up.
-            int greyStep = Encounter.RevivalFromGrey.TakeStep();
-            if (greyStep < MotherBrainFightDefinitions.GreySteps)
-                requests.RevivalColourStep = greyStep;
-            if (greyStep >= MotherBrainFightDefinitions.GreySteps)
+            if (MotherBrainFadeDefinitions.RevivalFromGrey.ImageAt(Encounter.RevivalFromGrey.TakeStep()) is { } image)
+                requests.RevivalColourImage = image;
+            else
             {
                 Encounter.RevivalPhase = MotherBrainRevivalPhase.WakeUp;
                 return true;

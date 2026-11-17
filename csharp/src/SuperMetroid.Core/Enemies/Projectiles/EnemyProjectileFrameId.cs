@@ -23,10 +23,6 @@ public enum EnemyProjectileFrameId
     DraygonGoopRounded,
     /// <summary>Draygon's goop: a lopsided blob.</summary>
     DraygonGoopLopsided,
-    /// <summary>Draygon's goop: a rounded blob: the picture of DraygonGoopRounded, as a frame of its own.</summary>
-    DraygonGoopRoundedTwin,
-    /// <summary>Draygon's goop: a puffed-out blob: the picture of DraygonGoopPuffed, as a frame of its own.</summary>
-    DraygonGoopPuffedTwin,
     /// <summary>Draygon's goop: a blob curling up.</summary>
     DraygonGoopCurled,
     /// <summary>Draygon's goop: scattered scraps.</summary>
@@ -77,10 +73,6 @@ public enum EnemyProjectileFrameId
     CrocomireMouthBallLarge,
     /// <summary>Crocomire's mouth glow: the largest grey ball.</summary>
     CrocomireMouthBallLargest,
-    /// <summary>Crocomire's mouth glow: a large grey ball: the picture of CrocomireMouthBallLarge, as a frame of its own.</summary>
-    CrocomireMouthBallLargeTwin,
-    /// <summary>Crocomire's mouth glow: a medium grey ball: the picture of CrocomireMouthBallMedium, as a frame of its own.</summary>
-    CrocomireMouthBallMediumTwin,
     /// <summary>Crocomire's bridge: a falling fragment.</summary>
     CrocomireBridgeFragment,
     /// <summary>Crocomire's spike wall: a crumbling piece.</summary>

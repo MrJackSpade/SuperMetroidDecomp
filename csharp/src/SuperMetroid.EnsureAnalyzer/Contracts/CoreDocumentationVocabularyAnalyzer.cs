@@ -87,6 +87,9 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 /// unsigned values, its program flow (installing steps, jumps into animations, fall-throughs), data told as
 /// engine-owned, default rows, colour zero and numbered parameters, literal writes with words between and a pace per
 /// any call.
+/// #2271 adds, outside hardware owners, the machine's storage told for a value: a value shifted by a number of places,
+/// state cleared as the room loads, a table's physical order, both halves of one random number, a value kept in another
+/// quantity, and a vector or fixed-point helper.
 /// See <c>docs/core-vocabulary.md</c>.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -1166,14 +1169,15 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     /// hitbox, frame-hitbox, extended, shot, touch, contact, bomb, rectangle, caret or actor walker and the walker (the
     /// extended-hitbox walker marks the projectile, the collision walkers test), and a damage, standing, posture,
     /// collision, movement, shared, common, ordinary, walking or AI helper and the helper (the damage helper, the
-    /// standing helper reports her standing, the helper's hard floor). Core names the collision test, the check or the
-    /// step and says what it does. English stays legal: an enemy that walks (a floor walker, the left walker's role), a
-    /// helper alone and the helper text of a screen.
+    /// standing helper reports her standing, the helper's hard floor). #2271 adds the vector and fixed-point helpers (the
+    /// signed fixed-point vector helper). Core names the collision test, the check or the step and says what it does.
+    /// English stays legal: an enemy that walks (a floor walker, the left walker's role), a helper alone and the helper
+    /// text of a screen.
     /// </summary>
     private static readonly Regex RoutineWalkerProse = new(
         @"\b(?:collision|hitbox|frame-hitbox|extended(?:-hitbox)?|shot|touch|contact|bomb|normal-bomb|power-bomb|rectangle" +
         @"|caret|actor|cinematic-actor)\s+walkers?\b|\bthe\s+walkers?\b" +
-        @"|\b(?:damage|standing|posture|collision|room-collision|movement|shared|common|ordinary|walking|AI)\s+helpers?\b" +
+        @"|\b(?:damage|standing|posture|collision|room-collision|movement|shared|common|ordinary|walking|AI|vector|fixed-point)\s+helpers?\b" +
         @"|\bthe\s+helpers?\b(?![-\s]+(?:texts?|messages?|labels?|lines?)\b)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
@@ -1229,6 +1233,27 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly Regex PortDataProse = new(
         @"\bengine[-\s]+owned\b|\b(?:default|combination)\s+rows?\b|\bcolou?rs?[-\s]+zero\b" +
         @"|\b(?:actor|projectile)[-\s]+parameters?\b|\b(?:first|second|third|fourth)\s+parameter\b",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>
+    /// The machine's storage told for a value (#2271), outside hardware owners: a value shifted right or left by a number
+    /// of places (health shifted right one, each axis shifted left eight bits, a right-shift); state cleared as the room
+    /// loads (clears on room load, cleared as the room's enemies load, the room's enemy setup clears); a table's
+    /// physical order; both halves of one random number; and a value kept in another quantity (the game kept it in the
+    /// projectile's horizontal velocity). Core states the value's meaning: half his starting health, 256 pixels a screen,
+    /// a ring that starts at the room's origin, the frames in the order named, the random number's choices, the phase the
+    /// segment is in. English stays legal: a shift by a counted noun (the camera shifts left two pixels), a room that
+    /// clears when Samus leaves, physical contact, halves of a picture and a value kept for an update.
+    /// </summary>
+    private static readonly Regex MachineStorageNarrationProse = new(
+        @"\bshift(?:s|ed|ing)?\s+(?:right|left)\s+(?:by\s+)?" + NumberWord + @"\b" + CountedNoun +
+        @"|\b(?:right|left)-shift(?:s|ed)?\b" +
+        @"|\bclear(?:s|ed|ing)?\s+(?:on|at)\s+(?:the\s+)?room(?:'s)?\s+loads?\b" +
+        @"|\bcleared\s+(?:as|when)\s+the\s+room's\s+enem(?:y|ies)\s+loads?\b|\benemy\s+setup\s+clears\b" +
+        @"|\bphysical\s+order\b" +
+        @"|\bboth\s+halves\s+of\s+(?:one|the|a|each|its)\s+(?:[\w-]+\s+){0,2}?(?:RNG|random)\w*" +
+        @"|\b(?:kept|keeps|stored|stores)\s+(?:it|them)\s+in\s+(?:the\s+|its\s+|a\s+)?(?:[\w'-]+\s+){0,3}?" +
+        @"(?:velocit(?:y|ies)|timers?|counters?)\b",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>
@@ -1666,6 +1691,7 @@ public sealed class CoreDocumentationVocabularyAnalyzer : DiagnosticAnalyzer
             : BitArithmeticProse.Match(text) is { Success: true } bitArithmetic ? bitArithmetic.Value
             : ProgramFlowProse.Match(Markup.Replace(text, " ")) is { Success: true } programFlow ? programFlow.Value
             : PortDataProse.Match(text) is { Success: true } portData ? portData.Value
+            : MachineStorageNarrationProse.Match(text) is { Success: true } machineStorage ? machineStorage.Value
             : TileCharacterFinding(text, owner) is { } character ? character
             : codeNames is not null ? CommentOnlyFinding(text, codeNames)
             : null;

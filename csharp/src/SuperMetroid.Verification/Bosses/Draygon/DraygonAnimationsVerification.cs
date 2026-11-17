@@ -63,7 +63,7 @@ internal static class DraygonAnimationsVerification
         int beatCount = lists.Values.Sum(list => list.BeatAddresses.Length);
         AssertEqual(DraygonFrameToolingDefinitionsConstants.FrameCount, drawn.Count, "the Draygon segments draw every catalog frame");
         for (int index = 0; index < DraygonFrameToolingDefinitionsConstants.FrameCount; index++)
-            AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.Spritemap(DraygonFrameToolingDefinitions.CartridgeOrder[index])), $"Draygon catalog frame {index} is drawn by a native list");
+            AssertTrue(drawn.Contains(DraygonFrameToolingDefinitions.RootAt(index)), $"Draygon catalog frame {index} is drawn by a native list");
 
         VerifyReset();
         VerifyGoopPassResetStartsTheArms();
@@ -104,7 +104,8 @@ internal static class DraygonAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     var frame = AssertIs<AnimationBeat<EnemyFrameId, DraygonCue>.Frame>(Beat(beat, at), $"{at}: frame");
                     AssertEqual(word, frame.Duration, $"{at}: duration");
-                    AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(frame.Shown), $"{at}: spritemap");
+                    // The shut jaw shows from two roots (#2268): the list's operand is one of the shown frame's.
+                    AssertTrue(DraygonFrameToolingDefinitions.Spritemaps(frame.Shown).Contains(operand), $"{at}: spritemap ${operand:X4} shows {frame.Shown}");
                     drawn.Add(operand);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 4));
@@ -235,7 +236,7 @@ internal static class DraygonAnimationsVerification
             AssertEqual((ushort)1, part.AnimationClock.Hold.RawValue, "the reset's started parts run on their next update");
         AssertEqual(new AnimationPlayback<DraygonSegment>(DraygonAnimations.StartingWith(DraygonSegment.BodyFacingRightReset), new AnimationPlace(0, 3)),
             state.Playback(state.Body), "the body's own frame keeps it in the reset, after its frame");
-        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(EnemyFrameId.DraygonBodyFacingRightJawShutTwin), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
+        AssertEqual(DraygonFrameToolingDefinitions.Spritemap(EnemyFrameId.DraygonBodyFacingRightJawShut), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeAction?>(DraygonEyeAction.Tracking, state.Eye.SpeciesState<DraygonEyeState>()?.Action, "the reset gives the eye its tracking function");
         AssertEqual<HorizontalDirection?>(HorizontalDirection.Right, state.Eye.SpeciesState<DraygonEyeState>()?.Facing, "the reset's tracking eye faces right (#2165)");
     }
@@ -353,7 +354,9 @@ internal static class DraygonAnimationsVerification
             {
                 var frame = AssertIs<AnimationBeat<EnemyProjectileFrameId, DraygonProjectileCue>.Frame>(Beat(beat, at), $"{at}: frame");
                 AssertEqual(word, frame.Duration, $"{at}: duration");
-                AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileProgramFrameSources.Operand(frame.Shown), $"{at}: frame operand");
+                // An operand that stores a pose's picture again shows that pose (#2268).
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(unchecked((ushort)(cursor + 2))),
+                    EnemyProjectileProgramFrameSources.Operand(frame.Shown), $"{at}: frame operand");
                 addresses.Add(cursor);
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;

@@ -25,11 +25,11 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether the drained beam ran out at the painful walk's sixth step, leaving her colours on the drained frame.</summary>
     internal bool DrainedBeamRanOut { get; set; }
 
-    /// <summary>The step of her greying as the Baby drains her that the call shows, if it shows one.</summary>
-    internal int? DrainColourStep { get; set; }
+    /// <summary>The image of her greying as the Baby drains her that the call shows, if it shows one.</summary>
+    internal MotherBrainFadeImage? DrainColourImage { get; set; }
 
-    /// <summary>The step of her revival's colours that the call shows, if it shows one.</summary>
-    internal int? RevivalColourStep { get; set; }
+    /// <summary>The image of her revival's colours that the call shows, if it shows one.</summary>
+    internal MotherBrainFadeImage? RevivalColourImage { get; set; }
 
     /// <summary>Whether disabling her brain's effects detached her brain, which keeps the colours it shows.</summary>
     internal bool BrainDetached { get; set; }
@@ -37,11 +37,11 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     /// <summary>Whether her body's fade ran, which flickers her body with the background on every call.</summary>
     internal bool BodyFlickers { get; set; }
 
-    /// <summary>The step of her body's fade to black that the call shows, if it shows one.</summary>
-    internal int? DeathFadeStep { get; set; }
+    /// <summary>The image of her body's fade to black that the call shows, if it shows one.</summary>
+    internal MotherBrainFadeImage? DeathFadeImage { get; set; }
 
-    /// <summary>The step of her corpse's fade to grey that the call shows, if it shows one.</summary>
-    internal int? CorpseFadeStep { get; set; }
+    /// <summary>The image of her corpse's fade to grey that the call shows, if it shows one.</summary>
+    internal MotherBrainFadeImage? CorpseFadeImage { get; set; }
 
     /// <summary>The beam explosion requested, if any.</summary>
     internal MotherBrainRainbowExplosionRequest? Explosion { get; set; }
@@ -129,8 +129,8 @@ internal sealed class MotherBrainRainbowBeamStepRequests
 
     /// <summary>The call's result.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult() =>
-        new(Movement, SoundQueued, RainbowColours, BeamEnded, DrainedBeamRanOut, DrainColourStep, RevivalColourStep,
-            BrainDetached, BodyFlickers, DeathFadeStep, CorpseFadeStep, Explosion, ChargeSoundQueued,
+        new(Movement, SoundQueued, RainbowColours, BeamEnded, DrainedBeamRanOut, DrainColourImage, RevivalColourImage,
+            BrainDetached, BodyFlickers, DeathFadeImage, CorpseFadeImage, Explosion, ChargeSoundQueued,
             BodyClearRequested, BabySpawnRequested, FinalBeamFired,
             DeathExplosions, CorpseDustRequests, MusicStopQueued, EscapeMusicQueued,
             EscapeMusicTrackQueued, EscapeColourEffectRequests,

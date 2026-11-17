@@ -3082,32 +3082,32 @@ public enum EnemyFrameId
     CrocomireBodySwingingArmLowering,
     /// <summary>Crocomire: its arm returning, bent upright as it swings to throw, feet together.</summary>
     CrocomireBodySwingingArmReturning,
-    /// <summary>Crocomire: striding, far foot forward, its arm upright: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmUprightTwinB,
-    /// <summary>Crocomire: striding, far foot forward, its arm upright: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmUprightTwinC,
-    /// <summary>Crocomire: striding, far foot forward, its arm upright: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmUprightTwinD,
-    /// <summary>Crocomire: striding, near foot forward, its arm bent at the elbow: the picture of CrocomireBodyNearFootForwardArmBent, as a frame of its own.</summary>
-    CrocomireBodyNearFootForwardArmBentTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyNearFootForwardArmSweeping, as a frame of its own.</summary>
-    CrocomireBodyNearFootForwardArmSweepingTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyNearFootForwardArmLifting, as a frame of its own.</summary>
-    CrocomireBodyNearFootForwardArmLiftingTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyNearFootForwardArmUpright, as a frame of its own.</summary>
-    CrocomireBodyNearFootForwardArmUprightTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmBent, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmBentTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmSquare, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmSquareTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmReaching, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmReachingTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmSweeping, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmSweepingTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmLifting, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmLiftingTwin,
-    /// <summary>Crocomire: striding: the picture of CrocomireBodyFarFootForwardArmUpright, as a frame of its own.</summary>
-    CrocomireBodyFarFootForwardArmUprightTwin,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright, his mouth shut, his high body taking shots as an ordinary enemy does.</summary>
+    CrocomireBodyFarFootForwardArmUprightMouthShut,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright, his mouth parted and his upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmUprightMouthParted,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmUprightMouthGaping,
+    /// <summary>Crocomire: striding, near foot forward, its arm bent at the elbow, his mouth shut, his high body taking shots as an ordinary enemy does.</summary>
+    CrocomireBodyNearFootForwardArmBentMouthShut,
+    /// <summary>Crocomire: striding, near foot forward, its arm sweeping up, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyNearFootForwardArmSweepingMouthGaping,
+    /// <summary>Crocomire: striding, near foot forward, its arm lifting, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyNearFootForwardArmLiftingMouthGaping,
+    /// <summary>Crocomire: striding, near foot forward, its arm upright, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyNearFootForwardArmUprightMouthGaping,
+    /// <summary>Crocomire: striding, far foot forward, its arm bent at the elbow, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmBentMouthGaping,
+    /// <summary>Crocomire: striding, far foot forward, its arm level, forearm upright, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmSquareMouthGaping,
+    /// <summary>Crocomire: striding, far foot forward, its arm reaching up and forward, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmReachingMouthGaping,
+    /// <summary>Crocomire: striding, far foot forward, its arm sweeping up, his mouth gaping and his raised upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmSweepingMouthGaping,
+    /// <summary>Crocomire: striding, far foot forward, its arm lifting, his mouth parted and his upper body open to shots into it.</summary>
+    CrocomireBodyFarFootForwardArmLiftingMouthParted,
+    /// <summary>Crocomire: striding, far foot forward, its arm upright, his mouth shut, his central body taking the shots that reach his high body.</summary>
+    CrocomireBodyFarFootForwardArmUprightMouthShutting,
     /// <summary>Crocomire: its arm bent at the elbow as it lunges, feet apart.</summary>
     CrocomireBodyLungingArmBent,
     /// <summary>Crocomire: its arm raised high as it lunges, feet apart.</summary>
@@ -3479,8 +3479,6 @@ public enum EnemyFrameId
     DraygonEyeFacingLeftNarrowing,
     /// <summary>Draygon: its eye facing left, closing.</summary>
     DraygonEyeFacingLeftClosing,
-    /// <summary>Draygon: its body facing left, its jaw shut: the picture of DraygonBodyFacingLeftJawShut, as a frame of its own.</summary>
-    DraygonBodyFacingLeftJawShutTwin,
     /// <summary>Draygon: a limp arm facing right, its claw raised.</summary>
     DraygonLimpArmFacingRightClawRaised,
     /// <summary>Draygon: a limp arm facing right, its claw dropping.</summary>
@@ -3513,8 +3511,6 @@ public enum EnemyFrameId
     DraygonEyeFacingRightNarrowing,
     /// <summary>Draygon: its eye facing right, closing.</summary>
     DraygonEyeFacingRightClosing,
-    /// <summary>Draygon: its body facing right, its jaw shut: the picture of DraygonBodyFacingRightJawShut, as a frame of its own.</summary>
-    DraygonBodyFacingRightJawShutTwin,
     /// <summary>Crocomire: its skeleton starting to topple.</summary>
     CrocomireBodySkeletonToppling,
     /// <summary>Crocomire: its skeleton leaning as it topples.</summary>

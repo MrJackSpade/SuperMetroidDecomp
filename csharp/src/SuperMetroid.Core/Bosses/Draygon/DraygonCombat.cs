@@ -149,7 +149,7 @@ internal sealed class DraygonCombat
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
     internal static void UpdateDraygonHealthBand(DraygonEnemyState state)
     {
-        int band = DraygonHealthShades.BandForHealth(state.Body.Health);
+        DraygonHealthBand band = DraygonHealthBand.Of(state.Body.Health);
 
         if (band == state.HealthBand)
             return;
@@ -158,7 +158,7 @@ internal sealed class DraygonCombat
     }
 
     /// <summary>The installed health band; code reads it only after initialization installs one.</summary>
-    private static int RequireHealthBand(DraygonEnemyState state) => state.HealthBand
+    private static DraygonHealthBand RequireHealthBand(DraygonEnemyState state) => state.HealthBand
         ?? throw new InvalidOperationException("Draygon has no installed health shade band.");
 
     /// <summary>Shows his selected health band's colours.</summary>

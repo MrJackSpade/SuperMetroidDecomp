@@ -357,6 +357,13 @@ internal static class InstalledFixtures
     /// </summary>
     internal static SuperMetroid.Core.Enemies.BossBodies.BossBodySheets BossBodySheets => bossBodySheets.Value;
 
+    /// <summary>The installation's Kraid eye colours, which his eye glow reads back, loaded once per process.</summary>
+    internal static SuperMetroid.Core.Bosses.Kraid.KraidEyeColours KraidEyes => kraidEyes.Value;
+
+    /// <summary>Backing loader for <see cref="KraidEyes"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Bosses.Kraid.KraidEyeColours> kraidEyes =
+        Shared<SuperMetroid.Core.Bosses.Kraid.KraidEyeColours>("Kraid eye colours", () => RepositoryInstallation.Installation.LoadEnemyTiles().KraidEyes);
+
     /// <summary>Backing loader for <see cref="BossBodySheets"/>.</summary>
     private static readonly Lazy<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets> bossBodySheets =
         Shared<SuperMetroid.Core.Enemies.BossBodies.BossBodySheets>("boss body sheets", () => RepositoryInstallation.Installation.LoadBossBodySheets());

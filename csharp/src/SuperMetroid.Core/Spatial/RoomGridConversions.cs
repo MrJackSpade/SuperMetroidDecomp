@@ -31,8 +31,7 @@ public static class RoomGridConversions
         new(unchecked((ushort)(block.X << 4)), unchecked((ushort)(block.Y << 4)));
 
     /// <summary>
-    /// The room-pixel origin of a screen cell: each axis shifted left eight bits, wrapping at
-    /// sixteen bits.
+    /// The room-pixel origin of a screen cell: 256 pixels a screen along each axis, wrapping as room positions do.
     /// </summary>
     public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomScreens> screen) =>
         new(unchecked((ushort)(screen.X << 8)), unchecked((ushort)(screen.Y << 8)));

@@ -205,8 +205,9 @@ internal static class BotwoonNavigationDefinitionsVerification
                 $"Botwoon descriptor {descriptor} reaches its destination");
         }
 
-        // Every position a walk can reach, one before the first step through one after the last, moves the head by
-        // the cartridge's sample at that position, or ends the walk where the cartridge reads a marker.
+        // Every position a walk can reach, one before the first step through one after the last, moves the head at full
+        // speed by the cartridge's samples at that position and the next, or ends the walk where the cartridge reads a
+        // marker at either, discarding the step already taken.
         Action<RoomEnemyPlace, BotwoonEnemyState> runMovement = BotwoonBehavior.RunBotwoonMovement;
         var movementEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace movementHead = movementEnemies.Places.InUpdateOrder[0];
@@ -223,30 +224,34 @@ internal static class BotwoonNavigationDefinitionsVerification
                 foreach (BotwoonPathTraversal traversal in Enum.GetValues<BotwoonPathTraversal>())
                 {
                     movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
+                    // He starts at full speed: two path steps an update.
                     var state = new BotwoonEnemyState(body: [])
                     {
                         Movement = BotwoonMovement.FollowAuthoredPath,
                         Path = definition,
                         PathStep = step,
                         PathTraversal = traversal,
-                        Speed = 1,
                     };
+                    AssertEqual(2, state.SpeedStage.MovementSpeed, "Botwoon walks two path steps an update at full speed");
                     runMovement(movementHead, state);
 
                     string context = $"Botwoon path {path} step {step} ${address:X6} {traversal}";
-                    AssertEqual(terminates, state.PathComplete, $"{context} completion");
-                    if (terminates)
+                    int sign = traversal == BotwoonPathTraversal.Backward ? -1 : 1;
+                    int nextAddress = terminates ? 0 : BotwoonPathCodec.AddressOf(separators, path, step + sign);
+                    bool nextTerminates = !terminates && BotwoonPathCodec.IsMarker(cartridge, nextAddress);
+                    AssertEqual(terminates || nextTerminates, state.PathComplete, $"{context} completion");
+                    if (terminates || nextTerminates)
                     {
-                        AssertEqual(step, state.PathStep, $"{context} terminating step");
+                        AssertEqual(terminates ? step : step + sign, state.PathStep, $"{context} terminating step");
                         AssertEqual((ushort)0x8000, movementHead.Position.X.Whole, $"{context} terminating X");
                         AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole, $"{context} terminating Y");
                         continue;
                     }
 
-                    int sign = traversal == BotwoonPathTraversal.Backward ? -1 : 1;
-                    AssertEqual(unchecked((ushort)(0x8000 + sign * expected.X)), movementHead.Position.X.Whole, $"{context} X");
-                    AssertEqual(unchecked((ushort)(0x8000 + sign * expected.Y)), movementHead.Position.Y.Whole, $"{context} Y");
-                    AssertEqual(step + sign, state.PathStep, $"{context} next step");
+                    Offset16<RoomPixels> next = BotwoonPathCodec.Sample(cartridge, nextAddress);
+                    AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.X + next.X))), movementHead.Position.X.Whole, $"{context} X");
+                    AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.Y + next.Y))), movementHead.Position.Y.Whole, $"{context} Y");
+                    AssertEqual(step + 2 * sign, state.PathStep, $"{context} next step");
                 }
                 movementStepCount++;
             }
@@ -286,16 +291,11 @@ internal static class BotwoonNavigationDefinitionsVerification
             {
                 Movement = BotwoonMovement.MoveTowardHole,
                 TargetHole = hole.Hole,
-                Speed = 0,
             };
             runMovement(head, state);
             // At the exact target the cartridge's angle routine yields 129; the movement angle is a quarter turn minus it.
             AssertEqual(RotationAngle.FromSteps(191), state.MovementAngle,
                 $"Botwoon hole {hole.Hole} exact-target movement angle");
-            AssertEqual(hole.Target.X, head.Position.X.Whole,
-                $"Botwoon hole {hole.Hole} exact-target X");
-            AssertEqual(hole.Target.Y, head.Position.Y.Whole,
-                $"Botwoon hole {hole.Hole} exact-target Y");
         }
 
         BotwoonPathDefinition first = BotwoonPathDefinitions.Paths[0];
@@ -306,7 +306,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             () => BotwoonNavigation.HasStep(first, first.Steps.Length + 1),
             "Botwoon path position past the walk's end");
         AssertThrows<InvalidOperationException>(
-            () => runMovement(movementHead, new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.FollowAuthoredPath, Speed = 1 }),
+            () => runMovement(movementHead, new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.FollowAuthoredPath }),
             "Botwoon cannot follow a path before choosing one");
 
         Console.WriteLine(

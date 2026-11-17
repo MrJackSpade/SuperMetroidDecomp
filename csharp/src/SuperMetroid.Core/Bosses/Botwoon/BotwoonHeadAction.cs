@@ -7,10 +7,10 @@ public enum BotwoonHeadAction
     AnimateFromMovement,
     /// <summary>Aims at Samus, starts the spit animation, and immediately selects the five-shot animation wait or three-shot volley.</summary>
     AimAtSamus,
-    /// <summary>Waits for the head animation's spit-frame flag, then emits five projectiles spaced sixteen angle units apart.</summary>
+    /// <summary>Waits until his spitting animation reaches its spit, then spits five, a sixteenth of a turn apart.</summary>
     WaitForSpitFrame,
-    /// <summary>Emits three aimed projectiles immediately and selects the attack cooldown.</summary>
+    /// <summary>Spits three at once, aimed at Samus, and cools down.</summary>
     SpawnImmediateVolley,
-    /// <summary>Counts the attack timer down until it passes zero, pins it to zero, and restores movement-based animation.</summary>
+    /// <summary>Steps the spit cooldown and, once it runs out, returns the head to animating from his movement.</summary>
     AttackCooldown,
 }

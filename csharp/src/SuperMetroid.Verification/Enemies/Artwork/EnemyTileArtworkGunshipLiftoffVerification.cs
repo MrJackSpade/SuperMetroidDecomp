@@ -50,7 +50,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
 
         var runtime = CreateRetailRuntimeFixture();
-        runtime.BossArtwork.KraidEyes = stock.Bosses.KraidColors?.Eyes();
+        runtime.BossArtwork.KraidEyes = (stock.Bosses.KraidColors ?? throw new InvalidOperationException("The stock artwork holds Kraid's colours.")).Eyes();
         SpriteArtworkPlacements stockPages = ShowAllTakeoffPages(stock, RuntimeArtworkContent.Of(runtime, stock.Enemies));
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)

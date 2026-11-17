@@ -9,7 +9,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     IReadOnlyList<BabyMetroidReleaseDustRequest> ReleaseDustClouds,
     bool AmbientCrySoundQueued,
     DustExplosionRequest? DeathExplosion,
-    int? BabyFadeShade,
+    MotherBrainFadeImage? BabyFadeImage,
     int? RecoveryLightsFrame)
 {
     /// <summary>The one-call fatal-impact edge, before the ongoing shake phase.</summary>

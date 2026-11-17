@@ -30,7 +30,7 @@ internal static class EnemyExtendedFrameDefinitions
     /// <summary>Ninja Pirate frames following the wall family.</summary>
     internal const int NinjaFrameCount = 76;
     /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
-    internal const int DraygonBg2FrameCount = 34;
+    internal const int DraygonBg2FrameCount = 32;
     /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int PhantoonBg2FrameCount = 20;
     /// <summary>Ceres steam OAM frames added after Spore Spawn identities.</summary>

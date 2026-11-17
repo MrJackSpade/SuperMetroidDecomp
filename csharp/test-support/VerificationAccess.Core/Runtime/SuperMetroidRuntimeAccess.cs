@@ -50,8 +50,8 @@ internal static class SuperMetroidRuntimeAccess
                 Definitions = definitions,
                 Services = services,
                 Area = self.Room.LoadedRoom.Area,
-                BossArtwork = new SuperMetroid.Core.Bosses.Artwork.BossArtworkBinding(self.Artwork.ScreenContent.CeresRidleyGetawayBoostDelays,
-                    self.Artwork.ScreenContent.EscapeTypewriter),
+                // The population reads the session's boss artwork, as a room load's does (#2269).
+                BossArtwork = self.BossArtwork,
                 BreakableTerrain = self.Room.LoadedScope.RoomObjects.BreakableTerrain,
                 RoomFx = self.Room.LoadedScope.FxOverlay,
                 DoorPassage = self.DoorTransition.Passage,

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
@@ -28,9 +28,9 @@ internal static class BossColourContentIdentity
         public string ContentIdentity =>
             SelectedPresentationHash.Create("BotwoonColorCatalog-v1", content =>
             {
-                content.Append("health", BotwoonHealthBandDefinitions.BandCount);
+                content.Append("health", BotwoonHealthBandDefinitions.InOrderShown.Count);
                 Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonColorFormat.ColorsPerPalette];
-                for (int band = 0; band < BotwoonHealthBandDefinitions.BandCount; band++)
+                for (int band = 0; band < BotwoonHealthBandDefinitions.InOrderShown.Count; band++)
                 {
                     for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
                     content.AppendColors("row", bandColors);

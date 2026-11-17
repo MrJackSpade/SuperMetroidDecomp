@@ -11,8 +11,8 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// </summary>
 internal static class CrocomireBg2FrameDefinitions
 {
-    /// <summary>Schema version for the selected mixed-frame BG2 artwork file; version 3 names each frame for its pose (#1465), 4 for the animation that first shows it (#1623), 6 for what its picture shows (#2069).</summary>
-    internal const int Version = 6;
+    /// <summary>Schema version for the selected mixed-frame BG2 artwork file; version 3 names each frame for its pose (#1465), 4 for the animation that first shows it (#1623), 6 for what its picture shows (#2069), 7 for the mouth its striding bodies show (#2268).</summary>
+    internal const int Version = 7;
     /// <summary>Installed BG2 visual resource for Crocomire's mixed fight frames.</summary>
     internal const string FileName = "crocomire-bg2-frames.json";
 
@@ -43,19 +43,19 @@ internal static class CrocomireBg2FrameDefinitions
         new(EnemyFrameId.CrocomireBodySwingingArmOutstretched, "crocomire_body_swinging_arm_outstretched"),
         new(EnemyFrameId.CrocomireBodySwingingArmLowering, "crocomire_body_swinging_arm_lowering"),
         new(EnemyFrameId.CrocomireBodySwingingArmReturning, "crocomire_body_swinging_arm_returning"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwinB, "crocomire_body_far_foot_forward_arm_upright_twin_b"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwinC, "crocomire_body_far_foot_forward_arm_upright_twin_c"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwinD, "crocomire_body_far_foot_forward_arm_upright_twin_d"),
-        new(EnemyFrameId.CrocomireBodyNearFootForwardArmBentTwin, "crocomire_body_near_foot_forward_arm_bent_twin"),
-        new(EnemyFrameId.CrocomireBodyNearFootForwardArmSweepingTwin, "crocomire_body_near_foot_forward_arm_sweeping_twin"),
-        new(EnemyFrameId.CrocomireBodyNearFootForwardArmLiftingTwin, "crocomire_body_near_foot_forward_arm_lifting_twin"),
-        new(EnemyFrameId.CrocomireBodyNearFootForwardArmUprightTwin, "crocomire_body_near_foot_forward_arm_upright_twin"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmBentTwin, "crocomire_body_far_foot_forward_arm_bent_twin"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmSquareTwin, "crocomire_body_far_foot_forward_arm_square_twin"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmReachingTwin, "crocomire_body_far_foot_forward_arm_reaching_twin"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmSweepingTwin, "crocomire_body_far_foot_forward_arm_sweeping_twin"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmLiftingTwin, "crocomire_body_far_foot_forward_arm_lifting_twin"),
-        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightTwin, "crocomire_body_far_foot_forward_arm_upright_twin"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthShut, "crocomire_body_far_foot_forward_arm_upright_mouth_shut"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthParted, "crocomire_body_far_foot_forward_arm_upright_mouth_parted"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthGaping, "crocomire_body_far_foot_forward_arm_upright_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyNearFootForwardArmBentMouthShut, "crocomire_body_near_foot_forward_arm_bent_mouth_shut"),
+        new(EnemyFrameId.CrocomireBodyNearFootForwardArmSweepingMouthGaping, "crocomire_body_near_foot_forward_arm_sweeping_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyNearFootForwardArmLiftingMouthGaping, "crocomire_body_near_foot_forward_arm_lifting_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyNearFootForwardArmUprightMouthGaping, "crocomire_body_near_foot_forward_arm_upright_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmBentMouthGaping, "crocomire_body_far_foot_forward_arm_bent_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmSquareMouthGaping, "crocomire_body_far_foot_forward_arm_square_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmReachingMouthGaping, "crocomire_body_far_foot_forward_arm_reaching_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmSweepingMouthGaping, "crocomire_body_far_foot_forward_arm_sweeping_mouth_gaping"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmLiftingMouthParted, "crocomire_body_far_foot_forward_arm_lifting_mouth_parted"),
+        new(EnemyFrameId.CrocomireBodyFarFootForwardArmUprightMouthShutting, "crocomire_body_far_foot_forward_arm_upright_mouth_shutting"),
         new(EnemyFrameId.CrocomireBodyLungingArmBent, "crocomire_body_lunging_arm_bent"),
         new(EnemyFrameId.CrocomireBodyLungingArmRaised, "crocomire_body_lunging_arm_raised"),
         new(EnemyFrameId.CrocomireBodyLungingArmOutstretched, "crocomire_body_lunging_arm_outstretched"),

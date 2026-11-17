@@ -133,7 +133,4 @@ internal static class MotherBrainFightDefinitions
 
     /// <summary>The updates each step of her turn to grey lasts.</summary>
     internal const int GreyStepUpdates = 16;
-
-    /// <summary>The steps of her turn to grey; the step after them finishes it.</summary>
-    internal const int GreySteps = 8;
 }

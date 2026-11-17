@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal sealed class MotherBrainColours : IGameplayShadingSource
 {
-    /// <summary>Her brain's step of the fake death's fade to grey or of its revival, or null before the fake death.</summary>
-    private PictureShade? fakeDeathFade;
+    /// <summary>Her brain's image of the fake death's fade to grey or of its revival, or null before the fake death.</summary>
+    private MotherBrainFadeImage? fakeDeathFade;
 
     /// <summary>Whether her ascent has shown her phase-two attack and rear-leg colours.</summary>
     private bool phaseTwo;
@@ -22,23 +22,23 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Her beam's colours over her whole body: a rainbow phase or the colours it restores, or null before any.</summary>
     private PictureShade? beam;
 
-    /// <summary>The step her drain to grey by the Baby has reached, or null before it starts.</summary>
-    private int? drain;
+    /// <summary>The image her drain to grey by the Baby has reached, or null before it starts.</summary>
+    private MotherBrainFadeImage? drain;
 
-    /// <summary>The step her revival from grey has reached, or null before it starts.</summary>
-    private int? revival;
+    /// <summary>The image her revival from grey has reached, or null before it starts.</summary>
+    private MotherBrainFadeImage? revival;
 
     /// <summary>The health band her whole body shows, or null before her revival enables it.</summary>
     private MotherBrainHealthBand? healthBand;
 
-    /// <summary>The step her death's fade of her body has reached, or null before it starts.</summary>
-    private int? deathFade;
+    /// <summary>The image her death's fade of her body has reached, or null before it starts.</summary>
+    private MotherBrainFadeImage? deathFade;
 
     /// <summary>The shading her detached brain kept as her death detached it, or null while it is attached.</summary>
     private PictureShading? detachedBrain;
 
-    /// <summary>The step her detached brain's corpse fade has reached, or null before it starts.</summary>
-    private int? corpseFade;
+    /// <summary>The image her detached brain's corpse fade has reached, or null before it starts.</summary>
+    private MotherBrainFadeImage? corpseFade;
 
     /// <summary>Her room's flash step, or its steady grey once the flash stops, or null before the fake death.</summary>
     private PictureShade? roomGrey;
@@ -49,8 +49,8 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Whether the Baby has arrived in its own colours.</summary>
     private bool babyArrived;
 
-    /// <summary>The shade, one through six, of the Baby's fade to black, or null before it starts.</summary>
-    private int? babyFade;
+    /// <summary>The image of the Baby's fade to black it shows, or null before it starts.</summary>
+    private MotherBrainFadeImage? babyFade;
 
     /// <summary>The shading her glass shards and tube projectiles draw in: the colours her room's entry gives them.</summary>
     internal static PictureShading GlassAndTubes { get; } = PictureShading.Shaded(MotherBrainShades.RoomEntry);
@@ -64,10 +64,10 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
         get
         {
             if (detachedBrain is { } kept)
-                return corpseFade is { } step ? kept.With(MotherBrainShades.CorpseFade(step)) : kept;
+                return corpseFade is { } image ? kept.With(MotherBrainShades.Fade(image)) : kept;
             PictureShading shading = PictureShading.Standard;
             if (fakeDeathFade is { } fade)
-                shading = shading.With(fade);
+                shading = shading.With(MotherBrainShades.Fade(fade));
             if (phaseTwo)
                 shading = shading.With(MotherBrainShades.PhaseTwo);
             return OverBody(shading);
@@ -95,15 +95,15 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
         get
         {
             PictureShading shading = babyArrived ? PictureShading.Shaded(MotherBrainShades.BabyArrives) : PictureShading.Standard;
-            return babyFade is { } shade ? shading.With(MotherBrainShades.BabyFade(shade)) : shading;
+            return babyFade is { } image ? shading.With(MotherBrainShades.Fade(image)) : shading;
         }
     }
 
-    /// <summary>Shows step <paramref name="step"/> of the fake death's fade of her brain to grey.</summary>
-    internal void ShowFakeDeathToGrey(int step) => fakeDeathFade = MotherBrainShades.FakeDeathToGrey(step);
+    /// <summary>Shows <paramref name="image"/> of the fake death's fade of her brain to grey.</summary>
+    internal void ShowFakeDeathToGrey(MotherBrainFadeImage image) => fakeDeathFade = image.Of(MotherBrainFadeDefinitions.FakeDeathToGrey);
 
-    /// <summary>Shows step <paramref name="step"/> of her brain's revival from the fake death's grey.</summary>
-    internal void ShowFakeDeathFromGrey(int step) => fakeDeathFade = MotherBrainShades.FakeDeathFromGrey(step);
+    /// <summary>Shows <paramref name="image"/> of her brain's revival from the fake death's grey.</summary>
+    internal void ShowFakeDeathFromGrey(MotherBrainFadeImage image) => fakeDeathFade = image.Of(MotherBrainFadeDefinitions.FakeDeathFromGrey);
 
     /// <summary>Shows her phase-two attack and rear-leg colours, which her ascent loads.</summary>
     internal void ShowPhaseTwo() => phaseTwo = true;
@@ -114,28 +114,28 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Shows the colours her beam restores over her whole body as it ends.</summary>
     internal void ShowRestored() => beam = MotherBrainShades.Restored;
 
-    /// <summary>Shows step <paramref name="step"/> of the Baby's drain of her whole body to grey.</summary>
-    internal void ShowDrain(int step) => drain = step;
+    /// <summary>Shows <paramref name="image"/> of the Baby's drain of her whole body to grey.</summary>
+    internal void ShowDrain(MotherBrainFadeImage image) => drain = image.Of(MotherBrainFadeDefinitions.DrainToGrey);
 
-    /// <summary>Shows step <paramref name="step"/> of her whole body's revival from grey.</summary>
-    internal void ShowRevival(int step) => revival = step;
+    /// <summary>Shows <paramref name="image"/> of her whole body's revival from grey.</summary>
+    internal void ShowRevival(MotherBrainFadeImage image) => revival = image.Of(MotherBrainFadeDefinitions.RevivalFromGrey);
 
     /// <summary>Shows <paramref name="band"/>'s colours over her whole body.</summary>
     internal void ShowHealth(MotherBrainHealthBand band) => healthBand = Ensure.NotNull(band);
 
-    /// <summary>Shows step <paramref name="step"/> of her death's fade over her whole body.</summary>
-    internal void ShowDeathFade(int step) => deathFade = step;
+    /// <summary>Shows <paramref name="image"/> of her death's fade over her whole body.</summary>
+    internal void ShowDeathFade(MotherBrainFadeImage image) => deathFade = image.Of(MotherBrainFadeDefinitions.DeathBody);
 
     /// <summary>Detaches her brain as she dies: it keeps the colours it shows, and only the corpse's fade changes them from here.</summary>
     internal void DetachBrain() => detachedBrain ??= OwnShading;
 
-    /// <summary>Shows step <paramref name="step"/> of the corpse's fade over her detached brain.</summary>
+    /// <summary>Shows <paramref name="image"/> of the corpse's fade over her detached brain.</summary>
     /// <exception cref="InvalidOperationException">Her brain has not been detached.</exception>
-    internal void ShowCorpseFade(int step)
+    internal void ShowCorpseFade(MotherBrainFadeImage image)
     {
         if (detachedBrain is null)
             throw new InvalidOperationException("Mother Brain's corpse fades after her death detaches her brain.");
-        corpseFade = step;
+        corpseFade = image.Of(MotherBrainFadeDefinitions.CorpseFade);
     }
 
     /// <summary>Shows image <paramref name="image"/> of her room's flash.</summary>
@@ -153,8 +153,8 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
     /// <summary>Shows the Baby in the colours it arrives in.</summary>
     internal void ShowBabyArrived() => babyArrived = true;
 
-    /// <summary>Shows shade <paramref name="shade"/> of the Baby's fade to black.</summary>
-    internal void ShowBabyFade(int shade) => babyFade = shade;
+    /// <summary>Shows <paramref name="image"/> of the Baby's fade to black.</summary>
+    internal void ShowBabyFade(MotherBrainFadeImage image) => babyFade = image.Of(MotherBrainFadeDefinitions.BabyFade);
 
     /// <summary>
     /// <paramref name="under"/> with her whole body's colouring over it: her beam's colours, the drain over the rainbow it
@@ -166,12 +166,12 @@ internal sealed class MotherBrainColours : IGameplayShadingSource
         if (beam is { } colours)
             shading = shading.With(colours);
         if (drain is { } drained)
-            shading = shading.With(MotherBrainShades.ToGrey(drained));
+            shading = shading.With(MotherBrainShades.Fade(drained));
         if (revival is { } revived)
-            shading = shading.With(MotherBrainShades.FromGrey(revived));
+            shading = shading.With(MotherBrainShades.Fade(revived));
         if (healthBand is { } band)
             shading = shading.With(MotherBrainShades.Health(band));
-        return deathFade is { } dying ? shading.With(MotherBrainShades.DeathBody(dying)) : shading;
+        return deathFade is { } dying ? shading.With(MotherBrainShades.Fade(dying)) : shading;
     }
 
     /// <inheritdoc />

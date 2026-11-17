@@ -1170,5 +1170,26 @@ internal static class CoreDocumentationVocabularyAnalyzerTests
         // A literal alone, a call alone and a hardware owner are English.
         Expect("class P { /// <summary>The literal text the inventory shows; one call per room.</summary>\nint F => 0; }");
         Expect(CompatibilityService + "/// <summary>Evidence: literal inventory writes, one per AI call.</summary>\n[CompatibilityService(\"inventory\")] class Inventory { }");
+        // The machine's storage told for a value, outside hardware owners (#2271).
+        Expect("class P { /// <summary>Initial maximum health shifted right one, the threshold for his faster speed.</summary>\nint F => 0; }",
+            "('shifted right one')");
+        Expect("class P { /// <summary>The origin of a screen: each axis shifted left eight bits.</summary>\nint F => 0; }",
+            "('shifted left eight')");
+        Expect("class P { string S = \"right-shift applied to horizontal speed\"; }", "('right-shift')");
+        Expect("class P { void Run() { // the trail lies in the state the room's enemy setup clears on room load\n } }",
+            "('enemy setup clears')");
+        Expect("class P { void Run() { // its history clears on room load\n } }", "('clears on room load')");
+        Expect("class P { /// <summary>The head's last positions, cleared as the room's enemies load.</summary>\nint F => 0; }",
+            "('cleared as the room's enemies load')");
+        Expect("class P { /// <summary>The frames, named in the physical order of the table.</summary>\nint F => 0; }", "('physical order')");
+        Expect("class P { void Run() { // Each position uses both halves of one RNG result.\n } }", "('both halves of one RNG')");
+        Expect("class P { /// <summary>The segment's phase; the game kept it in the projectile's horizontal velocity.</summary>\nint F => 0; }",
+            "('kept it in the projectile's horizontal velocity')");
+        Expect("class P { /// <summary>The movement angle, consumed by the signed fixed-point vector helper.</summary>\nint F => 0; }",
+            "('vector helper')");
+        // A shift by a counted noun, a room that clears, physical contact, halves of a picture, a value kept for an update
+        // and a hardware owner are English.
+        Expect("class P { /// <summary>The camera shifts left two pixels; the room clears when Samus leaves; physical contact; the halves of a picture; a value kept for an update.</summary>\nint F => 0; }");
+        Expect(CompatibilityService + "/// <summary>Evidence: the ring is cleared as the room's enemies load, in its physical order.</summary>\n[CompatibilityService(\"ring\")] class Ring { }");
     }
 }

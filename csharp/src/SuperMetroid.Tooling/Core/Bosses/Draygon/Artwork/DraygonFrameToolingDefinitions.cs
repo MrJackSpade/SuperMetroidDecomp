@@ -19,8 +19,9 @@ internal static class DraygonFrameToolingDefinitions
     /// <summary>Frames per facing: 27 one-component roots, 8 tail roots and 6 whip roots.</summary>
     internal const int FramesPerFacing = 41;
     /// <summary>
-    /// Every frame in the cartridge's root order: each facing's 27 one-part poses (arms, body, eye), eight two-part tail
-    /// poses, then the tail whip's poses in pairs of four, six and eight parts.
+    /// The frame each root shows, in the cartridge's root order: each facing's 27 one-part poses (arms, body, eye), eight
+    /// two-part tail poses, then the tail whip's poses in pairs of four, six and eight parts. The shut jaw shows from two
+    /// roots (#2268): one writes only the jaw's cells, the other the whole body.
     /// </summary>
     internal static readonly EnemyFrameId[] CartridgeOrder =
     [
@@ -46,7 +47,7 @@ internal static class DraygonFrameToolingDefinitions
         EnemyFrameId.DraygonEyeFacingLeftBloodshot,
         EnemyFrameId.DraygonEyeFacingLeftNarrowing,
         EnemyFrameId.DraygonEyeFacingLeftClosing,
-        EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
+        EnemyFrameId.DraygonBodyFacingLeftJawShut,
         EnemyFrameId.DraygonArmsFacingLeftSpreadWide,
         EnemyFrameId.DraygonArmsFacingLeftClosing,
         EnemyFrameId.DraygonArmsFacingLeftGathering,
@@ -87,7 +88,7 @@ internal static class DraygonFrameToolingDefinitions
         EnemyFrameId.DraygonEyeFacingRightBloodshot,
         EnemyFrameId.DraygonEyeFacingRightNarrowing,
         EnemyFrameId.DraygonEyeFacingRightClosing,
-        EnemyFrameId.DraygonBodyFacingRightJawShutTwin,
+        EnemyFrameId.DraygonBodyFacingRightJawShut,
         EnemyFrameId.DraygonArmsFacingRightSpreadWide,
         EnemyFrameId.DraygonArmsFacingRightClosing,
         EnemyFrameId.DraygonArmsFacingRightGathering,
@@ -111,12 +112,25 @@ internal static class DraygonFrameToolingDefinitions
     internal static readonly FacingRoots FacingLeft = new(0xa2df, 0xa40b, 0xa4a3, 0xa4ef, 0xa55b);
     /// <summary>The facing-right roots, from $A5:A607.</summary>
     internal static readonly FacingRoots FacingRight = new(0xa607, 0xa779, 0xa811, 0xa85d, 0xa8c9);
-    /// <summary>The installed extended spritemap of <paramref name="frame"/>.</summary>
+    /// <summary>
+    /// The extended spritemap the import pictures <paramref name="frame"/> from: of the roots that show it, the last, which
+    /// for the shut jaw is the whole body's.
+    /// </summary>
     internal static ushort Spritemap(EnemyFrameId frame)
     {
-        int position = Array.IndexOf(CartridgeOrder, frame);
+        int position = Array.LastIndexOf(CartridgeOrder, frame);
         if (position < 0)
             throw new ArgumentOutOfRangeException(nameof(frame), frame, "Not a Draygon frame.");
+        return RootAt(position);
+    }
+
+    /// <summary>Every extended spritemap that shows <paramref name="frame"/>.</summary>
+    internal static IEnumerable<ushort> Spritemaps(EnemyFrameId frame) =>
+        Enumerable.Range(0, CartridgeOrder.Length).Where(position => CartridgeOrder[position] == frame).Select(RootAt);
+
+    /// <summary>The extended spritemap at <paramref name="position"/> of the cartridge's root order.</summary>
+    internal static ushort RootAt(int position)
+    {
         FacingRoots roots = position < FramesPerFacing ? FacingLeft : FacingRight;
         int index = position % FramesPerFacing;
         return unchecked((ushort)(index switch

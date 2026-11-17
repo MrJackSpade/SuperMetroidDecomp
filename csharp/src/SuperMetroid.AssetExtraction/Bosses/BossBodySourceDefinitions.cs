@@ -66,15 +66,13 @@ internal static class BossBodySourceDefinitions
         [EnemyFrameId.PhantoonEyeLookingLeft] = EnemyFrameId.PhantoonEyeballCentered,
         [EnemyFrameId.PhantoonEyeLookingUpLeft] = EnemyFrameId.PhantoonEyeballCentered,
         [EnemyFrameId.DraygonLimpArmFacingLeftClawDropping] = EnemyFrameId.DraygonLimpArmFacingLeftClawRaised,
-        [EnemyFrameId.DraygonBodyFacingLeftJawShut] = EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
-        [EnemyFrameId.DraygonBodyFacingLeftJawParting] = EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
-        [EnemyFrameId.DraygonBodyFacingLeftJawOpen] = EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
-        [EnemyFrameId.DraygonBodyFacingLeftJawWide] = EnemyFrameId.DraygonBodyFacingLeftJawShutTwin,
+        [EnemyFrameId.DraygonBodyFacingLeftJawParting] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
+        [EnemyFrameId.DraygonBodyFacingLeftJawOpen] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
+        [EnemyFrameId.DraygonBodyFacingLeftJawWide] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
         [EnemyFrameId.DraygonLimpArmFacingRightClawDropping] = EnemyFrameId.DraygonLimpArmFacingRightClawRaised,
-        [EnemyFrameId.DraygonBodyFacingRightJawShut] = EnemyFrameId.DraygonBodyFacingRightJawShutTwin,
-        [EnemyFrameId.DraygonBodyFacingRightJawParting] = EnemyFrameId.DraygonBodyFacingRightJawShutTwin,
-        [EnemyFrameId.DraygonBodyFacingRightJawOpen] = EnemyFrameId.DraygonBodyFacingRightJawShutTwin,
-        [EnemyFrameId.DraygonBodyFacingRightJawWide] = EnemyFrameId.DraygonBodyFacingRightJawShutTwin,
+        [EnemyFrameId.DraygonBodyFacingRightJawParting] = EnemyFrameId.DraygonBodyFacingRightJawShut,
+        [EnemyFrameId.DraygonBodyFacingRightJawOpen] = EnemyFrameId.DraygonBodyFacingRightJawShut,
+        [EnemyFrameId.DraygonBodyFacingRightJawWide] = EnemyFrameId.DraygonBodyFacingRightJawShut,
     };
 
     /// <summary>

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
@@ -30,16 +31,16 @@ internal static class ImportedBossLooks
         internal void ApplyNormal(IPaletteColors cgram) => self.ShowImported(cgram, MotherBrainShades.Restored);
 
         /// <summary>Shows step <paramref name="frame"/> of the drain to grey over <paramref name="cgram"/>.</summary>
-        internal void ApplyToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.ToGrey(frame));
+        internal void ApplyToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.DrainToGrey.Images[frame]));
 
         /// <summary>Shows step <paramref name="frame"/> of the revival from grey over <paramref name="cgram"/>.</summary>
-        internal void ApplyFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.FromGrey(frame));
+        internal void ApplyFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.RevivalFromGrey.Images[frame]));
 
         /// <summary>Shows step <paramref name="frame"/> of the fake death's fade to grey over <paramref name="cgram"/>.</summary>
-        internal void ApplyFakeDeathToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.FakeDeathToGrey(frame));
+        internal void ApplyFakeDeathToGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.FakeDeathToGrey.Images[frame]));
 
         /// <summary>Shows step <paramref name="frame"/> of the fake death's revival over <paramref name="cgram"/>.</summary>
-        internal void ApplyFakeDeathFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.FakeDeathFromGrey(frame));
+        internal void ApplyFakeDeathFromGrey(IPaletteColors cgram, int frame) => self.ShowImported(cgram, MotherBrainShades.Fade(MotherBrainFadeDefinitions.FakeDeathFromGrey.Images[frame]));
 
         /// <summary>Lays <paramref name="shade"/> over <paramref name="cgram"/>.</summary>
         internal void ShowImported(IPaletteColors cgram, PictureShade shade) =>
@@ -81,7 +82,7 @@ internal static class ImportedBossLooks
     extension(DraygonColorCatalog self)
     {
         /// <summary>Shows health band <paramref name="band"/>'s background colours over <paramref name="cgram"/>.</summary>
-        internal void ApplyHealthBand(IPaletteColors cgram, int band) => self.ShowImported(cgram, DraygonShades.Health(band));
+        internal void ApplyHealthBand(IPaletteColors cgram, int band) => self.ShowImported(cgram, DraygonShades.Health(DraygonHealthBandDefinitions.HighestFirst[band]));
 
         /// <summary>
         /// Shows a hurt update over <paramref name="cgram"/>: his material colours with <paramref name="healthBand"/> unless
@@ -92,7 +93,7 @@ internal static class ImportedBossLooks
             self.ShowImported(cgram, whiteFrame ? DraygonShades.BodyWhite : DraygonShades.Body);
             self.ShowImported(cgram, whiteFrame ? DraygonShades.SpriteWhite : DraygonShades.Sprite);
             if (!whiteFrame && healthBand >= 0)
-                self.ShowImported(cgram, DraygonShades.Health(healthBand));
+                self.ShowImported(cgram, DraygonShades.Health(DraygonHealthBandDefinitions.HighestFirst[healthBand]));
         }
 
         /// <summary>Shows his opening's colours over <paramref name="cgram"/>.</summary>

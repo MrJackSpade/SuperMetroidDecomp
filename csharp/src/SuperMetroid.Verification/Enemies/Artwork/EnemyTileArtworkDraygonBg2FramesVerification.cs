@@ -88,9 +88,10 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     DrawDraygonBg2(stock, frame.Pointer, true)),
                 $"Draygon {frame.Name} stock VRAM shows the native words without cartridge reads");
         }
-        AssertEqual(34, DraygonBg2FrameDefinitions.Frames.Length,
+        AssertEqual(32, DraygonBg2FrameDefinitions.Frames.Length,
             "all selected Draygon BG2 frame identities are installed");
-        AssertEqual(102, writeCount, "all Draygon BG2 command writes are installed");
+        // The shut jaw is pictured from the whole body's record, not the jaw-only one (#2268): two writes a facing fewer.
+        AssertEqual(98, writeCount, "all Draygon BG2 command writes are installed");
         Suite(nameof(VerifyCompiledDraygonBg2Collision), () => VerifyCompiledDraygonBg2Collision(rom));
         Suite(nameof(VerifyCompiledDraygonOamCollision), () => VerifyCompiledDraygonOamCollision(rom));
         Suite(nameof(VerifyCompiledSporeSpawnCollision), () => VerifyCompiledSporeSpawnCollision(rom));

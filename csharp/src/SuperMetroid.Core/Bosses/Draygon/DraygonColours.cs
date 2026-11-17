@@ -18,7 +18,7 @@ internal sealed class DraygonColours : IGameplayShadingSource
     private bool white;
 
     /// <summary>His health band, or null before any is shown.</summary>
-    private int? band;
+    private DraygonHealthBand? band;
 
     /// <summary>The shading his sprites show: his opening's colours, with his material colours or white flash over them.</summary>
     internal PictureShading Sprites => !hurtShown
@@ -41,8 +41,8 @@ internal sealed class DraygonColours : IGameplayShadingSource
         white = whiteFrame;
     }
 
-    /// <summary>Shows health band <paramref name="shown"/>'s colours with his material colours; his white flash covers them.</summary>
-    internal void ShowBand(int shown) => band = shown;
+    /// <summary>Shows <paramref name="shown"/>'s colours with his material colours; his white flash covers them.</summary>
+    internal void ShowBand(DraygonHealthBand shown) => band = Ensure.NotNull(shown);
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)

@@ -255,10 +255,9 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (Encounter.PhaseTimer.StepRunsOut())
         {
             Encounter.PhaseTimer.Count = MotherBrainLateFightDefinitions.BodyFadeStepUpdates;
-            int fadeStep = Encounter.DeathBodyFade.TakeStep();
-            if (fadeStep < MotherBrainLateFightDefinitions.BodyFadeSteps)
-                requests.DeathFadeStep = fadeStep;
-            if (fadeStep >= MotherBrainLateFightDefinitions.BodyFadeSteps)
+            if (MotherBrainFadeDefinitions.DeathBody.ImageAt(Encounter.DeathBodyFade.TakeStep()) is { } image)
+                requests.DeathFadeImage = image;
+            else
             {
                 requests.BodyClearRequested = true;
                 RoomEnemyPlace body = Encounter.Body;
@@ -366,10 +365,9 @@ internal sealed class MotherBrainThirdPhaseDeath
     {
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            int greyStep = Encounter.CorpseGreying.TakeStep();
-            if (greyStep < MotherBrainFightDefinitions.GreySteps)
+            if (MotherBrainFadeDefinitions.CorpseFade.ImageAt(Encounter.CorpseGreying.TakeStep()) is { } image)
             {
-                requests.CorpseFadeStep = greyStep;
+                requests.CorpseFadeImage = image;
                 Encounter.PhaseTimer.Count = MotherBrainFightDefinitions.GreyStepUpdates;
             }
             else

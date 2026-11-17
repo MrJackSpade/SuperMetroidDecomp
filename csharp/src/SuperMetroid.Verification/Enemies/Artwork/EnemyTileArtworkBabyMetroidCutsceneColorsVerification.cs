@@ -77,7 +77,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         for (int index = 1; index <= BabyMetroidCutsceneColorDefinitions.FadeFrameCount; index++)
         {
-            BabyMetroidCutsceneBehavior.ShowBabyMetroidFade(motherBrain.Colours, index);
+            BabyMetroidCutsceneBehavior.ShowBabyMetroidFade(motherBrain.Colours, MotherBrainFadeDefinitions.BabyFade.Images[index - 1]);
             cgram = Shown();
             for (int color = 0; color < BabyMetroidCutsceneColorFormat.FadeColorCount; color++)
                 AssertEqual(colors.FadeColor(index, color).ToWord(), cgram[destination + color],

@@ -8,55 +8,79 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
 /// <summary>
-/// Botwoon's spit cooldown is a countdown that expires by running below zero: the expiring step pins
-/// it back to zero and returns the head to following its movement, and the hidden-spit state waits while it is nonzero.
+/// #2267: Botwoon's spit cooldown is a boss countdown that each volley starts with its own duration. The game held one
+/// signed timer for it, loaded with 48 as he started spitting from a hole and with zero as he started a walk: in a hole
+/// it counted down from the volley and he left on the update it read zero, the 49th after the volley; outside one it ran
+/// below zero on the update after the volley and was pinned back to zero. These checks hold those updates.
 /// </summary>
 internal static class BotwoonAttackCooldownVerification
 {
     /// <summary>
     /// Drives the production main AI (<c>RunBotwoonMainAi</c>) on a constructed head with its thirteen real body
-    /// segments. In the moving frame the cooldown at one steps to zero and keeps cooling down, then at zero runs to
-    /// the negative branch, is pinned to zero and hands the head back to movement. In the hidden-spit state the gate
-    /// keeps running the cooldown while the timer is nonzero and leaves the state once it reads zero.
+    /// segments. Outside a hole the immediate volley's cooldown returns the head to following his movement on the update
+    /// after the volley. From a hole the aimed volley's cooldown returns it on the 48th update after the volley and he
+    /// leaves the hole on the 49th, as the game's count of 48 read zero there.
     /// </summary>
     internal static void VerifyBotwoonAttackCooldown()
     {
-        // Moving frame: the only path on which the cooldown starts at zero and runs below it.
         (RoomEnemySystem moving, RoomEnemyPlace movingHead, BotwoonEnemyState movingState) = NewBotwoon();
         movingState.Phase = BotwoonPhase.ChooseNextAction;
         movingState.Movement = BotwoonMovement.MoveTowardHole;
-        movingState.HeadAction = BotwoonHeadAction.AttackCooldown;
-        movingState.AttackTimer = 1;
+        movingState.HeadAction = BotwoonHeadAction.SpawnImmediateVolley;
 
         moving.BotwoonBehavior.RunBotwoonMainAi(movingHead, Frame());
-        AssertEqual(0, movingState.AttackTimer, "a cooldown at one steps to zero");
-        AssertEqual(BotwoonHeadAction.AttackCooldown, movingState.HeadAction, "reaching zero does not end the cooldown");
-
+        AssertEqual(BotwoonHeadAction.AttackCooldown, movingState.HeadAction, "the immediate volley starts the cooldown");
         moving.BotwoonBehavior.RunBotwoonMainAi(movingHead, Frame());
-        AssertEqual(0, movingState.AttackTimer, "the cooldown that runs below zero is pinned back to zero");
-        AssertEqual(BotwoonHeadAction.AnimateFromMovement, movingState.HeadAction, "the expired cooldown returns the head to following its movement");
+        AssertEqual(BotwoonHeadAction.AnimateFromMovement, movingState.HeadAction,
+            "the immediate volley's cooldown returns the head to following its movement on the next update");
 
-        // Hidden spit: the state's gate runs the cooldown while it is nonzero and leaves once it reads zero.
         (RoomEnemySystem hidden, RoomEnemyPlace hiddenHead, BotwoonEnemyState hiddenState) = NewBotwoon();
         hiddenState.Phase = BotwoonPhase.SpitWhileHidden;
-        hiddenState.HeadAction = BotwoonHeadAction.AttackCooldown;
-        hiddenState.AttackTimer = 1;
+        hiddenState.HeadAction = BotwoonHeadAction.WaitForSpitFrame;
+        hiddenState.SpitFrameReached = true;
 
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
-        AssertEqual(0, hiddenState.AttackTimer, "the hidden-spit gate runs a nonzero cooldown");
-        AssertEqual(BotwoonPhase.SpitWhileHidden, hiddenState.Phase, "a running cooldown keeps Botwoon spitting from the hole");
-
+        AssertEqual(BotwoonHeadAction.AttackCooldown, hiddenState.HeadAction, "the aimed volley starts the cooldown");
+        for (int update = 1; update <= 47; update++)
+        {
+            hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
+            AssertEqual(BotwoonHeadAction.AttackCooldown, hiddenState.HeadAction, $"the head still cools down {update} updates after the volley");
+            AssertEqual(BotwoonPhase.SpitWhileHidden, hiddenState.Phase, $"Botwoon still spits from the hole {update} updates after the volley");
+        }
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
-        AssertEqual(0, hiddenState.AttackTimer, "the gate does not decrement a zero cooldown");
-        AssertEqual(BotwoonPhase.FollowAuthoredPath, hiddenState.Phase, "a zero cooldown ends the hidden spit");
+        AssertEqual(BotwoonHeadAction.AnimateFromMovement, hiddenState.HeadAction, "the cooldown runs out on the 48th update after the volley");
+        AssertEqual(BotwoonPhase.SpitWhileHidden, hiddenState.Phase, "Botwoon stays in the hole on the update the cooldown runs out");
+        hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
+        AssertEqual(BotwoonPhase.FollowAuthoredPath, hiddenState.Phase, "Botwoon leaves the hole on the 49th update after the volley");
         AssertEqual(BotwoonHeadAction.AnimateFromMovement, hiddenState.HeadAction, "leaving the hidden spit returns the head to movement");
 
-        Console.WriteLine("  Botwoon attack cooldown: steps to zero, runs below it and pins to zero, and gates the hidden spit on zero.");
-
-        static ClockedEnemyAiFrame Frame() => new(
-            RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
-            new FrameCounters(0));
+        Console.WriteLine("  Botwoon attack cooldown: the immediate volley cools down one update, the aimed volley 48, and he leaves the hole on the 49th.");
     }
+
+    /// <summary>
+    /// #2267: once his tail has finished entering the wall after the fatal hit, Botwoon waits sixteen updates, that update
+    /// included, and his head falls from the next: the game counted 240 up to 256 from that update.
+    /// </summary>
+    internal static void VerifyBotwoonPreFallWait()
+    {
+        (RoomEnemySystem enemies, RoomEnemyPlace head, BotwoonEnemyState state) = NewBotwoon();
+        state.Phase = BotwoonPhase.FollowAuthoredPath;
+        state.PendingDeath = true;
+        state.ExitTransitionComplete = true;
+        for (int update = 1; update <= 15; update++)
+        {
+            enemies.BotwoonBehavior.RunBotwoonMainAi(head, Frame());
+            AssertEqual(BotwoonPhase.DeathDelay, state.Phase, $"Botwoon still waits to fall on update {update} of his wait");
+        }
+        enemies.BotwoonBehavior.RunBotwoonMainAi(head, Frame());
+        AssertEqual(BotwoonPhase.HeadFalling, state.Phase, "Botwoon's head falls from the update after the sixteenth of his wait");
+        Console.WriteLine("  Botwoon pre-fall wait: sixteen updates from his tail entering the wall, then his head falls.");
+    }
+
+    /// <summary>A frame of Botwoon's main AI, with Samus standing clear of him.</summary>
+    private static ClockedEnemyAiFrame Frame() => new(
+        RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
+        new FrameCounters(0));
 
     /// <summary>
     /// A head in slot zero bound as Botwoon, away from every hole, with its thirteen body segments spawned by the
@@ -71,9 +95,7 @@ internal static class BotwoonAttackCooldownVerification
         head.Position = head.Position.WithWhole(new(1000, 1000));
         var state = new BotwoonEnemyState(enemies.BotwoonBehavior.SpawnBotwoonBody(head))
         {
-            HealthBandsPassed = BotwoonHealthBandDefinitions.BandCount,
-            SegmentSpacingEntries = 3,
-            Speed = 0,
+            HealthBand = BotwoonHealthBandDefinitions.BelowEighth,
         };
         head.SetSpeciesState(state);
         return new NewBotwoonHeadResult(enemies, head, state);
@@ -84,6 +106,7 @@ internal static class BotwoonAttackCooldownVerification
     internal static int BotwoonAttackCooldownCommand()
     {
         Suite(nameof(VerifyBotwoonAttackCooldown), () => VerifyBotwoonAttackCooldown());
+        Suite(nameof(VerifyBotwoonPreFallWait), () => VerifyBotwoonPreFallWait());
         return 0;
     }
 }

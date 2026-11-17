@@ -78,7 +78,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Body.Presence = state.DeathHidesBodyLayer
                 ? state.Body.Presence.With(EnemyPresence.Hidden)
                 : state.Body.Presence.Without(EnemyPresence.Hidden);
-            if (step.DeathFadeStep is int deathFade)
+            if (step.DeathFadeImage is { } deathFade)
                 state.Colours.ShowDeathFade(deathFade);
         }
         if (step.BodyClearRequested)
@@ -88,7 +88,7 @@ internal sealed class MotherBrainRainbowAndDeath
             state.Body.Presence = state.Body.Presence.With(EnemyPresence.Hidden);
             _presentation.RequireBossBody().Clear();
         }
-        if (step.CorpseFadeStep is int corpseFade)
+        if (step.CorpseFadeImage is { } corpseFade)
             state.Colours.ShowCorpseFade(corpseFade);
         foreach (var dust in step.CorpseDustRequests)
         {
@@ -269,12 +269,12 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainRainbowBeamAttackStepResult step)
     {
         // Her revival shows over the drain's last grey step, which it leaves showing in two of her colours.
-        if (step.DrainColourStep is int drain)
+        if (step.DrainColourImage is { } drain)
         {
             state.Colours.ShowDrain(drain);
             return;
         }
-        if (step.RevivalColourStep is int revival)
+        if (step.RevivalColourImage is { } revival)
         {
             state.Colours.ShowRevival(revival);
             return;

@@ -211,7 +211,7 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomVisualLayouts = visualLayouts;
             runtime.Artwork.RoomLevelStreams = levelStreams;
 
-            runtime.BossArtwork.KraidEyes = EnemyTiles.Bosses.KraidColors?.Eyes();
+            runtime.BossArtwork.KraidEyes = (EnemyTiles.Bosses.KraidColors ?? throw new InvalidOperationException("The enemy artwork holds Kraid's colours.")).Eyes();
 
             runtime.Artwork.SamusBodyArt = SamusBody.Gameplay;
             runtime.RoomObjectVisuals.RoomObjectElevatorPlatformVisuals = elevatorPlatform;
@@ -464,7 +464,7 @@ internal static class MapPresentationVerification
                 MotherBrainRainbowPaletteGeometry.BackLegCount,
                 MotherBrainColorDestinations.DrainedRearLegColor);
             SnesCgram installed = MotherBrainLook.OfRainbow(rainbow,
-                draining ? MotherBrainShades.ToGrey(frame) : MotherBrainShades.FromGrey(frame), seed);
+                MotherBrainShades.Fade((draining ? MotherBrainFadeDefinitions.DrainToGrey : MotherBrainFadeDefinitions.RevivalFromGrey).Images[frame]), seed);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
         }

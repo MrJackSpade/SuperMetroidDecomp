@@ -69,7 +69,6 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
-        enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
@@ -94,7 +93,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
-        state.HealthBand = 1;
+        state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[1];
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
@@ -121,7 +120,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
         for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
         {
-            state.HealthBand = band;
+            state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[band];
             DraygonCombat.ShowDraygonHealthBand(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),

@@ -61,8 +61,8 @@ internal static class CrocomireAnimations
                 ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallMedium, 3),
                 ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLarge, 3),
                 ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLargest, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLargeTwin, 3),
-                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallMediumTwin, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallLarge, 3),
+                ProjectileFrame(EnemyProjectileFrameId.CrocomireMouthBallMedium, 3),
             ],
             [CrocomireProjectileSegment.BridgeFragment] =
                 [new AnimationBeat<EnemyProjectileFrameId, CrocomireProjectileCue>.HeldFrame(EnemyProjectileFrameId.CrocomireBridgeFragment)],

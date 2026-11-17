@@ -18,7 +18,7 @@ public static class BotwoonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[BotwoonHealthBandDefinitions.BandCount][];
+        var bands = new PaletteRgb5[BotwoonColorFormat.HealthBandCount][];
         for (int band = 0; band < bands.Length; band++)
         {
             bands[band] = new PaletteRgb5[BotwoonColorFormat.ColorsPerPalette];

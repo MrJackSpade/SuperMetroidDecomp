@@ -31,17 +31,18 @@ public sealed class BotwoonEnemyState
 
     /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
-    /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
-    public int SegmentSpacingEntries { get; internal set; }
     /// <summary>Frames left of the opening delay, seeded from <see cref="BotwoonFightDefinitions.OpeningDelay"/> and counted down to zero before normal traversal begins.</summary>
     public int InitialDelayTimer { get; internal set; }
-    /// <summary>Frames left of the spit-action cooldown, seeded from <see cref="BotwoonFightDefinitions.HiddenSpitCooldown"/> for the stationary attack and counted down past zero by the head behaviour before being pinned to zero.</summary>
-    public int AttackTimer { get; internal set; }
     /// <summary>
-    /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
-    /// until it reaches 256, when the head starts falling; it stays within 240..256.
+    /// His head's cooldown after a spit volley (#2267): it lasts the volley's <see cref="BotwoonSpitVolley.CooldownUpdates"/>,
+    /// and when it runs out his head follows his movement again.
     /// </summary>
-    public int DeathTimer { get; internal set; }
+    public BossCountdown SpitCooldown { get; } = new();
+    /// <summary>
+    /// His wait before his head falls (#2267): it starts once his tail has finished crossing into the wall after the fatal
+    /// hit and lasts <see cref="BotwoonDeathDefinitions.PreFallWaitUpdates"/>, his head falling from the update after.
+    /// </summary>
+    public BossCountdown PreFallWait { get; } = new();
     /// <summary>
     /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on three quarters of a mark,
     /// and the whole marks choose the fall speed. The head reaches the floor before the curve ends, well below mark 95.
@@ -49,15 +50,24 @@ public sealed class BotwoonEnemyState
     public QuadraticSpeedCurvePlace DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
     public int WallExplosionFrame { get; internal set; }
-    /// <summary>Frames until the next large wall explosion, active from update 64 and reloaded to 12 once it runs past zero.</summary>
-    public int LargeExplosionTimer { get; internal set; }
-    /// <summary>Frames until the next pair of small wall explosions, active from update 64 and reloaded to four once it runs past zero.</summary>
-    public int SmallExplosionTimer { get; internal set; }
-    /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or path steps taken per authored-path update.</summary>
-    public int Speed { get; internal set; }
+    /// <summary>
+    /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
+    /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.
+    /// </summary>
+    public BossCountdown LargeExplosionWait { get; } = new();
+    /// <summary>
+    /// The wait for the next pair of small wall explosions (#2267): from the wall sequence's update 64 a pair bursts at
+    /// once, then a pair every <see cref="BotwoonDeathDefinitions.SmallExplosionInterval"/>.
+    /// </summary>
+    public BossCountdown SmallExplosionWait { get; } = new();
+    /// <summary>
+    /// His speed stage (#2266): how fast he moves and spits and how far apart his body trails, refreshed from his health
+    /// each time he chooses a walk outside a hole; he starts at full speed.
+    /// </summary>
+    public BotwoonSpeedStage SpeedStage { get; internal set; } = BotwoonSpeedStageDefinitions.Full;
     /// <summary>The hole that direct movement targets and the next walk starts from.</summary>
     public BotwoonHole TargetHole { get; internal set; }
-    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
+    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, along which he moves toward the hole.</summary>
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
     public RotationAngle SpitAngle { get; internal set; }
@@ -73,36 +83,33 @@ public sealed class BotwoonEnemyState
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =
         new(BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden), AnimationPlace.StartOfAnimation);
-    /// <summary>The shading his head and body show: the last health band shown, or his own colours before any (#1512).</summary>
-    internal PictureShading BodyShading => BotwoonHealthBands.LastBandShown(HealthBandsPassed) is { } band
+    /// <summary>The shading his head and body show: the health band he shows, or his own colours before any (#1512).</summary>
+    internal PictureShading BodyShading => HealthBand is { } band
         ? PictureShading.Shaded(BotwoonShades.Health(band))
         : PictureShading.Standard;
-    /// <summary>The health thresholds he has passed, 0 through 8: each shows the next health band, and 8 marks all passed.</summary>
-    public int HealthBandsPassed { get; internal set; }
-    /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
+    /// <summary>The health band his head and body show (#2266), or null while he still shows his own colours.</summary>
+    public BotwoonHealthBand? HealthBand { get; internal set; }
+    /// <summary>Half his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowHalf"/>.</summary>
     public int HalfHealth { get; internal set; }
-    /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
+    /// <summary>A quarter of his starting health, rounded down: below it he moves at <see cref="BotwoonSpeedStageDefinitions.BelowQuarter"/>.</summary>
     public int QuarterHealth { get; internal set; }
-    /// <summary>Movement and spit speed choice 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
-    [IntegerQuantity("count of health thresholds passed, zero through two, choosing the speeds")]
-    public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement behaviour on its previous call; a difference marks that traversal complete.</summary>
     public bool PreviousInsideHole { get; internal set; }
-    /// <summary>Suppresses repeated rectangle-trigger toggles until the last body point reaches the saved ring offset or a new hidden traversal clears it.</summary>
+    /// <summary>Keeps the hole his head crossed from toggling his hole state again until his tail reaches the place the head crossed at, or a new walk starts inside the wall.</summary>
     public bool HoleLatch { get; internal set; }
-    /// <summary>Initial-action latch forcing the first completed hole traversal into authored movement rather than consuming the normal spit-choice RNG.</summary>
+    /// <summary>Set until his first crossing: it sends him on a walk without drawing his next action at random.</summary>
     public bool InitialAction { get; internal set; }
     /// <summary>Movement completion signal, raised when a path ends or on an observed hole-state transition and consumed by the main action step.</summary>
     public bool PathComplete { get; internal set; }
-    /// <summary>Flag set by the head animation's private spit cue; the five-projectile spit consumes and clears it on emission.</summary>
+    /// <summary>Set as his spitting animation reaches its spit; the aimed volley spits on it and clears it.</summary>
     public bool SpitFrameReached { get; internal set; }
-    /// <summary>Fatal-hit request that preserves ongoing traversal until the final body point completes the next outward hole transition.</summary>
+    /// <summary>Set by the fatal hit: he keeps on his walk until his tail has next crossed out of the wall, and then dies.</summary>
     public bool PendingDeath { get; internal set; }
-    /// <summary>Tail synchronization signal set when the tail segment crosses the saved history offset while the head is outside, permitting pending death to begin.</summary>
+    /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
-    /// <summary>Shared death-start flag observed by all thirteen independent body-projectile turns to replace their normal animation with staggered falling.</summary>
+    /// <summary>Set as his death begins: each of his thirteen body segments then stops following his head and starts its own delay before it falls.</summary>
     public bool BodyDeathStarted { get; internal set; }
     /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
@@ -122,7 +129,7 @@ public sealed class BotwoonEnemyState
     /// </summary>
     internal IReadOnlyList<BotwoonSegmentState> Body { get; }
 
-    /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), cleared as the room's enemies load.</summary>
+    /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), all at the room's origin as he spawns.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];
 
     /// <summary>The head's delayed positions, newest first, the oldest of which chooses the visible head orientation.</summary>

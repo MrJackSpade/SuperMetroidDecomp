@@ -73,9 +73,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
 
         state.InitialDelayTimer = BotwoonFightDefinitions.OpeningDelay;
-        var initialSpeed = BotwoonSpeeds.ForHealthPhase(0);
-        state.Speed = initialSpeed.MovementSpeed;
-        state.SegmentSpacingEntries = initialSpeed.SegmentSpacingEntries;
+        state.SpeedStage = BotwoonSpeedStageDefinitions.Full;
         state.InsideHole = true;
         state.PreviousInsideHole = true;
         state.InitialAction = true;
@@ -89,10 +87,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             state.HeadHistory[history] = head.Position.Whole;
         }
-        // Botwoon's position history is never seeded by Botwoon's initializer. It
-        // lies inside the enemy state the room's enemy setup clears on room
-        // load, so body segments read (0,0) until the ring has been written that far; the
-        // freshly constructed state's arrays are that cleared state.
+        // His trail is not filled from his head: until his head has moved far enough to fill it, a body segment
+        // trailing past its written places stands at the room's origin, (0,0).
     }
 
     /// <summary>Runs Botwoon's main AI and its movement-phase step for one update.</summary>
@@ -104,7 +100,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             state.BodyDeathStarted = true;
             state.Phase = BotwoonPhase.DeathDelay;
-            state.DeathTimer = BotwoonDeathDefinitions.DeathDelayStart;
+            state.PreFallWait.LastFor(BotwoonDeathDefinitions.PreFallWaitUpdates);
             state.PendingDeath = false;
             state.ExitTransitionComplete = false;
         }
@@ -129,8 +125,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 break;
 
             case BotwoonPhase.DeathDelay:
-                state.DeathTimer++;
-                if (state.DeathTimer >= BotwoonDeathDefinitions.DeathDelayEnd)
+                if (state.PreFallWait.StepRunsOut())
                     state.Phase = BotwoonPhase.HeadFalling;
                 break;
 
@@ -170,14 +165,13 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         state.PathComplete = false;
         int choice = 0;
-        if (!state.InsideHole && !state.InitialAction && state.HealthPhase == 0)
+        if (!state.InsideHole && !state.InitialAction && state.SpeedStage == BotwoonSpeedStageDefinitions.Full)
             choice = _room.Random.Next(BotwoonNavigationDefinitions.ActionChoice);
         state.InitialAction = false;
 
         if (choice < BotwoonNavigationDefinitions.AuthoredPathActions)
         {
             state.Phase = BotwoonPhase.FollowAuthoredPath;
-            state.AttackTimer = 0;
             state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
             ChooseBotwoonPath(head, state);
         }
@@ -185,7 +179,6 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         {
             state.Phase = BotwoonPhase.SpitWhileHidden;
             state.HeadAction = BotwoonHeadAction.AimAtSamus;
-            state.AttackTimer = BotwoonFightDefinitions.HiddenSpitCooldown;
             // The spit step makes the spitting head tangible again.
             head.Contact = head.Contact.Without(EnemyContact.IgnoresSamus);
         }
@@ -210,13 +203,16 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         RunBotwoonMovingFrame(head, state, samus);
     }
 
-    /// <summary>Waits for the spit timer, then chooses whether the next path begins inside a hole.</summary>
+    /// <summary>
+    /// Runs his head through its aim, volley and cooldown until the cooldown returns it to following his movement, then on
+    /// the next update chooses whether the next path begins inside a hole.
+    /// </summary>
     private void RunBotwoonHiddenSpitState(
         RoomEnemyPlace head,
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (state.AttackTimer != 0)
+        if (state.HeadAction != BotwoonHeadAction.AnimateFromMovement)
         {
             RunBotwoonHeadAction(head, state, samus);
             return;
@@ -279,7 +275,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
-            AddBotwoonAngleVector(head, state.MovementAngle.ToTrigonometryAngle(), state.Speed);
+            AddBotwoonAngleVector(head, state.MovementAngle.ToTrigonometryAngle(), state.SpeedStage.MovementSpeed);
         }
         else
         {
@@ -297,29 +293,28 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         value < -(BotwoonNavigationDefinitions.HoleBearingReach + 1) ? -BotwoonNavigationDefinitions.HoleBearingReach : value > BotwoonNavigationDefinitions.HoleBearingReach ? BotwoonNavigationDefinitions.HoleBearingReach : value;
 
     /// <summary>
-    /// Refreshes the health phase, then draws where the next walk from his hole leads, in the open or inside the wall,
+    /// Refreshes the speed stage, then draws where the next walk from his hole leads, in the open or inside the wall,
     /// and starts it.
     /// </summary>
     private void ChooseBotwoonPath(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        UpdateBotwoonHealthPhase(head, state);
+        UpdateBotwoonSpeedStage(head, state);
         int draw = _room.Random.Next(BotwoonNavigationDefinitions.PathDraw);
         StartBotwoonWalk(state, BotwoonNavigation.WalkFrom(state.TargetHole, state.InsideHole, draw));
     }
 
-    /// <summary>Changes traversal speed and body spacing at half and quarter health outside holes.</summary>
-    internal static void UpdateBotwoonHealthPhase(RoomEnemyPlace head, BotwoonEnemyState state)
+    /// <summary>
+    /// Outside a hole, takes the speed stage his health has reached: below half his starting health he speeds up, and below
+    /// a quarter of it again; at no health at all he moves at full speed.
+    /// </summary>
+    internal static void UpdateBotwoonSpeedStage(RoomEnemyPlace head, BotwoonEnemyState state)
     {
         if (state.InsideHole)
             return;
 
-        int phase = 0;
-        if (head.Health != 0 && head.Health < state.HalfHealth)
-            phase = head.Health < state.QuarterHealth ? 2 : 1;
-        state.HealthPhase = phase;
-        var speed = BotwoonSpeeds.ForHealthPhase(phase);
-        state.Speed = speed.MovementSpeed;
-        state.SegmentSpacingEntries = speed.SegmentSpacingEntries;
+        state.SpeedStage = head.Health == 0 || head.Health >= state.HalfHealth ? BotwoonSpeedStageDefinitions.Full
+            : head.Health >= state.QuarterHealth ? BotwoonSpeedStageDefinitions.BelowHalf
+            : BotwoonSpeedStageDefinitions.BelowQuarter;
     }
 
     /// <summary>
@@ -346,7 +341,7 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         BotwoonPathDefinition path = state.Path ?? throw new InvalidOperationException("Botwoon follows a path before choosing one.");
         bool backward = state.PathTraversal == BotwoonPathTraversal.Backward;
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
-        for (int taken = 0; taken < state.Speed; taken++)
+        for (int taken = 0; taken < state.SpeedStage.MovementSpeed; taken++)
         {
             if (!BotwoonNavigation.HasStep(path, state.PathStep))
             {
@@ -369,14 +364,15 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
     /// <summary>Spaces thirteen body projectiles along older head-history samples.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
-        int historyIndex = BotwoonTrailRing.PlaceAt(state.RingIndex - state.SegmentSpacingEntries);
+        int spacing = state.SpeedStage.SegmentSpacingEntries;
+        int historyIndex = BotwoonTrailRing.PlaceAt(state.RingIndex - spacing);
         for (int segmentIndex = state.Body.Count - 1; segmentIndex >= 0; segmentIndex--)
         {
             BotwoonSegmentState segment = state.Body[segmentIndex];
 
             ToggleBotwoonSegmentAtHole(state, segment, historyIndex);
             segment.Projectile.Position = segment.Projectile.Position.WithWhole(state.History[historyIndex]);
-            historyIndex = BotwoonTrailRing.PlaceAt(historyIndex - state.SegmentSpacingEntries);
+            historyIndex = BotwoonTrailRing.PlaceAt(historyIndex - spacing);
         }
     }
 
@@ -464,19 +460,14 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 {
                     SpawnBotwoonSpitVolley(head, state, BotwoonFightDefinitions.AimedVolley);
                     state.SpitFrameReached = false;
-                    state.HeadAction = BotwoonHeadAction.AttackCooldown;
                 }
                 return;
             case BotwoonHeadAction.SpawnImmediateVolley:
                 SpawnBotwoonSpitVolley(head, state, BotwoonFightDefinitions.ImmediateVolley);
-                state.HeadAction = BotwoonHeadAction.AttackCooldown;
                 return;
             case BotwoonHeadAction.AttackCooldown:
-                if (--state.AttackTimer < 0)
-                {
-                    state.AttackTimer = 0;
+                if (state.SpitCooldown.StepRunsOut())
                     state.HeadAction = BotwoonHeadAction.AnimateFromMovement;
-                }
                 return;
             default:
                 throw new InvalidDataException(
@@ -584,32 +575,32 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         }
     }
 
-    /// <summary>Emits a volley's spit projectiles, fanned out across the aimed direction.</summary>
+    /// <summary>Emits a volley's spit projectiles, fanned out across the aimed direction, and starts his head's cooldown after it.</summary>
     private void SpawnBotwoonSpitVolley(
         RoomEnemyPlace head,
         BotwoonEnemyState state,
         BotwoonSpitVolley volley)
     {
-        int speed = BotwoonSpeeds.ForHealthPhase(state.HealthPhase).SpitSpeed;
+        int speed = state.SpeedStage.SpitSpeed;
         TrigonometryAngle angle = state.SpitAngle.TurnedBySteps(volley.FirstOffsetSteps).ToTrigonometryAngle();
         for (int projectile = 0; projectile < volley.Count; projectile++)
         {
             SpawnBotwoonSpit(head, angle, speed);
             angle = angle.TurnedBySteps(BotwoonFightDefinitions.VolleySpreadSteps);
         }
+        state.SpitCooldown.LastFor(volley.CooldownUpdates);
+        state.HeadAction = BotwoonHeadAction.AttackCooldown;
     }
 
     /// <summary>
-    /// Shows the next health band's colours when Botwoon's health crosses its threshold (#1512): his head and body take
-    /// the import's shade of the band.
+    /// Shows the next health band's colours once Botwoon's health has fallen below its threshold (#1512, #2266), at most
+    /// one band an update: his head and body take the import's shade of the band.
     /// </summary>
     internal static void UpdateBotwoonHealthBand(RoomEnemyPlace head, BotwoonEnemyState state)
     {
-        if (state.HealthBandsPassed == BotwoonHealthBandDefinitions.BandCount)
+        if (BotwoonHealthBand.After(state.HealthBand) is not { } next || head.Health >= next.HealthBelow)
             return;
-        if (!BotwoonHealthBands.ShouldAdvance(state.HealthBandsPassed, head.Health))
-            return;
-        state.HealthBandsPassed++;
+        state.HealthBand = next;
         head.Shading = state.BodyShading;
     }
 
@@ -638,10 +629,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
         state.Phase = BotwoonPhase.WallExplosions;
         _frameResults.BotwoonWall = BotwoonWallMutation.Crumble;
 
-        // Botwoon's death drop emits sixteen independent pickup
-        // requests. Each position uses both halves of one RNG result: X is the sample modulo 128
-        // and Y the sample divided by 256, modulo 64. Each pickup is materialized immediately as
-        // a real pickup actor from the head definition's item chances.
+        // His death leaves sixteen drops. One random number places each, across the drop strip and down the drop band
+        // (DropX, DropY), and each becomes a pickup at once, chosen by his drop chances.
         for (int dropIndex = 0; dropIndex < BotwoonDeathDefinitions.WallDropCount; dropIndex++)
         {
             int random = _room.Random.Generate();
@@ -654,8 +643,8 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 samus);
         }
         state.WallExplosionFrame = 0;
-        state.LargeExplosionTimer = 0;
-        state.SmallExplosionTimer = 0;
+        state.LargeExplosionWait.LastFor(1);
+        state.SmallExplosionWait.LastFor(1);
     }
 
     /// <summary>Runs the 192-frame wall sequence, then records the boss's defeat and queues delayed music.</summary>
@@ -675,9 +664,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
 
         if (state.WallExplosionFrame >= BotwoonDeathDefinitions.WallExplosionsBegin)
         {
-            if (--state.LargeExplosionTimer < 0)
+            if (state.LargeExplosionWait.StepRunsOut())
             {
-                state.LargeExplosionTimer = BotwoonDeathDefinitions.LargeExplosionInterval;
+                state.LargeExplosionWait.LastFor(BotwoonDeathDefinitions.LargeExplosionInterval);
                 _effectActors.SpawnRoomEffectActor(
                     new(_room.Random.Next(BotwoonDeathDefinitions.LargeExplosionX) + BotwoonDeathDefinitions.LargeExplosionLeft,
                         state.WallExplosionFrame + _room.Random.Next(BotwoonDeathDefinitions.ExplosionYJitter) - BotwoonDeathDefinitions.ExplosionRise),
@@ -686,9 +675,9 @@ internal sealed class BotwoonBehavior : EnemyProjectileMotionBehavior<BotwoonPro
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
-            if (--state.SmallExplosionTimer < 0)
+            if (state.SmallExplosionWait.StepRunsOut())
             {
-                state.SmallExplosionTimer = BotwoonDeathDefinitions.SmallExplosionInterval;
+                state.SmallExplosionWait.LastFor(BotwoonDeathDefinitions.SmallExplosionInterval);
                 for (int explosion = 0; explosion < BotwoonDeathDefinitions.SmallExplosionsPerBurst; explosion++)
                 {
                     _effectActors.SpawnRoomEffectActor(

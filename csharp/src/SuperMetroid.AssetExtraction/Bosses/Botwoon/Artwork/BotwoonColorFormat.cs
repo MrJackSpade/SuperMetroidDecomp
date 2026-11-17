@@ -9,6 +9,9 @@ public static class BotwoonColorFormat
     /// <summary>The supported Botwoon color JSON schema version.</summary>
     public const int Version = 1;
 
+    /// <summary>The health bands the file holds a row of colours for, in the order Botwoon shows them (#2266).</summary>
+    public const int HealthBandCount = 8;
+
     /// <summary>Each Botwoon health-band image occupies one sixteen-color sprite palette.</summary>
     public const int ColorsPerPalette = 16;
 }

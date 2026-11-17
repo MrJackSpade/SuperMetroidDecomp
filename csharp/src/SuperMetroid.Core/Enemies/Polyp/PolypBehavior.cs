@@ -38,10 +38,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         place.SetSpeciesState(state);
 
-        // Every Polyp setup writes 17 to the shared seed. In Volcano the fourth
-        // actor therefore leaves this exact value for the first gameplay frame; treating it
-        // as actor-local randomness would produce a different launch sequence.
-        _room.Random.Seed(PolypLaunchDefinitions.RandomSeed);
+        _room.Random.Reseed(SpeciesRandomReseed.PolypPlacement);
     }
 
     /// <summary>Runs the Polyp's main AI and its three actions.</summary>

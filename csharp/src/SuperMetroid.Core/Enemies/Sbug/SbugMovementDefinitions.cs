@@ -58,9 +58,6 @@ internal static class SbugMovementDefinitions
         [SbugActivationBehavior.MoveAwayFromSamus] = SbugAction.ActivateMoveAwayFromSamus,
     };
 
-    /// <summary>The seed a random wander's activation resets the enemies' shared random numbers to.</summary>
-    internal const int RandomSeed = 11;
-
     /// <summary>How long each random or forward-then-wait leg lasts, in updates: 33, the last the one the next is chosen on.</summary>
     internal const int LegDuration = 33;
 

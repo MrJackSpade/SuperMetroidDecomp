@@ -72,15 +72,9 @@ public sealed class SharedGameState
     public int RandomNumber => Random.Read();
 
     /// <summary>
-    /// Performs a direct write to the shared RNG seed. Most code
-    /// should use <see cref="NextRandom"/>; this seam exists because a small number of
-    /// actors deliberately reseed the global generator as part of their AI.
+    /// Overwrites the shared random state, as a state import does. A species reseeds through
+    /// <see cref="SharedRandom.Reseed"/> instead.
     /// </summary>
-    /// <remarks>
-    /// This is not a testing shortcut. Both Sbug activation behaviours reseed the generator
-    /// with eleven, so later unrelated random
-    /// consumers must observe the replacement seed as well.
-    /// </remarks>
     public void SetRandomNumber(int value) => Random.Seed(value);
 
     /// <summary>Stores the shared RNG state with its two halves exchanged, as the lava and acid FX does.</summary>

@@ -9,6 +9,6 @@ public interface IEnemyRandomNumbers
     /// <summary>Samples the current random state, 0 through 65535, without advancing it.</summary>
     int Read();
 
-    /// <summary>Overwrites the random state, as some setups seed it.</summary>
-    void Seed(int value);
+    /// <summary>Overwrites the random state with a species' seed, as its placement or activation does.</summary>
+    void Reseed(SpeciesRandomReseed reseed);
 }

@@ -36,12 +36,15 @@ public sealed class SharedRandom
         return State.Value;
     }
 
-    /// <summary>
-    /// Overwrites the state. A reset seeds it, and the Sbug's activation reseeds it with eleven, so later unrelated
-    /// consumers observe the replacement seed as well.
-    /// </summary>
+    /// <summary>Overwrites the state with <paramref name="value"/>, as a state import does.</summary>
     /// <param name="value">The new state, 0 through 65535.</param>
     public void Seed(int value) => State = new SharedRandomState(value);
+
+    /// <summary>
+    /// Overwrites the state with a species' seed (<see cref="SpeciesRandomReseed"/>), so later unrelated consumers draw on
+    /// from the replacement as well.
+    /// </summary>
+    public void Reseed(SpeciesRandomReseed reseed) => State = Ensure.NotNull(reseed).Seed;
 
     /// <summary>Stores the power-on seed, as a reset does.</summary>
     internal void SeedPowerOn() => State = SharedRandomDefinitions.PowerOnState;

@@ -39,9 +39,6 @@ internal static class PolypLaunchDefinitions
     /// <summary>How close on each axis Samus comes, in pixels, for a Polyp to launch a rock.</summary>
     internal const int LaunchReach = 64;
 
-    /// <summary>The seed every Polyp's initialization resets the enemies' shared random numbers to.</summary>
-    internal const int RandomSeed = 17;
-
     /// <summary>How far each update moves a rock's place along the quadratic speed curve, two marks.</summary>
     internal static QuadraticSpeedCurvePlace RockFallStep { get; } = QuadraticSpeedCurvePlace.FromMarks(2);
 

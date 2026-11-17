@@ -78,8 +78,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         /// <summary>Reads a configured seed source or fails at the missing RNG dependency.</summary>
         int IEnemyRandomNumbers.Read() => (Read ?? throw Unavailable.Missing("read the current random-number word"))();
 
-        /// <summary>Writes through a configured seed sink or fails at the missing RNG dependency.</summary>
-        public void Seed(int value) => (Write ?? throw Unavailable.Missing("seed the random-number word"))(value);
+        /// <summary>Writes a species' seed through a configured seed sink or fails at the missing RNG dependency.</summary>
+        public void Reseed(SpeciesRandomReseed reseed) =>
+            (Write ?? throw Unavailable.Missing("seed the random-number word"))(Ensure.NotNull(reseed).Seed.Value);
     }
 
     /// <summary>The services a standalone host does not provide: every call fails at the dependency.</summary>

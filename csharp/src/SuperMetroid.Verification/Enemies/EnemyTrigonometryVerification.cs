@@ -414,6 +414,7 @@ internal static class EnemyTrigonometryVerification
         new(nameof(MultiviolaBehaviorVerification.VerifyMultiviolaBehavior), () => MultiviolaBehaviorVerification.VerifyMultiviolaBehavior()),
         new(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(LoadRepositoryRom())),
         new(nameof(PolypBehaviorVerification.VerifyPolypBehavior), () => PolypBehaviorVerification.VerifyPolypBehavior()),
+        new(nameof(SpeciesRandomReseedVerification.VerifySpeciesRandomReseeds), () => SpeciesRandomReseedVerification.VerifySpeciesRandomReseeds(LoadRepositoryRom())),
         new(nameof(PowampAnimationsVerification.VerifyPowampAnimations), () => PowampAnimationsVerification.VerifyPowampAnimations(LoadRepositoryRom())),
         new(nameof(PowampBehaviorVerification.VerifyPowampBehavior), () => PowampBehaviorVerification.VerifyPowampBehavior(LoadRepositoryRom())),
         new(nameof(WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations), () => WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations(LoadRepositoryRom())),

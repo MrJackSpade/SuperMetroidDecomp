@@ -49,8 +49,8 @@ internal static class RoomEnemyLoadContractsVerification
             "an uninstalled Tourian statue room's water fails at the dependency");
         int seed = 0;
         var seeded = new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => seed, SeedRandom = value => seed = value };
-        seeded.Random.Seed(0x0017);
-        AssertEqual(0x0017, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
+        seeded.Random.Reseed(SpeciesRandomReseed.BeetomPlacement);
+        AssertEqual(SpeciesRandomReseed.BeetomPlacement.Seed.Value, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
     }
 
     /// <summary>Runs the focused room-enemy load and service contract check.</summary>

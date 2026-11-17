@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
@@ -69,13 +70,13 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     /// <summary>Samples current RNG without advancing it through the override or loaded services.</summary>
     public int Read() => ReadRandom is { } read ? read() : Loaded("read the random-number word").Random.Read();
 
-    /// <summary>Seeds RNG through a case callback or the services installed by room loading.</summary>
-    public void Seed(int value)
+    /// <summary>Reseeds RNG with a species' seed through a case callback or the services installed by room loading.</summary>
+    public void Reseed(SpeciesRandomReseed reseed)
     {
         if (SeedRandom is { } seed)
-            seed(checked((ushort)value));
+            seed(checked((ushort)Ensure.NotNull(reseed).Seed.Value));
         else
-            Loaded("seed the random-number word").Random.Seed(value);
+            Loaded("seed the random-number word").Random.Reseed(reseed);
     }
 
     /// <summary>Queries a global event through the fixture override or loaded services.</summary>

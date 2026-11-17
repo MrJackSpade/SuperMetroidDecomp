@@ -476,7 +476,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
-            !samus.BeamCharge.HasCharged(MorphBallBombDefinitions.RequiredChargeFrames) ||
+            !samus.BeamCharge.HasCharged(BeamChargeDefinitions.FullyChargedCounter) ||
             BombCounter != 0)
         {
             return BombSpreadAdmission.NotApplicable;
@@ -725,13 +725,10 @@ public sealed class SamusBombProjectileSystem
     {
         int blockX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
         int blockY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
-        if ((uint)blockX >= level.Size.X ||
-            (uint)blockY >= level.Size.Y)
-        {
+        if (blockX >= level.Size.X || blockY >= level.Size.Y)
             return true;
-        }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
 
@@ -822,14 +819,11 @@ public sealed class SamusBombProjectileSystem
     {
         int centerX = RoomGridConversions.PixelToBlock(bomb.Position.X.Whole);
         int centerY = RoomGridConversions.PixelToBlock(bomb.Position.Y.Whole);
-        // The centre, then above, right, left and below, in the reaction order.
-        Offset16<RoomBlocks>[] cross = [new(0, 0), new(0, -1), new(1, 0), new(-1, 0), new(0, 1)];
-
-        foreach (Offset16<RoomBlocks> member in cross)
+        foreach (Offset16<RoomBlocks> member in MorphBallBombDefinitions.ExplosionCross)
         {
             int x = centerX + member.X;
             int y = centerY + member.Y;
-            if ((uint)x >= level.Size.X || (uint)y >= level.Size.Y)
+            if (x < 0 || x >= level.Size.X || y < 0 || y >= level.Size.Y)
             {
                 // The bomb collision first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An

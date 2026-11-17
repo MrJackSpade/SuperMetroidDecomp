@@ -151,12 +151,8 @@ internal sealed class ProjectileTerrainCollision
             : CoordinateAxis.Wrap(shot.Position.X.Whole + shot.Radius.X - 1);
         int blockX = RoomGridConversions.PixelToBlock(targetX);
 
-        if ((uint)blockX >= level.Size.X ||
-            (uint)topBlock >= level.Size.Y ||
-            (uint)bottomBlock >= level.Size.Y)
-        {
+        if (blockX >= level.Size.X || topBlock >= level.Size.Y || bottomBlock >= level.Size.Y)
             return false;
-        }
 
         // The span scan decrements its target counter only for reactions that stop the shot. A tall
         // projectile grazing air beside one solid block therefore keeps moving; every
@@ -165,7 +161,7 @@ internal sealed class ProjectileTerrainCollision
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
             var context = new ShotSpan(span, bottomBlock - blockY, targetX);
             if (!RunShotReaction(level, shot, block, roomObjects, context, out bool endSpan))
                 everyBlockSolid = false;
@@ -187,18 +183,14 @@ internal sealed class ProjectileTerrainCollision
             : CoordinateAxis.Wrap(shot.Position.Y.Whole + shot.Radius.Y - 1);
         int blockY = RoomGridConversions.PixelToBlock(targetY);
 
-        if ((uint)blockY >= level.Size.Y ||
-            (uint)leftBlock >= level.Size.X ||
-            (uint)rightBlock >= level.Size.X)
-        {
+        if (blockY >= level.Size.Y || leftBlock >= level.Size.X || rightBlock >= level.Size.X)
             return false;
-        }
 
         bool everyBlockSolid = true;
         int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
             if (!RunShotReaction(level, shot, block, roomObjects, context, out bool endSpan, axis: Axis.Vertical))
                 everyBlockSolid = false;
@@ -349,7 +341,7 @@ internal sealed class ProjectileTerrainCollision
         RoomCollisionBlock initialBlock)
     {
         RoomCollisionBlock block = initialBlock;
-        for (int linkCount = 0; linkCount < 16; linkCount++)
+        for (int linkCount = 0; linkCount < SamusProjectileMotionDefinitions.LongestExtensionChain; linkCount++)
         {
             switch (block.CollisionType)
             {
@@ -502,7 +494,7 @@ internal sealed class ProjectileTerrainCollision
         shot.Type = shot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
         shot.Playback = SamusProjectilePlayback.Start(SamusProjectileSegment.BeamExplosion);
         shot.FrameHold = WrappingCountdown.Start(1);
-        shot.Damage = 8;
+        shot.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
         shot.Behavior = null;
     }
 
@@ -531,7 +523,7 @@ internal sealed class ProjectileTerrainCollision
         shot.Playback = SamusProjectilePlayback.Start(
             wasSuperMissile ? SamusProjectileSegment.SuperMissileExplosion : SamusProjectileSegment.MissileExplosion);
         shot.FrameHold = WrappingCountdown.Start(1);
-        shot.Damage = 8;
+        shot.Damage = SamusProjectileDamageDefinitions.ExplosionDamage;
         shot.Behavior = null;
 
         if (wasSuperMissile)
@@ -604,7 +596,7 @@ internal sealed class ProjectileTerrainCollision
         int left = CoordinateAxis.Wrap(shot.Position.X.Whole - shot.Radius.X);
         int right = CoordinateAxis.Wrap(shot.Position.X.Whole + shot.Radius.X - 1);
         int span = RoomGridConversions.WholeBlocksIn(CoordinateAxis.Wrap(right - RoomGridConversions.BlockStart(left)));
-        if (span >= 16) return;
+        if (span > SamusProjectileMotionDefinitions.WaveScanLongestReach) return;
         int targetY = CoordinateAxis.Wrap(shot.Velocity.Y.IsNegative
             ? shot.Position.Y.Whole - shot.Radius.Y
             : shot.Position.Y.Whole + shot.Radius.Y - 1);

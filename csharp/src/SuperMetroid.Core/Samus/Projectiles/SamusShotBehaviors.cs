@@ -7,10 +7,10 @@ internal static class SamusShotBehaviors
     internal static SamusShotBehavior Beam { get; } = new BeamFlight();
 
     /// <summary>An uncharged Wave or Ice and Wave shot: the Wave Beam's flight, a trail every three updates after its first.</summary>
-    internal static WaveBeamFlight WaveBeamThreeUpdateTrail { get; } = new(trailInterval: 3);
+    internal static WaveBeamFlight WaveBeamThreeUpdateTrail { get; } = new(ProjectileTimingDefinitions.UnchargedWaveTrailInterval);
 
     /// <summary>Every other Wave shot: the Wave Beam's flight, a trail every four updates.</summary>
-    internal static WaveBeamFlight WaveBeamFourUpdateTrail { get; } = new(trailInterval: 4);
+    internal static WaveBeamFlight WaveBeamFourUpdateTrail { get; } = new(ProjectileTimingDefinitions.TrailInterval);
 
     /// <summary>The Hyper Beam shot.</summary>
     internal static SamusShotBehavior HyperBeam { get; } = new HyperBeamFlight();

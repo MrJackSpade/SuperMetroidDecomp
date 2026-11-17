@@ -25,7 +25,7 @@ internal static class GroundedBombSpreadVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.WithBeamChargeCount(MorphBallBombDefinitions.RequiredChargeFrames);
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
             var bombs = CreateBombFixture();
@@ -34,7 +34,7 @@ internal static class GroundedBombSpreadVerification
             {
                 bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, shootDown, 0);
                 AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
-                AssertEqual(MorphBallBombDefinitions.RequiredChargeFrames, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
+                AssertEqual(BeamChargeDefinitions.FullyChargedCounter, samus.BeamCharge.FlareCounter, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadChargeTimeoutCounter, "grounded spread hold counter advances once per tick");
             }
             bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);

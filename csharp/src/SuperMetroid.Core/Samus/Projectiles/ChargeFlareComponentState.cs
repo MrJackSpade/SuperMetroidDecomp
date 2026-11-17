@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// Where one charge-flare component stands in its animation (#2114): the picture it shows and the wait it holds that
 /// picture for. Only the Hyper Beam's backward count takes a component past its first picture; there it shows nothing
-/// and its count goes on until the flare restarts or is cleared, since coming back round to its pictures would take
-/// tens of thousands of pictures and the fast sparks reaching their first end the flare long before.
+/// until the flare restarts or is cleared.
 /// </summary>
 /// <param name="component">The component whose animation this is.</param>
 internal sealed class ChargeFlareComponentState(ChargeFlareComponent component)

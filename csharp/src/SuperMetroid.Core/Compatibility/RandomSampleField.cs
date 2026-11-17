@@ -19,6 +19,9 @@ public readonly record struct RandomSampleField(int Shift, int Width)
     /// <summary>The whole sample, all sixteen bits: the field a choice reads when it compares the random number itself (#1619).</summary>
     public static RandomSampleField Whole { get; } = new(0, 16);
 
+    /// <summary>No part of the sample: a field with one outcome, zero, for a choice that does not vary.</summary>
+    public static RandomSampleField Nothing { get; } = new(0, 0);
+
     /// <summary>The field's value in <paramref name="sample"/>, 0 through <see cref="Outcomes"/> minus one.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>
     public int Of(int sample) => (sample >> Shift) & (Outcomes - 1);

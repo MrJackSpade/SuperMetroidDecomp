@@ -350,9 +350,9 @@ public sealed class PowerBombBlastTimeline
         if (!stageEnds)
             return;
 
-        // The white explosion primes 32 afterglow steps. The afterglow then fades the first step on the following
+        // The white explosion primes the afterglow's steps. The afterglow then fades the first step on the following
         // frame.
-        _afterglowStepsRemaining = 32;
+        _afterglowStepsRemaining = PowerBombExplosionDefinitions.AfterglowSteps;
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 

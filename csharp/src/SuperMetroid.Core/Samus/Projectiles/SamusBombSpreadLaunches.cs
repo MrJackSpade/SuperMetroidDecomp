@@ -7,7 +7,6 @@ internal static class SamusBombSpreadLaunches
     /// <param name="place">The bomb's place, zero (leftmost) through four (rightmost).</param>
     internal static BombSpreadLaunchDefinition ForPlace(int place)
     {
-        if ((uint)place >= MorphBallBombDefinitions.PlaceCount) throw new ArgumentOutOfRangeException(nameof(place));
-        return SamusBombSpreadLaunchDefinitions.LeftToRight[place];
+        return SamusBombSpreadLaunchDefinitions.LeftToRight[Ensure.BetweenInclusive(0, MorphBallBombDefinitions.PlaceCount - 1, place)];
     }
 }

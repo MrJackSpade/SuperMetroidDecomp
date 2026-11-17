@@ -310,16 +310,13 @@ internal sealed class ProjectileMotion
         SamusProjectile shot,
         Position16<RoomPixels> cameraPosition)
     {
-        const int MinimumVisibleCoordinate = -64;
-        const int MaximumVisibleCoordinateExclusive = 320;
-
         int screenX = CoordinateAxis.Difference(shot.Position.X.Whole, cameraPosition.X);
         int screenY = CoordinateAxis.Difference(shot.Position.Y.Whole, cameraPosition.Y);
         bool outside =
-            screenX < MinimumVisibleCoordinate ||
-            screenX >= MaximumVisibleCoordinateExclusive ||
-            screenY < MinimumVisibleCoordinate ||
-            screenY >= MaximumVisibleCoordinateExclusive;
+            screenX < -SamusProjectileMotionDefinitions.MovementWindowApron ||
+            screenX >= SamusProjectileMotionDefinitions.MovementWindowFarEdge ||
+            screenY < -SamusProjectileMotionDefinitions.MovementWindowApron ||
+            screenY >= SamusProjectileMotionDefinitions.MovementWindowFarEdge;
         if (!outside)
             return false;
 
@@ -491,13 +488,10 @@ internal sealed class ProjectileMotion
     {
         int blockX = RoomGridConversions.PixelToBlock(shot.Position.X.Whole);
         int blockY = RoomGridConversions.PixelToBlock(shot.Position.Y.Whole);
-        if ((uint)blockX >= level.Size.X ||
-            (uint)blockY >= level.Size.Y)
-        {
+        if (blockX >= level.Size.X || blockY >= level.Size.Y)
             return false;
-        }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(blockX, blockY));
 
         // Extension blocks end the step with a repeat result, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour

@@ -14,6 +14,12 @@ internal sealed class SpazerParticleState(SpecialAttackParticle part, Trigonomet
     internal SpazerComboPhase Phase { get; set; } = SpazerComboPhase.Circling;
 
     /// <summary>
+    /// Whether the particle leaves trails: the trailing pair from the start, the beam pair only once it falls, when its
+    /// trail countdown starts.
+    /// </summary>
+    internal bool LeavesTrails { get; set; } = part.SpazerTrail;
+
+    /// <summary>
     /// The particle this one is paired with, set when the attack starts (#1683): a beam particle and the trailing particle
     /// that turns the same way. A spent particle ends its partner's place with itself
     /// (<see cref="SamusShotPool.HolderOfPlaceOf"/>).

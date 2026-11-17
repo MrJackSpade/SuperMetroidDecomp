@@ -97,7 +97,8 @@ internal static class SpecialAttackParticlesVerification
         MissileShotState missile => missile.Ignition,
         IceParticleState ice => (ice.Part, ice.Angle, ice.Radius, ice.TurnPerUpdate, ice.Lifetime),
         PlasmaParticleState ring => (ring.Part, ring.Angle, ring.Radius, ring.TurnPerUpdate, ring.Phase),
-        SpazerParticleState spazer => (spazer.Part, spazer.Angle, spazer.Radius, spazer.TurnPerUpdate, spazer.Phase, spazer.Partner.Place),
+        SpazerParticleState spazer => (spazer.Part, spazer.Angle, spazer.Radius, spazer.TurnPerUpdate, spazer.Phase, spazer.Partner.Place,
+            spazer.LeavesTrails),
         WaveParticleState wave => (wave.Part, wave.Lifetime, wave.VerticalSpeed),
         ShinesparkEchoShotState echo => (echo.Angle, echo.Radius),
         ChainsawFuseShotState chainsaw => chainsaw.Fuse,
@@ -302,8 +303,11 @@ internal static class SpecialAttackParticlesVerification
                     $"Spazer particle {place} circles the way its place's parity turns");
                 AssertEqual(place >= 2, particle.Type == SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail),
                     $"Spazer particle {place} is a trail exactly when it holds one of the last two places");
-                AssertEqual(place < 2 ? 0 : 4, (int)particle.TrailTimer.RawValue,
-                    $"Spazer particle {place} starts its trail countdown as its place's pair does");
+                AssertEqual(place >= 2, spazer.LeavesTrails,
+                    $"Spazer particle {place} leaves trails from the start exactly when it is one of the trailing pair");
+                if (place >= 2)
+                    AssertEqual(ProjectileTimingDefinitions.TrailInterval, (int)particle.TrailTimer.RawValue,
+                        $"trailing Spazer particle {place} starts its trail countdown");
                 AssertTrue(ReferenceEquals(projectiles.Shots[place ^ 2], spazer.Partner),
                     $"Spazer particle {place} is paired with the particle two places from it");
             }

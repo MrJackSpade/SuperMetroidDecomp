@@ -91,9 +91,10 @@ internal sealed class BeamCombos
                     default:
                         throw new InvalidOperationException($"Undefined combo {kind}.");
                 }
-                // The Spazer beam pair's trail countdown starts at zero and so runs its whole wrap before it would
-                // spawn a trail: only the trailing pair leaves trails until the attack falls.
-                if (kind != SamusComboKind.Plasma) shot.TrailTimer = WrappingCountdown.Start(kind == SamusComboKind.Spazer && !part.SpazerTrail ? 0 : ProjectileTimingDefinitions.TrailInterval);
+                // Every particle but a Plasma ring leaves trails, the Spazer beam pair only once the attack falls
+                // (SpazerParticleState.LeavesTrails), which starts its countdown then.
+                if (kind is SamusComboKind.Wave or SamusComboKind.Ice || (kind == SamusComboKind.Spazer && part.SpazerTrail))
+                    shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                     shot.Position = shot.Position.WithFractionX(0).WithFractionY(0);
                 if (kind == SamusComboKind.Wave)
@@ -204,19 +205,20 @@ internal sealed class BeamCombos
     }
     /// <summary>
     /// Whether a special attack particle has flown out of the view sideways: more than its margin left of the view's left
-    /// edge, or its reach or more right of it.
+    /// edge, or its reach or more right of it. A particle circles Samus within a ring's largest radius, so it stays within
+    /// a room's breadth of the view and its distance from the view's edge is an ordinary one.
     /// </summary>
     private static bool LeftViewHorizontally(SamusProjectile shot, Position16<RoomPixels> camera) =>
-        CoordinateAxis.AsSigned(shot.Position.X.Whole - camera.X + BeamComboDefinitions.ViewLeftMargin) < 0 ||
-        CoordinateAxis.Difference(shot.Position.X.Whole - camera.X, BeamComboDefinitions.ViewRightReach) >= 0;
+        CoordinateAxis.Difference(shot.Position.X.Whole, camera.X) is
+            < -BeamComboDefinitions.ViewLeftMargin or >= BeamComboDefinitions.ViewRightReach;
 
     /// <summary>
     /// Whether a special attack particle has flown out of the view up or down: above its top reach below the view's top
     /// edge, or at its bottom reach or below.
     /// </summary>
     private static bool LeftViewVertically(SamusProjectile shot, Position16<RoomPixels> camera) =>
-        CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, BeamComboDefinitions.ViewTopReach) < 0 ||
-        CoordinateAxis.Difference(shot.Position.Y.Whole - camera.Y, BeamComboDefinitions.ViewBottomReach) >= 0;
+        CoordinateAxis.Difference(shot.Position.Y.Whole, camera.Y) is
+            < BeamComboDefinitions.ViewTopReach or >= BeamComboDefinitions.ViewBottomReach;
 
     /// <summary>The Plasma ring update: the ring grows, shrinks and grows again by its phase.</summary>
     internal void StepPlasmaCombo(SamusState samus,
@@ -289,17 +291,21 @@ internal sealed class BeamCombos
                 _animation.ClearProjectile(_pool.HolderOfPlaceOf(partner));
             return null;
         }
-        CountdownStep trailStep = shot.TrailTimer.Decrement();
-        shot.TrailTimer = trailStep.Remaining;
-        if (trailStep.IsZero)
+        if (spazer.LeavesTrails)
         {
-            shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
-            _trails.SpawnTrail(shot);
+            CountdownStep trailStep = shot.TrailTimer.Decrement();
+            shot.TrailTimer = trailStep.Remaining;
+            if (trailStep.IsZero)
+            {
+                shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+                _trails.SpawnTrail(shot);
+            }
         }
         if (falling)
         {
             shot.Position += new Offset16<RoomPixels>(0, BeamComboDefinitions.SpazerFallSpeed);
-            if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, BeamComboDefinitions.SpazerFallEndBelowCameraTop) >= 0)
+            // The particle falls from beside Samus, within a room's height of the view.
+            if (CoordinateAxis.Difference(shot.Position.Y.Whole, cameraY) >= BeamComboDefinitions.SpazerFallEndBelowCameraTop)
             {
                 _animation.ClearProjectile(shot);
                 return null;
@@ -323,7 +329,7 @@ internal sealed class BeamCombos
                     }
                     break;
                 case SpazerComboPhase.FlyingUpTowardsPoint:
-                    if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, BeamComboDefinitions.SpazerFallScreenLine) < 0)
+                    if (CoordinateAxis.Difference(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
                         BeginSpazerFall(shot, spazer);
                     else
                     {
@@ -342,7 +348,7 @@ internal sealed class BeamCombos
                     }
                     break;
                 case SpazerComboPhase.FlyingUpAwayFromPoint:
-                    if (CoordinateAxis.Difference(shot.Position.Y.Whole - cameraY, BeamComboDefinitions.SpazerFallScreenLine) < 0)
+                    if (CoordinateAxis.Difference(shot.Position.Y.Whole, cameraY) < BeamComboDefinitions.SpazerFallScreenLine)
                         BeginSpazerFall(shot, spazer);
                     else
                     {
@@ -377,10 +383,12 @@ internal sealed class BeamCombos
     /// <summary>Moves a circling Spazer particle outward and switches its beam pair to falling echo artwork.</summary>
     private static void BeginSpazerFall(SamusProjectile shot, SpazerParticleState spazer)
     {
-        shot.Position = shot.Position.WithWrappedWholeX(shot.Position.X.Whole + (spazer.Part.SpazerTrail ? -16 : 16));
+        shot.Position = shot.Position.WithWrappedWholeX(shot.Position.X.Whole +
+            (spazer.Part.SpazerTrail ? -BeamComboDefinitions.SpazerFallSideStep : BeamComboDefinitions.SpazerFallSideStep));
         shot.Direction = SamusProjectileDirection.DownFacingLeft;
         shot.IsSpent = false;
         shot.TrailTimer = WrappingCountdown.Start(ProjectileTimingDefinitions.TrailInterval);
+        spazer.LeavesTrails = true;
         shot.Behavior = SamusShotBehaviors.SpazerSpecialAttackFalling;
         if (!spazer.Part.SpazerTrail)
         {

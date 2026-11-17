@@ -748,7 +748,7 @@ public sealed class SamusState
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
-                probe, probe.InteractiveEnemies, direction, CoordinateAxis.Wrap(distance), 0);
+                probe, probe.InteractiveEnemies, direction, distance, 0);
             Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;
         }
@@ -779,7 +779,7 @@ public sealed class SamusState
         ISamusRoomObjects roomObjects)
     {
         int wholePixels = displacement.WholePixels;
-        if (Math.Abs(wholePixels) >= 8)
+        if (Math.Abs(wholePixels) >= SamusPoseCollisionDefinitions.IntermediateProbeExpansion)
         {
             // The intermediate probe is the centre of the block step the displacement lies in, rounded toward lower
             // values rather than by magnitude: negative probes deliberately produce -8 for the known pose radii.

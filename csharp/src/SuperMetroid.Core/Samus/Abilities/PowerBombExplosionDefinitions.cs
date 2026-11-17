@@ -23,6 +23,8 @@ public static class PowerBombExplosionDefinitions
     /// afterglow starts after the last.
     /// </summary>
     public const int ExplosionWhiteUpdates = 17;
+    /// <summary>The fade steps a Power Bomb's afterglow runs after its white explosion, one each update.</summary>
+    public const int AfterglowSteps = 32;
     /// <summary>
     /// The horizontal radius, in pixels, of the oval the yellow pre-explosion shows on each of its updates. The ovals are
     /// authored: they run close to the flash's own radius but are not it (the flash reaches 240 pixels and holds there).

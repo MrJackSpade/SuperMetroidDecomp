@@ -13,6 +13,21 @@ internal static class SamusProjectileMotionDefinitions
 
     /// <summary>The most rows below its top row a Wave shot's leading edge may reach and still scan terrain: one reaching further scans none.</summary>
     internal const int WaveScanLongestReach = 15;
+    /// <summary>
+    /// How far, in pixels, a beam or missile may fly above or left of the view before its flight deletes it: the
+    /// movement window's apron on those sides.
+    /// </summary>
+    internal const int MovementWindowApron = 64;
+    /// <summary>
+    /// How far, in pixels, right of the view's left edge or below its top edge a beam or missile's flight deletes it:
+    /// the movement window reaches up to the pixel before.
+    /// </summary>
+    internal const int MovementWindowFarEdge = 320;
+    /// <summary>
+    /// The most extension links a shot's block reaction follows to the block it reacts to; a chain that does not end
+    /// within them is malformed room data.
+    /// </summary>
+    internal const int LongestExtensionChain = 16;
     /// <summary>The diagonal speed every beam combination launches at, in 256ths of a pixel per update.</summary>
     internal static readonly SignedEightEight DiagonalSpeed = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(683);
     /// <summary>The 1/256-pixel base speed a fired missile ignites at: one pixel per update.</summary>

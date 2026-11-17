@@ -15,8 +15,8 @@ public static class SamusSuitDamage
     public static int Reduce(int damage, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems)
     {
         Ensure.AtLeastZero(damage);
-        return (equippedItems & SamusEquipmentFlags.GravitySuit) != SamusEquipmentFlags.None ? damage >> 2 :
-            (equippedItems & SamusEquipmentFlags.VariaSuit) != SamusEquipmentFlags.None ? damage >> 1 : damage;
+        return (equippedItems & SamusEquipmentFlags.GravitySuit) != SamusEquipmentFlags.None ? damage / SamusSuitDamageDefinitions.GravityDivisor :
+            (equippedItems & SamusEquipmentFlags.VariaSuit) != SamusEquipmentFlags.None ? damage / SamusSuitDamageDefinitions.VariaDivisor : damage;
     }
 
     /// <summary>
